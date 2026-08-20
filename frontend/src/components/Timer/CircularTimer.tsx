@@ -1,0 +1,55 @@
+import { useEffect, useRef, useState } from "react";
+
+interface CircularTimerProps {
+  endEpochMs: number;
+  totalSec: number;
+  onExpire?: () => void;
+}
+
+export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerProps) {
+  const [remaining, setRemaining] = useState(Math.max(0, endEpochMs - Date.now()));
+  const fired = useRef(false);
+
+  useEffect(() => {
+    fired.current = false;
+    const tick = () => {
+      const rem = Math.max(0, endEpochMs - Date.now());
+      setRemaining(rem);
+      if (rem <= 0 && !fired.current) {
+        fired.current = true;
+        onExpire?.();
+      }
+    };
+    tick();
+    const id = setInterval(tick, 250);
+    return () => clearInterval(id);
+  }, [endEpochMs, onExpire]);
+
+  const secs = Math.ceil(remaining / 1000);
+  const frac = totalSec > 0 ? Math.min(1, remaining / (totalSec * 1000)) : 0;
+  const r = 34;
+  const c = 2 * Math.PI * r;
+  const low = secs <= 10;
+
+  return (
+    <div className="relative w-[84px] h-[84px]">
+      <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90">
+        <circle cx="42" cy="42" r={r} fill="none" stroke="#dadce0" strokeWidth="6" />
+        <circle
+          cx="42"
+          cy="42"
+          r={r}
+          fill="none"
+          stroke={low ? "#d93025" : "#1a73e8"}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - frac)}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center font-mono text-lg font-semibold">
+        {secs}
+      </div>
+    </div>
+  );
+}
