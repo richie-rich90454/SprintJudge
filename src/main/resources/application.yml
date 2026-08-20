@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: openquiz
+  profiles:
+    active: dev
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          microsoft:
+            client-id: ${OPENQUIZ_MS_CLIENT_ID:placeholder}
+            client-secret: ${OPENQUIZ_MS_CLIENT_SECRET:placeholder}
+            client-name: Microsoft Entra ID
+            scope: openid,profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/${OPENQUIZ_MS_TENANT_ID:common}/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/${OPENQUIZ_MS_TENANT_ID:common}/oauth2/v2.0/token
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            user-name-attribute: sub
+
+openquiz:
+  db:
+    path: ./openquiz.db
+  executor:
+    # "nsjail" (Linux prod) or "wsl" (Windows dev)
+    mode: ${OPENQUIZ_EXECUTOR_MODE:wsl}
+    max-concurrent: 100
+    timeout-sec: 10
+    nsjail-binary: /usr/bin/nsjail
+    work-dir: ./executor/tmp
+    compile-scripts-dir: ./executor/compile-scripts
+  security:
+    admin:
+      default-role: ADMIN
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    enabled: false
