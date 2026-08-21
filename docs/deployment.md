@@ -1,5 +1,20 @@
 # Deployment
 
+## Production topology
+
+```mermaid
+flowchart TB
+    U["Players + Admins"] -->|"HTTPS / WSS"| NX["Nginx<br/>TLS · proxy headers · /ws upgrade"]
+    NX -->|"HTTP :8080"| APP["systemd unit openquiz.service<br/>Java 25 · ZGC · virtual threads"]
+    subgraph Host["Linux server - 12 cores · 48 GB RAM"]
+        APP
+        NJ["nsjail sandboxes<br/>chroot · rlimits · Semaphore(100)"]
+        DB[("SQLite WAL<br/>/var/lib/openquiz/openquiz.db")]
+    end
+    APP --> NJ
+    APP --> DB
+```
+
 ## Production (Linux — 12 cores / 48GB RAM)
 
 - Run as a systemd service (see `deploy/openquiz.service`) with `-XX:+UseZGC` and virtual threads.
