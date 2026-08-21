@@ -23,15 +23,21 @@ public class AdminController {
     private final AdminSettingsRepository settingsRepository;
     private final AdminSettingsService settingsService;
     private final ImportExportService importExportService;
+    private final com.openquiz.repository.UserRepository userRepository;
+    private final com.openquiz.service.GameRoomManager roomManager;
 
     public AdminController(QuizRepository quizRepository, QuestionRepository questionRepository,
                            AdminSettingsRepository settingsRepository, AdminSettingsService settingsService,
-                           ImportExportService importExportService) {
+                           ImportExportService importExportService,
+                           com.openquiz.repository.UserRepository userRepository,
+                           com.openquiz.service.GameRoomManager roomManager) {
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
         this.settingsRepository = settingsRepository;
         this.settingsService = settingsService;
         this.importExportService = importExportService;
+        this.userRepository = userRepository;
+        this.roomManager = roomManager;
     }
 
     @GetMapping("/quizzes")
@@ -75,6 +81,27 @@ public class AdminController {
     @GetMapping("/settings")
     public Map<String, Object> settings() {
         return settingsService.asMap();
+    }
+
+    /**
+     * Host attribution is resolved server-side from the authenticated OAuth2
+     * principal — the client never gets to declare who the host is.
+     */
+    @PostMapping("/games")
+    public com.openquiz.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
+        String quizId = body.get("quizId");
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String email = "system@openquiz.local";
+        String name = "System";
+        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth) {
+            String e = oauth.<String>getAttribute("email");
+            if (e != null && !e.isBlank()) email = e;
+            String n = oauth.<String>getAttribute("name");
+            if (n != null && !n.isBlank()) name = n;
+        }
+        com.openquiz.domain.models.User host = userRepository.upsertByEmail(email, name, null);
+        return roomManager.createRoom(quizId, host.id());
     }
 
     @PutMapping("/settings")
