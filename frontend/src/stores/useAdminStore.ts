@@ -51,8 +51,8 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
   loadQuestions: async (quizId) => {
     if (!quizId) return;
-    const data = await adminApi.getQuiz(quizId);
-    set({ questions: data.questions, activeQuizId: quizId });
+    const questions = await adminApi.getQuestions(quizId);
+    set({ questions, activeQuizId: quizId });
   },
 
   openWizard: (quizId) => {
