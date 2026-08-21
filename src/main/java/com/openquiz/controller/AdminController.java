@@ -9,6 +9,7 @@ import com.openquiz.service.AdminSettingsService;
 import com.openquiz.service.ImportExportService;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class AdminController {
     }
 
     @PostMapping("/quizzes")
-    public Quiz createQuiz(@RequestBody Quiz quiz) {
+    public Quiz createQuiz(@Valid @RequestBody Quiz quiz) {
         return quizRepository.create(quiz);
     }
 
@@ -54,7 +55,7 @@ public class AdminController {
     }
 
     @PostMapping("/quizzes/{id}/questions")
-    public Question addQuestion(@PathVariable String id, @RequestBody Question question) {
+    public Question addQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
         Question q = new Question(question.id(), id, question.title(), question.description(),
                 question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
                 question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
@@ -62,7 +63,7 @@ public class AdminController {
     }
 
     @PutMapping("/questions/{id}")
-    public Question updateQuestion(@PathVariable String id, @RequestBody Question question) {
+    public Question updateQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
         return questionRepository.save(question);
     }
 
