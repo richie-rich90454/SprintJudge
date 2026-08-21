@@ -15,6 +15,16 @@ Host or admin commands: NEXT_QUESTION, FORCE_SUBMIT, END_GAME, EXTEND_TIMER (wit
 - A message must declare a non-empty "type".
 - JOIN requires "pin" and "name".
 - SUBMIT requires "questionId" and a "response" payload.
+- SUBMIT language must be one of: c, cpp, java, node, python. Source is capped at 64KB.
+
+## Authorization
+
+- Host commands (NEXT_QUESTION, FORCE_SUBMIT, END_GAME, EXTEND_TIMER, KICK_PLAYER) require
+  the connection to have joined with role "host" AND carry an authenticated OAuth2 session
+  from the upgrade request. Players can never issue them.
+- Only one host per room; a second host join is rejected.
+- JOIN attempts are rate limited per client address: 10 failures per minute, reset on success.
+- Rooms are capped at 500 players. EXTEND_TIMER seconds are clamped to 1..300.
 
 ## Server to Client
 
