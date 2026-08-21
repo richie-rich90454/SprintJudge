@@ -29,6 +29,21 @@ npm run dev
 
 The Vite dev server proxies `/api` and `/ws` to `http://localhost:8080`.
 
+## Windows quick start
+
+No WSL required. From PowerShell at the repo root:
+
+```powershell
+scripts\check-env.ps1      # one-time environment audit with guided fixes
+scripts\run-tests.ps1      # prove the backend suite green on your box
+scripts\dev-backend.ps1    # terminal 1 — API + WebSocket on :8080
+scripts\dev-frontend.ps1   # terminal 2 — UI on :5173 (proxies /api and /ws)
+```
+
+The dev profile defaults to the `native` executor: toolchains are invoked directly, so a
+fresh machine only needs its compilers on PATH. Set `OPENQUIZ_EXECUTOR_MODE=wsl` to run
+the same judge inside Ubuntu instead.
+
 ## Admin authentication
 
 Admins authenticate via Microsoft Entra ID OAuth2. Provide the following environment
