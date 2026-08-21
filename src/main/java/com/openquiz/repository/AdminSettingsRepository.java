@@ -1,7 +1,6 @@
 package com.openquiz.repository;
 
 import com.openquiz.domain.models.AdminSetting;
-import com.openquiz.util.Json;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +24,7 @@ public class AdminSettingsRepository {
                 .fetch((org.jooq.Record r) -> new AdminSetting(
                         r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
                         Instant.ofEpochSecond(r.get(Tables.SET_UPDATED))));
-        return all.stream().collect(Collectors.toMap(AdminSetting::key, AdminSetting::value));
+        return all.stream().collect(Collectors.toMap(s -> s.key(), s -> s.value()));
     }
 
     public void put(String key, String value) {
