@@ -1,10 +1,13 @@
 package com.openquiz.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.util.Map;
 
 public final class Json {
 
@@ -35,6 +38,15 @@ public final class Json {
             return MAPPER.readValue(value, type);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("JSON parse failed", e);
+        }
+    }
+
+    /** Generic-safe map parsing; avoids unchecked raw-collection casts at call sites. */
+    public static Map<String, Object> readMap(String value) {
+        try {
+            return MAPPER.readValue(value, new TypeReference<Map<String, Object>>() {});
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("JSON map parse failed", e);
         }
     }
 }
