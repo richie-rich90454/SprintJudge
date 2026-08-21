@@ -26,6 +26,34 @@ Click **Host** on a quiz to generate a 6-digit PIN. Use the host controls to sta
 force-submit, extend the timer (+30s), kick players, and end the game. The live leaderboard
 updates after every submission.
 
+## Wizard and scoring at a glance
+
+```mermaid
+flowchart LR
+    W1["1 · Choose type<br/>12 cards"] --> W2["2 · Statement<br/>title · Markdown · time · points"]
+    W2 --> W3["3 · Configuration<br/>type-specific form"]
+    W3 --> W4["4 · Preview<br/>rendered as players see it"]
+    W4 --> W5["5 · Save<br/>added to quiz"]
+```
+
+```mermaid
+flowchart TD
+    S["Answer received"] --> Q{"Question family?"}
+    Q -->|"selection types"| M{"Correct?"}
+    M -->|"no"| Z["Score 0"]
+    M -->|"yes"| SPD["Linear speed decay<br/>instant = 100% · full time = floor"]
+    Q -->|"coding OJ"| T{"All tests passed?"}
+    T -->|"yes"| SPD2["passed/total × base × speed decay"]
+    T -->|"partial"| FRAC["passed/total × base"]
+    SPD --> ATT
+    SPD2 --> ATT
+    FRAC --> ATT
+    ATT{"Attempt # > 1?"}
+    ATT -->|"n-th"| HALF["Multiply by decay base^(n-1)<br/>50% then 25% (configurable)"]
+    ATT -->|"first"| KEEP
+    HALF --> KEEP["Keep highest score per player"]
+```
+
 ## Import / Export
 
 - **Export** downloads the entire question bank as a single JSON document.
