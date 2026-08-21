@@ -73,6 +73,25 @@ Adding a 13th format is a single edit to `QuestionRendererFactory.REGISTRY`
 `GET /api/admin/export` returns the entire question bank as one JSON document.
 `POST /api/admin/import` validates and (optionally) replaces the bank.
 
+## Testing on Windows
+
+```powershell
+scripts\check-env.ps1     # verifies Java/Node/wrapper/toolchains, guides AV exclusions
+scripts\run-tests.ps1     # full backend suite (JUnit 5 + Mockito) — no WSL needed
+scripts\dev-backend.ps1   # backend on :8080 (native executor by default)
+scripts\dev-frontend.ps1  # installs deps on first run, serves :5173
+scripts\run-e2e.ps1       # Playwright browsers + E2E suite
+```
+
+Executor modes on Windows: `native` (default in dev — direct gcc/g++/javac/node/python,
+zero setup) or `wsl` (`OPENQUIZ_EXECUTOR_MODE=wsl`, runs the same compile scripts inside
+Ubuntu for isolation parity).
+
+**Troubleshooting silent C/C++ compile failures:** some real-time antivirus products
+kill unsigned MinGW binaries or delete them as soon as they appear (gcc may even exit 0
+while the `.exe` vanishes). Add a Defender exclusion for `<project>\executor\tmp` —
+`scripts\check-env.ps1` detects this situation and prints the exact path.
+
 ## Security model
 
 - **Host authorization:** WebSocket host commands require an authenticated OAuth2 session
