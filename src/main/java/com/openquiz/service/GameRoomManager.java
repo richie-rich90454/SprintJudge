@@ -162,7 +162,8 @@ public class GameRoomManager {
         long limitMs = (long) q.timeLimitSec() * 1000;
         long remainingMs = Math.max(0, room.currentQuestionEndEpochMs() - Instant.now().toEpochMilli());
         long taken = Math.max(0, (limitMs - remainingMs) / 1000);
-        int raw = scoringEngine.scoreSelection(fraction >= 1.0, taken, q.timeLimitSec(), attempts, settingsService.asMap());
+        // Fraction-aware engine: partial credit scales the decayed base directly.
+        int raw = scoringEngine.scoreSelection(fraction, taken, q.timeLimitSec(), attempts, settingsService.asMap());
         int score = (int) Math.round(raw * fraction);
         boolean correct = fraction >= 1.0;
 
