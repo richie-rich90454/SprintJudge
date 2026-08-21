@@ -21,9 +21,11 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,19 +64,18 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         GameSession session = new GameSession("s1", "qz", "123456", "host", "LOBBY", 0, null, null, null, Instant.now());
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session));
-        when(quizRepository.findById("qz")).thenReturn(Optional.of(new com.openquiz.domain.models.Quiz("qz", "Q", "", null, Instant.now(), false)));
         Question q = new Question("q1", "qz", "T", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(q));
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
-        when(scoringEngine.scoreSelection(eq(true), anyInt(), anyInt(), anyInt(), any())).thenReturn(900);
+        when(scoringEngine.scoreSelection(eq(true), anyLong(), anyLong(), anyInt(), any())).thenReturn(900);
 
-        mgr.join("123456", "Alice", "sess-1", "player");
-        mgr.submit("123456", "q1", "uuid-1", "python", Json.readTree("{\"selectedIndex\":0}"));
+        var player = mgr.join("123456", "Alice", "sess-1", "player");
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
         verify(submissionRepository).save(any());
-        verify(ws).broadcast(any(), any());
+        // One ROOM_STATE broadcast on join + one LEADERBOARD broadcast on submit.
+        verify(ws, times(2)).broadcast(any(), any());
     }
 
     @Test
@@ -82,8 +83,6 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         GameSession session = new GameSession("s1", "qz", "123456", "host", "LOBBY", 0, null, null, null, Instant.now());
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session));
-        when(quizRepository.findById("qz")).thenReturn(Optional.of(new com.openquiz.domain.models.Quiz("qz", "Q", "", null, Instant.now(), false)));
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
 
         mgr.join("123456", "Host", "sess-h", "host");
         try {
