@@ -26,11 +26,11 @@ export function HostLobbyView() {
   }
 
   return (
-    <div className="min-h-screen p-4 grid md:grid-cols-[1fr_320px] gap-4 max-w-5xl mx-auto">
+    <div className="min-h-screen p-4 grid md:grid-cols-[1fr_320px] gap-4 max-w-content mx-auto">
       <div className="flex flex-col gap-4">
-        <div className="bg-surface shadow-card rounded-xl border border-border p-4">
+        <div className="card">
           <span className="text-xs uppercase tracking-wide text-muted">Game PIN</span>
-          <p className="font-mono text-4xl font-bold tracking-widest text-center py-2">{pin}</p>
+          <p className="mono text-4xl font-bold tracking-widest text-center py-2">{pin}</p>
           <p className="text-center text-muted text-sm">{room?.players.length ?? 0} players in the lobby</p>
         </div>
         <HostLeaderboardView />
