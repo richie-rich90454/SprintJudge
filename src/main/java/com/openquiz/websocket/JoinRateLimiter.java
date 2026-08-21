@@ -19,10 +19,21 @@ public class JoinRateLimiter {
     private static final int MAX_TRACKED = 10_000;
 
     private final Map<String, Window> windows = new ConcurrentHashMap<>();
+    private final java.util.function.LongSupplier clock;
+
+    /** Production ctor: wall clock. */
+    public JoinRateLimiter() {
+        this(System::currentTimeMillis);
+    }
+
+    /** Test ctor: injectable clock for deterministic window expiry. */
+    JoinRateLimiter(java.util.function.LongSupplier clock) {
+        this.clock = clock;
+    }
 
     /** Returns false when the address is blocked for the current window. */
     public boolean tryJoin(String remoteAddr) {
-        long now = System.currentTimeMillis();
+        long now = clock.getAsLong();
         if (windows.size() > MAX_TRACKED) {
             windows.entrySet().removeIf(e -> now - e.getValue().windowStart > WINDOW_MS);
         }
