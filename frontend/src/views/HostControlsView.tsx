@@ -1,4 +1,5 @@
 import { useGameStore } from "../stores/useGameStore";
+import { useStaggerIn } from "../hooks/useMotion";
 
 export function HostControlsView() {
   const hostCommand = useGameStore((s) => s.hostCommand);
@@ -8,9 +9,10 @@ export function HostControlsView() {
   const room = useGameStore((s) => s.room);
 
   const players = room?.players ?? [];
+  const cardRef = useStaggerIn<HTMLDivElement>(".btn", [status], 0.05);
 
   return (
-    <div className="card flex flex-col gap-3">
+    <div ref={cardRef} className="card flex flex-col gap-3">
       <h3 className="header-double">Host controls</h3>
       <div className="flex flex-wrap gap-2">
         {status === "LOBBY" || status === "REVIEW" ? (
