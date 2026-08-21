@@ -2,6 +2,40 @@
 
 The game uses a single vanilla Jakarta @ServerEndpoint at /ws. Messages are JSON with a "type" field.
 
+## Typical session
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant PL as Player
+    participant HO as Host (authenticated)
+    participant WS as GameWebSocket
+    participant RM as GameRoomManager
+    participant SP as SubmissionProcessor
+
+    HO->>WS: JOIN role=host pin name
+    WS-->>HO: JOINED + ROOM_STATE
+    PL->>WS: JOIN role=player pin name
+    WS->>RM: join() — sanitize, rate-limit check
+    WS-->>PL: JOINED + ROOM_STATE
+    WS-->>HO: ROOM_STATE (player list)
+    HO->>WS: NEXT_QUESTION
+    WS->>RM: start question, arm timer
+    WS-->>PL: QUESTION_START (DTO + time limit)
+    PL->>WS: SUBMIT questionId response
+    alt selection type
+        WS->>RM: evaluate → score → persist
+        RM-->>HO: LEADERBOARD update
+    else coding type
+        WS->>SP: enqueue on Semaphore(100)
+        SP-->>HO: LEADERBOARD update when judged
+    end
+    HO->>WS: EXTEND_TIMER seconds
+    WS-->>PL: TIMER_UPDATE new deadline
+    HO->>WS: NEXT_QUESTION or END_GAME
+    WS-->>PL: ROUND_RESULT / GAME_END rankings
+```
+
 ## Client to Server
 
 JOIN: { "type": "JOIN", "role": "player", "name": "Alice", "pin": "123456" }
