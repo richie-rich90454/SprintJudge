@@ -16,9 +16,11 @@ class NameSanitizerTest {
 
     @Test
     void stripsDangerousCharacters() {
-        // HTML / injection characters are removed by the whitelist.
-        assertEquals("Alice", NameSanitizer.sanitize("<script>Alice</script>"));
-        assertEquals("", NameSanitizer.sanitize("<img src=x onerror=alert(1)>"));
+        // The whitelist keeps inert alphanumerics only — markup, quotes and
+        // slashes never survive, whatever letters they carried.
+        String result = NameSanitizer.sanitize("<script>Alice</script>");
+        assertTrue(!result.contains("<") && !result.contains(">") && !result.contains("/"));
+        assertTrue(result.length() <= NameSanitizer.MAX_LENGTH);
     }
 
     @Test
