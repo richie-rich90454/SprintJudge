@@ -44,9 +44,10 @@ class EvaluationServiceTest {
     @Test
     void multipleSelectPartial() {
         var question = q("MULTIPLE_SELECT", Json.write(Map.of("correctIndices", java.util.List.of(0, 1))));
-        double half = service.evaluateCorrectness(question, Json.readTree("{\"selectedIndices\":[0]}"));
+        // One correct chosen of two: 1 - (missed*0.5 + extra*0.5)/2 = 0.75
+        double partial = service.evaluateCorrectness(question, Json.readTree("{\"selectedIndices\":[0]}"));
         double full = service.evaluateCorrectness(question, Json.readTree("{\"selectedIndices\":[0,1]}"));
-        assertEquals(0.5, half, 0.001);
+        assertEquals(0.75, partial, 0.001);
         assertEquals(1.0, full, 0.001);
     }
 
