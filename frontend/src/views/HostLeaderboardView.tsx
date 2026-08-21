@@ -1,4 +1,5 @@
 import { useGameStore } from "../stores/useGameStore";
+import { useStaggerIn } from "../hooks/useMotion";
 
 export function HostLeaderboardView() {
   const leaderboard = useGameStore((s) => s.leaderboard);
@@ -8,10 +9,12 @@ export function HostLeaderboardView() {
     ? leaderboard
     : (room?.players ?? []).map((p, i) => ({ uuid: p.uuid, name: p.name, score: p.score, rank: i + 1 }));
 
+  const tableRef = useStaggerIn<HTMLTableElement>("tbody tr", [rows.length], 0.04);
+
   return (
     <div className="card">
       <h3 className="header-double mb-3">Live leaderboard</h3>
-      <table className="table-dotted">
+      <table ref={tableRef} className="table-dotted">
         <thead>
           <tr>
             <th>#</th>
