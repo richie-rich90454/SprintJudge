@@ -3,6 +3,7 @@ import { useAdminStore } from "../stores/useAdminStore";
 import { useUIStore } from "../stores/useUIStore";
 import { adminApi } from "../services/AdminApiService";
 import { QuestionWizard } from "./QuestionWizard";
+import { useStaggerIn } from "../hooks/useMotion";
 
 export function AdminDashboard() {
   const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } = useAdminStore();
@@ -12,6 +13,8 @@ export function AdminDashboard() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const gridRef = useStaggerIn<HTMLDivElement>(".card", [quizzes.length], 0.06);
 
   useEffect(() => {
     loadQuizzes();
@@ -67,7 +70,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div ref={gridRef} className="grid sm:grid-cols-2 gap-4">
         {quizzes.map((q) => (
           <div key={q.id} className="card">
             <h3 className="font-bold">{q.title}</h3>
