@@ -9,7 +9,7 @@ Combines the live-host adrenaline of Kahoot with a multi-language code executor
 - **Executor:** `nsjail` on Linux / WSL2 on Windows, throttled to 100 concurrent via `Semaphore`.
 - **Frontend:** React 19 + TypeScript (OOP services), Zustand, RxJS, Tailwind, Monaco/CodeMirror.
 - **Auth:** anonymous guest join for players; Microsoft Entra ID OAuth2 for admins.
-- **License:** GPLv3.
+- **License:** MIT.
 
 ## Quick start (development, Windows + WSL2)
 
