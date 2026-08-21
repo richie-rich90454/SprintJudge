@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
+import { useEnter, useStaggerIn } from "../hooks/useMotion";
+import { motion } from "../services/MotionService";
 
 export function JoinView() {
   const [pin, setPin] = useState("");
@@ -9,6 +11,14 @@ export function JoinView() {
   const connect = useGameStore((s) => s.connect);
   const error = useGameStore((s) => s.error);
   const setView = useUIStore((s) => s.setView);
+
+  const cardRef = useEnter<HTMLFormElement>("card");
+  const fieldsRef = useStaggerIn<HTMLDivElement>(".input-underline");
+
+  useEffect(() => {
+    if (error) motion.shake(cardRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,27 +31,29 @@ export function JoinView() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={submit} className="card w-full max-w-sm">
+      <form ref={cardRef} onSubmit={submit} className="card w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-1">OpenQuiz</h1>
         <p className="text-muted mb-6">Enter the game PIN to join.</p>
 
-        <label className="block text-sm text-muted mb-1">Your nickname</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="input-underline mb-6"
-          placeholder="Alice"
-          maxLength={20}
-        />
+        <div ref={fieldsRef}>
+          <label className="block text-sm text-muted mb-1">Your nickname</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input-underline mb-6"
+            placeholder="Alice"
+            maxLength={20}
+          />
 
-        <label className="block text-sm text-muted mb-1">6-digit PIN</label>
-        <input
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          inputMode="numeric"
-          className="input-underline mb-6 mono text-center text-lg tracking-widest"
-          placeholder="123456"
-        />
+          <label className="block text-sm text-muted mb-1">6-digit PIN</label>
+          <input
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            inputMode="numeric"
+            className="input-underline mb-6 mono text-center text-lg tracking-widest"
+            placeholder="123456"
+          />
+        </div>
 
         {error && <p className="text-danger text-sm mb-3">{error}</p>}
 
