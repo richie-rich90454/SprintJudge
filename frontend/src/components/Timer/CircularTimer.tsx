@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "../../services/MotionService";
 
 interface CircularTimerProps {
   endEpochMs: number;
@@ -9,6 +10,8 @@ interface CircularTimerProps {
 export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerProps) {
   const [remaining, setRemaining] = useState(Math.max(0, endEpochMs - Date.now()));
   const fired = useRef(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const prevSec = useRef(-1);
 
   useEffect(() => {
     fired.current = false;
@@ -26,13 +29,17 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
   }, [endEpochMs, onExpire]);
 
   const secs = Math.ceil(remaining / 1000);
+  if (secs <= 10 && secs > 0 && secs !== prevSec.current) {
+    prevSec.current = secs;
+    motion.pulse(wrapRef.current);
+  }
   const frac = totalSec > 0 ? Math.min(1, remaining / (totalSec * 1000)) : 0;
   const r = 34;
   const c = 2 * Math.PI * r;
   const low = secs <= 10;
 
   return (
-    <div className="relative w-[84px] h-[84px]">
+    <div ref={wrapRef} className="relative w-[84px] h-[84px]">
       <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90">
         <circle cx="42" cy="42" r={r} fill="none" stroke="#dadce0" strokeWidth="6" />
         <circle
