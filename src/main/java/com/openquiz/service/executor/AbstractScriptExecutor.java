@@ -2,7 +2,10 @@ package com.openquiz.service.executor;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -57,14 +60,20 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                 pb.redirectErrorStream(true);
                 Process proc = pb.start();
                 boolean finished = proc.waitFor(timeout, TimeUnit.SECONDS);
-                String output;
                 if (!finished) {
                     proc.destroyForcibly();
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
                     idx++;
                     continue;
                 }
-                output = new String(proc.getInputStream().readAllBytes()).trim();
+                // Edge case X: cap captured stdout at 1MB; kill the process if exceeded.
+                String output = readCapped(proc);
+                if (output == null) {
+                    proc.destroyForcibly();
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
+                    idx++;
+                    continue;
+                }
                 boolean ok = output.equals((tc.expectedOutput() == null ? "" : tc.expectedOutput()).strip());
                 if (ok) passed++;
                 results.add(new JudgeResult.CaseResult(idx, ok, tc.expectedOutput(), output, ok ? "" : "mismatch"));
@@ -77,6 +86,28 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
         } finally {
             deleteRecursively(runDir);
         }
+    }
+
+    /**
+     * Reads stdout up to 1MB. Returns null if the limit is exceeded (caller
+     * should kill the process). Edge case X.
+     */
+    private String readCapped(Process proc) {
+        final int CAP = 1_048_576;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int total = 0;
+        try (InputStream in = proc.getInputStream()) {
+            int n;
+            while ((n = in.read(buf)) != -1) {
+                total += n;
+                if (total > CAP) return null;
+                baos.write(buf, 0, n);
+            }
+        } catch (IOException e) {
+            return "";
+        }
+        return baos.toString(StandardCharsets.UTF_8).trim();
     }
 
     private String extension(String language) {
