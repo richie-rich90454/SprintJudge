@@ -9,11 +9,13 @@ export abstract class BaseQuestionRenderer {
   protected container: HTMLElement;
   protected onChange: ResponseChange;
   protected config: Record<string, unknown>;
+  protected questionId: string | undefined;
 
-  constructor(container: HTMLElement, config: unknown, onChange: ResponseChange) {
+  constructor(container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string) {
     this.container = container;
     this.config = (config as Record<string, unknown>) ?? {};
     this.onChange = onChange;
+    this.questionId = questionId;
   }
 
   abstract mount(): void;
