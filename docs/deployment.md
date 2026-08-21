@@ -15,6 +15,24 @@ flowchart TB
     APP --> DB
 ```
 
+## Windows production
+
+`prod` runs on Windows too. The `native` executor drives gcc/g++/javac/node/python
+directly (no nsjail on Windows), and the database defaults to a portable relative path.
+
+```powershell
+scripts\run-prod.ps1          # builds target\openquiz.jar and starts it with ZGC
+# optional environment:
+#   OPENQUIZ_DB_PATH=D:\data\openquiz.db
+#   OPENQUIZ_PORT=8080
+#   OPENQUIZ_EXECUTOR_MODE=native
+```
+
+The parent directory of `OPENQUIZ_DB_PATH` is created automatically on first boot.
+For hardened Linux hosts keep `OPENQUIZ_EXECUTOR_MODE=nsjail` (the systemd unit already
+pins it); on Windows, prefer running the JVM under a dedicated service account and rely
+on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
+
 ## Production (Linux — 12 cores / 48GB RAM)
 
 - Run as a systemd service (see `deploy/openquiz.service`) with `-XX:+UseZGC` and virtual threads.
