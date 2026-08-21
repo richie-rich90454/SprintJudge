@@ -2,13 +2,32 @@
 
 OpenQuiz runs as a Spring Boot backend (port `8080`) and a Vite/React frontend (port `5173`).
 
+## Pick your setup path
+
+```mermaid
+flowchart TD
+    A["Fresh machine"] --> B{"Windows?"}
+    B -->|"yes"| C["scripts/check-env.ps1<br/>audits JDK, Node, toolchains"]
+    B -->|"no"| D["Verify Java 25 + Node 20+"]
+    C --> E{"Compilers on PATH?<br/>gcc · g++ · javac · python"}
+    E -->|"yes"| F["native executor — done"]
+    E -->|"no"| G["Install toolchains, or set<br/>OPENQUIZ_EXECUTOR_MODE=wsl"]
+    D --> F
+    G --> F
+    F --> H["scripts/dev-backend.ps1"]
+    F --> I["scripts/dev-frontend.ps1"]
+    H --> J["Open http://localhost:5173"]
+    I --> J
+```
+
 ## Prerequisites
 
 - Java 25 (virtual threads + ZGC enabled by default)
-- Maven 3.9+
+- Maven 3.9+ (or nothing at all — the bundled `mvnw.cmd` wrapper downloads it)
 - Node.js 20+
 - Linux production: `nsjail` on `PATH`
-- Windows development: WSL2 (Ubuntu) with `gcc`/`g++`/`javac`/`node`/`python3`
+- Windows development: native compilers (`gcc`, `g++`, `javac`, `python`) for the default
+  `native` mode, or WSL2 Ubuntu with the same packages for the `wsl` mode
 
 ## Run the backend
 
@@ -16,8 +35,8 @@ OpenQuiz runs as a Spring Boot backend (port `8080`) and a Vite/React frontend (
 mvn spring-boot:run
 ```
 
-Profiles: `dev` (default, WSL2 executor) and `prod` (nsjail). Configure the executor and
-database in `src/main/resources/application.yml`.
+Profiles: `dev` (default; `native` or `wsl` executor) and `prod` (`nsjail`). Configure the
+executor and database in `src/main/resources/application.yml`.
 
 ## Run the frontend
 
