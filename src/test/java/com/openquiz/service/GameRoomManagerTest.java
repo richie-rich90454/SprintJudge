@@ -1,6 +1,5 @@
 package com.openquiz.service;
 
-import com.openquiz.domain.enums.QuestionType;
 import com.openquiz.domain.models.GameSession;
 import com.openquiz.domain.models.Question;
 import com.openquiz.repository.GameSessionRepository;
