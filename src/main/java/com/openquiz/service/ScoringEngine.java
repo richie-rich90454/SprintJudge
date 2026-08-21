@@ -1,6 +1,5 @@
 package com.openquiz.service;
 
-import com.openquiz.domain.enums.QuestionType;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
