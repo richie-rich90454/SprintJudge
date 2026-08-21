@@ -126,9 +126,12 @@ cd frontend && npm install && npm run dev   # frontend on :5173
 
 | Mode | Environment | Isolation | Purpose |
 |------|-------------|-----------|---------|
-| `native` | Windows/Linux dev | None (dev only) | Fastest first run |
+| `native` | Windows/Linux (dev + Windows prod) | None — whitelist/cap/timeout controls | Fastest first run; Windows production |
 | `wsl` | Windows dev | Separate Linux VM | Parity with production scripts |
-| `nsjail` | Linux production | chroot + rlimits | Always use in production |
+| `nsjail` | Linux production | chroot + rlimits | Always use on Linux production |
+
+Production on Windows: `scripts\run-prod.ps1` builds the jar and starts it with ZGC;
+`OPENQUIZ_DB_PATH` relocates the SQLite file (parent dirs auto-created).
 
 ### Admin authentication
 
