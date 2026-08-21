@@ -17,6 +17,7 @@ public class GameRoom {
     private String status;
     private int currentQuestionIndex;
     private long currentQuestionEndEpochMs;
+    private String hostUuid;
     private final Map<String, Player> players = new LinkedHashMap<>();
 
     public GameRoom(String sessionId, String quizId, String pin, String status) {
@@ -63,6 +64,8 @@ public class GameRoom {
     public String pin() { return pin; }
     public String status() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public synchronized String hostUuid() { return hostUuid; }
+    public synchronized void setHostUuid(String hostUuid) { this.hostUuid = hostUuid; }
     public int currentQuestionIndex() { return currentQuestionIndex; }
     public void setCurrentQuestionIndex(int i) { this.currentQuestionIndex = i; }
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
