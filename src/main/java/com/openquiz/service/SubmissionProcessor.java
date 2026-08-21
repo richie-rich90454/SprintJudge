@@ -1,7 +1,6 @@
 package com.openquiz.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.openquiz.domain.dto.LeaderboardEntry;
 import com.openquiz.domain.enums.QuestionType;
 import com.openquiz.domain.models.Question;
 import com.openquiz.domain.models.Submission;
@@ -53,10 +52,20 @@ public class SubmissionProcessor {
     public void processCoding(String sessionId, String questionId, String playerName,
                               String playerUuid, String language, String sourceCode,
                               Map<String, Object> settings) {
-        QuestionType type = null;
         Question question = questionRepository.findById(questionId).orElse(null);
         if (question == null) return;
-        type = QuestionType.from(question.questionType());
+        QuestionType type = QuestionType.from(question.questionType());
+
+        // Async-boundary guard: the WebSocket layer routes only coding questions
+        // here, but a misrouted selection answer must never pollute the judge
+        // queue — reject it explicitly instead of running it against test cases.
+        if (!type.isCoding()) {
+            submissionRepository.save(new Submission(Ids.uuid(), sessionId, questionId, playerName,
+                    playerUuid, Json.write(Map.of("rejected", "not_a_coding_question")),
+                    0, false, "not_a_coding_question", 1, Instant.now()));
+            roomManager.broadcastLeaderboard(sessionId);
+            return;
+        }
 
         // Defense-in-depth: the WS layer already caps this; enforce again here.
         if (sourceCode != null && sourceCode.length() > MAX_SOURCE_CHARS) {
@@ -70,7 +79,7 @@ public class SubmissionProcessor {
         // Bound the judge queue: hard cap on attempts per player per question.
         int priorAttempts = submissionRepository.findBySessionQuestion(sessionId, questionId).stream()
                 .filter(s -> s.playerUuid().equals(playerUuid))
-                .mapToInt(Submission::attemptCount).sum();
+                .mapToInt(s -> s.attemptCount()).sum();
         if (priorAttempts >= MAX_ATTEMPTS_PER_QUESTION) {
             return;
         }
