@@ -50,7 +50,7 @@ class GameRoomManagerTest {
     void joinRejectsInvalidPin() {
         when(sessionRepository.findByPin("000000")).thenReturn(Optional.empty());
         try {
-            manager().join("000000", "Alice", "sess-1");
+            manager().join("000000", "Alice", "sess-1", "player");
         } catch (IllegalArgumentException expected) {
             // expected
         }
@@ -70,10 +70,26 @@ class GameRoomManagerTest {
         when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
         when(scoringEngine.scoreSelection(eq(true), anyInt(), anyInt(), anyInt(), any())).thenReturn(900);
 
-        mgr.join("123456", "Alice", "sess-1");
+        mgr.join("123456", "Alice", "sess-1", "player");
         mgr.submit("123456", "q1", "uuid-1", "python", Json.readTree("{\"selectedIndex\":0}"));
 
         verify(submissionRepository).save(any());
         verify(ws).broadcast(any(), any());
+    }
+
+    @Test
+    void secondHostIsRejected() {
+        GameRoomManager mgr = manager();
+        GameSession session = new GameSession("s1", "qz", "123456", "host", "LOBBY", 0, null, null, null, Instant.now());
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session));
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(new com.openquiz.domain.models.Quiz("qz", "Q", "", null, Instant.now(), false)));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+
+        mgr.join("123456", "Host", "sess-h", "host");
+        try {
+            mgr.join("123456", "Impostor", "sess-i", "host");
+        } catch (IllegalStateException expected) {
+            // expected
+        }
     }
 }
