@@ -36,6 +36,11 @@ public class GameWebSocket {
     public void onMessage(Session session, String message) {
         try {
             JsonNode msg = Json.readTree(message);
+            // Schema validation: a well-formed message must declare a string type.
+            if (!msg.isObject() || msg.path("type").isMissingNode() || msg.path("type").asText("").isBlank()) {
+                send(session, new ErrorMessage("ERROR", "Malformed message: missing 'type'"));
+                return;
+            }
             String type = msg.path("type").asText("");
             switch (type) {
                 case "JOIN" -> handleJoin(session, msg);
@@ -53,8 +58,13 @@ public class GameWebSocket {
     }
 
     private void handleJoin(Session session, JsonNode msg) {
-        String pin = msg.path("pin").asText();
-        String name = msg.path("name").asText("Player");
+        // Schema validation: JOIN requires non-empty pin and name.
+        String pin = msg.path("pin").asText("");
+        String name = msg.path("name").asText("");
+        if (pin.isBlank() || name.isBlank()) {
+            send(session, new ErrorMessage("ERROR", "JOIN requires 'pin' and 'name'"));
+            return;
+        }
         try {
             var player = roomManager.join(pin, name, session.getId());
             session.getUserProperties().put(UUID_KEY, player.uuid());
@@ -73,7 +83,12 @@ public class GameWebSocket {
             send(session, new ErrorMessage("ERROR", "Join a room first"));
             return;
         }
-        String questionId = msg.path("questionId").asText();
+        // Schema validation: SUBMIT requires a questionId and a response payload.
+        String questionId = msg.path("questionId").asText("");
+        if (questionId.isBlank() || msg.path("response").isMissingNode()) {
+            send(session, new ErrorMessage("ERROR", "SUBMIT requires 'questionId' and 'response'"));
+            return;
+        }
         String language = msg.path("language").asText("python");
         roomManager.submit(pin, questionId, uuid, language, msg.get("response"));
     }
