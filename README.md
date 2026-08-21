@@ -73,6 +73,21 @@ Adding a 13th format is a single edit to `QuestionRendererFactory.REGISTRY`
 `GET /api/admin/export` returns the entire question bank as one JSON document.
 `POST /api/admin/import` validates and (optionally) replaces the bank.
 
+## Security model
+
+- **Host authorization:** WebSocket host commands require an authenticated OAuth2 session
+  bound at the upgrade handshake plus a host-role join; one host per room.
+- **No answer leakage:** question configs (answer keys, hidden tests) are admin-only; the
+  public API never returns them.
+- **Input hardening:** Jakarta Bean Validation on REST DTOs, WebSocket message schema
+  checks, player-name whitelist sanitization (20 chars), 64KB source cap, language
+  whitelist (no script-path traversal), CSRF tokens on cookie sessions.
+- **Abuse bounds:** per-IP JOIN rate limiting (10 failures/min), 500-player room cap,
+  50 attempts per player per question, Semaphore(100) judge concurrency, 1MB stdout cap
+  with process kill.
+- **Headers:** HSTS, nosniff, deny-frames, strict CSP, same-origin referrer policy;
+  CORS defaults to same-origin dev and is configurable in production.
+
 ## Deployment (Linux, 12 cores / 48GB)
 
 - `systemd` service running the fat JAR with `-XX:+UseZGC` and virtual threads.
