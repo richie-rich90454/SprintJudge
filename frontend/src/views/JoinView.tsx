@@ -21,29 +21,32 @@ export function JoinView() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={submit} className="w-full max-w-sm bg-surface shadow-card rounded-xl p-6 border border-border">
+      <form onSubmit={submit} className="card w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-1">OpenQuiz</h1>
         <p className="text-muted mb-6">Enter the game PIN to join.</p>
+
         <label className="block text-sm text-muted mb-1">Your nickname</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full min-h-tap px-4 mb-4 rounded-lg border border-border bg-surface"
+          className="input-underline mb-6"
           placeholder="Alice"
+          maxLength={20}
         />
+
         <label className="block text-sm text-muted mb-1">6-digit PIN</label>
         <input
           value={pin}
           onChange={(e) => setPin(e.target.value)}
           inputMode="numeric"
-          className="w-full min-h-tap px-4 mb-4 rounded-lg border border-border bg-surface font-mono tracking-widest text-center text-lg"
+          className="input-underline mb-6 mono text-center text-lg tracking-widest"
           placeholder="123456"
         />
+
         {error && <p className="text-danger text-sm mb-3">{error}</p>}
-        <button type="submit" className="w-full min-h-tap rounded-lg bg-primary text-white font-medium hover:bg-primary-dark">
-          Join game
-        </button>
-        <button type="button" onClick={() => setView("admin")} className="w-full min-h-tap mt-3 text-primary text-sm">
+
+        <button type="submit" className="btn btn-primary w-full">Join game</button>
+        <button type="button" onClick={() => setView("admin")} className="btn btn-secondary w-full mt-3">
           I'm a host / admin
         </button>
       </form>
