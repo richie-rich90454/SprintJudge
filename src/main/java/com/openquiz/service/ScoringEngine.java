@@ -25,13 +25,20 @@ public class ScoringEngine {
         this.attemptDecayBase = attemptDecayBase;
     }
 
-    public int scoreSelection(boolean correct, long timeTakenSec, long timeLimitSec, int attemptsUsed, Map<String, Object> settings) {
-        if (!correct) return 0;
+    /**
+     * Selection scoring driven by correctness FRACTION (0..1) so MULTIPLE_SELECT
+     * partial credit flows through the same speed-decay pipeline. Fraction 0
+     * hard-zeroes; otherwise speed decay × attempt multiplier, scaled by caller.
+     */
+    public int scoreSelection(double fraction, long timeTakenSec, long timeLimitSec,
+                              int attemptsUsed, Map<String, Object> settings) {
+        if (fraction <= 0.0) return 0;
         long limit = Math.max(1, timeLimitSec);
         long taken = Math.max(0, Math.min(timeTakenSec, limit));
         double speed = minSpeedFraction + (1 - minSpeedFraction) * (1.0 - (double) taken / limit);
-        double attemptMult = attemptMultiplier(attemptsUsed, settings);
-        return (int) Math.round(speed * attemptMult * 1000) / 10 * 10;
+        Map<String, Object> safeSettings = settings == null ? Map.of() : settings;
+        double mult = attemptMultiplier(attemptsUsed, safeSettings);
+        return (int) (Math.round(speed * mult * 1000) / 10 * 10);
     }
 
     public int scoreCoding(int passed, int total, int basePoints, boolean fullySolved,
@@ -45,20 +52,13 @@ public class ScoringEngine {
     }
 
     private double attemptMultiplier(int attemptsUsed, Map<String, Object> settings) {
-        int allowed = parseInt(settings, "mcq_max_attempts", 1);
-        if (allowed <= 1) return 1.0;
-        int n = Math.max(1, attemptsUsed);
-        return Math.pow(attemptDecayBase, n - 1);
-    }
-
-    private int parseInt(Map<String, Object> settings, String key, int def) {
-        Object v = settings.get(key);
-        if (v == null) return def;
-        if (v instanceof Number n) return n.intValue();
-        try {
-            return Integer.parseInt(v.toString());
-        } catch (NumberFormatException e) {
-            return def;
+        Object v = settings.get("mcq_max_attempts");
+        int allowed = 1;
+        if (v instanceof Number n) allowed = n.intValue();
+        else if (v != null) {
+            try { allowed = Integer.parseInt(v.toString()); } catch (NumberFormatException ignored) {}
         }
+        if (allowed <= 1) return 1.0;
+        return Math.pow(attemptDecayBase, Math.max(1, attemptsUsed) - 1);
     }
 }
