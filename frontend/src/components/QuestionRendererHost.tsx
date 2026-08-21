@@ -22,12 +22,13 @@ export function QuestionRendererHost({ question, onResponse }: Props) {
       question.type,
       hostRef.current,
       question.config,
-      (response: unknown) => onResponse(response)
+      (response) => onResponse(response),
+      question.id
     );
     renderer.mount();
     rendererRef.current = renderer;
     return () => renderer.destroy();
   }, [question.type]);
 
-  return <div ref={hostRef} className="mt-4" />;
+  return <div ref={hostRef} className="renderer-host mt-4" />;
 }
