@@ -25,6 +25,9 @@ import java.util.concurrent.Semaphore;
 @Service
 public class SubmissionProcessor {
 
+    private static final int MAX_SOURCE_CHARS = 65_536;
+    private static final int MAX_ATTEMPTS_PER_QUESTION = 50;
+
     private final CodeExecutor executor;
     private final SubmissionRepository submissionRepository;
     private final QuestionRepository questionRepository;
@@ -55,6 +58,23 @@ public class SubmissionProcessor {
         if (question == null) return;
         type = QuestionType.from(question.questionType());
 
+        // Defense-in-depth: the WS layer already caps this; enforce again here.
+        if (sourceCode != null && sourceCode.length() > MAX_SOURCE_CHARS) {
+            submissionRepository.save(new Submission(Ids.uuid(), sessionId, questionId, playerName,
+                    playerUuid, Json.write(Map.of("language", language, "rejected", "source_too_large")),
+                    0, false, "source_too_large", 1, Instant.now()));
+            roomManager.broadcastLeaderboard(sessionId);
+            return;
+        }
+
+        // Bound the judge queue: hard cap on attempts per player per question.
+        int priorAttempts = submissionRepository.findBySessionQuestion(sessionId, questionId).stream()
+                .filter(s -> s.playerUuid().equals(playerUuid))
+                .mapToInt(Submission::attemptCount).sum();
+        if (priorAttempts >= MAX_ATTEMPTS_PER_QUESTION) {
+            return;
+        }
+
         JsonNode config = Json.readTree(question.config());
         List<TestCase> cases = new ArrayList<>();
         if (config.has("testCases")) {
@@ -83,8 +103,7 @@ public class SubmissionProcessor {
             if (acquired) slot.release();
         }
 
-        int attempts = submissionRepository.findBySessionQuestion(sessionId, questionId).stream()
-                .filter(s -> s.playerUuid().equals(playerUuid)).mapToInt(Submission::attemptCount).sum() + 1;
+        int attempts = priorAttempts + 1;
 
         int score = scoringEngine.scoreCoding(
                 result.passed(), result.total(), question.pointsBase(),
