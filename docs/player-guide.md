@@ -2,6 +2,19 @@
 
 Players join **anonymously** — no account required.
 
+## Your path through a game
+
+```mermaid
+flowchart LR
+    J["Enter PIN + nickname"] --> L["Lobby<br/>wait for host"]
+    L --> Q["Question + timer"]
+    Q --> A{"Answer before zero"}
+    A -->|"submitted"| R["Round result"]
+    A -->|"timer expired"| AS["Last state auto-submits"] --> R
+    R -->|"more questions"| Q
+    R -->|"quiz complete"| F["Final leaderboard"]
+```
+
 ## Joining a game
 
 1. Open the join screen.
