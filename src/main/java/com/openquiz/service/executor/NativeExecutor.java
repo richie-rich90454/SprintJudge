@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,17 +17,25 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Zero-dependency development executor for Windows: invokes the toolchains
- * directly via ProcessBuilder — no WSL2, no bash, no nsjail. Trades the
- * process isolation of the other modes for instant first-run testability.
- * DEV PROFILES ONLY; production must use nsjail.
+ * Direct toolchain executor: invokes gcc/g++/javac/node/python via
+ * ProcessBuilder with no sandbox layer.
+ *
+ * Default on Windows development AND supported for Windows production hosts,
+ * where nsjail does not exist. It trades process isolation for portability;
+ * on Linux, prefer nsjail. Compensating controls in every mode: language
+ * whitelist, 64KB source cap, per-case timeout with forced kill, 1MB stdout
+ * cap, and per-run temp-directory cleanup.
  */
 @Component
-@Profile("dev")
 @ConditionalOnProperty(name = "openquiz.executor.mode", havingValue = "native")
 public class NativeExecutor implements CodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(NativeExecutor.class);
+
+    public NativeExecutor() {
+        log.warn("NativeExecutor active: submissions run WITHOUT sandbox isolation. "
+                + "On Linux production, set openquiz.executor.mode=nsjail.");
+    }
 
     private static final Map<String, String> CANONICAL = Map.of(
             "javascript", "node", "js", "node", "py", "python");
