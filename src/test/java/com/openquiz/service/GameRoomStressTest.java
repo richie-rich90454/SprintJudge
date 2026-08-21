@@ -61,7 +61,7 @@ class GameRoomStressTest {
             pool.submit(() -> {
                 try {
                     start.await();
-                    mgr.join("123456", "Player" + n, "sess-" + n);
+                    mgr.join("123456", "Player" + n, "sess-" + n, "player");
                 } catch (Exception e) {
                     failures.incrementAndGet();
                 } finally {
