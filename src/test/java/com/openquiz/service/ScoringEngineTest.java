@@ -20,12 +20,11 @@ class ScoringEngineTest {
     @ParameterizedTest
     @CsvSource({
         "0,1000",   // instant answer -> full base
-        "15,500",   // half time -> 50% speed -> ~750
-        "30,0"      // full time -> minimum speed fraction -> ~500
+        "15,750",   // half time -> 75% of base
+        "30,500"    // full time -> minimum speed fraction (50%)
     })
     void selectionSpeedDecay(long taken, int expectedApprox) {
         int score = engine.scoreSelection(true, taken, 30, 1, Map.of());
-        // Allow generous tolerance because of rounding to nearest 10.
         assertEquals(expectedApprox, score, 20);
     }
 
