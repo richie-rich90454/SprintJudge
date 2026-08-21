@@ -1,6 +1,5 @@
 package com.openquiz.config;
 
-import com.openquiz.domain.models.User;
 import com.openquiz.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
