@@ -1,0 +1,191 @@
+package com.openquiz.service.executor;
+
+import com.openquiz.util.ExecIo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Zero-dependency development executor for Windows: invokes the toolchains
+ * directly via ProcessBuilder — no WSL2, no bash, no nsjail. Trades the
+ * process isolation of the other modes for instant first-run testability.
+ * DEV PROFILES ONLY; production must use nsjail.
+ */
+@Component
+@Profile("dev")
+@ConditionalOnProperty(name = "openquiz.executor.mode", havingValue = "native")
+public class NativeExecutor implements CodeExecutor {
+
+    private static final Logger log = LoggerFactory.getLogger(NativeExecutor.class);
+
+    private static final Map<String, String> CANONICAL = Map.of(
+            "javascript", "node", "js", "node", "py", "python");
+    private static final Set<String> SUPPORTED = Set.of("c", "cpp", "java", "node", "python");
+
+    @Value("${openquiz.executor.work-dir:./executor/tmp}")
+    private String workDirBase;
+
+    @Value("${openquiz.executor.timeout-sec:10}")
+    private int defaultTimeoutSec;
+
+    @Override
+    public boolean supports(String language) {
+        return SUPPORTED.contains(canonical(language));
+    }
+
+    private String canonical(String language) {
+        String lower = language == null ? "" : language.toLowerCase();
+        return CANONICAL.getOrDefault(lower, lower);
+    }
+
+    @Override
+    public JudgeResult judge(JudgeRequest request) {
+        String language = canonical(request.language());
+        if (!SUPPORTED.contains(language)) {
+            log.warn("Rejected unsupported language: {}", request.language());
+            return new JudgeResult(0, request.testCases().size(), false, List.of(
+                    new JudgeResult.CaseResult(0, false, "", "", "unsupported_language")));
+        }
+        Path runDir;
+        try {
+            runDir = Files.createDirectories(Path.of(workDirBase,
+                    "run-" + Thread.currentThread().threadId() + "-" + System.nanoTime()));
+        } catch (IOException e) {
+            log.error("Could not create run directory under {}", workDirBase, e);
+            return new JudgeResult(0, request.testCases().size(), false, List.of());
+        }
+        try {
+            // Absolutize before child-process handoff (see AbstractScriptExecutor).
+            runDir = runDir.toAbsolutePath();
+            String ext = switch (language) {
+                case "c" -> ".c";
+                case "cpp" -> ".cpp";
+                case "java" -> ".java";
+                case "node" -> ".js";
+                default -> ".py";
+            };
+            Path sourceFile = runDir.resolve("solution" + ext).toAbsolutePath();
+            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+
+            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+
+            // Compile phase (c/cpp/java). Fails fast with a distinct judge log so
+            // players see "compilation_error" instead of N misleading mismatches.
+            List<String> compileCmd = compileCommand(language, sourceFile, runDir);
+            if (compileCmd != null) {
+                String err = runToCompletion(compileCmd, runDir, timeout);
+                if (err != null) {
+                    log.warn("Compile failed ({}): {}", language, truncate(err));
+                    return allFailed(request, "compilation_error", err);
+                }
+            }
+
+            List<JudgeResult.CaseResult> results = new ArrayList<>();
+            int passed = 0;
+            for (int idx = 0; idx < request.testCases().size(); idx++) {
+                TestCase tc = request.testCases().get(idx);
+                Path inputFile = runDir.resolve("input_" + idx + ".txt").toAbsolutePath();
+                Files.writeString(inputFile, tc.input() == null ? "" : tc.input());
+
+                List<String> cmd = runCommand(language, sourceFile, runDir);
+                ProcessBuilder pb = new ProcessBuilder(cmd)
+                        .directory(runDir.toFile())
+                        .redirectErrorStream(true)
+                        .redirectInput(inputFile.toFile());
+                Process proc = pb.start();
+
+                if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
+                    proc.destroyForcibly();
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
+                    continue;
+                }
+                String output = ExecIo.readCapped(proc);
+                if (output == null) {
+                    proc.destroyForcibly();
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
+                    continue;
+                }
+                boolean ok = output.equals((tc.expectedOutput() == null ? "" : tc.expectedOutput()).strip());
+                if (ok) passed++;
+                results.add(new JudgeResult.CaseResult(idx, ok, tc.expectedOutput(), output, ok ? "" : "mismatch"));
+            }
+            return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Native judge execution failed for language {}", language, e);
+            return new JudgeResult(0, request.testCases().size(), false, List.of());
+        } finally {
+            ExecIo.deleteTree(runDir);
+        }
+    }
+
+    /** Returns null for interpreted languages; otherwise the compile argv. */
+    private List<String> compileCommand(String language, Path sourceFile, Path runDir) {
+        return switch (language) {
+            case "c" -> List.of("gcc", "-O2", "-o", binary(runDir).toString(), sourceFile.toString());
+            case "cpp" -> List.of("g++", "-O2", "-std=c++17", "-o", binary(runDir).toString(), sourceFile.toString());
+            case "java" -> List.of("javac", "-d", runDir.toString(), sourceFile.toString());
+            default -> null;
+        };
+    }
+
+    private List<String> runCommand(String language, Path sourceFile, Path runDir) {
+        return switch (language) {
+            case "c", "cpp" -> List.of(binary(runDir).toString());
+            case "java" -> List.of("java", "-cp", runDir.toString(), mainClass(sourceFile));
+            case "node" -> List.of("node", sourceFile.toString());
+            default -> List.of("python", sourceFile.toString());
+        };
+    }
+
+    private Path binary(Path runDir) {
+        String name = System.getProperty("os.name", "").toLowerCase().contains("win") ? "program.exe" : "program";
+        return runDir.resolve(name);
+    }
+
+    private String mainClass(Path sourceFile) {
+        String name = sourceFile.getFileName().toString();
+        return name.substring(0, name.length() - ".java".length());
+    }
+
+    /** Runs a fire-and-forget command; returns null on success or trimmed output on failure. */
+    private String runToCompletion(List<String> cmd, Path dir, int timeoutSec)
+            throws IOException, InterruptedException {
+        Process proc = new ProcessBuilder(cmd)
+                .directory(dir.toFile())
+                .redirectErrorStream(true)
+                .start();
+        if (!proc.waitFor(timeoutSec, TimeUnit.SECONDS)) {
+            proc.destroyForcibly();
+            return "compile_timeout";
+        }
+        if (proc.exitValue() == 0) return null;
+        String out = ExecIo.readCapped(proc);
+        return out == null ? "stdout_exceeded_1MB" : out;
+    }
+
+    private JudgeResult allFailed(JudgeRequest request, String code, String detail) {
+        List<JudgeResult.CaseResult> results = new ArrayList<>();
+        for (int i = 0; i < request.testCases().size(); i++) {
+            results.add(new JudgeResult.CaseResult(i, false,
+                    request.testCases().get(i).expectedOutput(), "", code));
+        }
+        return new JudgeResult(0, request.testCases().size(), false, results);
+    }
+
+    private String truncate(String s) {
+        return s.length() <= 2000 ? s : s.substring(0, 2000) + "…";
+    }
+}
