@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,8 @@ class SubmissionProcessorTest {
         when(submissionRepository.findBySessionQuestion(any(), any())).thenReturn(List.of());
         when(executor.judge(any(JudgeRequest.class)))
                 .thenReturn(new JudgeResult(1, 1, true, List.of(new JudgeResult.CaseResult(0, true, "3", "3", ""))));
-        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyInt(), anyInt())).thenReturn(500);
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(500);
 
         SubmissionProcessor p = new SubmissionProcessor(executor, submissionRepository, questionRepository,
                 scoringEngine, roomManager, new Semaphore(100));
