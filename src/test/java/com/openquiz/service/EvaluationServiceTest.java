@@ -1,6 +1,5 @@
 package com.openquiz.service;
 
-import com.openquiz.domain.enums.QuestionType;
 import com.openquiz.domain.models.Question;
 import com.openquiz.util.Json;
 import org.junit.jupiter.api.Test;
