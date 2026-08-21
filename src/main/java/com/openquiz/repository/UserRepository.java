@@ -2,7 +2,6 @@ package com.openquiz.repository;
 
 import com.openquiz.domain.models.User;
 import com.openquiz.util.Ids;
-import com.openquiz.util.Json;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
