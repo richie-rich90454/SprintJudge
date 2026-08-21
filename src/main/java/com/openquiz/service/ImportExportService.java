@@ -1,7 +1,6 @@
 package com.openquiz.service;
 
 import com.openquiz.domain.dto.export.ExportBundle;
-import com.openquiz.domain.models.AdminSetting;
 import com.openquiz.domain.models.Question;
 import com.openquiz.domain.models.Quiz;
 import com.openquiz.repository.AdminSettingsRepository;
@@ -78,10 +77,9 @@ public class ImportExportService {
     }
 
     private ExportBundle.QuestionExport toExport(Question q) {
-        Map<String, Object> config = new LinkedHashMap<>();
-        if (q.config() != null && !q.config().isBlank()) {
-            config = Json.read(q.config(), LinkedHashMap.class);
-        }
+        Map<String, Object> config = q.config() == null || q.config().isBlank()
+                ? new LinkedHashMap<>()
+                : Json.readMap(q.config());
         return new ExportBundle.QuestionExport(q.id(), q.questionType(), q.title(), q.description(),
                 q.timeLimitSec(), q.pointsBase(), config, q.languagesAllowed());
     }
