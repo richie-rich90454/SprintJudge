@@ -3,18 +3,51 @@
 @tailwind utilities;
 
 :root {
+  --oq-bg: #f0f3f8;
+  --oq-surface: #ffffff;
+  --oq-ink: #1a1f2e;
+  --oq-border: #c0c8d8;
+  --oq-row-alt: #f8faff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --oq-bg: #1a1f2e;
+    --oq-surface: #252b3a;
+    --oq-ink: #e8edf5;
+    --oq-border: #3a4255;
+    --oq-row-alt: #2a3040;
+    color-scheme: dark;
+  }
+}
+
+html {
   font-family: "Noto Sans", system-ui, sans-serif;
-  color: #202124;
+  color: var(--oq-ink);
+  background: var(--oq-bg);
+  -webkit-font-smoothing: antialiased;
+  /* Responsive type scale via clamp(). */
+  font-size: clamp(15px, 0.4vw + 14px, 17px);
 }
 
 body {
   margin: 0;
-  background: #f8f9fa;
-  -webkit-font-smoothing: antialiased;
+  background: var(--oq-bg);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Remove the 300ms tap delay on interactive elements. */
+button,
+a,
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
 }
 
 button,
@@ -24,14 +57,174 @@ textarea {
   font-family: inherit;
 }
 
-/* Flat tap targets */
-button {
-  min-height: 44px;
+/* Fallback for browsers without grid gap support. */
+@supports not (gap: 8px) {
+  .grid,
+  .flex {
+    margin: -4px;
+  }
+  .grid > *,
+  .flex > * {
+    margin: 4px;
+  }
 }
 
-/* Code surfaces use the mono face */
+/* ---------------------------------------------------------------------------
+   Industrial / Blueprint design system — flat, square, crisp lines.
+   No shadows, no rounded corners, no gradients, no blur.
+--------------------------------------------------------------------------- */
+@layer components {
+  .card {
+    background: var(--oq-surface);
+    border: 1px solid var(--oq-border);
+    border-top: 4px solid #3255a4;
+    border-radius: 0;
+    padding: 24px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 0;
+    border: 2px solid #3255a4;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 0.12s linear, color 0.12s linear;
+  }
+
+  .btn-primary {
+    background: #3255a4;
+    color: #ffffff;
+  }
+  .btn-primary:hover {
+    background: #ffffff;
+    color: #3255a4;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--oq-ink);
+    border: 2px solid var(--oq-border);
+  }
+  .btn-secondary:hover {
+    border-color: #3255a4;
+    color: #3255a4;
+  }
+
+  .btn-danger {
+    background: transparent;
+    color: #d32f2f;
+    border: 2px solid #d32f2f;
+  }
+  .btn-danger:hover {
+    background: #d32f2f;
+    color: #ffffff;
+  }
+
+  .input-underline {
+    width: 100%;
+    min-height: 44px;
+    border: 0;
+    border-bottom: 2px solid var(--oq-border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--oq-ink);
+    padding: 8px 0;
+    outline: none;
+  }
+  .input-underline:focus {
+    border-bottom-color: #3255a4;
+  }
+
+  /* Section titles: solid double underline + dotted rule beneath. */
+  .header-double {
+    border-bottom: 2px solid #3255a4;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    position: relative;
+    font-weight: 700;
+  }
+  .header-double::after {
+    content: "";
+    display: block;
+    border-bottom: 1px dotted #3255a4;
+    margin-top: 2px;
+  }
+
+  /* Blueprint grid tables: dotted row separators, alternating fills. */
+  .table-dotted {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .table-dotted th,
+  .table-dotted td {
+    border: 1px dotted var(--oq-border);
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .table-dotted tbody tr:nth-child(even) {
+    background: var(--oq-row-alt);
+  }
+
+  .modal-topbar {
+    border-top: 6px solid #3255a4;
+    background: var(--oq-surface);
+  }
+
+  .mono {
+    font-family: "Noto Sans Mono", monospace;
+  }
+}
+
+/* Renderer-host scopes the 12 imperative OOP renderers to the blueprint look. */
+.renderer-host button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--oq-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--oq-ink);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 0.12s linear, color 0.12s linear;
+}
+.renderer-host button:hover {
+  border-color: #3255a4;
+  color: #3255a4;
+}
+.renderer-host input[type="text"],
+.renderer-host input[type="number"],
+.renderer-host input:not([type]),
+.renderer-host textarea,
+.renderer-host select {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 2px solid var(--oq-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--oq-ink);
+  padding: 8px 0;
+  outline: none;
+  font-family: inherit;
+}
+.renderer-host input:focus,
+.renderer-host textarea:focus,
+.renderer-host select:focus {
+  border-bottom-color: #3255a4;
+}
+.renderer-host pre {
+  background: var(--oq-row-alt);
+  border: 1px solid var(--oq-border);
+}
+
 code,
-pre,
-.mono {
+pre {
   font-family: "Noto Sans Mono", monospace;
 }
