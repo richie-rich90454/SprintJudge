@@ -1,6 +1,7 @@
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
+import { useEnter } from "../hooks/useMotion";
 import { QuestionDto } from "../types";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
@@ -126,9 +127,11 @@ export function QuestionWizard() {
   const stepBtn = (s: WizardStep) =>
     `btn text-sm capitalize ${wizardStep === s ? "btn-primary" : "btn-secondary"}`;
 
+  const panelRef = useEnter<HTMLDivElement>("modal");
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-      <div className="modal-topbar border border-line w-full max-w-2xl max-h-[90vh] overflow-auto p-6">
+      <div ref={panelRef} className="modal-topbar border border-line w-full max-w-2xl max-h-[90vh] overflow-auto p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Question wizard</h2>
           <button onClick={closeWizard} className="text-muted">Close</button>
