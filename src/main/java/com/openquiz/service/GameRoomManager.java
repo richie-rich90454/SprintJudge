@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -242,7 +241,7 @@ public class GameRoomManager {
     private int countAttempts(String sessionId, String questionId, String playerUuid) {
         return submissionRepository.findBySessionQuestion(sessionId, questionId).stream()
                 .filter(s -> s.playerUuid().equals(playerUuid))
-                .mapToInt(Submission::attemptCount).sum();
+                .mapToInt(s -> s.attemptCount()).sum();
     }
 
     private void broadcastRoomState(String pin) {
@@ -256,7 +255,7 @@ public class GameRoomManager {
     private List<String> playerSessionIds(String pin) {
         GameRoom room = rooms.get(pin);
         if (room == null) return List.of();
-        return room.players().stream().map(Player::sessionId).filter(s -> s != null).toList();
+        return room.players().stream().map(p -> p.sessionId()).filter(s -> s != null).toList();
     }
 
     private GameRoom require(String pin) {
