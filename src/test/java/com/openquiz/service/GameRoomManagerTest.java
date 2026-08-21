@@ -1,5 +1,8 @@
 package com.openquiz.service;
 
+import com.openquiz.domain.dto.QuestionStart;
+import com.openquiz.domain.dto.RoundResult;
+import com.openquiz.domain.dto.TimerUpdate;
 import com.openquiz.domain.models.GameSession;
 import com.openquiz.domain.models.Question;
 import com.openquiz.repository.GameSessionRepository;
@@ -10,6 +13,7 @@ import com.openquiz.util.Json;
 import com.openquiz.websocket.WebSocketSessionManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,11 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,47 +57,297 @@ class GameRoomManagerTest {
                 evaluationService, settingsService);
     }
 
+    private GameSession session(String pin) {
+        return new GameSession("s1", "qz", pin, "host", "LOBBY", 0, null, null, null, Instant.now());
+    }
+
+    private Question mcq(String id) {
+        return new Question(id, "qz", "T", "D", "MCQ", null, 30, 100,
+                Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
+    }
+
+    /** Lifecycle tests need a live room in the manager's map before driving rounds. */
+    private void seedRoom(GameRoomManager mgr) {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Seed", "seed-sess", "player");
+    }
+
+    // ---------- join ----------
+
     @Test
     void joinRejectsInvalidPin() {
         when(sessionRepository.findByPin("000000")).thenReturn(Optional.empty());
-        try {
-            manager().join("000000", "Alice", "sess-1", "player");
-        } catch (IllegalArgumentException expected) {
-            // expected
-        }
+        assertThrows(IllegalArgumentException.class,
+                () -> manager().join("000000", "Alice", "sess-1", "player"));
         verify(ws, never()).broadcast(any(), any());
     }
 
     @Test
-    void submitScoresSelectionAndSaves() {
-        GameRoomManager mgr = manager();
-        GameSession session = new GameSession("s1", "qz", "123456", "host", "LOBBY", 0, null, null, null, Instant.now());
-        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session));
-        Question q = new Question("q1", "qz", "T", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(q));
-        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
-        when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
-        when(scoringEngine.scoreSelection(eq(true), anyLong(), anyLong(), anyInt(), any())).thenReturn(900);
-
-        var player = mgr.join("123456", "Alice", "sess-1", "player");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-
-        verify(submissionRepository).save(any());
-        // One ROOM_STATE broadcast on join + one LEADERBOARD broadcast on submit.
-        verify(ws, times(2)).broadcast(any(), any());
+    void joinSanitizesHostileNicknames() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Player p = manager().join("123456", "<script>x</script>", "sess", "player");
+        assertTrue(p.name().matches("[A-Za-z0-9 _\\-]*"));
     }
 
     @Test
     void secondHostIsRejected() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
-        GameSession session = new GameSession("s1", "qz", "123456", "host", "LOBBY", 0, null, null, null, Instant.now());
-        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session));
-
         mgr.join("123456", "Host", "sess-h", "host");
-        try {
-            mgr.join("123456", "Impostor", "sess-i", "host");
-        } catch (IllegalStateException expected) {
-            // expected
+        assertThrows(IllegalStateException.class,
+                () -> mgr.join("123456", "Impostor", "sess-i", "host"));
+    }
+
+    @Test
+    void roomRejectsPlayersBeyondFiveHundred() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        for (int i = 0; i < 500; i++) {
+            mgr.join("123456", "P" + i, "s" + i, "player");
         }
+        assertThrows(IllegalStateException.class,
+                () -> mgr.join("123456", "Extra", "s501", "player"));
+    }
+
+    // ---------- selection submit ----------
+
+    @Test
+    void submitScoresSelectionAndSaves() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), any())).thenReturn(900);
+
+        var player = mgr.join("123456", "Alice", "sess-1", "player");
+        mgr.submit("123456", "q1", player.uuid(), "python",
+                Json.readTree("{\"selectedIndex\":0}"));
+
+        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        verify(submissionRepository).save(saved.capture());
+        assertEquals(900, saved.getValue().scoreEarned());
+        assertTrue(saved.getValue().correct());
+        verify(ws, times(2)).broadcast(any(), any());   // ROOM_STATE + LEADERBOARD
+    }
+
+    @Test
+    void wrongSelectionSavesZeroWithoutScoringCall() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(0.0);
+        when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
+
+        var player = mgr.join("123456", "Bob", "sess-b", "player");
+        mgr.submit("123456", "q1", player.uuid(), "python",
+                Json.readTree("{\"selectedIndex\":3}"));
+
+        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        verify(submissionRepository).save(saved.capture());
+        assertEquals(0, saved.getValue().scoreEarned());
+        assertEquals(false, saved.getValue().correct());
+        // Fraction flows into the engine, which hard-zeroes it internally.
+        verify(scoringEngine).scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), any());
+    }
+
+    @Test
+    void partialCreditScalesTheRawSpeedScore() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        String multi = Json.write(Map.of("correctIndices", List.of(0, 1)));
+        when(questionRepository.findById("m1")).thenReturn(Optional.of(
+                new Question("m1", "qz", "M", "D", "MULTIPLE_SELECT", null, 30, 100, multi, 0, Instant.now())));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(0.75);
+        when(submissionRepository.findBySessionQuestion(anyString(), anyString())).thenReturn(List.of());
+        when(scoringEngine.scoreSelection(eq(0.75), anyLong(), anyLong(), anyInt(), any())).thenReturn(800);
+
+        var player = mgr.join("123456", "Cara", "sess-p", "player");
+        mgr.submit("123456", "m1", player.uuid(), "python",
+                Json.readTree("{\"selectedIndices\":[0]}"));
+
+        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        verify(submissionRepository).save(saved.capture());
+        assertEquals(600, saved.getValue().scoreEarned());
+        assertEquals(false, saved.getValue().correct());
+    }
+
+    @Test
+    void codingSubmitsRouteToProcessorNotSelectionPath() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        var player = mgr.join("123456", "Cody", "sess-c", "player");
+
+        mgr.submit("123456", "oj1", player.uuid(), "python",
+                Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
+
+        verify(submissionProcessor).processCoding(eq("s1"), eq("oj1"), eq("Cody"),
+                eq(player.uuid()), eq("python"), eq("print(1)"), any());
+        verify(submissionRepository, never()).save(any());
+    }
+
+    // ---------- question lifecycle ----------
+
+    @Test
+    void startQuestionArmsTimerAndBroadcastsQuestionStart() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+
+        mgr.startQuestion("123456");
+
+        verify(sessionRepository).updateStatus("s1", "ACTIVE");
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof QuestionStart));
+    }
+
+    @Test
+    void startQuestionWithoutQuizQuestionsFailsCleanly() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        assertThrows(IllegalStateException.class, () -> mgr.startQuestion("123456"));
+    }
+
+    @Test
+    void nextQuestionPastTheLastEndsGameAndEvictsRoom() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+
+        mgr.startQuestion("123456");
+        mgr.nextQuestion("123456");
+
+        verify(sessionRepository).updateStatus("s1", "ENDED");
+        assertThrows(IllegalArgumentException.class, () -> mgr.getRoomState("123456"));
+    }
+
+    @Test
+    void extendTimerBroadcastsUpdatedDeadline() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+
+        mgr.extendTimer("123456", 30);
+
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        TimerUpdate update = (TimerUpdate) msg.getAllValues().stream()
+                .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
+        assertEquals(30, update.extendSec());
+        assertTrue(update.newEndEpochMs() > System.currentTimeMillis());
+    }
+
+    @Test
+    void forceSubmitMarksReviewAndRevealsRoundResult() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.clearInvocations(ws);
+
+        mgr.forceSubmit("123456");
+
+        verify(sessionRepository).updateStatus("s1", "REVIEW");
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws).broadcast(any(), msg.capture());
+        assertEquals("ROUND_RESULT", ((RoundResult) msg.getValue()).type());
+    }
+
+    @Test
+    void kickRemovesPlayerAndNotifiesTheirSession() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "Bad", "sess-k", "player");
+        org.mockito.Mockito.clearInvocations(ws);
+
+        mgr.kickPlayer("123456", p.uuid());
+
+        verify(ws).send(eq("sess-k"), any());
+        assertEquals(0, mgr.getRoomState("123456").players().size());
+    }
+
+    @Test
+    void leaveDropsDisconnectedPlayer() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "Ghost", "sess-g", "player");
+        org.mockito.Mockito.clearInvocations(ws);
+
+        mgr.leave("123456", p.uuid());
+
+        assertEquals(0, mgr.getRoomState("123456").players().size());
+    }
+
+    // ---------- creation ----------
+
+    @Test
+    void createRoomGeneratesSixDigitPinAndPersistsLobby() {
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(
+                new com.openquiz.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
+        lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
+                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
+                        inv.getArgument(1), "LOBBY", 0, null, null, null, Instant.now()));
+
+        GameSession created = manager().createRoom("qz", "host-1");
+
+        assertEquals("LOBBY", created.status());
+        assertTrue(created.pinCode().matches("\\d{6}"));
+    }
+
+    // ---------- state shape ----------
+
+    @Test
+    void getRoomStateExposesStatusCountAndPlayers() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("a"), mcq("b")));
+        mgr.join("123456", "A", "sa", "player");
+        mgr.join("123456", "B", "sb", "player");
+
+        var state = mgr.getRoomState("123456");
+
+        assertEquals("ROOM_STATE", state.type());
+        assertEquals("LOBBY", state.status());
+        assertEquals(2, state.questionCount());
+        assertEquals(2, state.players().size());
+    }
+
+    @Test
+    void submitForUnknownPlayerIsIgnored() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+
+        mgr.submit("123456", "q1", "ghost-uuid", "python",
+                Json.readTree("{\"selectedIndex\":0}"));
+
+        verify(submissionRepository, never()).save(any());
+    }
+
+    @Test
+    void secondRoundProgressesIndexAndStaysActive() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+
+        mgr.startQuestion("123456");
+        mgr.nextQuestion("123456");
+
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        assertTrue(msg.getAllValues().stream()
+                .filter(m -> m instanceof QuestionStart)
+                .map(m -> (QuestionStart) m)
+                .anyMatch(qs -> qs.question().id().equals("q2")));
     }
 }
