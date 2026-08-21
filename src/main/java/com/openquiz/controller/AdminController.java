@@ -2,7 +2,6 @@ package com.openquiz.controller;
 
 import com.openquiz.domain.models.Question;
 import com.openquiz.domain.models.Quiz;
-import com.openquiz.repository.AdminSettingsRepository;
 import com.openquiz.repository.QuestionRepository;
 import com.openquiz.repository.QuizRepository;
 import com.openquiz.service.AdminSettingsService;
@@ -20,20 +19,18 @@ public class AdminController {
 
     private final QuizRepository quizRepository;
     private final QuestionRepository questionRepository;
-    private final AdminSettingsRepository settingsRepository;
     private final AdminSettingsService settingsService;
     private final ImportExportService importExportService;
     private final com.openquiz.repository.UserRepository userRepository;
     private final com.openquiz.service.GameRoomManager roomManager;
 
     public AdminController(QuizRepository quizRepository, QuestionRepository questionRepository,
-                           AdminSettingsRepository settingsRepository, AdminSettingsService settingsService,
+                           AdminSettingsService settingsService,
                            ImportExportService importExportService,
                            com.openquiz.repository.UserRepository userRepository,
                            com.openquiz.service.GameRoomManager roomManager) {
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
-        this.settingsRepository = settingsRepository;
         this.settingsService = settingsService;
         this.importExportService = importExportService;
         this.userRepository = userRepository;
