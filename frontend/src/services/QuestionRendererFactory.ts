@@ -13,7 +13,7 @@ import { OjFullRenderer } from "./renderers/OjFullRenderer";
 import { OjPatchRenderer } from "./renderers/OjPatchRenderer";
 import { QuestionType } from "../types";
 
-type Ctor = new (container: HTMLElement, config: unknown, onChange: ResponseChange) => BaseQuestionRenderer;
+type Ctor = new (container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string) => BaseQuestionRenderer;
 
 /**
  * Static factory mapping a question type to its renderer. Add a new case to
@@ -35,10 +35,10 @@ export class QuestionRendererFactory {
     OJ_PATCH: OjPatchRenderer,
   };
 
-  static create(type: QuestionType, container: HTMLElement, config: unknown, onChange: ResponseChange): BaseQuestionRenderer {
+  static create(type: QuestionType, container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string): BaseQuestionRenderer {
     const C = this.REGISTRY[type];
     if (!C) throw new Error("No renderer for type " + type);
-    return new C(container, config, onChange);
+    return new C(container, config, onChange, questionId);
   }
 
   static supported(): QuestionType[] {
