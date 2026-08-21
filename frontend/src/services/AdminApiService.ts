@@ -42,8 +42,8 @@ export class AdminApiService {
     return this.client.get<QuizDto[]>("/public/quizzes").then((r) => r.data);
   }
 
-  getQuiz(id: string) {
-    return this.client.get<{ quiz: QuizDto; questions: QuestionPayload[] }>(`/public/quizzes/${id}`).then((r) => r.data);
+  getQuestions(quizId: string) {
+    return this.client.get<QuestionPayload[]>(`/admin/quizzes/${quizId}/questions`).then((r) => r.data);
   }
 
   createQuiz(quiz: Partial<QuizDto>) {
@@ -74,8 +74,9 @@ export class AdminApiService {
     return this.client.put("/admin/settings", settings);
   }
 
-  createGame(quizId: string, hostUserId = "system") {
-    return this.client.post<{ id: string; pinCode: string }>("/public/games", { quizId, hostUserId }).then((r) => r.data);
+  createGame(quizId: string) {
+    // Host identity is resolved server-side from the OAuth2 session.
+    return this.client.post<{ id: string; pinCode: string }>("/admin/games", { quizId }).then((r) => r.data);
   }
 
   exportBank() {
