@@ -5,7 +5,9 @@ import org.springframework.util.StringUtils;
 /**
  * Edge case Z: player names may only contain alphanumerics, spaces, hyphens and
  * underscores. They are truncated to 20 characters and rejected (empty result)
- * if nothing valid remains. The result is HTML-escaped for safe broadcasting.
+ * if nothing valid remains. The whitelist already excludes every HTML
+ * metacharacter, so no escaping pass is needed (and escaping would corrupt
+ * legitimate non-ASCII letters such as é).
  */
 public final class NameSanitizer {
 
@@ -23,7 +25,6 @@ public final class NameSanitizer {
             if (out.length() >= MAX_LENGTH) break;
         }
         String cleaned = out.toString().trim();
-        if (cleaned.isEmpty()) return "";
-        return org.springframework.web.util.HtmlUtils.htmlEscape(cleaned);
+        return cleaned;
     }
 }
