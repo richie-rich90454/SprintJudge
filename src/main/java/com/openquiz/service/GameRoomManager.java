@@ -69,19 +69,29 @@ public class GameRoomManager {
         return session;
     }
 
-    public Player join(String pin, String name, String sessionId) {
-        GameRoom room = rooms.get(pin);
-        if (room == null) {
-            Optional<GameSession> s = sessionRepository.findByPin(pin);
-            if (s.isEmpty()) throw new IllegalArgumentException("Invalid PIN");
-            room = new GameRoom(s.get().id(), s.get().quizId(), pin, s.get().status());
-            rooms.put(pin, room);
-        }
+    private static final int MAX_PLAYERS = 500;
+
+    public Player join(String pin, String name, String sessionId, String role) {
+        GameRoom room = rooms.computeIfAbsent(pin, p -> {
+            GameSession s = sessionRepository.findByPin(p)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid PIN"));
+            return new GameRoom(s.id(), s.quizId(), p, s.status());
+        });
         // Edge case Z: sanitise the player name before it ever enters state/broadcasts.
         String safeName = com.openquiz.util.NameSanitizer.sanitize(name);
         if (safeName.isEmpty()) safeName = "Player";
-        Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true);
-        room.addPlayer(p);
+        boolean isHost = "host".equalsIgnoreCase(role);
+        Player p;
+        synchronized (room) {
+            if (isHost) {
+                if (room.hostUuid() != null) throw new IllegalStateException("A host is already connected");
+            } else if (room.players().size() >= MAX_PLAYERS) {
+                throw new IllegalStateException("Room is full");
+            }
+            p = new Player(Ids.uuid(), safeName, 0, sessionId, true);
+            room.addPlayer(p);
+            if (isHost) room.setHostUuid(p.uuid());
+        }
         broadcastRoomState(pin);
         return p;
     }
