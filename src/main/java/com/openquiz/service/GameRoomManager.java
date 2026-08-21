@@ -77,7 +77,10 @@ public class GameRoomManager {
             room = new GameRoom(s.get().id(), s.get().quizId(), pin, s.get().status());
             rooms.put(pin, room);
         }
-        Player p = new Player(Ids.uuid(), name, 0, sessionId, true);
+        // Edge case Z: sanitise the player name before it ever enters state/broadcasts.
+        String safeName = com.openquiz.util.NameSanitizer.sanitize(name);
+        if (safeName.isEmpty()) safeName = "Player";
+        Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true);
         room.addPlayer(p);
         broadcastRoomState(pin);
         return p;
@@ -165,6 +168,9 @@ public class GameRoomManager {
         GameRoom room = require(pin);
         room.setStatus("REVIEW");
         sessionRepository.updateStatus(room.sessionId(), "REVIEW");
+        // Edge case Y: force-submit is NOT a priority interrupt. Any in-flight coding
+        // judgements remain enqueued on the Semaphore(100) and will update scores
+        // independently when they finish; this only reveals the current round result.
         sendRoundResult(pin, true);
     }
 
