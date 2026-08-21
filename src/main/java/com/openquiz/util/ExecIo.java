@@ -22,10 +22,15 @@ public final class ExecIo {
      * limit is exceeded (caller must kill the process).
      */
     public static String readCapped(Process proc) {
+        return readCappedStream(proc.getInputStream());
+    }
+
+    /** Stream-level variant, directly unit-testable without spawning processes. */
+    public static String readCappedStream(InputStream in) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];
         int total = 0;
-        try (InputStream in = proc.getInputStream()) {
+        try {
             int n;
             while ((n = in.read(buf)) != -1) {
                 total += n;
