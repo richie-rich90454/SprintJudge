@@ -24,8 +24,12 @@ endpoints are under `/api/public/**`.
 | DELETE | `/api/admin/questions/{id}` | Delete question |
 | GET | `/api/admin/settings` | Admin settings map |
 | PUT | `/api/admin/settings` | Update settings |
+| POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the OAuth2 session |
 | GET | `/api/admin/export` | Export entire bank as JSON |
 | POST | `/api/admin/import` | Import bank (`{ json, replace }`) |
+
+Question payloads embed answer keys in their `config`, so they are admin-only by design —
+the public surface never exposes them.
 
 ## Export JSON schema
 
@@ -59,4 +63,13 @@ endpoints are under `/api/public/**`.
 ## Validation
 
 Request bodies are validated with Jakarta Bean Validation (`@NotBlank`, `@Size`, `@Min`,
-`@Valid`). Invalid input returns `400 Bad Request`.
+`@Valid`). Invalid input returns `400 Bad Request` with the failing fields; malformed JSON
+also returns `400`.
+
+## CSRF and headers
+
+Cookie-session auth is protected by CSRF tokens (XSRF-TOKEN cookie echoed as X-XSRF-TOKEN;
+axios does this automatically). Responses carry HSTS, `X-Content-Type-Options: nosniff`,
+a locked-down Content-Security-Policy, `frame-ancestors 'none'` and a same-origin referrer
+policy. CORS defaults to the Vite dev origin; configure `openquiz.cors.allowed-origins`
+in production.
