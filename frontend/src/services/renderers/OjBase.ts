@@ -37,8 +37,21 @@ export abstract class OjBase extends BaseQuestionRenderer {
       spellcheck: false,
     });
     ta.value = initial;
+    // Frontend resilience: restore any cached draft for this question.
+    if (this.questionId) {
+      try {
+        const cached = localStorage.getItem(`openquiz_code_${this.questionId}`);
+        if (cached) {
+          ta.value = cached;
+          this.source = cached;
+        }
+      } catch { /* ignore */ }
+    }
     ta.addEventListener("input", () => {
       this.source = ta.value;
+      if (this.questionId) {
+        try { localStorage.setItem(`openquiz_code_${this.questionId}`, this.source); } catch { /* ignore */ }
+      }
       this.emitResponse();
     });
 
