@@ -16,7 +16,7 @@ export function QuestionView() {
   if (status === "REVIEW") {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-surface shadow-card rounded-xl border border-border p-6 text-center">
+        <div className="card text-center">
           <p className="text-muted">Round over — waiting for the host…</p>
         </div>
       </div>
@@ -34,15 +34,16 @@ export function QuestionView() {
   const doSubmit = () => {
     submit(q.id, response, isCoding(q.type) ? (response as { language?: string })?.language : undefined);
     setSubmitted(true);
+    try { localStorage.removeItem(`openquiz_code_${q.id}`); } catch { /* ignore */ }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4">
-      <div className="w-full max-w-2xl bg-surface shadow-card rounded-xl border border-border p-6">
+      <div className="card w-full max-w-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <span className="text-xs uppercase tracking-wide text-muted">{q.type.replace("_", " ")}</span>
-            <h2 className="text-xl font-semibold mt-1">{q.title}</h2>
+            <h2 className="text-xl font-bold mt-1">{q.title}</h2>
             {q.description && <p className="text-muted mt-1 whitespace-pre-wrap">{q.description}</p>}
           </div>
           <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} onExpire={() => !submitted && doSubmit()} />
@@ -53,7 +54,7 @@ export function QuestionView() {
         <button
           onClick={doSubmit}
           disabled={submitted}
-          className="w-full min-h-tap mt-6 rounded-lg bg-primary text-white font-medium hover:bg-primary-dark disabled:opacity-50"
+          className="btn btn-primary w-full mt-6 disabled:opacity-50"
         >
           {submitted ? "Submitted" : isCoding(q.type) ? "Run & submit" : "Submit answer"}
         </button>
