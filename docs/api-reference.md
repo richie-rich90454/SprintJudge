@@ -3,6 +3,20 @@
 All REST endpoints under `/api/admin/**` require an authenticated admin (OAuth2). Public
 endpoints are under `/api/public/**`.
 
+## Request lifecycle
+
+```mermaid
+flowchart LR
+    R["HTTP request"] --> C["CSRF filter<br/>XSRF-TOKEN cookie"]
+    C --> A{"Route guard"}
+    A -->|"/api/admin/**"| OA["OAuth2 session required"]
+    A -->|"/api/public/**"| V
+    OA --> V["Bean Validation<br/>@NotBlank · @Size · @Min"]
+    V -->|"400 + field details"| X["Problem returned"]
+    V -->|"valid"| H["Controller → service → JOOQ"]
+    H --> S["200 with JSON"]
+```
+
 ## Public
 
 | Method | Path | Description |
