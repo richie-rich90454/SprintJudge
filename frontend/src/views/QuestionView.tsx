@@ -3,6 +3,7 @@ import { useGameStore } from "../stores/useGameStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
+import { useEnter, useStaggerIn } from "../hooks/useMotion";
 import { QuestionDto } from "../types";
 
 export function QuestionView() {
@@ -12,6 +13,10 @@ export function QuestionView() {
   const submit = useGameStore((s) => s.submit);
   const [response, setResponse] = useState<unknown>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  const cardRef = useEnter<HTMLDivElement>("card", [q?.id]);
+  const optionsRef = useStaggerIn<HTMLDivElement>(".renderer-host button", [q?.id], 0.04);
+  const barRef = useEnter<HTMLButtonElement>("bar", [q?.id]);
 
   if (status === "REVIEW") {
     return (
@@ -39,7 +44,7 @@ export function QuestionView() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4">
-      <div className="card w-full max-w-2xl">
+      <div ref={cardRef} className="card w-full max-w-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <span className="text-xs uppercase tracking-wide text-muted">{q.type.replace("_", " ")}</span>
@@ -49,9 +54,12 @@ export function QuestionView() {
           <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} onExpire={() => !submitted && doSubmit()} />
         </div>
 
-        <QuestionRendererHost question={q} onResponse={setResponse} />
+        <div ref={optionsRef}>
+          <QuestionRendererHost question={q} onResponse={setResponse} />
+        </div>
 
         <button
+          ref={barRef}
           onClick={doSubmit}
           disabled={submitted}
           className="btn btn-primary w-full mt-6 disabled:opacity-50"
