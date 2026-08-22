@@ -55,7 +55,7 @@ export function QuestionView() {
   const doSubmit = () => {
     submit(q.id, response, isCoding(q.type) ? (response as { language?: string })?.language : undefined);
     setSubmitted(true);
-    try { localStorage.removeItem(`openquiz_code_${q.id}`); } catch { /* ignore */ }
+    try { localStorage.removeItem(`sprintjudge_code_${q.id}`); } catch { /* ignore */ }
   };
 
   return (
