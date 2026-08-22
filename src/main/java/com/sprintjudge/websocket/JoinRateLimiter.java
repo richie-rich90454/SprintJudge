@@ -1,4 +1,4 @@
-package com.openquiz.websocket;
+package com.sprintjudge.websocket;
 
 import org.springframework.stereotype.Component;
 
