@@ -9,6 +9,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Session registry and fan-out primitive.
+ *
+ * <p>Performance contract: {@link #broadcast(Collection, Object)} serializes the
+ * payload EXACTLY ONCE and writes the pre-rendered string to every session —
+ * the old behavior re-serialized per recipient, which dominated CPU at scale.
+ * Individual session failures are isolated and never abort the fan-out.
+ */
 @Component
 public class WebSocketSessionManager {
 
@@ -23,24 +31,30 @@ public class WebSocketSessionManager {
     }
 
     public void send(String sessionId, Object message) {
+        sendRaw(sessionId, Json.write(message));
+    }
+
+    public void sendRaw(String sessionId, String json) {
         Session s = sessions.get(sessionId);
         if (s == null || !s.isOpen()) return;
         try {
-            s.getBasicRemote().sendText(Json.write(message));
+            s.getBasicRemote().sendText(json);
         } catch (IOException ignored) {
+            // Broken pipe / race with close: drop this recipient, keep fanning out.
         }
     }
 
     public void broadcast(Collection<String> sessionIds, Object message) {
-        String text = Json.write(message);
+        broadcastRaw(sessionIds, Json.write(message));
+    }
+
+    public void broadcastRaw(Collection<String> sessionIds, String json) {
         for (String id : sessionIds) {
-            Session s = sessions.get(id);
-            if (s != null && s.isOpen()) {
-                try {
-                    s.getBasicRemote().sendText(text);
-                } catch (IOException ignored) {
-                }
-            }
+            sendRaw(id, json);
         }
+    }
+
+    public int size() {
+        return sessions.size();
     }
 }
