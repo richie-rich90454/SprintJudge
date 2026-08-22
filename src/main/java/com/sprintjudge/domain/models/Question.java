@@ -1,4 +1,4 @@
-package com.openquiz.domain.models;
+package com.sprintjudge.domain.models;
 
 import java.time.Instant;
 import java.util.List;
