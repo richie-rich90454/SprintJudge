@@ -16,7 +16,7 @@ class JsonTest {
     @Test
     void writeThenReadRoundTrip() {
         String json = Json.write(Map.of("a", 1, "b", "two"));
-        Map<String, Object> back = Json.read(json, Map.class);
+        Map<String, Object> back = Json.readMap(json);
         assertEquals(1, ((Number) back.get("a")).intValue());
         assertEquals("two", back.get("b"));
     }
