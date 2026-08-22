@@ -67,10 +67,21 @@ Host or admin commands: NEXT_QUESTION, FORCE_SUBMIT, END_GAME, EXTEND_TIMER (wit
 | ROOM_STATE | players, status, question count |
 | QUESTION_START | full question DTO, time limit, start timestamp |
 | ROUND_RESULT | scores per player, correct answer |
-| LEADERBOARD | rankings array |
+| LEADERBOARD_DELTA | seq, resync flag, exact rank upserts since last seq |
+| LEADERBOARD | legacy full rankings (game end) |
 | GAME_END | final rankings |
 | ERROR | message |
 | TIMER_UPDATE | new end timestamp, extend seconds |
+
+### Leaderboard accuracy contract
+
+Every mutation bumps a per-room monotonic `seq`; deltas carry exact 1-based ranks
+computed from an order-statistic skip list. A client that sees a seq gap sends:
+
+RESYNC_LEADERBOARD: { "type": "RESYNC_LEADERBOARD" }
+
+and receives one authoritative batch with `"resync":true` to apply as a wholesale
+replacement. No drift, no approximations.
 
 ## Edge cases on the wire
 
