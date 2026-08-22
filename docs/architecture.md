@@ -1,6 +1,6 @@
 # Architecture
 
-OpenQuiz is a Spring Boot 4 monolith with a vanilla Jakarta WebSocket endpoint and a
+SprintJudge is a Spring Boot 4 monolith with a vanilla Jakarta WebSocket endpoint and a
 React 19 single-page frontend. Everything runs on a single portable SQLite database.
 
 ## System overview
