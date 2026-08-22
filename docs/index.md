@@ -1,7 +1,7 @@
 ---
 layout: home
 hero:
-  name: OpenQuiz
+  name: SprintJudge
   text: Real-time coding quiz platform with a built-in Online Judge
   tagline: The open-source alternative to closed MCQ-only tools — 12 question formats, live execution, Kahoot-style adrenaline.
   actions:
