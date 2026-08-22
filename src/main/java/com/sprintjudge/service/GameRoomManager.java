@@ -1,19 +1,19 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.openquiz.domain.dto.*;
-import com.openquiz.domain.enums.QuestionType;
-import com.openquiz.domain.models.GameSession;
-import com.openquiz.domain.models.Question;
-import com.openquiz.domain.models.Submission;
-import com.openquiz.repository.GameSessionRepository;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.QuizRepository;
-import com.openquiz.repository.SubmissionRepository;
-import com.openquiz.service.room.RoomRegistry;
-import com.openquiz.util.Ids;
-import com.openquiz.util.Json;
-import com.openquiz.websocket.WebSocketSessionManager;
+import com.sprintjudge.domain.dto.*;
+import com.sprintjudge.domain.enums.QuestionType;
+import com.sprintjudge.domain.models.GameSession;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.domain.models.Submission;
+import com.sprintjudge.repository.GameSessionRepository;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.QuizRepository;
+import com.sprintjudge.repository.SubmissionRepository;
+import com.sprintjudge.service.room.RoomRegistry;
+import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.Json;
+import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     private final BroadcastScheduler scheduler;
     private final SubmissionWriteBuffer writeBuffer;
 
-    @Value("${openquiz.room.max-players:10000}")
+    @Value("${sprintjudge.room.max-players:10000}")
     private int maxPlayers = 10000;   // literal default keeps plain `new` usable in tests
 
     public GameRoomManager(GameSessionRepository sessionRepository,
@@ -91,7 +91,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             return new GameRoom(s.id(), s.quizId(), pin, s.status(), maxPlayers);
         });
         // Edge case Z: sanitise the player name before it ever enters state/broadcasts.
-        String safeName = com.openquiz.util.NameSanitizer.sanitize(name);
+        String safeName = com.sprintjudge.util.NameSanitizer.sanitize(name);
         if (safeName.isEmpty()) safeName = "Player";
         boolean isHost = "host".equalsIgnoreCase(role);
         Player p;
@@ -253,7 +253,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (json != null) ws.sendRaw(sessionId, json);
     }
 
-    private String deltaJson(com.openquiz.service.leaderboard.DeltaLedger.Batch b) {
+    private String deltaJson(com.sprintjudge.service.leaderboard.DeltaLedger.Batch b) {
         if (b == null || (b.resync() && b.upserts().isEmpty())) return null;
         List<LeaderboardEntry> entries = b.upserts().stream()
                 .map(d -> new LeaderboardEntry(d.uuid(), d.name(), (int) d.score(), d.rank()))
