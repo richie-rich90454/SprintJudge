@@ -1,4 +1,4 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,10 +15,10 @@ import java.util.List;
  */
 @Component
 @Profile("!dev")
-@ConditionalOnProperty(name = "openquiz.executor.mode", havingValue = "nsjail")
+@ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "nsjail")
 public class NsJailExecutor extends AbstractScriptExecutor {
 
-    @Value("${openquiz.executor.nsjail-binary:/usr/bin/nsjail}")
+    @Value("${sprintjudge.executor.nsjail-binary:/usr/bin/nsjail}")
     private String nsjailBinary;
 
     @Override
