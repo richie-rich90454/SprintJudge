@@ -9,7 +9,6 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import javax.sql.DataSource;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
 
 @Configuration
 public class AppConfig {
@@ -24,11 +23,5 @@ public class AppConfig {
         SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("openquiz-vt-");
         executor.setVirtualThreads(true);
         return executor;
-    }
-
-    @Bean
-    public Semaphore executionSlots(
-            @org.springframework.beans.factory.annotation.Value("${openquiz.executor.max-concurrent:100}") int max) {
-        return new Semaphore(Math.max(1, max));
     }
 }
