@@ -1,7 +1,7 @@
-package com.openquiz.controller;
+package com.sprintjudge.controller;
 
-import com.openquiz.domain.models.Quiz;
-import com.openquiz.repository.QuizRepository;
+import com.sprintjudge.domain.models.Quiz;
+import com.sprintjudge.repository.QuizRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
