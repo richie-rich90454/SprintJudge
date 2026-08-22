@@ -29,7 +29,15 @@ scripts\run-prod.ps1          # builds target\sprintjudge.jar and starts it with
 ```
 
 The parent directory of `SPRINTJUDGE_DB_PATH` is created automatically on first boot.
-For hardened Linux hosts keep `SPRINTJUDGE_EXECUTOR_MODE=nsjail` (the systemd unit already
+Without an explicit path, the database (and a `.env` file if present) lives next to
+the running jar, so the whole deployment is one folder you can copy around.
+Verify any Windows launch in one command:
+
+```powershell
+scripts\verify-prod.ps1 -SkipBuild   # boots prod, checks REST + SPA + auth wall + WebSocket
+```
+
+For hardened Linux hosts keep `OPENQUIZ_EXECUTOR_MODE=nsjail` (the systemd unit already
 pins it); on Windows, prefer running the JVM under a dedicated service account and rely
 on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
 
