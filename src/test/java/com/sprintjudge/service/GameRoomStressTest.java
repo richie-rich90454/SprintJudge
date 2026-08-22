@@ -37,9 +37,10 @@ class GameRoomStressTest {
     @Mock SubmissionRepository submissionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock SubmissionProcessor submissionProcessor;
-    @SuppressWarnings("unchecked")
     private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider =
-            (org.springframework.beans.factory.ObjectProvider<SubmissionProcessor>) org.mockito.Mockito.mock(org.springframework.beans.factory.ObjectProvider.class);
+            new org.springframework.beans.factory.ObjectProvider<>() {
+                @Override public SubmissionProcessor getObject() { return submissionProcessor; }
+            };
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
