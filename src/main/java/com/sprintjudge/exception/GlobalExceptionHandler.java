@@ -43,6 +43,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage("ERROR", e.getMessage()));
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorMessage> handleNoResource(
+            org.springframework.web.servlet.resource.NoResourceFoundException e) {
+        // Browsers probe /favicon.ico and similar paths constantly; a missing
+        // static asset is a 404, never a logged stack trace.
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage("ERROR", "Not found"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleGeneric(Exception e) {
         // Silent 500s are unacceptable: always record the stack before answering.
