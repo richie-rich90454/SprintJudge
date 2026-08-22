@@ -1,4 +1,4 @@
-package com.openquiz.util;
+package com.sprintjudge.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
