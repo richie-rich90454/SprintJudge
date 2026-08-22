@@ -1,4 +1,4 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
 public interface CodeExecutor {
 
