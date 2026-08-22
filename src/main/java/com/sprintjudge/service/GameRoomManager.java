@@ -229,6 +229,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         registry.remove(Integer.parseInt(pin));
     }
 
+    /** Live-room count for metrics. */
+    public int activeRooms() {
+        return registry.size();
+    }
+
     // ---------- leaderboard transport ----------
 
     /** Hot path: mark dirty; the shared 16 ms tick fans out one delta per room. */
@@ -305,7 +310,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     private List<String> playerSessionIds(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return List.of();
-        return room.players().stream().map(Player::sessionId).filter(s -> s != null).toList();
+        return room.players().stream().map(p -> p.sessionId()).filter(s -> s != null).toList();
     }
 
     private GameRoom require(String pin) {
