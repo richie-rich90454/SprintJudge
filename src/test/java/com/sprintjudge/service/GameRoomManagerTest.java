@@ -14,6 +14,7 @@ import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -46,17 +47,18 @@ class GameRoomManagerTest {
     @Mock SubmissionRepository submissionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock SubmissionProcessor submissionProcessor;
-    @SuppressWarnings("unchecked")
     private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider =
-            (org.springframework.beans.factory.ObjectProvider<SubmissionProcessor>) org.mockito.Mockito.mock(org.springframework.beans.factory.ObjectProvider.class);
+            new org.springframework.beans.factory.ObjectProvider<>() {
+                @Override public SubmissionProcessor getObject() { return submissionProcessor; }
+            };
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
     @Mock BroadcastScheduler scheduler;
     @Mock SubmissionWriteBuffer writeBuffer;
+    @Captor ArgumentCaptor<java.util.Collection<String>> ids;
 
     private GameRoomManager manager() {
-        lenient().when(processorProvider.getObject()).thenReturn(submissionProcessor);
         return new GameRoomManager(sessionRepository, quizRepository, questionRepository,
                 submissionRepository, scoringEngine, processorProvider, ws,
                 evaluationService, settingsService, scheduler, writeBuffer);
@@ -145,9 +147,7 @@ class GameRoomManagerTest {
         verify(scheduler).markDirty(eq(123456), task.capture());
         task.getValue().run();
 
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<java.util.Collection<String>> ids =
-                ArgumentCaptor.forClass(java.util.Collection.class);
+        ArgumentCaptor<java.util.Collection<String>> ids = this.ids;
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
         verify(ws).broadcastRaw(ids.capture(), payload.capture());
         // join(seq=1) + score mutation(seq=2) -> the drained delta carries seq 2.
