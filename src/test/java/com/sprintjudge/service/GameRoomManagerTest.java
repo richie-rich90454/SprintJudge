@@ -1,16 +1,16 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.dto.QuestionStart;
-import com.openquiz.domain.dto.RoundResult;
-import com.openquiz.domain.dto.TimerUpdate;
-import com.openquiz.domain.models.GameSession;
-import com.openquiz.domain.models.Question;
-import com.openquiz.repository.GameSessionRepository;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.QuizRepository;
-import com.openquiz.repository.SubmissionRepository;
-import com.openquiz.util.Json;
-import com.openquiz.websocket.WebSocketSessionManager;
+import com.sprintjudge.domain.dto.QuestionStart;
+import com.sprintjudge.domain.dto.RoundResult;
+import com.sprintjudge.domain.dto.TimerUpdate;
+import com.sprintjudge.domain.models.GameSession;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.repository.GameSessionRepository;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.QuizRepository;
+import com.sprintjudge.repository.SubmissionRepository;
+import com.sprintjudge.util.Json;
+import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -134,8 +134,8 @@ class GameRoomManagerTest {
         mgr.submit("123456", "q1", player.uuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
 
-        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
-                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
         assertEquals(900, saved.getValue().scoreEarned());
         assertTrue(saved.getValue().correct());
@@ -170,8 +170,8 @@ class GameRoomManagerTest {
         mgr.submit("123456", "q1", player.uuid(), "python",
                 Json.readTree("{\"selectedIndex\":3}"));
 
-        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
-                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
         assertEquals(0, saved.getValue().scoreEarned());
         assertEquals(false, saved.getValue().correct());
@@ -195,8 +195,8 @@ class GameRoomManagerTest {
         mgr.submit("123456", "m1", player.uuid(), "python",
                 Json.readTree("{\"selectedIndices\":[0]}"));
 
-        ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
-                ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
+        ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
         assertEquals(600, saved.getValue().scoreEarned());
         assertEquals(false, saved.getValue().correct());
@@ -236,7 +236,7 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq(player.sessionId()), sent.capture());
-        assertTrue(((com.openquiz.domain.dto.ErrorMessage) sent.getValue()).message()
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message()
                 .contains("Judge queue is busy"));
     }
 
@@ -341,7 +341,7 @@ class GameRoomManagerTest {
     @Test
     void createRoomGeneratesSixDigitPinAndPersistsLobby() {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
-                new com.openquiz.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
+                new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
         when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
