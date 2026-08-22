@@ -21,7 +21,7 @@ flowchart TB
 directly (no nsjail on Windows), and the database defaults to a portable relative path.
 
 ```powershell
-scripts\run-prod.ps1          # builds target\sprintjudge.jar and starts it with ZGC
+.\scripts\run-prod.ps1          # builds target\sprintjudge.jar and starts it with ZGC
 # optional environment:
 #   SPRINTJUDGE_DB_PATH=D:\data\sprintjudge.db
 #   SPRINTJUDGE_PORT=8080
@@ -34,7 +34,7 @@ the running jar, so the whole deployment is one folder you can copy around.
 Verify any Windows launch in one command:
 
 ```powershell
-scripts\verify-prod.ps1 -SkipBuild   # boots prod, checks REST + SPA + auth wall + WebSocket
+.\scripts\verify-prod.ps1 -SkipBuild   # boots prod, checks REST + SPA + auth wall + WebSocket
 ```
 
 For hardened Linux hosts keep `OPENQUIZ_EXECUTOR_MODE=nsjail` (the systemd unit already
