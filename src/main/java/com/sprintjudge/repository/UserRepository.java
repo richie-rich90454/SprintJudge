@@ -2,6 +2,7 @@ package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.User;
 import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.RepoUtil;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -39,7 +40,7 @@ public class UserRepository {
                 .fetchOptional(r -> new User(
                         r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
                         r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
-                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(r.get(Tables.USERS_CREATED_AT))));
+                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT)))));
     }
 
     public List<User> findAll() {
@@ -47,6 +48,6 @@ public class UserRepository {
                 .fetch(r -> new User(
                         r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
                         r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
-                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(r.get(Tables.USERS_CREATED_AT))));
+                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT)))));
     }
 }
