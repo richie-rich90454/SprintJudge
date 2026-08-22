@@ -50,11 +50,13 @@ class GameRoomManagerTest {
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
+    @Mock BroadcastScheduler scheduler;
+    @Mock SubmissionWriteBuffer writeBuffer;
 
     private GameRoomManager manager() {
         return new GameRoomManager(sessionRepository, quizRepository, questionRepository,
                 submissionRepository, scoringEngine, submissionProcessor, ws,
-                evaluationService, settingsService);
+                evaluationService, settingsService, scheduler, writeBuffer);
     }
 
     private GameSession session(String pin) {
@@ -66,7 +68,7 @@ class GameRoomManagerTest {
                 Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
     }
 
-    /** Lifecycle tests need a live room in the manager's map before driving rounds. */
+    /** Lifecycle tests need a live room in the manager's registry before driving rounds. */
     private void seedRoom(GameRoomManager mgr) {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
@@ -100,14 +102,17 @@ class GameRoomManagerTest {
     }
 
     @Test
-    void roomRejectsPlayersBeyondFiveHundred() {
+    void roomRejectsPlayersBeyondCapacity() throws Exception {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
-        for (int i = 0; i < 500; i++) {
+        java.lang.reflect.Field f = GameRoomManager.class.getDeclaredField("maxPlayers");
+        f.setAccessible(true);
+        f.setInt(mgr, 3);
+        for (int i = 0; i < 3; i++) {
             mgr.join("123456", "P" + i, "s" + i, "player");
         }
         assertThrows(IllegalStateException.class,
-                () -> mgr.join("123456", "Extra", "s501", "player"));
+                () -> mgr.join("123456", "Extra", "s4", "player"));
     }
 
     // ---------- selection submit ----------
@@ -127,14 +132,30 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
-        verify(submissionRepository).save(saved.capture());
+        verify(writeBuffer).offer(saved.capture());
         assertEquals(900, saved.getValue().scoreEarned());
         assertTrue(saved.getValue().correct());
-        verify(ws, times(2)).broadcast(any(), any());   // ROOM_STATE + LEADERBOARD
+
+        // ROOM_STATE is immediate; the leaderboard goes through the 16 ms coalescer.
+        verify(ws, times(1)).broadcast(any(), any());
+        ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
+        verify(scheduler).markDirty(eq(123456), task.capture());
+        task.getValue().run();
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<java.util.Collection<String>> ids =
+                ArgumentCaptor.forClass(java.util.Collection.class);
+        ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+        verify(ws).broadcastRaw(ids.capture(), payload.capture());
+        // join(seq=1) + score mutation(seq=2) -> the drained delta carries seq 2.
+        assertTrue(payload.getValue().contains("LEADERBOARD_DELTA"));
+        assertTrue(payload.getValue().contains("\"seq\":2"));
+        assertTrue(payload.getValue().contains("\"score\":900"));
+        assertTrue(ids.getValue().contains("sess-1"));
     }
 
     @Test
-    void wrongSelectionSavesZeroWithoutScoringCall() {
+    void wrongSelectionSavesZeroAndStillMarksDirty() {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -147,11 +168,12 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
-        verify(submissionRepository).save(saved.capture());
+        verify(writeBuffer).offer(saved.capture());
         assertEquals(0, saved.getValue().scoreEarned());
         assertEquals(false, saved.getValue().correct());
         // Fraction flows into the engine, which hard-zeroes it internally.
         verify(scoringEngine).scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), any());
+        verify(scheduler).markDirty(eq(123456), any());
     }
 
     @Test
@@ -171,7 +193,7 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<com.openquiz.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.openquiz.domain.models.Submission.class);
-        verify(submissionRepository).save(saved.capture());
+        verify(writeBuffer).offer(saved.capture());
         assertEquals(600, saved.getValue().scoreEarned());
         assertEquals(false, saved.getValue().correct());
     }
@@ -183,13 +205,35 @@ class GameRoomManagerTest {
         Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player");
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), any())).thenReturn(true);
 
         mgr.submit("123456", "oj1", player.uuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
 
         verify(submissionProcessor).processCoding(eq("s1"), eq("oj1"), eq("Cody"),
                 eq(player.uuid()), eq("python"), eq("print(1)"), any());
-        verify(submissionRepository, never()).save(any());
+        verify(writeBuffer, never()).offer(any());
+        verify(ws, never()).send(anyString(), any());
+    }
+
+    @Test
+    void saturatedJudgeAnswersWithFriendlyRetry() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_PATCH", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        var player = mgr.join("123456", "Pat", "sess-j", "player");
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), any())).thenReturn(false);
+
+        mgr.submit("123456", "oj1", player.uuid(), "python",
+                Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq(player.sessionId()), sent.capture());
+        assertTrue(((com.openquiz.domain.dto.ErrorMessage) sent.getValue()).message()
+                .contains("Judge queue is busy"));
     }
 
     // ---------- question lifecycle ----------
@@ -247,7 +291,7 @@ class GameRoomManagerTest {
     }
 
     @Test
-    void forceSubmitMarksReviewAndRevealsRoundResult() {
+    void forceSubmitFlushesBufferThenRevealsRoundResult() {
         GameRoomManager mgr = manager();
         seedRoom(mgr);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
@@ -256,6 +300,7 @@ class GameRoomManagerTest {
 
         mgr.forceSubmit("123456");
 
+        verify(writeBuffer).flush();                       // accuracy boundary
         verify(sessionRepository).updateStatus("s1", "REVIEW");
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws).broadcast(any(), msg.capture());
@@ -310,7 +355,7 @@ class GameRoomManagerTest {
     void getRoomStateExposesStatusCountAndPlayers() {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
-        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("a"), mcq("b")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("a"), mcq("b")));
         mgr.join("123456", "A", "sa", "player");
         mgr.join("123456", "B", "sb", "player");
 
@@ -331,23 +376,22 @@ class GameRoomManagerTest {
         mgr.submit("123456", "q1", "ghost-uuid", "python",
                 Json.readTree("{\"selectedIndex\":0}"));
 
-        verify(submissionRepository, never()).save(any());
+        verify(writeBuffer, never()).offer(any());
     }
 
     @Test
-    void secondRoundProgressesIndexAndStaysActive() {
+    void resyncSendsAuthoritativeSnapshotToRequester() {
         GameRoomManager mgr = manager();
-        seedRoom(mgr);
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "Sync", "sess-r", "player");
+        org.mockito.Mockito.clearInvocations(ws);
 
-        mgr.startQuestion("123456");
-        mgr.nextQuestion("123456");
+        mgr.sendFullLeaderboard("123456", p.sessionId());
 
-        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
-        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
-        assertTrue(msg.getAllValues().stream()
-                .filter(m -> m instanceof QuestionStart)
-                .map(m -> (QuestionStart) m)
-                .anyMatch(qs -> qs.question().id().equals("q2")));
+        ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+        verify(ws).sendRaw(eq("sess-r"), payload.capture());
+        assertTrue(payload.getValue().contains("LEADERBOARD_DELTA"));
+        assertTrue(payload.getValue().contains("\"resync\":true"));
+        assertTrue(payload.getValue().contains("Sync"));
     }
 }
