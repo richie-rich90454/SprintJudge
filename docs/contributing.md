@@ -1,10 +1,10 @@
 # Contributing
 
-OpenQuiz is open source. Contributions are welcome.
+SprintJudge is open source. Contributions are welcome.
 
 ## Architecture
 
-Backend is `com.openquiz` with Spring Boot, JOOQ (no raw SQL), and vanilla Jakarta WebSocket.
+Backend is `com.sprintjudge` with Spring Boot, JOOQ (no raw SQL), and vanilla Jakarta WebSocket.
 Packages: config, domain (enums/models/dto), repository (JOOQ DAOs), service, websocket, controller, exception.
 
 Frontend is React 19 + TypeScript with OOP services (singletons) and Zustand stores.
