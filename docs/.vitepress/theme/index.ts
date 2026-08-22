@@ -5,11 +5,14 @@ import "./custom.css";
 // ---------------------------------------------------------------------------
 // Mermaid rendering (client only)
 //
-// Strategy: a debounced MutationObserver watches the document for any
-// <pre><code class="language-mermaid"> fence that Vue injects — regardless of
-// navigation timing, async page components, or hmr — replaces it with rendered
-// SVG, and guarantees fit: useMaxWidth + CSS force max-width:100%/height:auto,
-// so diagrams scale down instead of overflowing or clipping.
+// VitePress/Shiki emit fences for unknown languages like:
+//   <div class="language-mermaid vp-adaptive-theme">
+//     <button class="copy"/><span class="lang">mermaid</span>
+//     <pre class="shiki ..."><code>…source…</code></pre></div>
+// i.e. the mermaid class lives on the WRAPPER and the <code> is class-less.
+// We therefore scan wrapper divs (plus a plain-fence fallback), swap the whole
+// wrapper for rendered SVG, and enforce fit via useMaxWidth + CSS so diagrams
+// scale instead of overflowing or clipping.
 // ---------------------------------------------------------------------------
 
 type MermaidApi = {
@@ -65,42 +68,65 @@ function loadMermaid(): Promise<MermaidApi> {
 let renderSeq = 0;
 let scheduled = false;
 
-function findPendingFences(): HTMLElement[] {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>("pre > code.language-mermaid")
-  ).filter((el) => !(el as HTMLElement & { __oqDone?: boolean }).__oqDone);
+interface PendingFence {
+  replaceNode: HTMLElement;
+  source: string;
+}
+
+/** Finds every unprocessed diagram fence, regardless of markup variant. */
+function collectPending(): PendingFence[] {
+  const out: PendingFence[] = [];
+
+  // Primary: VitePress wrapper div carries the language class.
+  document
+    .querySelectorAll<HTMLElement>('div[class*="language-mermaid"]')
+    .forEach((wrap) => {
+      if ((wrap as HTMLElement & { __oqDone?: boolean }).__oqDone) return;
+      const code = wrap.querySelector("code");
+      const source = (code?.textContent ?? "").trim();
+      if (source) out.push({ replaceNode: wrap, source });
+      else (wrap as HTMLElement & { __oqDone?: boolean }).__oqDone = true;
+    });
+
+  // Fallback: plain <pre><code class="language-mermaid"> (non-Shiki paths).
+  document
+    .querySelectorAll<HTMLElement>("pre > code.language-mermaid")
+    .forEach((code) => {
+      if ((code as HTMLElement & { __oqDone?: boolean }).__oqDone) return;
+      const source = (code.textContent ?? "").trim();
+      if (source && code.parentElement) {
+        out.push({ replaceNode: code.parentElement as HTMLElement, source });
+      }
+      (code as HTMLElement & { __oqDone?: boolean }).__oqDone = true;
+    });
+
+  return out;
 }
 
 async function renderPending() {
-  const blocks = findPendingFences();
-  if (!blocks.length) return;
+  const pending = collectPending();
+  if (!pending.length) return;
   const mermaid = await loadMermaid();
-  for (const code of blocks) {
-    const marker = code as HTMLElement & { __oqDone?: boolean };
-    marker.__oqDone = true;                       // never process twice
-    const pre = code.parentElement as HTMLElement;
-    if (!pre) continue;
-    const source = code.textContent ?? "";
+  for (const fence of pending) {
     const holder = document.createElement("div");
     holder.className = "mermaid-wrap";
     try {
-      const { svg } = await mermaid.render(`oq-mmd-${++renderSeq}`, source);
-      // Trusted: SVG is generated locally by Mermaid from repo-authored docs.
+      const { svg } = await mermaid.render(`oq-mmd-${++renderSeq}`, fence.source);
+      // Trusted: SVG generated locally by Mermaid from repo-authored docs.
       holder.innerHTML = svg;
     } catch (err) {
       console.error("[mermaid] render failed", err);
       const fallback = document.createElement("pre");
       fallback.className = "mermaid-fallback";
-      fallback.textContent = source;
+      fallback.textContent = fence.source;
       holder.append(fallback);
     }
-    pre.replaceWith(holder);
+    fence.replaceNode.replaceWith(holder);
   }
 }
 
 function scheduleRender() {
   if (scheduled) return;
-  if (!findPendingFences().length) return;      // nothing to do: stop the loop
   scheduled = true;
   setTimeout(() => {
     scheduled = false;
