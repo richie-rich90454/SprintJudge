@@ -1,4 +1,4 @@
--- OpenQuiz initial schema (SQLite)
+-- SprintJudge initial schema (SQLite)
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS users (
