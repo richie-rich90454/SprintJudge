@@ -1,7 +1,7 @@
-package com.openquiz.repository;
+package com.sprintjudge.repository;
 
-import com.openquiz.domain.models.Question;
-import com.openquiz.util.Ids;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.util.Ids;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
