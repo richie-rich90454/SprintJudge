@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -20,7 +20,7 @@ public class AppConfig {
 
     @Bean(name = "virtualThreadExecutor")
     public Executor virtualThreadExecutor() {
-        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("openquiz-vt-");
+        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("sprintjudge-vt-");
         executor.setVirtualThreads(true);
         return executor;
     }
