@@ -2,16 +2,29 @@ import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import "./custom.css";
 
-let mermaidReady: Promise<typeof import("mermaid")> | null = null;
+// ---------------------------------------------------------------------------
+// Mermaid rendering (client only)
+//
+// Strategy: a debounced MutationObserver watches the document for any
+// <pre><code class="language-mermaid"> fence that Vue injects — regardless of
+// navigation timing, async page components, or hmr — replaces it with rendered
+// SVG, and guarantees fit: useMaxWidth + CSS force max-width:100%/height:auto,
+// so diagrams scale down instead of overflowing or clipping.
+// ---------------------------------------------------------------------------
 
-function loadMermaid() {
+type MermaidApi = {
+  initialize: (cfg: Record<string, unknown>) => void;
+  render: (id: string, source: string) => Promise<{ svg: string }>;
+};
+
+let mermaidReady: Promise<MermaidApi> | null = null;
+
+function loadMermaid(): Promise<MermaidApi> {
   if (!mermaidReady) {
     mermaidReady = import("mermaid").then(({ default: mermaid }) => {
-      // Flat blueprint theme on the #3255A4 accent. useMaxWidth makes every
-      // SVG scale to its container, so wide diagrams shrink instead of
-      // overflowing or getting clipped.
       mermaid.initialize({
         startOnLoad: false,
+        securityLevel: "strict",
         theme: "base",
         fontFamily: '"Noto Sans", ui-sans-serif, system-ui, sans-serif',
         flowchart: { useMaxWidth: true, curve: "basis", padding: 10 },
@@ -43,54 +56,71 @@ function loadMermaid() {
           activationBkgColor: "#d7e2f7",
         },
       });
-      return mermaid;
+      return mermaid as unknown as MermaidApi;
     });
   }
   return mermaidReady;
 }
 
 let renderSeq = 0;
+let scheduled = false;
 
-async function renderMermaidBlocks() {
-  const blocks = document.querySelectorAll<HTMLElement>(
-    'pre > code.language-mermaid'
-  );
+function findPendingFences(): HTMLElement[] {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>("pre > code.language-mermaid")
+  ).filter((el) => !(el as HTMLElement & { __oqDone?: boolean }).__oqDone);
+}
+
+async function renderPending() {
+  const blocks = findPendingFences();
   if (!blocks.length) return;
   const mermaid = await loadMermaid();
-  for (const code of Array.from(blocks)) {
+  for (const code of blocks) {
+    const marker = code as HTMLElement & { __oqDone?: boolean };
+    marker.__oqDone = true;                       // never process twice
     const pre = code.parentElement as HTMLElement;
+    if (!pre) continue;
     const source = code.textContent ?? "";
     const holder = document.createElement("div");
     holder.className = "mermaid-wrap";
-    pre.replaceWith(holder);
     try {
-      const id = `oq-mermaid-${++renderSeq}`;
-      const { svg } = await mermaid.render(id, source);
-      holder.innerHTML = svg; // trusted: generated locally by Mermaid
+      const { svg } = await mermaid.render(`oq-mmd-${++renderSeq}`, source);
+      // Trusted: SVG is generated locally by Mermaid from repo-authored docs.
+      holder.innerHTML = svg;
     } catch (err) {
-      holder.innerHTML =
-        '<pre class="mermaid-error">Diagram failed to render.</pre>';
-      console.error(err);
+      console.error("[mermaid] render failed", err);
+      const fallback = document.createElement("pre");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = source;
+      holder.append(fallback);
     }
+    pre.replaceWith(holder);
   }
+}
+
+function scheduleRender() {
+  if (scheduled) return;
+  if (!findPendingFences().length) return;      // nothing to do: stop the loop
+  scheduled = true;
+  setTimeout(() => {
+    scheduled = false;
+    void renderPending();
+  }, 20);
 }
 
 export default {
   extends: DefaultTheme,
-  enhanceApp({ router }) {
-    if (typeof window === "undefined" || !router) return;
-    const previous = router.onAfterRouteChanged?.bind(router);
-    router.onAfterRouteChanged = () => {
-      previous?.();
-      void renderMermaidBlocks();
+  enhanceApp() {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
+    const start = () => {
+      const observer = new MutationObserver(scheduleRender);
+      observer.observe(document.body, { childList: true, subtree: true });
+      scheduleRender();                          // initial paint
+      window.addEventListener("load", scheduleRender);
     };
-    // Initial load: the first route change fires this too, but be safe.
-    if (document.readyState !== "loading") {
-      setTimeout(() => void renderMermaidBlocks(), 0);
-    } else {
-      window.addEventListener("DOMContentLoaded", () =>
-        setTimeout(() => void renderMermaidBlocks(), 0)
-      );
-    }
+
+    if (document.body) start();
+    else document.addEventListener("DOMContentLoaded", start, { once: true });
   },
 } as Theme;
