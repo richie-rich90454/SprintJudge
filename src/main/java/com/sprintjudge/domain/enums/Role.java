@@ -1,4 +1,4 @@
-package com.openquiz.domain.enums;
+package com.sprintjudge.domain.enums;
 
 public enum Role {
     ADMIN,
