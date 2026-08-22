@@ -1,4 +1,4 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 public record Player(
         String uuid,
