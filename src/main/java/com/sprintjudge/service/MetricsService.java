@@ -111,6 +111,7 @@ public class MetricsService {
         m.put("compile_cache", cache);
 
         Map<String, Object> rt = new LinkedHashMap<>();
+        rt.put("rooms_active", roomManager.activeRooms());
         rt.put("broadcast_pending_rooms", scheduler.pendingRooms());
         rt.put("max_players_per_room", maxPlayers);
         m.put("runtime", rt);
