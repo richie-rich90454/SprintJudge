@@ -31,6 +31,7 @@ public class DatabaseConfig {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setUrl("jdbc:sqlite:" + dbFile + "?journal_mode=WAL&busy_timeout=5000&foreign_keys=ON");
+        SqlScriptRunner.runClasspath(ds, "db/migration/V1__init.sql");
         return ds;
     }
 
