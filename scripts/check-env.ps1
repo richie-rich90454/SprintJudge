@@ -1,4 +1,4 @@
-# OpenQuiz Windows environment checker.
+# SprintJudge Windows environment checker.
 # Verifies every tool needed to build, run and test the project natively.
 $ErrorActionPreference = "Continue"
 $fail = $false
@@ -20,7 +20,7 @@ function VersionOf($cmd, $toolArgs) {
     return (Check $cmd { & $cmd @toolArgs 2>&1 })
 }
 
-Write-Host "== OpenQuiz environment check ==" -NoNewline; Write-Host ""
+Write-Host "== SprintJudge environment check ==" -NoNewline; Write-Host ""
 
 $java = VersionOf "Java" @("-version")
 $mavenOk = Test-Path "$PSScriptRoot\..\.mvn\wrapper\maven-wrapper.properties"
@@ -30,17 +30,17 @@ else { Write-Host "[MISS] Maven wrapper"; $fail = $true }
 VersionOf "Node" @("--version") | Out-Null
 VersionOf "npm" @("--version") | Out-Null
 
-# Native executor toolchains (openquiz.executor.mode=native)
+# Native executor toolchains (sprintjudge.executor.mode=native)
 foreach ($tool in @("gcc", "g++", "javac", "python", "node")) {
     $found = Get-Command $tool -ErrorAction SilentlyContinue
     if ($found) { Write-Host ("[OK]   native toolchain: {0}" -f $tool) }
     else { Write-Host ("[WARN] native toolchain missing: {0} (needed only for that OJ language)" -f $tool) }
 }
 
-# WSL alternative (openquiz.executor.mode=wsl)
+# WSL alternative (sprintjudge.executor.mode=wsl)
 $wsl = Get-Command wsl -ErrorAction SilentlyContinue
 if ($wsl) {
-    Write-Host "[OK]   WSL available (set OPENQUIZ_EXECUTOR_MODE=wsl for isolation-parity runs)"
+    Write-Host "[OK]   WSL available (set SPRINTJUDGE_EXECUTOR_MODE=wsl for isolation-parity runs)"
 } else {
     Write-Host "[WARN] WSL not installed (optional; native mode covers Windows testing)"
 }
