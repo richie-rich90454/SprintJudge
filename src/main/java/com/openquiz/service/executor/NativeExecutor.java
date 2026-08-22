@@ -32,11 +32,6 @@ public class NativeExecutor implements CodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(NativeExecutor.class);
 
-    public NativeExecutor() {
-        log.warn("NativeExecutor active: submissions run WITHOUT sandbox isolation. "
-                + "On Linux production, set openquiz.executor.mode=nsjail.");
-    }
-
     private static final Map<String, String> CANONICAL = Map.of(
             "javascript", "node", "js", "node", "py", "python");
     private static final Set<String> SUPPORTED = Set.of("c", "cpp", "java", "node", "python");
@@ -46,6 +41,14 @@ public class NativeExecutor implements CodeExecutor {
 
     @Value("${openquiz.executor.timeout-sec:10}")
     private int defaultTimeoutSec;
+
+    private final CompileArtifactCache compileCache;
+
+    public NativeExecutor(CompileArtifactCache compileCache) {
+        this.compileCache = compileCache;
+        log.warn("NativeExecutor active: submissions run WITHOUT sandbox isolation. "
+                + "On Linux production, set openquiz.executor.mode=nsjail.");
+    }
 
     @Override
     public boolean supports(String language) {
@@ -90,13 +93,10 @@ public class NativeExecutor implements CodeExecutor {
 
             // Compile phase (c/cpp/java). Fails fast with a distinct judge log so
             // players see "compilation_error" instead of N misleading mismatches.
-            List<String> compileCmd = compileCommand(language, sourceFile, runDir);
-            if (compileCmd != null) {
-                String err = runToCompletion(compileCmd, runDir, timeout);
-                if (err != null) {
-                    log.warn("Compile failed ({}): {}", language, truncate(err));
-                    return allFailed(request, "compilation_error", err);
-                }
+            String compileErr = compileOrReuse(language, request.sourceCode(), sourceFile, runDir, timeout);
+            if (compileErr != null) {
+                log.warn("Compile failed ({}): {}", language, truncate(compileErr));
+                return allFailed(request, "compilation_error", compileErr);
             }
 
             List<JudgeResult.CaseResult> results = new ArrayList<>();
@@ -146,6 +146,36 @@ public class NativeExecutor implements CodeExecutor {
             case "java" -> List.of("javac", "-d", runDir.toString(), sourceFile.toString());
             default -> null;
         };
+    }
+
+    /** Single-artifact languages may reuse a cached binary for identical sources. */
+    private boolean cacheable(String language) {
+        return language.equals("c") || language.equals("cpp");
+    }
+
+    /**
+     * Compiles (or reuses the cached binary). Returns null on success, or a
+     * non-null error marker on failure.
+     */
+    private String compileOrReuse(String language, String sourceCode, Path sourceFile,
+                                  Path runDir, int timeoutSec) throws IOException, InterruptedException {
+        if (!cacheable(language)) {
+            List<String> cmd = compileCommand(language, sourceFile, runDir);
+            if (cmd == null) return null;
+            return runToCompletion(cmd, runDir, timeoutSec);
+        }
+        String key = CompileArtifactCache.keyFor(language, sourceCode);
+        var cached = compileCache.get(key);
+        if (cached.isPresent()) {
+            Files.copy(cached.get(), binary(runDir), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return null;
+        }
+        List<String> cmd = compileCommand(language, sourceFile, runDir);
+        String err = runToCompletion(cmd, runDir, timeoutSec);
+        if (err == null) {
+            compileCache.put(key, binary(runDir));
+        }
+        return err;
     }
 
     private List<String> runCommand(String language, Path sourceFile, Path runDir) {
