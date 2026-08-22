@@ -1,4 +1,4 @@
-# Verifies a real production-profile launch of OpenQuiz on Windows.
+# Verifies a real production-profile launch of SprintJudge on Windows.
 # Builds (unless -SkipBuild), boots the jar detached, probes HTTP + WebSocket,
 # prints a PASS/FAIL table, always stops the process. Exit 0 = all pass.
 param(
@@ -27,22 +27,22 @@ if (Test-Path $pidFile) {
     if ($old) { Stop-Process -Id $old -Force -ErrorAction SilentlyContinue }
 }
 Get-CimInstance Win32_Process -Filter "Name='java.exe'" |
-    Where-Object { $_.CommandLine -match 'openquiz\.jar' } |
+    Where-Object { $_.CommandLine -match 'sprintjudge\.jar' } |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 Start-Sleep 2
 
 # 2) fresh database
-$db = Join-Path $runDir "openquiz.db"
+$db = Join-Path $runDir "sprintjudge.db"
 Remove-Item "$db*" -Force -ErrorAction SilentlyContinue
 
 # 3) launch detached
 $outLog = Join-Path $runDir "out.log"; $errLog = Join-Path $runDir "err.log"
 Remove-Item $outLog, $errLog -Force -ErrorAction SilentlyContinue
-$env:OPENQUIZ_PORT = "$Port"
-$env:OPENQUIZ_DB_PATH = $db
+$env:SPRINTJUDGE_PORT = "$Port"
+$env:SPRINTJUDGE_DB_PATH = $db
 $p = Start-Process java `
     -ArgumentList '-XX:+UseZGC','-Xms512m','-Xmx512m','-XX:+UseStringDeduplication',
-                  '-jar',(Join-Path $root 'target\openquiz.jar'),'--spring.profiles.active=prod' `
+                  '-jar',(Join-Path $root 'target\sprintjudge.jar'),'--spring.profiles.active=prod' `
     -RedirectStandardOutput $outLog -RedirectStandardError $errLog `
     -PassThru -WindowStyle Hidden
 $p.Id | Set-Content $pidFile
