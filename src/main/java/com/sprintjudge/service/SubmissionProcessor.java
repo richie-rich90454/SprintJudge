@@ -1,16 +1,16 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.openquiz.domain.enums.QuestionType;
-import com.openquiz.domain.models.Question;
-import com.openquiz.domain.models.Submission;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.SubmissionRepository;
-import com.openquiz.service.executor.CodeExecutor;
-import com.openquiz.service.executor.JudgeRequest;
-import com.openquiz.service.executor.JudgeResult;
-import com.openquiz.util.Ids;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.enums.QuestionType;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.domain.models.Submission;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.SubmissionRepository;
+import com.sprintjudge.service.executor.CodeExecutor;
+import com.sprintjudge.service.executor.JudgeRequest;
+import com.sprintjudge.service.executor.JudgeResult;
+import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.Json;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -109,10 +109,10 @@ public class SubmissionProcessor {
         }
 
         JsonNode config = Json.readTree(question.config());
-        List<com.openquiz.service.executor.TestCase> cases = new ArrayList<>();
+        List<com.sprintjudge.service.executor.TestCase> cases = new ArrayList<>();
         if (config.has("testCases")) {
             for (JsonNode tc : config.get("testCases")) {
-                cases.add(new com.openquiz.service.executor.TestCase(
+                cases.add(new com.sprintjudge.service.executor.TestCase(
                         tc.path("input").asText(""),
                         tc.path("expectedOutput").asText(""),
                         tc.path("isHidden").asBoolean(false)));
