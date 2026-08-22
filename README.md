@@ -110,6 +110,7 @@ scripts\check-env.ps1      # audit JDK, Node, compilers; guided fixes
 scripts\run-tests.ps1      # run the full backend suite
 scripts\dev-backend.ps1    # terminal 1 — API + WebSocket on :8080
 scripts\dev-frontend.ps1   # terminal 2 — UI on :5173
+scripts\verify-prod.ps1    # build + boot prod profile + HTTP/WS checks, auto-cleanup
 ```
 
 The dev profile defaults to the `native` executor, which drives the toolchains directly —
@@ -142,6 +143,18 @@ export OPENQUIZ_MS_CLIENT_ID=...
 export OPENQUIZ_MS_CLIENT_SECRET=...
 export OPENQUIZ_MS_TENANT_ID=common
 ```
+
+## Performance engineering
+
+Built for **10,000 concurrent players per room, 1,000+ rooms** with exact rankings:
+
+- **O(log n) leaderboard** — Redis-algorithm order-statistic skip list; every rank is exact, never re-sorted.
+- **Delta protocol** — per-room monotonic `seq`; clients apply rank upserts and auto-resync on gap. No drift possible.
+- **16 ms broadcast coalescing** — one shared tick fans out one payload per room, serialized once total.
+- **Write coalescing** — submissions persist as one parameterized JOOQ batch per 250 ms window; synchronous flush at round boundaries.
+- **Compile cache** — SHA-256 content-addressed binaries for identical C/C++ resubmits (LRU-bounded).
+- **Auto-sized judge budget** — permits derive from cores × factor (floor 8, cap 512); saturated queue answers with a friendly retry instead of blocking.
+- **Observability** — `/api/admin/metrics`: heap/GC/threads, judge latency p50/p95/p99, cache hit ratio, buffer depth.
 
 ## Security model
 
@@ -181,17 +194,20 @@ Chrome 49+, Safari 10+, and Firefox 52+ while evergreen browsers get modern outp
 ```
 ├── executor/compile-scripts/   c.sh cpp.sh java.sh node.sh python.sh
 ├── src/main/java/com/openquiz/
-│   ├── config/                 App · Database · Security · WebSocket
+│   ├── config/                 App · Database(+schema runner) · Security · WS · sizing
 │   ├── domain/                 enums · models · dto
-│   ├── repository/             JOOQ DAOs (type-safe, no raw SQL)
-│   ├── service/                rooms · scoring · judging · import/export
-│   ├── websocket/              @ServerEndpoint endpoint + session manager
-│   ├── controller/             Admin · Public
+│   ├── repository/             JOOQ DAOs (type-safe, batched writes)
+│   ├── service/
+│   │   ├── leaderboard/        skip-list index · delta ledger · live board
+│   │   ├── room/               int-keyed room registry
+│   │   └── ...                 rooms · scoring · judging · buffer · metrics
+│   ├── websocket/              @ServerEndpoint + Spring-bridge configurator
+│   ├── controller/             Admin (incl. /metrics) · Public
 │   └── exception/              Global error mapping
-├── src/main/resources/db/migration/   Flyway V1 schema
+├── src/main/resources/db/migration/   idempotent schema DDL (SQLite-native)
 ├── frontend/src/services/renderers/   abstract base + 12 renderers
 ├── docs/                       VitePress documentation site
-└── scripts/                    Windows helper scripts
+└── scripts/                    dev · prod · verify helpers
 ```
 
 ## Documentation
