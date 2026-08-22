@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGameStore } from "../stores/useGameStore";
+import { useTimerStore } from "../stores/useTimerStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
 import { useEnter, useStaggerIn } from "../hooks/useMotion";
 import { QuestionDto } from "../types";
 
+const idle = (cb: () => void): void => {
+  const w = window as unknown as {
+    requestIdleCallback?: (cb: () => void) => number;
+  };
+  if (typeof w.requestIdleCallback === "function") w.requestIdleCallback(cb);
+  else setTimeout(cb, 50);
+};
+
 export function QuestionView() {
   const q = useGameStore((s) => s.currentQuestion) as QuestionDto | null;
-  const end = useGameStore((s) => s.questionEndEpochMs);
   const status = useGameStore((s) => s.status);
   const submit = useGameStore((s) => s.submit);
+  const end = useTimerStore((s) => s.endEpochMs);
   const [response, setResponse] = useState<unknown>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const cardRef = useEnter<HTMLDivElement>("card", [q?.id]);
   const optionsRef = useStaggerIn<HTMLDivElement>(".renderer-host button", [q?.id], 0.04);
   const barRef = useEnter<HTMLButtonElement>("bar", [q?.id]);
+
+  // Monaco is already lazy; warm its chunk during idle time on coding rounds
+  // so the editor appears instantly when the player focuses it.
+  useEffect(() => {
+    if (!q || !isCoding(q.type)) return;
+    idle(() => { import("monaco-editor").catch(() => { /* textarea fallback */ }); });
+  }, [q?.id]);
 
   if (status === "REVIEW") {
     return (
