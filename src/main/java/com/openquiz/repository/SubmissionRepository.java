@@ -18,8 +18,7 @@ public class SubmissionRepository {
         this.dsl = dsl;
     }
 
-    public Submission save(Submission s) {
-        String id = s.id() != null ? s.id() : Ids.uuid();
+    public Submission save(Submission s) {        String id = s.id() != null ? s.id() : Ids.uuid();
         long now = Instant.now().getEpochSecond();
         boolean exists = s.id() != null && dsl.fetchExists(Tables.SUBMISSIONS, Tables.SUB_ID.eq(s.id()));
         if (exists) {
@@ -72,6 +71,23 @@ public class SubmissionRepository {
                 .fetchOptional(this::toSubmission);
     }
 
+    /** Batched insert for the write-coalescing buffer: one round trip per flush. */
+    public void saveAll(java.util.List<Submission> batch) {
+        if (batch.isEmpty()) return;
+        var stmt = dsl.query(
+                "INSERT INTO submissions (id, game_session_id, question_id, player_name, player_uuid, "
+              + "response_data, score_earned, is_correct, judge_log, attempt_count, submitted_at) "
+              + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        var step = dsl.batch(stmt);
+        for (Submission s : batch) {
+            String id = s.id() != null ? s.id() : Ids.uuid();
+            long now = Instant.now().getEpochSecond();
+            step.bind(id, s.gameSessionId(), s.questionId(), s.playerName(), s.playerUuid(),
+                    s.responseData(), s.scoreEarned(), s.correct(), s.judgeLog(),
+                    s.attemptCount(), now);
+        }
+        step.execute();
+    }
     private Submission toSubmission(org.jooq.Record r) {
         Boolean correct = r.get(Tables.SUB_CORRECT);
         Long at = r.get(Tables.SUB_AT);
