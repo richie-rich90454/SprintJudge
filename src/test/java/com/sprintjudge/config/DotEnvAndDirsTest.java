@@ -2,7 +2,6 @@ package com.sprintjudge.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.context.support.GenericApplicationContext;
 
