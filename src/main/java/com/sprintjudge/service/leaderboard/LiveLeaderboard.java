@@ -1,4 +1,4 @@
-package com.openquiz.service.leaderboard;
+package com.sprintjudge.service.leaderboard;
 
 import java.util.List;
 import java.util.Map;
