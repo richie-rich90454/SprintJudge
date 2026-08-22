@@ -39,7 +39,7 @@ class SubmissionProcessorTest {
     @Mock SubmissionRepository submissionRepository;
     @Mock QuestionRepository questionRepository;
     @Mock ScoringEngine scoringEngine;
-    @Mock GameRoomManager roomManager;
+    @Mock LeaderboardBroadcaster leaderboardBroadcaster;
 
     private SubmissionWriteBuffer buffer;
 
@@ -50,7 +50,7 @@ class SubmissionProcessorTest {
 
     private SubmissionProcessor processor(int permits) {
         return new SubmissionProcessor(executor, submissionRepository, questionRepository,
-                scoringEngine, roomManager, buffer, new Semaphore(permits));
+                scoringEngine, leaderboardBroadcaster, buffer, new Semaphore(permits));
     }
 
     private Question ojQuestion() {
@@ -89,7 +89,7 @@ class SubmissionProcessorTest {
         ArgumentCaptor<List<Submission>> capped = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) batch;
         verify(submissionRepository).saveAll(capped.capture());
         assertEquals(500, capped.getValue().get(0).scoreEarned());
-        verify(roomManager).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
     }
 
     @Test
@@ -108,7 +108,7 @@ class SubmissionProcessorTest {
 
         assertTrue(accepted);
         assertEquals(0, buffer.offeredTotal());      // worse score: nothing persisted
-        verify(roomManager).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
     }
 
     // ---------- backpressure ----------
@@ -145,7 +145,7 @@ class SubmissionProcessorTest {
         ArgumentCaptor<List<Submission>> batches = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) cap;
         verify(submissionRepository).saveAll(batches.capture());
         assertTrue(batches.getValue().get(0).judgeLog().contains("not_a_coding_question"));
-        verify(roomManager).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
     }
 
     @Test
@@ -196,6 +196,6 @@ class SubmissionProcessorTest {
         processor(2).processCoding("s1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
         verify(executor, never()).judge(any());
         assertEquals(0, buffer.offeredTotal());
-        verify(roomManager, never()).broadcastLeaderboard(anyString());
+        verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
     }
 }
