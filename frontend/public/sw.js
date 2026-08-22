@@ -6,7 +6,7 @@
  *   - navigation requests network-first with cached shell fallback (offline)
  * Everything else passes through untouched.
  */
-const VERSION = "oq-sw-v1";
+const VERSION = "oq-sw-v3";
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const FONT_CACHE = `${VERSION}-fonts`;
