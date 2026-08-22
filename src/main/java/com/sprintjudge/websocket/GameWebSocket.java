@@ -1,11 +1,11 @@
-package com.openquiz.websocket;
+package com.sprintjudge.websocket;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.openquiz.domain.dto.ErrorMessage;
-import com.openquiz.domain.dto.JoinedMessage;
-import com.openquiz.domain.dto.RoomState;
-import com.openquiz.service.GameRoomManager;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.dto.ErrorMessage;
+import com.sprintjudge.domain.dto.JoinedMessage;
+import com.sprintjudge.domain.dto.RoomState;
+import com.sprintjudge.service.GameRoomManager;
+import com.sprintjudge.util.Json;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
