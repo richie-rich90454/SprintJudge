@@ -1,7 +1,7 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.models.Submission;
-import com.openquiz.repository.SubmissionRepository;
+import com.sprintjudge.domain.models.Submission;
+import com.sprintjudge.repository.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -41,8 +41,8 @@ public class SubmissionWriteBuffer {
 
     public SubmissionWriteBuffer(
             SubmissionRepository repository,
-            @Value("${openquiz.persistence.flush-ms:250}") long flushMs,
-            @Value("${openquiz.persistence.buffer-capacity:20000}") int capacity) {
+            @Value("${sprintjudge.persistence.flush-ms:250}") long flushMs,
+            @Value("${sprintjudge.persistence.buffer-capacity:20000}") int capacity) {
         this.repository = repository;
         this.queue = new ArrayBlockingQueue<>(capacity);
         long period = Math.max(25, flushMs);
