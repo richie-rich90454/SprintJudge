@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import java.nio.file.Path;
 @EnableTransactionManagement
 public class DatabaseConfig {
 
-    @Value("${openquiz.db.path:./openquiz.db}")
+    @Value("${sprintjudge.db.path:./sprintjudge.db}")
     private String dbPath;
 
     @Bean
