@@ -1,4 +1,4 @@
-package com.openquiz.domain.enums;
+package com.sprintjudge.domain.enums;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
