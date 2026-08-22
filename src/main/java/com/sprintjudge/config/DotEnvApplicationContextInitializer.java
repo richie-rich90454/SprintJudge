@@ -1,9 +1,7 @@
 package com.sprintjudge.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.env.EnvironmentPostProcessor;
-import org.springframework.core.Ordered;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 
@@ -21,12 +19,20 @@ import java.util.Map;
  * environment, so real environment variables always win over .env, while .env
  * overrides YAML defaults. Values may be wrapped in single or double quotes;
  * lines starting with # are comments.
+ *
+ * <p>Registered via {@code spring.factories} (context.initializer.classes) —
+ * the supported early hook in Boot 4, replacing the deprecated
+ * EnvironmentPostProcessor SPI.
  */
-public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+public class DotEnvApplicationContextInitializer
+        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    static final String SOURCE_NAME = "sprintjudgeDotEnv";
 
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        if (environment.getPropertySources().contains("sprintjudgeDotEnv")) return;
+    public void initialize(ConfigurableApplicationContext context) {
+        MutablePropertySources sources = context.getEnvironment().getPropertySources();
+        if (sources.contains(SOURCE_NAME)) return;
 
         Map<String, Object> values = new HashMap<>();
         File appDir = JarDirs.appDir();
@@ -45,18 +51,13 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor,
         values.putIfAbsent("SPRINTJUDGE_APP_DIR", appDir.getAbsolutePath());
         values.putIfAbsent("sprintjudge.app-dir", appDir.getAbsolutePath());
 
-        MutablePropertySources sources = environment.getPropertySources();
-        MapPropertySource source = new MapPropertySource("sprintjudgeDotEnv", values);
-        String sysName = systemName(sources);
+        String sysName = null;
+        for (var ps : sources) {
+            if (ps.getName().toLowerCase().contains("systemenvironment")) { sysName = ps.getName(); break; }
+        }
+        MapPropertySource source = new MapPropertySource(SOURCE_NAME, values);
         if (sysName != null) sources.addAfter(sysName, source);
         else sources.addLast(source);
-    }
-
-    private String systemName(MutablePropertySources sources) {
-        for (var ps : sources) {
-            if (ps.getName().toLowerCase().contains("systemenvironment")) return ps.getName();
-        }
-        return null;
     }
 
     /** Parses one .env file: KEY=VALUE, # comments, optional surrounding quotes. */
@@ -84,10 +85,5 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor,
             return v.substring(1, v.length() - 1);
         }
         return v;
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 10;
     }
 }
