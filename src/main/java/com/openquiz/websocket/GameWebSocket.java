@@ -67,6 +67,7 @@ public class GameWebSocket {
                         roomManager.extendTimer(pinOf(session), clampSeconds(msg.path("seconds").asInt(30))));
                 case "KICK_PLAYER" -> asHost(session, () ->
                         roomManager.kickPlayer(pinOf(session), msg.path("playerUuid").asText()));
+                case "RESYNC_LEADERBOARD" -> resyncLeaderboard(session);
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
         } catch (Exception e) {
@@ -146,6 +147,16 @@ public class GameWebSocket {
 
     private int clampSeconds(int seconds) {
         return Math.max(1, Math.min(300, seconds));
+    }
+
+    /** Client detected a seq gap: push an authoritative full snapshot. */
+    private void resyncLeaderboard(Session session) {
+        String pin = pinOf(session);
+        if (pin == null) {
+            send(session, new ErrorMessage("ERROR", "Join a room first"));
+            return;
+        }
+        roomManager.sendFullLeaderboard(pin, session.getId());
     }
 
     @OnClose
