@@ -1,4 +1,4 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,10 +15,10 @@ import java.util.List;
  */
 @Component
 @Profile("dev")
-@ConditionalOnProperty(name = "openquiz.executor.mode", havingValue = "wsl")
+@ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "wsl")
 public class WslExecutor extends AbstractScriptExecutor {
 
-    @Value("${openquiz.executor.wsl-distro:Ubuntu}")
+    @Value("${sprintjudge.executor.wsl-distro:Ubuntu}")
     private String wslDistro;
 
     @Override
