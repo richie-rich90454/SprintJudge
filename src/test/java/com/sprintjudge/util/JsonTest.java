@@ -1,4 +1,4 @@
-package com.openquiz.util;
+package com.sprintjudge.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
