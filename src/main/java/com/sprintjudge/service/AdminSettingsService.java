@@ -1,6 +1,6 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.repository.AdminSettingsRepository;
+import com.sprintjudge.repository.AdminSettingsRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
