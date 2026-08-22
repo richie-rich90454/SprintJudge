@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.EncodedResource;
