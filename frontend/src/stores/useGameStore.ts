@@ -11,7 +11,6 @@ interface GameStore extends GameState {
   kick: (uuid: string) => void;
   clearError: () => void;
 }
-
 export const useGameStore = create<GameStore>((set) => {
   gameStateManager.observe().subscribe((s) => set(s));
   return {
