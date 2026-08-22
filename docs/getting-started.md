@@ -1,6 +1,6 @@
 # Getting Started
 
-OpenQuiz runs as a Spring Boot backend (port `8080`) and a Vite/React frontend (port `5173`).
+SprintJudge runs as a Spring Boot backend (port `8080`) and a Vite/React frontend (port `5173`).
 
 ## Pick your setup path
 
@@ -11,7 +11,7 @@ flowchart TD
     B -->|"no"| D["Verify Java 25 + Node 20+"]
     C --> E{"Compilers on PATH?<br/>gcc · g++ · javac · python"}
     E -->|"yes"| F["native executor — done"]
-    E -->|"no"| G["Install toolchains, or set<br/>OPENQUIZ_EXECUTOR_MODE=wsl"]
+    E -->|"no"| G["Install toolchains, or set<br/>SPRINTJUDGE_EXECUTOR_MODE=wsl"]
     D --> F
     G --> F
     F --> H["scripts/dev-backend.ps1"]
@@ -60,7 +60,7 @@ scripts\dev-frontend.ps1   # terminal 2 — UI on :5173 (proxies /api and /ws)
 ```
 
 The dev profile defaults to the `native` executor: toolchains are invoked directly, so a
-fresh machine only needs its compilers on PATH. Set `OPENQUIZ_EXECUTOR_MODE=wsl` to run
+fresh machine only needs its compilers on PATH. Set `SPRINTJUDGE_EXECUTOR_MODE=wsl` to run
 the same judge inside Ubuntu instead.
 
 ## Admin authentication
@@ -69,9 +69,9 @@ Admins authenticate via Microsoft Entra ID OAuth2. Provide the following environ
 variables before using the admin panel:
 
 ```bash
-export OPENQUIZ_MS_CLIENT_ID=...
-export OPENQUIZ_MS_CLIENT_SECRET=...
-export OPENQUIZ_MS_TENANT_ID=common
+export SPRINTJUDGE_MS_CLIENT_ID=...
+export SPRINTJUDGE_MS_CLIENT_SECRET=...
+export SPRINTJUDGE_MS_TENANT_ID=common
 ```
 
 ## First run
