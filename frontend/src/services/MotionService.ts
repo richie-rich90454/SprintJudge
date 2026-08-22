@@ -1,6 +1,6 @@
 import gsap from "gsap";
 
-export type MotionPreset = "card" | "page" | "modal" | "bar" | "pin";
+export type MotionPreset = "card" | "page" | "modal" | "bar" | "pin" | "podium" | "ticker";
 
 const prefersReducedMotion = (): boolean => {
   try {
@@ -54,6 +54,19 @@ export class MotionService {
         gsap.fromTo(el.children,
           { y: -14, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.5, stagger: 0.06, ease: "back.out(2)", clearProps: "transform,opacity" });
+        break;
+      case "podium":
+        // Results podium: ranks drop in from above with a confident bounce.
+        gsap.fromTo(el.children,
+          { yPercent: -60, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "back.out(1.5)",
+            clearProps: "transform,opacity" });
+        break;
+      case "ticker":
+        gsap.fromTo(el.children,
+          { x: -28, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "power3.out",
+            clearProps: "transform,opacity" });
         break;
     }
   }
