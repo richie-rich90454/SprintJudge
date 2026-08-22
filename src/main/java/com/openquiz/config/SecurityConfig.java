@@ -31,11 +31,11 @@ public class SecurityConfig {
                     .preload(true)
                     .maxAgeInSeconds(31_536_000))
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    // All assets (fonts included) are self-hosted; no external CDNs.
                     // 'unsafe-inline' on script-src is required by the SystemJS legacy
-                    // bootstrap emitted for Chrome 49-era browsers; origins stay locked to self.
+                    // bootstrap emitted for Chrome 49-era browsers.
                     "default-src 'self'; script-src 'self' 'unsafe-inline'; "
-                  + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-                  + "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; "
+                  + "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
                   + "connect-src 'self' ws: wss:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
