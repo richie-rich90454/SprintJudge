@@ -1,6 +1,6 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
-import com.openquiz.util.ExecIo;
+import com.sprintjudge.util.ExecIo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,13 +23,13 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             "javascript", "node", "js", "node", "py", "python");
     private static final Set<String> SUPPORTED = Set.of("c", "cpp", "java", "node", "python");
 
-    @Value("${openquiz.executor.work-dir:./executor/tmp}")
+    @Value("${sprintjudge.executor.work-dir:./executor/tmp}")
     protected String workDirBase;
 
-    @Value("${openquiz.executor.compile-scripts-dir:./executor/compile-scripts}")
+    @Value("${sprintjudge.executor.compile-scripts-dir:./executor/compile-scripts}")
     protected String scriptsDir;
 
-    @Value("${openquiz.executor.timeout-sec:10}")
+    @Value("${sprintjudge.executor.timeout-sec:10}")
     protected int defaultTimeoutSec;
 
     /** Command to execute for one test case. Stdin is wired to the input file by the base class. */
