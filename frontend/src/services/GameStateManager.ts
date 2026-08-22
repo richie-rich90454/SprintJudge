@@ -5,6 +5,7 @@ import {
   QuestionDto,
   RoomState,
   LeaderboardEntry,
+  LeaderboardDelta,
 } from "../types";
 
 const initial: GameState = {
@@ -14,16 +15,22 @@ const initial: GameState = {
   playerName: null,
   quizId: null,
   currentQuestion: null,
-  questionEndEpochMs: null,
   leaderboard: [],
   room: null,
   lastResult: null,
   error: null,
 };
 
+/**
+ * Single source of truth for game state. Leaderboard deltas are applied
+ * strictly in sequence order; any gap triggers an authoritative resync so the
+ * client can never drift from server truth (Q17c contract).
+ */
 export class GameStateManager {
   private static _instance: GameStateManager | null = null;
   private readonly state$ = new BehaviorSubject<GameState>(initial);
+  private lastSeq: number | null = null;
+  private resyncInFlight = false;
 
   static get instance(): GameStateManager {
     if (!this._instance) this._instance = new GameStateManager();
@@ -43,6 +50,8 @@ export class GameStateManager {
   }
 
   connect(url: string) {
+    this.lastSeq = null;
+    this.resyncInFlight = false;
     webSocketService.connect(url);
   }
 
@@ -66,6 +75,12 @@ export class GameStateManager {
     webSocketService.send({ type: "KICK_PLAYER", playerUuid });
   }
 
+  requestLeaderboardResync() {
+    if (this.resyncInFlight) return;
+    this.resyncInFlight = true;
+    webSocketService.send({ type: "RESYNC_LEADERBOARD" });
+  }
+
   private patch(p: Partial<GameState>) {
     this.state$.next({ ...this.state$.value, ...p });
   }
@@ -78,6 +93,8 @@ export class GameStateManager {
           room: m.room as unknown as RoomState,
           status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
         });
+        // Baseline for the delta protocol; server answers with a full batch.
+        this.requestLeaderboardResync();
         break;
       case "ROOM_STATE":
         this.patch({ room: m as unknown as RoomState });
@@ -85,32 +102,65 @@ export class GameStateManager {
       case "QUESTION_START": {
         const q = m.question as QuestionDto;
         const end = (m.startedAtEpochMs as number) + (m.timeLimitSec as number) * 1000;
-        this.patch({
-          status: "ACTIVE",
-          currentQuestion: q,
-          questionEndEpochMs: end,
-          lastResult: null,
-          error: null,
-        });
+        pushTimer(q.id, m.timeLimitSec as number, end);
+        this.patch({ status: "ACTIVE", currentQuestion: q, lastResult: null, error: null });
         break;
       }
+      case "LEADERBOARD_DELTA":
+        this.applyDelta(m as unknown as LeaderboardDelta);
+        break;
       case "LEADERBOARD":
+        this.lastSeq = null;
         this.patch({ leaderboard: m.rankings as LeaderboardEntry[] });
         break;
       case "ROUND_RESULT":
         this.patch({ status: "REVIEW", lastResult: m });
+        clearTimer();
         break;
       case "GAME_END":
-        this.patch({ status: "ENDED", leaderboard: m.rankings as LeaderboardEntry[], currentQuestion: null });
+        this.patch({
+          status: "ENDED",
+          leaderboard: m.rankings as LeaderboardEntry[],
+          currentQuestion: null,
+        });
+        clearTimer();
         break;
       case "TIMER_UPDATE":
-        this.patch({ questionEndEpochMs: m.newEndEpochMs as number });
+        if (this.state.currentQuestion) {
+          pushTimer(this.state.currentQuestion.id, this.state.currentQuestion.timeLimitSec,
+            m.newEndEpochMs as number);
+        }
         break;
       case "ERROR":
+        this.resyncInFlight = false;
         this.patch({ error: m.message as string });
         break;
     }
   }
+
+  /** Strict seq application with automatic resync on gap — never approximate. */
+  private applyDelta(delta: LeaderboardDelta) {
+    if (this.lastSeq !== null && delta.seq <= this.lastSeq) return;   // duplicate/old
+    if (this.lastSeq !== null && delta.seq > this.lastSeq + 1) {
+      this.requestLeaderboardResync();                                // gap
+      return;
+    }
+    this.lastSeq = delta.seq;
+
+    if (delta.resync || delta.entries.length === 0) {
+      // Authoritative replacement (also covers "everyone at zero" rooms).
+      this.patch({ leaderboard: [...delta.entries].sort((a, b) => a.rank - b.rank) });
+      this.resyncInFlight = false;
+      return;
+    }
+    const byUuid = new Map(this.state$.value.leaderboard.map((e) => [e.uuid, e]));
+    for (const e of delta.entries) byUuid.set(e.uuid, e);
+    const merged = [...byUuid.values()].sort((a, b) => a.rank - b.rank);
+    this.patch({ leaderboard: merged });
+  }
 }
+
+// Local import to avoid a cycle with the timer store module graph.
+import { pushTimer, clearTimer } from "../stores/useTimerStore";
 
 export const gameStateManager = GameStateManager.instance;
