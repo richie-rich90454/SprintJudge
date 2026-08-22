@@ -86,5 +86,5 @@ also returns `400`.
 Cookie-session auth is protected by CSRF tokens (XSRF-TOKEN cookie echoed as X-XSRF-TOKEN;
 axios does this automatically). Responses carry HSTS, `X-Content-Type-Options: nosniff`,
 a locked-down Content-Security-Policy, `frame-ancestors 'none'` and a same-origin referrer
-policy. CORS defaults to the Vite dev origin; configure `openquiz.cors.allowed-origins`
+policy. CORS defaults to the Vite dev origin; configure `sprintjudge.cors.allowed-origins`
 in production.
