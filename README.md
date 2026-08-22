@@ -46,6 +46,7 @@ scripts\check-env.ps1      # audit toolchain, guided fixes
 scripts\dev-backend.ps1    # API + WebSocket on :8080
 scripts\dev-frontend.ps1   # UI on :5173 (proxies /api and /ws)
 scripts\run-tests.ps1      # full backend test suite
+scripts\run-prod.ps1       # single-jar production launch (UI + API + library)
 scripts\verify-prod.ps1    # build + boot the prod jar + HTTP/WS health checks
 ```
 
