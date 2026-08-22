@@ -47,7 +47,7 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
           cy="42"
           r={r}
           fill="none"
-          stroke={low ? "#d93025" : "#1a73e8"}
+          stroke={low ? "#B3261E" : "#C8102E"}
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={c}
