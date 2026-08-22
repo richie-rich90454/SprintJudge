@@ -1,7 +1,7 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.models.Question;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.util.Json;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
