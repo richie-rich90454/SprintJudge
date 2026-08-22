@@ -16,7 +16,7 @@ const fontPreload: (string | Record<string, unknown>)[][] = [
 ];
 
 export default defineConfig({
-  title: "OpenQuiz",
+  title: "SprintJudge",
   description:
     "The open-source, real-time coding quiz platform with a built-in Online Judge engine.",
   lang: "en-US",
@@ -57,7 +57,7 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: "github", link: "https://github.com/richie-rich90454/openquiz" },
+      { icon: "github", link: "https://github.com/richie-rich90454/sprintjudge" },
     ],
     search: { provider: "local" },
   },
