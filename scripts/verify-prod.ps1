@@ -72,6 +72,13 @@ try {
     else { Fail "public REST" "status=$($r.StatusCode) body=$($r.Content)" }
 } catch { Fail "public REST" $_.Exception.Message }
 
+# 5a2) bundled SPA served from the jar
+try {
+    $r = Invoke-WebRequest "http://localhost:$Port/" -UseBasicParsing -TimeoutSec 5
+    if ($r.StatusCode -eq 200 -and $r.Content -match 'id="root"') { Pass "bundled SPA (/)" }
+    else { Fail "bundled SPA (/)" "status=$($r.StatusCode)" }
+} catch { Fail "bundled SPA (/)" $_.Exception.Message }
+
 # 5b) admin surface must NOT be anonymous
 $adminCode = 0
 try {
