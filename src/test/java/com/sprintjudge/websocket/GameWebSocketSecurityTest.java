@@ -1,8 +1,8 @@
-package com.openquiz.websocket;
+package com.sprintjudge.websocket;
 
-import com.openquiz.service.GameRoomManager;
-import com.openquiz.service.Player;
-import com.openquiz.util.Json;
+import com.sprintjudge.service.GameRoomManager;
+import com.sprintjudge.service.Player;
+import com.sprintjudge.util.Json;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.RemoteEndpoint;
 import jakarta.websocket.Session;
