@@ -36,14 +36,26 @@ openquiz:
     # Same-origin by default (Vite dev proxy). Set explicit origins in production.
     allowed-origins: "http://localhost:5173"
   executor:
-    # "native" (Windows dev, zero deps) | "wsl" (Windows dev, WSL2 isolation)
-    # | "nsjail" (Linux production). Override with OPENQUIZ_EXECUTOR_MODE.
+    # "native" (Windows dev + Windows prod) | "wsl" (Windows dev, WSL2 isolation)
+    # | "nsjail" (Linux production) | "auto" count below.
     mode: ${OPENQUIZ_EXECUTOR_MODE:wsl}
-    max-concurrent: 100
+    max-concurrent: auto        # or a number; "auto" = cores x concurrency-factor
+    concurrency-factor: 8       # floor 8, cap 512
     timeout-sec: 10
     nsjail-binary: /usr/bin/nsjail
     work-dir: ./executor/tmp
     compile-scripts-dir: ./executor/compile-scripts
+    compile-cache:
+      dir: ./executor/cache
+      max-entries: 512
+      max-mb: 512
+  room:
+    max-players: 10000
+  broadcast:
+    coalesce-ms: 16
+  persistence:
+    flush-ms: 250
+    buffer-capacity: 20000
   security:
     admin:
       default-role: ADMIN
