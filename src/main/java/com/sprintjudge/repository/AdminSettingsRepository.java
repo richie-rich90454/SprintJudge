@@ -1,6 +1,7 @@
 package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.AdminSetting;
+import com.sprintjudge.util.RepoUtil;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,7 @@ public class AdminSettingsRepository {
         List<AdminSetting> all = dsl.selectFrom(Tables.ADMIN_SETTINGS)
                 .fetch((org.jooq.Record r) -> new AdminSetting(
                         r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
-                        Instant.ofEpochSecond(r.get(Tables.SET_UPDATED))));
+                        Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED)))));
         return all.stream().collect(Collectors.toMap(s -> s.key(), s -> s.value()));
     }
 
@@ -43,6 +44,6 @@ public class AdminSettingsRepository {
     public Optional<AdminSetting> findByKey(String key) {
         return dsl.selectFrom(Tables.ADMIN_SETTINGS).where(Tables.SET_KEY.eq(key))
                 .fetchOptional(r -> new AdminSetting(r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
-                        Instant.ofEpochSecond(r.get(Tables.SET_UPDATED))));
+                        Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED)))));
     }
 }
