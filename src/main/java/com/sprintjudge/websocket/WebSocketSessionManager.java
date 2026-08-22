@@ -1,6 +1,6 @@
-package com.openquiz.websocket;
+package com.sprintjudge.websocket;
 
-import com.openquiz.util.Json;
+import com.sprintjudge.util.Json;
 import jakarta.websocket.Session;
 import org.springframework.stereotype.Component;
 
