@@ -52,6 +52,13 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
+export interface LeaderboardDelta {
+  type: "LEADERBOARD_DELTA";
+  seq: number;
+  resync: boolean;
+  entries: LeaderboardEntry[];
+}
+
 export interface GameState {
   status: GameStatus;
   pin: string | null;
@@ -59,7 +66,6 @@ export interface GameState {
   playerName: string | null;
   quizId: string | null;
   currentQuestion: QuestionDto | null;
-  questionEndEpochMs: number | null;
   leaderboard: LeaderboardEntry[];
   room: RoomState | null;
   lastResult: unknown | null;
