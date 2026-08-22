@@ -57,11 +57,15 @@ scripts\check-env.ps1      # one-time environment audit with guided fixes
 scripts\run-tests.ps1      # prove the backend suite green on your box
 scripts\dev-backend.ps1    # terminal 1 — API + WebSocket on :8080
 scripts\dev-frontend.ps1   # terminal 2 — UI on :5173 (proxies /api and /ws)
+scripts\run-prod.ps1       # single-jar production: UI + API + bundled library
+scripts\verify-prod.ps1    # boot prod and probe REST + SPA + auth + WebSocket
 ```
 
 The dev profile defaults to the `native` executor: toolchains are invoked directly, so a
-fresh machine only needs its compilers on PATH. Set `SPRINTJUDGE_EXECUTOR_MODE=wsl` to run
-the same judge inside Ubuntu instead.
+fresh machine only needs its compilers on PATH. Set `OPENQUIZ_EXECUTOR_MODE=wsl` to run
+the same judge inside Ubuntu instead. The production build bundles the compiled frontend
+and the graded starter library into one fat jar — first launch creates and seeds the
+SQLite database automatically (only when the bank is empty).
 
 ## Admin authentication
 
