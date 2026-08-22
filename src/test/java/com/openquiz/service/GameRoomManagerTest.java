@@ -47,6 +47,9 @@ class GameRoomManagerTest {
     @Mock SubmissionRepository submissionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock SubmissionProcessor submissionProcessor;
+    @SuppressWarnings("unchecked")
+    private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider =
+            (org.springframework.beans.factory.ObjectProvider<SubmissionProcessor>) org.mockito.Mockito.mock(org.springframework.beans.factory.ObjectProvider.class);
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
@@ -54,8 +57,9 @@ class GameRoomManagerTest {
     @Mock SubmissionWriteBuffer writeBuffer;
 
     private GameRoomManager manager() {
+        lenient().when(processorProvider.getObject()).thenReturn(submissionProcessor);
         return new GameRoomManager(sessionRepository, quizRepository, questionRepository,
-                submissionRepository, scoringEngine, submissionProcessor, ws,
+                submissionRepository, scoringEngine, processorProvider, ws,
                 evaluationService, settingsService, scheduler, writeBuffer);
     }
 
