@@ -63,6 +63,10 @@ All runtime knobs are plain environment variables:
 | `SPRINTJUDGE_PORT` | HTTP listen port (prod profile) |
 | `SPRINTJUDGE_MS_CLIENT_ID` / `_SECRET` / `_TENANT_ID` | Microsoft Entra ID OAuth2 for admin sign-in |
 
+A `.env` file sitting next to the jar (or at the project root under Maven) is loaded
+automatically — copy [.env.example](.env.example) as a starting point. Real OS
+environment variables always take precedence over `.env` values.
+
 Admins authenticate through Microsoft Entra ID; players never create accounts.
 
 ## Security overview
