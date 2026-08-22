@@ -28,7 +28,7 @@ flowchart LR
 - Submit before the timer hits zero; the last state auto-submits at zero.
 - Coding questions (OJ_FULL, OJ_PATCH) allow unlimited attempts until the timer ends —
   only your highest-scoring submission is kept.
-- Your in-progress code is cached in `localStorage` (`openquiz_code_<questionId>`) and
+- Your in-progress code is cached in `localStorage` (`sprintjudge_code_<questionId>`) and
   restored if you refresh, then cleared on submit or when the timer ends.
 
 ## Scoring
