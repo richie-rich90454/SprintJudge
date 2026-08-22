@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GameRoomManager {
+public class GameRoomManager implements LeaderboardBroadcaster {
 
     private final RoomRegistry registry = new RoomRegistry();
 
@@ -31,7 +31,9 @@ public class GameRoomManager {
     private final QuestionRepository questionRepository;
     private final SubmissionRepository submissionRepository;
     private final ScoringEngine scoringEngine;
-    private final SubmissionProcessor submissionProcessor;
+    // Lazy lookup breaks the Manager→Processor→Broadcaster(Manager) construction
+    // cycle while keeping the runtime collaboration identical.
+    private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> submissionProcessor;
     private final WebSocketSessionManager ws;
     private final EvaluationService evaluationService;
     private final AdminSettingsService settingsService;
@@ -46,7 +48,7 @@ public class GameRoomManager {
                            QuestionRepository questionRepository,
                            SubmissionRepository submissionRepository,
                            ScoringEngine scoringEngine,
-                           SubmissionProcessor submissionProcessor,
+                           org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> submissionProcessor,
                            WebSocketSessionManager ws,
                            EvaluationService evaluationService,
                            AdminSettingsService settingsService,
@@ -159,7 +161,7 @@ public class GameRoomManager {
             Player p = room.getPlayer(playerUuid);
             if (p == null) return;
             String source = response == null ? "" : response.path("source").asText("");
-            boolean accepted = submissionProcessor.processCoding(room.sessionId(), questionId, p.name(),
+            boolean accepted = submissionProcessor.getObject().processCoding(room.sessionId(), questionId, p.name(),
                     playerUuid, language, source, settingsService.asMap());
             if (!accepted) {
                 // Edge case Y companion: saturated judge queue answers with a friendly retry.
