@@ -8,8 +8,14 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     $jar = Join-Path $root "target\openquiz.jar"
     if (-not (Test-Path $jar)) { Write-Error "Jar not found at $jar"; exit 1 }
-    Write-Host "Starting OpenQuiz (prod) on http://localhost:$($env:OPENQUIZ_PORT ?? '8080')"
-    & java "-XX:+UseZGC" -jar $jar "--spring.profiles.active=prod" @args
+    $heap = if ($env:OPENQUIZ_HEAP) { $env:OPENQUIZ_HEAP } else { "1g" }
+    Write-Host "Starting OpenQuiz (prod) on http://localhost:$($env:OPENQUIZ_PORT ?? '8080') heap=$heap"
+    & java "-XX:+UseZGC" `
+           "-Xms$heap" "-Xmx$heap" `
+           "-XX:+UseStringDeduplication" `
+           "-XX:+PerfDisableSharedMem" `
+           "-XX:+UseCompactObjectHeaders" `
+           -jar $jar "--spring.profiles.active=prod" @args
 } finally {
     Pop-Location
 }
