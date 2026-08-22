@@ -1,11 +1,11 @@
-package com.openquiz.controller;
+package com.sprintjudge.controller;
 
-import com.openquiz.domain.models.Question;
-import com.openquiz.domain.models.Quiz;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.QuizRepository;
-import com.openquiz.service.AdminSettingsService;
-import com.openquiz.service.ImportExportService;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.domain.models.Quiz;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.QuizRepository;
+import com.sprintjudge.service.AdminSettingsService;
+import com.sprintjudge.service.ImportExportService;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -21,16 +21,16 @@ public class AdminController {
     private final QuestionRepository questionRepository;
     private final AdminSettingsService settingsService;
     private final ImportExportService importExportService;
-    private final com.openquiz.repository.UserRepository userRepository;
-    private final com.openquiz.service.GameRoomManager roomManager;
-    private final com.openquiz.service.MetricsService metricsService;
+    private final com.sprintjudge.repository.UserRepository userRepository;
+    private final com.sprintjudge.service.GameRoomManager roomManager;
+    private final com.sprintjudge.service.MetricsService metricsService;
 
     public AdminController(QuizRepository quizRepository, QuestionRepository questionRepository,
                            AdminSettingsService settingsService,
                            ImportExportService importExportService,
-                           com.openquiz.repository.UserRepository userRepository,
-                           com.openquiz.service.GameRoomManager roomManager,
-                           com.openquiz.service.MetricsService metricsService) {
+                           com.sprintjudge.repository.UserRepository userRepository,
+                           com.sprintjudge.service.GameRoomManager roomManager,
+                           com.sprintjudge.service.MetricsService metricsService) {
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
         this.settingsService = settingsService;
@@ -93,11 +93,11 @@ public class AdminController {
      * principal — the client never gets to declare who the host is.
      */
     @PostMapping("/games")
-    public com.openquiz.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
+    public com.sprintjudge.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
         String quizId = body.get("quizId");
         org.springframework.security.core.Authentication auth =
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        String email = "system@openquiz.local";
+        String email = "system@sprintjudge.local";
         String name = "System";
         if (auth != null && auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth) {
             String e = oauth.<String>getAttribute("email");
@@ -105,7 +105,7 @@ public class AdminController {
             String n = oauth.<String>getAttribute("name");
             if (n != null && !n.isBlank()) name = n;
         }
-        com.openquiz.domain.models.User host = userRepository.upsertByEmail(email, name, null);
+        com.sprintjudge.domain.models.User host = userRepository.upsertByEmail(email, name, null);
         return roomManager.createRoom(quizId, host.id());
     }
 
