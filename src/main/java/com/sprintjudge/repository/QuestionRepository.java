@@ -2,6 +2,7 @@ package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.Question;
 import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.RepoUtil;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -73,6 +74,6 @@ public class QuestionRepository {
                 r.get(Tables.QUESTIONS_TITLE), r.get(Tables.QUESTIONS_DESC),
                 r.get(Tables.QUESTIONS_TYPE), langList, r.get(Tables.QUESTIONS_TIME),
                 r.get(Tables.QUESTIONS_POINTS), r.get(Tables.QUESTIONS_CONFIG),
-                r.get(Tables.QUESTIONS_ORDER), Instant.ofEpochSecond(r.get(Tables.QUESTIONS_CREATED_AT)));
+                r.get(Tables.QUESTIONS_ORDER), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.QUESTIONS_CREATED_AT))));
     }
 }
