@@ -1,4 +1,4 @@
-package com.openquiz.repository;
+package com.sprintjudge.repository;
 
 import org.jooq.Field;
 import org.jooq.Table;
