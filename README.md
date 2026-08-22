@@ -8,7 +8,7 @@ everyone answers twelve different question types — from plain multiple choice 
 real C, C++, Java, Node.js, or Python that is compiled and judged against hidden test
 cases in real time.
 
-- License: MIT
+- License: [GPLv3](LICENSE)
 - Backend: Spring Boot 4 · Java 25 (virtual threads + ZGC) · JOOQ · Flyway · SQLite (WAL)
 - Frontend: React 19 + TypeScript OOP services · RxJS · Zustand · Tailwind · GSAP
 - Real time: vanilla Jakarta `@ServerEndpoint` WebSocket
@@ -212,4 +212,4 @@ glassmorphism, gradients, or glow effects. See [the contributing guide](docs/con
 
 ## License
 
-[MIT](LICENSE)
+[GNU GPL v3](LICENSE) — free software, copyleft protected.
