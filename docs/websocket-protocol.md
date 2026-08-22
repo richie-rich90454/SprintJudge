@@ -44,6 +44,8 @@ SUBMIT: { "type": "SUBMIT", "questionId": "q123", "language": "python", "respons
 
 Host or admin commands: NEXT_QUESTION, FORCE_SUBMIT, END_GAME, EXTEND_TIMER (with "seconds"), KICK_PLAYER (with "playerUuid").
 
+Any connected client may send: RESYNC_LEADERBOARD (no fields) after detecting a seq gap.
+
 ### Message schema validation
 
 - A message must declare a non-empty "type".
