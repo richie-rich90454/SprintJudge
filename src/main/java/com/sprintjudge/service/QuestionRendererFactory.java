@@ -1,4 +1,4 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 /**
  * Backend marker for the Question Renderer strategy. The actual rendering
@@ -11,7 +11,7 @@ public final class QuestionRendererFactory {
 
     public static boolean isValidType(String type) {
         try {
-            com.openquiz.domain.enums.QuestionType.from(type);
+            com.sprintjudge.domain.enums.QuestionType.from(type);
             return true;
         } catch (IllegalArgumentException e) {
             return false;
