@@ -1,6 +1,6 @@
-package com.openquiz.repository;
+package com.sprintjudge.repository;
 
-import com.openquiz.domain.models.AdminSetting;
+import com.sprintjudge.domain.models.AdminSetting;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
