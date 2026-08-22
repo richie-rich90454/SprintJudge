@@ -1,13 +1,13 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.dto.export.ExportBundle;
-import com.openquiz.domain.models.Question;
-import com.openquiz.domain.models.Quiz;
-import com.openquiz.repository.AdminSettingsRepository;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.QuizRepository;
-import com.openquiz.util.Ids;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.dto.export.ExportBundle;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.domain.models.Quiz;
+import com.sprintjudge.repository.AdminSettingsRepository;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.QuizRepository;
+import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.Json;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
