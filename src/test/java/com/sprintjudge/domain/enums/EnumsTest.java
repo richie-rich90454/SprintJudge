@@ -81,7 +81,7 @@ class EnumsTest {
     @Test
     void questionTypeNamesAreUnique() {
         assertEquals(12, java.util.Arrays.stream(QuestionType.values())
-                .map(Enum::name).distinct().count());
+                .map(t -> t.name()).distinct().count());
     }
 
     @Test
