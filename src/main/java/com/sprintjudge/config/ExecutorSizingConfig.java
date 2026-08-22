@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +15,8 @@ public class ExecutorSizingConfig {
      */
     @Bean
     public Semaphore executionSlots(
-            @Value("${openquiz.executor.max-concurrent:auto}") String maxConcurrent,
-            @Value("${openquiz.executor.concurrency-factor:8}") int factor) {
+            @Value("${sprintjudge.executor.max-concurrent:auto}") String maxConcurrent,
+            @Value("${sprintjudge.executor.concurrency-factor:8}") int factor) {
         int permits = resolvePermits(maxConcurrent, factor);
         return new Semaphore(permits);
     }
