@@ -1,6 +1,7 @@
 package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.GameSession;
+import com.sprintjudge.util.RepoUtil;
 import com.sprintjudge.util.Ids;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -56,9 +57,9 @@ public class GameSessionRepository {
     }
 
     private GameSession toSession(org.jooq.Record r) {
-        Long start = r.get(Tables.SESS_STARTED);
-        Long end = r.get(Tables.SESS_ENDED);
-        Long created = r.get(Tables.SESS_CREATED);
+        Long start = RepoUtil.asLongBoxed(r.get(Tables.SESS_STARTED));
+        Long end = RepoUtil.asLongBoxed(r.get(Tables.SESS_ENDED));
+        Long created = RepoUtil.asLongBoxed(r.get(Tables.SESS_CREATED));
         return new GameSession(
                 r.get(Tables.SESS_ID), r.get(Tables.SESS_QUIZ_ID), r.get(Tables.SESS_PIN),
                 r.get(Tables.SESS_HOST), r.get(Tables.SESS_STATUS), r.get(Tables.SESS_INDEX),
