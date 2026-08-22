@@ -1,9 +1,9 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.openquiz.domain.enums.QuestionType;
-import com.openquiz.domain.models.Question;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.enums.QuestionType;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.util.Json;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
