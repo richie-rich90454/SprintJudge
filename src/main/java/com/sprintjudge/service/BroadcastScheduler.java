@@ -1,4 +1,4 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class BroadcastScheduler {
                 return t;
             });
 
-    @Value("${openquiz.broadcast.coalesce-ms:16}")
+    @Value("${sprintjudge.broadcast.coalesce-ms:16}")
     private long coalesceMs;
 
     @jakarta.annotation.PostConstruct
