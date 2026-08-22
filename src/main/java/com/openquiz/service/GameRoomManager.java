@@ -7,23 +7,24 @@ import com.openquiz.domain.models.GameSession;
 import com.openquiz.domain.models.Question;
 import com.openquiz.domain.models.Submission;
 import com.openquiz.repository.GameSessionRepository;
-import com.openquiz.repository.QuizRepository;
 import com.openquiz.repository.QuestionRepository;
+import com.openquiz.repository.QuizRepository;
 import com.openquiz.repository.SubmissionRepository;
+import com.openquiz.service.room.RoomRegistry;
 import com.openquiz.util.Ids;
 import com.openquiz.util.Json;
 import com.openquiz.websocket.WebSocketSessionManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GameRoomManager {
 
-    private final Map<String, GameRoom> rooms = new ConcurrentHashMap<>();
+    private final RoomRegistry registry = new RoomRegistry();
 
     private final GameSessionRepository sessionRepository;
     private final QuizRepository quizRepository;
@@ -34,6 +35,11 @@ public class GameRoomManager {
     private final WebSocketSessionManager ws;
     private final EvaluationService evaluationService;
     private final AdminSettingsService settingsService;
+    private final BroadcastScheduler scheduler;
+    private final SubmissionWriteBuffer writeBuffer;
+
+    @Value("${openquiz.room.max-players:10000}")
+    private int maxPlayers = 10000;   // literal default keeps plain `new` usable in tests
 
     public GameRoomManager(GameSessionRepository sessionRepository,
                            QuizRepository quizRepository,
@@ -43,7 +49,9 @@ public class GameRoomManager {
                            SubmissionProcessor submissionProcessor,
                            WebSocketSessionManager ws,
                            EvaluationService evaluationService,
-                           AdminSettingsService settingsService) {
+                           AdminSettingsService settingsService,
+                           BroadcastScheduler scheduler,
+                           SubmissionWriteBuffer writeBuffer) {
         this.sessionRepository = sessionRepository;
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
@@ -53,28 +61,32 @@ public class GameRoomManager {
         this.ws = ws;
         this.evaluationService = evaluationService;
         this.settingsService = settingsService;
+        this.scheduler = scheduler;
+        this.writeBuffer = writeBuffer;
     }
+
+    // ---------- lifecycle ----------
 
     public GameSession createRoom(String quizId, String hostUserId) {
         if (quizRepository.findById(quizId).isEmpty()) {
             throw new IllegalArgumentException("Quiz not found: " + quizId);
         }
         String pin = Ids.pin();
-        while (rooms.containsKey(pin) || sessionRepository.findByPin(pin).isPresent()) {
+        while (registry.get(Integer.parseInt(pin)) != null
+                || sessionRepository.findByPin(pin).isPresent()) {
             pin = Ids.pin();
         }
         GameSession session = sessionRepository.create(quizId, hostUserId, pin, null);
-        rooms.put(pin, new GameRoom(session.id(), quizId, pin, "LOBBY"));
+        registry.put(Integer.parseInt(pin), new GameRoom(session.id(), quizId, pin, "LOBBY", maxPlayers));
         return session;
     }
 
-    private static final int MAX_PLAYERS = 500;
-
     public Player join(String pin, String name, String sessionId, String role) {
-        GameRoom room = rooms.computeIfAbsent(pin, p -> {
-            GameSession s = sessionRepository.findByPin(p)
+        int key = Integer.parseInt(pin);
+        GameRoom room = registry.computeIfAbsent(key, p -> {
+            GameSession s = sessionRepository.findByPin(pin)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid PIN"));
-            return new GameRoom(s.id(), s.quizId(), p, s.status());
+            return new GameRoom(s.id(), s.quizId(), pin, s.status(), maxPlayers);
         });
         // Edge case Z: sanitise the player name before it ever enters state/broadcasts.
         String safeName = com.openquiz.util.NameSanitizer.sanitize(name);
@@ -84,30 +96,25 @@ public class GameRoomManager {
         synchronized (room) {
             if (isHost) {
                 if (room.hostUuid() != null) throw new IllegalStateException("A host is already connected");
-            } else if (room.players().size() >= MAX_PLAYERS) {
+            } else if (room.isFull()) {
                 throw new IllegalStateException("Room is full");
             }
             p = new Player(Ids.uuid(), safeName, 0, sessionId, true);
-            room.addPlayer(p);
+            if (!room.addPlayer(p)) throw new IllegalStateException("Room is full");
             if (isHost) room.setHostUuid(p.uuid());
         }
         broadcastRoomState(pin);
         return p;
     }
 
-    public void linkSession(String pin, String playerUuid, String sessionId) {
-        GameRoom room = rooms.get(pin);
-        if (room == null) return;
-        Player p = room.getPlayer(playerUuid);
-        if (p != null) room.addPlayer(p.withSession(sessionId));
-    }
-
     public void leave(String pin, String playerUuid) {
-        GameRoom room = rooms.get(pin);
+        GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
         room.removePlayer(playerUuid);
         broadcastRoomState(pin);
     }
+
+    // ---------- rounds ----------
 
     public void startQuestion(String pin) {
         GameRoom room = require(pin);
@@ -139,6 +146,8 @@ public class GameRoomManager {
         }
     }
 
+    // ---------- submissions ----------
+
     public void submit(String pin, String questionId, String playerUuid,
                        String language, JsonNode response) {
         GameRoom room = require(pin);
@@ -147,11 +156,16 @@ public class GameRoomManager {
         QuestionType type = QuestionType.from(q.questionType());
 
         if (type.isCoding()) {
-            String source = response == null ? "" : response.path("source").asText("");
             Player p = room.getPlayer(playerUuid);
             if (p == null) return;
-            submissionProcessor.processCoding(room.sessionId(), questionId, p.name(),
+            String source = response == null ? "" : response.path("source").asText("");
+            boolean accepted = submissionProcessor.processCoding(room.sessionId(), questionId, p.name(),
                     playerUuid, language, source, settingsService.asMap());
+            if (!accepted) {
+                // Edge case Y companion: saturated judge queue answers with a friendly retry.
+                ws.send(p.sessionId(), new ErrorMessage("ERROR",
+                        "Judge queue is busy — resubmit shortly (auto-retry in 250ms)"));
+            }
             return;
         }
 
@@ -167,20 +181,21 @@ public class GameRoomManager {
         int score = (int) Math.round(raw * fraction);
         boolean correct = fraction >= 1.0;
 
-        submissionRepository.save(new Submission(Ids.uuid(), room.sessionId(), questionId,
-                p.name(), playerUuid,
-                Json.write(response), score, correct, null, attempts, Instant.now()));
+        writeBuffer.offer(new Submission(Ids.uuid(), room.sessionId(), questionId,
+                p.name(), playerUuid, Json.write(response), score, correct, null, attempts, Instant.now()));
         room.applyScore(playerUuid, score);
         broadcastLeaderboard(pin);
     }
+
+    // ---------- host controls ----------
 
     public void forceSubmit(String pin) {
         GameRoom room = require(pin);
         room.setStatus("REVIEW");
         sessionRepository.updateStatus(room.sessionId(), "REVIEW");
-        // Edge case Y: force-submit is NOT a priority interrupt. Any in-flight coding
-        // judgements remain enqueued on the Semaphore(100) and will update scores
-        // independently when they finish; this only reveals the current round result.
+        // Accuracy boundary: persist buffered scores before revealing results.
+        writeBuffer.flush();
+        flushLeaderboardDelta(pin);
         sendRoundResult(pin, true);
     }
 
@@ -205,16 +220,46 @@ public class GameRoomManager {
         GameRoom room = require(pin);
         room.setStatus("ENDED");
         sessionRepository.updateStatus(room.sessionId(), "ENDED");
+        writeBuffer.flush();                       // accuracy boundary
+        flushLeaderboardDelta(pin);                // deliver final deltas first
         GameEnd end = new GameEnd("GAME_END", room.leaderboard());
         broadcastToRoom(pin, end);
-        rooms.remove(pin);
+        registry.remove(Integer.parseInt(pin));
     }
 
+    // ---------- leaderboard transport ----------
+
+    /** Hot path: mark dirty; the shared 16 ms tick fans out one delta per room. */
     public void broadcastLeaderboard(String pin) {
-        GameRoom room = rooms.get(pin);
-        if (room == null) return;
-        broadcastToRoom(pin, new LeaderboardMessage("LEADERBOARD", room.leaderboard()));
+        int key = Integer.parseInt(pin);
+        scheduler.markDirty(key, () -> flushLeaderboardDelta(pin));
     }
+
+    /** Builds and sends one delta batch for the room (no-op when nothing pending). */
+    public void flushLeaderboardDelta(String pin) {
+        GameRoom room = registry.get(Integer.parseInt(pin));
+        if (room == null) return;
+        String json = deltaJson(room.board().drainDeltas(false));
+        if (json != null) ws.broadcastRaw(playerSessionIds(pin), json);
+    }
+
+    /** Authoritative full snapshot to one recipient (joiner or resync). */
+    public void sendFullLeaderboard(String pin, String sessionId) {
+        GameRoom room = registry.get(Integer.parseInt(pin));
+        if (room == null) return;
+        String json = deltaJson(room.board().fullBatch());
+        if (json != null) ws.sendRaw(sessionId, json);
+    }
+
+    private String deltaJson(com.openquiz.service.leaderboard.DeltaLedger.Batch b) {
+        if (b == null || (b.resync() && b.upserts().isEmpty())) return null;
+        List<LeaderboardEntry> entries = b.upserts().stream()
+                .map(d -> new LeaderboardEntry(d.uuid(), d.name(), (int) d.score(), d.rank()))
+                .toList();
+        return Json.write(new LeaderboardDelta("LEADERBOARD_DELTA", b.seq(), b.resync(), entries));
+    }
+
+    // ---------- state ----------
 
     public RoomState getRoomState(String pin) {
         GameRoom room = require(pin);
@@ -225,8 +270,10 @@ public class GameRoomManager {
         return new RoomState("ROOM_STATE", room.status(), count, players);
     }
 
+    // ---------- internals ----------
+
     private void sendRoundResult(String pin, boolean revealed) {
-        GameRoom room = rooms.get(pin);
+        GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
         int idx = room.currentQuestionIndex();
         List<Question> qs = questionRepository.findByQuiz(room.quizId());
@@ -234,7 +281,7 @@ public class GameRoomManager {
         Question q = qs.get(idx);
         JsonNode answer = revealed ? Json.readTree(q.config()) : null;
         List<RoundResult.PlayerScore> scores = room.players().stream()
-                .map(p -> new RoundResult.PlayerScore(p.uuid(), p.name(), p.score(), true))
+                .map(pl -> new RoundResult.PlayerScore(pl.uuid(), pl.name(), pl.score(), true))
                 .toList();
         broadcastToRoom(pin, new RoundResult("ROUND_RESULT", q.id(), revealed, answer, scores));
     }
@@ -254,21 +301,20 @@ public class GameRoomManager {
     }
 
     private List<String> playerSessionIds(String pin) {
-        GameRoom room = rooms.get(pin);
+        GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return List.of();
-        return room.players().stream().map(p -> p.sessionId()).filter(s -> s != null).toList();
+        return room.players().stream().map(Player::sessionId).filter(s -> s != null).toList();
     }
 
     private GameRoom require(String pin) {
-        GameRoom room = rooms.get(pin);
+        GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) throw new IllegalArgumentException("No active room for PIN " + pin);
         return room;
     }
 
     private QuestionDto toDto(Question q) {
-        List<String> langs = q.languagesAllowed();
         Object config = q.config() == null ? Map.of() : Json.readTree(q.config());
         return new QuestionDto(q.id(), q.questionType(), q.title(), q.description(),
-                q.timeLimitSec(), q.pointsBase(), langs, config);
+                q.timeLimitSec(), q.pointsBase(), q.languagesAllowed(), config);
     }
 }
