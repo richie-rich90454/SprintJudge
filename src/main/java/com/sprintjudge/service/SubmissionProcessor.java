@@ -11,7 +11,6 @@ import com.sprintjudge.service.executor.JudgeRequest;
 import com.sprintjudge.service.executor.JudgeResult;
 import com.sprintjudge.util.Ids;
 import com.sprintjudge.util.Json;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
