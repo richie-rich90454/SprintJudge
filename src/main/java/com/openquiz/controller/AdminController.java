@@ -23,18 +23,26 @@ public class AdminController {
     private final ImportExportService importExportService;
     private final com.openquiz.repository.UserRepository userRepository;
     private final com.openquiz.service.GameRoomManager roomManager;
+    private final com.openquiz.service.MetricsService metricsService;
 
     public AdminController(QuizRepository quizRepository, QuestionRepository questionRepository,
                            AdminSettingsService settingsService,
                            ImportExportService importExportService,
                            com.openquiz.repository.UserRepository userRepository,
-                           com.openquiz.service.GameRoomManager roomManager) {
+                           com.openquiz.service.GameRoomManager roomManager,
+                           com.openquiz.service.MetricsService metricsService) {
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
         this.settingsService = settingsService;
         this.importExportService = importExportService;
         this.userRepository = userRepository;
         this.roomManager = roomManager;
+        this.metricsService = metricsService;
+    }
+
+    @GetMapping("/metrics")
+    public Map<String, Object> metrics() {
+        return metricsService.snapshot();
     }
 
     @GetMapping("/quizzes")
