@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DotEnvAndDirsTest {
+    private final DotEnvApplicationContextInitializer initializer = new DotEnvApplicationContextInitializer();
 
     @TempDir
     Path tmp;
@@ -26,7 +27,7 @@ class DotEnvAndDirsTest {
                   PADDED_KEY = padded
                 broken line without equals
                 """);
-        Map<String, Object> m = DotEnvEnvironmentPostProcessor.readDotEnv(env);
+        Map<String, Object> m = DotEnvApplicationContextInitializer.readDotEnv(env);
         assertEquals("8090", m.get("SPRINTJUDGE_PORT"));
         assertEquals("secret with spaces", m.get("SPRINTJUDGE_MS_CLIENT_SECRET"));
         assertEquals("", m.get("EMPTY"));
@@ -36,7 +37,7 @@ class DotEnvAndDirsTest {
 
     @Test
     void missingFileYieldsEmptyMap() {
-        assertTrue(DotEnvEnvironmentPostProcessor
+        assertTrue(DotEnvApplicationContextInitializer
                 .readDotEnv(tmp.resolve("nope.env")).isEmpty());
     }
 
