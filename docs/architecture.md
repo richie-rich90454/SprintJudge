@@ -105,6 +105,26 @@ flowchart TD
     DAO --> M
 ```
 
+## Performance architecture (10k players/room)
+
+Three exact, lock-light structures carry the hot path:
+
+```mermaid
+flowchart LR
+    SUB["score mutation"] --> IDX["RankedSkipList<br/>order-statistic skip list<br/>O(log n) · exact spans"]
+    IDX --> LED["DeltaLedger<br/>monotonic seq per room"]
+    LED --> CO["BroadcastScheduler<br/>16 ms coalescing tick"]
+    CO --> OUT["serialize once →<br/>fan out to sessions"]
+    SUB --> BUF["SubmissionWriteBuffer<br/>250 ms JOOQ batch"]
+```
+
+- `RankedSkipList` — Redis zskiplist spans; rank/select are exact, ties by join order.
+- `DeltaLedger` — merges pending changes per player; clients resync on any seq gap.
+- `LiveLeaderboard` — binds identity map + index + ledger behind one facade.
+- `RoomRegistry` — int-keyed open-addressing map for thousands of rooms.
+- `CompileArtifactCache` — SHA-256 keyed binaries for identical C/C++ resubmits.
+- `/api/admin/metrics` — heap/GC/threads, judge latency percentiles, cache ratio.
+
 ## Executor modes
 
 | Mode | Where | Isolation | Use when |
