@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+   Self-hosted Noto fonts (variable WOFF2, latin subset). No external CDNs.
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/noto-sans-latin-var.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+2013-2014, U+2018-201A, U+201C-201E,
+    U+2022, U+2026, U+2039-203A, U+2044, U+20AC, U+2122;
+}
+@font-face {
+  font-family: "Noto Sans Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/noto-sans-mono-latin-var.woff2") format("woff2");
+  unicode-range: U+0000-00FF;
+}
+
 :root {
   --oq-bg: #f0f3f8;
   --oq-surface: #ffffff;
@@ -76,15 +97,15 @@ textarea {
 }
 
 /* ---------------------------------------------------------------------------
-   Industrial / Blueprint design system — flat, square, crisp lines.
-   No shadows, no rounded corners, no gradients, no blur.
+   Design system — flat, softly rounded industrial on #3255A4.
+   No gradients, no glass, no glow. Depth comes from borders and tints only.
 --------------------------------------------------------------------------- */
 @layer components {
   .card {
     background: var(--oq-surface);
     border: 1px solid var(--oq-border);
-    border-top: 4px solid #3255a4;
-    border-radius: 0;
+    border-top: 3px solid #3255a4;
+    border-radius: 18px;
     padding: 24px;
   }
 
@@ -95,12 +116,13 @@ textarea {
     gap: 8px;
     min-height: 44px;
     padding: 0 20px;
-    border-radius: 0;
+    border-radius: 12px;
     border: 2px solid #3255a4;
     font-weight: 600;
     cursor: pointer;
     touch-action: manipulation;
-    transition: background-color 0.12s linear, color 0.12s linear;
+    transition: background-color 0.12s linear, color 0.12s linear,
+      border-color 0.12s linear, transform 0.08s ease-out;
   }
 
   .btn-primary {
@@ -108,8 +130,9 @@ textarea {
     color: #ffffff;
   }
   .btn-primary:hover {
-    background: #ffffff;
-    color: #3255a4;
+    background: #27428a;
+    border-color: #27428a;
+    color: #ffffff;
   }
 
   .btn-secondary {
@@ -132,26 +155,27 @@ textarea {
     color: #ffffff;
   }
 
+  /* Soft rounded field with a flat primary focus ring (no glow). */
   .input-underline {
     width: 100%;
     min-height: 44px;
-    border: 0;
-    border-bottom: 2px solid var(--oq-border);
-    border-radius: 0;
-    background: transparent;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: var(--oq-row-alt);
     color: var(--oq-ink);
-    padding: 8px 0;
+    padding: 10px 14px;
     outline: none;
+    transition: border-color 0.12s linear, background-color 0.12s linear;
   }
   .input-underline:focus {
-    border-bottom-color: #3255a4;
+    background: var(--oq-surface);
+    border-color: #3255a4;
   }
 
-  /* Section titles: solid double underline + dotted rule beneath. */
   .header-double {
     border-bottom: 2px solid #3255a4;
-    padding-bottom: 4px;
-    margin-bottom: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
     position: relative;
     font-weight: 700;
   }
@@ -159,27 +183,32 @@ textarea {
     content: "";
     display: block;
     border-bottom: 1px dotted #3255a4;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
-  /* Blueprint grid tables: dotted row separators, alternating fills. */
   .table-dotted {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
   }
   .table-dotted th,
   .table-dotted td {
-    border: 1px dotted var(--oq-border);
+    border-bottom: 1px dotted var(--oq-border);
     padding: 10px 14px;
     text-align: left;
   }
   .table-dotted tbody tr:nth-child(even) {
     background: var(--oq-row-alt);
   }
+  .table-dotted tbody tr:first-child td:first-child { border-top-left-radius: 12px; }
+  .table-dotted tbody tr:first-child td:last-child { border-top-right-radius: 12px; }
+  .table-dotted tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
+  .table-dotted tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
 
   .modal-topbar {
-    border-top: 6px solid #3255a4;
+    border-top: 5px solid #3255a4;
     background: var(--oq-surface);
+    border-radius: 22px;
   }
 
   .mono {
@@ -187,22 +216,29 @@ textarea {
   }
 }
 
-/* Renderer-host scopes the 12 imperative OOP renderers to the blueprint look. */
+code,
+pre {
+  font-family: "Noto Sans Mono", monospace;
+}
+
+/* Renderer-host scopes the 12 imperative OOP renderers to the same look. */
 .renderer-host button {
   min-height: 44px;
   padding: 0 16px;
   border: 2px solid var(--oq-border);
-  border-radius: 0;
+  border-radius: 12px;
   background: transparent;
   color: var(--oq-ink);
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
-  transition: border-color 0.12s linear, color 0.12s linear;
+  transition: border-color 0.12s linear, color 0.12s linear,
+    background-color 0.12s linear;
 }
 .renderer-host button:hover {
   border-color: #3255a4;
   color: #3255a4;
+  background: var(--oq-row-alt);
 }
 .renderer-host input[type="text"],
 .renderer-host input[type="number"],
@@ -211,26 +247,32 @@ textarea {
 .renderer-host select {
   width: 100%;
   min-height: 44px;
-  border: 0;
-  border-bottom: 2px solid var(--oq-border);
-  border-radius: 0;
-  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--oq-row-alt);
   color: var(--oq-ink);
-  padding: 8px 0;
+  padding: 10px 14px;
   outline: none;
   font-family: inherit;
 }
 .renderer-host input:focus,
 .renderer-host textarea:focus,
 .renderer-host select:focus {
-  border-bottom-color: #3255a4;
+  background: var(--oq-surface);
+  border-color: #3255a4;
 }
 .renderer-host pre {
   background: var(--oq-row-alt);
   border: 1px solid var(--oq-border);
+  border-radius: 12px;
 }
 
-code,
-pre {
-  font-family: "Noto Sans Mono", monospace;
+/* Virtualized leaderboard rows */
+.lb-row:nth-child(even) {
+  background: var(--oq-row-alt);
+}
+.lb-row:first-child { border-radius: 10px 10px 0 0; }
+.lb-row:last-child { border-radius: 0 0 10px 10px; }
+.lb-row:hover {
+  background: var(--oq-surface);
 }
