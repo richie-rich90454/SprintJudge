@@ -1,6 +1,6 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
-import com.openquiz.util.ExecIo;
+import com.sprintjudge.util.ExecIo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * cap, and per-run temp-directory cleanup.
  */
 @Component
-@ConditionalOnProperty(name = "openquiz.executor.mode", havingValue = "native")
+@ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "native")
 public class NativeExecutor implements CodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(NativeExecutor.class);
@@ -36,10 +36,10 @@ public class NativeExecutor implements CodeExecutor {
             "javascript", "node", "js", "node", "py", "python");
     private static final Set<String> SUPPORTED = Set.of("c", "cpp", "java", "node", "python");
 
-    @Value("${openquiz.executor.work-dir:./executor/tmp}")
+    @Value("${sprintjudge.executor.work-dir:./executor/tmp}")
     private String workDirBase;
 
-    @Value("${openquiz.executor.timeout-sec:10}")
+    @Value("${sprintjudge.executor.timeout-sec:10}")
     private int defaultTimeoutSec;
 
     private final CompileArtifactCache compileCache;
@@ -47,7 +47,7 @@ public class NativeExecutor implements CodeExecutor {
     public NativeExecutor(CompileArtifactCache compileCache) {
         this.compileCache = compileCache;
         log.warn("NativeExecutor active: submissions run WITHOUT sandbox isolation. "
-                + "On Linux production, set openquiz.executor.mode=nsjail.");
+                + "On Linux production, set sprintjudge.executor.mode=nsjail.");
     }
 
     @Override
