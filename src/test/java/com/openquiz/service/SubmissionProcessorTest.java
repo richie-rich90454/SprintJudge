@@ -8,6 +8,7 @@ import com.openquiz.service.executor.CodeExecutor;
 import com.openquiz.service.executor.JudgeRequest;
 import com.openquiz.service.executor.JudgeResult;
 import com.openquiz.util.Json;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -39,9 +41,16 @@ class SubmissionProcessorTest {
     @Mock ScoringEngine scoringEngine;
     @Mock GameRoomManager roomManager;
 
-    private SubmissionProcessor processor() {
+    private SubmissionWriteBuffer buffer;
+
+    @BeforeEach
+    void setUp() {
+        buffer = new SubmissionWriteBuffer(submissionRepository, 250, 1000);
+    }
+
+    private SubmissionProcessor processor(int permits) {
         return new SubmissionProcessor(executor, submissionRepository, questionRepository,
-                scoringEngine, roomManager, new Semaphore(100));
+                scoringEngine, roomManager, buffer, new Semaphore(permits));
     }
 
     private Question ojQuestion() {
@@ -62,16 +71,24 @@ class SubmissionProcessorTest {
     // ---------- happy path ----------
 
     @Test
-    void codingRunSavesBestSubmission() {
+    void codingRunBuffersBestSubmissionAndBroadcasts() {
         when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
         when(submissionRepository.findBySessionQuestion(any(), any())).thenReturn(List.of());
         when(executor.judge(any(JudgeRequest.class))).thenReturn(result(1, 1));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
                 anyLong(), anyLong(), anyInt(), any())).thenReturn(500);
 
-        processor().processCoding("s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
+        boolean accepted = processor(2).processCoding(
+                "s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
 
-        verify(submissionRepository).save(any(Submission.class));
+        assertTrue(accepted);
+        assertEquals(1, buffer.offeredTotal());
+        buffer.flush();
+        ArgumentCaptor<List<Submission>> batch = ArgumentCaptor.forClass(List.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Submission>> capped = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) batch;
+        verify(submissionRepository).saveAll(capped.capture());
+        assertEquals(500, capped.getValue().get(0).scoreEarned());
         verify(roomManager).broadcastLeaderboard("s1");
     }
 
@@ -86,10 +103,25 @@ class SubmissionProcessorTest {
                 .thenReturn(Optional.of(new Submission("prev", "s1", "q1", "Alice", "uuid-1",
                         "{}", 999, true, "", 1, null)));
 
-        processor().processCoding("s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
+        boolean accepted = processor(2).processCoding(
+                "s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
 
-        verify(submissionRepository, never()).save(any(Submission.class));
+        assertTrue(accepted);
+        assertEquals(0, buffer.offeredTotal());      // worse score: nothing persisted
         verify(roomManager).broadcastLeaderboard("s1");
+    }
+
+    // ---------- backpressure ----------
+
+    @Test
+    void saturatedSemaphoreReturnsFalseWithoutJudging() {
+        boolean accepted = processor(0).processCoding(
+                "s1", "q1", "Impatient", "uuid-b", "python", "print(1)", Map.of());
+
+        assertFalse(accepted);
+        verify(executor, never()).judge(any());
+        verify(questionRepository, never()).findById(anyString());
+        assertEquals(0, buffer.offeredTotal());
     }
 
     // ---------- guards ----------
@@ -100,13 +132,19 @@ class SubmissionProcessorTest {
         when(questionRepository.findById("m1")).thenReturn(Optional.of(
                 new Question("m1", "qz", "M", "D", "MCQ", null, 30, 100, mcqCfg, 0, null)));
 
-        processor().processCoding("s1", "m1", "Eve", "u-e", "python", "print(1)", Map.of());
+        boolean accepted = processor(2).processCoding(
+                "s1", "m1", "Eve", "u-e", "python", "print(1)", Map.of());
 
-        ArgumentCaptor<Submission> saved = ArgumentCaptor.forClass(Submission.class);
-        verify(submissionRepository).save(saved.capture());
-        assertEquals(0, saved.getValue().scoreEarned());
-        assertTrue(saved.getValue().judgeLog().contains("not_a_coding_question"));
+        assertTrue(accepted);
+        assertEquals(1, buffer.offeredTotal());
         verify(executor, never()).judge(any());
+        buffer.flush();
+        ArgumentCaptor<List<Submission>> cap =
+                ArgumentCaptor.forClass((Class) List.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Submission>> batches = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) cap;
+        verify(submissionRepository).saveAll(batches.capture());
+        assertTrue(batches.getValue().get(0).judgeLog().contains("not_a_coding_question"));
         verify(roomManager).broadcastLeaderboard("s1");
     }
 
@@ -114,11 +152,9 @@ class SubmissionProcessorTest {
     void oversizedSourceIsRejectedWithoutJudging() {
         when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
 
-        processor().processCoding("s1", "q1", "Big", "u-b", "python", "x".repeat(70_000), Map.of());
+        processor(2).processCoding("s1", "q1", "Big", "u-b", "python", "x".repeat(70_000), Map.of());
 
-        ArgumentCaptor<Submission> saved = ArgumentCaptor.forClass(Submission.class);
-        verify(submissionRepository).save(saved.capture());
-        assertEquals(0, saved.getValue().scoreEarned());
+        assertEquals(1, buffer.offeredTotal());
         verify(executor, never()).judge(any());
     }
 
@@ -128,10 +164,10 @@ class SubmissionProcessorTest {
         when(submissionRepository.findBySessionQuestion("s1", "q1")).thenReturn(java.util.List.of(
                 new Submission("a", "s1", "q1", "F", "uuid-f", "{}", 10, false, "", 50, null)));
 
-        processor().processCoding("s1", "q1", "Flooder", "uuid-f", "python", "print(1)", Map.of());
+        processor(2).processCoding("s1", "q1", "Flooder", "uuid-f", "python", "print(1)", Map.of());
 
         verify(executor, never()).judge(any());
-        verify(submissionRepository, never()).save(any(Submission.class));
+        assertEquals(0, buffer.offeredTotal());
     }
 
     @Test
@@ -142,20 +178,24 @@ class SubmissionProcessorTest {
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
                 anyLong(), anyLong(), anyInt(), any())).thenReturn(0);
 
-        processor().processCoding("s1", "q1", "Newbie", "u-n", "cpp", "int main(", Map.of());
+        processor(2).processCoding("s1", "q1", "Newbie", "u-n", "cpp", "int main(", Map.of());
 
-        ArgumentCaptor<Submission> saved = ArgumentCaptor.forClass(Submission.class);
-        verify(submissionRepository).save(saved.capture());
-        assertEquals(0, saved.getValue().scoreEarned());
-        assertEquals(false, saved.getValue().correct());
+        assertEquals(1, buffer.offeredTotal());
+        buffer.flush();
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Submission>> batches =
+                (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(List.class);
+        verify(submissionRepository).saveAll(batches.capture());
+        assertEquals(0, batches.getValue().get(0).scoreEarned());
+        assertEquals(false, batches.getValue().get(0).correct());
     }
 
     @Test
     void unknownQuestionIdIsIgnored() {
         when(questionRepository.findById("ghost")).thenReturn(Optional.empty());
-        processor().processCoding("s1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
+        processor(2).processCoding("s1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
         verify(executor, never()).judge(any());
-        verify(submissionRepository, never()).save(any(Submission.class));
+        assertEquals(0, buffer.offeredTotal());
         verify(roomManager, never()).broadcastLeaderboard(anyString());
     }
 }
