@@ -1,4 +1,4 @@
-# Verifies a real production-profile launch of SprintJudge on Windows.
+﻿# Verifies a real production-profile launch of SprintJudge on Windows.
 # Builds (unless -SkipBuild), boots the jar detached, probes HTTP + WebSocket,
 # prints a PASS/FAIL table, always stops the process. Exit 0 = all pass.
 param(
