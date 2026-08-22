@@ -3,25 +3,25 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   darkMode: "media",
   theme: {
-    // Softly rounded industrial: crisp #3255A4 lines, friendly geometry.
     borderRadius: {
-      none: "0", DEFAULT: "10px", sm: "8px", md: "12px", lg: "14px",
+      none: "0", DEFAULT: "10px", sm: "8px", md: "12px", lg: "16px",
       xl: "18px", "2xl": "22px", "3xl": "26px", full: "9999px",
     },
     boxShadow: {
       none: "none",
-      // Single flat ambient edge for floating layers only (dropdowns/modals).
-      layer: "0 1px 0 rgba(26,31,46,0.04)",
+      layer: "0 1px 2px rgba(20,22,26,0.06)",
     },
     extend: {
       colors: {
-        primary: "#3255A4",
-        "primary-dark": "#27428A",
-        "primary-tint": "#E8EEFB",
-        danger: "#d32f2f",
-        success: "#2e7d32",
-        warning: "#f57c00",
-        muted: "#5f6368",
+        // Examination red — the single brand accent.
+        primary: "#C8102E",
+        "primary-dark": "#9E0C23",
+        "primary-tint": "#F9E3E6",
+        "primary-ring": "rgba(200,16,46,0.22)",
+        danger: "#B3261E",
+        success: "#15803D",
+        warning: "#B45309",
+        muted: "#6B7080",
         border: "var(--oq-border)",
         "surface-alt": "var(--oq-row-alt)",
         bg: "var(--oq-bg)",
@@ -33,7 +33,9 @@ export default {
       fontFamily: {
         sans: ['"Noto Sans"', "system-ui", "sans-serif"],
         mono: ['"Noto Sans Mono"', "monospace"],
+        display: ['"Noto Sans"', "system-ui", "sans-serif"],
       },
+      letterSpacing: { caps: "0.14em" },
       maxWidth: { content: "1200px" },
       minHeight: { tap: "44px" },
     },
