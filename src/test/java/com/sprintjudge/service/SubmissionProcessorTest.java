@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -40,6 +41,7 @@ class SubmissionProcessorTest {
     @Mock QuestionRepository questionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock LeaderboardBroadcaster leaderboardBroadcaster;
+    @Captor ArgumentCaptor<List<Submission>> listCaptor;
 
     private SubmissionWriteBuffer buffer;
 
@@ -84,11 +86,8 @@ class SubmissionProcessorTest {
         assertTrue(accepted);
         assertEquals(1, buffer.offeredTotal());
         buffer.flush();
-        ArgumentCaptor<List<Submission>> batch = ArgumentCaptor.forClass(List.class);
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<Submission>> capped = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) batch;
-        verify(submissionRepository).saveAll(capped.capture());
-        assertEquals(500, capped.getValue().get(0).scoreEarned());
+        verify(submissionRepository).saveAll(listCaptor.capture());
+        assertEquals(500, listCaptor.getValue().get(0).scoreEarned());
         verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
     }
 
@@ -139,12 +138,8 @@ class SubmissionProcessorTest {
         assertEquals(1, buffer.offeredTotal());
         verify(executor, never()).judge(any());
         buffer.flush();
-        ArgumentCaptor<List<Submission>> cap =
-                ArgumentCaptor.forClass((Class) List.class);
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<Submission>> batches = (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) cap;
-        verify(submissionRepository).saveAll(batches.capture());
-        assertTrue(batches.getValue().get(0).judgeLog().contains("not_a_coding_question"));
+        verify(submissionRepository).saveAll(listCaptor.capture());
+        assertTrue(listCaptor.getValue().get(0).judgeLog().contains("not_a_coding_question"));
         verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
     }
 
@@ -182,12 +177,9 @@ class SubmissionProcessorTest {
 
         assertEquals(1, buffer.offeredTotal());
         buffer.flush();
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<Submission>> batches =
-                (ArgumentCaptor<List<Submission>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(List.class);
-        verify(submissionRepository).saveAll(batches.capture());
-        assertEquals(0, batches.getValue().get(0).scoreEarned());
-        assertEquals(false, batches.getValue().get(0).correct());
+        verify(submissionRepository).saveAll(listCaptor.capture());
+        assertEquals(0, listCaptor.getValue().get(0).scoreEarned());
+        assertEquals(false, listCaptor.getValue().get(0).correct());
     }
 
     @Test
