@@ -1,4 +1,4 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 /**
  * Outbound port for leaderboard transport, consumed by the async judge
