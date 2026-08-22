@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
