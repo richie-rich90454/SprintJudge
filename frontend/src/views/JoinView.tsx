@@ -3,6 +3,7 @@ import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
 import { useEnter, useStaggerIn } from "../hooks/useMotion";
 import { motion } from "../services/MotionService";
+import { LogoMark } from "../components/LogoMark";
 
 /**
  * Full-bleed immersive join: Swiss poster composition on a ruled exam-paper
@@ -41,7 +42,7 @@ export function JoinView() {
       {/* Masthead: brand rule + wordmark, poster style */}
       <header className="page-shell w-full pt-8 pb-4 flex items-center justify-between border-b-2" style={{ borderColor: "#C8102E" }}>
         <div className="flex items-center gap-3">
-          <img src="/favicon.svg" alt="" width={34} height={34} />
+          <LogoMark size={34} />
           <span className="text-xl font-extrabold tracking-tight">SprintJudge</span>
         </div>
         <button onClick={() => setView("admin")} className="btn btn-secondary text-sm">Host / Admin</button>
