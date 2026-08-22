@@ -2,17 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------------------------------------------------------------------------
-   Self-hosted Noto fonts (variable WOFF2, latin subset). No external CDNs.
---------------------------------------------------------------------------- */
+/* Self-hosted variable Noto fonts (no external CDNs). */
 @font-face {
   font-family: "Noto Sans";
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
   src: url("/fonts/noto-sans-latin-var.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+2013-2014, U+2018-201A, U+201C-201E,
-    U+2022, U+2026, U+2039-203A, U+2044, U+20AC, U+2122;
 }
 @font-face {
   font-family: "Noto Sans Mono";
@@ -20,25 +16,27 @@
   font-weight: 100 900;
   font-display: swap;
   src: url("/fonts/noto-sans-mono-latin-var.woff2") format("woff2");
-  unicode-range: U+0000-00FF;
 }
 
+/* ---- Palette: warm paper, neutral ink, examination red ----------------- */
 :root {
-  --oq-bg: #f0f3f8;
+  --oq-bg: #f6f5f2;
   --oq-surface: #ffffff;
-  --oq-ink: #1a1f2e;
-  --oq-border: #c0c8d8;
-  --oq-row-alt: #f8faff;
+  --oq-ink: #16181d;
+  --oq-border: #e0ded8;
+  --oq-border-strong: #c9c8c2;
+  --oq-row-alt: #faf9f6;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --oq-bg: #1a1f2e;
-    --oq-surface: #252b3a;
-    --oq-ink: #e8edf5;
-    --oq-border: #3a4255;
-    --oq-row-alt: #2a3040;
+    --oq-bg: #101216;
+    --oq-surface: #191c22;
+    --oq-ink: #edeef2;
+    --oq-border: #2e333d;
+    --oq-border-strong: #3d434f;
+    --oq-row-alt: #1d212a;
     color-scheme: dark;
   }
 }
@@ -48,65 +46,67 @@ html {
   color: var(--oq-ink);
   background: var(--oq-bg);
   -webkit-font-smoothing: antialiased;
-  /* Chrome 49 baseline first, fluid scale where clamp() is supported. */
   font-size: 16px;
 }
 
 @supports (width: clamp(15px, 1vw, 17px)) {
-  html {
-    font-size: clamp(15px, 0.4vw + 14px, 17px);
-  }
+  html { font-size: clamp(15px, 0.35vw + 14.5px, 17px); }
 }
 
-body {
-  margin: 0;
-  background: var(--oq-bg);
-}
+body { margin: 0; background: var(--oq-bg); }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* Remove the 300ms tap delay on interactive elements. */
-button,
-a,
-input,
-select,
-textarea,
-label {
-  touch-action: manipulation;
-}
+button, a, input, select, textarea, label { touch-action: manipulation; }
+button, input, select, textarea { font-family: inherit; }
 
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-
-/* Fallback for browsers without grid gap support. */
 @supports not (gap: 8px) {
-  .grid,
-  .flex {
-    margin: -4px;
-  }
-  .grid > *,
-  .flex > * {
-    margin: 4px;
-  }
+  .grid, .flex { margin: -4px; }
+  .grid > *, .flex > * { margin: 4px; }
 }
 
-/* ---------------------------------------------------------------------------
-   Design system — flat, softly rounded industrial on #3255A4.
-   No gradients, no glass, no glow. Depth comes from borders and tints only.
---------------------------------------------------------------------------- */
+/* =========================================================================
+   SprintJudge design system — Swiss editorial × exam paper.
+   Hairline rules, caps labels with tracking, huge display numerals,
+   one examination-red accent. Flat: no gradients / glass / glow.
+   ========================================================================= */
 @layer components {
+  /* Page shell keeps every view on the same editorial grid. */
+  .page-shell {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+  @media (max-width: 640px) { .page-shell { padding-inline: 16px; } }
+
+  /* Small-caps section label — the Swiss voice of the UI. */
+  .label-caps {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--oq-border-strong);
+  }
+  @media (prefers-color-scheme: dark) {
+    .label-caps { color: #8b93a5; }
+  }
+
   .card {
+    position: relative;
     background: var(--oq-surface);
     border: 1px solid var(--oq-border);
-    border-top: 3px solid #3255a4;
     border-radius: 18px;
-    padding: 24px;
+    padding: 28px;
+  }
+  /* Exam-paper top rule: thick red stroke + hairline shadow rule. */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    border-radius: 18px 18px 0 0;
+    background: #c8102e;
   }
 
   .btn {
@@ -115,130 +115,116 @@ textarea {
     justify-content: center;
     gap: 8px;
     min-height: 44px;
-    padding: 0 20px;
-    border-radius: 12px;
-    border: 2px solid #3255a4;
-    font-weight: 600;
+    padding: 0 22px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    font-weight: 700;
     cursor: pointer;
     touch-action: manipulation;
-    transition: background-color 0.12s linear, color 0.12s linear,
-      border-color 0.12s linear, transform 0.08s ease-out;
+    transition: background-color 0.14s ease, color 0.14s ease,
+                border-color 0.14s ease, transform 0.08s ease-out;
   }
-
-  .btn-primary {
-    background: #3255a4;
-    color: #ffffff;
-  }
-  .btn-primary:hover {
-    background: #27428a;
-    border-color: #27428a;
-    color: #ffffff;
-  }
-
+  .btn-primary { background: #c8102e; color: #fff; }
+  .btn-primary:hover { background: #9e0c23; }
   .btn-secondary {
-    background: transparent;
+    background: var(--oq-surface);
     color: var(--oq-ink);
-    border: 2px solid var(--oq-border);
+    border-color: var(--oq-border-strong);
   }
-  .btn-secondary:hover {
-    border-color: #3255a4;
-    color: #3255a4;
-  }
-
+  .btn-secondary:hover { border-color: #c8102e; color: #c8102e; }
   .btn-danger {
     background: transparent;
-    color: #d32f2f;
-    border: 2px solid #d32f2f;
+    color: #b3261e;
+    border-color: #b3261e;
   }
-  .btn-danger:hover {
-    background: #d32f2f;
-    color: #ffffff;
-  }
+  .btn-danger:hover { background: #b3261e; color: #fff; }
 
-  /* Soft rounded field with a flat primary focus ring (no glow). */
+  /* Swiss underline field: hairline base, red focus stroke. */
   .input-underline {
     width: 100%;
-    min-height: 44px;
-    border-radius: 12px;
-    border: 2px solid transparent;
-    background: var(--oq-row-alt);
+    min-height: 48px;
+    border: 0;
+    border-bottom: 2px solid var(--oq-border-strong);
+    border-radius: 0;
+    background: transparent;
     color: var(--oq-ink);
-    padding: 10px 14px;
+    padding: 10px 2px;
     outline: none;
-    transition: border-color 0.12s linear, background-color 0.12s linear;
+    font-size: inherit;
+    transition: border-color 0.15s ease;
   }
-  .input-underline:focus {
-    background: var(--oq-surface);
-    border-color: #3255a4;
-  }
+  .input-underline:focus { border-bottom-color: #c8102e; }
+  .input-underline::placeholder { color: var(--oq-border-strong); }
 
   .header-double {
-    border-bottom: 2px solid #3255a4;
+    border-bottom: 3px solid #c8102e;
     padding-bottom: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     position: relative;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.01em;
   }
   .header-double::after {
     content: "";
     display: block;
-    border-bottom: 1px dotted #3255a4;
-    margin-top: 3px;
+    border-bottom: 1px dotted var(--oq-border-strong);
+    margin-top: 4px;
   }
 
-  .table-dotted {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-  .table-dotted th,
-  .table-dotted td {
+  .table-dotted { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .table-dotted th, .table-dotted td {
     border-bottom: 1px dotted var(--oq-border);
     padding: 10px 14px;
     text-align: left;
   }
-  .table-dotted tbody tr:nth-child(even) {
-    background: var(--oq-row-alt);
+  .table-dotted tbody tr:nth-child(even) { background: var(--oq-row-alt); }
+  .table-dotted thead th {
+    border-bottom: 2px solid #c8102e;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--oq-border-strong);
   }
-  .table-dotted tbody tr:first-child td:first-child { border-top-left-radius: 12px; }
-  .table-dotted tbody tr:first-child td:last-child { border-top-right-radius: 12px; }
-  .table-dotted tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
-  .table-dotted tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
 
   .modal-topbar {
-    border-top: 5px solid #3255a4;
+    border-top: 5px solid #c8102e;
     background: var(--oq-surface);
-    border-radius: 22px;
+    border-radius: 20px;
   }
 
-  .mono {
-    font-family: "Noto Sans Mono", monospace;
+  /* Immersive join backdrop: flat ruled exam-paper grid (SVG, not gradient). */
+  .pattern-exam {
+    background-color: var(--oq-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M48 0H0v48' fill='none' stroke='%23c8102e' stroke-opacity='0.07'/%3E%3C/svg%3E");
   }
+
+  .mono { font-family: "Noto Sans Mono", monospace; }
 }
 
-code,
-pre {
-  font-family: "Noto Sans Mono", monospace;
-}
+code, pre { font-family: "Noto Sans Mono", monospace; }
 
-/* Renderer-host scopes the 12 imperative OOP renderers to the same look. */
+/* ---- Renderer host scope ------------------------------------------------ */
 .renderer-host button {
   min-height: 44px;
   padding: 0 16px;
-  border: 2px solid var(--oq-border);
+  border: 2px solid var(--oq-border-strong);
   border-radius: 12px;
   background: transparent;
   color: var(--oq-ink);
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
-  transition: border-color 0.12s linear, color 0.12s linear,
-    background-color 0.12s linear;
+  transition: border-color 0.12s ease, color 0.12s ease, background-color 0.12s ease;
 }
 .renderer-host button:hover {
-  border-color: #3255a4;
-  color: #3255a4;
+  border-color: #c8102e;
+  color: #c8102e;
   background: var(--oq-row-alt);
+}
+.renderer-host button[data-selected="true"] {
+  border-color: #c8102e;
+  background: var(--oq-row-alt);
+  box-shadow: inset 3px 0 0 #c8102e;
 }
 .renderer-host input[type="text"],
 .renderer-host input[type="number"],
@@ -247,32 +233,24 @@ pre {
 .renderer-host select {
   width: 100%;
   min-height: 44px;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background: var(--oq-row-alt);
+  border: 0;
+  border-bottom: 2px solid var(--oq-border-strong);
+  border-radius: 0;
+  background: transparent;
   color: var(--oq-ink);
-  padding: 10px 14px;
+  padding: 10px 2px;
   outline: none;
   font-family: inherit;
 }
 .renderer-host input:focus,
 .renderer-host textarea:focus,
-.renderer-host select:focus {
-  background: var(--oq-surface);
-  border-color: #3255a4;
-}
+.renderer-host select:focus { border-bottom-color: #c8102e; }
 .renderer-host pre {
   background: var(--oq-row-alt);
   border: 1px solid var(--oq-border);
   border-radius: 12px;
 }
 
-/* Virtualized leaderboard rows */
-.lb-row:nth-child(even) {
-  background: var(--oq-row-alt);
-}
-.lb-row:first-child { border-radius: 10px 10px 0 0; }
-.lb-row:last-child { border-radius: 0 0 10px 10px; }
-.lb-row:hover {
-  background: var(--oq-surface);
-}
+/* ---- Virtualized leaderboard rows -------------------------------------- */
+.lb-row:nth-child(even) { background: var(--oq-row-alt); }
+.lb-row:hover { background: var(--oq-surface); }
