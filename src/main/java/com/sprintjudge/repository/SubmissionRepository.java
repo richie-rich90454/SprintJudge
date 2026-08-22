@@ -2,6 +2,7 @@ package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.RepoUtil;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -90,7 +91,7 @@ public class SubmissionRepository {
     }
     private Submission toSubmission(org.jooq.Record r) {
         Boolean correct = r.get(Tables.SUB_CORRECT);
-        Long at = r.get(Tables.SUB_AT);
+        Long at = RepoUtil.asLongBoxed(r.get(Tables.SUB_AT));
         return new Submission(
                 r.get(Tables.SUB_ID), r.get(Tables.SUB_SESS), r.get(Tables.SUB_QUESTION),
                 r.get(Tables.SUB_PNAME), r.get(Tables.SUB_PUUID), r.get(Tables.SUB_DATA),
