@@ -4,7 +4,11 @@ import legacy from "@vitejs/plugin-legacy";
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler", {}]],
+      },
+    }),
     // Dual-bundle output: modern ESM for evergreen browsers, SystemJS +
     // core-js polyfilled bundle for Chrome 49 / Safari 10 / Firefox 52 era.
     legacy({
