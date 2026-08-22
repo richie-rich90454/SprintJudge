@@ -1,6 +1,6 @@
 # Database Schema
 
-OpenQuiz uses a single portable SQLite file with WAL journaling. All access goes through
+SprintJudge uses a single portable SQLite file with WAL journaling. All access goes through
 parameterized JOOQ queries; migrations run via Flyway.
 
 ```mermaid
@@ -88,6 +88,6 @@ erDiagram
   foreign-key enforcement, so readers never block the single writer for long.
 - The database is one portable file: back it up with any file copy while idle.
 - Production should run a weekly checkpoint:
-  `sqlite3 /var/lib/openquiz/openquiz.db "PRAGMA wal_checkpoint(TRUNCATE);"`
+  `sqlite3 /var/lib/sprintjudge/sprintjudge.db "PRAGMA wal_checkpoint(TRUNCATE);"`
 - Question `config` payloads embed answer keys and hidden test cases — they are exposed
   exclusively through admin-authenticated endpoints.
