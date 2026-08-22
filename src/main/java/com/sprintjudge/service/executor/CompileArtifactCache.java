@@ -1,6 +1,6 @@
-package com.openquiz.service.executor;
+package com.sprintjudge.service.executor;
 
-import com.openquiz.util.Sha256;
+import com.sprintjudge.util.Sha256;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -39,9 +39,9 @@ public class CompileArtifactCache {
     private final AtomicLong misses = new AtomicLong();
 
     public CompileArtifactCache(
-            @Value("${openquiz.executor.compile-cache.dir:./executor/cache}") String dir,
-            @Value("${openquiz.executor.compile-cache.max-entries:512}") int maxEntries,
-            @Value("${openquiz.executor.compile-cache.max-mb:512}") long maxMb) throws IOException {
+            @Value("${sprintjudge.executor.compile-cache.dir:./executor/cache}") String dir,
+            @Value("${sprintjudge.executor.compile-cache.max-entries:512}") int maxEntries,
+            @Value("${sprintjudge.executor.compile-cache.max-mb:512}") long maxMb) throws IOException {
         this.dir = Path.of(dir).toAbsolutePath().normalize();
         Files.createDirectories(this.dir);
         this.maxEntries = Math.max(16, maxEntries);
