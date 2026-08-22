@@ -1,7 +1,7 @@
-package com.openquiz.service.room;
+package com.sprintjudge.service.room;
 
-import com.openquiz.service.GameRoom;
-import com.openquiz.util.IntObjectMap;
+import com.sprintjudge.service.GameRoom;
+import com.sprintjudge.util.IntObjectMap;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.IntFunction;
