@@ -1,4 +1,4 @@
-/* OpenQuiz service worker — instant repeat loads.
+/* SprintJudge service worker — instant repeat loads.
  *
  * Strategy:
  *   - /fonts/*            cache-first (immutable content, versioned by URL)
