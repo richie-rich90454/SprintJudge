@@ -2,6 +2,7 @@ package com.sprintjudge.repository;
 
 import com.sprintjudge.domain.models.Quiz;
 import com.sprintjudge.util.Ids;
+import com.sprintjudge.util.RepoUtil;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
@@ -48,7 +49,7 @@ public class QuizRepository {
         return new Quiz(
                 r.get(Tables.QUIZZES_ID), r.get(Tables.QUIZZES_TITLE),
                 r.get(Tables.QUIZZES_DESC), r.get(Tables.QUIZZES_CREATED_BY),
-                Instant.ofEpochSecond(r.get(Tables.QUIZZES_CREATED_AT)),
+                Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.QUIZZES_CREATED_AT))),
                 tpl != null && tpl);
     }
 }
