@@ -1,4 +1,4 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
