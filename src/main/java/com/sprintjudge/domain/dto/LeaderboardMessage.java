@@ -1,4 +1,4 @@
-package com.openquiz.domain.dto;
+package com.sprintjudge.domain.dto;
 
 import java.util.List;
 
