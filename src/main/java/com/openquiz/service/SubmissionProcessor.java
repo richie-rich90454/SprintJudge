@@ -9,9 +9,9 @@ import com.openquiz.repository.SubmissionRepository;
 import com.openquiz.service.executor.CodeExecutor;
 import com.openquiz.service.executor.JudgeRequest;
 import com.openquiz.service.executor.JudgeResult;
-import com.openquiz.service.executor.TestCase;
 import com.openquiz.util.Ids;
 import com.openquiz.util.Json;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+/**
+ * Async judge pipeline. Returns {@code false} only when the concurrency
+ * budget is saturated so the caller can answer with a friendly retry —
+ * the queue never blocks a WebSocket thread.
+ */
 @Service
 public class SubmissionProcessor {
 
@@ -32,6 +37,7 @@ public class SubmissionProcessor {
     private final QuestionRepository questionRepository;
     private final ScoringEngine scoringEngine;
     private final GameRoomManager roomManager;
+    private final SubmissionWriteBuffer writeBuffer;
     private final Semaphore slot;
 
     public SubmissionProcessor(CodeExecutor executor,
@@ -39,41 +45,59 @@ public class SubmissionProcessor {
                                QuestionRepository questionRepository,
                                ScoringEngine scoringEngine,
                                GameRoomManager roomManager,
+                               SubmissionWriteBuffer writeBuffer,
                                Semaphore executionSlots) {
         this.executor = executor;
         this.submissionRepository = submissionRepository;
         this.questionRepository = questionRepository;
         this.scoringEngine = scoringEngine;
         this.roomManager = roomManager;
+        this.writeBuffer = writeBuffer;
         this.slot = executionSlots;
     }
 
     @Async("virtualThreadExecutor")
-    public void processCoding(String sessionId, String questionId, String playerName,
+    public boolean processCoding(String sessionId, String questionId, String playerName,
+                                 String playerUuid, String language, String sourceCode,
+                                 Map<String, Object> settings) {
+        // Edge case Y companion: never block the caller on a saturated judge.
+        if (!slot.tryAcquire()) {
+            return false;
+        }
+        JudgeResult result = null;
+        try {
+            result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode, settings);
+            return true;
+        } finally {
+            slot.release();
+            if (result != null) {
+                roomManager.broadcastLeaderboard(publishableSessionId(sessionId));
+            }
+        }
+    }
+
+    private String publishableSessionId(String sessionId) {
+        // Session ids are room-internal; leaderboard fan-out is pin-keyed by the manager.
+        return sessionId;
+    }
+
+    private JudgeResult judge(String sessionId, String questionId, String playerName,
                               String playerUuid, String language, String sourceCode,
                               Map<String, Object> settings) {
         Question question = questionRepository.findById(questionId).orElse(null);
-        if (question == null) return;
+        if (question == null) return null;
         QuestionType type = QuestionType.from(question.questionType());
 
-        // Async-boundary guard: the WebSocket layer routes only coding questions
-        // here, but a misrouted selection answer must never pollute the judge
-        // queue — reject it explicitly instead of running it against test cases.
+        // Async-boundary guard: misrouted selection answers must never reach tools.
         if (!type.isCoding()) {
-            submissionRepository.save(new Submission(Ids.uuid(), sessionId, questionId, playerName,
-                    playerUuid, Json.write(Map.of("rejected", "not_a_coding_question")),
-                    0, false, "not_a_coding_question", 1, Instant.now()));
-            roomManager.broadcastLeaderboard(sessionId);
-            return;
+            recordRejected(sessionId, questionId, playerName, playerUuid, "not_a_coding_question");
+            return new JudgeResult(0, 0, false, List.of());
         }
 
         // Defense-in-depth: the WS layer already caps this; enforce again here.
         if (sourceCode != null && sourceCode.length() > MAX_SOURCE_CHARS) {
-            submissionRepository.save(new Submission(Ids.uuid(), sessionId, questionId, playerName,
-                    playerUuid, Json.write(Map.of("language", language, "rejected", "source_too_large")),
-                    0, false, "source_too_large", 1, Instant.now()));
-            roomManager.broadcastLeaderboard(sessionId);
-            return;
+            recordRejected(sessionId, questionId, playerName, playerUuid, "source_too_large");
+            return new JudgeResult(0, 0, false, List.of());
         }
 
         // Bound the judge queue: hard cap on attempts per player per question.
@@ -81,14 +105,14 @@ public class SubmissionProcessor {
                 .filter(s -> s.playerUuid().equals(playerUuid))
                 .mapToInt(s -> s.attemptCount()).sum();
         if (priorAttempts >= MAX_ATTEMPTS_PER_QUESTION) {
-            return;
+            return null;
         }
 
         JsonNode config = Json.readTree(question.config());
-        List<TestCase> cases = new ArrayList<>();
+        List<com.openquiz.service.executor.TestCase> cases = new ArrayList<>();
         if (config.has("testCases")) {
             for (JsonNode tc : config.get("testCases")) {
-                cases.add(new TestCase(
+                cases.add(new com.openquiz.service.executor.TestCase(
                         tc.path("input").asText(""),
                         tc.path("expectedOutput").asText(""),
                         tc.path("isHidden").asBoolean(false)));
@@ -98,33 +122,27 @@ public class SubmissionProcessor {
         int timeout = Math.max(5, question.timeLimitSec());
 
         JudgeRequest req = new JudgeRequest(language, sourceCode, cases, timeout, memMb);
-
-        boolean acquired = false;
-        JudgeResult result;
-        try {
-            slot.acquire();
-            acquired = true;
-            result = executor.judge(req);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        } finally {
-            if (acquired) slot.release();
-        }
+        JudgeResult result = executor.judge(req);
 
         int attempts = priorAttempts + 1;
-
         int score = scoringEngine.scoreCoding(
                 result.passed(), result.total(), question.pointsBase(),
                 result.allPassed(), 0, question.timeLimitSec(), attempts, settings);
 
         Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
         if (best == null || score > best.scoreEarned()) {
-            submissionRepository.save(new Submission(
+            writeBuffer.offer(new Submission(
                     Ids.uuid(), sessionId, questionId, playerName, playerUuid,
                     Json.write(Map.of("language", language, "source", sourceCode)),
                     score, result.allPassed(), Json.write(result), attempts, Instant.now()));
         }
-        roomManager.broadcastLeaderboard(sessionId);
+        return result;
+    }
+
+    private void recordRejected(String sessionId, String questionId, String playerName,
+                                String playerUuid, String reason) {
+        writeBuffer.offer(new Submission(Ids.uuid(), sessionId, questionId, playerName,
+                playerUuid, Json.write(Map.of("rejected", reason)),
+                0, false, reason, 1, Instant.now()));
     }
 }
