@@ -32,7 +32,7 @@ export function JoinView() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <form ref={cardRef} onSubmit={submit} className="card w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-1">OpenQuiz</h1>
+        <h1 className="text-2xl font-bold mb-1">SprintJudge</h1>
         <p className="text-muted mb-6">Enter the game PIN to join.</p>
 
         <div ref={fieldsRef}>
