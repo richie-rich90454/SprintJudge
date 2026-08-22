@@ -1,13 +1,13 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.models.Question;
-import com.openquiz.domain.models.Submission;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.SubmissionRepository;
-import com.openquiz.service.executor.CodeExecutor;
-import com.openquiz.service.executor.JudgeRequest;
-import com.openquiz.service.executor.JudgeResult;
-import com.openquiz.util.Json;
+import com.sprintjudge.domain.models.Question;
+import com.sprintjudge.domain.models.Submission;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.SubmissionRepository;
+import com.sprintjudge.service.executor.CodeExecutor;
+import com.sprintjudge.service.executor.JudgeRequest;
+import com.sprintjudge.service.executor.JudgeResult;
+import com.sprintjudge.util.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
