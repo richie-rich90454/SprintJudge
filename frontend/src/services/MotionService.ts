@@ -99,6 +99,43 @@ export class MotionService {
       });
     });
   }
+
+  /**
+   * Kills every tween touching an element subtree. Views call this on unmount
+   * so swapped-out animations can never leak into the next screen.
+   */
+  killFor(el: HTMLElement | null): void {
+    if (!el) return;
+    gsap.killTweensOf(el);
+    el.querySelectorAll<HTMLElement>("*").forEach((n) => gsap.killTweensOf(n));
+  }
+
+  /**
+   * One delegated listener gives every button a genuine tactile press
+   * (transform-only, respects reduced-motion). Installed once from main.tsx.
+   */
+  installGlobalPressFeedback(): void {
+    if (this.reduced || this.pressInstalled) return;
+    this.pressInstalled = true;
+    document.addEventListener(
+      "pointerdown",
+      (e) => {
+        const target = (e.target as HTMLElement | null)?.closest("button");
+        if (!target) return;
+        gsap.to(target, { scale: 0.965, duration: 0.08, ease: "power1.out", overwrite: "auto" });
+        const release = () => {
+          gsap.to(target, { scale: 1, duration: 0.14, ease: "back.out(3)", overwrite: "auto" });
+          window.removeEventListener("pointerup", release);
+          window.removeEventListener("pointercancel", release);
+        };
+        window.addEventListener("pointerup", release, { once: true });
+        window.addEventListener("pointercancel", release, { once: true });
+      },
+      { passive: true }
+    );
+  }
+
+  private pressInstalled = false;
 }
 
 export const motion = new MotionService();
