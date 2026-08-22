@@ -1,6 +1,6 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
-import com.openquiz.repository.UserRepository;
+import com.sprintjudge.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
