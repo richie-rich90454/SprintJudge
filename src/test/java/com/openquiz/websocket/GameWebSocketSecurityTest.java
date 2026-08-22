@@ -55,6 +55,7 @@ class GameWebSocketSecurityTest {
         handshake.put(SecureHandshakeConfigurator.REMOTE_ADDR, "unresolved");
         EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
         lenient().when(cfg.getUserProperties()).thenReturn(handshake);
+        // getEndpointInstance now resolves via Spring; unit tests construct directly.
         new GameWebSocket(roomManager, rateLimiter).onOpen(session, cfg);
     }
 
