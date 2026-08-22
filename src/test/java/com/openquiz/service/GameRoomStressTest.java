@@ -40,6 +40,8 @@ class GameRoomStressTest {
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
+    @Mock BroadcastScheduler scheduler;
+    @Mock SubmissionWriteBuffer writeBuffer;
 
     private static final int PLAYERS = 500;
 
@@ -49,7 +51,8 @@ class GameRoomStressTest {
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.of(session));
 
         GameRoomManager mgr = new GameRoomManager(sessionRepository, quizRepository, questionRepository,
-                submissionRepository, scoringEngine, submissionProcessor, ws, evaluationService, settingsService);
+                submissionRepository, scoringEngine, submissionProcessor, ws, evaluationService,
+                settingsService, scheduler, writeBuffer);
 
         ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor();
         CountDownLatch start = new CountDownLatch(1);
