@@ -40,7 +40,8 @@ public class SecurityConfig {
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/public/**", "/ws", "/oauth2/**", "/login/**").permitAll()
+                .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
+                        "/favicon.ico", "/api/public/**", "/ws", "/oauth2/**", "/login/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
                 .anyRequest().denyAll())
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler));
