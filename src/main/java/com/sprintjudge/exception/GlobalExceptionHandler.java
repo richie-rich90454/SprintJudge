@@ -1,6 +1,6 @@
-package com.openquiz.exception;
+package com.sprintjudge.exception;
 
-import com.openquiz.domain.dto.ErrorMessage;
+import com.sprintjudge.domain.dto.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
