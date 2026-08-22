@@ -65,14 +65,17 @@ the same judge inside Ubuntu instead.
 
 ## Admin authentication
 
-Admins authenticate via Microsoft Entra ID OAuth2. Provide the following environment
-variables before using the admin panel:
+Admins authenticate via Microsoft Entra ID OAuth2. Provide credentials either as OS
+environment variables or in a `.env` file (see `.env.example`):
 
-```bash
-export SPRINTJUDGE_MS_CLIENT_ID=...
-export SPRINTJUDGE_MS_CLIENT_SECRET=...
-export SPRINTJUDGE_MS_TENANT_ID=common
+```dotenv
+SPRINTJUDGE_MS_CLIENT_ID=...
+SPRINTJUDGE_MS_CLIENT_SECRET=...
+SPRINTJUDGE_MS_TENANT_ID=common
 ```
+
+The loader checks `<jar-folder>/.env` first, then `./env/.env`, then `./.env`.
+OS environment variables always win over `.env`.
 
 ## First run
 
