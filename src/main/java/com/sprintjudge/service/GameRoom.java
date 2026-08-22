@@ -1,8 +1,8 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.dto.LeaderboardEntry;
-import com.openquiz.service.leaderboard.LiveLeaderboard;
-import com.openquiz.service.leaderboard.RankedSkipList;
+import com.sprintjudge.domain.dto.LeaderboardEntry;
+import com.sprintjudge.service.leaderboard.LiveLeaderboard;
+import com.sprintjudge.service.leaderboard.RankedSkipList;
 
 import java.util.ArrayList;
 import java.util.List;
