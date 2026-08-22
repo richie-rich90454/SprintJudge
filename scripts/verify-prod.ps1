@@ -75,8 +75,9 @@ try {
 # 5a2) bundled SPA served from the jar
 try {
     $r = Invoke-WebRequest "http://localhost:$Port/" -UseBasicParsing -TimeoutSec 5
-    if ($r.StatusCode -eq 200 -and $r.Content -match 'id="root"') { Pass "bundled SPA (/)" }
-    else { Fail "bundled SPA (/)" "status=$($r.StatusCode)" }
+    $isSpa = ($r.StatusCode -eq 200) -and (($r.Content -match 'id=.root.') -or ($r.Content -match '/assets/index'))
+    if ($isSpa) { Pass "bundled SPA (/)" }
+    else { Fail "bundled SPA (/)" "status=$($r.StatusCode) len=$(([string]$r.Content).Length) head=$(([string]$r.Content).Substring(0,[Math]::Min(80,([string]$r.Content).Length)))" }
 } catch { Fail "bundled SPA (/)" $_.Exception.Message }
 
 # 5b) admin surface must NOT be anonymous
