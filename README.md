@@ -17,6 +17,8 @@ and scores automatically.
   across multiple languages, with per-player best-score tracking.
 - **Rich question formats.** From single-choice and multi-select to numeric tolerance,
   ordering puzzles, bug-spotting, code completion, and full-editor judged problems.
+- **Bundled practice library.** Ships with a graded, multi-language question library that
+  auto-seeds on first launch — ready to play out of the box.
 - **Lightweight by design.** An embedded SQLite database (WAL mode) keeps deployment to
   a single portable file — no external database server required.
 
