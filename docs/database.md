@@ -1,7 +1,8 @@
 # Database Schema
 
 SprintJudge uses a single portable SQLite file with WAL journaling. All access goes through
-parameterized JOOQ queries; migrations run via Flyway.
+parameterized JOOQ queries; the schema is applied at startup by an idempotent DDL runner
+(`SqlScriptRunner`), since Flyway offers no SQLite support.
 
 ```mermaid
 erDiagram
