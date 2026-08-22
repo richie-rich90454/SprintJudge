@@ -72,13 +72,23 @@ try {
     else { Fail "public REST" "status=$($r.StatusCode) body=$($r.Content)" }
 } catch { Fail "public REST" $_.Exception.Message }
 
-# 5a2) bundled SPA served from the jar
+# 5a2) bundled SPA served from the jar (no redirect following; a 302 to the
+# OAuth login would mean "/" is wrongly gated).
 try {
-    $r = Invoke-WebRequest "http://localhost:$Port/" -UseBasicParsing -TimeoutSec 5
-    $isSpa = ($r.StatusCode -eq 200) -and (($r.Content -match 'id=.root.') -or ($r.Content -match '/assets/index'))
+    $req = [System.Net.HttpWebRequest]::Create("http://localhost:$Port/")
+    $req.AllowAutoRedirect = $false; $req.Timeout = 5000
+    $resp = $req.GetResponse()
+    $code = [int]$resp.StatusCode
+    $body = (New-Object IO.StreamReader($resp.GetResponseStream())).ReadToEnd()
+    $loc  = $resp.Headers["Location"]; $resp.Close()
+    $isSpa = ($code -eq 200) -and (($body -match 'id=.root.') -or ($body -match '/assets/index'))
     if ($isSpa) { Pass "bundled SPA (/)" }
-    else { Fail "bundled SPA (/)" "status=$($r.StatusCode) len=$(([string]$r.Content).Length) head=$(([string]$r.Content).Substring(0,[Math]::Min(80,([string]$r.Content).Length)))" }
-} catch { Fail "bundled SPA (/)" $_.Exception.Message }
+    elseif ($code -in 301,302,303,307,308) { Fail "bundled SPA (/)" "redirected to $($loc)" }
+    else { Fail "bundled SPA (/)" "status=$code len=$($body.Length) head=$($body.Substring(0,[Math]::Min(80,$body.Length)))" }
+} catch {
+    $code = 0; if ($_.Exception.Response) { $code = [int]$_.Exception.Response.StatusCode }
+    Fail "bundled SPA (/)" "exception status=$code msg=$($_.Exception.Message)"
+}
 
 # 5b) admin surface must NOT be anonymous
 $adminCode = 0
