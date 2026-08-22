@@ -36,7 +36,7 @@ public class SubmissionProcessor {
     private final SubmissionRepository submissionRepository;
     private final QuestionRepository questionRepository;
     private final ScoringEngine scoringEngine;
-    private final GameRoomManager roomManager;
+    private final LeaderboardBroadcaster leaderboardBroadcaster;
     private final SubmissionWriteBuffer writeBuffer;
     private final Semaphore slot;
 
@@ -44,14 +44,14 @@ public class SubmissionProcessor {
                                SubmissionRepository submissionRepository,
                                QuestionRepository questionRepository,
                                ScoringEngine scoringEngine,
-                               GameRoomManager roomManager,
+                               LeaderboardBroadcaster leaderboardBroadcaster,
                                SubmissionWriteBuffer writeBuffer,
                                Semaphore executionSlots) {
         this.executor = executor;
         this.submissionRepository = submissionRepository;
         this.questionRepository = questionRepository;
         this.scoringEngine = scoringEngine;
-        this.roomManager = roomManager;
+        this.leaderboardBroadcaster = leaderboardBroadcaster;
         this.writeBuffer = writeBuffer;
         this.slot = executionSlots;
     }
@@ -71,7 +71,7 @@ public class SubmissionProcessor {
         } finally {
             slot.release();
             if (result != null) {
-                roomManager.broadcastLeaderboard(publishableSessionId(sessionId));
+                leaderboardBroadcaster.broadcastLeaderboard(publishableSessionId(sessionId));
             }
         }
     }
