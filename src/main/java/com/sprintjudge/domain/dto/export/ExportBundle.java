@@ -1,4 +1,4 @@
-package com.openquiz.domain.dto.export;
+package com.sprintjudge.domain.dto.export;
 
 import java.util.List;
 import java.util.Map;
