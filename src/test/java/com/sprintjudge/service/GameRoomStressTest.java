@@ -1,11 +1,11 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.domain.models.GameSession;
-import com.openquiz.repository.GameSessionRepository;
-import com.openquiz.repository.QuestionRepository;
-import com.openquiz.repository.QuizRepository;
-import com.openquiz.repository.SubmissionRepository;
-import com.openquiz.websocket.WebSocketSessionManager;
+import com.sprintjudge.domain.models.GameSession;
+import com.sprintjudge.repository.GameSessionRepository;
+import com.sprintjudge.repository.QuestionRepository;
+import com.sprintjudge.repository.QuizRepository;
+import com.sprintjudge.repository.SubmissionRepository;
+import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
