@@ -1,6 +1,6 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.repository.AdminSettingsRepository;
+import com.sprintjudge.repository.AdminSettingsRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
