@@ -23,7 +23,7 @@ export interface QuestionPayload {
 }
 
 /**
- * Thin Axios wrapper around the OpenQuiz admin + public REST surface.
+ * Thin Axios wrapper around the SprintJudge admin + public REST surface.
  */
 export class AdminApiService {
   private static _instance: AdminApiService | null = null;
