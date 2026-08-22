@@ -36,7 +36,7 @@ export function AdminDashboard() {
     const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "openquiz-bank.json";
+    a.download = "sprintjudge-bank.json";
     a.click();
   };
 
