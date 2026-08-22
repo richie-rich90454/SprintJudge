@@ -37,6 +37,9 @@ class GameRoomStressTest {
     @Mock SubmissionRepository submissionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock SubmissionProcessor submissionProcessor;
+    @SuppressWarnings("unchecked")
+    private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider =
+            (org.springframework.beans.factory.ObjectProvider<SubmissionProcessor>) org.mockito.Mockito.mock(org.springframework.beans.factory.ObjectProvider.class);
     @Mock WebSocketSessionManager ws;
     @Mock EvaluationService evaluationService;
     @Mock AdminSettingsService settingsService;
@@ -51,7 +54,7 @@ class GameRoomStressTest {
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.of(session));
 
         GameRoomManager mgr = new GameRoomManager(sessionRepository, quizRepository, questionRepository,
-                submissionRepository, scoringEngine, submissionProcessor, ws, evaluationService,
+                submissionRepository, scoringEngine, processorProvider, ws, evaluationService,
                 settingsService, scheduler, writeBuffer);
 
         ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor();
