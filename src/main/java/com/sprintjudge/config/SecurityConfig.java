@@ -1,4 +1,4 @@
-package com.openquiz.config;
+package com.sprintjudge.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +49,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${openquiz.cors.allowed-origins:http://localhost:5173}") String allowedOrigins) {
+            @Value("${sprintjudge.cors.allowed-origins:http://localhost:5173}") String allowedOrigins) {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
