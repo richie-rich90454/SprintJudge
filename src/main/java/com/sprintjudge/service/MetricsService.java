@@ -1,6 +1,6 @@
-package com.openquiz.service;
+package com.sprintjudge.service;
 
-import com.openquiz.service.executor.CompileArtifactCache;
+import com.sprintjudge.service.executor.CompileArtifactCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class MetricsService {
     private final GameRoomManager roomManager;
     private final BroadcastScheduler scheduler;
 
-    @Value("${openquiz.room.max-players:10000}")
+    @Value("${sprintjudge.room.max-players:10000}")
     private int maxPlayers;
 
     // Rolling judge-latency window (last 1024 samples, ns).
