@@ -532,6 +532,10 @@ function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 function hashStr(s){ let h=0; for(const ch of s) h=(h*31+ch.charCodeAt(0))|0; return Math.abs(h); }
 
 const PLAN = [
+  { lang:"java",   bands:[{label:"Essentials",diff:0,count:40}], topics:["objects","arrays","strings","primitives","lists"], seedBase:1101 },
+  { lang:"python", bands:[{label:"Essentials",diff:0,count:25}], topics:["lists","strings","primitives","objects","arrays"], seedBase:1201 },
+  { lang:"cpp",    bands:[{label:"Essentials",diff:0,count:20}], topics:["arrays","primitives","strings","objects","search-sort"], seedBase:1301 },
+  { lang:"c",      bands:[{label:"Essentials",diff:0,count:15}], topics:["primitives","arrays","strings","recursion","search-sort"], seedBase:1401 },
   { lang:"java",   bands:[{label:"Foundations",diff:0,count:18},{label:"Intermediate",diff:1,count:20},{label:"Advanced",diff:2,count:12}],
     topics:["objects","arrays","arrays","strings","lists","search-sort","recursion","arrays2d","polymorphism","inheritance","primitives","objects"] , seedBase:101},
   { lang:"python", bands:[{label:"Foundations",diff:0,count:7},{label:"Intermediate",diff:1,count:8},{label:"Advanced",diff:2,count:5}],
