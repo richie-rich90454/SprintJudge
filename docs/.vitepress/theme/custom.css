@@ -1,4 +1,10 @@
-/* Self-hosted variable Noto fonts — pure Noto Sans everywhere, zero CDNs. */
+/* =========================================================================
+   SprintJudge docs theme — mirrors the application's design system:
+   flat #3255A4 industrial, softly rounded, Noto Sans everywhere,
+   dotted blueprint tables, no gradients / glass / glow.
+   ========================================================================= */
+
+/* Self-hosted variable Noto fonts (no external CDNs). */
 @font-face {
   font-family: "Noto Sans";
   font-style: normal;
@@ -14,48 +20,142 @@
   src: url("/fonts/noto-sans-mono-latin-var.woff2") format("woff2");
 }
 
-/* Pure Noto Sans everywhere, Noto Sans Mono for code. */
+/* ---- Application palette as VitePress tokens --------------------------- */
 :root {
+  --oq-bg: #f0f3f8;
+  --oq-surface: #ffffff;
+  --oq-ink: #1a1f2e;
+  --oq-border: #c0c8d8;
+  --oq-row-alt: #f8faff;
+
   --vp-font-family-base: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
   --vp-font-family-mono: "Noto Sans Mono", ui-monospace, monospace;
+
   --vp-c-brand-1: #3255a4;
   --vp-c-brand-2: #3255a4;
   --vp-c-brand-3: #27428a;
   --vp-c-brand-soft: rgba(50, 85, 164, 0.14);
   --vp-c-accent: #3255a4;
+
+  --vp-c-bg: var(--oq-bg);
+  --vp-c-bg-alt: #e6ebf4;
+  --vp-c-bg-elv: var(--oq-surface);
+  --vp-c-bg-soft: var(--oq-row-alt);
+  --vp-c-text-1: var(--oq-ink);
+  --vp-c-text-2: #5f6368;
+  --vp-c-text-3: #7a8296;
+  --vp-c-divider: var(--oq-border);
+  --vp-c-gutter: transparent;
+  --vp-custom-block-tip-bg: #e8eefb;
+  --vp-custom-block-tip-border: #3255a4;
 }
 
 .dark {
-  --vp-c-brand-1: #3255a4;
-  --vp-c-brand-2: #3255a4;
+  --oq-bg: #1a1f2e;
+  --oq-surface: #252b3a;
+  --oq-ink: #e8edf5;
+  --oq-border: #3a4255;
+  --oq-row-alt: #2a3040;
+
+  --vp-c-bg-alt: #212736;
   --vp-c-brand-3: #4a6dc0;
+  --vp-custom-block-tip-bg: #25314d;
 }
 
-/* ---------------------------------------------------------------------------
-   Mermaid fit policy: scale to container, never overflow, never clip.
-   - useMaxWidth (set in theme/index.ts) makes the SVG width fluid.
-   - These rules force max-width/height auto as a belt-and-braces guarantee.
-   - The wrapper allows horizontal scrolling ONLY as a last-resort safety
-     net for pathological diagrams, so content is still fully reachable.
---------------------------------------------------------------------------- */
+html,
+body {
+  background: var(--oq-bg);
+  color: var(--oq-ink);
+}
+
+/* ---- Blueprint tables (dotted grid + zebra) ---------------------------- */
+.vp-doc table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+.vp-doc th,
+.vp-doc td {
+  border-bottom: 1px dotted var(--oq-border);
+  padding: 9px 14px;
+}
+.vp-doc tbody tr:nth-child(even) td {
+  background: var(--oq-row-alt);
+}
+.vp-doc thead th {
+  border-bottom: 2px solid #3255a4;
+}
+
+/* Rounded code blocks with a soft surface (matches .input-underline). */
+.vp-doc div[class*="language-"] {
+  border-radius: 12px;
+  border: 1px solid var(--oq-border);
+  background: var(--oq-row-alt);
+}
+.dark .vp-doc div[class*="language-"] {
+  border-color: var(--oq-border);
+}
+.vp-doc :not(pre) > code {
+  border-radius: 8px;
+  background: var(--oq-row-alt);
+  border: 1px solid var(--oq-border);
+}
+
+/* Hero: solid brand name (VP's gradient text is banned by our style rules). */
+.VPHero .name {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #3255a4;
+}
+.dark .VPHero .name { color: #6c8bd6; }
+
+/* Action buttons echo .btn-primary / .btn-secondary. */
+.VPButton.brand {
+  border-radius: 12px !important;
+  background: #3255a4 !important;
+  border: 2px solid #3255a4 !important;
+  color: #fff !important;
+}
+.VPButton.brand:hover { background: #27428a !important; border-color: #27428a !important; }
+.VPButton.alt {
+  border-radius: 12px !important;
+  background: transparent !important;
+  border: 2px solid var(--oq-border) !important;
+  color: var(--oq-ink) !important;
+}
+.VPButton.alt:hover { border-color: #3255a4 !important; color: #3255a4 !important; }
+
+/* Feature cards: double-lined top border like .card in the app. */
+.VPFeature {
+  border-radius: 18px !important;
+  border: 1px solid var(--oq-border) !important;
+  border-top: 3px solid #3255a4 !important;
+  background: var(--oq-surface) !important;
+}
+
+/* ---- Mermaid fit policy ------------------------------------------------
+   Scale to container, never overflow, never clip. The wrapper permits
+   horizontal scrolling ONLY as a last-resort safety net for pathological
+   diagrams, so content stays fully reachable.
+------------------------------------------------------------------------- */
 .mermaid-wrap {
   width: 100%;
   margin: 16px 0;
   padding: 12px;
-  border: 1px solid var(--vp-c-divider);
-  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--oq-border);
+  border-radius: 12px;
+  background: var(--oq-row-alt);
   overflow-x: auto;
   overflow-y: hidden;
 }
-
 .mermaid-wrap svg {
   display: block;
   max-width: 100% !important;
   height: auto !important;
   margin-inline: auto;
 }
-
-/* Flat blueprint look: strip Mermaid's default drop shadows. */
+/* Flat look: strip Mermaid's default drop shadows and square the nodes. */
 .mermaid-wrap svg .node rect,
 .mermaid-wrap svg .node circle,
 .mermaid-wrap svg .node polygon,
@@ -63,10 +163,11 @@
 .mermaid-wrap svg .labelBox,
 .mermaid-wrap svg rect.rect {
   filter: none !important;
-  rx: 0;
-  ry: 0;
+  rx: 10;
+  ry: 10;
 }
-
-.mermaid-error {
-  color: var(--vp-c-danger-1);
+.mermaid-fallback {
+  margin: 0;
+  white-space: pre-wrap;
+  color: var(--vp-c-danger-1, #d32f2f);
 }
