@@ -41,6 +41,7 @@ flowchart LR
 | POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the OAuth2 session |
 | GET | `/api/admin/export` | Export entire bank as JSON |
 | POST | `/api/admin/import` | Import bank (`{ json, replace }`) |
+| GET | `/api/admin/metrics` | Runtime metrics: memory/GC/threads, judge latency percentiles, compile-cache ratio, write-buffer depth |
 
 Question payloads embed answer keys in their `config`, so they are admin-only by design —
 the public surface never exposes them.
