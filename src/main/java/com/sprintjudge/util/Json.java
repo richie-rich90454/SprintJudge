@@ -1,4 +1,4 @@
-package com.openquiz.util;
+package com.sprintjudge.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
