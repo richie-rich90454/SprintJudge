@@ -1,7 +1,7 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAdminStore } from "../stores/useAdminStore";
 import { useUIStore } from "../stores/useUIStore";
-import axios from "axios";
 import { adminApi } from "../services/AdminApiService";
 import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
@@ -15,6 +15,7 @@ export function AdminDashboard() {
   const [desc, setDesc] = useState("");
   const [busy, setBusy] = useState(false);
   const [needsAuth, setNeedsAuth] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const gridRef = useStaggerIn<HTMLDivElement>(".card", [quizzes.length], 0.06);
 
@@ -39,10 +40,6 @@ export function AdminDashboard() {
       </div>
     );
   }
-
-  useEffect(() => {
-    loadQuizzes();
-  }, []);
 
   const host = async (quizId: string) => {
     setBusy(true);
@@ -71,53 +68,80 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-6 max-w-content mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Admin · Question bank</h1>
-        <div className="flex gap-2">
-          <button onClick={() => setView("join")} className="btn btn-secondary text-sm">Player view</button>
-          <button onClick={doExport} className="btn btn-secondary text-sm">Export</button>
-          <label className="btn btn-secondary text-sm cursor-pointer">
+    <div className="pattern-exam min-h-screen pb-12">
+      {/* Toolbar */}
+      <header className="border-b bg-surface" style={{ borderColor: "var(--oq-border)" }}>
+        <div className="page-shell py-4 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 mr-auto">
+            <h1 className="text-xl font-extrabold tracking-tight">Admin</h1>
+            <span className="chip chip-neutral">{quizzes.length} sets</span>
+          </div>
+          <button onClick={() => setView("join")} className="btn btn-secondary btn-sm">Player view</button>
+          <button onClick={doExport} className="btn btn-secondary btn-sm">Export</button>
+          <label className="btn btn-secondary btn-sm cursor-pointer">
             Import
             <input type="file" accept="application/json" className="hidden" onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])} />
           </label>
+          <button onClick={() => setShowCreate(true)} className="btn btn-primary btn-sm">+ New set</button>
         </div>
-      </div>
+      </header>
 
-      <div className="card mb-6">
-        <h2 className="header-double mb-3">Create quiz</h2>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Quiz title" className="input-underline flex-1" />
-          <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Description" className="input-underline flex-1" />
-          <button onClick={async () => { if (title.trim()) { await createQuiz(title.trim(), desc.trim()); setTitle(""); setDesc(""); } }}
-            className="btn btn-primary">Add</button>
-        </div>
-      </div>
-
-      <div ref={gridRef} className="grid sm:grid-cols-2 gap-4">
-        {quizzes.map((q) => (
-          <div key={q.id} className="card">
-            <h3 className="font-bold">{q.title}</h3>
-            <p className="text-muted text-sm mb-3 line-clamp-2">{q.description}</p>
-            <div className="flex gap-2 flex-wrap">
-              <button onClick={() => loadQuestions(q.id)} className="btn btn-secondary text-sm">Open</button>
-              <button onClick={() => host(q.id)} disabled={busy} className="btn btn-primary text-sm disabled:opacity-50">Host</button>
-              <button onClick={() => openWizard(q.id)} className="btn btn-secondary text-sm">+ Question</button>
+      {/* Create new quiz (inline, not a modal) */}
+      {showCreate && (
+        <div className="page-shell mt-6">
+          <div className="card">
+            <h3 className="header-double">Create question set</h3>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Java · Objects — Foundations 01)" className="input-underline flex-1" />
+              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Description (optional)" className="input-underline flex-1" />
+              <button
+                onClick={async () => { if (title.trim()) { await createQuiz(title.trim(), desc.trim()); setTitle(""); setDesc(""); setShowCreate(false); } }}
+                className="btn btn-primary"
+              >
+                Create
+              </button>
             </div>
-            {activeQuizId === q.id && (
-              <ul className="mt-3 flex flex-col gap-1">
-                {questions.map((qn, i) => (
-                  <li key={qn.id} className="text-sm flex justify-between border-b border-line py-1">
-                    <span>{i + 1}. {qn.title}</span><span className="text-muted">{qn.questionType}</span>
-                  </li>
-                ))}
-                {questions.length === 0 && <li className="text-sm text-muted">No questions yet.</li>}
-              </ul>
-            )}
           </div>
-        ))}
-        {quizzes.length === 0 && <p className="text-muted">No quizzes. Create one above.</p>}
-      </div>
+        </div>
+      )}
+
+      {/* Quiz grid */}
+      <main className="page-shell mt-6">
+        <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quizzes.map((q) => (
+            <div key={q.id} className="card flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-bold text-base leading-snug">{q.title}</h3>
+              </div>
+              {q.description && <p className="text-muted text-sm line-clamp-2 flex-1">{q.description}</p>}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-line">
+                <button onClick={() => loadQuestions(q.id)} className="btn btn-secondary btn-sm">Questions</button>
+                <button onClick={() => host(q.id)} disabled={busy} className="btn btn-primary btn-sm disabled:opacity-40">
+                  Host
+                </button>
+                <button onClick={() => openWizard(q.id)} className="btn btn-secondary btn-sm">+ Add</button>
+              </div>
+              {activeQuizId === q.id && (
+                <ul className="mt-2 flex flex-col gap-1 max-h-40 overflow-y-auto text-sm">
+                  {questions.map((qn, i) => (
+                    <li key={qn.id} className="flex justify-between items-center py-1 px-2 rounded hover:bg-row-alt transition-colors">
+                      <span className="truncate">{i + 1}. {qn.title}</span>
+                      <span className="chip chip-neutral !text-[10px] !py-0.5 !px-2">{qn.questionType}</span>
+                    </li>
+                  ))}
+                  {questions.length === 0 && <li className="text-muted text-sm">No questions yet.</li>}
+                </ul>
+              )}
+            </div>
+          ))}
+          {quizzes.length === 0 && (
+            <div className="card col-span-full text-center py-16">
+              <p className="label-caps mb-2">Empty library</p>
+              <p className="text-muted">Create your first question set above, or import a bank JSON.</p>
+            </div>
+          )}
+        </div>
+      </main>
 
       {wizardOpen && <QuestionWizard />}
     </div>
