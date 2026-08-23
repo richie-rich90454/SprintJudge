@@ -3,7 +3,6 @@ import { useGameStore } from "../stores/useGameStore";
 export function HostControlsView() {
   const hostCommand = useGameStore((s) => s.hostCommand);
   const extendTimer = useGameStore((s) => s.extendTimer);
-  const kick = useGameStore((s) => s.kick);
   const status = useGameStore((s) => s.status);
   const room = useGameStore((s) => s.room);
 
