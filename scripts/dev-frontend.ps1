@@ -1,4 +1,4 @@
-﻿# Start the SprintJudge frontend dev server (installs deps on first run).
+# Start the SprintJudge frontend dev server (installs deps on first run).
 $frontend = Join-Path (Split-Path $PSScriptRoot -Parent) "frontend"
 if (-not (Test-Path (Join-Path $frontend "node_modules"))) {
     Write-Host "Installing frontend dependencies..."
