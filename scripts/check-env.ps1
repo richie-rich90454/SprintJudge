@@ -1,4 +1,4 @@
-﻿# SprintJudge Windows environment checker.
+# SprintJudge Windows environment checker.
 # Verifies every tool needed to build, run and test the project natively.
 $ErrorActionPreference = "Continue"
 $fail = $false
