@@ -1,4 +1,5 @@
 # Builds everything for production: frontend SPA, then the fat jar that
+. "$PSScriptRoot\_dotenv.ps1"
 # bundles it. Compatible with Windows PowerShell 5.1 and 7+.
 # Optional: -SkipFrontend to reuse an existing frontend/dist.
 param([switch]$SkipFrontend)
