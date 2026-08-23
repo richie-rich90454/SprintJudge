@@ -31,17 +31,34 @@ public class SecurityConfig {
                     .preload(true)
                     .maxAgeInSeconds(31_536_000))
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
-                    // All assets (fonts included) are self-hosted; no external CDNs.
-                    // 'unsafe-inline' on script-src is required by the SystemJS legacy
-                    // bootstrap emitted for Chrome 49-era browsers.
-                    "default-src 'self'; script-src 'self' 'unsafe-inline'; "
-                  + "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
-                  + "connect-src 'self' ws: wss:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
+                    // data: on script-src is required by (a) the SystemJS legacy
+                    // bootstrap and (b) the modern-polyfill import.meta.resolve
+                    // detection shim — both emit inline data:text/javascript URIs.
+                    // login.microsoftonline.com is needed for the OAuth redirect chain.
+                    "default-src 'self'; script-src 'self' 'unsafe-inline' data:; "
+                  + "style-src 'self' 'unsafe-inline'; font-src 'self'; "
+                  + "img-src 'self' data: https://login.microsoftonline.com; "
+                  + "connect-src 'self' ws: wss: https://login.microsoftonline.com; "
+                  + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
+            .exceptionHandling(ex -> ex
+                // API calls get a machine-readable 401; page navigations get
+                // the OAuth redirect. Without this, axios chases cross-origin
+                // redirects into a CSP wall.
+                .defaultAuthenticationEntryPointFor(
+                    (req, res, ex2) -> {
+                        res.setStatus(401);
+                        res.setContentType("application/json");
+                        res.getWriter().write("{\"type\":\"ERROR\",\"message\":\"Not authenticated\"}");
+                    },
+                    request -> {
+                        var path = request.getRequestURI();
+                        return path.startsWith("/api/") && !path.startsWith("/api/public/");
+                    }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
-                        "/favicon.ico", "/api/public/**", "/ws", "/oauth2/**", "/login/**").permitAll()
+                        "/favicon.ico", "/favicon.svg", "/api/public/**", "/ws", "/oauth2/**", "/login/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
                 .anyRequest().denyAll())
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler));
