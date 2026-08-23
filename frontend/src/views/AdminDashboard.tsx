@@ -33,7 +33,7 @@ export function AdminDashboard() {
           <p className="label-caps mb-2">Authentication required</p>
           <h2 className="text-2xl font-extrabold mb-4">Admin sign-in</h2>
           <p className="text-muted mb-6">Sign in with your Microsoft account to access the admin panel.</p>
-          <a href="/oauth2/authorization/microsoft" className="btn btn-primary w-full no-underline">
+          <a href="/oauth2/authorization/ms-callback" className="btn btn-primary w-full no-underline">
             Sign in with Microsoft
           </a>
         </div>
