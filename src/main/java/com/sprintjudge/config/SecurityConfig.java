@@ -94,7 +94,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
                         "/favicon.ico", "/favicon.svg", "/api/public/**", "/ws", "/oauth2/**",
-                        "/login/**", "/api/oauth2/**").permitAll()
+                        "/login/**", "/api/oauth2/**", "/api/auth/callback/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                 .anyRequest().denyAll())
             .oauth2Login(oauth2 -> oauth2
