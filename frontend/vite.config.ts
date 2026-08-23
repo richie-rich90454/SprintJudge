@@ -12,14 +12,11 @@ export default defineConfig({
       },
     }),
     // Dual-bundle output: modern ESM for evergreen browsers, SystemJS +
-    // core-js polyfilled bundle for Chrome 49 / Safari 10 / Firefox 52 era.
+    // core-js polyfilled bundle for the Chrome 60 / Safari 11 / Firefox 60
+    // floor. Rolldown cannot lower to ES2015 without crashing, so Chrome 49
+    // is not a viable floor on this toolchain.
     legacy({
-      // Legacy SystemJS chunks are temporarily disabled: plugin-legacy@8 +
-      // Vite 8's Rolldown pipeline crashes on generated spreads (upstream bug).
-      // Evergreen targets are unaffected; flip this back to true once the
-      // upstream fix lands and Chrome-49-era support is needed again.
-      renderLegacyChunks: false,
-      targets: ["chrome >= 96", "firefox >= 90", "safari >= 15", "edge >= 96"],
+      targets: ["chrome >= 60", "firefox >= 60", "safari >= 11", "ios_saf >= 11", "edge >= 79"],
       modernPolyfills: true,
     }),
   ],
@@ -33,7 +30,6 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    // JS target is owned by @vitejs/plugin-legacy; CSS stays at the Chrome 49 floor.
-    cssTarget: "chrome49",
+    cssTarget: "chrome60",
   },
 });
