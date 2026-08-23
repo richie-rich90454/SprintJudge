@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAdminStore } from "../stores/useAdminStore";
 import { useUIStore } from "../stores/useUIStore";
+import axios from "axios";
 import { adminApi } from "../services/AdminApiService";
 import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
@@ -13,8 +14,31 @@ export function AdminDashboard() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [busy, setBusy] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   const gridRef = useStaggerIn<HTMLDivElement>(".card", [quizzes.length], 0.06);
+
+  useEffect(() => {
+    loadQuizzes().catch((e: unknown) => {
+      if (axios.isAxiosError(e) && e.response?.status === 401) setNeedsAuth(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (needsAuth) {
+    return (
+      <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
+        <div className="card text-center max-w-sm w-full">
+          <p className="label-caps mb-2">Authentication required</p>
+          <h2 className="text-2xl font-extrabold mb-4">Admin sign-in</h2>
+          <p className="text-muted mb-6">Sign in with your Microsoft account to access the admin panel.</p>
+          <a href="/oauth2/authorization/microsoft" className="btn btn-primary w-full no-underline">
+            Sign in with Microsoft
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     loadQuizzes();
