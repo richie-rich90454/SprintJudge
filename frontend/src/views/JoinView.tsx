@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
 import { useEnter, useStaggerIn } from "../hooks/useMotion";
-import { motion } from "../services/MotionService";
 import { LogoMark } from "../components/LogoMark";
 
-/**
- * Full-bleed immersive join: Swiss poster composition on a ruled exam-paper
- * backdrop — oversized display type, giant mono PIN field, red accent rules.
- */
 export function JoinView() {
   const [pin, setPin] = useState("");
   const [name, setName] = useState("");
@@ -18,14 +13,10 @@ export function JoinView() {
   const setView = useUIStore((s) => s.setView);
 
   const cardRef = useEnter<HTMLFormElement>("card");
-  const fieldsRef = useStaggerIn<HTMLUListElement>(".input-underline");
-
-  const pinRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { if (pin.length === 6) pinRef.current?.blur(); }, [pin]);
+  const fieldsRef = useStaggerIn<HTMLDivElement>(".input-underline");
 
   useEffect(() => {
-    if (error) motion.shake(cardRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (error) cardRef.current?.classList.add("animate-pulse");
   }, [error]);
 
   const submit = (e: React.FormEvent) => {
@@ -39,80 +30,68 @@ export function JoinView() {
 
   return (
     <div className="pattern-exam min-h-screen flex flex-col">
-      {/* Masthead: brand rule + wordmark, poster style */}
-      <header className="page-shell w-full pt-8 pb-4 flex items-center justify-between border-b-2" style={{ borderColor: "#C8102E" }}>
-        <div className="flex items-center gap-3">
-          <LogoMark size={34} />
-          <span className="text-xl font-extrabold tracking-tight">SprintJudge</span>
+      {/* Slim top bar */}
+      <header className="border-b border-line">
+        <div className="page-shell py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <LogoMark size={28} />
+            <span className="font-extrabold tracking-tight">SprintJudge</span>
+          </div>
+          <button onClick={() => setView("admin")} className="btn btn-secondary btn-sm">Host / Admin</button>
         </div>
-        <button onClick={() => setView("admin")} className="btn btn-secondary text-sm">Host / Admin</button>
       </header>
 
-      <main className="page-shell flex-1 w-full grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center py-10">
-        {/* Poster column */}
-        <section>
-          <p className="label-caps mb-3">Real-time code quiz arena</p>
-          <h1 className="font-extrabold leading-[0.95] tracking-tight"
-              style={{ fontSize: "clamp(44px, 7vw, 92px)" }}>
-            Answer fast.<br />
-            Code faster.<br />
-            <span style={{ color: "#C8102E" }}>Win the room.</span>
+      {/* Main: giant PIN entry */}
+      <main className="flex-1 flex items-center justify-center p-6">
+        <form ref={cardRef} onSubmit={submit} className="w-full max-w-lg text-center">
+          <p className="label-caps mb-4">Join a live game</p>
+          <h1 className="font-extrabold tracking-tight leading-none mb-10"
+              style={{ fontSize: "clamp(40px, 8vw, 88px)" }}>
+            Sprint<span style={{ color: "var(--oq-red)" }}>Judge</span>
           </h1>
-          <div className="mt-6 h-[3px] w-24" style={{ background: "#C8102E" }} />
-          <ul ref={fieldsRef} className="mt-8 space-y-2 text-muted max-w-md">
-            <li className="border-b border-dotted border-line pb-2">Live host-driven rounds with countdown timers</li>
-            <li className="border-b border-dotted border-line pb-2">Real compilation against hidden test cases</li>
-            <li>C, C++, Java, JavaScript &amp; Python — judged instantly</li>
-          </ul>
-        </section>
 
-        {/* Join card */}
-        <form ref={cardRef} onSubmit={submit} className="card w-full max-w-md justify-self-center lg:justify-self-end w-full">
-          <p className="label-caps mb-1">Enter the room</p>
-          <h2 className="text-2xl font-extrabold mb-6">Join a game</h2>
+          <div ref={fieldsRef} className="space-y-6 max-w-sm mx-auto">
+            <div>
+              <label htmlFor="jq-nick" className="label-caps block mb-2 text-left">Your name</label>
+              <input
+                id="jq-nick"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-underline w-full"
+                placeholder="Alice"
+                maxLength={20}
+              />
+            </div>
+            <div>
+              <label htmlFor="jq-pin" className="label-caps block mb-2 text-left">Game PIN</label>
+              <input
+                id="jq-pin"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                inputMode="numeric"
+                autoComplete="off"
+                className="input-underline w-full mono text-center font-bold"
+                style={{ fontSize: "clamp(28px,5vw,42px)", letterSpacing: ".25em", lineHeight: 1.2 }}
+                placeholder="000000"
+              />
+            </div>
+          </div>
 
-          <label className="block text-sm font-semibold mb-1" htmlFor="jq-nick">Nickname</label>
-          <input
-            id="jq-nick"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input-underline mb-5"
-            placeholder="Your name"
-            maxLength={20}
-          />
+          {error && <p className="text-danger text-sm mt-4">{error}</p>}
 
-          <label className="block text-sm font-semibold mb-1" htmlFor="jq-pin">Game PIN</label>
-          <input
-            id="jq-pin"
-            ref={pinRef}
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            inputMode="numeric"
-            autoComplete="off"
-            className="input-underline mb-2 mono text-center"
-            style={{ fontSize: "clamp(26px, 4vw, 38px)", letterSpacing: "0.28em", fontWeight: 700 }}
-            placeholder="000000"
-          />
-          <p className="label-caps mb-5" style={{ letterSpacing: "0.35em" }}>
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <span key={i} className="inline-block w-[1ch]" style={{ opacity: i < pin.length ? 1 : 0.25 }}>
-                {i < pin.length ? "•" : "·"}
-              </span>
-            ))}
-          </p>
-
-          {error && <p className="text-danger text-sm mb-3">{error}</p>}
-
-          <button type="submit" disabled={pin.length !== 6 || !name.trim()}
-                  className="btn btn-primary w-full disabled:opacity-40">
-            Enter the arena →
+          <button type="submit"
+                  disabled={pin.length !== 6 || !name.trim()}
+                  className="btn btn-primary w-full max-w-sm mx-auto mt-8 text-base disabled:opacity-30">
+            Let's go →
           </button>
         </form>
       </main>
 
-      <footer className="page-shell w-full py-4 border-t border-dotted border-line text-xs text-muted flex justify-between">
-        <span>SprintJudge — self-hosted quiz + online judge</span>
-        <span className="mono">GPLv3</span>
+      <footer className="border-t border-line py-3">
+        <div className="page-shell flex justify-between text-xs text-muted">
+          <span>GPLv3</span>
+          <span>Self-hosted · Real-time code judge</span>
+        </div>
       </footer>
     </div>
   );
