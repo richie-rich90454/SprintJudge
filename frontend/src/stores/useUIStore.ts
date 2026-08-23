@@ -2,6 +2,13 @@ import { create } from "zustand";
 
 export type AppView = "join" | "play" | "host" | "admin";
 
+/** Detects the initial view from the URL path so OAuth redirects land correctly. */
+function detectInitialView(): AppView {
+  const path = window.location.pathname;
+  if (path.startsWith("/admin")) return "admin";
+  return "join";
+}
+
 interface UIState {
   view: AppView;
   theme: "light" | "dark";
@@ -14,7 +21,7 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  view: "join",
+  view: detectInitialView(),
   theme: "light",
   modal: null,
   pin: null,
