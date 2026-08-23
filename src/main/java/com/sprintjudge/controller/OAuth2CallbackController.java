@@ -9,28 +9,21 @@ import java.io.IOException;
 
 /**
  * Redirects the user's custom OAuth2 callback path to Spring Security's
- * internal processing path.
- *
- * <p>Spring Security's OAuth2LoginAuthenticationFilter hardcodes its callback
- * matcher to /login/oauth2/code/{registrationId}. Custom redirect URIs (like
- * /api/oauth2/mscallback registered in Azure Portal) receive the auth code,
- * but Spring Security won't process them unless they arrive at its own path.
- *
- * <p>This controller bridges the gap: it receives the code from Microsoft,
- * then redirects the browser to Spring Security's expected path with the same
- * query parameters. Spring Security then processes it normally.
+ * internal processing path (/login/oauth2/code/microsoft).
  */
 @RestController
 public class OAuth2CallbackController {
 
-    @GetMapping("/api/oauth2/mscallback")
+    private static final String INTERNAL_PATH = "/login/oauth2/code/microsoft";
+
+    @GetMapping({"/api/auth/callback/microsoft-entra-id"})
     public void microsoftCallback(
             @RequestParam("code") String code,
             @RequestParam(value = "state", required = false) String state,
             HttpServletResponse response) throws IOException {
-        var sb = new StringBuilder("/login/oauth2/code/microsoft?code=")
+        var sb = new StringBuilder(INTERNAL_PATH).append("?code=")
                 .append(java.net.URLEncoder.encode(code, java.nio.charset.StandardCharsets.UTF_8));
-        if (state != null) {
+        if (state != null && !state.isEmpty()) {
             sb.append("&state=").append(java.net.URLEncoder.encode(state,
                     java.nio.charset.StandardCharsets.UTF_8));
         }
