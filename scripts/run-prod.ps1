@@ -3,6 +3,7 @@
 # Reads configuration from .env (project root or CWD) and passes values
 # directly to the JVM as system properties — no env var dependency.
 param([switch]$Build)
+. "$PSScriptRoot\\_dotenv.ps1"
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 . "$root\scripts\_config.ps1"
