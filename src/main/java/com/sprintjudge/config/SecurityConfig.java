@@ -26,6 +26,9 @@ import java.util.Set;
 @Configuration
 public class SecurityConfig {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(SecurityConfig.class);
+
     @Value("${sprintjudge.admin-emails:}")
     private String adminEmails;
 
@@ -33,13 +36,24 @@ public class SecurityConfig {
     public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         var delegate = new OidcUserService();
         return userRequest -> {
-            OidcUser user = delegate.loadUser(userRequest);
-            Set<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
-            String email = user.getEmail();
-            if (email != null && isAdminEmail(email)) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            try {
+                OidcUser user = delegate.loadUser(userRequest);
+                Set<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
+                String email = user.getEmail();
+                log.info("[OAuth] User authenticated: email={}, authorities={}",
+                        email, authorities.stream().map(GrantedAuthority::getAuthority).toList());
+                if (email != null && isAdminEmail(email)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                    log.info("[OAuth] Email {} is in admin allowlist — ROLE_ADMIN granted", email);
+                } else {
+                    log.warn("[OAuth] Email {} NOT in admin allowlist [{}] — no ROLE_ADMIN",
+                            email, adminEmails);
+                }
+                return new DefaultOidcUser(authorities, user.getIdToken(), user.getUserInfo());
+            } catch (Exception e) {
+                log.error("[OAuth] OidcUserService failed during user loading", e);
+                throw e;
             }
-            return new DefaultOidcUser(authorities, user.getIdToken(), user.getUserInfo());
         };
     }
 
