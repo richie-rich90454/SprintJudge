@@ -1,5 +1,6 @@
 # SprintJudge Windows environment checker.
 # Verifies every tool needed to build, run and test the project natively.
+. "$PSScriptRoot\\_dotenv.ps1"
 $ErrorActionPreference = "Continue"
 $fail = $false
 
