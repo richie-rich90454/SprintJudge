@@ -92,6 +92,10 @@ npx playwright install         # once; then:
 npm run test:e2e               # browser end-to-end specs
 ```
 
+Dual-bundle output via `@vitejs/plugin-legacy`: evergreen browsers get modern ESM while
+older engines receive a SystemJS + core-js polyfilled path. Browser floor is Chrome 60+
+/ Safari 11+ / Firefox 60+.
+
 Full guides live in the VitePress documentation site ([source](docs), including
 architecture deep-dives, the WebSocket protocol contract, database schema, deployment
 playbooks, and the complete question-format reference):
