@@ -1,12 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useTimerStore } from '../stores/useTimerStore';
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
+import { useTimerStore } from "../stores/useTimerStore";
 import { HostControlsView } from "./HostControlsView";
 import { HostLeaderboardView } from "./HostLeaderboardView";
 import { CircularTimer } from "../components/Timer/CircularTimer";
-import { useEnter } from "../hooks/useMotion";
-import { motion } from "../services/MotionService";
 
 export function HostLobbyView() {
   const pin = useUIStore((s) => s.pin);
@@ -18,8 +16,6 @@ export function HostLobbyView() {
 
   const playerCount = room?.players.length ?? 0;
   const prevCount = useRef(0);
-  const pinRef = useEnter<HTMLParagraphElement>("pin", [pin]);
-  const cardRef = useEnter<HTMLDivElement>("card", [playerCount]);
 
   useEffect(() => {
     if (!pin) return;
@@ -30,70 +26,45 @@ export function HostLobbyView() {
   }, [pin]);
 
   useEffect(() => {
-    if (playerCount > prevCount.current) motion.pulse(cardRef.current);
     prevCount.current = playerCount;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerCount]);
 
   if (!pin) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <p className="text-muted">Create or open a game from the Admin dashboard to host.</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted">Create a game from the Admin dashboard first.</p>
       </div>
     );
   }
 
   const statusLabel =
-    room?.status === "ACTIVE" ? "Live round" :
-    room?.status === "REVIEW" ? "Reviewing answers" : "Lobby open";
+    room?.status === "ACTIVE" ? "Live" :
+    room?.status === "REVIEW" ? "Reviewing" : "Lobby open";
 
   return (
-    <div className="pattern-exam min-h-screen pb-10">
-      {/* Presenter header: PIN + status + timer for the live round */}
-      <header className="border-b-2 bg-surface" style={{ borderColor: "#C8102E" }}>
-        <div className="page-shell py-5 flex flex-wrap items-center gap-x-10 gap-y-4">
-          <div ref={pinRef} className="flex items-baseline gap-3">
-            <span className="label-caps">PIN</span>
-            <span className="mono font-extrabold" style={{ fontSize: "clamp(34px,5vw,52px)", letterSpacing: "0.18em", lineHeight: 1 }}>
-              {pin}
-            </span>
-          </div>
-          <div className="h-10 w-px bg-line hidden md:block" />
+    <div className="pattern-exam min-h-screen flex flex-col">
+      {/* Compact top bar: PIN + status + timer */}
+      <header className="border-b border-line bg-surface">
+        <div className="page-shell py-4 flex items-center gap-8">
           <div>
+            <p className="label-caps mb-1">Game PIN</p>
+            <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">{pin}</p>
+          </div>
+          <div className="h-12 w-px bg-line hidden sm:block" />
+          <div className="flex-1">
             <p className="label-caps mb-1">{statusLabel}</p>
-            <p className="text-sm text-muted">
-              <span className="mono font-bold" style={{ color: "#C8102E" }}>{playerCount}</span> players joined
-            </p>
+            <p className="font-bold text-lg">{playerCount} players</p>
           </div>
-          <div className="ml-auto">
-            {room?.status === "ACTIVE" && end && q ? (
-              <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} />
-            ) : (
-              <span className="label-caps">Awaiting start</span>
-            )}
-          </div>
+          {room?.status === "ACTIVE" && end && q && (
+            <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} />
+          )}
         </div>
       </header>
 
-      {/* Presenter flow: current-question preview above, leaderboard stage below */}
-      <main className="page-shell mt-8 grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-        <section className="flex flex-col gap-6 min-w-0">
-          {q && (
-            <div ref={cardRef} className="card">
-              <p className="label-caps mb-2">On screen now</p>
-              <h2 className="text-2xl font-extrabold tracking-tight pr-20">{q.title}</h2>
-              {q.description && (
-                <p className="text-muted mt-2 line-clamp-3 whitespace-pre-wrap">{q.description}</p>
-              )}
-              <div className="mt-4 h-[3px] w-16" style={{ background: "#C8102E" }} />
-            </div>
-          )}
-          <HostLeaderboardView />
-        </section>
-
-        <aside className="lg:sticky lg:top-6">
-          <HostControlsView />
-        </aside>
+      {/* Main: leaderboard left (wide), controls right (slim rail) */}
+      <main className="page-shell flex-1 grid md:grid-cols-[1fr_280px] gap-6 py-6 items-start w-full">
+        <HostLeaderboardView />
+        <HostControlsView />
       </main>
     </div>
   );
