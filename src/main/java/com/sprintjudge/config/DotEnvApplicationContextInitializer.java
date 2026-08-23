@@ -41,12 +41,17 @@ public class DotEnvApplicationContextInitializer
                 Path.of(System.getProperty("user.dir"), "env", ".env"),
                 Path.of(System.getProperty("user.dir"), ".env"),
         };
+        boolean found = false;
         for (Path p : candidates) {
             if (Files.isRegularFile(p)) {
                 values.putAll(readDotEnv(p));
+                System.out.println("[SprintJudge] .env loaded from: " + p);
+                found = true;
                 break;   // first .env wins
             }
         }
+        if (!found) System.out.println("[SprintJudge] No .env file found — checked: "
+                + String.join(", ", java.util.Arrays.stream(candidates).map(Path::toString).toList()));
         // Expose the resolved app dir for path defaults (e.g., SQLite location).
         values.putIfAbsent("SPRINTJUDGE_APP_DIR", appDir.getAbsolutePath());
         values.putIfAbsent("sprintjudge.app-dir", appDir.getAbsolutePath());
