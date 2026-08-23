@@ -1,10 +1,8 @@
 package com.sprintjudge.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.MapPropertySource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +13,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,7 +22,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Configuration
 public class SecurityConfig {
@@ -57,6 +55,11 @@ public class SecurityConfig {
                                                    OAuth2LoginSuccessHandler successHandler,
                                                    CorsConfigurationSource corsConfigurationSource,
                                                    OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService) throws Exception {
+        // JSON 401 entry point for API calls — prevents axios from chasing
+        // cross-origin 302 redirects into a CSP wall.
+        var api401 = new org.springframework.security.web.authentication.HttpStatusEntryPoint(
+                org.springframework.http.HttpStatus.UNAUTHORIZED);
+
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
@@ -74,17 +77,6 @@ public class SecurityConfig {
                   + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
-            .exceptionHandling(ex -> ex
-                .defaultAuthenticationEntryPointFor(
-                    (req, res, ex2) -> {
-                        res.setStatus(401);
-                        res.setContentType("application/json");
-                        res.getWriter().write("{\"type\":\"ERROR\",\"message\":\"Not authenticated\"}");
-                    },
-                    request -> {
-                        var path = request.getRequestURI();
-                        return path.startsWith("/api/") && !path.startsWith("/api/public/");
-                    }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
                         "/favicon.ico", "/favicon.svg", "/api/public/**", "/ws", "/oauth2/**",
@@ -94,6 +86,17 @@ public class SecurityConfig {
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(ui -> ui.oidcUserService(oidcUserService))
                 .successHandler(successHandler));
+
+        // CRITICAL: exceptionHandling MUST come AFTER oauth2Login so our API
+        // 401 entry point overrides oauth2Login's default redirect entry point.
+        http.exceptionHandling(ex -> ex
+            .defaultAuthenticationEntryPointFor(api401,
+                request -> {
+                    String path = request.getRequestURI();
+                    return path.startsWith("/api/") && !path.startsWith("/api/public/")
+                        && !path.startsWith("/api/oauth2/");
+                }));
+
         return http.build();
     }
 
