@@ -76,7 +76,15 @@ public class SecurityConfig {
 
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                // Disable CSRF for /api/** — the SPA uses session-cookie auth,
+                // not token-based forms. Cross-site protection comes from
+                // SameSite cookies + CORS allowlist.
+                .ignoringRequestMatchers(request -> {
+                    String path = request.getRequestURI();
+                    return path.startsWith("/api/");
+                }))
             .headers(headers -> headers
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 .httpStrictTransportSecurity(hsts -> hsts
