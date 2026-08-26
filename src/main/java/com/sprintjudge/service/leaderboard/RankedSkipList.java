@@ -99,11 +99,15 @@ public final class RankedSkipList {
         }
     }
 
-    /** Removes a player whose current score is known — O(log n). */
-    public boolean remove(String uuid, long score) {
+    /**
+     * Removes a player whose current score and join sequence are known — O(log n).
+     * The joinSeq tie-breaker is required: with seq=MIN_VALUE the traversal stops
+     * at the first node of an equal-score group and silently fails to unlink.
+     */
+    public boolean remove(String uuid, long score, long seq) {
         lock.writeLock().lock();
         try {
-            return removeOrdered(uuid, score, Long.MIN_VALUE);
+            return removeOrdered(uuid, score, seq);
         } finally {
             lock.writeLock().unlock();
         }
