@@ -80,12 +80,16 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                 TestCase tc = request.testCases().get(idx);
                 Path inputFile = runDir.resolve("input_" + idx + ".txt").toAbsolutePath();
                 Files.writeString(inputFile, tc.input() == null ? "" : tc.input());
+                Path outputFile = runDir.resolve("out_" + idx + ".txt").toAbsolutePath();
 
                 List<String> cmd = commandFor(language, sourceFile, inputFile, runDir);
                 ProcessBuilder pb = new ProcessBuilder(cmd)
                         .directory(runDir.toFile())
                         .redirectErrorStream(true)
-                        .redirectInput(inputFile.toFile());
+                        .redirectInput(inputFile.toFile())
+                        // File redirect: a child blocked writing a full pipe must
+                        // not turn into a bogus timeout (waitFor + read race).
+                        .redirectOutput(outputFile.toFile());
                 Process proc = pb.start();
 
                 if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
@@ -93,10 +97,9 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
                     continue;
                 }
-                // Edge case X: cap captured stdout at 1MB; kill the process if exceeded.
-                String output = ExecIo.readCapped(proc);
+                // Edge case X: cap captured stdout at 1MB.
+                String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
-                    proc.destroyForcibly();
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
                     continue;
                 }
