@@ -23,6 +23,7 @@ public class GameWebSocket {
 
     private final GameRoomManager roomManager;
     private final JoinRateLimiter rateLimiter;
+    private final WebSocketSessionManager sessions;
 
     private static final String UUID_KEY = "playerUuid";
     private static final String PIN_KEY = "pin";
@@ -34,9 +35,11 @@ public class GameWebSocket {
     private static final Set<String> LANGUAGES = Set.of("c", "cpp", "java", "node", "python");
     private static final int MAX_SOURCE_CHARS = 65_536;
 
-    public GameWebSocket(GameRoomManager roomManager, JoinRateLimiter rateLimiter) {
+    public GameWebSocket(GameRoomManager roomManager, JoinRateLimiter rateLimiter,
+                         WebSocketSessionManager sessions) {
         this.roomManager = roomManager;
         this.rateLimiter = rateLimiter;
+        this.sessions = sessions;
     }
 
     @OnOpen
@@ -45,6 +48,9 @@ public class GameWebSocket {
         Object addr = config.getUserProperties().get(IP_KEY);
         session.getUserProperties().put(AUTHED_KEY, Boolean.TRUE.equals(authed));
         session.getUserProperties().put(IP_KEY, addr == null ? "unknown" : addr);
+        // Without registration the fan-out map stays empty and every broadcast
+        // (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.
+        sessions.register(session.getId(), session);
     }
 
     @OnMessage
@@ -161,6 +167,7 @@ public class GameWebSocket {
 
     @OnClose
     public void onClose(Session session) {
+        sessions.unregister(session.getId());
         String pin = pinOf(session);
         String uuid = (String) session.getUserProperties().get(UUID_KEY);
         if (pin != null && uuid != null) roomManager.leave(pin, uuid);
