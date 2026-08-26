@@ -36,18 +36,6 @@ public final class DeltaLedger {
         }
     }
 
-    public void recordAll(List<Delta> deltas) {
-        lock.lock();
-        try {
-            for (Delta d : deltas) {
-                seq++;
-                pending.put(d.uuid(), d);
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
     /**
      * Drains pending changes into one batch. When the receiver's last seen seq
      * is behind the oldest pending change (or unknown), pass
