@@ -64,11 +64,15 @@ public class CompileArtifactCache {
         return Optional.of(e.file());
     }
 
-    /** Moves a freshly compiled binary into the cache; best-effort, never throws. */
+    /**
+     * Copies a freshly compiled binary into the cache; best-effort, never throws.
+     * Must COPY, not move: the caller still runs test cases from the original
+     * path in its run directory.
+     */
     public void put(String key, Path compiledBinary) {
         try {
             Path target = dir.resolve(key);
-            Files.move(compiledBinary, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(compiledBinary, target, StandardCopyOption.REPLACE_EXISTING);
             long size = Files.size(target);
             Entry prev = map.put(key, new Entry(target, new AtomicLong(System.nanoTime())));
             if (prev != null) {
