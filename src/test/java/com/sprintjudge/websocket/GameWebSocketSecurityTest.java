@@ -34,6 +34,7 @@ class GameWebSocketSecurityTest {
 
     @Mock GameRoomManager roomManager;
     @Mock JoinRateLimiter rateLimiter;
+    @Mock WebSocketSessionManager sessions;
     @Mock Session session;
     @Mock RemoteEndpoint.Basic remote;
 
@@ -54,11 +55,11 @@ class GameWebSocketSecurityTest {
         EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
         lenient().when(cfg.getUserProperties()).thenReturn(handshake);
         // getEndpointInstance now resolves via Spring; unit tests construct directly.
-        new GameWebSocket(roomManager, rateLimiter).onOpen(session, cfg);
+        new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
     }
 
     private GameWebSocket ws() {
-        return new GameWebSocket(roomManager, rateLimiter);
+        return new GameWebSocket(roomManager, rateLimiter, sessions);
     }
 
     private String lastMessage() {
@@ -79,6 +80,21 @@ class GameWebSocketSecurityTest {
         assertEquals("unresolved", props.get("oq.remoteAddr"));
     }
 
+    /** Regression: sessions must enter the fan-out map or broadcasts reach nobody. */
+    @Test
+    void onOpenRegistersSessionForBroadcast() {
+        verify(sessions).register("sess", session);
+    }
+
+    @Test
+    void onCloseUnregistersBeforeLeavingRoom() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-1");
+        ws().onClose(session);
+        verify(sessions).unregister("sess");
+        verify(roomManager).leave("123456", "uuid-1");
+    }
+
     @Test
     void authenticatedHandshakeIsFlagged() {
         Map<String, Object> h = new HashMap<>();
@@ -86,7 +102,7 @@ class GameWebSocketSecurityTest {
         h.put(SecureHandshakeConfigurator.REMOTE_ADDR, "10.0.0.7");
         EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
         when(cfg.getUserProperties()).thenReturn(h);
-        new GameWebSocket(roomManager, rateLimiter).onOpen(session, cfg);
+        new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
         assertEquals(Boolean.TRUE, props.get("oq.authenticated"));
         assertEquals("10.0.0.7", props.get("oq.remoteAddr"));
     }
