@@ -10,12 +10,16 @@ export abstract class BaseQuestionRenderer {
   protected onChange: ResponseChange;
   protected config: Record<string, unknown>;
   protected questionId: string | undefined;
+  /** Question-level language restriction (null/empty = all languages). */
+  protected allowedLanguages: string[] | null;
 
-  constructor(container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string) {
+  constructor(container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string,
+              allowedLanguages?: string[] | null) {
     this.container = container;
     this.config = (config as Record<string, unknown>) ?? {};
     this.onChange = onChange;
     this.questionId = questionId;
+    this.allowedLanguages = allowedLanguages && allowedLanguages.length ? allowedLanguages : null;
   }
 
   abstract mount(): void;
