@@ -81,14 +81,14 @@ class SubmissionProcessorTest {
                 anyLong(), anyLong(), anyInt(), any())).thenReturn(500);
 
         boolean accepted = processor(2).processCoding(
-                "s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
+                "s1", "p1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
 
         assertTrue(accepted);
         assertEquals(1, buffer.offeredTotal());
         buffer.flush();
         verify(submissionRepository).saveAll(listCaptor.capture());
         assertEquals(500, listCaptor.getValue().get(0).scoreEarned());
-        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
     }
 
     @Test
@@ -103,11 +103,11 @@ class SubmissionProcessorTest {
                         "{}", 999, true, "", 1, null)));
 
         boolean accepted = processor(2).processCoding(
-                "s1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
+                "s1", "p1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
 
         assertTrue(accepted);
         assertEquals(0, buffer.offeredTotal());      // worse score: nothing persisted
-        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
     }
 
     // ---------- backpressure ----------
@@ -115,7 +115,7 @@ class SubmissionProcessorTest {
     @Test
     void saturatedSemaphoreReturnsFalseWithoutJudging() {
         boolean accepted = processor(0).processCoding(
-                "s1", "q1", "Impatient", "uuid-b", "python", "print(1)", Map.of());
+                "s1", "p1", "q1", "Impatient", "uuid-b", "python", "print(1)", Map.of());
 
         assertFalse(accepted);
         verify(executor, never()).judge(any());
@@ -132,7 +132,7 @@ class SubmissionProcessorTest {
                 new Question("m1", "qz", "M", "D", "MCQ", null, 30, 100, mcqCfg, 0, null)));
 
         boolean accepted = processor(2).processCoding(
-                "s1", "m1", "Eve", "u-e", "python", "print(1)", Map.of());
+                "s1", "p1", "m1", "Eve", "u-e", "python", "print(1)", Map.of());
 
         assertTrue(accepted);
         assertEquals(1, buffer.offeredTotal());
@@ -140,14 +140,14 @@ class SubmissionProcessorTest {
         buffer.flush();
         verify(submissionRepository).saveAll(listCaptor.capture());
         assertTrue(listCaptor.getValue().get(0).judgeLog().contains("not_a_coding_question"));
-        verify(leaderboardBroadcaster).broadcastLeaderboard("s1");
+        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
     }
 
     @Test
     void oversizedSourceIsRejectedWithoutJudging() {
         when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
 
-        processor(2).processCoding("s1", "q1", "Big", "u-b", "python", "x".repeat(70_000), Map.of());
+        processor(2).processCoding("s1", "p1", "q1", "Big", "u-b", "python", "x".repeat(70_000), Map.of());
 
         assertEquals(1, buffer.offeredTotal());
         verify(executor, never()).judge(any());
@@ -159,7 +159,7 @@ class SubmissionProcessorTest {
         when(submissionRepository.findBySessionQuestion("s1", "q1")).thenReturn(java.util.List.of(
                 new Submission("a", "s1", "q1", "F", "uuid-f", "{}", 10, false, "", 50, null)));
 
-        processor(2).processCoding("s1", "q1", "Flooder", "uuid-f", "python", "print(1)", Map.of());
+        processor(2).processCoding("s1", "p1", "q1", "Flooder", "uuid-f", "python", "print(1)", Map.of());
 
         verify(executor, never()).judge(any());
         assertEquals(0, buffer.offeredTotal());
@@ -173,7 +173,7 @@ class SubmissionProcessorTest {
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
                 anyLong(), anyLong(), anyInt(), any())).thenReturn(0);
 
-        processor(2).processCoding("s1", "q1", "Newbie", "u-n", "cpp", "int main(", Map.of());
+        processor(2).processCoding("s1", "p1", "q1", "Newbie", "u-n", "cpp", "int main(", Map.of());
 
         assertEquals(1, buffer.offeredTotal());
         buffer.flush();
@@ -185,7 +185,7 @@ class SubmissionProcessorTest {
     @Test
     void unknownQuestionIdIsIgnored() {
         when(questionRepository.findById("ghost")).thenReturn(Optional.empty());
-        processor(2).processCoding("s1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
+        processor(2).processCoding("s1", "p1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
         verify(executor, never()).judge(any());
         assertEquals(0, buffer.offeredTotal());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
