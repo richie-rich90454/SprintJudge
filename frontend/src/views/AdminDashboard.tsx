@@ -29,14 +29,15 @@ export function AdminDashboard() {
   if (needsAuth) {
     return (
       <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
-        <div className="card text-center max-w-sm w-full">
+        <form method="POST" action="/admin/login" className="card text-center max-w-sm w-full">
           <p className="label-caps mb-2">Authentication required</p>
-          <h2 className="text-2xl font-extrabold mb-4">Admin sign-in</h2>
-          <p className="text-muted mb-6">Sign in with your Microsoft account to access the admin panel.</p>
-          <a href="/oauth2/authorization/ms-callback" className="btn btn-primary w-full no-underline">
-            Sign in with Microsoft
-          </a>
-        </div>
+          <h2 className="text-2xl font-extrabold mb-6">Admin sign-in</h2>
+          <label className="label-caps block mb-1 text-left" htmlFor="un">Username</label>
+          <input id="un" name="username" className="input-underline mb-4" placeholder="admin" autoComplete="username" />
+          <label className="label-caps block mb-1 text-left" htmlFor="pw">Password</label>
+          <input id="pw" name="password" type="password" className="input-underline mb-5" placeholder="••••••••" autoComplete="current-password" />
+          <button type="submit" className="btn btn-primary w-full">Sign in</button>
+        </form>
       </div>
     );
   }
