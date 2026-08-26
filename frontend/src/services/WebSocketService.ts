@@ -14,6 +14,9 @@ export class WebSocketService {
   private socket: WebSocket | null = null;
   private readonly messages$ = new Subject<WsMessage>();
   private readonly status$ = new Subject<"open" | "closed">();
+  // Messages sent while the handshake is still in flight; dropped silently
+  // otherwise, which killed the very first JOIN of every session.
+  private pending: WsMessage[] = [];
 
   static get instance(): WebSocketService {
     if (!this._instance) this._instance = new WebSocketService();
@@ -22,21 +25,34 @@ export class WebSocketService {
 
   connect(url: string): void {
     if (this.socket && this.socket.readyState <= 1) return;
-    this.socket = new WebSocket(url);
-    this.socket.onmessage = (ev) => {
+    const socket = new WebSocket(url);
+    this.socket = socket;
+    socket.onopen = () => {
+      const queued = this.pending;
+      this.pending = [];
+      for (const msg of queued) this.send(msg);
+      this.status$.next("open");
+    };
+    socket.onmessage = (ev) => {
       try {
         this.messages$.next(JSON.parse(ev.data) as WsMessage);
       } catch {
         /* ignore malformed */
       }
     };
-    this.socket.onopen = () => this.status$.next("open");
-    this.socket.onclose = () => this.status$.next("closed");
+    socket.onclose = () => {
+      this.pending = [];
+      this.status$.next("closed");
+    };
   }
 
   send(msg: WsMessage): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (!this.socket || this.socket.readyState === WebSocket.CLOSING
+        || this.socket.readyState === WebSocket.CLOSED) return;
+    if (this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(msg));
+    } else if (this.pending.length < 100) {
+      this.pending.push(msg);
     }
   }
 
