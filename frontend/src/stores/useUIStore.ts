@@ -1,10 +1,11 @@
 import { create } from "zustand";
 
-export type AppView = "join" | "play" | "host" | "admin";
+export type AppView = "join" | "play" | "host" | "admin" | "admin-login";
 
-/** Detects the initial view from the URL path so OAuth redirects land correctly. */
+/** Detects the initial view from the URL path. */
 function detectInitialView(): AppView {
   const path = window.location.pathname;
+  if (path === "/admin/login") return "admin-login";
   if (path.startsWith("/admin")) return "admin";
   return "join";
 }
