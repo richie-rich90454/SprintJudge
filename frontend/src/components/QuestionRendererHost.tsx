@@ -23,12 +23,15 @@ export function QuestionRendererHost({ question, onResponse }: Props) {
       hostRef.current,
       question.config,
       (response) => onResponse(response),
-      question.id
+      question.id,
+      question.languagesAllowed
     );
     renderer.mount();
     rendererRef.current = renderer;
     return () => renderer.destroy();
-  }, [question.type]);
+    // Key on id too: consecutive questions of the same type must not reuse
+    // the previous question's mounted DOM.
+  }, [question.type, question.id]);
 
   return <div ref={hostRef} className="renderer-host mt-4" />;
 }
