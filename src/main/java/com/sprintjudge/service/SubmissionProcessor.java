@@ -56,7 +56,7 @@ public class SubmissionProcessor {
     }
 
     @Async("virtualThreadExecutor")
-    public boolean processCoding(String sessionId, String questionId, String playerName,
+    public boolean processCoding(String sessionId, String pin, String questionId, String playerName,
                                  String playerUuid, String language, String sourceCode,
                                  Map<String, Object> settings) {
         // Edge case Y companion: never block the caller on a saturated judge.
@@ -70,14 +70,10 @@ public class SubmissionProcessor {
         } finally {
             slot.release();
             if (result != null) {
-                leaderboardBroadcaster.broadcastLeaderboard(publishableSessionId(sessionId));
+                // Leaderboard fan-out is pin-keyed; the session id is not a pin.
+                leaderboardBroadcaster.broadcastLeaderboard(pin);
             }
         }
-    }
-
-    private String publishableSessionId(String sessionId) {
-        // Session ids are room-internal; leaderboard fan-out is pin-keyed by the manager.
-        return sessionId;
     }
 
     private JudgeResult judge(String sessionId, String questionId, String playerName,
