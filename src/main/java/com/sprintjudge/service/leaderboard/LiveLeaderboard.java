@@ -58,7 +58,7 @@ public final class LiveLeaderboard {
         Slot s = players.remove(uuid);
         if (s == null) return;
         s.present = false;
-        ordered.remove(uuid, s.score);
+        ordered.remove(uuid, s.score, s.joinSeq);
     }
 
     public int rankOf(String uuid) {
@@ -90,14 +90,17 @@ public final class LiveLeaderboard {
         return ledger.drain(forceResync);
     }
 
-    /** Builds a fresh full batch (joiner/resync path) stamped with current seq. */
+    /**
+     * Builds a fresh full batch (joiner/resync path) stamped with current seq.
+     * Does NOT touch the ledger: inflating seq here would make every other
+     * client see a phantom gap and cascade-resync.
+     */
     public DeltaLedger.Batch fullBatch() {
         List<DeltaLedger.Delta> all = new java.util.ArrayList<>(players.size());
         int rank = 1;
         for (RankedSkipList.Entry e : ordered.snapshot()) {
             all.add(new DeltaLedger.Delta(e.uuid(), e.name(), e.score(), rank++));
         }
-        ledger.recordAll(all);
         // resync=true tells clients to REPLACE their local ranking wholesale.
         return new DeltaLedger.Batch(ledger.currentSeq(), true, all);
     }
