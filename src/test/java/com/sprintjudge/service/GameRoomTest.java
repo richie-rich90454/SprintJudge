@@ -83,6 +83,25 @@ class GameRoomTest {
         assertEquals(0, r.leaderboard().size());
     }
 
+    /** Regression: removing a player who is not first in a tied score group must still unlink. */
+    @Test
+    void removePlayerWithTiedScoreDropsFromLeaderboard() {
+        GameRoom r = room();
+        r.addPlayer(new Player("x", "X", 50, "sx", true));
+        r.addPlayer(new Player("y", "Y", 50, "sy", true));   // joins at 0 like everyone
+        r.addPlayer(new Player("w", "W", 20, "sw", true));
+        r.applyScore("w", 30);                               // W pulls ahead
+
+        r.removePlayer("y");                                 // Y sits mid-group of the tied zeros
+
+        var board = r.leaderboard();
+        assertEquals(2, board.size());
+        assertEquals("W", board.get(0).name());
+        assertEquals("X", board.get(1).name());              // earlier join wins the zero tie
+        assertEquals(1, board.get(0).rank());
+        assertEquals(2, board.get(1).rank());
+    }
+
     @Test
     void statusTransitionsAreRecorded() {
         GameRoom r = room();
