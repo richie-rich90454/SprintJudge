@@ -43,6 +43,20 @@ public final class ExecIo {
         return baos.toString(StandardCharsets.UTF_8).trim();
     }
 
+    /**
+     * Reads a redirected output file after process exit. Returns null when the
+     * cap is exceeded. Redirecting to a file avoids the classic pipe-buffer
+     * deadlock where waitFor times out on a child blocked writing stdout.
+     */
+    public static String readCappedFile(Path file) {
+        try {
+            if (Files.size(file) > STDOUT_CAP_BYTES) return null;
+            return Files.readString(file, StandardCharsets.UTF_8).trim();
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
     /** Best-effort recursive delete of a run directory. */
     public static void deleteTree(Path dir) {
         try (var stream = Files.walk(dir)) {
