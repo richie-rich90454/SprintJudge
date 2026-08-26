@@ -105,12 +105,16 @@ public class NativeExecutor implements CodeExecutor {
                 TestCase tc = request.testCases().get(idx);
                 Path inputFile = runDir.resolve("input_" + idx + ".txt").toAbsolutePath();
                 Files.writeString(inputFile, tc.input() == null ? "" : tc.input());
+                Path outputFile = runDir.resolve("out_" + idx + ".txt").toAbsolutePath();
 
                 List<String> cmd = runCommand(language, sourceFile, runDir);
                 ProcessBuilder pb = new ProcessBuilder(cmd)
                         .directory(runDir.toFile())
                         .redirectErrorStream(true)
-                        .redirectInput(inputFile.toFile());
+                        .redirectInput(inputFile.toFile())
+                        // File redirect avoids the pipe-buffer deadlock that
+                        // misjudged verbose programs as timeouts.
+                        .redirectOutput(outputFile.toFile());
                 Process proc = pb.start();
 
                 if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
@@ -118,9 +122,8 @@ public class NativeExecutor implements CodeExecutor {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
                     continue;
                 }
-                String output = ExecIo.readCapped(proc);
+                String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
-                    proc.destroyForcibly();
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
                     continue;
                 }
