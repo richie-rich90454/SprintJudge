@@ -106,6 +106,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             if (isHost) room.setHostUuid(p.uuid());
         }
         broadcastRoomState(pin);
+        // The join delta (score 0 upsert) must reach clients even if nobody scores.
+        broadcastLeaderboard(pin);
         return p;
     }
 
@@ -114,6 +116,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (room == null) return;
         room.removePlayer(playerUuid);
         broadcastRoomState(pin);
+        broadcastLeaderboard(pin);
     }
 
     // ---------- rounds ----------
@@ -139,8 +142,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public void nextQuestion(String pin) {
         GameRoom room = require(pin);
-        room.setCurrentQuestionIndex(room.currentQuestionIndex() + 1);
-        sessionRepository.setCurrentIndex(room.sessionId(), room.currentQuestionIndex());
+        // First start (LOBBY) begins at index 0; only subsequent rounds advance.
+        if (!"LOBBY".equals(room.status())) {
+            room.setCurrentQuestionIndex(room.currentQuestionIndex() + 1);
+            sessionRepository.setCurrentIndex(room.sessionId(), room.currentQuestionIndex());
+        }
         if (room.currentQuestionIndex() >= questionRepository.findByQuiz(room.quizId()).size()) {
             endGame(pin);
         } else {
@@ -160,9 +166,17 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (type.isCoding()) {
             Player p = room.getPlayer(playerUuid);
             if (p == null) return;
+            // Per-question language restriction mirrors the client's locked select.
+            List<String> allowed = q.languagesAllowed();
+            if (allowed != null && !allowed.isEmpty()
+                    && allowed.stream().noneMatch(a -> a.equalsIgnoreCase(language))) {
+                ws.send(p.sessionId(), new ErrorMessage("ERROR",
+                        "Language not allowed for this question"));
+                return;
+            }
             String source = response == null ? "" : response.path("source").asText("");
-            boolean accepted = submissionProcessor.getObject().processCoding(room.sessionId(), questionId, p.name(),
-                    playerUuid, language, source, settingsService.asMap());
+            boolean accepted = submissionProcessor.getObject().processCoding(room.sessionId(), pin,
+                    questionId, p.name(), playerUuid, language, source, settingsService.asMap());
             if (!accepted) {
                 // Edge case Y companion: saturated judge queue answers with a friendly retry.
                 ws.send(p.sessionId(), new ErrorMessage("ERROR",
@@ -216,6 +230,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             room.removePlayer(playerUuid);
         }
         broadcastRoomState(pin);
+        broadcastLeaderboard(pin);
     }
 
     public void endGame(String pin) {
