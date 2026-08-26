@@ -106,6 +106,14 @@ class GameRoomManagerTest {
                 () -> mgr.join("123456", "Impostor", "sess-i", "host"));
     }
 
+    /** Regression: a join must arm the coalescer so its score-0 delta ships. */
+    @Test
+    void joinMarksLeaderboardDirty() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        manager().join("123456", "Alice", "sess-a", "player");
+        verify(scheduler).markDirty(eq(123456), any());
+    }
+
     @Test
     void roomRejectsPlayersBeyondCapacity() throws Exception {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
@@ -144,8 +152,8 @@ class GameRoomManagerTest {
         // ROOM_STATE is immediate; the leaderboard goes through the 16 ms coalescer.
         verify(ws, times(1)).broadcast(any(), any());
         ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
-        verify(scheduler).markDirty(eq(123456), task.capture());
-        task.getValue().run();
+        verify(scheduler, times(2)).markDirty(eq(123456), task.capture());   // join + submit
+        task.getAllValues().get(1).run();
 
         ArgumentCaptor<java.util.Collection<String>> ids = this.ids;
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
@@ -176,7 +184,7 @@ class GameRoomManagerTest {
         assertEquals(false, saved.getValue().correct());
         // Fraction flows into the engine, which hard-zeroes it internally.
         verify(scoringEngine).scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), any());
-        verify(scheduler).markDirty(eq(123456), any());
+        verify(scheduler, atLeastOnce()).markDirty(eq(123456), any());
     }
 
     @Test
@@ -208,13 +216,13 @@ class GameRoomManagerTest {
         Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player");
-        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(),
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), any())).thenReturn(true);
 
         mgr.submit("123456", "oj1", player.uuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
 
-        verify(submissionProcessor).processCoding(eq("s1"), eq("oj1"), eq("Cody"),
+        verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
                 eq(player.uuid()), eq("python"), eq("print(1)"), any());
         verify(writeBuffer, never()).offer(any());
         verify(ws, never()).send(anyString(), any());
@@ -227,7 +235,7 @@ class GameRoomManagerTest {
         Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_PATCH", null, 60, 500, "{}", 0, Instant.now());
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Pat", "sess-j", "player");
-        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(),
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), any())).thenReturn(false);
 
         mgr.submit("123456", "oj1", player.uuid(), "python",
@@ -240,6 +248,24 @@ class GameRoomManagerTest {
     }
 
     // ---------- question lifecycle ----------
+
+    /** Regression: the first "Start round" must begin at question 0, not skip it. */
+    @Test
+    void nextQuestionFromLobbyStartsFirstQuestion() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+
+        mgr.nextQuestion("123456");
+
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        QuestionStart start = (QuestionStart) msg.getAllValues().stream()
+                .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
+        assertEquals("q1", start.question().id());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        verify(sessionRepository).updateStatus("s1", "ACTIVE");
+    }
 
     @Test
     void startQuestionArmsTimerAndBroadcastsQuestionStart() {
