@@ -96,9 +96,17 @@ export class GameStateManager {
         // Baseline for the delta protocol; server answers with a full batch.
         this.requestLeaderboardResync();
         break;
-      case "ROOM_STATE":
-        this.patch({ room: m as unknown as RoomState });
+      case "ROOM_STATE": {
+        const room = m as unknown as RoomState;
+        // The roster is connection truth: drop leaderboard rows for players
+        // who left or were kicked (the delta protocol has no tombstone).
+        const connected = new Set(room.players.map((p) => p.uuid));
+        this.patch({
+          room,
+          leaderboard: this.state$.value.leaderboard.filter((e) => connected.has(e.uuid)),
+        });
         break;
+      }
       case "QUESTION_START": {
         const q = m.question as QuestionDto;
         const end = (m.startedAtEpochMs as number) + (m.timeLimitSec as number) * 1000;
