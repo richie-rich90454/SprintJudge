@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -60,18 +61,18 @@ public class SubmissionProcessor {
     }
 
     @Async("virtualThreadExecutor")
-    public boolean processCoding(String sessionId, String pin, String questionId, String playerName,
+    public CompletableFuture<Boolean> processCoding(String sessionId, String pin, String questionId, String playerName,
                                   String playerUuid, String language, String sourceCode, int attemptsUsed,
                                   Map<String, Object> settings, CodingOutcomeConsumer handler) {
         // Edge case Y companion: never block the caller on a saturated judge.
         if (!slot.tryAcquire()) {
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
         JudgeResult result = null;
         try {
             result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
                     attemptsUsed, settings, handler);
-            return true;
+            return CompletableFuture.completedFuture(true);
         } finally {
             slot.release();
             if (result != null) {
