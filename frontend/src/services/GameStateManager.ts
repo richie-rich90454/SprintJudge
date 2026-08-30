@@ -122,6 +122,20 @@ export class GameStateManager {
                 this.patch({ status: "REVIEW", lastResult: m });
                 clearTimer();
                 break;
+            case "SUBMISSION_RESULT":
+                this.patch({
+                    lastResult: {
+                        ...(this.state.lastResult ?? {}),
+                        submission: {
+                            questionId: m.questionId,
+                            score: m.score,
+                            allPassed: m.allPassed,
+                            passed: m.passed,
+                            totalTests: m.totalTests,
+                        },
+                    },
+                });
+                break;
             case "GAME_END":
                 this.patch({
                     status: "ENDED",
