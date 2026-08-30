@@ -98,6 +98,13 @@ public class AdminController {
     @PostMapping("/games")
     public com.sprintjudge.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
         String quizId = body.get("quizId");
+        String gameModeStr = body.getOrDefault("gameMode", "STANDARD");
+        com.sprintjudge.service.GameRoom.GameMode gameMode;
+        try {
+            gameMode = com.sprintjudge.service.GameRoom.GameMode.valueOf(gameModeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            gameMode = com.sprintjudge.service.GameRoom.GameMode.STANDARD;
+        }
         org.springframework.security.core.Authentication auth =
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String email = "system@sprintjudge.local";
@@ -115,7 +122,7 @@ public class AdminController {
             name = s;
         }
         com.sprintjudge.domain.models.User host = userRepository.upsertByEmail(email, name, null);
-        return roomManager.createRoom(quizId, host.id());
+        return roomManager.createRoom(quizId, host.id(), gameMode);
     }
 
     @PutMapping("/settings")
