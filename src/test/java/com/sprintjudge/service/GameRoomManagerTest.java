@@ -44,6 +44,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -1118,5 +1119,367 @@ class GameRoomManagerTest {
         roomOf(mgr).softRemove(p.uuid());          // connectedCount() == 0
         mgr.sweepIdleRooms();                      // idleMs still < TTL -> keep
         assertEquals(1, mgr.activeRooms());
+    }
+
+    // ==================== PRACTICE MODE ====================
+
+    @Test
+    void createRoomWithPracticeMode() {
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(
+                new Quiz("qz", "T", "", null, Instant.now(), false)));
+        lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
+                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+
+        GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.PRACTICE);
+
+        assertEquals("LOBBY", created.status());
+        assertTrue(created.pinCode().matches("\\d{6}"));
+    }
+
+    @Test
+    void practiceStartQuestionDoesNotScheduleRoundTimer() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        // Override the room's game mode to PRACTICE
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.PRACTICE);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+
+        mgr.startQuestion("123456");
+
+        verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
+        verify(ws, atLeastOnce()).broadcast(any(), any());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+    }
+
+    @Test
+    void practiceSubmitSendsImmediateSubmissionResult() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(900);
+
+        var player = mgr.join("123456", "Alice", "sess-1", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.PRACTICE);
+        armRound(mgr, "q1");
+
+        mgr.submit("123456", "q1", player.uuid(), "python",
+                Json.readTree("{\"selectedIndex\":0}"));
+
+        // PRACTICE sends immediate feedback to the player
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-1"), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .anyMatch(m -> m instanceof SubmissionResult sr && sr.score() == 900));
+    }
+
+    @Test
+    void practiceAutoAdvanceAfterReview() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.PRACTICE);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(anyDouble(), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(900);
+
+        mgr.startQuestion("123456");
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).uuid(),
+                "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.forceSubmit("123456"); // -> transitionToReview -> schedules auto-advance
+
+        // PRACTICE: startQuestion does NOT schedule round timer, only auto-advance does (1 call)
+        verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), runnableCaptor.capture());
+        Runnable autoAdvance = runnableCaptor.getValue();
+        autoAdvance.run();
+        // After auto-advance, should have moved to question 2
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+    }
+
+    // ==================== EXAM MODE ====================
+
+    @Test
+    void createRoomWithExamMode() {
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(
+                new Quiz("qz", "T", "", null, Instant.now(), false)));
+        lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
+                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+
+        GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.EXAM);
+
+        assertEquals("LOBBY", created.status());
+    }
+
+    @Test
+    void examStartQuestionUsesTotalEndEpochMs() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.EXAM);
+        long totalEnd = System.currentTimeMillis() + 300_000;
+        roomOf(mgr).setTotalEndEpochMs(totalEnd);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+
+        mgr.startQuestion("123456");
+
+        // EXAM uses totalEndEpochMs, not per-question timer
+        verify(roundTimer).schedule(eq(123456), eq(totalEnd), any());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+    }
+
+    @Test
+    void examSubmitSendsImmediateFeedback() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(900);
+
+        var player = mgr.join("123456", "Alice", "sess-1", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.EXAM);
+        armRound(mgr, "q1");
+
+        mgr.submit("123456", "q1", player.uuid(), "python",
+                Json.readTree("{\"selectedIndex\":0}"));
+
+        // EXAM sends immediate feedback
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-1"), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .anyMatch(m -> m instanceof SubmissionResult sr && sr.score() == 900));
+    }
+
+    @Test
+    void examTimerExpiredEndsGame() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.EXAM);
+        long totalEnd = System.currentTimeMillis() + 300_000;
+        roomOf(mgr).setTotalEndEpochMs(totalEnd);
+        mgr.startQuestion("123456");
+        verify(roundTimer).schedule(eq(123456), eq(totalEnd), runnableCaptor.capture());
+
+        // Set end time in the past so the timer fires
+        setField(roomOf(mgr), "currentQuestionEndEpochMs", System.currentTimeMillis() - 10_000);
+        runnableCaptor.getValue().run(); // onTimerExpired -> EXAM path -> endGame
+
+        // endGame removes the room from the registry
+        verify(sessionRepository).updateStatus("s1", "ENDED");
+        assertThrows(IllegalArgumentException.class, () -> mgr.getRoomState("123456"));
+    }
+
+    // ==================== TEAM MODE ====================
+
+    @Test
+    void createTeamCreatesTeam() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "Host", "sess-h", "host", null);
+
+        GameRoom.Team team = mgr.createTeam("123456", "Alpha");
+
+        assertNotNull(team);
+        assertEquals("Alpha", team.name());
+        assertTrue(team.id().startsWith("team-"));
+        assertTrue(team.memberUuids().isEmpty());
+        assertEquals(0, team.score());
+    }
+
+    @Test
+    void joinTeamAddsPlayerToTeam() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var player = mgr.join("123456", "Alice", "sess-a", "player", null);
+        GameRoom.Team team = mgr.createTeam("123456", "Alpha");
+
+        GameRoom.Team updated = mgr.joinTeam("123456", team.id(), player.uuid());
+
+        assertTrue(updated.memberUuids().contains(player.uuid()));
+    }
+
+    @Test
+    void applyTeamScoreAggregatesScores() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        GameRoom.Team team = mgr.createTeam("123456", "Alpha");
+
+        long result1 = roomOf(mgr).applyTeamScore(team.id(), 500);
+        long result2 = roomOf(mgr).applyTeamScore(team.id(), 300);
+
+        assertEquals(500, result1);
+        assertEquals(800, result2);
+    }
+
+    @Test
+    void teamLeaderboardShowsTeams() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p1 = mgr.join("123456", "Alice", "s1", "player", null);
+        var p2 = mgr.join("123456", "Bob", "s2", "player", null);
+        GameRoom.Team team1 = mgr.createTeam("123456", "Alpha");
+        GameRoom.Team team2 = mgr.createTeam("123456", "Beta");
+        mgr.joinTeam("123456", team1.id(), p1.uuid());
+        mgr.joinTeam("123456", team2.id(), p2.uuid());
+        roomOf(mgr).applyTeamScore(team1.id(), 1000);
+        roomOf(mgr).applyTeamScore(team2.id(), 500);
+
+        java.util.List<GameRoom.Team> teams = mgr.getTeams("123456");
+
+        assertEquals(2, teams.size());
+        assertTrue(teams.stream().anyMatch(t -> "Alpha".equals(t.name()) && t.score() == 1000));
+        assertTrue(teams.stream().anyMatch(t -> "Beta".equals(t.name()) && t.score() == 500));
+    }
+
+    @Test
+    void teamIdOfReturnsTeamForPlayer() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var player = mgr.join("123456", "Alice", "s1", "player", null);
+        GameRoom.Team team = mgr.createTeam("123456", "Alpha");
+        mgr.joinTeam("123456", team.id(), player.uuid());
+
+        assertEquals(team.id(), roomOf(mgr).teamIdOf(player.uuid()));
+    }
+
+    // ==================== BATTLE MODE ====================
+
+    @Test
+    void startBattleCreatesBracket() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        var p1 = mgr.join("123456", "Alice", "s1", "player", null);
+        var p2 = mgr.join("123456", "Bob", "s2", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.BATTLE);
+
+        mgr.startBattle("123456");
+
+        java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
+        assertEquals(1, matches.size());
+        assertEquals("q1", matches.get(0).questionId());
+    }
+
+    @Test
+    void startBattleRecordsBattleMatch() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        var p1 = mgr.join("123456", "Alice", "s1", "player", null);
+        var p2 = mgr.join("123456", "Bob", "s2", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.BATTLE);
+
+        mgr.startBattle("123456");
+
+        java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
+        GameRoom.BattleMatch m = matches.get(0);
+        // Both players should be in the match (order may vary due to shuffle)
+        assertTrue(m.p1Uuid().equals(p1.uuid()) || m.p1Uuid().equals(p2.uuid()));
+        assertTrue(m.p2Uuid().equals(p1.uuid()) || m.p2Uuid().equals(p2.uuid()));
+    }
+
+    @Test
+    void startBattleBracketIsAccessible() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        mgr.join("123456", "Alice", "s1", "player", null);
+        mgr.join("123456", "Bob", "s2", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.BATTLE);
+
+        mgr.startBattle("123456");
+
+        java.util.List<String[]> bracket = mgr.getBracket("123456");
+        assertEquals(1, bracket.size());
+        assertNotNull(bracket.get(0));
+        assertEquals(2, bracket.get(0).length);
+    }
+
+    @Test
+    void startBattleNeedsAtLeastTwoPlayers() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.join("123456", "Alice", "s1", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.BATTLE);
+
+        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
+    }
+
+    @Test
+    void startBattleWithFourPlayersCreatesTwoMatches() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        mgr.join("123456", "P1", "s1", "player", null);
+        mgr.join("123456", "P2", "s2", "player", null);
+        mgr.join("123456", "P3", "s3", "player", null);
+        mgr.join("123456", "P4", "s4", "player", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.BATTLE);
+
+        mgr.startBattle("123456");
+
+        java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
+        assertEquals(2, matches.size());
+        assertEquals(2, mgr.getBracket("123456").size());
+    }
+
+    // ==================== AUTO_PILOT MODE ====================
+
+    @Test
+    void autoPilotAutoAdvanceTiming() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.AUTO_PILOT);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(900);
+
+        mgr.startQuestion("123456");
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).uuid(),
+                "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.forceSubmit("123456");
+
+        // AUTO_PILOT: startQuestion schedules per-question timer (1), transitionToReview schedules auto-advance (2)
+        verify(roundTimer, times(2)).schedule(eq(123456), anyLong(), runnableCaptor.capture());
+        Runnable autoAdvance = runnableCaptor.getAllValues().get(runnableCaptor.getAllValues().size() - 1);
+        autoAdvance.run();
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+    }
+
+    @Test
+    void autoPilotStartQuestionUsesPerQuestionTimer() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        setField(roomOf(mgr), "gameMode", GameRoom.GameMode.AUTO_PILOT);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+
+        mgr.startQuestion("123456");
+
+        // AUTO_PILOT uses per-question timer like STANDARD
+        verify(roundTimer).schedule(eq(123456), anyLong(), any());
     }
 }

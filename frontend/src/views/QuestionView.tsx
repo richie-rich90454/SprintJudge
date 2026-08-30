@@ -87,7 +87,14 @@ export function QuestionView() {
 
     const doSubmit = () => {
         if (submitted) return;
-        submit(q.id, response, coding ? (response as { language?: string })?.language : undefined);
+        const lang =
+            coding &&
+            typeof response === "object" &&
+            response !== null &&
+            "language" in response
+                ? (response as { language?: string }).language
+                : undefined;
+        submit(q.id, response, lang);
         setSubmitted(true);
         audio.play("click");
         try {

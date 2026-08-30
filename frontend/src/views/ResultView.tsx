@@ -165,7 +165,7 @@ export function ResultView() {
                 )}
 
                 {/* Answer Key tab */}
-                {tab === "answers" && review && (
+                {tab === "answers" && review?.questions && (
                     <Card className="bg-content1">
                         <CardContent className="p-6">
                             <h3 className="font-extrabold text-lg mb-4">Answer Key</h3>
@@ -218,7 +218,7 @@ export function ResultView() {
                 )}
 
                 {/* Students tab */}
-                {tab === "students" && review && (
+                {tab === "students" && review?.players && (
                     <Card className="bg-content1">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-4">
@@ -289,7 +289,7 @@ export function ResultView() {
                 )}
 
                 {/* Analysis tab */}
-                {tab === "analysis" && review && (
+                {tab === "analysis" && review?.classStats && review?.questions && (
                     <Card className="bg-content1">
                         <CardContent className="p-6">
                             <h3 className="font-extrabold text-lg mb-4">Class Analysis</h3>
