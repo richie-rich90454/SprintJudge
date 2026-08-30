@@ -1,6 +1,8 @@
 package com.sprintjudge.service;
 
 import com.sprintjudge.service.executor.CompileArtifactCache;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -46,12 +48,33 @@ public class MetricsService {
                           SubmissionWriteBuffer writeBuffer,
                           CompileArtifactCache compileCache,
                           GameRoomManager roomManager,
-                          BroadcastScheduler scheduler) {
+                          BroadcastScheduler scheduler,
+                          MeterRegistry meterRegistry) {
         this.judgeSlots = judgeSlots;
         this.writeBuffer = writeBuffer;
         this.compileCache = compileCache;
         this.roomManager = roomManager;
         this.scheduler = scheduler;
+
+        // Register Prometheus gauges for key metrics.
+        Gauge.builder("sprintjudge.rooms.active", roomManager, GameRoomManager::activeRooms)
+                .description("Number of active game rooms").register(meterRegistry);
+        Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, Semaphore::availablePermits)
+                .description("Available judge execution permits").register(meterRegistry);
+        Gauge.builder("sprintjudge.judge.runs.total", this, m -> m.judgeCount.get())
+                .description("Total judge runs").register(meterRegistry);
+        Gauge.builder("sprintjudge.judge.timeouts.total", this, m -> m.judgeTimeouts.get())
+                .description("Total judge timeouts").register(meterRegistry);
+        Gauge.builder("sprintjudge.persistence.buffer.depth", writeBuffer, SubmissionWriteBuffer::depth)
+                .description("Write buffer depth").register(meterRegistry);
+        Gauge.builder("sprintjudge.compile.cache.entries", compileCache, CompileArtifactCache::entries)
+                .description("Compile cache entries").register(meterRegistry);
+        Gauge.builder("sprintjudge.broadcast.pending.rooms", scheduler, BroadcastScheduler::pendingRooms)
+                .description("Rooms pending broadcast").register(meterRegistry);
+        Gauge.builder("sprintjudge.memory.heap.used.mb", this, m -> m.memory.getHeapMemoryUsage().getUsed() >> 20)
+                .description("Heap memory used (MB)").register(meterRegistry);
+        Gauge.builder("sprintjudge.threads.active", this, m -> m.threads.getThreadCount())
+                .description("Active thread count").register(meterRegistry);
     }
 
     public void recordJudge(long nanos, boolean timedOut, boolean stdoutCapped) {
