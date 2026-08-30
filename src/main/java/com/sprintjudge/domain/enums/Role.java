@@ -5,6 +5,7 @@ public enum Role {
     PLAYER;
 
     public static Role from(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Role is required");
         return Role.valueOf(value.trim().toUpperCase());
     }
 }
