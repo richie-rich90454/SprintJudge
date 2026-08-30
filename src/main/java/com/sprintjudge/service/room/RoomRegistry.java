@@ -59,6 +59,31 @@ public final class RoomRegistry {
         }
     }
 
+    /** Inserts only if absent; returns the existing room when one is present. */
+    public GameRoom putIfAbsent(int pin, GameRoom room) {
+        lock.writeLock().lock();
+        try {
+            GameRoom existing = rooms.get(pin);
+            if (existing != null) return existing;
+            rooms.put(pin, room);
+            return room;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /** Snapshot of all live rooms (for the idle sweeper). */
+    public java.util.List<GameRoom> snapshot() {
+        lock.readLock().lock();
+        try {
+            java.util.List<GameRoom> out = new java.util.ArrayList<>(rooms.size());
+            rooms.forEach((k, v) -> out.add(v));
+            return out;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
     public int size() {
         lock.readLock().lock();
         try {
