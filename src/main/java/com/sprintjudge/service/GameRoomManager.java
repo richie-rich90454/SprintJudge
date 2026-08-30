@@ -92,6 +92,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     // ---------- lifecycle ----------
 
     public GameSession createRoom(String quizId, String hostUserId) {
+        return createRoom(quizId, hostUserId, GameRoom.GameMode.STANDARD);
+    }
+
+    public GameSession createRoom(String quizId, String hostUserId, GameRoom.GameMode gameMode) {
         if (quizRepository.findById(quizId).isEmpty()) {
             throw new IllegalArgumentException("Quiz not found: " + quizId);
         }
@@ -101,7 +105,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         } while (registry.get(Integer.parseInt(pin)) != null
                 || sessionRepository.findByPin(pin).isPresent());
         GameSession session = sessionRepository.create(quizId, hostUserId, pin, null);
-        registry.put(Integer.parseInt(pin), new GameRoom(session.id(), quizId, pin, "LOBBY", maxPlayers));
+        registry.put(Integer.parseInt(pin), new GameRoom(session.id(), quizId, pin, "LOBBY", maxPlayers, gameMode));
         return session;
     }
 
@@ -345,6 +349,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         flushLeaderboardDelta(pin);
         sendRoundResult(pin, true);
         broadcastRoomState(pin);
+        // Auto-pilot: after a brief review, advance to the next question automatically.
+        if (room.gameMode() == GameRoom.GameMode.AUTO_PILOT) {
+            roundTimer.schedule(Integer.parseInt(pin),
+                    Instant.now().toEpochMilli() + 3000,
+                    () -> nextQuestion(pin));
+        }
     }
 
     public void endGame(String pin) {
