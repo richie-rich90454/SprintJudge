@@ -35,6 +35,7 @@ export function AdminDashboard() {
     const [needsAuth, setNeedsAuth] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [search, setSearch] = useState("");
+    const [quizSearch, setQuizSearch] = useState("");
 
     const gridRef = useStaggerIn<HTMLDivElement>(".oq-quiz-card", [quizzes.length], 0.06);
 
@@ -122,6 +123,11 @@ export function AdminDashboard() {
 
     const filteredQuestions = questions.filter((q) => {
         return !search || q.title.toLowerCase().includes(search.toLowerCase());
+    });
+
+    const filteredQuizzes = quizzes.filter((q) => {
+        return !quizSearch || q.title.toLowerCase().includes(quizSearch.toLowerCase())
+            || (q.description && q.description.toLowerCase().includes(quizSearch.toLowerCase()));
     });
 
     return (
@@ -252,8 +258,14 @@ export function AdminDashboard() {
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.15 }}
                         >
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-extrabold">Quiz sets</h2>
+                            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+                                <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
+                                <input
+                                    value={quizSearch}
+                                    onChange={(e) => setQuizSearch(e.target.value)}
+                                    placeholder="Search quizzes…"
+                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                />
                                 <Button
                                     size="sm"
                                     variant="primary"
@@ -301,7 +313,7 @@ export function AdminDashboard() {
                             )}
 
                             <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {quizzes.map((q) => (
+                                {filteredQuizzes.map((q) => (
                                     <Card key={q.id} className="oq-quiz-card bg-content1">
                                         <CardContent className="p-5 flex flex-col gap-3">
                                             <div className="flex items-start justify-between gap-2">
@@ -357,7 +369,7 @@ export function AdminDashboard() {
                                         </CardContent>
                                     </Card>
                                 ))}
-                                {quizzes.length === 0 && (
+                                {filteredQuizzes.length === 0 && (
                                     <Card className="oq-quiz-card col-span-full bg-content1">
                                         <CardContent className="text-center py-16">
                                             <p className="label-caps mb-2">Empty library</p>
