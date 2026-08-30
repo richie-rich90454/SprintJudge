@@ -1,5 +1,6 @@
 package com.sprintjudge.websocket;
 
+import com.sprintjudge.domain.dto.RoomState;
 import com.sprintjudge.service.GameRoomManager;
 import com.sprintjudge.service.Player;
 import jakarta.websocket.EndpointConfig;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -49,12 +51,10 @@ class GameWebSocketSecurityTest {
         lenient().when(session.getId()).thenReturn("sess");
         lenient().doAnswer(inv -> { inv.getArgument(0); return null; })
                 .when(remote).sendText(anyString());
-        // Mirror what SecureHandshakeConfigurator stores for an anonymous upgrade.
         handshake.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
         handshake.put(SecureHandshakeConfigurator.REMOTE_ADDR, "unresolved");
         EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
         lenient().when(cfg.getUserProperties()).thenReturn(handshake);
-        // getEndpointInstance now resolves via Spring; unit tests construct directly.
         new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
     }
 
@@ -80,7 +80,6 @@ class GameWebSocketSecurityTest {
         assertEquals("unresolved", props.get("oq.remoteAddr"));
     }
 
-    /** Regression: sessions must enter the fan-out map or broadcasts reach nobody. */
     @Test
     void onOpenRegistersSessionForBroadcast() {
         verify(sessions).register("sess", session);
@@ -97,6 +96,8 @@ class GameWebSocketSecurityTest {
 
     @Test
     void authenticatedHandshakeIsFlagged() {
+        java.security.Principal principal = org.mockito.Mockito.mock(java.security.Principal.class);
+        when(session.getUserPrincipal()).thenReturn(principal);
         Map<String, Object> h = new HashMap<>();
         h.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
         h.put(SecureHandshakeConfigurator.REMOTE_ADDR, "10.0.0.7");
@@ -154,7 +155,7 @@ class GameWebSocketSecurityTest {
     void failedJoinRecordsFailureAndReportsError() {
         when(rateLimiter.tryJoin(anyString())).thenReturn(true);
         doThrow(new IllegalArgumentException("Invalid PIN")).when(roomManager)
-                .join(eq("000000"), anyString(), anyString(), eq("player"));
+                .join(eq("000000"), anyString(), anyString(), eq("player"), any());
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"000000\",\"name\":\"A\"}");
         assertTrue(lastMessage().contains("Invalid PIN"));
         verify(rateLimiter).recordFailure("unresolved");
@@ -164,7 +165,7 @@ class GameWebSocketSecurityTest {
     void successfulJoinStoresIdentityAndReturnsJoined() {
         when(rateLimiter.tryJoin(anyString())).thenReturn(true);
         Player p = new Player("uuid-1", "Alice", 0, "sess", true);
-        when(roomManager.join(eq("123456"), eq("Alice"), eq("sess"), eq("player"))).thenReturn(p);
+        when(roomManager.join(eq("123456"), eq("Alice"), eq("sess"), eq("player"), any())).thenReturn(p);
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Alice\"}");
         assertTrue(lastMessage().contains("\"type\":\"JOINED\""));
         assertEquals("uuid-1", props.get("playerUuid"));
@@ -178,7 +179,7 @@ class GameWebSocketSecurityTest {
     private void joinAsPlayer() {
         when(rateLimiter.tryJoin(anyString())).thenReturn(true);
         Player p = new Player("uuid-9", "Bob", 0, "s", true);
-        lenient().when(roomManager.join(anyString(), anyString(), anyString(), eq("player"))).thenReturn(p);
+        lenient().when(roomManager.join(anyString(), anyString(), anyString(), eq("player"), any())).thenReturn(p);
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Bob\"}");
         org.mockito.Mockito.clearInvocations(remote);
     }
@@ -201,8 +202,7 @@ class GameWebSocketSecurityTest {
         joinAsPlayer();
         ws().onMessage(session,
                 "{\"type\":\"SUBMIT\",\"questionId\":\"qz\",\"response\":{\"selectedIndex\":0}}");
-        verify(roomManager).submit(eq("123456"), eq("qz"), eq("uuid-9"), eq("python"),
-                org.mockito.ArgumentMatchers.any());
+        verify(roomManager).submit(eq("123456"), eq("qz"), eq("uuid-9"), eq("python"), any());
     }
 
     @Test
@@ -245,8 +245,7 @@ class GameWebSocketSecurityTest {
         ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"language\":\"python\","
                 + "\"response\":{\"source\":\"" + big + "\"}}");
         assertTrue(lastMessage().contains("64KB limit"));
-        verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(),
-                org.mockito.ArgumentMatchers.any());
+        verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(), any());
     }
 
     // ---------- host commands ----------
@@ -261,7 +260,7 @@ class GameWebSocketSecurityTest {
 
     @Test
     void hostCommandRequiresHostRoleEvenWhenAuthenticated() {
-        props.put("oq.authenticated", Boolean.TRUE);   // authed but never joined as host
+        props.put("oq.authenticated", Boolean.TRUE);
         ws().onMessage(session, "{\"type\":\"END_GAME\"}");
         assertTrue(lastMessage().contains("Forbidden"));
     }
@@ -291,5 +290,250 @@ class GameWebSocketSecurityTest {
         props.put("pin", "123456");
         ws().onMessage(session, "{\"type\":\"KICK_PLAYER\",\"playerUuid\":\"u-42\"}");
         verify(roomManager).kickPlayer("123456", "u-42");
+    }
+
+    // ---------- schema validation (remaining branches) ----------
+
+    @Test
+    void nonObjectMessageRejected() {
+        ws().onMessage(session, "\"just a string\"");
+        assertTrue(lastMessage().contains("missing 'type'"));
+    }
+
+    @Test
+    void blankTypeRejected() {
+        ws().onMessage(session, "{\"type\":\"  \"}");
+        assertTrue(lastMessage().contains("missing 'type'"));
+    }
+
+    // ---------- onOpen (remaining branch) ----------
+
+    @Test
+    void onOpenWithoutRemoteAddrFallsBackToUnresolved() {
+        Map<String, Object> h = new HashMap<>();
+        h.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+        EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
+        when(cfg.getUserProperties()).thenReturn(h);
+        new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
+        assertEquals("unresolved", props.get(SecureHandshakeConfigurator.REMOTE_ADDR));
+    }
+
+    // ---------- JOIN (remaining branches) ----------
+
+    @Test
+    void joinMissingPinRejected() {
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"name\":\"A\"}");
+        assertTrue(lastMessage().contains("requires 'pin' and 'name'"));
+    }
+
+    @Test
+    void authenticatedHostJoinSucceeds() {
+        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+        when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+        Player p = new Player("uuid-host", "Host", 0, "sess", true);
+        when(roomManager.join(eq("123456"), eq("Host"), eq("sess"), eq("host"), any())).thenReturn(p);
+        when(roomManager.getRoomState(anyString())).thenReturn(
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"role\":\"host\",\"pin\":\"123456\",\"name\":\"Host\"}");
+        assertTrue(lastMessage().contains("\"type\":\"JOINED\""));
+        assertEquals("host", props.get("role"));
+        verify(rateLimiter).recordSuccess("unresolved");
+    }
+
+    @Test
+    void joinReclaimsPreviousSeatBeforeRejoining() {
+        props.put("pin", "oldpin");
+        props.put("playerUuid", "olduuid");
+        when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+        Player p = new Player("uuid-new", "Al", 0, "sess", true);
+        when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
+        when(roomManager.getRoomState(anyString())).thenReturn(
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
+        verify(roomManager).leave("oldpin", "olduuid");
+        verify(roomManager).join(eq("123456"), eq("Al"), eq("sess"), eq("player"), any());
+    }
+
+    @Test
+    void joinReclaimLeaveFailureIsSwallowed() {
+        props.put("pin", "oldpin");
+        props.put("playerUuid", "olduuid");
+        doThrow(new RuntimeException("leave failed")).when(roomManager).leave("oldpin", "olduuid");
+        when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+        Player p = new Player("uuid-new", "Al", 0, "sess", true);
+        when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
+        when(roomManager.getRoomState(anyString())).thenReturn(
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
+        assertTrue(lastMessage().contains("\"type\":\"JOINED\""));
+    }
+
+    @Test
+    void failedJoinIllegalStateExceptionRecordsFailure() {
+        when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+        doThrow(new IllegalStateException("room closed")).when(roomManager)
+                .join(eq("123456"), anyString(), anyString(), eq("player"), any());
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
+        assertTrue(lastMessage().contains("room closed"));
+        verify(rateLimiter).recordFailure("unresolved");
+    }
+
+    // ---------- SUBMIT (remaining branches) ----------
+
+    @Test
+    void submitMissingQuestionIdButResponsePresentRejected() {
+        joinAsPlayer();
+        ws().onMessage(session, "{\"type\":\"SUBMIT\",\"response\":{\"selectedIndex\":0}}");
+        assertTrue(lastMessage().contains("requires 'questionId'"));
+    }
+
+    @Test
+    void submitWithUuidButNoPinRejected() {
+        props.put("playerUuid", "uuid-9");
+        ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q\",\"response\":{}}");
+        assertTrue(lastMessage().contains("Join a room first"));
+    }
+
+    @Test
+    void submitWithPinButNoUuidRejected() {
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q\",\"response\":{}}");
+        assertTrue(lastMessage().contains("Join a room first"));
+    }
+
+    @Test
+    void submitPassesThroughExplicitLanguage() {
+        joinAsPlayer();
+        ws().onMessage(session,
+                "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"language\":\"java\",\"response\":{\"selectedIndex\":0}}");
+        verify(roomManager).submit(eq("123456"), eq("q1"), eq("uuid-9"), eq("java"), any());
+    }
+
+    // ---------- host guard (remaining branch) ----------
+
+    @Test
+    void hostRoleWithoutAuthForbiddenAtHostGuard() {
+        props.put("role", "host");
+        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+        assertTrue(lastMessage().contains("Forbidden"));
+        verify(roomManager, never()).nextQuestion(anyString());
+    }
+
+    // ---------- remaining message types ----------
+
+    @Test
+    void pingReturnsPong() {
+        ws().onMessage(session, "{\"type\":\"PING\"}");
+        assertTrue(lastMessage().contains("\"type\":\"PONG\""));
+    }
+
+    @Test
+    void resyncWithoutPinRejected() {
+        ws().onMessage(session, "{\"type\":\"RESYNC_LEADERBOARD\"}");
+        assertTrue(lastMessage().contains("Join a room first"));
+    }
+
+    @Test
+    void resyncForwardsFullLeaderboard() {
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"RESYNC_LEADERBOARD\"}");
+        verify(roomManager).sendFullLeaderboard("123456", "sess");
+    }
+
+    @Test
+    void extendTimerDefaultsTo30WhenSecondsMissing() {
+        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+        props.put("role", "host");
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"EXTEND_TIMER\"}");
+        verify(roomManager).extendTimer("123456", 30);
+    }
+
+    @Test
+    void kickDefaultsToEmptyUuidWhenMissing() {
+        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+        props.put("role", "host");
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"KICK_PLAYER\"}");
+        verify(roomManager).kickPlayer("123456", "");
+    }
+
+    // ---------- send() branches ----------
+
+    @Test
+    void sendSkipsClosedSession() throws Exception {
+        when(session.isOpen()).thenReturn(false);
+        ws().onMessage(session, "{\"type\":\"PING\"}");
+        verify(remote, never()).sendText(anyString());
+    }
+
+    @Test
+    void sendSwallowsIoException() throws Exception {
+        doThrow(new java.io.IOException("closed")).when(remote).sendText(anyString());
+        ws().onMessage(session, "{\"type\":\"PING\"}");
+    }
+
+    // ---------- lifecycle (remaining branch) ----------
+
+    @Test
+    void onCloseWithoutPinSkipsLeave() {
+        ws().onClose(session);
+        verify(sessions).unregister("sess");
+        verify(roomManager, never()).leave(anyString(), anyString());
+    }
+
+    @Test
+    void onErrorIsNoop() {
+        ws().onError(session, new RuntimeException("x"));
+    }
+
+    // ---------- additional branch coverage (onMessage) ----------
+
+    @Test
+    void submitWithSmallSourceForwardsToManager() {
+        joinAsPlayer();
+        ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"language\":\"python\","
+                + "\"response\":{\"source\":\"print(1)\"}}");
+        verify(roomManager).submit(eq("123456"), eq("q1"), eq("uuid-9"), eq("python"), any());
+    }
+
+    @Test
+    void onCloseWithPinButNoUuidSkipsLeave() {
+        props.put("pin", "123456");
+        ws().onClose(session);
+        verify(sessions).unregister("sess");
+        verify(roomManager, never()).leave(anyString(), anyString());
+    }
+
+    @Test
+    void joinWithPrevPinButNoPrevUuidSkipsLeave() {
+        props.put("pin", "oldpin");
+        when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+        Player p = new Player("uuid-new", "Al", 0, "sess", true);
+        when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
+        when(roomManager.getRoomState(anyString())).thenReturn(
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
+        verify(roomManager, never()).leave(anyString(), anyString());
+        verify(roomManager).join(eq("123456"), eq("Al"), eq("sess"), eq("player"), any());
+    }
+
+    @Test
+    void forceSubmitForwardedByHostSession() {
+        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+        props.put("role", "host");
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"FORCE_SUBMIT\"}");
+        verify(roomManager).forceSubmit("123456");
+    }
+
+    @Test
+    void submitWithQuestionIdButNoResponseRejected() {
+        joinAsPlayer();
+        // questionId is non-blank so the second operand of the || is actually evaluated
+        ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\"}");
+        assertTrue(lastMessage().contains("requires 'questionId'"));
     }
 }
