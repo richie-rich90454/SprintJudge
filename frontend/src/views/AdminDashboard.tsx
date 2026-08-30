@@ -8,6 +8,17 @@ import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { LogoMark } from "../components/LogoMark";
+import { motion, AnimatePresence } from "framer-motion";
+
+type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
+
+const TABS: { id: AdminTab; label: string }[] = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "quizzes", label: "Quizzes" },
+    { id: "questions", label: "Questions" },
+    { id: "games", label: "Games" },
+    { id: "settings", label: "Settings" },
+];
 
 export function AdminDashboard() {
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
@@ -15,11 +26,13 @@ export function AdminDashboard() {
     const wizardOpen = useAdminStore((s) => s.wizardOpen);
     const setView = useUIStore((s) => s.setView);
     const setPin = useUIStore((s) => s.setPin);
+    const [tab, setTab] = useState<AdminTab>("dashboard");
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
     const [busy, setBusy] = useState(false);
     const [needsAuth, setNeedsAuth] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
+    const [search, setSearch] = useState("");
 
     const gridRef = useStaggerIn<HTMLDivElement>(".oq-quiz-card", [quizzes.length], 0.06);
 
@@ -105,16 +118,20 @@ export function AdminDashboard() {
         await loadQuizzes();
     };
 
+    const filteredQuestions = questions.filter((q) => {
+        return !search || q.title.toLowerCase().includes(search.toLowerCase());
+    });
+
     return (
-        <div className="pattern-exam min-h-screen pb-12">
-            <header className="border-b border-default-200">
-                <div className="page-shell py-4 flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-3 mr-auto">
-                        <h1 className="text-xl font-extrabold tracking-tight">Admin</h1>
-                        <Chip size="sm" variant="soft">
-                            {quizzes.length} sets
-                        </Chip>
+        <div className="pattern-exam min-h-screen flex flex-col">
+            {/* Header */}
+            <header className="border-b border-default-200 bg-surface">
+                <div className="page-shell py-3 flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
+                        <LogoMark size={24} />
+                        <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
                     </div>
+                    <div className="flex-1" />
                     <ThemeToggle />
                     <Button size="sm" variant="outline" onPress={() => setView("join")}>
                         Player view
@@ -131,133 +148,315 @@ export function AdminDashboard() {
                             onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])}
                         />
                     </label>
-                    <Button
-                        size="sm"
-                        variant="primary"
-                        className="bg-[var(--oq-red)] text-white"
-                        onPress={() => setShowCreate(true)}
-                    >
-                        New set
-                    </Button>
                 </div>
             </header>
 
-            {showCreate && (
-                <div className="page-shell mt-6">
-                    <Card className="bg-content1">
-                        <CardContent className="p-5">
-                            <h3 className="header-double">Create question set</h3>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <input
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Title (e.g. Java Objects Foundations)"
-                                    className="input-underline flex-1"
-                                />
-                                <input
-                                    value={desc}
-                                    onChange={(e) => setDesc(e.target.value)}
-                                    placeholder="Description (optional)"
-                                    className="input-underline flex-1"
-                                />
+            {/* Tab bar */}
+            <nav className="border-b border-default-200 bg-surface">
+                <div className="page-shell flex gap-1 overflow-x-auto">
+                    {TABS.map((t) => (
+                        <button
+                            key={t.id}
+                            onClick={() => setTab(t.id)}
+                            className={
+                                "px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap " +
+                                (tab === t.id
+                                    ? "border-[var(--oq-red)] text-[var(--oq-red)]"
+                                    : "border-transparent text-default-500 hover:text-default-700")
+                            }
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+            </nav>
+
+            {/* Tab content */}
+            <main className="flex-1 page-shell py-6">
+                <AnimatePresence mode="wait">
+                    {tab === "dashboard" && (
+                        <motion.div
+                            key="dashboard"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <div className="grid sm:grid-cols-3 gap-4 mb-8">
+                                <Card className="bg-content1">
+                                    <CardContent className="p-5">
+                                        <p className="label-caps mb-1">Quiz sets</p>
+                                        <p className="stat-value">{quizzes.length}</p>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-content1">
+                                    <CardContent className="p-5">
+                                        <p className="label-caps mb-1">Questions loaded</p>
+                                        <p className="stat-value">{questions.length}</p>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-content1">
+                                    <CardContent className="p-5">
+                                        <p className="label-caps mb-1">Question types</p>
+                                        <p className="stat-value">12</p>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                            <h3 className="header-double mb-4">Quick actions</h3>
+                            <div className="flex flex-wrap gap-3">
                                 <Button
                                     variant="primary"
                                     className="bg-[var(--oq-red)] text-white"
-                                    onPress={async () => {
-                                        if (title.trim()) {
-                                            await createQuiz(title.trim(), desc.trim());
-                                            setTitle("");
-                                            setDesc("");
-                                            setShowCreate(false);
-                                        }
+                                    onPress={() => {
+                                        setTab("quizzes");
+                                        setShowCreate(true);
                                     }}
                                 >
-                                    Create
+                                    Create quiz
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onPress={() => {
+                                        if (quizzes.length > 0) host(quizzes[0].id);
+                                    }}
+                                    isDisabled={quizzes.length === 0 || busy}
+                                >
+                                    Host first quiz
+                                </Button>
+                                <Button variant="outline" onPress={() => setTab("questions")}>
+                                    Browse questions
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-
-            <main className="page-shell mt-6">
-                <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {quizzes.map((q) => (
-                        <Card key={q.id} className="oq-quiz-card bg-content1">
-                            <CardContent className="p-5 flex flex-col gap-3">
-                                <div className="flex items-start justify-between gap-2">
-                                    <h3 className="font-bold text-base leading-snug">{q.title}</h3>
-                                </div>
-                                {q.description && (
-                                    <p className="text-default-500 text-sm line-clamp-2 flex-1">
-                                        {q.description}
-                                    </p>
-                                )}
-                                <div className="flex flex-wrap gap-2 pt-2 border-t border-default-200">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onPress={() => loadQuestions(q.id)}
-                                    >
-                                        Questions
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="primary"
-                                        className="bg-[var(--oq-red)] text-white"
-                                        isDisabled={busy}
-                                        onPress={() => host(q.id)}
-                                    >
-                                        Host
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onPress={() => openWizard(q.id)}
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
-                                {activeQuizId === q.id && (
-                                    <ul className="mt-2 flex flex-col gap-1 max-h-40 overflow-y-auto text-sm">
-                                        {questions.map((qn, i) => (
-                                            <li
-                                                key={qn.id}
-                                                className="flex justify-between items-center py-1 px-2 rounded hover:bg-default-100"
-                                            >
-                                                <span className="truncate">
-                                                    {i + 1}. {qn.title}
-                                                </span>
-                                                <Chip
-                                                    size="sm"
-                                                    variant="soft"
-                                                    className="!text-[10px] !py-0.5 !px-2"
-                                                >
-                                                    {qn.questionType}
-                                                </Chip>
-                                            </li>
-                                        ))}
-                                        {questions.length === 0 && (
-                                            <li className="text-default-500 text-sm">
-                                                No questions yet.
-                                            </li>
-                                        )}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ))}
-                    {quizzes.length === 0 && (
-                        <Card className="oq-quiz-card col-span-full bg-content1">
-                            <CardContent className="text-center py-16">
-                                <p className="label-caps mb-2">Empty library</p>
-                                <p className="text-default-500">
-                                    Create your first question set above, or import a bank JSON.
-                                </p>
-                            </CardContent>
-                        </Card>
+                        </motion.div>
                     )}
-                </div>
+
+                    {tab === "quizzes" && (
+                        <motion.div
+                            key="quizzes"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-extrabold">Quiz sets</h2>
+                                <Button
+                                    size="sm"
+                                    variant="primary"
+                                    className="bg-[var(--oq-red)] text-white"
+                                    onPress={() => setShowCreate(true)}
+                                >
+                                    New set
+                                </Button>
+                            </div>
+
+                            {showCreate && (
+                                <Card className="bg-content1 mb-4">
+                                    <CardContent className="p-5">
+                                        <h3 className="header-double">Create question set</h3>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <input
+                                                value={title}
+                                                onChange={(e) => setTitle(e.target.value)}
+                                                placeholder="Title"
+                                                className="input-underline flex-1"
+                                            />
+                                            <input
+                                                value={desc}
+                                                onChange={(e) => setDesc(e.target.value)}
+                                                placeholder="Description"
+                                                className="input-underline flex-1"
+                                            />
+                                            <Button
+                                                variant="primary"
+                                                className="bg-[var(--oq-red)] text-white"
+                                                onPress={async () => {
+                                                    if (title.trim()) {
+                                                        await createQuiz(title.trim(), desc.trim());
+                                                        setTitle("");
+                                                        setDesc("");
+                                                        setShowCreate(false);
+                                                    }
+                                                }}
+                                            >
+                                                Create
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {quizzes.map((q) => (
+                                    <Card key={q.id} className="oq-quiz-card bg-content1">
+                                        <CardContent className="p-5 flex flex-col gap-3">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <h3 className="font-bold text-base leading-snug">
+                                                    {q.title}
+                                                </h3>
+                                            </div>
+                                            {q.description && (
+                                                <p className="text-default-500 text-sm line-clamp-2 flex-1">
+                                                    {q.description}
+                                                </p>
+                                            )}
+                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-default-200">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onPress={() => {
+                                                        loadQuestions(q.id);
+                                                        setTab("questions");
+                                                    }}
+                                                >
+                                                    Questions
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="primary"
+                                                    className="bg-[var(--oq-red)] text-white"
+                                                    isDisabled={busy}
+                                                    onPress={() => host(q.id)}
+                                                >
+                                                    Host
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onPress={() => openWizard(q.id)}
+                                                >
+                                                    Add
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                                {quizzes.length === 0 && (
+                                    <Card className="oq-quiz-card col-span-full bg-content1">
+                                        <CardContent className="text-center py-16">
+                                            <p className="label-caps mb-2">Empty library</p>
+                                            <p className="text-default-500">
+                                                Create your first set or import a bank JSON.
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {tab === "questions" && (
+                        <motion.div
+                            key="questions"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <div className="flex items-center gap-3 mb-4 flex-wrap">
+                                <h2 className="text-lg font-extrabold mr-auto">Questions</h2>
+                                <select
+                                    value={activeQuizId ?? ""}
+                                    onChange={(e) => {
+                                        if (e.target.value) loadQuestions(e.target.value);
+                                    }}
+                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                >
+                                    <option value="">Select a quiz set…</option>
+                                    {quizzes.map((q) => (
+                                        <option key={q.id} value={q.id}>
+                                            {q.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search…"
+                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                />
+                                <Button
+                                    size="sm"
+                                    variant="primary"
+                                    className="bg-[var(--oq-red)] text-white"
+                                    isDisabled={!activeQuizId}
+                                    onPress={() => activeQuizId && openWizard(activeQuizId)}
+                                >
+                                    Add question
+                                </Button>
+                            </div>
+
+                            {filteredQuestions.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="table-dotted w-full">
+                                        <thead>
+                                            <tr>
+                                                <th className="w-12">#</th>
+                                                <th>Title</th>
+                                                <th>Type</th>
+                                                <th className="w-20">Time</th>
+                                                <th className="w-20">Points</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredQuestions.map((q, i) => (
+                                                <tr key={q.id}>
+                                                    <td className="mono text-sm">{i + 1}</td>
+                                                    <td className="font-medium">{q.title}</td>
+                                                    <td>
+                                                        <Chip size="sm" variant="soft">
+                                                            {q.questionType.replace(/_/g, " ")}
+                                                        </Chip>
+                                                    </td>
+                                                    <td className="mono text-sm">{q.timeLimitSec}s</td>
+                                                    <td className="mono text-sm">{q.pointsBase}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="text-center py-16 text-default-500">
+                                    {activeQuizId
+                                        ? "No questions match your search."
+                                        : "Select a quiz set to view questions."}
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {tab === "games" && (
+                        <motion.div
+                            key="games"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <h2 className="text-lg font-extrabold mb-4">Game history</h2>
+                            <div className="text-center py-16 text-default-500">
+                                <p className="label-caps mb-2">Coming soon</p>
+                                <p>Game history with list + calendar views will appear here.</p>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {tab === "settings" && (
+                        <motion.div
+                            key="settings"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <h2 className="text-lg font-extrabold mb-4">Settings</h2>
+                            <div className="text-center py-16 text-default-500">
+                                <p className="label-caps mb-2">Coming soon</p>
+                                <p>General, Security, AI, Executor, and Display settings.</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </main>
 
             {wizardOpen && <QuestionWizard />}
