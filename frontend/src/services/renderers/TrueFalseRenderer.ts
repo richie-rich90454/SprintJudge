@@ -1,29 +1,46 @@
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { el } from "./dom";
+import { motion } from "../MotionService";
 
 export class TrueFalseRenderer extends BaseQuestionRenderer {
-  private value: boolean | null = null;
+    private value: boolean | null = null;
+    private buttons: HTMLButtonElement[] = [];
 
-  mount(): void {
-    const wrap = el("div", { class: "flex gap-3" });
-    const mk = (label: string, v: boolean) => {
-      const btn = el("button", {
-        class: "min-h-tap flex-1 px-4 py-3 rounded-lg border border-border bg-surface hover:border-primary",
-        type: "button",
-      }, [label]);
-      btn.addEventListener("click", () => {
-        this.value = v;
-        wrap.querySelectorAll("button").forEach((b) => b.classList.remove("border-primary", "bg-surface-alt"));
-        btn.classList.add("border-primary", "bg-surface-alt");
-        this.emit({ value: v });
-      });
-      return btn;
-    };
-    wrap.append(mk("True", true), mk("False", false));
-    this.container.append(wrap);
-  }
+    mount(): void {
+        const wrap = el("div", { class: "kahoot-options cols-2 flex gap-3" });
+        const mk = (label: string, v: boolean, letter: string) => {
+            const btn = el("button", { class: "min-h-tap", type: "button" }) as HTMLButtonElement;
+            btn.append(el("span", { class: "opt-letter" }, [letter]), label);
+            btn.addEventListener("click", () => {
+                this.value = v;
+                this.buttons.forEach((b) => b.removeAttribute("data-selected"));
+                btn.setAttribute("data-selected", "true");
+                motion.pulse(btn);
+                this.emit({ value: v });
+            });
+            this.buttons.push(btn);
+            return btn;
+        };
+        wrap.append(mk("True", true, "T"), mk("False", false, "F"));
+        this.container.append(wrap);
+    }
 
-  getResponse(): unknown {
-    return { value: this.value };
-  }
+    getResponse(): unknown {
+        return { value: this.value };
+    }
+
+    reveal(): void {
+        const correct = this.config["correct"];
+        if (typeof correct !== "boolean") return;
+        this.buttons.forEach((b, i) => {
+            b.setAttribute("disabled", "true");
+            const isCorrect = i === 0 ? correct : !correct;
+            if (isCorrect) {
+                b.classList.add("is-correct");
+                motion.pulse(b);
+            } else if (this.value !== null && (i === 0) === this.value) {
+                motion.shake(b);
+            }
+        });
+    }
 }
