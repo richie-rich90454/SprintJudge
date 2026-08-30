@@ -49,13 +49,12 @@ public class BroadcastScheduler {
 
     private void drain() {
         if (due.isEmpty()) return;
-        for (Map.Entry<Integer, Runnable> e : due.entrySet()) {
-            if (due.remove(e.getKey()) != null) {
-                try {
-                    e.getValue().run();
-                } catch (RuntimeException ignored) {
-                    // A dead room must never kill the broadcast thread.
-                }
+        for (Integer key : due.keySet()) {
+            // ConcurrentHashMap never stores a null value, so remove() is non-null here.
+            try {
+                due.remove(key).run();
+            } catch (RuntimeException ignored) {
+                // A dead room must never kill the broadcast thread.
             }
         }
     }
