@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Live, in-memory state for a single game room.
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GameRoom {
 
-    public enum GameMode { STANDARD, AUTO_PILOT }
+    public enum GameMode { STANDARD, AUTO_PILOT, PRACTICE, EXAM, TEAM, BATTLE }
 
     private final String sessionId;
     private final String quizId;
@@ -44,6 +45,28 @@ public class GameRoom {
     private final ConcurrentHashMap<String, Integer> streaks = new ConcurrentHashMap<>();
     // Per-round contribution for the reveal screen: [roundScore, bonus].
     private final ConcurrentHashMap<String, int[]> lastRound = new ConcurrentHashMap<>();
+
+    // Exam mode: total end time across all questions.
+    private volatile long totalEndEpochMs;
+
+    // Team mode: team management.
+    public record Team(String id, String name, java.util.Set<String> memberUuids, long score) {
+        public Team withScore(long s) { return new Team(id, name, memberUuids, s); }
+        public Team addMember(String uuid) {
+            var m = new java.util.HashSet<>(memberUuids);
+            m.add(uuid);
+            return new Team(id, name, m, score);
+        }
+    }
+    private final ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<>();
+    private volatile int teamSeq = 0;
+
+    // Battle mode: matchmaking and bracket.
+    public record BattleMatch(String id, String p1Uuid, String p2Uuid, String questionId,
+                               String p1Answer, String p2Answer, boolean p1Correct, boolean p2Correct,
+                               String winnerUuid) {}
+    private final java.util.concurrent.CopyOnWriteArrayList<BattleMatch> battleMatches = new CopyOnWriteArrayList<>();
+    private final java.util.concurrent.CopyOnWriteArrayList<String[]> bracket = new CopyOnWriteArrayList<>();
 
     private volatile long lastActivityMs = System.currentTimeMillis();
 
@@ -209,4 +232,51 @@ public class GameRoom {
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
     public void setCurrentQuestionEndEpochMs(long ms) { this.currentQuestionEndEpochMs = ms; }
     public GameMode gameMode() { return gameMode; }
+    public long totalEndEpochMs() { return totalEndEpochMs; }
+    public void setTotalEndEpochMs(long ms) { this.totalEndEpochMs = ms; }
+
+    // ---------- team mode ----------
+
+    public Team createTeam(String name) {
+        String id = "team-" + (++teamSeq);
+        Team t = new Team(id, name, java.util.Set.of(), 0);
+        teams.put(id, t);
+        return t;
+    }
+
+    public Team joinTeam(String teamId, String playerUuid) {
+        Team t = teams.get(teamId);
+        if (t == null) return null;
+        Team updated = t.addMember(playerUuid);
+        teams.put(teamId, updated);
+        return updated;
+    }
+
+    public Team getTeam(String teamId) { return teams.get(teamId); }
+    public java.util.Collection<Team> allTeams() { return teams.values(); }
+
+    public String teamIdOf(String playerUuid) {
+        for (Team t : teams.values()) {
+            if (t.memberUuids().contains(playerUuid)) return t.id();
+        }
+        return null;
+    }
+
+    public long applyTeamScore(String teamId, long delta) {
+        Team t = teams.get(teamId);
+        if (t == null) return 0;
+        Team updated = t.withScore(t.score() + delta);
+        teams.put(teamId, updated);
+        return updated.score();
+    }
+
+    // ---------- battle mode ----------
+
+    public void addBattleMatch(BattleMatch m) { battleMatches.add(m); }
+    public java.util.List<BattleMatch> battleMatches() { return battleMatches; }
+    public void setBracket(java.util.List<String[]> rounds) {
+        bracket.clear();
+        bracket.addAll(rounds);
+    }
+    public java.util.List<String[]> bracket() { return bracket; }
 }
