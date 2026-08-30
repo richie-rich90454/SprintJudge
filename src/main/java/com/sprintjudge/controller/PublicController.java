@@ -8,9 +8,10 @@ import com.sprintjudge.service.executor.RunResult;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Deliberately minimal public surface. Question payloads (which embed answer
@@ -26,9 +27,10 @@ public class PublicController {
     private final CodeExecutor executor;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
-    private final ConcurrentHashMap<String, long[]> runWindow = new ConcurrentHashMap<>();
+    private final Map<String, long[]> runWindow = new HashMap<>();
     private static final int RUN_LIMIT_PER_MIN = 30;
     private static final long WINDOW_MS = 60_000;
+    private static final long STALE_MS = 120_000;
 
     public PublicController(QuizRepository quizRepository, CodeExecutor executor) {
         this.quizRepository = quizRepository;
@@ -48,8 +50,13 @@ public class PublicController {
     public RunResult run(@RequestBody RunRequest request, HttpServletRequest http) {
         String ip = http.getRemoteAddr();
         long now = System.currentTimeMillis();
-        long[] window = runWindow.computeIfAbsent(ip, k -> new long[]{0, 0});
-        synchronized (window) {
+        synchronized (runWindow) {
+            Iterator<Map.Entry<String, long[]>> it = runWindow.entrySet().iterator();
+            while (it.hasNext()) {
+                long[] w = it.next().getValue();
+                if (now - w[0] > STALE_MS) it.remove();
+            }
+            long[] window = runWindow.computeIfAbsent(ip, k -> new long[]{0, 0});
             if (now - window[0] > WINDOW_MS) {
                 window[0] = now;
                 window[1] = 0;

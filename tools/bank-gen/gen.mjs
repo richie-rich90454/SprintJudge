@@ -218,6 +218,43 @@ const javaMcq = [
   { topic: "arrays2d", q: (r) => ({ stem: `grid[r][c] accesses…`, opts: ["column r row c", "row r column c", "char at r,c of string", "invalid"], ans: 1 }) },
   { topic: "primitives", q: (r) => ({ stem: `(int) 7.9 evaluates to…`, opts: ["8", "7", "7.0", "error"], ans: 1 }) },
   { topic: "primitives", q: (r) => ({ stem: `Widening conversion happens…`, opts: ["explicitly with casts only", "automatically smaller→larger", "larger→smaller automatically", "never"], ans: 1 }) },
+  // --- new: collections ---
+  { topic: "lists", q: (r) => ({ stem: `HashMap lookups are on average…`, opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 2 }) },
+  { topic: "lists", q: (r) => ({ stem: `Which collection maintains insertion order by default?`, opts: ["HashSet", "TreeSet", "LinkedHashSet", "PriorityQueue"], ans: 2 }) },
+  { topic: "lists", q: (r) => ({ stem: `ConcurrentModificationException is thrown when…`, opts: ["a thread reads a HashMap", "a collection is modified during iteration", "a null key is inserted", "the collection is empty"], ans: 1 }) },
+  { topic: "lists", q: (r) => ({ stem: `LinkedList is best suited for…`, opts: ["random access by index", "frequent insert/delete at ends", "storing sorted unique keys", "read-heavy workloads"], ans: 1 }) },
+  // --- new: generics ---
+  { topic: "lists", q: (r) => ({ stem: `Generics provide…`, opts: ["runtime type checking", "compile-time type safety", "faster execution", "smaller bytecode"], ans: 1 }) },
+  { topic: "lists", q: (r) => ({ stem: `What does <? extends Number> mean?`, opts: ["Number or any subclass", "Only Number", "Any type", "Number or any superclass"], ans: 0 }) },
+  { topic: "lists", q: (r) => ({ stem: `Type erasure removes generic type info at…`, opts: ["compile time", "runtime", "link time", "class loading"], ans: 1 }) },
+  { topic: "lists", q: (r) => ({ stem: `List<? super Integer> accepts…`, opts: ["List<Integer> only", "List<Number> and List<Object>", "List<String>", "List<int>"], ans: 1 }) },
+  // --- new: exceptions ---
+  { topic: "primitives", q: (r) => ({ stem: `Checked exceptions must be…`, opts: ["caught or declared with throws", "always caught", "ignored", "thrown manually"], ans: 0 }) },
+  { topic: "primitives", q: (r) => ({ stem: `finally block executes…`, opts: ["only if an exception occurs", "only if no exception occurs", "always, regardless of exceptions", "only with try-with-resources"], ans: 2 }) },
+  { topic: "primitives", q: (r) => ({ stem: `ArithmeticException is…`, opts: ["checked", "unchecked", "a compile error", "a warning"], ans: 1 }) },
+  { topic: "primitives", q: (r) => ({ stem: `Multi-catch (catch A | B) was introduced in…`, opts: ["Java 6", "Java 7", "Java 8", "Java 11"], ans: 1 }) },
+  // --- new: streams ---
+  { topic: "arrays", q: (r) => ({ stem: `stream().filter() returns…`, opts: ["the same stream type", "a List", "an Optional", "a new Stream"], ans: 3 }) },
+  { topic: "arrays", q: (r) => ({ stem: `stream().reduce(0, Integer::sum) returns…`, opts: ["Optional<Integer>", "int", "Integer", "Stream<Integer>"], ans: 2 }) },
+  { topic: "arrays", q: (r) => ({ stem: `stream().map(x -> x * 2) transforms…`, opts: ["each element", "the stream size", "the stream type", "only odd elements"], ans: 0 }) },
+  { topic: "arrays", q: (r) => ({ stem: `stream().collect(Collectors.toList()) returns…`, opts: ["a List<Object>", "a List with the stream's elements", "an array", "a Set"], ans: 1 }) },
+  // --- new: lambdas ---
+  { topic: "objects", q: (r) => ({ stem: `A lambda expression implements…`, opts: ["an abstract class", "a functional interface", "any interface", "a concrete class"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: `Which is a valid lambda?`, opts: ["(x) -> { return x; }", "x => x", "(x) x", "lambda x: x"], ans: 0 }) },
+  { topic: "objects", q: (r) => ({ stem: `Method reference Class::new is shorthand for…`, opts: ["calling a static method", "creating an instance via constructor", "accessing a field", "overriding toString"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: `Predicate<String> is a functional interface that…`, opts: ["takes no args, returns String", "takes String, returns boolean", "takes boolean, returns String", "takes two Strings"], ans: 1 }) },
+  // --- new: interfaces ---
+  { topic: "objects", q: (r) => ({ stem: `An interface method without a body is implicitly…`, opts: ["private", "protected", "public abstract", "static"], ans: 2 }) },
+  { topic: "objects", q: (r) => ({ stem: `Which keyword allows a class to implement multiple interfaces?`, opts: ["extends", "implements", "with", "mixin"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: `A default method in an interface provides…`, opts: ["abstract implementation", "a fallback implementation", "private access", "constructor logic"], ans: 1 }) },
+  // --- new: enums ---
+  { topic: "objects", q: (r) => ({ stem: `Enum values are implicitly…`, opts: ["public static final", "private static final", "protected volatile", "package-private"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: `An enum can have…`, opts: ["only constants", "constants and methods", "no constructors", "instance variables only via static"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: ` ordinal() returns…`, opts: ["the enum name as String", "the zero-based position", "the hash code", "the count of values"], ans: 1 }) },
+  // --- new: inner classes ---
+  { topic: "objects", q: (r) => ({ stem: `A non-static inner class has access to…`, opts: ["only static members of outer class", "only instance members of outer class", "both static and instance members", "no outer class members"], ans: 2 }) },
+  { topic: "objects", q: (r) => ({ stem: `Anonymous inner classes are useful for…`, opts: ["reusable components", "one-off implementations of an interface", "performance optimization", "avoiding imports"], ans: 1 }) },
+  { topic: "objects", q: (r) => ({ stem: `A local class defined inside a method can access…`, opts: ["any local variable", "only final or effectively final local variables", "no local variables", "only static variables"], ans: 1 }) },
 ];
 
 // =====================================================================
@@ -286,6 +323,44 @@ const pyMcq = [
   { topic:"search-sort", q:(r)=>({stem:`sorted() vs .sort(): which mutates?`,opts:["sorted()",".sort()","both","neither"],ans:1})},
   { topic:"arrays2d", q:(r)=>({stem:`m[row][col] — outer index selects…`,opts:["column","row","cell value","diagonal"],ans:1})},
   { topic:"lists", q:(r)=>({stem:`Deep-copy need arises because assignment…`,opts:["copies fully","shares the reference","converts type","raises"],ans:1})},
+  // --- new: decorators ---
+  { topic:"objects", q:(r)=>({stem:`A decorator wraps a function to…`,opts:["change its name","modify or extend its behavior","delete it","make it private"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`@property creates a…`,opts:["class variable","read-only attribute","managed attribute with getter/setter","static method"],ans:2})},
+  { topic:"objects", q:(r)=>({stem:`@staticmethod differs from @classmethod in that it…`,opts:["receives cls as first arg","receives no implicit first arg","can only be called on instances","is always private"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`@functools.lru_cache caches…`,opts:["all calls forever","recent calls based on arguments","only the last call","random results"],ans:1})},
+  // --- new: generators ---
+  { topic:"lists", q:(r)=>({stem:`A generator function uses…`,opts:["return with a list","yield keyword","async keyword","raise"],ans:1})},
+  { topic:"lists", q:(r)=>({stem:`Generators are…`,opts:["eagerly evaluated","lazily evaluated","always faster than lists","immutable"],ans:1})},
+  { topic:"lists", q:(r)=>({stem:`(x**2 for x in range(5)) creates…`,opts:["a list","a tuple","a generator expression","a set"],ans:2})},
+  { topic:"lists", q:(r)=>({stem:`next(gen) on an exhausted generator raises…`,opts:["StopIteration","ValueError","IndexError","RuntimeError"],ans:0})},
+  // --- new: context managers ---
+  { topic:"objects", q:(r)=>({stem:`with open('f') as f uses a…`,opts:["decorator","context manager","lambda","metaclass"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`__enter__ returns…`,opts:["the file handle","True","None","the class"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`__exit__ is called…`,opts:["on enter","on leave regardless of exceptions","only on success","never"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`contextlib.contextmanager lets you write…`,opts:["classes only","generator-based context managers","only async code","only file handlers"],ans:1})},
+  // --- new: comprehensions ---
+  { topic:"lists", q:(r)=>({stem:`[x*2 for x in range(5) if x%2==0] produces…`,opts:["[0,4,8]","[0,2,4,6,8]","[2,4,6,8,10]","[1,3,5]"],ans:0})},
+  { topic:"lists", q:(r)=>({stem:`{k: v for k, v in items} creates a…`,opts:["list","set","tuple","dictionary"],ans:3})},
+  { topic:"lists", q:(r)=>({stem:`Nested comprehension [[i*j for j in range(3)] for i in range(2)] produces…`,opts:["[[0,0,0],[0,1,2]]","[[0,1,2],[0,2,4]]","[0,1,2,0,2,4]","error"],ans:1})},
+  { topic:"lists", q:(r)=>({stem:`A set comprehension uses…`,opts:["()","[]","{}","<>"],ans:2})},
+  // --- new: async/await ---
+  { topic:"objects", q:(r)=>({stem:`async def defines…`,opts:["a synchronous function","a coroutine function","a class","a module"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`await can only be used inside…`,opts:["any function","a regular function","an async function","a lambda"],ans:2})},
+  { topic:"objects", q:(r)=>({stem:`asyncio.run() does…`,opts:["runs a coroutine synchronously","starts the event loop and runs a coroutine","blocks forever","returns a generator"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`asyncio.gather() runs tasks…`,opts:["sequentially","concurrently","only one at a time","in reverse order"],ans:1})},
+  // --- new: modules ---
+  { topic:"primitives", q:(r)=>({stem:`from math import sqrt allows…`,opts:["import math","sqrt() directly","math.sqrt() only","no usage"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`importlib.reload(mod) does…`,opts:["deletes the module","re-imports a modified module","freezes it","renames it"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`__name__ == "__main__" is used to…`,opts:["import the module","run code only when executed directly","define a class","enable async"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`pip installs packages from…`,opts:["the current directory only","PyPI","the system PATH","GitHub"],ans:1})},
+  // --- new: exceptions ---
+  { topic:"primitives", q:(r)=>({stem:`try/except/else/finally — else runs when…`,opts:["an exception occurs","no exception occurs","always","only with return"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`raise ValueError("msg") creates an exception with…`,opts:["no message","msg as the traceback","msg as the string value","msg as the type"],ans:2})},
+  { topic:"primitives", q:(r)=>({stem:`except Exception as e binds…`,opts:["the exception type","the exception instance","the traceback","the line number"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`ExceptionGroup (3.11+) handles…`,opts:["a single error","multiple simultaneous exceptions","only TypeError","only syntax errors"],ans:1})},
+  // --- extra: dicts ---
+  { topic:"arrays", q:(r)=>({stem:`dict.get('k', default) returns default when…`,opts:["key exists","key is missing","dict is empty","always"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`dict.setdefault('k', v) inserts v only if…`,opts:["key already exists","key is missing","dict is new","v is None"],ans:1})},
 ];
 
 // =====================================================================
@@ -345,6 +420,39 @@ const cppMcq = [
   { topic:"inheritance", q:(r)=>({stem:`Virtual destructor matters when deleting via…`,opts:["stack objects","base pointer","const ref","template"],ans:1})},
   { topic:"polymorphism", q:(r)=>({stem:`override keyword…`,opts:["creates virtual","checks signature correctness","disables overload","is Java-only"],ans:1})},
   { topic:"recursion", q:(r)=>({stem:`Deep recursion risks…`,opts:["stack overflow","heap leak","UB always","nothing"],ans:0})},
+  // --- new: templates ---
+  { topic:"primitives", q:(r)=>({stem:`template<typename T> T max(T a, T b) is…`,opts:["a macro","a function template","a class","a variable"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`Template specialization allows…`,opts:["different behavior for specific types","faster compilation","no type checking","runtime polymorphism"],ans:0})},
+  { topic:"primitives", q:(r)=>({stem:`constexpr functions are evaluated…`,opts:["only at runtime","at compile time when possible","never","only in debug builds"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`auto keyword deduces type at…`,opts:["runtime","compile time","link time","never"],ans:1})},
+  // --- new: smart pointers ---
+  { topic:"objects", q:(r)=>({stem:`std::unique_ptr provides…`,opts:["shared ownership","exclusive ownership","raw pointer arithmetic","garbage collection"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`std::shared_ptr uses…`,opts:["reference counting","garbage collection","manual delete","compile-time tracking"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`std::weak_ptr breaks…`,opts:["memory","circular references","stack frames","templates"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`make_unique<T>() is preferred over new because…`,opts:["it's faster","it's exception-safe","it uses less memory","it's constexpr"],ans:1})},
+  // --- new: STL ---
+  { topic:"arrays", q:(r)=>({stem:`std::map stores keys in…`,opts:["insertion order","sorted order","reverse order","random order"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`std::unordered_map average lookup is…`,opts:["O(n)","O(log n)","O(1)","O(n log n)"],ans:2})},
+  { topic:"arrays", q:(r)=>({stem:`std::deque differs from std::vector in…`,opts:["no random access","efficient front insertion","no iterators","fixed size"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`std::set automatically…`,opts:["sorts and deduplicates","preserves insertion order","allows duplicates","is always empty"],ans:0})},
+  // --- new: move semantics ---
+  { topic:"objects", q:(r)=>({stem:`std::move(x) does…`,opts:["copies x","casts x to rvalue reference","deletes x","prints x"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Move constructor should…`,opts:["deep copy resources","steal resources from the source","do nothing","throw an exception"], ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Rvalue references are declared with…`,opts:["T&","T&&","const T&","T*"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Perfect forwarding uses…`,opts:["T& only","T&& only","std::forward<T>()","std::move()"],ans:2})},
+  // --- new: RAII ---
+  { topic:"objects", q:(r)=>({stem:`RAII prevents resource leaks by…`,opts:["calling delete manually","tying resources to object lifetimes","using garbage collection","compiling faster"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`std::lock_guard uses RAII to…`,opts:["copy a mutex","automatically unlock a mutex","lock forever","create threads"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`ifstream destructor…`,opts:["leaves file open","closes the file","throws an error","does nothing"],ans:1})},
+  // --- new: virtual functions ---
+  { topic:"polymorphism", q:(r)=>({stem:`A pure virtual function is declared with…`,opts:["virtual only","= 0 suffix","override keyword","final keyword"],ans:1})},
+  { topic:"polymorphism", q:(r)=>({stem:`A class with a pure virtual function is a…`,opts:["base class","abstract class","derived class","concrete class"],ans:1})},
+  { topic:"polymorphism", q:(r)=>({stem:`final on a method prevents…`,opts:["override in derived classes","calling it","deleting it","copying it"],ans:0})},
+  // --- new: lambdas ---
+  { topic:"primitives", q:(r)=>({stem:`[](){}() is a…`,opts:["function declaration","lambda expression","macro","template"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`[=] captures variables by…`,opts:["reference","value","move","no capture"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`[&] captures variables by…`,opts:["value","reference","move","no capture"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`mutable on a lambda allows…`,opts:["modifying captured values by value","changing the lambda type","throwing exceptions","constexpr evaluation"],ans:0})},
 ];
 
 // =====================================================================
@@ -402,6 +510,39 @@ const cMcq = [
   { topic:"search-sort", q:(r)=>({stem:`Best case for bubble sort (optimized with early exit)?`,opts:["O(n²)","O(n)","O(1)","O(log n)"],ans:1})},
   { topic:"primitives", q:(r)=>({stem:`sizeof(char) is…`,opts:["implementation-defined ≥1","always 1 byte","2 bytes","4 bytes"],ans:1})},
   { topic:"arrays", q:(r)=>({stem:`a[i] is equivalent to…`,opts:["*(a+i)","&a[i]","a+i","(*a)+i"],ans:0})},
+  // --- new: pointers ---
+  { topic:"primitives", q:(r)=>({stem:`int *p; p stores…`,opts:["an integer","a memory address","a function","a string"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`*p dereferences…`,opts:["the pointer's address","the value pointed to","the pointer itself","nothing"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`NULL pointer points to…`,opts:["address 0 (invalid)","the stack","the heap","the first variable"],ans:0})},
+  { topic:"primitives", q:(r)=>({stem:`Pointer arithmetic p+1 advances by…`,opts:["1 byte","sizeof(*p) bytes","sizeof(p) bytes","4 bytes"],ans:1})},
+  // --- new: memory allocation ---
+  { topic:"primitives", q:(r)=>({stem:`malloc returns…`,opts:["initialized memory","void* to uninitialized memory","NULL always","a typed pointer"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`free(ptr) does…`,opts:["sets ptr to NULL","deallocates memory pointed to by ptr","zeros the memory","nothing"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`Memory leak occurs when…`,opts:["malloc fails","allocated memory is never freed","stack overflows","a pointer is NULL"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`calloc(n, sz) differs from malloc in…`,opts:["it's faster","it initializes memory to zero","it allocates on stack","it returns a typed pointer"],ans:1})},
+  // --- new: structs ---
+  { topic:"objects", q:(r)=>({stem:`struct Point { int x; int y; }; sizeof(Point) is…`,opts:["4","8","12","depends on compiler"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Accessing struct member: p.x means…`,opts:["dereference p","access x through pointer p","access field x of struct p","both a and c"],ans:3})},
+  { topic:"objects", q:(r)=>({stem:`-> operator is shorthand for…`,opts:["(*p).member","p.member","&p.member","(*p).member only"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`typedef struct { ... } Name; allows…`,opts:["heap allocation","using Name without struct keyword","making the struct private","inheriting"],ans:1})},
+  // --- new: function pointers ---
+  { topic:"objects", q:(r)=>({stem:`int (*fp)(int) declares…`,opts:["a function returning int*","a pointer to a function taking int, returning int","an array of functions","a function pointer variable"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`qsort requires a comparator function returning…`,opts:["bool","int","void*","size_t"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Callback functions enable…`,opts:["faster code","flexible behavior via function pointers","type safety","stack allocation"],ans:1})},
+  // --- new: preprocessor ---
+  { topic:"primitives", q:(r)=>({stem:`#define SQUARE(x) ((x)*(x)) — extra parens prevent…`,opts:["compilation errors","macro argument grouping bugs","type errors","memory leaks"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`#include <stdio.h> vs "stdio.h" — quotes search…`,opts:["system directories first","current directory first","nowhere","only system dirs"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`#ifdef DEBUG guards…`,opts:["runtime checks","compile-time conditional code","type definitions","linker symbols"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`#pragma once does…`,opts:["includes header once","prevents multiple inclusion of a header file","enables optimizations","defines a macro"],ans:1})},
+  // --- new: bit operations ---
+  { topic:"primitives", q:(r)=>({stem:`x & (x - 1) clears the…`,opts:["highest set bit","lowest set bit","all bits","sign bit"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`x ^ x evaluates to…`,opts:["x","0","1","undefined"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`Left shift x << 1 is equivalent to…`,opts:["x / 2","x * 2","x + 2","x - 2"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`Bitwise OR (|) sets a bit when…`,opts:["both bits are 0","at least one bit is 1","both bits are 1","exactly one bit is 1"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`Unsigned right shift (>>>) in Java fills with…`,opts:["the sign bit","zeros","ones","undefined"],ans:1})},
+  // --- extra: arrays ---
+  { topic:"arrays", q:(r)=>({stem:`sizeof(arr)/sizeof(arr[0]) gives…`,opts:["the first element","the number of elements","the total bytes","the address"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`char s[] = "hi"; sizeof(s) is…`,opts:["2","3","4","undefined"],ans:1})},
 ];
 
 // =====================================================================
@@ -461,6 +602,43 @@ const jsMcq = [
   { topic:"arrays", q:(r)=>({stem:`[...arr] creates a…`,opts:["deep copy","shallow copy","reference","immutable array"],ans:1})},
   { topic:"objects", q:(r)=>({stem:`const {x} = {x:1} extracts…`,opts:["x=1","x={1}","undefined","error"],ans:0})},
   { topic:"functions", q:(r)=>({stem:`Promise.all() resolves when…`,opts:["first resolves","all resolve","any resolves","none resolve"],ans:1})},
+  // --- new: promises ---
+  { topic:"functions", q:(r)=>({stem:`new Promise((res,rej) => {}) is in…`,opts:["resolved state","rejected state","pending state","settled state"],ans:2})},
+  { topic:"functions", q:(r)=>({stem:`promise.catch(fn) is shorthand for…`,opts:["promise.then(fn)","promise.then(null, fn)","promise.finally(fn)","promise.all(fn)"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`Promise.race() resolves/rejects with…`,opts:["the first settled promise","all promises","the last promise","the fastest rejection"],ans:0})},
+  { topic:"functions", q:(r)=>({stem:`Promise.allSettled() resolves when…`,opts:["first settles","all settle (resolve or reject)","any resolves","any rejects"],ans:1})},
+  // --- new: async/await ---
+  { topic:"functions", q:(r)=>({stem:`await pauses execution until…`,opts:["the function returns","the promise settles","the next tick","the microtask queue empties"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`async function always returns a…`,opts:["plain value","Promise","generator","undefined"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`Unhandled promise rejection causes…`,opts:["silent failure","unhandledrejection event or crash","retry","undefined"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`Top-level await works in…`,opts:["any .js file","ES modules (.mjs)","only CommonJS","only Node.js"],ans:1})},
+  // --- new: closures ---
+  { topic:"functions", q:(r)=>({stem:`A closure captures…`,opts:["only local variables","variables from its lexical scope","global variables only","nothing"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`IIFE stands for…`,opts:["Immediately Invoked Function Expression","Internal Interface for Functions","Indexed Iterator for Functions","Inline Implementation"],ans:0})},
+  { topic:"functions", q:(r)=>({stem:`for (var i=0;...) setTimeout(()=>log(i)) prints…`,opts:["0,1,2","3,3,3","undefined","error"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`Changing to 'let' in the loop above prints…`,opts:["3,3,3","0,1,2","undefined","error"],ans:1})},
+  // --- new: prototypes ---
+  { topic:"objects", q:(r)=>({stem:`__proto__ links to…`,opts:["the constructor","the parent object's prototype","the global object","nothing"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Object.create(proto) creates…`,opts:["a copy of proto","an object with proto as [[Prototype]]","a new class","a frozen object"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`class Dog extends Animal uses…`,opts:["prototypal inheritance","classical inheritance","mixin pattern","composition only"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`hasOwnProperty checks…`,opts:["prototype chain","own properties only","both","neither"],ans:1})},
+  // --- new: modules ---
+  { topic:"primitives", q:(r)=>({stem:`export default function allows…`,opts:["multiple default exports","one unnamed export per module","named only","no export"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`import {x} from './mod' destructures…`,opts:["the default export","named exports","the module object","nothing"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`import './side' executes…`,opts:["nothing","the module's side effects only","a default export","all named exports"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`CommonJS uses…`,opts:["import/export","require()/module.exports","define/require","System.import"],ans:1})},
+  // --- new: destructuring ---
+  { topic:"arrays", q:(r)=>({stem:`const [a, , b] = [1,2,3] assigns…`,opts:["a=1,b=2","a=1,b=3","a=2,b=3","error"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`const {x: y} = {x: 5} assigns y = …`,opts:["'x'","5","undefined","error"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`function foo([a,b]=[]) destructures…`,opts:["arguments","the first parameter as an array","global scope","nothing"],ans:1})},
+  // --- new: spread/rest ---
+  { topic:"arrays", q:(r)=>({stem:`Math.max(...arr) spreads…`,opts:["arr into individual arguments","arr into a string","arr into an object","nothing"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`{...obj1, ...obj2} merges…`,opts:["arrays","objects (last wins on conflict)","functions","strings"],ans:1})},
+  { topic:"functions", q:(r)=>({stem:`function f(...args) collects…`,opts:["named parameters","rest arguments into an array","only the first argument","nothing"],ans:1})},
+  // --- new: optional chaining ---
+  { topic:"objects", q:(r)=>({stem:`obj?.prop?.method() returns…`,opts:["always a value","undefined if any part is null/undefined","throws an error","the method itself"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`arr?.[0] safely accesses…`,opts:["the first element or undefined if arr is nullish","always the first element","the array length","nothing"],ans:0})},
+  { topic:"objects", q:(r)=>({stem:`obj?.foo?.() safely calls…`,opts:["a method that always exists","a method only if obj and foo are not nullish","any function","nothing"],ans:1})},
 ];
 
 // =====================================================================
@@ -477,6 +655,43 @@ const cyberMcq = [
   { topic:"best-practices", q:(r)=>({stem:`Multi-Factor Authentication requires…`,opts:["one password","two or more verification methods","biometrics only","a hardware key"],ans:1})},
   { topic:"networks", q:(r)=>({stem:`DNS translates…`,opts:["IP to MAC","domain names to IP addresses","ports to protocols","HTTP to HTTPS"],ans:1})},
   { topic:"networks", q:(r)=>({stem:`VPN creates a…`,opts:["public connection","encrypted tunnel","direct cable link","wireless bridge"],ans:1})},
+  // --- new: authentication ---
+  { topic:"best-practices", q:(r)=>({stem:`OAuth 2.0 is used for…`,opts:["password hashing","delegated authorization","symmetric encryption","file integrity"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`Session tokens should be…`,opts:["stored in localStorage","regenerated after login","sent in URLs","unchanged forever"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`Password hashing with bcrypt uses…`,opts:["MD5","a salted one-way function","base64 encoding","plain SHA-256"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`JWT stands for…`,opts:["Java Web Token","JSON Web Token","JavaScript Wrapper Token","Joint Wire Transfer"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`OAuth refresh tokens are used to…`,opts:["replace access tokens without re-authentication","encrypt passwords","generate API keys","hash data"],ans:0})},
+  { topic:"best-practices", q:(r)=>({stem:`Rate limiting prevents…`,opts:["SQL injection","brute-force attacks","XSS","CSRF"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`CSRF attacks target…`,opts:["database queries","authenticated users' browsers","network cables","password hashes"],ans:1})},
+  // --- new: authorization ---
+  { topic:"best-practices", q:(r)=>({stem:`RBAC stands for…`,opts:["Random Based Access Control","Role-Based Access Control","Remote Browser Authentication","Revolving Certificate Authority"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`Principle of least privilege means…`,opts:["users get maximum access","users get only the minimum access needed","admins have no access","everyone is equal"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`ACL stands for…`,opts:["Access Control List","Authenticated Certificate Layer","Advanced Encryption Lock","Application Code Locator"],ans:0})},
+  { topic:"best-practices", q:(r)=>({stem:`Separation of duties prevents…`,opts:["performance issues","a single person from completing a critical task alone","phishing","DNS attacks"], ans:1})},
+  // --- new: cryptography ---
+  { topic:"encryption", q:(r)=>({stem:`SHA-256 produces a…`,opts:["128-bit hash","256-bit hash","512-bit hash","variable-length hash"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`A digital signature provides…`,opts:["encryption only","authentication and non-repudiation","key exchange","compression"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`A salt in password hashing…`,opts:["makes passwords shorter","adds randomness before hashing","replaces the password","speeds up hashing"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`Diffie-Hellman is used for…`,opts:["encryption","key exchange","hashing","digital signatures"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`An IV (Initialization Vector) is needed for…`,opts:["hash functions","block cipher modes like CBC","RSA key generation","password storage"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`HMAC provides…`,opts:["encryption","message authentication","key exchange","compression"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`Public key infrastructure (PKI) relies on…`,opts:["symmetric keys","certificate authorities","firewalls","VPNs"],ans:1})},
+  // --- new: network security ---
+  { topic:"networks", q:(r)=>({stem:`A DMZ is a…`,opts:["encrypted zone","buffer zone between internal and external networks","password manager","backup system"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`TLS 1.3 handshake completes in…`,opts:["1 round trip","2 round trips","3 round trips","4 round trips"],ans:0})},
+  { topic:"networks", q:(r)=>({stem:`Port 443 is used by…`,opts:["HTTP","FTP","HTTPS","SSH"],ans:2})},
+  { topic:"networks", q:(r)=>({stem:`IDS vs IPS — IPS can…`,opts:["only detect threats","detect AND block threats","only log traffic","only encrypt data"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`Network segmentation…`,opts:["combines all devices","isolates network segments to limit breach impact","speeds up DNS","removes firewalls"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`A man-in-the-middle attack intercepts…`,opts:["passwords only","communication between two parties","hard drives","CPU cycles"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`DNSSEC protects against…`,opts:["DDoS","DNS spoofing","SQL injection","buffer overflow"],ans:1})},
+  // --- new: social engineering ---
+  { topic:"vulnerabilities", q:(r)=>({stem:`Phishing targets…`,opts:["databases","human psychology","network cables","CPU registers"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Pretexting involves…`,opts:["encrypting data","creating a fabricated scenario to obtain information","brute-forcing passwords","scanning ports"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Tailgating exploits…`,opts:["software bugs","human trust to gain physical access","network protocols","password policies"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`A rubber duck attack is a form of…`,opts:["network sniffing","social engineering via impersonation","SQL injection","buffer overflow"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Vishing is…`,opts:["video phishing","voice-based social engineering","visual cryptography","virtual networking"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Whaling targets…`,opts:["ordinary users","high-profile individuals like executives","network devices","DNS servers"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Watering hole attacks compromise…`,opts:["water supplies","websites frequently visited by the target","password databases","encryption keys"],ans:1})},
 ];
 
 // =====================================================================
@@ -493,6 +708,46 @@ const webMcq = [
   { topic:"css", q:(r)=>({stem:`position: absolute positions relative to…`,opts:["the viewport","the document body","the nearest positioned ancestor","the parent element"],ans:2})},
   { topic:"javascript", q:(r)=>({stem:`fetch() returns a…`,opts:["string","Promise","JSON object","void"],ans:1})},
   { topic:"html", q:(r)=>({stem:`The <form> action attribute defines…`,opts:["method","submit URL","input types","validation"],ans:1})},
+  // --- new: responsive design ---
+  { topic:"css", q:(r)=>({stem:`@media (max-width: 768px) targets…`,opts:["printers","mobile devices","large screens","all devices"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`viewport meta tag controls…`,opts:["font size only","page scaling on mobile devices","image loading","JavaScript execution"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`min-width in media queries means…`,opts:["apply if screen ≥ width","apply if screen ≤ width","apply always","apply on print"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`Responsive images use…`,opts:["<img srcset>","<img responsive>","<img stretch>","CSS only"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`Fluid typography uses…`,opts:["fixed px values","vw units or clamp()","only em units","no sizing"],ans:1})},
+  // --- new: CSS Grid ---
+  { topic:"css", q:(r)=>({stem:`display: grid creates a…`,opts:["flex container","grid container","block container","table container"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`grid-template-columns: repeat(3, 1fr) creates…`,opts:["3 equal-width columns","3 fixed-width columns","1 column","9 columns"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`grid-gap adds space between…`,opts:["pages","grid items","columns only","the viewport"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`An element spanning 2 columns uses…`,opts:["grid-column: span 2","grid-col: 2","column-span: 2","col-span: 2"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`fr unit in grid means…`,opts:["fixed pixels","a fraction of available space","font ratio","free rows"],ans:1})},
+  // --- new: flexbox ---
+  { topic:"css", q:(r)=>({stem:`justify-content aligns items…`,opts:["along the cross axis","along the main axis","vertically only","horizontally only"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`align-items aligns items…`,opts:["along the main axis","along the cross axis","diagonally","only in grids"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`flex-direction: row-reverse does…`,opts:["reverses item order and direction","removes items","adds a scrollbar","hides items"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`flex-wrap: wrap allows items to…`,opts:["stay on one line","wrap to the next line if needed","animate","disappear"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`flex: 1 on a child means…`,opts:["take up remaining space","shrink to 1px","no flexing","fixed width"],ans:0})},
+  // --- new: DOM manipulation ---
+  { topic:"javascript", q:(r)=>({stem:`document.createElement() creates a…`,opts:["CSS rule","DOM element","string","event"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`element.appendChild() does…`,opts:["removes a child","adds a node as the last child","replaces all children","clones the element"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`element.textContent sets…`,opts:["innerHTML","the text content (no HTML parsing)","CSS styles","event listeners"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`element.classList.toggle('active') does…`,opts:["always adds","always removes","adds if missing, removes if present","renames the class"],ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`element.setAttribute('disabled', '') does…`,opts:["enables the element","disables the element","removes the attribute","sets a data attribute"],ans:1})},
+  // --- new: events ---
+  { topic:"javascript", q:(r)=>({stem:`event.preventDefault() stops…`,opts:["event propagation","the default browser action","the element from rendering","all handlers"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`event.stopPropagation() stops…`,opts:["the default action","event bubbling up the DOM","the current handler","only click events"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`addEventListener uses…`,opts:["capture phase only","bubble phase only","both capture and bubble phases","neither"], ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`'input' event fires on…`,opts:["form submit only","every value change in an input element","page load","mouse click"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`'change' event fires when…`,opts:["every keystroke","the element loses focus after value changed","on mouseover","on page load"],ans:1})},
+  // --- new: storage ---
+  { topic:"javascript", q:(r)=>({stem:`localStorage persists data…`,opts:["for the session only","until explicitly cleared","for 1 hour","until the tab closes"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`sessionStorage clears when…`,opts:["the browser closes","the tab/window closes","after 30 minutes","never"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`localStorage.setItem('k','v') stores…`,opts:["an object","a string","a number","a function"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`JSON.stringify() is needed to store…`,opts:["strings","objects and arrays in localStorage","numbers","booleans"],ans:1})},
+  // --- new: fetch API ---
+  { topic:"javascript", q:(r)=>({stem:`fetch() defaults to…`,opts:["POST","PUT","GET","DELETE"],ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`response.json() returns a…`,opts:["string","Promise that resolves to JSON","raw bytes","HTML"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`fetch('/api', {method:'POST', body:...}) sends a…`,opts:["GET request","POST request","DELETE request","OPTIONS request"],ans:1})},
+  { topic:"javascript", q:(r)=>({stem:`fetch error handling uses…`,opts:[".catch() only","check response.ok or .catch()","try/catch with fetch directly","response.status === 200"], ans:1})},
 ];
 
 // =====================================================================
@@ -509,6 +764,39 @@ const mathMcq = [
   { topic:"combinatorics", q:(r)=>({stem:`C(5,2) equals…`,opts:["5","10","20","25"],ans:1})},
   { topic:"algebra", q:(r)=>({stem:`Solve: 2x + 3 = 7. x = …`,opts:["1","2","3","4"],ans:1})},
   { topic:"algebra", q:(r)=>({stem:`The quadratic formula solves…`,opts:["linear equations","systems of equations","quadratic equations","exponential equations"],ans:2})},
+  // --- new: statistics ---
+  { topic:"probability", q:(r)=>({stem:`Mean of {2,4,6} is…`,opts:["3","4","5","12"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`Median of {1,3,5,7} is…`,opts:["3","4","5","6"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`Mode of {1,2,2,3} is…`,opts:["1","2","3","1.5"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`Standard deviation measures…`,opts:["the average","the spread or dispersion of data","the midpoint","the sum"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`Variance is the square of…`,opts:["mean","median","standard deviation","mode"],ans:2})},
+  { topic:"probability", q:(r)=>({stem:`Normal distribution is symmetric about…`,opts:["zero","the median = mean","the mode only","the maximum"],ans:1})},
+  // --- new: linear algebra basics ---
+  { topic:"algebra", q:(r)=>({stem:`A 2×2 identity matrix is…`,opts:["[[1,0],[0,1]]","[[1,1],[1,1]]","[[0,1],[1,0]]","[[2,0],[0,2]]"],ans:0})},
+  { topic:"algebra", q:(r)=>({stem:`Determinant of [[a,0],[0,d]] is…`,opts:["a+d","a-d","ad","a/d"],ans:2})},
+  { topic:"algebra", q:(r)=>({stem:`Matrix multiplication AB requires…`,opts:["same dimensions","A columns = B rows","A rows = B rows","any dimensions"],ans:1})},
+  { topic:"algebra", q:(r)=>({stem:`det(AB) equals…`,opts:["det(A)+det(B)","det(A)×det(B)","det(A)/det(B)","det(A)-det(B)"],ans:1})},
+  { topic:"algebra", q:(r)=>({stem:`A matrix is invertible when its determinant is…`,opts:["zero","one","non-zero","negative"],ans:2})},
+  { topic:"algebra", q:(r)=>({stem:`Eigenvalue λ satisfies…`,opts:["Av = v","Av = λv","Aλ = v","Av = 0"],ans:1})},
+  // --- new: number theory ---
+  { topic:"combinatorics", q:(r)=>({stem:`GCD(12, 8) equals…`,opts:["2","4","6","24"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`LCM(4, 6) equals…`,opts:["10","12","24","2"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`A prime number has exactly…`,opts:["0 factors","1 factor","2 factors (1 and itself)","3 factors"],ans:2})},
+  { topic:"combinatorics", q:(r)=>({stem:`Modular arithmetic: 17 mod 5 = …`,opts:["2","3","4","1"],ans:0})},
+  { topic:"combinatorics", q:(r)=>({stem:`Fermat's Little Theorem: a^(p-1) mod p = …`,opts:["0","1","p","a"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`Euclidean algorithm computes…`,opts:["LCM","GCD","prime factorization","square root"],ans:1})},
+  // --- new: graph theory basics ---
+  { topic:"combinatorics", q:(r)=>({stem:`A tree with n nodes has…`,opts:["n edges","n-1 edges","n+1 edges","2n edges"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`BFS traversal uses…`,opts:["a stack","a queue","recursion","a heap"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`DFS traversal uses…`,opts:["a queue","a stack (or recursion)","a heap","a set"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`Dijkstra's algorithm finds…`,opts:["longest path","shortest path from a source","maximum flow","minimum spanning tree"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`A complete graph on n nodes has…`,opts:["n edges","n(n-1)/2 edges","n² edges","2n edges"],ans:1})},
+  { topic:"combinatorics", q:(r)=>({stem:`An Eulerian circuit visits every…`,opts:["vertex exactly once","edge exactly once","vertex at least once","edge at most once"],ans:1})},
+  // --- extra ---
+  { topic:"logic", q:(r)=>({stem:`P XOR Q is true when…`,opts:["both true","both false","exactly one is true","neither"],ans:2})},
+  { topic:"sets", q:(r)=>({stem:`|A × B| (Cartesian product size) equals…`,opts:["|A| + |B|","|A| × |B|","|A| / |B|","|A| - |B|"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`Conditional probability P(A|B) = …`,opts:["P(A AND B) / P(B)","P(A) / P(B)","P(A AND B)","P(A) + P(B)"],ans:0})},
+  { topic:"algebra", q:(r)=>({stem:`log₂(8) equals…`,opts:["2","3","4","8"],ans:1})},
 ];
 
 // ---------- helpers ----------
@@ -567,19 +855,19 @@ const LANG_IDS = {
 };
 
 // ---------- assembly ----------
-function assembleLanguage(lang, cfg) {
+function assembleLanguage(lang, cfg, startN) {
   const ojPool = lang === "java" ? javaOJ : lang === "python" ? pyOJ : lang === "cpp" ? cppOJ : lang === "c" ? cOJ : lang === "javascript" ? jsOJ : [];
   const bugPool = lang === "java" ? javaBugs : lang === "python" ? pyBugs : lang === "cpp" ? cppBugs : lang === "c" ? cBugs : lang === "javascript" ? jsBugs : [];
   const mcqPool = lang === "java" ? javaMcq : lang === "python" ? pyMcq : lang === "cpp" ? cppMcq : lang === "c" ? cMcq : lang === "javascript" ? jsMcq : lang === "cybersecurity" ? cyberMcq : lang === "webdev" ? webMcq : lang === "math" ? mathMcq : [];
 
   const quizzes = [];
-  let n = 0;
+  let n = startN || 0;
   for (const band of cfg.bands) {           // [{label:'Foundations',count:18}]
     for (let i = 0; i < band.count; i++) {
       const rng = mulberry32(cfg.seedBase + n * 7919 + hashStr(band.label));
       const diff = band.diff;                // 0 easy, 1 medium, 2 hard
       const topic = cfg.topics[n % cfg.topics.length];
-      const quizId = `${lang}-${band.label.toLowerCase().slice(0, 1)}${String(n + 1).padStart(2, "0")}`;
+      const quizId = `${lang}-${String(n + 1).padStart(3, "0")}`;
 
       const ojSpecs = shuffle(rng, ojPool.filter(o => o.topic === topic))
         .concat(shuffle(rng, ojPool)).slice(0, 3);
@@ -684,10 +972,13 @@ const PLAN = [
 fs.rmSync(SETS_DIR, { recursive: true, force: true });
 const bundle = { version: "1.0", exportedAt: Date.now(), quizzes: [], adminSettings: {} };
 let totalQ = 0;
+const langCounters = {};
 for (const plan of PLAN) {
   const dir = path.join(SETS_DIR, plan.lang);
   fs.mkdirSync(dir, { recursive: true });
-  const quizzes = assembleLanguage(plan.lang, plan);
+  langCounters[plan.lang] = langCounters[plan.lang] || 0;
+  const quizzes = assembleLanguage(plan.lang, plan, langCounters[plan.lang]);
+  langCounters[plan.lang] += quizzes.length;
   for (const qz of quizzes) {
     totalQ += qz.questions.length;
     const doc = { version: "1.0", exportedAt: Date.now(), adminSettings: {}, quizzes: [qz] };

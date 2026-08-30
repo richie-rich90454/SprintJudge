@@ -9,6 +9,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +52,8 @@ public class AiGradingService {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
+    private static final int MAX_CACHE_SIZE = 500;
+
     /** Simple cache to avoid repeated grading of identical submissions. */
     private final ConcurrentHashMap<String, AiGradeResult> cache = new ConcurrentHashMap<>();
 
@@ -69,7 +74,7 @@ public class AiGradingService {
             return AiGradeResult.unavailable();
         }
 
-        String cacheKey = language + ":" + sourceCode.hashCode() + ":" + questionTitle.hashCode();
+        String cacheKey = sha256(language + "||" + sourceCode + "||" + questionTitle);
         AiGradeResult cached = cache.get(cacheKey);
         if (cached != null) return cached;
 
@@ -78,6 +83,8 @@ public class AiGradingService {
                     questionDescription, allPassed, judgeScore, pointsBase);
             String response = callLlm(prompt);
             AiGradeResult result = parseResponse(response, judgeScore, pointsBase);
+            // ponytail: simple size cap, replace with LRU if eviction pattern matters
+            if (cache.size() >= MAX_CACHE_SIZE) cache.clear();
             cache.put(cacheKey, result);
             return result;
         } catch (Exception e) {
@@ -181,6 +188,19 @@ public class AiGradingService {
         } catch (Exception e) {
             log.debug("Failed to parse AI response: {}", e.getMessage());
             return AiGradeResult.unavailable();
+        }
+    }
+
+    private String sha256(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(64);
+            for (byte b : hash) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // SHA-256 is required by every JVM — unreachable
+            throw new IllegalStateException(e);
         }
     }
 

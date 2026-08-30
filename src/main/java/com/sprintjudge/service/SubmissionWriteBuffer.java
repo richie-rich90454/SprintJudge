@@ -60,7 +60,12 @@ public class SubmissionWriteBuffer {
         if (queue.isEmpty()) return 0;
         List<Submission> batch = new ArrayList<>(queue.size());
         queue.drainTo(batch);
-        repository.saveAll(batch);
+        try {
+            repository.saveAll(batch);
+        } catch (RuntimeException ex) {
+            queue.addAll(batch); // re-enqueue on failure — ponytail: O(n) retry, acceptable at flush cadence
+            throw ex;
+        }
         flushed.addAndGet(batch.size());
         lastFlushMs = System.currentTimeMillis();
         return batch.size();
