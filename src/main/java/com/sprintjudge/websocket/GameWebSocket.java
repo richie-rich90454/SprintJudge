@@ -44,10 +44,12 @@ public class GameWebSocket {
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
-        Object authed = config.getUserProperties().get(AUTHED_KEY);
+        // Authoritative auth is read per-session from the container principal;
+        // the shared handshake config object is race-prone (H4) and unused here.
+        boolean authed = session.getUserPrincipal() != null;
+        session.getUserProperties().put(AUTHED_KEY, authed);
         Object addr = config.getUserProperties().get(IP_KEY);
-        session.getUserProperties().put(AUTHED_KEY, Boolean.TRUE.equals(authed));
-        session.getUserProperties().put(IP_KEY, addr == null ? "unknown" : addr);
+        session.getUserProperties().put(IP_KEY, addr == null ? "unresolved" : addr);
         // Without registration the fan-out map stays empty and every broadcast
         // (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.
         sessions.register(session.getId(), session);
@@ -74,15 +76,26 @@ public class GameWebSocket {
                 case "KICK_PLAYER" -> asHost(session, () ->
                         roomManager.kickPlayer(pinOf(session), msg.path("playerUuid").asText()));
                 case "RESYNC_LEADERBOARD" -> resyncLeaderboard(session);
+                case "PING" -> send(session, new ErrorMessage("PONG", ""));
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
         } catch (Exception e) {
-            send(session, new ErrorMessage("ERROR", e.getMessage()));
+            // Never leak internal stack traces to clients; log server-side only.
+            org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).warn("WS message error", e);
+            send(session, new ErrorMessage("ERROR", "Internal error"));
         }
     }
 
     private void handleJoin(Session session, JsonNode msg) {
         String ip = (String) session.getUserProperties().get(IP_KEY);
+        // A second JOIN on the same connection must reclaim the old seat first
+        // (M3) so the previous Player record doesn't linger in the standings.
+        String prevPin = (String) session.getUserProperties().get(PIN_KEY);
+        String prevUuid = (String) session.getUserProperties().get(UUID_KEY);
+        if (prevPin != null && prevUuid != null) {
+            try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException ignored) {}
+        }
+
         // Schema validation: JOIN requires non-empty pin and name.
         String pin = msg.path("pin").asText("");
         String name = msg.path("name").asText("");
@@ -100,14 +113,15 @@ public class GameWebSocket {
             send(session, new ErrorMessage("ERROR", "Too many attempts. Try again shortly."));
             return;
         }
+        String rejoinToken = msg.path("rejoinToken").asText(null);
         try {
-            var player = roomManager.join(pin, name, session.getId(), role);
+            var player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
             rateLimiter.recordSuccess(ip);
             session.getUserProperties().put(UUID_KEY, player.uuid());
             session.getUserProperties().put(PIN_KEY, pin);
             session.getUserProperties().put(ROLE_KEY, role.toLowerCase());
             RoomState state = roomManager.getRoomState(pin);
-            send(session, new JoinedMessage("JOINED", player.uuid(), state));
+            send(session, new JoinedMessage("JOINED", player.uuid(), player.token(), state));
         } catch (IllegalArgumentException | IllegalStateException e) {
             rateLimiter.recordFailure(ip);
             send(session, new ErrorMessage("ERROR", e.getMessage()));
