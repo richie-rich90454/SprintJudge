@@ -19,7 +19,7 @@ class ScoringEngineTest {
 
     @Test
     void wrongAnswerScoresZero() {
-        assertEquals(0, engine.scoreSelection(0.0, 0, 30, 1, Map.of()));
+        assertEquals(0, engine.scoreSelection(0.0, 0, 30, 1, 1000, Map.of()));
     }
 
     @ParameterizedTest
@@ -37,18 +37,18 @@ class ScoringEngineTest {
         "30,500"    // full time -> floor (minSpeedFraction)
     })
     void selectionSpeedDecay(long taken, int expected) {
-        assertEquals(expected, engine.scoreSelection(1.0, taken, 30, 1, Map.of()), 20);
+        assertEquals(expected, engine.scoreSelection(1.0, taken, 30, 1, 1000, Map.of()), 20);
     }
 
     @Test
     void overtimeIsClampedToLimit() {
-        int late = engine.scoreSelection(1.0, 999, 30, 1, Map.of());
+        int late = engine.scoreSelection(1.0, 999, 30, 1, 1000, Map.of());
         assertEquals(500, late, 20);
     }
 
     @Test
     void zeroOrNegativeLimitDoesNotDivideByZero() {
-        assertTrue(engine.scoreSelection(1.0, 5, 0, 1, Map.of()) >= 0);
+        assertTrue(engine.scoreSelection(1.0, 5, 0, 1, 1000, Map.of()) >= 0);
     }
 
     @ParameterizedTest
@@ -56,15 +56,15 @@ class ScoringEngineTest {
     void attemptDecayHalvesEachTime(int attempts, int expected) {
         Map<String, Object> s = new HashMap<>();
         s.put("mcq_max_attempts", "5");
-        assertEquals(expected, engine.scoreSelection(1.0, 0, 30, attempts, s), 20);
+        assertEquals(expected, engine.scoreSelection(1.0, 0, 30, attempts, 1000, s), 20);
     }
 
     @Test
     void singleAttemptPolicyIgnoresAttemptCount() {
         Map<String, Object> s = new HashMap<>();
         s.put("mcq_max_attempts", "1");
-        assertEquals(engine.scoreSelection(1.0, 0, 30, 1, s),
-                     engine.scoreSelection(1.0, 0, 30, 7, s));
+        assertEquals(engine.scoreSelection(1.0, 0, 30, 1, 1000, s),
+                     engine.scoreSelection(1.0, 0, 30, 7, 1000, s));
     }
 
     @ParameterizedTest
@@ -72,21 +72,21 @@ class ScoringEngineTest {
     void unparsableSettingFallsBackToSingleAttempt(String raw) {
         Map<String, Object> s = new HashMap<>();
         s.put("mcq_max_attempts", raw);
-        long first = engine.scoreSelection(1.0, 0, 30, 1, s);
-        assertEquals(first, engine.scoreSelection(1.0, 0, 30, 9, s));
+        long first = engine.scoreSelection(1.0, 0, 30, 1, 1000, s);
+        assertEquals(first, engine.scoreSelection(1.0, 0, 30, 9, 1000, s));
     }
 
     @Test
     void numericSettingTypeIsAccepted() {
         Map<String, Object> s = new HashMap<>();
         s.put("mcq_max_attempts", 3);   // Integer instead of String
-        int second = engine.scoreSelection(1.0, 0, 30, 2, s);
+        int second = engine.scoreSelection(1.0, 0, 30, 2, 1000, s);
         assertEquals(500, second, 20);
     }
 
     @Test
     void nullSettingMapMeansFirstAttemptFullScore() {
-        assertEquals(1000, engine.scoreSelection(1.0, 0, 30, 4, null), 20);
+        assertEquals(1000, engine.scoreSelection(1.0, 0, 30, 4, 1000, null), 20);
     }
 
     // ---------- coding scoring ----------
@@ -135,7 +135,7 @@ class ScoringEngineTest {
     @Test
     void customMinSpeedFractionRaisesTheFloor() {
         ScoringEngine generous = new ScoringEngine(0.8, 0.5);
-        int floor = generous.scoreSelection(1.0, 30, 30, 1, Map.of());
+        int floor = generous.scoreSelection(1.0, 30, 30, 1, 1000, Map.of());
         assertEquals(800, floor, 20);
     }
 
@@ -144,23 +144,42 @@ class ScoringEngineTest {
         ScoringEngine gentle = new ScoringEngine(0.5, 0.9);   // 90% retained per retry
         Map<String, Object> s = new HashMap<>();
         s.put("mcq_max_attempts", "3");
-        int third = gentle.scoreSelection(1.0, 0, 30, 3, s);
+        int third = gentle.scoreSelection(1.0, 0, 30, 3, 1000, s);
         assertEquals(810, third, 20);
     }
 
     @Test
-    void fractionGatesZeroButScalingLivesInCaller() {
-        // Engine treats any fraction > 0 as "eligible for decay bonus";
-        // GameRoomManager multiplies by the fraction. Documented contract.
-        double full = engine.scoreSelection(1.0, 0, 30, 1, Map.of());
-        double half = engine.scoreSelection(0.5, 0, 30, 1, Map.of());
-        assertEquals(full, half, 20);
-        assertEquals(0, engine.scoreSelection(0.0, 0, 30, 1, Map.of()));
+    void fractionGatesZeroButEngineScalesByFraction() {
+        // Engine scales the award by the correctness fraction itself.
+        double full = engine.scoreSelection(1.0, 0, 30, 1, 1000, Map.of());
+        double half = engine.scoreSelection(0.5, 0, 30, 1, 1000, Map.of());
+        assertEquals(full / 2.0, half, 20);
+        assertEquals(0, engine.scoreSelection(0.0, 0, 30, 1, 1000, Map.of()));
     }
 
     @Test
     void negativeFractionHardZeroes() {
-        assertEquals(0, engine.scoreSelection(-0.5, 0, 30, 1, Map.of()));
+        assertEquals(0, engine.scoreSelection(-0.5, 0, 30, 1, 1000, Map.of()));
+    }
+
+    @Test
+    void zeroBasePointsFallsBackTo1000() {
+        assertEquals(engine.scoreSelection(1.0, 0, 30, 1, 1000, Map.of()),
+                engine.scoreSelection(1.0, 0, 30, 1, 0, Map.of()));
+        assertEquals(1000, engine.scoreSelection(1.0, 0, 30, 1, 0, Map.of()), 20);
+    }
+
+    @Test
+    void nullSettingValueFallsBackToSingleAttempt() {
+        Map<String, Object> s = new HashMap<>();
+        s.put("mcq_max_attempts", null);
+        long first = engine.scoreSelection(1.0, 0, 30, 1, 1000, s);
+        assertEquals(first, engine.scoreSelection(1.0, 0, 30, 9, 1000, s));
+    }
+
+    @Test
+    void tinyFractionAndBaseFloorsAwardAtOne() {
+        // speed=0.5, mult=1, base=1 -> round(0.25)=0 -> Math.max(1,0)=1
+        assertEquals(1, engine.scoreSelection(0.5, 30, 30, 1, 1, Map.of()));
     }
 }
-
