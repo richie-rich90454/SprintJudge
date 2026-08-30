@@ -8,12 +8,12 @@ import { AdminLoginView } from "./views/AdminLoginView";
 import { AdminDashboard } from "./views/AdminDashboard";
 
 export function App() {
-  const view = useUIStore((s) => s.view);
-  const status = useGameStore((s) => s.status);
+    const view = useUIStore((s) => s.view);
+    const status = useGameStore((s) => s.status);
 
-  if (view === "admin-login") return <AdminLoginView />;
-  if (view === "admin") return <AdminDashboard />;
-  if (view === "host") return <HostLobbyView />;
-  if (view === "play") return status === "ENDED" ? <ResultView /> : <QuestionView />;
-  return <JoinView />;
+    if (view === "admin-login") return <AdminLoginView />;
+    if (view === "admin") return <AdminDashboard />;
+    if (view === "host") return <HostLobbyView />;
+    if (view === "play") return status === "ENDED" ? <ResultView /> : <QuestionView />;
+    return <JoinView />;
 }
