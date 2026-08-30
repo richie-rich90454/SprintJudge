@@ -75,7 +75,10 @@ public class AdminController {
 
     @PutMapping("/questions/{id}")
     public Question updateQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
-        return questionRepository.save(question);
+        Question q = new Question(id, question.quizId(), question.title(), question.description(),
+                question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
+                question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
+        return questionRepository.save(q);
     }
 
     @DeleteMapping("/questions/{id}")
