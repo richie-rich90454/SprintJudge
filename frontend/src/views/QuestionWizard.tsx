@@ -416,7 +416,7 @@ export function QuestionWizard() {
                                     </Button>
                                     <Button
                                         variant="primary"
-                                        className="text-white"
+                                        className="bg-[var(--oq-red)] text-white"
                                         onPress={() => saveQuestion()}
                                     >
                                         Save question
