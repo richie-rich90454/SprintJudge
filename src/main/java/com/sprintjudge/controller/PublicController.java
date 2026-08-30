@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Deliberately minimal public surface. Question payloads (which embed answer
@@ -27,8 +26,9 @@ public class PublicController {
     private final CodeExecutor executor;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
-    private final Map<String, AtomicInteger> runWindow = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, long[]> runWindow = new ConcurrentHashMap<>();
     private static final int RUN_LIMIT_PER_MIN = 30;
+    private static final long WINDOW_MS = 60_000;
 
     public PublicController(QuizRepository quizRepository, CodeExecutor executor) {
         this.quizRepository = quizRepository;
@@ -47,9 +47,17 @@ public class PublicController {
     @PostMapping("/run")
     public RunResult run(@RequestBody RunRequest request, HttpServletRequest http) {
         String ip = http.getRemoteAddr();
-        AtomicInteger used = runWindow.computeIfAbsent(ip, k -> new AtomicInteger(0));
-        if (used.incrementAndGet() > RUN_LIMIT_PER_MIN) {
-            return new RunResult(false, "", "", "rate_limited");
+        long now = System.currentTimeMillis();
+        long[] window = runWindow.computeIfAbsent(ip, k -> new long[]{0, 0});
+        synchronized (window) {
+            if (now - window[0] > WINDOW_MS) {
+                window[0] = now;
+                window[1] = 0;
+            }
+            if (window[1] >= RUN_LIMIT_PER_MIN) {
+                return new RunResult(false, "", "", "rate_limited");
+            }
+            window[1]++;
         }
         return executor.run(request);
     }
