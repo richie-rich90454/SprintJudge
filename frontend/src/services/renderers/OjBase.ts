@@ -1,6 +1,9 @@
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { el } from "./dom";
 import { createCodeEditor, CodeEditorHandle } from "../CodeEditor";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import { audio } from "../AudioEngine";
 
 const LANGUAGES = [
     { id: "c", label: "C", monaco: "c" },
@@ -17,12 +20,18 @@ const LANGUAGES = [
  * `languagesAllowed` are selectable (server enforces the same rule), and the
  * default selection honors the requested default when it is permitted.
  * A real Monaco editor mounts lazily; a mono textarea is the fallback.
+ *
+ * A live console (xterm.js, canvas-rendered + high-DPI) sits under the editor
+ * with a Run button so students can experiment before submitting — mirroring
+ * JuiceMind's in-quiz runner.
  */
 export abstract class OjBase extends BaseQuestionRenderer {
     protected language = "python";
     protected source = "";
     private editor: CodeEditorHandle | null = null;
     private editorHost: HTMLElement | null = null;
+    private terminal: Terminal | null = null;
+    private fit: FitAddon | null = null;
     private destroyed = false;
 
     /** Requested default before allowlist resolution (subclass sets pre-mount). */
@@ -66,9 +75,9 @@ export abstract class OjBase extends BaseQuestionRenderer {
         // before any keystroke still carries the starter/cached code, not null.
         this.emitResponse();
 
-        this.editorHost = el("div", { class: "rounded-lg overflow-hidden border border-border" });
-        // Monaco measures its host; a 0px-height div renders nothing.
-        this.editorHost.style.height = "320px";
+        this.editorHost = el("div", {
+            class: "rounded-lg overflow-hidden border border-border flex-1 min-h-0",
+        });
         this.container.append(this.editorHost);
 
         const monacoLang = LANGUAGES.find((l) => l.id === this.language)?.monaco ?? "plaintext";
@@ -93,6 +102,91 @@ export abstract class OjBase extends BaseQuestionRenderer {
             }
             this.editor = handle;
         });
+
+        this.mountConsole();
+    }
+
+    private mountConsole(): void {
+        const wrap = el("div", {
+            class: "mt-3 rounded-lg overflow-hidden border border-border flex flex-col min-h-0",
+        });
+        wrap.style.flex = "1 1 0";
+        const bar = el("div", {
+            class: "flex items-center gap-2 px-3 py-2 bg-[var(--oq-row-alt)] border-b border-border",
+        });
+        const runBtn = el("button", {
+            class: "btn btn-primary btn-sm",
+            textContent: "▶ Run",
+        });
+        const hint = el("span", {
+            class: "text-xs text-default-500 mono",
+            textContent: "interactive console",
+        });
+        bar.append(runBtn, hint);
+
+        const termHost = el("div", { class: "flex-1 min-h-0 p-2 bg-black" });
+        wrap.append(bar, termHost);
+        this.container.append(wrap);
+
+        this.terminal = new Terminal({
+            fontFamily: "Noto Sans Mono, monospace",
+            fontSize: 12,
+            cursorBlink: true,
+            theme: {
+                background: "#000000",
+                foreground: "#e6e6e6",
+                cursor: "#ff2e63",
+            },
+            convertEol: true,
+        });
+        this.fit = new FitAddon();
+        this.terminal.loadAddon(this.fit);
+        this.terminal.open(termHost);
+        // Fit after layout settles (the host starts at 0 height before flex).
+        requestAnimationFrame(() => this.fit?.fit());
+
+        let stdin = "";
+        this.terminal.onData((d) => {
+            stdin += d;
+            this.terminal?.write(d);
+        });
+
+        runBtn.addEventListener("click", async () => {
+            audio.resume();
+            audio.play("click");
+            runBtn.setAttribute("disabled", "true");
+            this.terminal?.write("\r\n\x1b[90m$ running…\x1b[0m\r\n");
+            try {
+                const res = await fetch("/api/run", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        language: this.language,
+                        sourceCode: this.source,
+                        stdin,
+                        timeoutSec: 10,
+                    }),
+                });
+                const data = (await res.json()) as {
+                    ok: boolean;
+                    output: string;
+                    status: string;
+                };
+                stdin = "";
+                if (data.output) this.terminal?.write(data.output.replace(/\n/g, "\r\n"));
+                if (!data.ok) {
+                    this.terminal?.write(
+                        `\r\n\x1b[31m[${data.status}] program exited non-zero\x1b[0m\r\n`,
+                    );
+                }
+                this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
+            } catch {
+                this.terminal?.write("\r\n\x1b[31m[error] runner unavailable\x1b[0m\r\n");
+            } finally {
+                runBtn.removeAttribute("disabled");
+                this.fit?.fit();
+            }
+        });
     }
 
     protected emitResponse(): void {
@@ -103,6 +197,8 @@ export abstract class OjBase extends BaseQuestionRenderer {
         this.destroyed = true;
         this.editor?.destroy();
         this.editor = null;
+        this.terminal?.dispose();
+        this.terminal = null;
         super.destroy();
     }
 }
