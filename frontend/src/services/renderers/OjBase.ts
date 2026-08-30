@@ -156,36 +156,43 @@ export abstract class OjBase extends BaseQuestionRenderer {
             audio.play("click");
             runBtn.setAttribute("disabled", "true");
             this.terminal?.write("\r\n\x1b[90m$ running…\x1b[0m\r\n");
-            try {
-                const res = await fetch("/api/run", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        language: this.language,
-                        sourceCode: this.source,
-                        stdin,
-                        timeoutSec: 10,
-                    }),
-                });
-                const data = (await res.json()) as {
-                    ok: boolean;
-                    output: string;
-                    status: string;
-                };
-                stdin = "";
-                if (data.output) this.terminal?.write(data.output.replace(/\n/g, "\r\n"));
-                if (!data.ok) {
-                    this.terminal?.write(
-                        `\r\n\x1b[31m[${data.status}] program exited non-zero\x1b[0m\r\n`,
-                    );
+                try {
+                    const res = await fetch("/api/public/run", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            language: this.language,
+                            sourceCode: this.source,
+                            stdin,
+                            timeoutSec: 10,
+                        }),
+                    });
+                    if (!res.ok) {
+                        this.terminal?.write(
+                            `\r\n\x1b[31m[error] ${res.status === 429 ? "rate limited" : res.status === 404 ? "runner not found" : "server error"}\x1b[0m\r\n`,
+                        );
+                        this.fit?.fit();
+                        return;
+                    }
+                    const data = (await res.json()) as {
+                        ok: boolean;
+                        output: string;
+                        status: string;
+                    };
+                    stdin = "";
+                    if (data.output) this.terminal?.write(data.output.replace(/\n/g, "\r\n"));
+                    if (!data.ok) {
+                        this.terminal?.write(
+                            `\r\n\x1b[31m[${data.status}] program exited non-zero\x1b[0m\r\n`,
+                        );
+                    }
+                    this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
+                } catch (e) {
+                    this.terminal?.write("\r\n\x1b[31m[error] runner unavailable — check that g++/gcc/python/node is installed\x1b[0m\r\n");
+                } finally {
+                    runBtn.removeAttribute("disabled");
+                    this.fit?.fit();
                 }
-                this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
-            } catch {
-                this.terminal?.write("\r\n\x1b[31m[error] runner unavailable\x1b[0m\r\n");
-            } finally {
-                runBtn.removeAttribute("disabled");
-                this.fit?.fit();
-            }
         });
     }
 
