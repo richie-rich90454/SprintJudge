@@ -43,13 +43,13 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
     return (
         <div ref={wrapRef} className="relative w-[84px] h-[84px]">
             <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90">
-                <circle cx="42" cy="42" r={r} fill="none" stroke="#dadce0" strokeWidth="6" />
+                <circle cx="42" cy="42" r={r} fill="none" stroke="var(--oq-border)" strokeWidth="6" />
                 <circle
                     cx="42"
                     cy="42"
                     r={r}
                     fill="none"
-                    stroke={low ? "#B3261E" : "#C8102E"}
+                    stroke={low ? "var(--oq-red-dark)" : "var(--oq-red)"}
                     strokeWidth="6"
                     strokeLinecap="round"
                     strokeDasharray={c}
