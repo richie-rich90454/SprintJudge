@@ -81,7 +81,7 @@ export class AdminApiService {
         return this.client.put("/admin/settings", settings);
     }
 
-    createGame(quizId: string, gameMode: "STANDARD" | "AUTO_PILOT" = "STANDARD") {
+    createGame(quizId: string, gameMode: "STANDARD" | "AUTO_PILOT" | "PRACTICE" | "EXAM" | "TEAM" | "BATTLE" = "STANDARD") {
         // Host identity is resolved server-side from the authenticated session.
         return this.client
             .post<{ id: string; pinCode: string }>("/admin/games", { quizId, gameMode })
