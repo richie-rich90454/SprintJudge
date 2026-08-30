@@ -14,11 +14,11 @@ import { OjPatchRenderer } from "./renderers/OjPatchRenderer";
 import { QuestionType } from "../types";
 
 type Ctor = new (
-  container: HTMLElement,
-  config: unknown,
-  onChange: ResponseChange,
-  questionId?: string,
-  allowedLanguages?: string[] | null
+    container: HTMLElement,
+    config: unknown,
+    onChange: ResponseChange,
+    questionId?: string,
+    allowedLanguages?: string[] | null,
 ) => BaseQuestionRenderer;
 
 /**
@@ -26,35 +26,35 @@ type Ctor = new (
  * support a 13th format — the single expansion point for the question engine.
  */
 export class QuestionRendererFactory {
-  private static readonly REGISTRY: Record<QuestionType, Ctor> = {
-    MCQ: McqRenderer,
-    TRUE_FALSE: TrueFalseRenderer,
-    MULTIPLE_SELECT: MultipleSelectRenderer,
-    NUMERIC: NumericRenderer,
-    OUTPUT_PRED: OutputPredRenderer,
-    FILL_BLANK: FillBlankRenderer,
-    DRAG_SORT: DragSortRenderer,
-    CLICK_BUG: ClickBugRenderer,
-    CODE_COMPLETION: CodeCompletionRenderer,
-    COMPLEXITY: ComplexityRenderer,
-    OJ_FULL: OjFullRenderer,
-    OJ_PATCH: OjPatchRenderer,
-  };
+    private static readonly REGISTRY: Record<QuestionType, Ctor> = {
+        MCQ: McqRenderer,
+        TRUE_FALSE: TrueFalseRenderer,
+        MULTIPLE_SELECT: MultipleSelectRenderer,
+        NUMERIC: NumericRenderer,
+        OUTPUT_PRED: OutputPredRenderer,
+        FILL_BLANK: FillBlankRenderer,
+        DRAG_SORT: DragSortRenderer,
+        CLICK_BUG: ClickBugRenderer,
+        CODE_COMPLETION: CodeCompletionRenderer,
+        COMPLEXITY: ComplexityRenderer,
+        OJ_FULL: OjFullRenderer,
+        OJ_PATCH: OjPatchRenderer,
+    };
 
-  static create(
-    type: QuestionType,
-    container: HTMLElement,
-    config: unknown,
-    onChange: ResponseChange,
-    questionId?: string,
-    allowedLanguages?: string[] | null
-  ): BaseQuestionRenderer {
-    const C = this.REGISTRY[type];
-    if (!C) throw new Error("No renderer for type " + type);
-    return new C(container, config, onChange, questionId, allowedLanguages);
-  }
+    static create(
+        type: QuestionType,
+        container: HTMLElement,
+        config: unknown,
+        onChange: ResponseChange,
+        questionId?: string,
+        allowedLanguages?: string[] | null,
+    ): BaseQuestionRenderer {
+        const C = this.REGISTRY[type];
+        if (!C) throw new Error("No renderer for type " + type);
+        return new C(container, config, onChange, questionId, allowedLanguages);
+    }
 
-  static supported(): QuestionType[] {
-    return Object.keys(this.REGISTRY) as QuestionType[];
-  }
+    static supported(): QuestionType[] {
+        return Object.keys(this.REGISTRY) as QuestionType[];
+    }
 }
