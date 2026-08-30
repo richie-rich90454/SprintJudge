@@ -15,6 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Identity/sessions live in a lock-free map; ranking truth lives in the
  * exact {@link LiveLeaderboard} (order-statistic skip list + delta ledger).
  * Score mutations are O(log n); full leaderboards are O(n) with zero sorting.
+ *
+ * <p>Disconnected players stay in the board (ranked, marked offline) so a
+ * rejoin or refresh reclaims their seat and final standings keep them a
+ * kicked player is hard-removed instead.
  */
 public class GameRoom {
 
@@ -23,12 +27,22 @@ public class GameRoom {
     private final String pin;
     private String status;
     private int currentQuestionIndex;
+    private String currentQuestionId;
     private long currentQuestionEndEpochMs;
     private volatile String hostUuid;
     private final int maxPlayers;
 
     private final Map<String, Player> players = new ConcurrentHashMap<>();
     private final LiveLeaderboard board = new LiveLeaderboard();
+
+    // In-memory per-(question,player) attempt counter (authoritative; the async
+    // write buffer used to lag behind so rapid resubmits scored full marks).
+    private final ConcurrentHashMap<String, Integer> attempts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> streaks = new ConcurrentHashMap<>();
+    // Per-round contribution for the reveal screen: [roundScore, bonus].
+    private final ConcurrentHashMap<String, int[]> lastRound = new ConcurrentHashMap<>();
+
+    private volatile long lastActivityMs = System.currentTimeMillis();
 
     public GameRoom(String sessionId, String quizId, String pin, String status, int maxPlayers) {
         this.sessionId = sessionId;
@@ -51,9 +65,28 @@ public class GameRoom {
         return true;
     }
 
-    public void removePlayer(String uuid) {
+    /** Disconnect: keep the board row so standings/rankings survive the gap. */
+    public void softRemove(String uuid) {
+        Player p = players.get(uuid);
+        if (p != null) players.put(uuid, p.disconnected());
+    }
+
+    /** Hard remove (kick or sweep): drop from board too. */
+    public void hardRemove(String uuid) {
         players.remove(uuid);
         board.remove(uuid);
+    }
+
+    public Player reclaim(String token, String sessionId) {
+        if (token == null) return null;
+        for (Player p : players.values()) {
+            if (!p.connected() && token.equals(p.token())) {
+                Player reclaimed = p.withSession(sessionId);
+                players.put(reclaimed.uuid(), reclaimed);
+                return reclaimed;
+            }
+        }
+        return null;
     }
 
     public Player getPlayer(String uuid) {
@@ -72,8 +105,6 @@ public class GameRoom {
             Player p = players.get(e.uuid());
             if (p != null) out.add(p.withScore((int) e.score()));
         }
-        // Any session present in the map but missing from the board (race on join)
-        // is appended so state never silently loses a connected player.
         for (Player p : players.values()) {
             if (out.stream().noneMatch(x -> x.uuid().equals(p.uuid()))) {
                 out.add(p);
@@ -100,6 +131,60 @@ public class GameRoom {
         return players.size() >= maxPlayers;
     }
 
+    public int connectedCount() {
+        int n = 0;
+        for (Player p : players.values()) if (p.connected()) n++;
+        return n;
+    }
+
+    // ---------- attempts / streaks / round stats ----------
+
+    public boolean tryBeginAttempt(String questionId, String uuid, int max) {
+        String key = questionId + " " + uuid;
+        int cur = attempts.getOrDefault(key, 0);
+        if (cur >= max) return false;
+        attempts.put(key, cur + 1);
+        return true;
+    }
+
+    public int attemptCount(String questionId, String uuid) {
+        return attempts.getOrDefault(questionId + " " + uuid, 0);
+    }
+
+    public int bumpStreak(String uuid) {
+        return streaks.merge(uuid, 1, (a, b) -> a + b);
+    }
+
+    public void resetStreak(String uuid) {
+        streaks.put(uuid, 0);
+    }
+
+    public int streakOf(String uuid) {
+        return streaks.getOrDefault(uuid, 0);
+    }
+
+    public void recordRound(String uuid, int roundScore, int bonus) {
+        lastRound.put(uuid, new int[]{roundScore, bonus});
+    }
+
+    public void clearRounds() {
+        lastRound.clear();
+    }
+
+    public int[] roundOf(String uuid) {
+        return lastRound.getOrDefault(uuid, new int[]{0, 0});
+    }
+
+    // ---------- lifecycle bookkeeping ----------
+
+    public void touch() {
+        lastActivityMs = System.currentTimeMillis();
+    }
+
+    public long idleMs(long now) {
+        return now - lastActivityMs;
+    }
+
     public int capacity() {
         return maxPlayers;
     }
@@ -115,6 +200,8 @@ public class GameRoom {
     public synchronized void setHostUuid(String hostUuid) { this.hostUuid = hostUuid; }
     public int currentQuestionIndex() { return currentQuestionIndex; }
     public void setCurrentQuestionIndex(int i) { this.currentQuestionIndex = i; }
+    public String currentQuestionId() { return currentQuestionId; }
+    public void setCurrentQuestionId(String id) { this.currentQuestionId = id; }
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
     public void setCurrentQuestionEndEpochMs(long ms) { this.currentQuestionEndEpochMs = ms; }
 }
