@@ -111,13 +111,8 @@ public class GameWebSocket {
 
     private void handleJoin(Session session, JsonNode msg) {
         String ip = (String) session.getUserProperties().get(IP_KEY);
-        // A second JOIN on the same connection must reclaim the old seat first
-        // (M3) so the previous Player record doesn't linger in the standings.
         String prevPin = (String) session.getUserProperties().get(PIN_KEY);
         String prevUuid = (String) session.getUserProperties().get(UUID_KEY);
-        if (prevPin != null && prevUuid != null) {
-            try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException ignored) {}
-        }
 
         // Schema validation: JOIN requires non-empty pin and name.
         String pin = msg.path("pin").asText("");
@@ -139,6 +134,12 @@ public class GameWebSocket {
         String rejoinToken = msg.path("rejoinToken").asText(null);
         try {
             var player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
+            // ponytail: only leave old room AFTER new join succeeds —
+            // the old code left before join, so a failed join destroyed
+            // the player's seat in the previous room.
+            if (prevPin != null && prevUuid != null) {
+                try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException ignored) {}
+            }
             rateLimiter.recordSuccess(ip);
             session.getUserProperties().put(UUID_KEY, player.uuid());
             session.getUserProperties().put(PIN_KEY, pin);
@@ -213,6 +214,8 @@ public class GameWebSocket {
     @OnError
     public void onError(Session session, Throwable error) {
         org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).warn("WebSocket error on session {}", session.getId(), error);
+        // Some containers don't call onClose after onError — ensure cleanup.
+        onClose(session);
     }
 
     private String pinOf(Session session) {

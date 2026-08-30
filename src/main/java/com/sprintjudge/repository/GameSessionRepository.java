@@ -40,10 +40,13 @@ public class GameSessionRepository {
     }
 
     public void updateStatus(String id, String status) {
-        dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status)
-            .set(status.equals("ACTIVE") ? Tables.SESS_STARTED : Tables.SESS_ENDED,
-                    Instant.now().getEpochSecond())
-            .where(Tables.SESS_ID.eq(id)).execute();
+        var update = dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status);
+        if ("ACTIVE".equals(status)) {
+            update.set(Tables.SESS_STARTED, Instant.now().getEpochSecond());
+        } else if ("ENDED".equals(status)) {
+            update.set(Tables.SESS_ENDED, Instant.now().getEpochSecond());
+        }
+        update.where(Tables.SESS_ID.eq(id)).execute();
     }
 
     public void setCurrentIndex(String id, int index) {

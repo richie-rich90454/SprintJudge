@@ -51,9 +51,9 @@ public class EvaluationService {
         for (int c : chosen) if (correct.contains(c)) intersect++;
         int missed = correct.size() - intersect;
         int extra = chosen.size() - intersect;
-        // Selecting everything must never farm credit: if a player adds more
-        // wrong options than correct ones, the answer is simply wrong.
-        if (extra > intersect) return 0.0;
+        // Selecting everything must never farm credit: any wrong option
+        // beyond the correct set means the answer is simply wrong.
+        if (extra > 0 && extra >= intersect) return 0.0;
         double score = 1.0 - (missed * 0.5 + extra * 0.5) / Math.max(1, correct.size());
         return Math.max(0.0, score);
     }

@@ -20,18 +20,16 @@ public class UserRepository {
     }
 
     public User upsertByEmail(String email, String name, String avatarUrl) {
-        Optional<User> existing = findByEmail(email);
-        if (existing.isPresent()) {
-            return existing.get();
-        }
         String id = Ids.uuid();
         long now = Instant.now().getEpochSecond();
+        // ponytail: atomic upsert replaces the TOCTOU check-then-insert.
         dsl.insertInto(Tables.USERS)
             .columns(Tables.USERS_ID, Tables.USERS_EMAIL, Tables.USERS_NAME,
                     Tables.USERS_AVATAR, Tables.USERS_ROLE, Tables.USERS_CREATED_AT)
             .values(id, email, name, avatarUrl, "ADMIN", now)
+            .onConflict(Tables.USERS_EMAIL).doNothing()
             .execute();
-        return new User(id, email, name, avatarUrl, "ADMIN", Instant.ofEpochSecond(now));
+        return findByEmail(email).orElse(new User(id, email, name, avatarUrl, "ADMIN", Instant.ofEpochSecond(now)));
     }
 
     public Optional<User> findByEmail(String email) {

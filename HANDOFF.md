@@ -12,14 +12,15 @@ with a built-in multi-language Online Judge. GPLv3 license.
 
 ## What Works Right Now
 
-- Backend: Spring Boot 4 / Java 25 / SQLite WAL — 298 tests green
+- Backend: Spring Boot 4 / Java 25 / SQLite WAL — 480 tests green
 - Frontend: React 19 + Vite 8 + Tailwind v4 + Framer Motion + Tone.js — tsc clean, build clean
-- Fat jar: single jar bundles SPA + API + WebSocket + 2000-question library
+- Fat jar: single jar bundles SPA + API + WebSocket + 5120-question library
 - Auth: simple username/password form login (MVP) — OAuth2 code preserved but unwired
-- Question library: 560 sets × 10 questions auto-seeds on first boot (5120 questions total)
+- Question library: 560 sets × 10 questions auto-seeds on first boot (5120 questions total, no duplicate IDs)
   - Languages: Java, Python, C++, C, JavaScript/Node.js
   - Topics: Cybersecurity, Web Dev (HTML/CSS/JS), Math (logic, sets, probability, combinatorics, algebra)
   - Difficulty: Easy, Medium, Hard per topic
+  - MCQ pool: 30-47 unique per language (311 total)
 - Audio: Tone.js chiptune engine — procedural 8-bit music + SFX (correct/wrong/timer/victory/combo)
 - Live code runner: xterm.js canvas console + POST /api/run endpoint (Juicemind-style)
 - TanStack Query for REST API caching + RxJS for WebSocket (separate concerns)

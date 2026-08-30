@@ -2,6 +2,7 @@ package com.sprintjudge.service;
 
 import com.sprintjudge.domain.dto.ErrorMessage;
 import com.sprintjudge.domain.dto.QuestionStart;
+import com.sprintjudge.domain.dto.RoomState;
 import com.sprintjudge.domain.dto.RoundResult;
 import com.sprintjudge.domain.dto.SubmissionResult;
 import com.sprintjudge.domain.dto.TimerUpdate;
@@ -415,7 +416,9 @@ class GameRoomManagerTest {
 
         mgr.leave("123456", p.uuid());
 
-        assertEquals(0, mgr.getRoomState("123456").players().size());
+        var state = mgr.getRoomState("123456");
+        assertEquals(1, state.players().size());
+        assertTrue(state.players().stream().noneMatch(RoomState.PlayerInfo::connected));
     }
 
     // ---------- creation ----------

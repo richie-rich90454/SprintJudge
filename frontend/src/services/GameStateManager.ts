@@ -111,7 +111,7 @@ export class GameStateManager {
                 const room = m as unknown as RoomState;
                 // The roster is connection truth: drop leaderboard rows for players
                 // who left or were kicked (the delta protocol has no tombstone).
-                const connected = new Set(room.players.map((p) => p.uuid));
+                const connected = new Set((room.players ?? []).map((p) => p.uuid));
                 this.patch({
                     room,
                     gameMode: room.gameMode ?? "STANDARD",
@@ -120,11 +120,12 @@ export class GameStateManager {
                 break;
             }
             case "QUESTION_START": {
-                const q = m.question as QuestionDto;
-                const tl = m.timeLimitSec as number;
+                const q = m.question as QuestionDto | undefined;
+                const tl = m.timeLimitSec as number | undefined;
+                if (!q) break;
                 // Practice mode sends timeLimitSec=-1 → no timer.
-                if (tl > 0) {
-                    const end = (m.startedAtEpochMs as number) + tl * 1000;
+                if (tl && tl > 0) {
+                    const end = ((m.startedAtEpochMs as number) ?? Date.now()) + tl * 1000;
                     pushTimer(q.id, tl, end);
                 } else {
                     pushTimer(q.id, 0, Infinity);

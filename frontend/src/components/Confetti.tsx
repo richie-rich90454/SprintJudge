@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ANSWER_PALETTE } from "../design/kahoot";
 
@@ -42,10 +42,6 @@ export function Confetti({ count = 90, fireKey = 0 }: ConfettiProps) {
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [count, fireKey]);
-
-    useEffect(() => {
-        /* re-mount pieces when fireKey changes handled by key below */
-    }, [fireKey]);
 
     return (
         <div

@@ -66,6 +66,10 @@ public class QuestionRepository {
         dsl.deleteFrom(Tables.QUESTIONS).where(Tables.QUESTIONS_ID.eq(id)).execute();
     }
 
+    public void deleteByQuiz(String quizId) {
+        dsl.deleteFrom(Tables.QUESTIONS).where(Tables.QUESTIONS_QUIZ_ID.eq(quizId)).execute();
+    }
+
     private Question toQuestion(org.jooq.Record r) {
         String langs = r.get(Tables.QUESTIONS_LANGS);
         List<String> langList = langs == null || langs.isBlank() ? null : List.of(langs.split(","));

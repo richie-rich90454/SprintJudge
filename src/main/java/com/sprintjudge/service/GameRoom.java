@@ -32,6 +32,7 @@ public class GameRoom {
     private int currentQuestionIndex;
     private String currentQuestionId;
     private long currentQuestionEndEpochMs;
+    private long currentQuestionStartEpochMs;
     private volatile String hostUuid;
     private final int maxPlayers;
     private final GameMode gameMode;
@@ -59,7 +60,7 @@ public class GameRoom {
         }
     }
     private final ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<>();
-    private volatile int teamSeq = 0;
+    private final java.util.concurrent.atomic.AtomicInteger teamSeq = new java.util.concurrent.atomic.AtomicInteger(0);
 
     // Battle mode: matchmaking and bracket.
     public record BattleMatch(String id, String p1Uuid, String p2Uuid, String questionId,
@@ -98,13 +99,13 @@ public class GameRoom {
     }
 
     /** Disconnect: keep the board row so standings/rankings survive the gap. */
-    public void softRemove(String uuid) {
+    public synchronized void softRemove(String uuid) {
         Player p = players.get(uuid);
         if (p != null) players.put(uuid, p.disconnected());
     }
 
     /** Hard remove (kick or sweep): drop from board too. */
-    public void hardRemove(String uuid) {
+    public synchronized void hardRemove(String uuid) {
         players.remove(uuid);
         board.remove(uuid);
     }
@@ -173,10 +174,14 @@ public class GameRoom {
 
     public boolean tryBeginAttempt(String questionId, String uuid, int max) {
         String key = questionId + " " + uuid;
-        int cur = attempts.getOrDefault(key, 0);
-        if (cur >= max) return false;
-        attempts.put(key, cur + 1);
-        return true;
+        boolean[] accepted = {false};
+        attempts.compute(key, (k, v) -> {
+            int cur = v == null ? 0 : v;
+            if (cur >= max) return v;
+            accepted[0] = true;
+            return cur + 1;
+        });
+        return accepted[0];
     }
 
     public int attemptCount(String questionId, String uuid) {
@@ -236,6 +241,8 @@ public class GameRoom {
     public void setCurrentQuestionId(String id) { this.currentQuestionId = id; }
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
     public void setCurrentQuestionEndEpochMs(long ms) { this.currentQuestionEndEpochMs = ms; }
+    public long currentQuestionStartEpochMs() { return currentQuestionStartEpochMs; }
+    public void setCurrentQuestionStartEpochMs(long ms) { this.currentQuestionStartEpochMs = ms; }
     public GameMode gameMode() { return gameMode; }
     public long totalEndEpochMs() { return totalEndEpochMs; }
     public void setTotalEndEpochMs(long ms) { this.totalEndEpochMs = ms; }
@@ -243,18 +250,17 @@ public class GameRoom {
     // ---------- team mode ----------
 
     public Team createTeam(String name) {
-        String id = "team-" + (++teamSeq);
+        String id = "team-" + teamSeq.incrementAndGet();
         Team t = new Team(id, name, java.util.Set.of(), 0);
         teams.put(id, t);
         return t;
     }
 
     public Team joinTeam(String teamId, String playerUuid) {
-        Team t = teams.get(teamId);
-        if (t == null) return null;
-        Team updated = t.addMember(playerUuid);
-        teams.put(teamId, updated);
-        return updated;
+        return teams.compute(teamId, (id, t) -> {
+            if (t == null) return null;
+            return t.addMember(playerUuid);
+        });
     }
 
     public Team getTeam(String teamId) { return teams.get(teamId); }
@@ -268,18 +274,18 @@ public class GameRoom {
     }
 
     public long applyTeamScore(String teamId, long delta) {
-        Team t = teams.get(teamId);
-        if (t == null) return 0;
-        Team updated = t.withScore(t.score() + delta);
-        teams.put(teamId, updated);
-        return updated.score();
+        Team result = teams.compute(teamId, (id, t) -> {
+            if (t == null) return null;
+            return t.withScore(t.score() + delta);
+        });
+        return result == null ? 0 : result.score();
     }
 
     // ---------- battle mode ----------
 
     public void addBattleMatch(BattleMatch m) { battleMatches.add(m); }
     public java.util.List<BattleMatch> battleMatches() { return battleMatches; }
-    public void setBracket(java.util.List<String[]> rounds) {
+    public synchronized void setBracket(java.util.List<String[]> rounds) {
         bracket.clear();
         bracket.addAll(rounds);
     }

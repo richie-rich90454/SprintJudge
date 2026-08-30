@@ -60,7 +60,7 @@ export function HostLobbyView() {
                         <p className="label-caps mb-1">{statusLabel}</p>
                         <p className="font-bold text-lg">{playerCount} players</p>
                     </div>
-                    {room?.status === "ACTIVE" && end && q && (
+                    {room?.status === "ACTIVE" && end && isFinite(end) && q && (
                         <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} />
                     )}
                     <ThemeToggle />

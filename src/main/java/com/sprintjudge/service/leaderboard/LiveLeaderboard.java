@@ -43,7 +43,7 @@ public final class LiveLeaderboard {
     }
 
     /** Applies a score delta (positive or negative); returns the new exact rank. */
-    public int applyScore(String uuid, long delta) {
+    public synchronized int applyScore(String uuid, long delta) {
         Slot s = players.get(uuid);
         if (s == null || !s.present) return -1;
         long prevScore = s.score;

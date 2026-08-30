@@ -10,6 +10,7 @@ import com.sprintjudge.util.Ids;
 import com.sprintjudge.util.Json;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class ImportExportService {
         ExportBundle bundle = Json.read(json, ExportBundle.class);
         if (replace) {
             for (Quiz q : quizRepository.findAll()) {
+                questionRepository.deleteByQuiz(q.id());
                 quizRepository.delete(q.id());
             }
         }
@@ -71,9 +73,14 @@ public class ImportExportService {
             }
         }
         if (bundle.adminSettings() != null) {
-            bundle.adminSettings().forEach(settingsRepository::put);
+            importSettings(bundle.adminSettings());
         }
         return count;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void importSettings(Map<String, String> settings) {
+        settings.forEach(settingsRepository::put);
     }
 
     private ExportBundle.QuestionExport toExport(Question q) {

@@ -30,15 +30,14 @@ public class AdminSettingsRepository {
 
     public void put(String key, String value) {
         long now = Instant.now().getEpochSecond();
-        boolean exists = dsl.fetchExists(Tables.ADMIN_SETTINGS, Tables.SET_KEY.eq(key));
-        if (exists) {
-            dsl.update(Tables.ADMIN_SETTINGS).set(Tables.SET_VALUE, value)
-                .set(Tables.SET_UPDATED, now).where(Tables.SET_KEY.eq(key)).execute();
-        } else {
-            dsl.insertInto(Tables.ADMIN_SETTINGS)
-                .columns(Tables.SET_KEY, Tables.SET_VALUE, Tables.SET_UPDATED)
-                .values(key, value, now).execute();
-        }
+        // ponytail: atomic upsert replaces the TOCTOU check-then-insert.
+        dsl.insertInto(Tables.ADMIN_SETTINGS)
+            .columns(Tables.SET_KEY, Tables.SET_VALUE, Tables.SET_UPDATED)
+            .values(key, value, now)
+            .onConflict(Tables.SET_KEY).doUpdate()
+            .set(Tables.SET_VALUE, value)
+            .set(Tables.SET_UPDATED, now)
+            .execute();
     }
 
     public Optional<AdminSetting> findByKey(String key) {

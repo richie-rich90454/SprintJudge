@@ -62,7 +62,7 @@ export function HostLeaderboardView() {
                                                 className="mono font-bold tabular-nums"
                                                 style={{ fontSize: 17 }}
                                             >
-                                                {r.score.toLocaleString()}
+                                                {(r.score ?? 0).toLocaleString()}
                                             </span>
                                         </fm.div>
                                     );

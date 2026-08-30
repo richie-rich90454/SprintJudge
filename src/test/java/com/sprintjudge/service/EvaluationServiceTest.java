@@ -59,8 +59,8 @@ class EvaluationServiceTest {
         assertEquals(1.0, svc.evaluateCorrectness(q, r("{\"selectedIndices\":[0,1]}"))); // all correct
         assertEquals(0.75, svc.evaluateCorrectness(q, r("{\"selectedIndices\":[0]}")), 1e-9); // 1 missed
         assertEquals(0.0, svc.evaluateCorrectness(q, r("{\"selectedIndices\":[2,3]}")));       // all wrong (extra>intersect)
-        assertEquals(0.5, svc.evaluateCorrectness(q("MULTIPLE_SELECT", "{\"correctIndices\":[0]}"),
-                r("{\"selectedIndices\":[0,1]}")), 1e-9); // 1 right + 1 wrong -> 0.5
+        assertEquals(0.0, svc.evaluateCorrectness(q("MULTIPLE_SELECT", "{\"correctIndices\":[0]}"),
+                r("{\"selectedIndices\":[0,1]}")), 1e-9); // 1 right + 1 wrong -> 0 (credit-farming guard)
     }
 
     @Test

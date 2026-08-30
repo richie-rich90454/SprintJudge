@@ -163,7 +163,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (room == null) return;
         synchronized (room) {
             if (playerUuid.equals(room.hostUuid())) room.setHostUuid(null);
-            room.hardRemove(playerUuid);
+            // ponytail: soft-remove keeps score in the board so a rejoin
+            // via token reclaims the seat. hardRemove was destroying
+            // standings on every disconnect/page-refresh.
+            room.softRemove(playerUuid);
         }
         eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerLeft(pin, playerUuid));
         broadcastRoomState(pin);
@@ -192,6 +195,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
         if (room.gameMode() == GameRoom.GameMode.PRACTICE) {
             // Practice: no timer, unlimited time.
+            room.setCurrentQuestionStartEpochMs(now);
             room.setCurrentQuestionEndEpochMs(Long.MAX_VALUE);
             broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, -1, now, now));
             broadcastRoomState(pin);
@@ -200,6 +204,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
         if (room.gameMode() == GameRoom.GameMode.EXAM) {
             // Exam: use the total end time (set at game creation), no per-question timer.
+            room.setCurrentQuestionStartEpochMs(now);
             long end = room.totalEndEpochMs();
             if (end <= 0) end = now + (long) q.timeLimitSec() * questions.size() * 1000;
             room.setCurrentQuestionEndEpochMs(end);
@@ -211,6 +216,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         }
 
         // STANDARD, AUTO_PILOT, TEAM, BATTLE: per-question timer.
+        room.setCurrentQuestionStartEpochMs(now);
         long end = now + (long) q.timeLimitSec() * 1000;
         room.setCurrentQuestionEndEpochMs(end);
         broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, q.timeLimitSec(), now, now));
@@ -261,9 +267,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         double fraction = evaluationService.evaluateCorrectness(q, response);
         Player p = room.getPlayer(playerUuid);
         if (p == null) return;
-        long limitMs = (long) q.timeLimitSec() * 1000;
-        long remainingMs = Math.max(0, room.currentQuestionEndEpochMs() - Instant.now().toEpochMilli());
-        long taken = Math.max(0, (limitMs - remainingMs) / 1000);
+        long taken = Math.max(0, (Instant.now().toEpochMilli() - room.currentQuestionStartEpochMs()) / 1000);
         int attempts = room.attemptCount(questionId, playerUuid);
         boolean correct = fraction >= 1.0;
         int base = scoringEngine.scoreSelection(fraction, taken, q.timeLimitSec(), attempts,
@@ -296,9 +300,6 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             return;
         }
         String source = response == null ? "" : response.path("source").asText("");
-        long limitMs = (long) q.timeLimitSec() * 1000;
-        long deadline = room.currentQuestionEndEpochMs();
-        long taken = Math.max(0, Math.min((deadline - Instant.now().toEpochMilli()) / 1000, q.timeLimitSec()));
         int attempts = room.attemptCount(q.id(), playerUuid);
         String sessionId = p.sessionId();
         String pin = room.pin();

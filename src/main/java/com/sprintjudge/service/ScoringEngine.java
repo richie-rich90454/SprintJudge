@@ -52,7 +52,8 @@ public class ScoringEngine {
         double fraction = (double) passed / total;
         double speed = fullySolved ? (minSpeedFraction + (1 - minSpeedFraction) * (1.0 - (double) Math.min(timeTakenSec, timeLimitSec) / Math.max(1, timeLimitSec))) : 1.0;
         double attemptMult = attemptMultiplier(attemptsUsed, settings);
-        return (int) Math.round(fraction * basePoints * speed * attemptMult);
+        int base = basePoints > 0 ? basePoints : 1000;
+        return (int) Math.round(fraction * base * speed * attemptMult);
     }
 
     private double attemptMultiplier(int attemptsUsed, Map<String, Object> settings) {

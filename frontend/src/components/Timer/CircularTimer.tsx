@@ -11,7 +11,6 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
     const [remaining, setRemaining] = useState(Math.max(0, endEpochMs - Date.now()));
     const fired = useRef(false);
     const wrapRef = useRef<HTMLDivElement>(null);
-    const prevSec = useRef(-1);
     const onExpireRef = useRef(onExpire);
     onExpireRef.current = onExpire;
 
@@ -31,10 +30,9 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
     }, [endEpochMs]);
 
     const secs = Math.ceil(remaining / 1000);
-    if (secs <= 10 && secs > 0 && secs !== prevSec.current) {
-        prevSec.current = secs;
-        motion.pulse(wrapRef.current);
-    }
+    useEffect(() => {
+        if (secs <= 10 && secs > 0) motion.pulse(wrapRef.current);
+    }, [secs]);
     const frac = totalSec > 0 ? Math.min(1, remaining / (totalSec * 1000)) : 0;
     const r = 34;
     const c = 2 * Math.PI * r;

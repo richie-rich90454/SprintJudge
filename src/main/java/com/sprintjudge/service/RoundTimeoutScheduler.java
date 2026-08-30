@@ -32,10 +32,7 @@ public class RoundTimeoutScheduler {
         cancel(pinKey);
         long delay = Math.max(0, endEpochMs - System.currentTimeMillis());
         // Small grace so a client auto-submit landing right at zero still scores.
-        tasks.put(pinKey, executor.schedule(() -> {
-            tasks.remove(pinKey);
-            fire.run();
-        }, delay + 500, TimeUnit.MILLISECONDS));
+        tasks.put(pinKey, executor.schedule(fire::run, delay + 500, TimeUnit.MILLISECONDS));
     }
 
     public void cancel(int pinKey) {
