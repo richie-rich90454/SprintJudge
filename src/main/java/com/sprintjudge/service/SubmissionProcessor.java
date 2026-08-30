@@ -22,14 +22,18 @@ import java.util.concurrent.Semaphore;
 
 /**
  * Async judge pipeline. Returns {@code false} only when the concurrency
- * budget is saturated so the caller can answer with a friendly retry —
- * the queue never blocks a WebSocket thread.
+ * budget is saturated so the caller can answer with a friendly retry the
+ * queue never blocks a WebSocket thread.
+ *
+ * <p>Attempt-cap and language enforcement happen in the caller
+ * ({@link GameRoomManager}); this stage judges and reports the outcome back
+ * through {@link CodingOutcomeConsumer}, which applies the score to the room
+ * leaderboard (the OJ pipeline used to award zero visible points).
  */
 @Service
 public class SubmissionProcessor {
 
     private static final int MAX_SOURCE_CHARS = 65_536;
-    private static final int MAX_ATTEMPTS_PER_QUESTION = 50;
 
     private final CodeExecutor executor;
     private final SubmissionRepository submissionRepository;
@@ -40,12 +44,12 @@ public class SubmissionProcessor {
     private final Semaphore slot;
 
     public SubmissionProcessor(CodeExecutor executor,
-                               SubmissionRepository submissionRepository,
-                               QuestionRepository questionRepository,
-                               ScoringEngine scoringEngine,
-                               LeaderboardBroadcaster leaderboardBroadcaster,
-                               SubmissionWriteBuffer writeBuffer,
-                               Semaphore executionSlots) {
+                                SubmissionRepository submissionRepository,
+                                QuestionRepository questionRepository,
+                                ScoringEngine scoringEngine,
+                                LeaderboardBroadcaster leaderboardBroadcaster,
+                                SubmissionWriteBuffer writeBuffer,
+                                Semaphore executionSlots) {
         this.executor = executor;
         this.submissionRepository = submissionRepository;
         this.questionRepository = questionRepository;
@@ -57,28 +61,29 @@ public class SubmissionProcessor {
 
     @Async("virtualThreadExecutor")
     public boolean processCoding(String sessionId, String pin, String questionId, String playerName,
-                                 String playerUuid, String language, String sourceCode,
-                                 Map<String, Object> settings) {
+                                  String playerUuid, String language, String sourceCode, int attemptsUsed,
+                                  Map<String, Object> settings, CodingOutcomeConsumer handler) {
         // Edge case Y companion: never block the caller on a saturated judge.
         if (!slot.tryAcquire()) {
             return false;
         }
         JudgeResult result = null;
         try {
-            result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode, settings);
+            result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
+                    attemptsUsed, settings, handler);
             return true;
         } finally {
             slot.release();
             if (result != null) {
-                // Leaderboard fan-out is pin-keyed; the session id is not a pin.
                 leaderboardBroadcaster.broadcastLeaderboard(pin);
             }
         }
     }
 
     private JudgeResult judge(String sessionId, String questionId, String playerName,
-                              String playerUuid, String language, String sourceCode,
-                              Map<String, Object> settings) {
+                               String playerUuid, String language, String sourceCode,
+                               int attemptsUsed, Map<String, Object> settings,
+                               CodingOutcomeConsumer handler) {
         Question question = questionRepository.findById(questionId).orElse(null);
         if (question == null) return null;
         QuestionType type = QuestionType.from(question.questionType());
@@ -90,17 +95,10 @@ public class SubmissionProcessor {
         }
 
         // Defense-in-depth: the WS layer already caps this; enforce again here.
-        if (sourceCode != null && sourceCode.length() > MAX_SOURCE_CHARS) {
-            recordRejected(sessionId, questionId, playerName, playerUuid, "source_too_large");
+        if (sourceCode == null || sourceCode.length() > MAX_SOURCE_CHARS) {
+            recordRejected(sessionId, questionId, playerName, playerUuid,
+                    sourceCode == null ? "source_missing" : "source_too_large");
             return new JudgeResult(0, 0, false, List.of());
-        }
-
-        // Bound the judge queue: hard cap on attempts per player per question.
-        int priorAttempts = submissionRepository.findBySessionQuestion(sessionId, questionId).stream()
-                .filter(s -> s.playerUuid().equals(playerUuid))
-                .mapToInt(s -> s.attemptCount()).sum();
-        if (priorAttempts >= MAX_ATTEMPTS_PER_QUESTION) {
-            return null;
         }
 
         JsonNode config = Json.readTree(question.config());
@@ -119,23 +117,23 @@ public class SubmissionProcessor {
         JudgeRequest req = new JudgeRequest(language, sourceCode, cases, timeout, memMb);
         JudgeResult result = executor.judge(req);
 
-        int attempts = priorAttempts + 1;
         int score = scoringEngine.scoreCoding(
                 result.passed(), result.total(), question.pointsBase(),
-                result.allPassed(), 0, question.timeLimitSec(), attempts, settings);
+                result.allPassed(), 0, question.timeLimitSec(), attemptsUsed, settings);
 
         Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
         if (best == null || score > best.scoreEarned()) {
             writeBuffer.offer(new Submission(
                     Ids.uuid(), sessionId, questionId, playerName, playerUuid,
                     Json.write(Map.of("language", language, "source", sourceCode)),
-                    score, result.allPassed(), Json.write(result), attempts, Instant.now()));
+                    score, result.allPassed(), Json.write(result), attemptsUsed, Instant.now()));
         }
+        handler.accept(playerUuid, score, result.allPassed(), result.passed(), result.total());
         return result;
     }
 
     private void recordRejected(String sessionId, String questionId, String playerName,
-                                String playerUuid, String reason) {
+                                 String playerUuid, String reason) {
         writeBuffer.offer(new Submission(Ids.uuid(), sessionId, questionId, playerName,
                 playerUuid, Json.write(Map.of("rejected", reason)),
                 0, false, reason, 1, Instant.now()));
