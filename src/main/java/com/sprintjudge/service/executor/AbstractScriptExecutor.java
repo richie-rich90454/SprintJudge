@@ -127,4 +127,59 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             default -> ".txt";
         };
     }
+
+    /**
+     * Live execution for the interactive console: writes stdin to a file, then
+     * runs the per-language script (which compiles + executes) reading that file.
+     * Captures combined stdout/stderr so students get immediate feedback.
+     */
+    @Override
+    public RunResult run(RunRequest request) {
+        String language = canonical(request.language());
+        if (!SUPPORTED.contains(language)) {
+            return new RunResult(false, "", "", "unsupported_language");
+        }
+        if (request.sourceCode() != null && request.sourceCode().length() > 65_536) {
+            return new RunResult(false, "", "", "source_too_large");
+        }
+        Path runDir;
+        try {
+            runDir = Files.createDirectories(Path.of(workDirBase,
+                    "run-" + Thread.currentThread().threadId() + "-" + System.nanoTime()));
+        } catch (IOException e) {
+            log.error("Could not create run directory under {}", workDirBase, e);
+            return new RunResult(false, "", "", "io_error");
+        }
+        try {
+            runDir = runDir.toAbsolutePath();
+            Path sourceFile = runDir.resolve("solution" + extension(language)).toAbsolutePath();
+            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+            Path inputFile = runDir.resolve("input.txt").toAbsolutePath();
+            Files.writeString(inputFile, request.stdin() == null ? "" : request.stdin());
+
+            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+            List<String> cmd = commandFor(language, sourceFile, inputFile, runDir);
+            ProcessBuilder pb = new ProcessBuilder(cmd)
+                    .directory(runDir.toFile())
+                    .redirectErrorStream(true);
+            Process proc = pb.start();
+
+            if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
+                proc.destroyForcibly();
+                return new RunResult(false, "", "", "timeout");
+            }
+            String output = ExecIo.readCapped(proc);
+            if (output == null) {
+                return new RunResult(false, "", "", "stdout_exceeded_1MB");
+            }
+            boolean ok = proc.exitValue() == 0;
+            return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Run execution failed for language {}", language, e);
+            return new RunResult(false, "", "", "io_error");
+        } finally {
+            ExecIo.deleteTree(runDir);
+        }
+    }
 }
