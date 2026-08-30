@@ -212,7 +212,7 @@ public class GameWebSocket {
 
     @OnError
     public void onError(Session session, Throwable error) {
-        // connection-level errors are non-fatal; ignore
+        org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).warn("WebSocket error on session {}", session.getId(), error);
     }
 
     private String pinOf(Session session) {

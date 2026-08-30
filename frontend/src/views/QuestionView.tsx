@@ -8,13 +8,14 @@ import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
 import { Confetti } from "../components/Confetti";
 import { audio } from "../services/AudioEngine";
-import { QuestionDto } from "../types";
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import { QuestionDto, SubmissionResult } from "../types";
 
 export function QuestionView() {
     const q = useGameStore((s) => s.currentQuestion) as QuestionDto | null;
     const status = useGameStore((s) => s.status);
     const submit = useGameStore((s) => s.submit);
-    const lastResult = useGameStore((s) => s.lastResult) as any;
+    const lastResult = useGameStore((s) => s.lastResult) as SubmissionResult | null;
     const end = useTimerStore((s) => s.endEpochMs);
     const [response, setResponse] = useState<unknown>(null);
     const [submitted, setSubmitted] = useState(false);
@@ -165,11 +166,13 @@ export function QuestionView() {
                         (coding ? "overflow-hidden" : "overflow-y-auto")
                     }
                 >
-                    <QuestionRendererHost
-                        question={q}
-                        onResponse={setResponse}
-                        revealSignal={0}
-                    />
+                    <ErrorBoundary>
+                        <QuestionRendererHost
+                            question={q}
+                            onResponse={setResponse}
+                            revealSignal={0}
+                        />
+                    </ErrorBoundary>
 
                     <Button
                         onPress={doSubmit}

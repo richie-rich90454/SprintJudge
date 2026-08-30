@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import { webSocketService, WsMessage } from "./WebSocketService";
-import { GameState, QuestionDto, RoomState, LeaderboardEntry, LeaderboardDelta, GameReview } from "../types";
+import { GameState, QuestionDto, RoomState, LeaderboardEntry, LeaderboardDelta, GameReview, SubmissionResult } from "../types";
 
 const initial: GameState = {
     status: "LOBBY",
@@ -35,6 +35,18 @@ export class GameStateManager {
 
     constructor() {
         webSocketService.onMessage().subscribe((m) => this.dispatch(m));
+        // On reconnect, rejoin and resync if the player was already connected.
+        webSocketService.onStatus().subscribe((status) => {
+            if (status === "open" && this.state.playerUuid) {
+                webSocketService.send({
+                    type: "JOIN",
+                    role: "player",
+                    name: this.state.playerName,
+                    pin: this.state.pin,
+                });
+                this.requestLeaderboardResync();
+            }
+        });
     }
 
     get state(): GameState {
@@ -128,24 +140,29 @@ export class GameStateManager {
                 this.patch({ leaderboard: m.rankings as LeaderboardEntry[] });
                 break;
             case "ROUND_RESULT":
-                this.patch({ status: "REVIEW", lastResult: m });
+                this.patch({
+                    status: "REVIEW",
+                    lastResult: m as unknown as SubmissionResult,
+                });
                 clearTimer();
                 break;
-            case "SUBMISSION_RESULT":
+            case "SUBMISSION_RESULT": {
+                const sub = {
+                    questionId: m.questionId as string,
+                    score: m.score as number,
+                    allPassed: m.allPassed as boolean,
+                    passed: m.passed as number | undefined,
+                    totalTests: m.totalTests as number | undefined,
+                    aiFeedback: (m.aiFeedback as string) ?? null,
+                };
                 this.patch({
                     lastResult: {
                         ...(this.state.lastResult ?? {}),
-                        submission: {
-                            questionId: m.questionId,
-                            score: m.score,
-                            allPassed: m.allPassed,
-                            passed: m.passed,
-                            totalTests: m.totalTests,
-                            aiFeedback: m.aiFeedback ?? null,
-                        },
+                        submission: sub,
                     },
                 });
                 break;
+            }
             case "GAME_END":
                 this.patch({
                     status: "ENDED",

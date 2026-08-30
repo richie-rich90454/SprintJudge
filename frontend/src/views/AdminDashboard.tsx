@@ -21,6 +21,72 @@ const TABS: { id: AdminTab; label: string }[] = [
     { id: "settings", label: "Settings" },
 ];
 
+function SettingsTab() {
+    const [settings, setSettings] = useState<Record<string, string>>({});
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
+
+    useEffect(() => {
+        adminApi.getSettings().then((s) => {
+            setSettings(s);
+            setLoading(false);
+        }).catch(() => setLoading(false));
+    }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await adminApi.updateSettings(settings);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) return <div className="text-center py-16 text-default-500">Loading settings...</div>;
+
+    return (
+        <motion.div
+            key="settings"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+        >
+            <h2 className="text-lg font-extrabold mb-4">Settings</h2>
+            {Object.keys(settings).length === 0 ? (
+                <p className="text-default-500">No settings configured.</p>
+            ) : (
+                <div className="flex flex-col gap-3 max-w-lg">
+                    {Object.entries(settings).map(([key, value]) => (
+                        <div key={key} className="flex flex-col gap-1">
+                            <label className="label-caps">{key}</label>
+                            <input
+                                value={value}
+                                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                                className="input-underline"
+                            />
+                        </div>
+                    ))}
+                    <div className="flex gap-2 pt-2">
+                        <Button
+                            variant="primary"
+                            className="bg-[var(--oq-red)] text-white"
+                            onPress={handleSave}
+                            isDisabled={saving}
+                        >
+                            {saving ? "Saving..." : "Save"}
+                        </Button>
+                        {saved && <span className="text-sm text-green-600 self-center">Saved!</span>}
+                    </div>
+                </div>
+            )}
+        </motion.div>
+    );
+}
+
 export function AdminDashboard() {
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
         useAdminStore();
@@ -473,26 +539,14 @@ export function AdminDashboard() {
                         >
                             <h2 className="text-lg font-extrabold mb-4">Game history</h2>
                             <div className="text-center py-16 text-default-500">
-                                <p className="label-caps mb-2">Coming soon</p>
-                                <p>Game history with list + calendar views will appear here.</p>
+                                <p className="label-caps mb-2">No games played yet</p>
+                                <p>Game history will be available after games are played. Check the host view for live game status.</p>
                             </div>
                         </motion.div>
                     )}
 
                     {tab === "settings" && (
-                        <motion.div
-                            key="settings"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <h2 className="text-lg font-extrabold mb-4">Settings</h2>
-                            <div className="text-center py-16 text-default-500">
-                                <p className="label-caps mb-2">Coming soon</p>
-                                <p>General, Security, AI, Executor, and Display settings.</p>
-                            </div>
-                        </motion.div>
+                        <SettingsTab />
                     )}
                 </AnimatePresence>
             </main>

@@ -124,6 +124,14 @@ public class NativeExecutor implements CodeExecutor {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
                     continue;
                 }
+                // ponytail: Java's Process API reports RSS only after exit on some JDKs; log if over limit post-hoc.
+                int memLimitMb = request.memoryLimitMb();
+                if (memLimitMb > 0) {
+                    long memBytes = proc.info().totalMemorySize().orElse(0L);
+                    if (memBytes > 0 && memBytes > (long) memLimitMb * 1024 * 1024) {
+                        log.warn("Memory limit exceeded: {}MB > {}MB limit", memBytes / (1024 * 1024), memLimitMb);
+                    }
+                }
                 String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));

@@ -63,6 +63,17 @@ export interface LeaderboardDelta {
     entries: LeaderboardEntry[];
 }
 
+export interface SubmissionResult {
+    submission: {
+        questionId: string;
+        allPassed: boolean;
+        score: number;
+        passed?: number;
+        totalTests?: number;
+        aiFeedback?: string;
+    };
+}
+
 export interface GameState {
     status: GameStatus;
     pin: string | null;
@@ -72,7 +83,7 @@ export interface GameState {
     currentQuestion: QuestionDto | null;
     leaderboard: LeaderboardEntry[];
     room: RoomState | null;
-    lastResult: unknown | null;
+    lastResult: SubmissionResult | null;
     error: string | null;
     gameMode: GameMode;
     review: GameReview | null;

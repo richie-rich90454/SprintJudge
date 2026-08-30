@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class BroadcastScheduler {
 
+    private static final Logger log = LoggerFactory.getLogger(BroadcastScheduler.class);
     private final Map<Integer, Runnable> due = new ConcurrentHashMap<>();
     private final ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(r -> {
@@ -53,8 +56,8 @@ public class BroadcastScheduler {
             // ConcurrentHashMap never stores a null value, so remove() is non-null here.
             try {
                 due.remove(key).run();
-            } catch (RuntimeException ignored) {
-                // A dead room must never kill the broadcast thread.
+            } catch (RuntimeException e) {
+                log.warn("Broadcast flush failed for room {}", key, e);
             }
         }
     }

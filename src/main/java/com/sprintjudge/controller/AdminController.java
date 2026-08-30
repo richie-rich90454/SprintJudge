@@ -55,6 +55,18 @@ public class AdminController {
         return quizRepository.create(quiz);
     }
 
+    @PutMapping("/quizzes/{id}")
+    public Quiz updateQuiz(@PathVariable String id, @RequestBody Map<String, String> body) {
+        var existing = quizRepository.findById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Quiz not found"));
+        String title = body.getOrDefault("title", existing.title());
+        String description = body.getOrDefault("description", existing.description());
+        com.sprintjudge.domain.models.Quiz updated = new com.sprintjudge.domain.models.Quiz(
+                id, title, description, existing.createdBy(), existing.createdAt(), existing.template());
+        return quizRepository.update(updated);
+    }
+
     @DeleteMapping("/quizzes/{id}")
     public void deleteQuiz(@PathVariable String id) {
         quizRepository.delete(id);

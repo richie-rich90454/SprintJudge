@@ -455,6 +455,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         }
         sendRoundResult(pin, true);
         broadcastRoomState(pin);
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.QuestionCompleted(
+                pin, room.currentQuestionId(), room.currentQuestionIndex()));
         // Auto-pilot / Practice: auto-advance after brief review.
         if (room.gameMode() == GameRoom.GameMode.AUTO_PILOT
                 || room.gameMode() == GameRoom.GameMode.PRACTICE) {

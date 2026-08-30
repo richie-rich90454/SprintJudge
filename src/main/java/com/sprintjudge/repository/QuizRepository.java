@@ -40,6 +40,15 @@ public class QuizRepository {
                 .fetch(this::toQuiz);
     }
 
+    public Quiz update(Quiz quiz) {
+        dsl.update(Tables.QUIZZES)
+            .set(Tables.QUIZZES_TITLE, quiz.title())
+            .set(Tables.QUIZZES_DESC, quiz.description())
+            .where(Tables.QUIZZES_ID.eq(quiz.id()))
+            .execute();
+        return quiz;
+    }
+
     public void delete(String id) {
         dsl.deleteFrom(Tables.QUIZZES).where(Tables.QUIZZES_ID.eq(id)).execute();
     }
