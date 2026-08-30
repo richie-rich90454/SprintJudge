@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
 interface TimerState {
-  questionId: string | null;
-  totalSec: number;
-  endEpochMs: number | null;
+    questionId: string | null;
+    totalSec: number;
+    endEpochMs: number | null;
 }
 
 /**
@@ -11,15 +11,15 @@ interface TimerState {
  * leaderboards, lobbies, or any other subscriber of the game store.
  */
 export const useTimerStore = create<TimerState>(() => ({
-  questionId: null,
-  totalSec: 30,
-  endEpochMs: null,
+    questionId: null,
+    totalSec: 30,
+    endEpochMs: null,
 }));
 
 export function pushTimer(questionId: string, totalSec: number, endEpochMs: number) {
-  useTimerStore.setState({ questionId, totalSec, endEpochMs });
+    useTimerStore.setState({ questionId, totalSec, endEpochMs });
 }
 
 export function clearTimer() {
-  useTimerStore.setState({ questionId: null, endEpochMs: null });
+    useTimerStore.setState({ questionId: null, endEpochMs: null });
 }
