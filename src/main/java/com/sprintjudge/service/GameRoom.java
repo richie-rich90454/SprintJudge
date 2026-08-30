@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GameRoom {
 
+    public enum GameMode { STANDARD, AUTO_PILOT }
+
     private final String sessionId;
     private final String quizId;
     private final String pin;
@@ -31,6 +33,7 @@ public class GameRoom {
     private long currentQuestionEndEpochMs;
     private volatile String hostUuid;
     private final int maxPlayers;
+    private final GameMode gameMode;
 
     private final Map<String, Player> players = new ConcurrentHashMap<>();
     private final LiveLeaderboard board = new LiveLeaderboard();
@@ -44,17 +47,18 @@ public class GameRoom {
 
     private volatile long lastActivityMs = System.currentTimeMillis();
 
-    public GameRoom(String sessionId, String quizId, String pin, String status, int maxPlayers) {
+    public GameRoom(String sessionId, String quizId, String pin, String status, int maxPlayers, GameMode gameMode) {
         this.sessionId = sessionId;
         this.quizId = quizId;
         this.pin = pin;
         this.status = status;
         this.maxPlayers = maxPlayers;
+        this.gameMode = gameMode;
     }
 
-    /** Legacy ctor kept for tests/tools: default cap 500. */
+    /** Legacy ctor kept for tests/tools: default cap 500, standard mode. */
     public GameRoom(String sessionId, String quizId, String pin, String status) {
-        this(sessionId, quizId, pin, status, 500);
+        this(sessionId, quizId, pin, status, 500, GameMode.STANDARD);
     }
 
     /** Returns false when the room is at capacity. */
@@ -204,4 +208,5 @@ public class GameRoom {
     public void setCurrentQuestionId(String id) { this.currentQuestionId = id; }
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
     public void setCurrentQuestionEndEpochMs(long ms) { this.currentQuestionEndEpochMs = ms; }
+    public GameMode gameMode() { return gameMode; }
 }
