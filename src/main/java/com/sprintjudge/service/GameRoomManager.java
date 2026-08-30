@@ -276,12 +276,14 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             broadcastLeaderboard(pin);
         };
 
-        boolean accepted = submissionProcessor.getObject().processCoding(room.sessionId(), pin,
-                questionId, p.name(), playerUuid, language, source, attempts, settingsService.asMap(), handler);
-        if (!accepted) {
-            ws.send(p.sessionId(), new ErrorMessage("ERROR",
-                    "Judge queue is busy — resubmit shortly (auto-retry in 250ms)"));
-        }
+        submissionProcessor.getObject().processCoding(room.sessionId(), pin,
+                questionId, p.name(), playerUuid, language, source, attempts, settingsService.asMap(), handler)
+                .thenAccept(accepted -> {
+                    if (!accepted) {
+                        ws.send(p.sessionId(), new ErrorMessage("ERROR",
+                                "Judge queue is busy — resubmit shortly (auto-retry in 250ms)"));
+                    }
+                });
     }
 
     /** Updates streak and returns the bonus to add; 0 until the second correct in a row. */
