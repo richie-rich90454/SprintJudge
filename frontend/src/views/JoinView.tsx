@@ -40,9 +40,6 @@ export function JoinView() {
                     </div>
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
-                        <Button size="sm" variant="outline" onPress={() => setView("admin")}>
-                            Host / Admin
-                        </Button>
                     </div>
                 </div>
             </header>
