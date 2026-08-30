@@ -10,6 +10,7 @@ public final class QuestionRendererFactory {
     private QuestionRendererFactory() {}
 
     public static boolean isValidType(String type) {
+        if (type == null) return false;
         try {
             com.sprintjudge.domain.enums.QuestionType.from(type);
             return true;
