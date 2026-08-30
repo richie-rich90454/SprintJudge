@@ -15,6 +15,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -77,6 +78,28 @@ public class GameWebSocket {
                         roomManager.kickPlayer(pinOf(session), msg.path("playerUuid").asText()));
                 case "RESYNC_LEADERBOARD" -> resyncLeaderboard(session);
                 case "PING" -> send(session, new ErrorMessage("PONG", ""));
+                case "CREATE_TEAM" -> asHost(session, () -> {
+                    String name = msg.path("name").asText("Team");
+                    var team = roomManager.createTeam(pinOf(session), name);
+                    send(session, Map.of("type", "TEAM_CREATED", "teamId", team.id(), "name", team.name()));
+                });
+                case "JOIN_TEAM" -> {
+                    String teamId = msg.path("teamId").asText("");
+                    String uuid = (String) session.getUserProperties().get(UUID_KEY);
+                    if (uuid != null && !teamId.isBlank()) {
+                        var team = roomManager.joinTeam(pinOf(session), teamId, uuid);
+                        if (team != null) send(session, Map.of("type", "TEAM_JOINED", "teamId", team.id()));
+                    }
+                }
+                case "GET_TEAMS" -> {
+                    var teams = roomManager.getTeams(pinOf(session));
+                    send(session, Map.of("type", "TEAM_LIST", "teams", teams));
+                }
+                case "START_BATTLE" -> asHost(session, () -> roomManager.startBattle(pinOf(session)));
+                case "GET_BRACKET" -> {
+                    var bracket = roomManager.getBracket(pinOf(session));
+                    send(session, Map.of("type", "BRACKET", "rounds", bracket));
+                }
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
         } catch (Exception e) {
