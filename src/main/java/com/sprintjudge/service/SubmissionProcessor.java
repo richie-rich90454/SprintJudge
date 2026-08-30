@@ -42,6 +42,7 @@ public class SubmissionProcessor {
     private final ScoringEngine scoringEngine;
     private final LeaderboardBroadcaster leaderboardBroadcaster;
     private final SubmissionWriteBuffer writeBuffer;
+    private final AiGradingService aiGradingService;
     private final Semaphore slot;
 
     public SubmissionProcessor(CodeExecutor executor,
@@ -50,6 +51,7 @@ public class SubmissionProcessor {
                                 ScoringEngine scoringEngine,
                                 LeaderboardBroadcaster leaderboardBroadcaster,
                                 SubmissionWriteBuffer writeBuffer,
+                                AiGradingService aiGradingService,
                                 Semaphore executionSlots) {
         this.executor = executor;
         this.submissionRepository = submissionRepository;
@@ -57,6 +59,7 @@ public class SubmissionProcessor {
         this.scoringEngine = scoringEngine;
         this.leaderboardBroadcaster = leaderboardBroadcaster;
         this.writeBuffer = writeBuffer;
+        this.aiGradingService = aiGradingService;
         this.slot = executionSlots;
     }
 
@@ -129,7 +132,21 @@ public class SubmissionProcessor {
                     Json.write(Map.of("language", language, "source", sourceCode)),
                     score, result.allPassed(), Json.write(result), attemptsUsed, Instant.now()));
         }
-        handler.accept(playerUuid, score, result.allPassed(), result.passed(), result.total());
+
+        // AI grading: when tests fail and AI is enabled, get feedback.
+        String aiFeedback = null;
+        if (!result.allPassed() && aiGradingService.isEnabled()) {
+            try {
+                var aiResult = aiGradingService.grade(language, sourceCode,
+                        question.title(), question.description(),
+                        result.allPassed(), score, question.pointsBase());
+                if (aiResult.available()) aiFeedback = aiResult.feedback();
+            } catch (Exception e) {
+                // AI grading is best-effort; never block the main flow.
+            }
+        }
+
+        handler.accept(playerUuid, score, result.allPassed(), result.passed(), result.total(), aiFeedback);
         return result;
     }
 

@@ -271,7 +271,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 || room.gameMode() == GameRoom.GameMode.EXAM;
         if (immediateFeedback) {
             ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
-                    questionId, total, correct, correct, 1));
+                    questionId, total, correct, correct, 1, null));
         }
         broadcastLeaderboard(pin);
     }
@@ -294,7 +294,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String pin = room.pin();
         String questionId = q.id();
 
-        CodingOutcomeConsumer handler = (uuid, baseScore, allPassed, passed, totalTests) -> {
+        CodingOutcomeConsumer handler = (uuid, baseScore, allPassed, passed, totalTests, aiFeedback) -> {
             int bonus;
             synchronized (room) {
                 boolean correct = allPassed;
@@ -303,7 +303,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 room.applyScore(uuid, total);
                 room.recordRound(uuid, baseScore, bonus);
             }
-            ws.send(sessionId, new SubmissionResult("SUBMISSION_RESULT", questionId, baseScore + bonus, allPassed, passed, totalTests));
+            ws.send(sessionId, new SubmissionResult("SUBMISSION_RESULT", questionId,
+                    baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
             broadcastLeaderboard(pin);
         };
 
