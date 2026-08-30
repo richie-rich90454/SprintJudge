@@ -7,5 +7,5 @@ package com.sprintjudge.service;
  * never reaches room state directly.
  */
 public interface CodingOutcomeConsumer {
-    void accept(String playerUuid, int baseScore, boolean allPassed, int passed, int total);
+    void accept(String playerUuid, int baseScore, boolean allPassed, int passed, int total, String aiFeedback);
 }
