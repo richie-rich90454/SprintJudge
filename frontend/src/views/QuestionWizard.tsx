@@ -2,190 +2,431 @@ import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { useEnter } from "../hooks/useMotion";
+import { Card, CardContent, Button } from "@heroui/react";
 import { QuestionDto } from "../types";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
 
 function ConfigForm() {
-  const draft = useAdminStore((s) => s.draft);
-  const setDraft = useAdminStore((s) => s.setDraft);
-  const type = draft.questionType as QuestionType;
-  const config = (draft.config as Record<string, unknown>) ?? {};
-  const set = (patch: Record<string, unknown>) => setDraft({ config: { ...config, ...patch } });
+    const draft = useAdminStore((s) => s.draft);
+    const setDraft = useAdminStore((s) => s.setDraft);
+    const type = draft.questionType as QuestionType;
+    const config = (draft.config as Record<string, unknown>) ?? {};
+    const set = (patch: Record<string, unknown>) => setDraft({ config: { ...config, ...patch } });
 
-  switch (type) {
-    case "MCQ":
-    case "OUTPUT_PRED":
-    case "COMPLEXITY": {
-      const options = (config["options"] as string[]) ?? ["", "", "", ""];
-      return (
-        <div className="flex flex-col gap-2">
-          {type === "OUTPUT_PRED" && <textarea placeholder="Code snippet" value={(config["code"] as string) ?? ""} onChange={(e) => set({ code: e.target.value })} className="mono w-full min-h-[100px] p-3 border border-line bg-surface text-sm" />}
-          {options.map((o, i) => (
-            <input key={i} value={o} placeholder={`Option ${String.fromCharCode(65 + i)}`} onChange={(e) => { const n = [...options]; n[i] = e.target.value; set({ options: n }); }} className="input-underline" />
-          ))}
-          <label className="text-sm text-muted mt-2">Correct option index</label>
-          <input type="number" min={0} value={(config["correctIndex"] as number) ?? 0} onChange={(e) => set({ correctIndex: Number(e.target.value) })} className="input-underline w-24" />
-        </div>
-      );
+    switch (type) {
+        case "MCQ":
+        case "OUTPUT_PRED":
+        case "COMPLEXITY": {
+            const options = (config["options"] as string[]) ?? ["", "", "", ""];
+            return (
+                <div className="flex flex-col gap-2">
+                    {type === "OUTPUT_PRED" && (
+                        <textarea
+                            placeholder="Code snippet"
+                            value={(config["code"] as string) ?? ""}
+                            onChange={(e) => set({ code: e.target.value })}
+                            className="mono w-full min-h-[100px] p-3 border border-default-200 bg-content1 text-sm"
+                        />
+                    )}
+                    {options.map((o, i) => (
+                        <input
+                            key={i}
+                            value={o}
+                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            onChange={(e) => {
+                                const n = [...options];
+                                n[i] = e.target.value;
+                                set({ options: n });
+                            }}
+                            className="input-underline"
+                        />
+                    ))}
+                    <label className="text-sm text-default-500 mt-2">Correct option index</label>
+                    <input
+                        type="number"
+                        min={0}
+                        value={(config["correctIndex"] as number) ?? 0}
+                        onChange={(e) => set({ correctIndex: Number(e.target.value) })}
+                        className="input-underline w-24"
+                    />
+                </div>
+            );
+        }
+        case "TRUE_FALSE":
+            return (
+                <label className="text-sm text-default-500">
+                    Correct answer
+                    <select
+                        value={String(config["correct"] ?? "true")}
+                        onChange={(e) => set({ correct: e.target.value === "true" })}
+                        className="input-underline ml-2 w-32"
+                    >
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+            );
+        case "MULTIPLE_SELECT": {
+            const options = (config["options"] as string[]) ?? ["", "", "", ""];
+            return (
+                <div className="flex flex-col gap-2">
+                    {options.map((o, i) => (
+                        <input
+                            key={i}
+                            value={o}
+                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            onChange={(e) => {
+                                const n = [...options];
+                                n[i] = e.target.value;
+                                set({ options: n });
+                            }}
+                            className="input-underline"
+                        />
+                    ))}
+                    <label className="text-sm text-default-500 mt-2">
+                        Correct indices (comma sep)
+                    </label>
+                    <input
+                        value={((config["correctIndices"] as number[]) ?? []).join(",")}
+                        onChange={(e) =>
+                            set({
+                                correctIndices: e.target.value
+                                    .split(",")
+                                    .map((x) => Number(x.trim()))
+                                    .filter((n) => !Number.isNaN(n)),
+                            })
+                        }
+                        className="input-underline"
+                    />
+                </div>
+            );
+        }
+        case "NUMERIC":
+            return (
+                <div className="flex gap-2 flex-wrap">
+                    <label className="text-sm">
+                        Answer
+                        <input
+                            type="number"
+                            value={(config["answer"] as number) ?? 0}
+                            onChange={(e) => set({ answer: Number(e.target.value) })}
+                            className="input-underline ml-1 w-32"
+                        />
+                    </label>
+                    <label className="text-sm">
+                        Tolerance
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={(config["tolerance"] as number) ?? 0}
+                            onChange={(e) => set({ tolerance: Number(e.target.value) })}
+                            className="input-underline ml-1 w-32"
+                        />
+                    </label>
+                </div>
+            );
+        case "FILL_BLANK":
+            return (
+                <div className="flex flex-col gap-2">
+                    <textarea
+                        placeholder="Snippet (use ___ for the blank)"
+                        value={(config["snippet"] as string) ?? ""}
+                        onChange={(e) => set({ snippet: e.target.value })}
+                        className="mono w-full min-h-[100px] p-3 border border-default-200 bg-content1 text-sm"
+                    />
+                    <input
+                        placeholder="Correct answer"
+                        value={(config["answer"] as string) ?? ""}
+                        onChange={(e) => set({ answer: e.target.value })}
+                        className="input-underline"
+                    />
+                </div>
+            );
+        case "DRAG_SORT": {
+            const lines = (config["lines"] as { id: string; text: string }[]) ?? [];
+            return (
+                <div className="flex flex-col gap-2">
+                    {lines.map((l, i) => (
+                        <input
+                            key={i}
+                            value={l.text}
+                            placeholder={`Line ${i + 1}`}
+                            onChange={(e) => {
+                                const n = [...lines];
+                                n[i] = { ...l, text: e.target.value };
+                                set({ lines: n });
+                            }}
+                            className="input-underline"
+                        />
+                    ))}
+                    <button
+                        onClick={() =>
+                            set({ lines: [...lines, { id: String(lines.length), text: "" }] })
+                        }
+                        className="text-[var(--oq-red)] text-sm self-start"
+                    >
+                        Add line
+                    </button>
+                </div>
+            );
+        }
+        case "CLICK_BUG": {
+            const codeLines = (config["codeLines"] as string[]) ?? [];
+            return (
+                <div className="flex flex-col gap-2">
+                    <textarea
+                        placeholder="One buggy line per row"
+                        value={codeLines.join("\n")}
+                        onChange={(e) => set({ codeLines: e.target.value.split("\n") })}
+                        className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                    />
+                    <label className="text-sm text-default-500">Bug line index (0-based)</label>
+                    <input
+                        type="number"
+                        value={(config["bugLine"] as number) ?? 0}
+                        onChange={(e) => set({ bugLine: Number(e.target.value) })}
+                        className="input-underline w-24"
+                    />
+                </div>
+            );
+        }
+        case "CODE_COMPLETION":
+            return (
+                <textarea
+                    placeholder="Skeleton / starter code (editable region)"
+                    value={(config["skeleton"] as string) ?? ""}
+                    onChange={(e) => set({ skeleton: e.target.value })}
+                    className="mono w-full min-h-[140px] p-3 border border-default-200 bg-content1 text-sm"
+                />
+            );
+        case "OJ_FULL":
+        case "OJ_PATCH": {
+            const tc =
+                (config["testCases"] as {
+                    input: string;
+                    expectedOutput: string;
+                    isHidden: boolean;
+                }[]) ?? [];
+            return (
+                <div className="flex flex-col gap-2">
+                    {type === "OJ_PATCH" && (
+                        <textarea
+                            placeholder="Buggy function"
+                            value={(config["buggyFunction"] as string) ?? ""}
+                            onChange={(e) => set({ buggyFunction: e.target.value })}
+                            className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                        />
+                    )}
+                    {type === "OJ_FULL" && (
+                        <textarea
+                            placeholder="Starter code"
+                            value={(config["starter"] as string) ?? ""}
+                            onChange={(e) => set({ starter: e.target.value })}
+                            className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                        />
+                    )}
+                    <p className="text-sm text-default-500 mt-1">Test cases</p>
+                    {tc.map((c, i) => (
+                        <div key={i} className="flex gap-2">
+                            <input
+                                placeholder="input"
+                                value={c.input}
+                                onChange={(e) => {
+                                    const n = [...tc];
+                                    n[i] = { ...c, input: e.target.value };
+                                    set({ testCases: n });
+                                }}
+                                className="input-underline flex-1 text-sm"
+                            />
+                            <input
+                                placeholder="expected"
+                                value={c.expectedOutput}
+                                onChange={(e) => {
+                                    const n = [...tc];
+                                    n[i] = { ...c, expectedOutput: e.target.value };
+                                    set({ testCases: n });
+                                }}
+                                className="input-underline flex-1 text-sm"
+                            />
+                        </div>
+                    ))}
+                    <button
+                        onClick={() =>
+                            set({
+                                testCases: [
+                                    ...tc,
+                                    { input: "", expectedOutput: "", isHidden: false },
+                                ],
+                            })
+                        }
+                        className="text-[var(--oq-red)] text-sm self-start"
+                    >
+                        Add test case
+                    </button>
+                </div>
+            );
+        }
+        default:
+            return <p className="text-default-500">No config editor for this type.</p>;
     }
-    case "TRUE_FALSE":
-      return (
-        <label className="text-sm text-muted">Correct answer
-          <select value={String(config["correct"] ?? "true")} onChange={(e) => set({ correct: e.target.value === "true" })} className="input-underline ml-2 w-32">
-            <option value="true">True</option><option value="false">False</option>
-          </select>
-        </label>
-      );
-    case "MULTIPLE_SELECT": {
-      const options = (config["options"] as string[]) ?? ["", "", "", ""];
-      return (
-        <div className="flex flex-col gap-2">
-          {options.map((o, i) => (
-            <input key={i} value={o} placeholder={`Option ${String.fromCharCode(65 + i)}`} onChange={(e) => { const n = [...options]; n[i] = e.target.value; set({ options: n }); }} className="input-underline" />
-          ))}
-          <label className="text-sm text-muted mt-2">Correct indices (comma sep)</label>
-          <input value={((config["correctIndices"] as number[]) ?? []).join(",")} onChange={(e) => set({ correctIndices: e.target.value.split(",").map((x) => Number(x.trim())).filter((n) => !Number.isNaN(n)) })} className="input-underline" />
-        </div>
-      );
-    }
-    case "NUMERIC":
-      return (
-        <div className="flex gap-2 flex-wrap">
-          <label className="text-sm">Answer<input type="number" value={(config["answer"] as number) ?? 0} onChange={(e) => set({ answer: Number(e.target.value) })} className="input-underline ml-1 w-32" /></label>
-          <label className="text-sm">Tolerance<input type="number" step="0.01" value={(config["tolerance"] as number) ?? 0} onChange={(e) => set({ tolerance: Number(e.target.value) })} className="input-underline ml-1 w-32" /></label>
-        </div>
-      );
-    case "FILL_BLANK":
-      return (
-        <div className="flex flex-col gap-2">
-          <textarea placeholder="Snippet (use ___ for the blank)" value={(config["snippet"] as string) ?? ""} onChange={(e) => set({ snippet: e.target.value })} className="mono w-full min-h-[100px] p-3 border border-line bg-surface text-sm" />
-          <input placeholder="Correct answer" value={(config["answer"] as string) ?? ""} onChange={(e) => set({ answer: e.target.value })} className="input-underline" />
-        </div>
-      );
-    case "DRAG_SORT": {
-      const lines = (config["lines"] as { id: string; text: string }[]) ?? [];
-      return (
-        <div className="flex flex-col gap-2">
-          {lines.map((l, i) => (
-            <input key={i} value={l.text} placeholder={`Line ${i + 1}`} onChange={(e) => { const n = [...lines]; n[i] = { ...l, text: e.target.value }; set({ lines: n }); }} className="input-underline" />
-          ))}
-          <button onClick={() => set({ lines: [...lines, { id: String(lines.length), text: "" }] })} className="text-primary text-sm self-start">+ Add line</button>
-        </div>
-      );
-    }
-    case "CLICK_BUG": {
-      const codeLines = (config["codeLines"] as string[]) ?? [];
-      return (
-        <div className="flex flex-col gap-2">
-          <textarea placeholder="One buggy line per row" value={codeLines.join("\n")} onChange={(e) => set({ codeLines: e.target.value.split("\n") })} className="mono w-full min-h-[120px] p-3 border border-line bg-surface text-sm" />
-          <label className="text-sm text-muted">Bug line index (0-based)</label>
-          <input type="number" value={(config["bugLine"] as number) ?? 0} onChange={(e) => set({ bugLine: Number(e.target.value) })} className="input-underline w-24" />
-        </div>
-      );
-    }
-    case "CODE_COMPLETION":
-      return (
-        <textarea placeholder="Skeleton / starter code (editable region)" value={(config["skeleton"] as string) ?? ""} onChange={(e) => set({ skeleton: e.target.value })} className="mono w-full min-h-[140px] p-3 border border-line bg-surface text-sm" />
-      );
-    case "OJ_FULL":
-    case "OJ_PATCH": {
-      const tc = (config["testCases"] as { input: string; expectedOutput: string; isHidden: boolean }[]) ?? [];
-      return (
-        <div className="flex flex-col gap-2">
-          {type === "OJ_PATCH" && <textarea placeholder="Buggy function" value={(config["buggyFunction"] as string) ?? ""} onChange={(e) => set({ buggyFunction: e.target.value })} className="mono w-full min-h-[120px] p-3 border border-line bg-surface text-sm" />}
-          {type === "OJ_FULL" && <textarea placeholder="Starter code" value={(config["starter"] as string) ?? ""} onChange={(e) => set({ starter: e.target.value })} className="mono w-full min-h-[120px] p-3 border border-line bg-surface text-sm" />}
-          <p className="text-sm text-muted mt-1">Test cases</p>
-          {tc.map((c, i) => (
-            <div key={i} className="flex gap-2">
-              <input placeholder="input" value={c.input} onChange={(e) => { const n = [...tc]; n[i] = { ...c, input: e.target.value }; set({ testCases: n }); }} className="input-underline flex-1 text-sm" />
-              <input placeholder="expected" value={c.expectedOutput} onChange={(e) => { const n = [...tc]; n[i] = { ...c, expectedOutput: e.target.value }; set({ testCases: n }); }} className="input-underline flex-1 text-sm" />
-            </div>
-          ))}
-          <button onClick={() => set({ testCases: [...tc, { input: "", expectedOutput: "", isHidden: false }] })} className="text-primary text-sm self-start">+ Add test case</button>
-        </div>
-      );
-    }
-    default:
-      return <p className="text-muted">No config editor for this type.</p>;
-  }
 }
 
 export function QuestionWizard() {
-  const { wizardStep, wizardType, draft, setStep, setType, setDraft, saveQuestion, closeWizard } = useAdminStore();
-  const previewQuestion: QuestionDto = {
-    id: "preview",
-    type: (draft.questionType as QuestionType) ?? "MCQ",
-    title: draft.title ?? "Preview question",
-    description: draft.description ?? "",
-    timeLimitSec: draft.timeLimitSec ?? 30,
-    pointsBase: draft.pointsBase ?? 100,
-    languagesAllowed: (draft.languagesAllowed as string[]) ?? null,
-    config: draft.config ?? {},
-  };
+    const { wizardStep, wizardType, draft, setStep, setType, setDraft, saveQuestion, closeWizard } =
+        useAdminStore();
+    const previewQuestion: QuestionDto = {
+        id: "preview",
+        type: (draft.questionType as QuestionType) ?? "MCQ",
+        title: draft.title ?? "Preview question",
+        description: draft.description ?? "",
+        timeLimitSec: draft.timeLimitSec ?? 30,
+        pointsBase: draft.pointsBase ?? 100,
+        languagesAllowed: (draft.languagesAllowed as string[]) ?? null,
+        config: draft.config ?? {},
+    };
 
-  const stepBtn = (s: WizardStep) =>
-    `btn text-sm capitalize ${wizardStep === s ? "btn-primary" : "btn-secondary"}`;
+    const panelRef = useEnter<HTMLDivElement>("modal");
 
-  const panelRef = useEnter<HTMLDivElement>("modal");
+    return (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+            <div ref={panelRef}>
+                <Card className="modal-topbar bg-content1 w-full max-w-2xl max-h-[90vh] overflow-auto">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold">Question wizard</h2>
+                            <Button size="sm" variant="ghost" onPress={closeWizard}>
+                                Close
+                            </Button>
+                        </div>
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-      <div ref={panelRef} className="modal-topbar border border-line w-full max-w-2xl max-h-[90vh] overflow-auto p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Question wizard</h2>
-          <button onClick={closeWizard} className="text-muted">Close</button>
+                        <div className="flex gap-2 mb-5 flex-wrap">
+                            {STEPS.map((s) => (
+                                <Button
+                                    key={s}
+                                    size="sm"
+                                    variant={wizardStep === s ? "primary" : "outline"}
+                                    className={
+                                        wizardStep === s
+                                            ? "bg-[var(--oq-red)] text-white capitalize"
+                                            : "capitalize"
+                                    }
+                                    onPress={() => setStep(s)}
+                                >
+                                    {s}
+                                </Button>
+                            ))}
+                        </div>
+
+                        {wizardStep === "type" && (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {ALL_QUESTION_TYPES.map((t) => (
+                                    <Button
+                                        key={t}
+                                        size="sm"
+                                        variant={wizardType === t ? "primary" : "outline"}
+                                        className={
+                                            wizardType === t ? "bg-[var(--oq-red)] text-white" : ""
+                                        }
+                                        onPress={() => {
+                                            setType(t);
+                                            setStep("statement");
+                                        }}
+                                    >
+                                        {t.replace("_", " ")}
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
+
+                        {wizardStep === "statement" && (
+                            <div className="flex flex-col gap-3">
+                                <input
+                                    placeholder="Title"
+                                    value={draft.title ?? ""}
+                                    onChange={(e) => setDraft({ title: e.target.value })}
+                                    className="input-underline"
+                                />
+                                <textarea
+                                    placeholder="Description (Markdown)"
+                                    value={draft.description ?? ""}
+                                    onChange={(e) => setDraft({ description: e.target.value })}
+                                    className="min-h-[80px] p-3 border border-default-200 bg-content1"
+                                />
+                                <div className="flex gap-3">
+                                    <label className="text-sm flex-1">
+                                        Time limit (s)
+                                        <input
+                                            type="number"
+                                            value={draft.timeLimitSec ?? 30}
+                                            onChange={(e) =>
+                                                setDraft({ timeLimitSec: Number(e.target.value) })
+                                            }
+                                            className="input-underline w-full mt-1"
+                                        />
+                                    </label>
+                                    <label className="text-sm flex-1">
+                                        Base points
+                                        <input
+                                            type="number"
+                                            value={draft.pointsBase ?? 100}
+                                            onChange={(e) =>
+                                                setDraft({ pointsBase: Number(e.target.value) })
+                                            }
+                                            className="input-underline w-full mt-1"
+                                        />
+                                    </label>
+                                </div>
+                                <Button
+                                    variant="primary"
+                                    className="bg-[var(--oq-red)] text-white"
+                                    onPress={() => setStep("config")}
+                                >
+                                    Next: configure
+                                </Button>
+                            </div>
+                        )}
+
+                        {wizardStep === "config" && (
+                            <div>
+                                <ConfigForm />
+                                <Button
+                                    variant="primary"
+                                    className="bg-[var(--oq-red)] text-white mt-4"
+                                    onPress={() => setStep("preview")}
+                                >
+                                    Preview
+                                </Button>
+                            </div>
+                        )}
+
+                        {wizardStep === "preview" && (
+                            <div>
+                                <Card className="bg-content1">
+                                    <CardContent className="p-4">
+                                        <QuestionRendererHost
+                                            question={previewQuestion}
+                                            onResponse={() => {}}
+                                        />
+                                    </CardContent>
+                                </Card>
+                                <div className="flex gap-2 mt-4">
+                                    <Button variant="outline" onPress={() => setStep("config")}>
+                                        Back
+                                    </Button>
+                                    <Button
+                                        variant="primary"
+                                        className="text-white"
+                                        onPress={() => saveQuestion()}
+                                    >
+                                        Save question
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
-
-        <div className="flex gap-2 mb-5">
-          {STEPS.map((s) => (
-            <button key={s} onClick={() => setStep(s)} className={stepBtn(s)}>{s}</button>
-          ))}
-        </div>
-
-        {wizardStep === "type" && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {ALL_QUESTION_TYPES.map((t) => (
-              <button key={t} onClick={() => { setType(t); setStep("statement"); }} className={`btn text-sm ${wizardType === t ? "btn-primary" : "btn-secondary"}`}>{t.replace("_", " ")}</button>
-            ))}
-          </div>
-        )}
-
-        {wizardStep === "statement" && (
-          <div className="flex flex-col gap-3">
-            <input placeholder="Title" value={draft.title ?? ""} onChange={(e) => setDraft({ title: e.target.value })} className="input-underline" />
-            <textarea placeholder="Description (Markdown)" value={draft.description ?? ""} onChange={(e) => setDraft({ description: e.target.value })} className="min-h-[80px] p-3 border border-line bg-surface" />
-            <div className="flex gap-3">
-              <label className="text-sm flex-1">Time limit (s)
-                <input type="number" value={draft.timeLimitSec ?? 30} onChange={(e) => setDraft({ timeLimitSec: Number(e.target.value) })} className="input-underline w-full mt-1" />
-              </label>
-              <label className="text-sm flex-1">Base points
-                <input type="number" value={draft.pointsBase ?? 100} onChange={(e) => setDraft({ pointsBase: Number(e.target.value) })} className="input-underline w-full mt-1" />
-              </label>
-            </div>
-            <button onClick={() => setStep("config")} className="btn btn-primary">Next: configure</button>
-          </div>
-        )}
-
-        {wizardStep === "config" && (
-          <div>
-            <ConfigForm />
-            <button onClick={() => setStep("preview")} className="btn btn-primary mt-4">Preview</button>
-          </div>
-        )}
-
-        {wizardStep === "preview" && (
-          <div>
-            <div className="card">
-              <QuestionRendererHost question={previewQuestion} onResponse={() => {}} />
-            </div>
-            <div className="flex gap-2 mt-4">
-              <button onClick={() => setStep("config")} className="btn btn-secondary">Back</button>
-              <button onClick={() => saveQuestion()} className="btn btn-primary bg-success border-success hover:bg-surface hover:text-success">Save question</button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 }
