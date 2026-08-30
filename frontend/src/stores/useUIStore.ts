@@ -12,20 +12,39 @@ function detectInitialView(): AppView {
 
 const THEME_KEY = "oq-theme";
 
-/** Reads the persisted theme; dark is the default when unset. */
+/** Reads the persisted theme; falls back to the OS preference, dark if unset. */
 function readTheme(): "light" | "dark" {
     try {
         const t = localStorage.getItem(THEME_KEY);
-        return t === "light" ? "light" : "dark";
+        if (t === "light" || t === "dark") return t;
+    } catch {
+        /* ignore */
+    }
+    try {
+        return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
     } catch {
         return "dark";
     }
 }
 
-/** Applies the persisted theme to <html> (called once at boot). */
+/** Applies the persisted (or OS) theme to <html> (called once at boot). */
 export function applyStoredTheme(): void {
     const t = readTheme();
     document.documentElement.classList.toggle("dark", t === "dark");
+}
+
+/** Live-syncs the theme with OS changes until the user picks manually. */
+export function watchSystemTheme(): void {
+    try {
+        const mq = window.matchMedia("(prefers-color-scheme: light)");
+        mq.addEventListener("change", (e) => {
+            if (!localStorage.getItem(THEME_KEY)) {
+                document.documentElement.classList.toggle("dark", !e.matches);
+            }
+        });
+    } catch {
+        /* ignore */
+    }
 }
 
 interface UIState {
