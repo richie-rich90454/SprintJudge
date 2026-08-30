@@ -65,7 +65,7 @@ export function QuestionView() {
         );
     }
 
-    if (!q || !end) {
+    if (!q || end === null) {
         return (
             <div className="pattern-exam min-h-screen flex items-center justify-center">
                 <div className="text-center">
@@ -76,6 +76,7 @@ export function QuestionView() {
         );
     }
 
+    const untimed = !isFinite(end);
     const coding = isCoding(q.type);
 
     const doSubmit = () => {
@@ -100,13 +101,18 @@ export function QuestionView() {
             <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b-2 border-[var(--oq-red)]">
                 <span className="label-caps">{q.type.replace(/_/g, " ")}</span>
                 <span className="mono text-sm text-default-500">{q.pointsBase} pts</span>
-                <div className="scale-90">
-                    <CircularTimer
-                        endEpochMs={end}
-                        totalSec={q.timeLimitSec}
-                        onExpire={() => !submitted && doSubmit()}
-                    />
-                </div>
+                {!untimed && (
+                    <div className="scale-90">
+                        <CircularTimer
+                            endEpochMs={end}
+                            totalSec={q.timeLimitSec}
+                            onExpire={() => !submitted && doSubmit()}
+                        />
+                    </div>
+                )}
+                {untimed && (
+                    <span className="chip chip-neutral">Untimed</span>
+                )}
             </div>
 
             <motion.div
