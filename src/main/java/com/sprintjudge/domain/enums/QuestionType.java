@@ -15,6 +15,7 @@ public enum QuestionType {
     OJ_PATCH;
 
     public static QuestionType from(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Question type is required");
         return QuestionType.valueOf(value.trim().toUpperCase());
     }
 
