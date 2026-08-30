@@ -4,5 +4,6 @@ public record QuestionStart(
         String type,
         QuestionDto question,
         long timeLimitSec,
-        long startedAtEpochMs
+        long startedAtEpochMs,
+        long serverNowEpochMs
 ) {}
