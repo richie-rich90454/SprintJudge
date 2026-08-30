@@ -7,6 +7,7 @@ import { adminApi } from "../services/AdminApiService";
 import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { LogoMark } from "../components/LogoMark";
 
 export function AdminDashboard() {
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
@@ -32,38 +33,48 @@ export function AdminDashboard() {
     if (needsAuth) {
         return (
             <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
-                <form
-                    method="POST"
-                    action="/admin/login"
-                    className="card text-center max-w-sm w-full bg-content1"
-                >
-                    <p className="label-caps mb-2">Authentication required</p>
-                    <h2 className="text-2xl font-extrabold mb-6">Admin sign-in</h2>
-                    <label className="label-caps block mb-1 text-left" htmlFor="un">
-                        Username
-                    </label>
-                    <input
-                        id="un"
-                        name="username"
-                        className="input-underline mb-4"
-                        placeholder="admin"
-                        autoComplete="username"
-                    />
-                    <label className="label-caps block mb-1 text-left" htmlFor="pw">
-                        Password
-                    </label>
-                    <input
-                        id="pw"
-                        name="password"
-                        type="password"
-                        className="input-underline mb-5"
-                        placeholder="password"
-                        autoComplete="current-password"
-                    />
-                    <button type="submit" className="btn btn-primary w-full">
-                        Sign in
-                    </button>
-                </form>
+                <Card className="bg-content1 w-full max-w-sm">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-2.5 mb-6">
+                            <LogoMark size={28} />
+                            <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
+                        </div>
+                        <form
+                            method="POST"
+                            action="/admin/login"
+                            className="flex flex-col gap-4"
+                        >
+                            <label className="label-caps block mb-1" htmlFor="un">
+                                Username
+                            </label>
+                            <input
+                                id="un"
+                                name="username"
+                                className="input-underline"
+                                placeholder="admin"
+                                autoComplete="username"
+                            />
+                            <label className="label-caps block mb-1" htmlFor="pw">
+                                Password
+                            </label>
+                            <input
+                                id="pw"
+                                name="password"
+                                type="password"
+                                className="input-underline"
+                                placeholder="password"
+                                autoComplete="current-password"
+                            />
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                className="w-full bg-[var(--oq-red)] text-white"
+                            >
+                                Sign in
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
