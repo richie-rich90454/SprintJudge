@@ -70,4 +70,28 @@ class JsonTest {
         assertEquals(2, ((java.util.List<?>) ((Map<?, ?>) nested).get("list")).size());
         assertEquals(Boolean.TRUE, ((Map<?, ?>) nested).get("flag"));
     }
+
+    @Test
+    void writeThrowsOnUnserializable() {
+        assertThrows(IllegalStateException.class, () -> Json.write(new Object()));
+    }
+
+    @Test
+    void readThrowsOnInvalidJson() {
+        assertThrows(IllegalStateException.class, () -> Json.read("not json", String.class));
+    }
+
+    @Test
+    void readBindsTypedObject() {
+        Map<?, ?> m = Json.read("{\"a\":7}", Map.class);
+        assertEquals(7, ((Number) m.get("a")).intValue());
+    }
+
+    @Test
+    void readBindsRecord() {
+        record T(int a, String b) {}
+        T t = Json.read("{\"a\":1,\"b\":\"x\"}", T.class);
+        assertEquals(1, t.a());
+        assertEquals("x", t.b());
+    }
 }
