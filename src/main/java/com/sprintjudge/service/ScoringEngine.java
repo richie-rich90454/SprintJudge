@@ -28,17 +28,21 @@ public class ScoringEngine {
     /**
      * Selection scoring driven by correctness FRACTION (0..1) so MULTIPLE_SELECT
      * partial credit flows through the same speed-decay pipeline. Fraction 0
-     * hard-zeroes; otherwise speed decay × attempt multiplier, scaled by caller.
+     * hard-zeroes; otherwise speed decay × attempt multiplier × base points,
+     * scaled by the fraction. {@code basePoints} &le; 0 falls back to 1000 so
+     * the fixed 0..1000 scale is preserved when a question omits it.
      */
     public int scoreSelection(double fraction, long timeTakenSec, long timeLimitSec,
-                              int attemptsUsed, Map<String, Object> settings) {
+                               int attemptsUsed, int basePoints, Map<String, Object> settings) {
         if (fraction <= 0.0) return 0;
         long limit = Math.max(1, timeLimitSec);
         long taken = Math.max(0, Math.min(timeTakenSec, limit));
         double speed = minSpeedFraction + (1 - minSpeedFraction) * (1.0 - (double) taken / limit);
         Map<String, Object> safeSettings = settings == null ? Map.of() : settings;
         double mult = attemptMultiplier(attemptsUsed, safeSettings);
-        return (int) (Math.round(speed * mult * 1000) / 10 * 10);
+        int base = basePoints > 0 ? basePoints : 1000;
+        int award = (int) Math.round(speed * mult * fraction * base);
+        return Math.max(1, award);
     }
 
     public int scoreCoding(int passed, int total, int basePoints, boolean fullySolved,
