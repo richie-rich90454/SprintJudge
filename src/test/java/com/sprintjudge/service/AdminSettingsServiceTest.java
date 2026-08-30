@@ -1,6 +1,7 @@
 package com.sprintjudge.service;
 
 import com.sprintjudge.repository.AdminSettingsRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -8,59 +9,69 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AdminSettingsServiceTest {
 
     @Mock AdminSettingsRepository repository;
+    AdminSettingsService service;
 
-    private AdminSettingsService service(Map<String, String> seed) {
-        when(repository.findAllAsMap()).thenReturn(seed);
-        return new AdminSettingsService(repository);
+    @BeforeEach
+    void setUp() {
+        service = new AdminSettingsService(repository);
     }
 
     @Test
-    void cacheServesSeededValues() {
-        AdminSettingsService s = service(Map.of("mcq_max_attempts", "3"));
-        assertEquals("3", s.get("mcq_max_attempts", "1"));
+    void refreshLoadsCacheFromRepository() {
+        when(repository.findAllAsMap()).thenReturn(Map.of("k1", "v1", "k2", "v2"));
+        service.refresh();
+        assertEquals("v1", service.get("k1", "def"));
+        assertEquals("v2", service.get("k2", "def"));
+        assertTrue(service.asMap().containsKey("k1"));
     }
 
     @Test
-    void missingKeyFallsBackToDefault() {
-        assertEquals("60", service(Map.of()).get("default_time_limit", "60"));
+    void getUsesDefaultWhenKeyAbsentAndTriggersLazyLoad() {
+        when(repository.findAllAsMap()).thenReturn(Map.of());
+        // first access triggers lazy load via ensureLoaded()
+        assertEquals("def", service.get("missing", "def"));
+        verify(repository).findAllAsMap();
     }
 
     @Test
-    void setWritesThroughAndUpdatesCache() {
-        AdminSettingsService s = service(Map.of());
-        s.set("new_key", "42");
-        verify(repository).put("new_key", "42");
-        assertEquals("42", s.get("new_key", "0"));
+    void getSkipsReloadWhenAlreadyLoaded() {
+        when(repository.findAllAsMap()).thenReturn(Map.of("a", "1"));
+        service.refresh();            // loaded = true
+        service.get("a", "x");         // ensureLoaded: !loaded is false -> no refresh
+        verify(repository, times(1)).findAllAsMap();
     }
 
     @Test
-    void setOverwritesExistingKeyInCache() {
-        AdminSettingsService s = service(Map.of("k", "v1"));
-        s.set("k", "v2");
-        verify(repository).put("k", "v2");
-        assertEquals("v2", s.get("k", "v1"));
+    void asMapReturnsImmutableCopy() {
+        when(repository.findAllAsMap()).thenReturn(Map.of("a", "1"));
+        service.refresh();
+        Map<String, Object> m = service.asMap();
+        assertEquals("1", m.get("a"));
+        assertThrows(UnsupportedOperationException.class, () -> m.put("b", "2"));
     }
 
     @Test
-    void refreshPicksUpExternalChanges() {
-        AdminSettingsService s = service(Map.of("k", "old"));
-        when(repository.findAllAsMap()).thenReturn(Map.of("k", "new"));
-        s.refresh();
-        assertEquals("new", s.get("k", "old"));
+    void setPersistsAndUpdatesCacheWhenAlreadyLoaded() {
+        when(repository.findAllAsMap()).thenReturn(Map.of());
+        service.refresh();            // loaded = true so ensureLoaded is a no-op
+        service.set("newKey", "newVal");
+        verify(repository).put("newKey", "newVal");
+        assertEquals("newVal", service.get("newKey", "def"));
     }
 
     @Test
-    void asMapSnapshotIsComplete() {
-        Map<String, Object> snapshot = service(Map.of("a", "1", "b", "2")).asMap();
-        assertEquals(2, snapshot.size());
-        assertEquals("1", snapshot.get("a"));
+    void setTriggersLazyLoadWhenNotLoaded() {
+        when(repository.findAllAsMap()).thenReturn(Map.of());
+        service.set("k", "v");         // ensureLoaded -> refresh (findAllAsMap)
+        verify(repository).put("k", "v");
+        verify(repository).findAllAsMap();
+        assertEquals("v", service.get("k", "def"));
     }
 }
