@@ -140,6 +140,7 @@ export class GameStateManager {
                             allPassed: m.allPassed,
                             passed: m.passed,
                             totalTests: m.totalTests,
+                            aiFeedback: m.aiFeedback ?? null,
                         },
                     },
                 });

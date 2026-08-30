@@ -84,6 +84,11 @@ public class GameRoom {
         this(sessionId, quizId, pin, status, 500, GameMode.STANDARD);
     }
 
+    /** 5-arg ctor for computeIfAbsent: defaults to STANDARD mode. */
+    public GameRoom(String sessionId, String quizId, String pin, String status, int maxPlayers) {
+        this(sessionId, quizId, pin, status, maxPlayers, GameMode.STANDARD);
+    }
+
     /** Returns false when the room is at capacity. */
     public synchronized boolean addPlayer(Player p) {
         if (players.size() >= maxPlayers) return false;

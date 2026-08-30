@@ -33,10 +33,11 @@ export function QuestionView() {
         const sub = lastResult?.submission;
         if (!sub || sub.questionId !== q.id) return;
         const ok = sub.allPassed === true;
+        const aiNote = sub.aiFeedback ? ` — ${sub.aiFeedback}` : "";
         setFeedback({
             ok,
             text: isCoding(q.type)
-                ? `${sub.passed}/${sub.totalTests} tests passed · +${sub.score}`
+                ? `${sub.passed}/${sub.totalTests} tests passed · +${sub.score}${aiNote}`
                 : ok
                   ? `+${sub.score} pts`
                   : "Not quite",
