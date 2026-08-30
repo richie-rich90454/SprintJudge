@@ -16,6 +16,7 @@ import com.sprintjudge.util.Json;
 import com.sprintjudge.util.NameSanitizer;
 import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -52,6 +53,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     private final BroadcastScheduler scheduler;
     private final SubmissionWriteBuffer writeBuffer;
     private final RoundTimeoutScheduler roundTimer;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${sprintjudge.room.max-players:10000}")
     private int maxPlayers = 10000;
@@ -74,7 +76,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                             AdminSettingsService settingsService,
                             BroadcastScheduler scheduler,
                             SubmissionWriteBuffer writeBuffer,
-                            RoundTimeoutScheduler roundTimer) {
+                            RoundTimeoutScheduler roundTimer,
+                            ApplicationEventPublisher eventPublisher) {
         this.sessionRepository = sessionRepository;
         this.quizRepository = quizRepository;
         this.questionRepository = questionRepository;
@@ -87,6 +90,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         this.scheduler = scheduler;
         this.writeBuffer = writeBuffer;
         this.roundTimer = roundTimer;
+        this.eventPublisher = eventPublisher;
     }
 
     // ---------- lifecycle ----------
@@ -106,6 +110,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 || sessionRepository.findByPin(pin).isPresent());
         GameSession session = sessionRepository.create(quizId, hostUserId, pin, null);
         registry.put(Integer.parseInt(pin), new GameRoom(session.id(), quizId, pin, "LOBBY", maxPlayers, gameMode));
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.GameCreated(pin, quizId, gameMode.name()));
         return session;
     }
 
@@ -131,13 +136,14 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 room.setHostUuid(p.uuid());
                 room.touch();
             broadcastLeaderboard(pin);
-                return p;
-            }
-            // Rejoin: reclaim a disconnected seat by token so scores survive.
-            if (rejoinToken != null) {
-                Player reclaimed = room.reclaim(rejoinToken, sessionId);
-                if (reclaimed != null) {
-                    room.touch();
+            eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
+            return p;
+        }
+        // Rejoin: reclaim a disconnected seat by token so scores survive.
+        if (rejoinToken != null) {
+            Player reclaimed = room.reclaim(rejoinToken, sessionId);
+            if (reclaimed != null) {
+                room.touch();
             broadcastLeaderboard(pin);
                     return reclaimed;
                 }
@@ -147,6 +153,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             if (!room.addPlayer(p)) throw new IllegalStateException("Room is full");
             room.touch();
             broadcastLeaderboard(pin);
+            eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
             return p;
         }
     }
@@ -158,6 +165,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             if (playerUuid.equals(room.hostUuid())) room.setHostUuid(null);
             room.hardRemove(playerUuid);
         }
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerLeft(pin, playerUuid));
         broadcastRoomState(pin);
         broadcastLeaderboard(pin);
     }
@@ -177,6 +185,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         room.setStatus("ACTIVE");
         room.clearRounds();
         sessionRepository.updateStatus(room.sessionId(), "ACTIVE");
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.QuestionStarted(
+                pin, q.id(), room.currentQuestionIndex()));
         QuestionDto dto = toDto(q);
         long now = Instant.now().toEpochMilli();
 
@@ -271,7 +281,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 || room.gameMode() == GameRoom.GameMode.EXAM;
         if (immediateFeedback) {
             ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
-                    questionId, total, correct, correct, 1, null));
+                    questionId, total, correct, correct ? 1 : 0, 1, null));
         }
         broadcastLeaderboard(pin);
     }
@@ -458,12 +468,15 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
         roundTimer.cancel(Integer.parseInt(pin));
+        int playerCount = room.players().size();
+        int questionCount = questionRepository.findByQuiz(room.quizId()).size();
         room.setStatus("ENDED");
         sessionRepository.updateStatus(room.sessionId(), "ENDED");
         writeBuffer.flush();
         flushLeaderboardDelta(pin);
         GameEnd end = new GameEnd("GAME_END", room.leaderboard());
         broadcastToRoom(pin, end);
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.GameEnded(pin, playerCount, questionCount));
         registry.remove(Integer.parseInt(pin));
     }
 
