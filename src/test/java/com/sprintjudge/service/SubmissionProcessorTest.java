@@ -1,5 +1,6 @@
 package com.sprintjudge.service;
 
+import com.sprintjudge.domain.enums.QuestionType;
 import com.sprintjudge.domain.models.Question;
 import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.repository.QuestionRepository;
@@ -7,13 +8,10 @@ import com.sprintjudge.repository.SubmissionRepository;
 import com.sprintjudge.service.executor.CodeExecutor;
 import com.sprintjudge.service.executor.JudgeRequest;
 import com.sprintjudge.service.executor.JudgeResult;
-import com.sprintjudge.util.Json;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -21,17 +19,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionProcessorTest {
@@ -41,153 +31,174 @@ class SubmissionProcessorTest {
     @Mock QuestionRepository questionRepository;
     @Mock ScoringEngine scoringEngine;
     @Mock LeaderboardBroadcaster leaderboardBroadcaster;
-    @Captor ArgumentCaptor<List<Submission>> listCaptor;
+    @Mock SubmissionWriteBuffer writeBuffer;
 
-    private SubmissionWriteBuffer buffer;
-
-    @BeforeEach
-    void setUp() {
-        buffer = new SubmissionWriteBuffer(submissionRepository, 250, 1000);
-    }
-
-    private SubmissionProcessor processor(int permits) {
+    private SubmissionProcessor processor(Semaphore slot) {
         return new SubmissionProcessor(executor, submissionRepository, questionRepository,
-                scoringEngine, leaderboardBroadcaster, buffer, new Semaphore(permits));
+                scoringEngine, leaderboardBroadcaster, writeBuffer, slot);
     }
 
-    private Question ojQuestion() {
-        return new Question("q1", "qz", "T", "D", "OJ_FULL", null, 30, 500,
-                Json.write(Map.of("testCases",
-                        List.of(Map.of("input", "1 2", "expectedOutput", "3", "isHidden", false)))),
-                0, null);
-    }
-
-    private JudgeResult result(int passed, int total) {
-        List<JudgeResult.CaseResult> cases = new java.util.ArrayList<>();
-        for (int i = 0; i < total; i++) {
-            cases.add(new JudgeResult.CaseResult(i, i < passed, "x", i < passed ? "x" : "y", ""));
-        }
-        return new JudgeResult(passed, total, passed == total, cases);
-    }
-
-    // ---------- happy path ----------
-
-    @Test
-    void codingRunBuffersBestSubmissionAndBroadcasts() {
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
-        when(submissionRepository.findBySessionQuestion(any(), any())).thenReturn(List.of());
-        when(executor.judge(any(JudgeRequest.class))).thenReturn(result(1, 1));
-        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
-                anyLong(), anyLong(), anyInt(), any())).thenReturn(500);
-
-        boolean accepted = processor(2).processCoding(
-                "s1", "p1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
-
-        assertTrue(accepted);
-        assertEquals(1, buffer.offeredTotal());
-        buffer.flush();
-        verify(submissionRepository).saveAll(listCaptor.capture());
-        assertEquals(500, listCaptor.getValue().get(0).scoreEarned());
-        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
+    private Question codingQuestion(String config) {
+        Question q = mock(Question.class);
+        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.config()).thenReturn(config);
+        when(q.pointsBase()).thenReturn(100);
+        when(q.timeLimitSec()).thenReturn(10);
+        return q;
     }
 
     @Test
-    void lowerResubmissionDoesNotReplaceHigherScore() {
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
-        when(submissionRepository.findBySessionQuestion(any(), any())).thenReturn(List.of());
-        when(executor.judge(any(JudgeRequest.class))).thenReturn(result(1, 1));
-        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
-                anyLong(), anyLong(), anyInt(), any())).thenReturn(100);
-        when(submissionRepository.findBest("s1", "q1", "uuid-1"))
-                .thenReturn(Optional.of(new Submission("prev", "s1", "q1", "Alice", "uuid-1",
-                        "{}", 999, true, "", 1, null)));
-
-        boolean accepted = processor(2).processCoding(
-                "s1", "p1", "q1", "Alice", "uuid-1", "python", "print(3)", Map.of());
-
-        assertTrue(accepted);
-        assertEquals(0, buffer.offeredTotal());      // worse score: nothing persisted
-        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
-    }
-
-    // ---------- backpressure ----------
-
-    @Test
-    void saturatedSemaphoreReturnsFalseWithoutJudging() {
-        boolean accepted = processor(0).processCoding(
-                "s1", "p1", "q1", "Impatient", "uuid-b", "python", "print(1)", Map.of());
-
-        assertFalse(accepted);
-        verify(executor, never()).judge(any());
-        verify(questionRepository, never()).findById(anyString());
-        assertEquals(0, buffer.offeredTotal());
-    }
-
-    // ---------- guards ----------
-
-    @Test
-    void misroutedSelectionAnswerIsRejectedNotJudged() {
-        String mcqCfg = Json.write(Map.of("correctIndex", 0));
-        when(questionRepository.findById("m1")).thenReturn(Optional.of(
-                new Question("m1", "qz", "M", "D", "MCQ", null, 30, 100, mcqCfg, 0, null)));
-
-        boolean accepted = processor(2).processCoding(
-                "s1", "p1", "m1", "Eve", "u-e", "python", "print(1)", Map.of());
-
-        assertTrue(accepted);
-        assertEquals(1, buffer.offeredTotal());
-        verify(executor, never()).judge(any());
-        buffer.flush();
-        verify(submissionRepository).saveAll(listCaptor.capture());
-        assertTrue(listCaptor.getValue().get(0).judgeLog().contains("not_a_coding_question"));
-        verify(leaderboardBroadcaster).broadcastLeaderboard("p1");
+    void saturatedReturnsFalse() {
+        Semaphore slot = new Semaphore(1);
+        slot.acquireUninterruptibly();
+        SubmissionProcessor p = processor(slot);
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertFalse(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        slot.release();
+        verifyNoInteractions(executor);
+        assertEquals(-1, received[0]);
     }
 
     @Test
-    void oversizedSourceIsRejectedWithoutJudging() {
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
-
-        processor(2).processCoding("s1", "p1", "q1", "Big", "u-b", "python", "x".repeat(70_000), Map.of());
-
-        assertEquals(1, buffer.offeredTotal());
-        verify(executor, never()).judge(any());
-    }
-
-    @Test
-    void attemptCapSilentlyDropsFurtherSubmissions() {
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
-        when(submissionRepository.findBySessionQuestion("s1", "q1")).thenReturn(java.util.List.of(
-                new Submission("a", "s1", "q1", "F", "uuid-f", "{}", 10, false, "", 50, null)));
-
-        processor(2).processCoding("s1", "p1", "q1", "Flooder", "uuid-f", "python", "print(1)", Map.of());
-
-        verify(executor, never()).judge(any());
-        assertEquals(0, buffer.offeredTotal());
-    }
-
-    @Test
-    void compileFailureStillRecordsZeroScoreAttempt() {
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(ojQuestion()));
-        when(submissionRepository.findBySessionQuestion(any(), any())).thenReturn(List.of());
-        when(executor.judge(any(JudgeRequest.class))).thenReturn(result(0, 1));
-        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(),
-                anyLong(), anyLong(), anyInt(), any())).thenReturn(0);
-
-        processor(2).processCoding("s1", "p1", "q1", "Newbie", "u-n", "cpp", "int main(", Map.of());
-
-        assertEquals(1, buffer.offeredTotal());
-        buffer.flush();
-        verify(submissionRepository).saveAll(listCaptor.capture());
-        assertEquals(0, listCaptor.getValue().get(0).scoreEarned());
-        assertEquals(false, listCaptor.getValue().get(0).correct());
-    }
-
-    @Test
-    void unknownQuestionIdIsIgnored() {
-        when(questionRepository.findById("ghost")).thenReturn(Optional.empty());
-        processor(2).processCoding("s1", "p1", "ghost", "X", "u-x", "python", "print(1)", Map.of());
-        verify(executor, never()).judge(any());
-        assertEquals(0, buffer.offeredTotal());
+    void questionNotFoundReturnsTrueButNoCallback() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        when(questionRepository.findById("q")).thenReturn(Optional.empty());
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        verify(writeBuffer, never()).offer(any());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
+        assertEquals(-1, received[0]);
+    }
+
+    @Test
+    void nonCodingRejectedSilently() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = mock(Question.class);
+        when(q.questionType()).thenReturn("MCQ");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        verify(writeBuffer).offer(any());
+        verify(executor, never()).judge(any());
+        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        assertEquals(-1, received[0]); // handler is not invoked for rejected routing
+    }
+
+    @Test
+    void sourceTooLargeRejected() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = mock(Question.class);
+        when(q.questionType()).thenReturn("OJ_FULL");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(70000), 1, Map.of(), handler));
+        verify(writeBuffer).offer(any());
+        verify(executor, never()).judge(any());
+        assertEquals(-1, received[0]);
+    }
+
+    @Test
+    void normalCodingFlowWritesAndBroadcasts() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion(
+                "{\"testCases\":[{\"input\":\"1\",\"expectedOutput\":\"2\",\"isHidden\":false}],\"memoryLimitMb\":128,\"timeLimitSec\":10}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        JudgeResult jr = new JudgeResult(1, 1, true, List.of());
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(jr);
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(90);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        verify(writeBuffer).offer(any(Submission.class));
+        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        assertEquals(90, received[0]);
+    }
+
+    @Test
+    void bestScoreNotOverwritten() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        JudgeResult jr = new JudgeResult(0, 1, false, List.of());
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(jr);
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(10);
+        Submission best = mock(Submission.class);
+        when(best.scoreEarned()).thenReturn(50);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
+
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        verify(writeBuffer, never()).offer(any(Submission.class));
+        assertEquals(10, received[0]);
+    }
+
+    @Test
+    void nullSourceCodeIsRejected() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = mock(Question.class);
+        when(q.questionType()).thenReturn("OJ_FULL");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", null, 1, Map.of(), handler));
+        verify(executor, never()).judge(any(JudgeRequest.class));
+        verify(writeBuffer).offer(any());
+        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        assertEquals(-1, received[0]); // handler not invoked for rejected source
+    }
+
+    @Test
+    void codingConfigWithoutTestCases() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        // config has no "testCases" key -> exercises the has() false branch
+        Question q = codingQuestion("{\"memoryLimitMb\":128,\"timeLimitSec\":10}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        JudgeResult jr = new JudgeResult(0, 0, false, List.of());
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(jr);
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(0);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        assertEquals(0, received[0]);
+    }
+
+    @Test
+    void betterScoreOverwritesBest() {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        JudgeResult jr = new JudgeResult(1, 1, true, List.of());
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(jr);
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(50);
+        Submission best = mock(Submission.class);
+        when(best.scoreEarned()).thenReturn(10); // existing best is lower -> overwrite
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
+
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler));
+        verify(writeBuffer).offer(any(Submission.class)); // 50 > 10 so it overwrites
+        assertEquals(50, received[0]);
     }
 }
