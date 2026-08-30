@@ -209,7 +209,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
         // Gate: score only during the live round for the current question.
         if (!"ACTIVE".equals(room.status()) || !questionId.equals(room.currentQuestionId())) {
-            ws.send(room.getPlayer(playerUuid) == null ? null : room.getPlayer(playerUuid).sessionId(),
+            Player target = room.getPlayer(playerUuid);
+            ws.send(target == null ? null : target.sessionId(),
                     new ErrorMessage("ERROR", "Round is locked — answers are no longer accepted"));
             return;
         }
