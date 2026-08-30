@@ -82,7 +82,7 @@ export class AdminApiService {
     }
 
     createGame(quizId: string) {
-        // Host identity is resolved server-side from the OAuth2 session.
+        // Host identity is resolved server-side from the authenticated session.
         return this.client
             .post<{ id: string; pinCode: string }>("/admin/games", { quizId })
             .then((r) => r.data);
