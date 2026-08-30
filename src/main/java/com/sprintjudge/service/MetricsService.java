@@ -23,7 +23,7 @@ public class MetricsService {
 
     private final long startedAt = System.currentTimeMillis();
     private final MemoryMXBean memory = ManagementFactory.getMemoryMXBean();
-    private final ThreadMXBean threads = ManagementFactory.getThreadMXBean();
+    private ThreadMXBean threads = ManagementFactory.getThreadMXBean();
     private final List<GarbageCollectorMXBean> gcs = ManagementFactory.getGarbageCollectorMXBeans();
 
     private final Semaphore judgeSlots;
@@ -78,12 +78,6 @@ public class MetricsService {
         Map<String, Object> th = new LinkedHashMap<>();
         th.put("platform_active", threads.getThreadCount());
         th.put("peak", threads.getPeakThreadCount());
-        try {
-            Object v = threads.getClass().getMethod("getTotalThreadCount").invoke(threads);
-            th.put("total_spawned", v);
-        } catch (Exception ignored) {
-            // Optional JDK API; absence is fine.
-        }
         m.put("threads", th);
 
         Map<String, Object> judge = new LinkedHashMap<>();
