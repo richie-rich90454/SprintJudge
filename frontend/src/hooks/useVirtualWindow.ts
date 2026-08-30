@@ -7,22 +7,22 @@ import { useEffect, useRef, useState } from "react";
  * scrollbar never lies and no row is ever clipped or duplicated.
  */
 export function useVirtualWindow(total: number, rowHeight: number, overscan = 6) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [start, setStart] = useState(0);
+    const ref = useRef<HTMLDivElement>(null);
+    const [start, setStart] = useState(0);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onScroll = () => {
-      const first = Math.max(0, Math.floor(el.scrollTop / rowHeight) - overscan);
-      setStart(first);
-    };
-    onScroll();
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [rowHeight, overscan]);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const onScroll = () => {
+            const first = Math.max(0, Math.floor(el.scrollTop / rowHeight) - overscan);
+            setStart(first);
+        };
+        onScroll();
+        el.addEventListener("scroll", onScroll, { passive: true });
+        return () => el.removeEventListener("scroll", onScroll);
+    }, [rowHeight, overscan]);
 
-  const viewportRows = 12 + overscan * 2;   // ~420px viewport at 28px rows
-  const end = Math.min(total, start + viewportRows);
-  return { ref, start, end };
+    const viewportRows = 12 + overscan * 2; // ~420px viewport at 28px rows
+    const end = Math.min(total, start + viewportRows);
+    return { ref, start, end };
 }
