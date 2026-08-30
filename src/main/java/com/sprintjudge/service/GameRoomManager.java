@@ -173,20 +173,39 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             return;
         }
         Question q = questions.get(room.currentQuestionIndex());
-        long end = Instant.now().toEpochMilli() + (long) q.timeLimitSec() * 1000;
-        room.setCurrentQuestionEndEpochMs(end);
         room.setCurrentQuestionId(q.id());
         room.setStatus("ACTIVE");
         room.clearRounds();
         sessionRepository.updateStatus(room.sessionId(), "ACTIVE");
         QuestionDto dto = toDto(q);
         long now = Instant.now().toEpochMilli();
-        QuestionStart start = new QuestionStart("QUESTION_START", dto, q.timeLimitSec(),
-                room.currentQuestionEndEpochMs() - (long) q.timeLimitSec() * 1000, now);
-        broadcastToRoom(pin, start);
+
+        if (room.gameMode() == GameRoom.GameMode.PRACTICE) {
+            // Practice: no timer, unlimited time.
+            room.setCurrentQuestionEndEpochMs(Long.MAX_VALUE);
+            broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, -1, now, now));
+            broadcastRoomState(pin);
+            return;
+        }
+
+        if (room.gameMode() == GameRoom.GameMode.EXAM) {
+            // Exam: use the total end time (set at game creation), no per-question timer.
+            long end = room.totalEndEpochMs();
+            if (end <= 0) end = now + (long) q.timeLimitSec() * questions.size() * 1000;
+            room.setCurrentQuestionEndEpochMs(end);
+            broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, (int) ((end - now) / 1000), now, now));
+            broadcastRoomState(pin);
+            // Schedule exam total timer.
+            roundTimer.schedule(Integer.parseInt(pin), end, () -> onTimerExpired(pin));
+            return;
+        }
+
+        // STANDARD, AUTO_PILOT, TEAM, BATTLE: per-question timer.
+        long end = now + (long) q.timeLimitSec() * 1000;
+        room.setCurrentQuestionEndEpochMs(end);
+        broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, q.timeLimitSec(), now, now));
         broadcastRoomState(pin);
-        // Server-side auto-transition: lock the round when the clock hits zero.
-        roundTimer.schedule(Integer.parseInt(pin), room.currentQuestionEndEpochMs(), () -> onTimerExpired(pin));
+        roundTimer.schedule(Integer.parseInt(pin), end, () -> onTimerExpired(pin));
     }
 
     public void nextQuestion(String pin) {
@@ -246,6 +265,14 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 p.name(), playerUuid, Json.write(response), total, correct, null, attempts, Instant.now()));
         room.applyScore(playerUuid, total);
         room.recordRound(playerUuid, base, bonus);
+
+        // Practice/Exam: send immediate feedback to the player.
+        boolean immediateFeedback = room.gameMode() == GameRoom.GameMode.PRACTICE
+                || room.gameMode() == GameRoom.GameMode.EXAM;
+        if (immediateFeedback) {
+            ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
+                    questionId, total, correct, correct, 1));
+        }
         broadcastLeaderboard(pin);
     }
 
@@ -330,11 +357,76 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         broadcastLeaderboard(pin);
     }
 
+    // ---------- team mode ----------
+
+    public GameRoom.Team createTeam(String pin, String name) {
+        GameRoom room = require(pin);
+        return room.createTeam(name);
+    }
+
+    public GameRoom.Team joinTeam(String pin, String teamId, String playerUuid) {
+        GameRoom room = require(pin);
+        return room.joinTeam(teamId, playerUuid);
+    }
+
+    public java.util.List<GameRoom.Team> getTeams(String pin) {
+        GameRoom room = require(pin);
+        return new java.util.ArrayList<>(room.allTeams());
+    }
+
+    // ---------- battle mode ----------
+
+    public void startBattle(String pin) {
+        GameRoom room = require(pin);
+        List<Player> players = room.players();
+        if (players.size() < 2) {
+            throw new IllegalStateException("Need at least 2 players for battle");
+        }
+        List<Question> questions = questionRepository.findByQuiz(room.quizId());
+        if (questions.isEmpty()) return;
+        Question q = questions.get(room.currentQuestionIndex());
+
+        // Pair players for 1v1 matches.
+        java.util.Collections.shuffle(players);
+        for (int i = 0; i + 1 < players.size(); i += 2) {
+            String matchId = Ids.uuid();
+            GameRoom.BattleMatch match = new GameRoom.BattleMatch(
+                    matchId, players.get(i).uuid(), players.get(i + 1).uuid(),
+                    q.id(), null, null, false, false, null);
+            room.addBattleMatch(match);
+        }
+        // Build bracket (round 1 matchups).
+        java.util.List<String[]> rounds = new java.util.ArrayList<>();
+        for (GameRoom.BattleMatch m : room.battleMatches()) {
+            rounds.add(new String[]{m.p1Uuid(), m.p2Uuid()});
+        }
+        room.setBracket(rounds);
+
+        // Start the question for all players.
+        startQuestion(pin);
+    }
+
+    public java.util.List<GameRoom.BattleMatch> getBattleMatches(String pin) {
+        GameRoom room = require(pin);
+        return room.battleMatches();
+    }
+
+    public java.util.List<String[]> getBracket(String pin) {
+        GameRoom room = require(pin);
+        return room.bracket();
+    }
+
     private void onTimerExpired(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
         synchronized (room) {
-            if (!"ACTIVE".equals(room.status())) return;          // host already advanced
+            if (!"ACTIVE".equals(room.status())) return;
+            if (room.gameMode() == GameRoom.GameMode.PRACTICE) return; // no timer in practice
+            if (room.gameMode() == GameRoom.GameMode.EXAM) {
+                // Exam: total time expired, end game immediately.
+                endGame(pin);
+                return;
+            }
             if (Instant.now().toEpochMilli() < room.currentQuestionEndEpochMs()) return;
             transitionToReview(pin);
         }
@@ -345,14 +437,18 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         roundTimer.cancel(Integer.parseInt(pin));
         room.setStatus("REVIEW");
         sessionRepository.updateStatus(room.sessionId(), "REVIEW");
-        writeBuffer.flush();                       // accuracy boundary
-        flushLeaderboardDelta(pin);
+        writeBuffer.flush();
+        // Exam mode: suppress leaderboard during game (only show at end).
+        if (room.gameMode() != GameRoom.GameMode.EXAM) {
+            flushLeaderboardDelta(pin);
+        }
         sendRoundResult(pin, true);
         broadcastRoomState(pin);
-        // Auto-pilot: after a brief review, advance to the next question automatically.
-        if (room.gameMode() == GameRoom.GameMode.AUTO_PILOT) {
+        // Auto-pilot / Practice: auto-advance after brief review.
+        if (room.gameMode() == GameRoom.GameMode.AUTO_PILOT
+                || room.gameMode() == GameRoom.GameMode.PRACTICE) {
             roundTimer.schedule(Integer.parseInt(pin),
-                    Instant.now().toEpochMilli() + 3000,
+                    Instant.now().toEpochMilli() + (room.gameMode() == GameRoom.GameMode.PRACTICE ? 2000 : 3000),
                     () -> nextQuestion(pin));
         }
     }
@@ -431,7 +527,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 .map(p -> new RoomState.PlayerInfo(p.uuid(), p.name(), p.score(), p.connected()))
                 .toList();
         int count = questionRepository.findByQuiz(room.quizId()).size();
-        return new RoomState("ROOM_STATE", room.status(), count, room.currentQuestionId(), players);
+        return new RoomState("ROOM_STATE", room.status(), count, room.currentQuestionId(), players,
+                room.gameMode().name());
     }
 
     private void sendRoundResult(String pin, boolean revealed) {
