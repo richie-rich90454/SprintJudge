@@ -474,10 +474,85 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         sessionRepository.updateStatus(room.sessionId(), "ENDED");
         writeBuffer.flush();
         flushLeaderboardDelta(pin);
-        GameEnd end = new GameEnd("GAME_END", room.leaderboard());
-        broadcastToRoom(pin, end);
+
+        // Build review data before removing the room.
+        GameReview review = buildReview(room);
+        broadcastToRoom(pin, review);
+
         eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.GameEnded(pin, playerCount, questionCount));
         registry.remove(Integer.parseInt(pin));
+    }
+
+    private GameReview buildReview(GameRoom room) {
+        List<Question> questions = questionRepository.findByQuiz(room.quizId());
+        List<com.sprintjudge.domain.models.Submission> submissions =
+                submissionRepository.findBySession(room.sessionId());
+
+        // Build question reviews.
+        java.util.Map<String, List<com.sprintjudge.domain.models.Submission>> byQuestion = new java.util.HashMap<>();
+        for (var s : submissions) {
+            byQuestion.computeIfAbsent(s.questionId(), k -> new java.util.ArrayList<>()).add(s);
+        }
+
+        List<GameReview.QuestionReview> qReviews = new java.util.ArrayList<>();
+        String hardestId = null, easiestId = null;
+        double hardestRate = 1.1, easiestRate = -0.1;
+
+        for (Question q : questions) {
+            List<com.sprintjudge.domain.models.Submission> qSubs =
+                    byQuestion.getOrDefault(q.id(), List.of());
+            int total = qSubs.size();
+            int correct = 0;
+            long totalTime = 0;
+            for (var s : qSubs) {
+                if (s.correct()) correct++;
+                totalTime += s.attemptCount();
+            }
+            double rate = total > 0 ? (double) correct / total : 0;
+            double avgTime = total > 0 ? (double) totalTime / total : 0;
+
+            JsonNode answer = QuestionAnswers.answerPayload(
+                    QuestionType.from(q.questionType()), Json.readTree(q.config()));
+
+            qReviews.add(new GameReview.QuestionReview(
+                    q.id(), q.title(), q.questionType(), q.timeLimitSec(),
+                    q.pointsBase(), answer, total, correct, rate, avgTime));
+
+            if (rate < hardestRate) { hardestRate = rate; hardestId = q.id(); }
+            if (rate > easiestRate) { easiestRate = rate; easiestId = q.id(); }
+        }
+
+        // Build player reviews.
+        java.util.Map<String, List<com.sprintjudge.domain.models.Submission>> byPlayer = new java.util.HashMap<>();
+        for (var s : submissions) {
+            byPlayer.computeIfAbsent(s.playerUuid(), k -> new java.util.ArrayList<>()).add(s);
+        }
+
+        List<GameReview.PlayerReview> pReviews = new java.util.ArrayList<>();
+        int totalCorrect = 0, totalAttempts = 0;
+        double totalScore = 0;
+
+        for (Player p : room.players()) {
+            List<com.sprintjudge.domain.models.Submission> pSubs =
+                    byPlayer.getOrDefault(p.uuid(), List.of());
+            List<GameReview.PlayerAnswer> answers = new java.util.ArrayList<>();
+            int pScore = 0;
+            for (var s : pSubs) {
+                answers.add(new GameReview.PlayerAnswer(s.questionId(), s.correct(), s.scoreEarned(), s.attemptCount()));
+                if (s.correct()) totalCorrect++;
+                totalAttempts += s.attemptCount();
+                pScore += s.scoreEarned();
+            }
+            pReviews.add(new GameReview.PlayerReview(p.uuid(), p.name(), pScore, answers));
+            totalScore += pScore;
+        }
+
+        GameReview.ClassStats stats = new GameReview.ClassStats(
+                room.players().size(), questions.size(),
+                room.players().isEmpty() ? 0 : totalScore / room.players().size(),
+                totalCorrect, totalAttempts, hardestId, easiestId);
+
+        return new GameReview("GAME_REVIEW", room.leaderboard(), qReviews, pReviews, stats);
     }
 
     /** Sweeps unrecoverable rooms: empty lobbies idle past the TTL. */
