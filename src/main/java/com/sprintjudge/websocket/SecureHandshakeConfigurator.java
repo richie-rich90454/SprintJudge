@@ -49,9 +49,12 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
     @Override
     public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
         super.modifyHandshake(sec, request, response);
-        sec.getUserProperties().put(AUTHENTICATED, request.getUserPrincipal() != null);
-        // Jakarta exposes no remote address; derive from proxy headers with a
-        // shared fallback bucket so unresolved clients still hit the limiter.
+        // Per-request security context is stashed on the SHARED config object; a
+        // concurrent handshake could overwrite it before onOpen reads it, letting
+        // an anonymous client inherit another's authenticated flag. We therefore
+        // do NOT rely on these properties at all — onOpen reads the authoritative
+        // per-session Principal directly from the live Session. Only the rate-
+        // limiting source address is derived here (bucket attribution only).
         String addr = firstHeader(request, "X-Forwarded-For");
         if (addr == null) addr = firstHeader(request, "X-Real-IP");
         sec.getUserProperties().put(REMOTE_ADDR, addr == null ? "unresolved" : addr);
