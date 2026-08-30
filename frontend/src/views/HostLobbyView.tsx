@@ -48,7 +48,10 @@ export function HostLobbyView() {
                 <div className="page-shell py-4 flex items-center gap-8">
                     <div>
                         <p className="label-caps mb-1">Game PIN</p>
-                        <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
+                        <p
+                            className="font-extrabold text-4xl tracking-[.2em] leading-none"
+                            style={{ fontFamily: '"Noto Sans Mono", monospace' }}
+                        >
                             {pin}
                         </p>
                     </div>
