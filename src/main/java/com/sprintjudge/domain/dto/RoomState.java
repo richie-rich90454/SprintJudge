@@ -7,7 +7,8 @@ public record RoomState(
         String status,
         int questionCount,
         String currentQuestionId,
-        List<PlayerInfo> players
+        List<PlayerInfo> players,
+        String gameMode
 ) {
     public record PlayerInfo(String uuid, String name, int score, boolean connected) {}
 }
