@@ -37,10 +37,15 @@ public class WebSocketSessionManager {
     public void sendRaw(String sessionId, String json) {
         Session s = sessions.get(sessionId);
         if (s == null || !s.isOpen()) return;
-        try {
-            s.getBasicRemote().sendText(json);
-        } catch (IOException ignored) {
-            // Broken pipe / race with close: drop this recipient, keep fanning out.
+        // Serialize per session: getBasicRemote() is not safe for concurrent
+        // invocation, and a stalled peer must not head-of-line-block other rooms.
+        synchronized (s) {
+            try {
+                s.getBasicRemote().sendText(json);
+            } catch (IOException | IllegalStateException ignored) {
+                // Broken pipe / race with close / concurrent write: drop this
+                // recipient and keep fanning out to everyone else.
+            }
         }
     }
 
