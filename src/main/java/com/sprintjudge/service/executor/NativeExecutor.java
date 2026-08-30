@@ -228,4 +228,80 @@ public class NativeExecutor implements CodeExecutor {
     private String truncate(String s) {
         return s.length() <= 2000 ? s : s.substring(0, 2000) + "…";
     }
+
+    /**
+     * Live execution for the interactive console: compiles (if needed) then runs
+     * the program feeding {@code stdin} and capturing combined stdout/stderr.
+     * Callers (the player console) get back the merged stream so students can
+     * experiment before submitting — mirroring JuiceMind's in-quiz runner.
+     */
+    @Override
+    public RunResult run(RunRequest request) {
+        String language = canonical(request.language());
+        if (!SUPPORTED.contains(language)) {
+            return new RunResult(false, "", "", "unsupported_language");
+        }
+        if (request.sourceCode() != null && request.sourceCode().length() > 65_536) {
+            return new RunResult(false, "", "", "source_too_large");
+        }
+        Path runDir;
+        try {
+            runDir = Files.createDirectories(Path.of(workDirBase,
+                    "run-" + Thread.currentThread().threadId() + "-" + System.nanoTime()));
+        } catch (IOException e) {
+            log.error("Could not create run directory under {}", workDirBase, e);
+            return new RunResult(false, "", "", "io_error");
+        }
+        try {
+            runDir = runDir.toAbsolutePath();
+            String ext = switch (language) {
+                case "c" -> ".c";
+                case "cpp" -> ".cpp";
+                case "java" -> ".java";
+                case "node" -> ".js";
+                default -> ".py";
+            };
+            Path sourceFile = runDir.resolve("solution" + ext).toAbsolutePath();
+            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+
+            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+
+            String compileErr = compileOrReuse(language, request.sourceCode(), sourceFile, runDir, timeout);
+            if (compileErr != null) {
+                return new RunResult(false, "", compileErr, "compilation_error");
+            }
+
+            List<String> cmd = runCommand(language, sourceFile, runDir);
+            ProcessBuilder pb = new ProcessBuilder(cmd)
+                    .directory(runDir.toFile())
+                    .redirectErrorStream(true);
+            Process proc = pb.start();
+
+            // Feed stdin (best-effort; stdin may be empty for non-interactive programs).
+            if (request.stdin() != null && !request.stdin().isEmpty()) {
+                try (var os = proc.getOutputStream()) {
+                    os.write(request.stdin().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                } catch (IOException ignored) {
+                    // program may have exited before consuming all stdin
+                }
+            }
+
+            if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
+                proc.destroyForcibly();
+                return new RunResult(false, "", "", "timeout");
+            }
+            String output = ExecIo.readCapped(proc);
+            if (output == null) {
+                return new RunResult(false, "", "", "stdout_exceeded_1MB");
+            }
+            boolean ok = proc.exitValue() == 0;
+            return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Native run execution failed for language {}", language, e);
+            return new RunResult(false, "", "", "io_error");
+        } finally {
+            ExecIo.deleteTree(runDir);
+        }
+    }
 }
