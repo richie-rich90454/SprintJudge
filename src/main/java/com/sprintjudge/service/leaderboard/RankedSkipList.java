@@ -86,7 +86,7 @@ public final class RankedSkipList {
                 Node prev = update[i];
                 node.next[i] = prev.next[i];
                 prev.next[i] = node;
-                node.span[i] = prev.span[i] - (rank[i] - rank[0]);
+                node.span[i] = prev.span[i] - (rank[0] - rank[i]);
                 prev.span[i] = (rank[0] + 1) - rank[i];
             }
             for (int i = level; i < MAX_LEVEL; i++) {
@@ -168,18 +168,26 @@ public final class RankedSkipList {
     public int rankOf(String uuid) {
         lock.readLock().lock();
         try {
+            // Locate the target at level 0 to learn its (score, joinSeq) tie-break.
+            Node target = null;
+            for (Node n = head.next[0]; n != null; n = n.next[0]) {
+                if (uuid.equals(n.entry.uuid())) { target = n; break; }
+            }
+            if (target == null) return -1;
+            long tScore = target.entry.score();
+            long tSeq = target.seq;
+            // Traverse using ordering so we never skip over the target at higher levels.
             Node x = head;
             int rank = 0;
             for (int i = MAX_LEVEL - 1; i >= 0; i--) {
-                while (x.next[i] != null && !uuid.equals(x.next[i].entry.uuid())) {
+                while (x.next[i] != null
+                        && precedes(x.next[i].entry.score(), x.next[i].seq, tScore, tSeq)) {
                     rank += x.span[i];
                     x = x.next[i];
                 }
-                if (x.next[i] != null && uuid.equals(x.next[i].entry.uuid())) {
-                    return rank + x.span[i];
-                }
             }
-            return -1;
+            // x now sits immediately before the target at level 0.
+            return rank + 1;
         } finally {
             lock.readLock().unlock();
         }
