@@ -6,31 +6,44 @@ export type ResponseChange = (response: unknown) => void;
  * player's answer via the onChange callback. Keeps React views thin.
  */
 export abstract class BaseQuestionRenderer {
-  protected container: HTMLElement;
-  protected onChange: ResponseChange;
-  protected config: Record<string, unknown>;
-  protected questionId: string | undefined;
-  /** Question-level language restriction (null/empty = all languages). */
-  protected allowedLanguages: string[] | null;
+    protected container: HTMLElement;
+    protected onChange: ResponseChange;
+    protected config: Record<string, unknown>;
+    protected questionId: string | undefined;
+    /** Question-level language restriction (null/empty = all languages). */
+    protected allowedLanguages: string[] | null;
 
-  constructor(container: HTMLElement, config: unknown, onChange: ResponseChange, questionId?: string,
-              allowedLanguages?: string[] | null) {
-    this.container = container;
-    this.config = (config as Record<string, unknown>) ?? {};
-    this.onChange = onChange;
-    this.questionId = questionId;
-    this.allowedLanguages = allowedLanguages && allowedLanguages.length ? allowedLanguages : null;
-  }
+    constructor(
+        container: HTMLElement,
+        config: unknown,
+        onChange: ResponseChange,
+        questionId?: string,
+        allowedLanguages?: string[] | null,
+    ) {
+        this.container = container;
+        this.config = (config as Record<string, unknown>) ?? {};
+        this.onChange = onChange;
+        this.questionId = questionId;
+        this.allowedLanguages =
+            allowedLanguages && allowedLanguages.length ? allowedLanguages : null;
+    }
 
-  abstract mount(): void;
-  abstract getResponse(): unknown;
+    abstract mount(): void;
+    abstract getResponse(): unknown;
 
-  /** Subclasses call this whenever the answer changes. */
-  protected emit(response: unknown): void {
-    this.onChange(response);
-  }
+    /**
+     * Optional: called when the host reveals the correct answer. Subclasses
+     * that know the correct index (e.g. from config) can highlight it. Defaults
+     * to a no-op — the server may strip correctness, in which case nothing fires.
+     */
+    reveal(): void {}
 
-  destroy(): void {
-    this.container.innerHTML = "";
-  }
+    /** Subclasses call this whenever the answer changes. */
+    protected emit(response: unknown): void {
+        this.onChange(response);
+    }
+
+    destroy(): void {
+        this.container.innerHTML = "";
+    }
 }
