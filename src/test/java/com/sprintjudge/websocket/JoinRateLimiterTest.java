@@ -80,4 +80,40 @@ class JoinRateLimiterTest {
         assertTrue(limiter.tryJoin("ip-1"));
         assertTrue(limiter.tryJoin("ip-2"));   // untouched address unaffected by expiry sweep
     }
+
+    @Test
+    void exceedingMaxTrackedTriggersCleanupSweep() {
+        JoinRateLimiter limiter = limiter();
+        for (int i = 0; i < 10_001; i++) {
+            limiter.tryJoin("swept-" + i);
+        }
+        // 10_001 tracked > MAX_TRACKED(10_000): the next join exercises the sweep branch.
+        assertTrue(limiter.tryJoin("swept-new"));
+    }
+
+    @Test
+    void productionConstructorBlocksAfterTenFailures() {
+        JoinRateLimiter limiter = new JoinRateLimiter(); // wall-clock ctor (line 25-27)
+        for (int i = 0; i < 10; i++) {
+            assertTrue(limiter.tryJoin("ip-prod"));
+            limiter.recordFailure("ip-prod");
+        }
+        assertFalse(limiter.tryJoin("ip-prod"));
+    }
+
+    @Test
+    void sweepRemovesExpiredEntries() {
+        JoinRateLimiter limiter = limiter();
+        for (int i = 0; i < 10; i++) {
+            limiter.tryJoin("old-ip");
+            limiter.recordFailure("old-ip");
+        }
+        assertFalse(limiter.tryJoin("old-ip"));
+        now.addAndGet(120_000L);          // old-ip window now expired
+        for (int i = 0; i < 10_001; i++) {
+            limiter.tryJoin("sweep2-" + i);
+        }
+        // expired entry was swept out, so a fresh window is created -> allowed again
+        assertTrue(limiter.tryJoin("old-ip"));
+    }
 }
