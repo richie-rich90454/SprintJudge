@@ -39,5 +39,5 @@ export function QuestionRendererHost({ question, onResponse, revealSignal }: Pro
         if (revealSignal && revealSignal > 0) rendererRef.current?.reveal();
     }, [revealSignal]);
 
-    return <div ref={hostRef} className="renderer-host mt-4" />;
+    return <div ref={hostRef} className="renderer-host mt-4 w-full h-full flex flex-col min-h-0" />;
 }
