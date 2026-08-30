@@ -52,6 +52,9 @@ public class BroadcastScheduler {
 
     private void drain() {
         if (due.isEmpty()) return;
+        // Snapshot-then-clear is safe here: entries lost to a concurrent markDirty
+        // will be re-marked on the next tick (within 16ms). Acceptable for
+        // coalescing precision — worst case is one extra tick delay.
         Map<Integer, Runnable> snapshot = new java.util.HashMap<>(due);
         due.clear();
         for (var entry : snapshot.entrySet()) {

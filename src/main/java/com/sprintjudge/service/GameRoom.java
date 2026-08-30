@@ -28,11 +28,11 @@ public class GameRoom {
     private final String sessionId;
     private final String quizId;
     private final String pin;
-    private String status;
-    private int currentQuestionIndex;
-    private String currentQuestionId;
-    private long currentQuestionEndEpochMs;
-    private long currentQuestionStartEpochMs;
+    private volatile String status;
+    private volatile int currentQuestionIndex;
+    private volatile String currentQuestionId;
+    private volatile long currentQuestionEndEpochMs;
+    private volatile long currentQuestionStartEpochMs;
     private volatile String hostUuid;
     private final int maxPlayers;
     private final GameMode gameMode;

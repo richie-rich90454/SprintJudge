@@ -10,6 +10,6 @@ public record SubmissionResult(
         int score,
         boolean allPassed,
         int passed,
-        int total,
+        int totalTests,
         String aiFeedback
 ) {}

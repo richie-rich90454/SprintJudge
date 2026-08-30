@@ -134,10 +134,10 @@ public class GameWebSocket {
         String rejoinToken = msg.path("rejoinToken").asText(null);
         try {
             var player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
-            // ponytail: only leave old room AFTER new join succeeds —
+            // ponytail: only leave old room AFTER new join succeeds AND pin changed —
             // the old code left before join, so a failed join destroyed
             // the player's seat in the previous room.
-            if (prevPin != null && prevUuid != null) {
+            if (prevPin != null && prevUuid != null && !prevPin.equals(pin)) {
                 try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException ignored) {}
             }
             rateLimiter.recordSuccess(ip);

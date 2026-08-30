@@ -177,6 +177,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public void startQuestion(String pin) {
         GameRoom room = require(pin);
+        if (!"LOBBY".equals(room.status()) && !"REVIEW".equals(room.status())) return;
         List<Question> questions = questionRepository.findByQuiz(room.quizId());
         if (questions.isEmpty()) throw new IllegalStateException("Quiz has no questions");
         if (room.currentQuestionIndex() >= questions.size()) {
@@ -346,6 +347,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     // ---------- host controls ----------
 
     public void forceSubmit(String pin) {
+        GameRoom room = require(pin);
+        if (!"ACTIVE".equals(room.status())) return;
         roundTimer.cancel(Integer.parseInt(pin));
         transitionToReview(pin);
     }
@@ -472,10 +475,13 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     public void endGame(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
+        synchronized (room) {
+            if ("ENDED".equals(room.status())) return;
+            room.setStatus("ENDED");
+        }
         roundTimer.cancel(Integer.parseInt(pin));
         int playerCount = room.players().size();
         int questionCount = questionRepository.findByQuiz(room.quizId()).size();
-        room.setStatus("ENDED");
         sessionRepository.updateStatus(room.sessionId(), "ENDED");
         writeBuffer.flush();
         flushLeaderboardDelta(pin);
@@ -564,8 +570,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     public void sweepIdleRooms() {
         long now = System.currentTimeMillis();
         for (GameRoom room : registry.snapshot()) {
-            if ("LOBBY".equals(room.status()) && room.connectedCount() == 0 && room.idleMs(now) > LOBBY_TTL_MS) {
-                registry.remove(Integer.parseInt(room.pin()));
+            if ("LOBBY".equals(room.status()) && room.idleMs(now) > LOBBY_TTL_MS) {
+                synchronized (room) {
+                    if (room.connectedCount() == 0) {
+                        registry.remove(Integer.parseInt(room.pin()));
+                    }
+                }
             }
         }
     }

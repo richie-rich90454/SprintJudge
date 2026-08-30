@@ -34,7 +34,7 @@ public final class LiveLeaderboard {
     private final AtomicLong joinCounter = new AtomicLong();
 
     /** Adds a player at score 0. Returns their unique join sequence. */
-    public long join(String uuid, String name) {
+    public synchronized long join(String uuid, String name) {
         long seq = joinCounter.incrementAndGet();
         players.put(uuid, new Slot(name, seq, 0L));
         ordered.upsert(uuid, name, 0L, seq, Long.MIN_VALUE);

@@ -22,6 +22,7 @@ export function ResultView() {
     const listRef = useRef<HTMLOListElement>(null);
 
     useEffect(() => {
+        motion.killFor(listRef.current);
         motion.countUp(listRef.current);
     }, [rest.length]);
 

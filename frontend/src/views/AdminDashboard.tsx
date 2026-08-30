@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, Button, Chip } from "@heroui/react";
 import { useAdminStore } from "../stores/useAdminStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -26,6 +26,13 @@ function SettingsTab() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (savedTimer.current) clearTimeout(savedTimer.current);
+        };
+    }, []);
 
     useEffect(() => {
         adminApi
@@ -42,7 +49,8 @@ function SettingsTab() {
         try {
             await adminApi.updateSettings(settings);
             setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
+            if (savedTimer.current) clearTimeout(savedTimer.current);
+            savedTimer.current = setTimeout(() => setSaved(false), 2000);
         } finally {
             setSaving(false);
         }
@@ -171,24 +179,34 @@ export function AdminDashboard() {
             const game = await adminApi.createGame(quizId, mode);
             setPin(game.pinCode);
             setView("host");
+        } catch {
+            alert("Failed to create game — try again.");
         } finally {
             setBusy(false);
         }
     };
 
     const doExport = async () => {
-        const json = await adminApi.exportBank();
-        const blob = new Blob([json], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "sprintjudge-bank.json";
-        a.click();
+        try {
+            const json = await adminApi.exportBank();
+            const blob = new Blob([json], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "sprintjudge-bank.json";
+            a.click();
+        } catch {
+            alert("Export failed — are you logged in?");
+        }
     };
 
     const doImport = async (file: File) => {
-        const json = await file.text();
-        await adminApi.importBank(json, true);
-        await loadQuizzes();
+        try {
+            const json = await file.text();
+            await adminApi.importBank(json, true);
+            await loadQuizzes();
+        } catch {
+            alert("Import failed — check the file format.");
+        }
     };
 
     const filteredQuestions = questions.filter((q) => {

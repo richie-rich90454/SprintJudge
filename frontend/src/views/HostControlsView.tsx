@@ -17,8 +17,8 @@ export function HostControlsView() {
     const active = status === "ACTIVE";
 
     useEffect(() => {
-        const sub = webSocketService.onMessage().subscribe((m: any) => {
-            if (m.type === "TEAM_LIST") setTeams(m.teams ?? []);
+        const sub = webSocketService.onMessage().subscribe((m: WsMessage) => {
+            if (m.type === "TEAM_LIST") setTeams((m.teams as typeof teams) ?? []);
         });
         return () => sub.unsubscribe();
     }, []);

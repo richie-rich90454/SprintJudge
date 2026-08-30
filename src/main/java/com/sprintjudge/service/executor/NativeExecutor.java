@@ -76,6 +76,7 @@ public class NativeExecutor implements CodeExecutor {
             log.error("Could not create run directory under {}", workDirBase, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
         }
+        Process proc = null;
         try {
             // Absolutize before child-process handoff (see AbstractScriptExecutor).
             runDir = runDir.toAbsolutePath();
@@ -117,7 +118,7 @@ public class NativeExecutor implements CodeExecutor {
                         // File redirect avoids the pipe-buffer deadlock that
                         // misjudged verbose programs as timeouts.
                         .redirectOutput(outputFile.toFile());
-                Process proc = pb.start();
+                proc = pb.start();
 
                 if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
                     proc.destroyForcibly();
@@ -135,6 +136,7 @@ public class NativeExecutor implements CodeExecutor {
             }
             return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
         } catch (IOException | InterruptedException e) {
+            if (proc != null) proc.destroyForcibly();
             Thread.currentThread().interrupt();
             log.error("Native judge execution failed for language {}", language, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
@@ -254,6 +256,7 @@ public class NativeExecutor implements CodeExecutor {
             log.error("Could not create run directory under {}", workDirBase, e);
             return new RunResult(false, "", "", "io_error");
         }
+        Process proc = null;
         try {
             runDir = runDir.toAbsolutePath();
             String ext = switch (language) {
@@ -283,7 +286,7 @@ public class NativeExecutor implements CodeExecutor {
                 Files.writeString(inputFile, request.stdin());
                 pb.redirectInput(inputFile.toFile());
             }
-            Process proc = pb.start();
+            proc = pb.start();
 
             if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
                 proc.destroyForcibly();
@@ -296,6 +299,7 @@ public class NativeExecutor implements CodeExecutor {
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
+            proc.destroyForcibly();
             Thread.currentThread().interrupt();
             log.error("Native run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");

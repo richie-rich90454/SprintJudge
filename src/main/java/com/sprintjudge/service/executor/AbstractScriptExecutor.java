@@ -64,6 +64,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
         } catch (IOException e) {            log.error("Could not create run directory under {}", workDirBase, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
         }
+        Process proc = null;
         try {
             // Absolutize BEFORE handing any path to a child process: ProcessBuilder
             // resolves relative argv paths against pb.directory(), which would double
@@ -91,7 +92,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                         // File redirect: a child blocked writing a full pipe must
                         // not turn into a bogus timeout (waitFor + read race).
                         .redirectOutput(outputFile.toFile());
-                Process proc = pb.start();
+                proc = pb.start();
 
                 if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
                     proc.destroyForcibly();
@@ -110,6 +111,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             }
             return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
         } catch (IOException | InterruptedException e) {
+            if (proc != null) proc.destroyForcibly();
             Thread.currentThread().interrupt();
             log.error("Judge execution failed for language {}", language, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
@@ -151,6 +153,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             log.error("Could not create run directory under {}", workDirBase, e);
             return new RunResult(false, "", "", "io_error");
         }
+        Process proc = null;
         try {
             runDir = runDir.toAbsolutePath();
             String runFileName = language.equals("java") ? "Main" : "solution";
@@ -164,7 +167,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             ProcessBuilder pb = new ProcessBuilder(cmd)
                     .directory(runDir.toFile())
                     .redirectErrorStream(true);
-            Process proc = pb.start();
+            proc = pb.start();
 
             if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
                 proc.destroyForcibly();
@@ -177,6 +180,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
+            proc.destroyForcibly();
             Thread.currentThread().interrupt();
             log.error("Run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");

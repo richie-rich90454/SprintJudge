@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, Button } from "@heroui/react";
 import { useGameStore } from "../stores/useGameStore";
@@ -21,11 +21,17 @@ export function QuestionView() {
     const [submitted, setSubmitted] = useState(false);
     const [feedback, setFeedback] = useState<null | { ok: boolean; text: string }>(null);
     const [shake, setShake] = useState(false);
+    const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         setSubmitted(false);
         setResponse(null);
         setFeedback(null);
+        setShake(false);
+        if (shakeTimer.current) {
+            clearTimeout(shakeTimer.current);
+            shakeTimer.current = null;
+        }
     }, [q?.id]);
 
     // React to submission result: play sfx + show feedback, no forced lock-in.
@@ -48,7 +54,10 @@ export function QuestionView() {
         } else {
             audio.play("wrong");
             setShake(true);
-            setTimeout(() => setShake(false), 400);
+            shakeTimer.current = setTimeout(() => {
+                setShake(false);
+                shakeTimer.current = null;
+            }, 400);
         }
     }, [lastResult, q?.id]);
 

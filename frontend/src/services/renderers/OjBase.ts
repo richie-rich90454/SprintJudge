@@ -33,6 +33,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
     private terminal: Terminal | null = null;
     private fit: FitAddon | null = null;
     private destroyed = false;
+    private rafId = 0;
 
     /** Requested default before allowlist resolution (subclass sets pre-mount). */
     protected requestedDefault = "python";
@@ -143,7 +144,10 @@ export abstract class OjBase extends BaseQuestionRenderer {
         this.terminal.loadAddon(this.fit);
         this.terminal.open(termHost);
         // Fit after layout settles (the host starts at 0 height before flex).
-        requestAnimationFrame(() => this.fit?.fit());
+        this.rafId = requestAnimationFrame(() => {
+            this.rafId = 0;
+            this.fit?.fit();
+        });
 
         let stdin = "";
         this.terminal.onData((d) => {
@@ -171,6 +175,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
                     this.terminal?.write(
                         `\r\n\x1b[31m[error] ${res.status === 429 ? "rate limited" : res.status === 404 ? "runner not found" : "server error"}\x1b[0m\r\n`,
                     );
+                    stdin = "";
                     this.fit?.fit();
                     return;
                 }
@@ -188,6 +193,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
                 }
                 this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
             } catch (e) {
+                stdin = "";
                 this.terminal?.write(
                     "\r\n\x1b[31m[error] runner unavailable — check that g++/gcc/python/node is installed\x1b[0m\r\n",
                 );
@@ -204,6 +210,10 @@ export abstract class OjBase extends BaseQuestionRenderer {
 
     destroy(): void {
         this.destroyed = true;
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = 0;
+        }
         this.editor?.destroy();
         this.editor = null;
         this.terminal?.dispose();
