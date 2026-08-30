@@ -404,6 +404,113 @@ const cMcq = [
   { topic:"arrays", q:(r)=>({stem:`a[i] is equivalent to…`,opts:["*(a+i)","&a[i]","a+i","(*a)+i"],ans:0})},
 ];
 
+// =====================================================================
+// JAVASCRIPT / NODE.JS
+// =====================================================================
+const jsStarter = `// read input with require('fs').readFileSync('/dev/stdin', 'utf8')\n`;
+const jsOJ = [
+  { topic:"arrays", title:"Array Sum", make(rng,d){
+      const n=d===0?5:7; const a=Array.from({length:n},()=>int(rng,-20,80));
+      return q(`Read n then n integers; print their sum.`,
+        jsStarter, cases([[`${n}\n${a.join(' ')}`, String(a.reduce((x,y)=>x+y,0))], ...more(rng, ()=>{const k=int(rng,3,9);const b=Array.from({length:k},()=>int(rng,-30,100));return [`${k}\n${b.join(' ')}`,String(b.reduce((x,y)=>x+y,0))];})])); } },
+  { topic:"strings", title:"Word Count", make(rng){
+      const ws=Array.from({length:int(rng,3,7)},()=>pick(rng,WORDS));
+      return q(`Read one line; print the number of words.`,
+        jsStarter, cases([[ws.join(' '), String(ws.length)], ...more(rng, ()=>{const v=shuffle(rng,WORDS).slice(0,int(rng,3,6));return [v.join(' '), String(v.length)];})])); } },
+  { topic:"objects", title:"Property Counter", make(rng){
+      const n=int(rng,2,6); const keys=shuffle(rng,WORDS).slice(0,n);
+      return q(`Read n, then n "key value" lines. Print the number of keys.`,
+        jsStarter, cases([[`${n}\n${keys.map(k=>`${k} ${int(rng,1,99)}`).join('\n')}`, String(n)], ...more(rng,()=>{const k=int(rng,2,5);const kk=shuffle(rng,WORDS).slice(0,k);return [`${k}\n${kk.map(x=>`${x} ${int(rng,1,99)}`).join('\n')}`,String(k)];})])); } },
+  { topic:"functions", title:"Higher-Order Filter", make(rng){
+      const a=Array.from({length:int(rng,5,8)},()=>int(rng,-10,30));
+      const evens=a.filter(x=>x%2===0);
+      return q(`Read n then n integers; print the even numbers, space-separated.`,
+        jsStarter, cases([[`${a.length}\n${a.join(' ')}`, evens.length?evens.join(' '):''], ...more(rng,()=>{const b=Array.from({length:int(rng,4,8)},()=>int(rng,-20,40));const e=b.filter(x=>x%2===0);return [`${b.length}\n${b.join(' ')}`,e.length?e.join(' '):''];})])); } },
+  { topic:"search-sort", title:"Sort Descending", make(rng){
+      const a=Array.from({length:int(rng,4,8)},()=>int(rng,1,100));
+      const s=[...a].sort((x,y)=>y-x);
+      return q(`Read n then n integers; print them sorted descending, space-separated.`,
+        jsStarter, cases([[`${a.length}\n${a.join(' ')}`, s.join(' ')], ...more(rng,()=>{const b=Array.from({length:int(rng,4,8)},()=>int(rng,0,99));return [`${b.length}\n${b.join(' ')}`,[...b].sort((x,y)=>y-x).join(' ')];})])); } },
+  { topic:"primitives", title:"FizzBuzz", make(rng){
+      const n=pick(rng,[15,20,30]);
+      const out=[];for(let i=1;i<=n;i++){if(i%15===0)out.push('FizzBuzz');else if(i%3===0)out.push('Fizz');else if(i%5===0)out.push('Buzz');else out.push(String(i));}
+      return q(`Read N; print FizzBuzz for 1..N, one per line.`,
+        jsStarter, cases([[String(n), out.join('\n')], ...more(rng,()=>{const k=pick(rng,[10,15,20,25]);const o=[];for(let i=1;i<=k;i++){if(i%15===0)o.push('FizzBuzz');else if(i%3===0)o.push('Fizz');else if(i%5===0)o.push('Buzz');else o.push(String(i));}return [String(k),o.join('\n')];})])); } },
+  { topic:"recursion", title:"Factorial", make(rng){
+      const n=int(rng,1,12);
+      let f=1;for(let i=2;i<=n;i++)f*=i;
+      return q(`Read N; print N! (factorial).`,
+        jsStarter, cases([[String(n),String(f)], ...more(rng,()=>{const k=int(rng,1,10);let r=1;for(let i=2;i<=k;i++)r*=i;return [String(k),String(r)];})])); } },
+];
+const jsBugs = [
+  { t:"Missing await on async call", lines:(r)=>[`async function getData() {`,`  const result = fetch('/api');`,`  return result.json();`,`}`], bugLine: 1 },
+  { t:"== instead of ===", lines:(r)=>[`if (value == null) {`,`  return undefined;`,`}`], bugLine: 0 },
+  { t:"var instead of const/let", lines:(r)=>[`var name = "test";`,`console.log(name);`], bugLine: 0 },
+  { t:"Off-by-one array slice", lines:(r)=>[`const first = arr.slice(0, arr.length);`,`console.log(first);`], bugLine: 0 },
+  { t:"Missing return in arrow", lines:(r)=>[`const double = x => x * 2;`,`console.log(double(5));`], bugLine: 0 },
+  { t:"Mutation of parameter", lines:(r)=>[`function addItem(list, item) {`,`  list.push(item);`,`  return list;`,`}`], bugLine: 1 },
+];
+const jsMcq = [
+  { topic:"primitives", q:(r)=>({stem:`typeof null in JavaScript returns…`,opts:["'null'","'object'","'undefined'","'boolean'"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`[1,2,3].length is…`,opts:["2","3","4","undefined"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`Object.keys({a:1,b:2}) returns…`,opts:["['a','b']","[1,2]","{a:1,b:2}","undefined"],ans:0})},
+  { topic:"functions", q:(r)=>({stem:`Arrow functions capture 'this' from…`,opts:["the function itself","the enclosing scope","the global object","nowhere"],ans:1})},
+  { topic:"strings", q:(r)=>({stem:`'hello'.slice(1,3) returns…`,opts:["'el'","'ell'","'hel'","'lo'"],ans:0})},
+  { topic:"search-sort", q:(r)=>({stem:`Array.sort() sorts by…`,opts:["numeric order","Unicode code points","custom comparator only","descending"],ans:1})},
+  { topic:"primitives", q:(r)=>({stem:`NaN === NaN evaluates to…`,opts:["true","false","undefined","throws"],ans:1})},
+  { topic:"arrays", q:(r)=>({stem:`[...arr] creates a…`,opts:["deep copy","shallow copy","reference","immutable array"],ans:1})},
+  { topic:"objects", q:(r)=>({stem:`const {x} = {x:1} extracts…`,opts:["x=1","x={1}","undefined","error"],ans:0})},
+  { topic:"functions", q:(r)=>({stem:`Promise.all() resolves when…`,opts:["first resolves","all resolve","any resolves","none resolve"],ans:1})},
+];
+
+// =====================================================================
+// CYBERSECURITY
+// =====================================================================
+const cyberMcq = [
+  { topic:"networks", q:(r)=>({stem:`Which protocol encrypts web traffic?`,opts:["HTTP","FTP","HTTPS","SMTP"],ans:2})},
+  { topic:"networks", q:(r)=>({stem:`A firewall primarily…`,opts:["encrypts data","monitors incoming/outgoing traffic","backs up data","runs antivirus"],ans:1})},
+  { topic:"encryption", q:(r)=>({stem:`AES is classified as…`,opts:["symmetric encryption","asymmetric encryption","hashing algorithm","key exchange"],ans:0})},
+  { topic:"encryption", q:(r)=>({stem:`RSA is classified as…`,opts:["symmetric encryption","asymmetric encryption","hashing algorithm","digital signature"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`SQL injection targets…`,opts:["the network layer","database queries","file system","CPU registers"],ans:1})},
+  { topic:"vulnerabilities", q:(r)=>({stem:`Cross-Site Scripting (XSS) injects…`,opts:["SQL commands","malicious scripts","viruses","network packets"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`Strong passwords should include…`,opts:["only lowercase letters","uppercase, lowercase, numbers, symbols","just numbers","the username"],ans:1})},
+  { topic:"best-practices", q:(r)=>({stem:`Multi-Factor Authentication requires…`,opts:["one password","two or more verification methods","biometrics only","a hardware key"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`DNS translates…`,opts:["IP to MAC","domain names to IP addresses","ports to protocols","HTTP to HTTPS"],ans:1})},
+  { topic:"networks", q:(r)=>({stem:`VPN creates a…`,opts:["public connection","encrypted tunnel","direct cable link","wireless bridge"],ans:1})},
+];
+
+// =====================================================================
+// WEB DEV
+// =====================================================================
+const webMcq = [
+  { topic:"html", q:(r)=>({stem:`The correct HTML for a hyperlink is…`,opts:["<link>","<a href='url'>","<href>","<url>"],ans:1})},
+  { topic:"html", q:(r)=>({stem:`HTML5 semantic tags include…`,opts:["<div>","<span>","<article>","<b>"],ans:2})},
+  { topic:"css", q:(r)=>({stem:`CSS specificity order (low to high) is…`,opts:["class > element > id","element > class > id","id > class > element","element > id > class"],ans:1})},
+  { topic:"css", q:(r)=>({stem:`display: flex creates a…`,opts:["block layout","inline layout","flexbox layout","grid layout"],ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`addEventListener() attaches a…`,opts:["HTML tag","CSS rule","event handler","database query"],ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`document.querySelector('.btn') selects by…`,opts:["id","class","tag name","attribute"],ans:1})},
+  { topic:"html", q:(r)=>({stem:`The <img> tag requires which attribute?`,opts:["src","href","url","link"],ans:0})},
+  { topic:"css", q:(r)=>({stem:`position: absolute positions relative to…`,opts:["the viewport","the document body","the nearest positioned ancestor","the parent element"],ans:2})},
+  { topic:"javascript", q:(r)=>({stem:`fetch() returns a…`,opts:["string","Promise","JSON object","void"],ans:1})},
+  { topic:"html", q:(r)=>({stem:`The <form> action attribute defines…`,opts:["method","submit URL","input types","validation"],ans:1})},
+];
+
+// =====================================================================
+// MATH
+// =====================================================================
+const mathMcq = [
+  { topic:"logic", q:(r)=>({stem:`NOT (true AND false) evaluates to…`,opts:["true","false","undefined","error"],ans:0})},
+  { topic:"logic", q:(r)=>({stem:`De Morgan's Law: NOT(A OR B) equals…`,opts:["NOT A OR NOT B","NOT A AND NOT B","A AND B","NOT A OR B"],ans:1})},
+  { topic:"sets", q:(r)=>({stem:`{1,2,3} UNION {2,3,4} equals…`,opts:["{1,2,3}","{2,3}","{1,2,3,4}","{1,4}"],ans:2})},
+  { topic:"sets", q:(r)=>({stem:`{1,2,3} INTERSECT {2,3,4} equals…`,opts:["{1,2,3,4}","{2,3}","{1,4}","{}"],ans:1})},
+  { topic:"probability", q:(r)=>({stem:`P(A OR B) = P(A) + P(B) - …`,opts:["P(A AND B)","P(A) × P(B)","P(A | B)","P(B | A)"],ans:0})},
+  { topic:"probability", q:(r)=>({stem:`Coin flip: P(heads) = …`,opts:["0","0.25","0.5","1"],ans:2})},
+  { topic:"combinatorics", q:(r)=>({stem:`5! equals…`,opts:["25","60","120","720"],ans:2})},
+  { topic:"combinatorics", q:(r)=>({stem:`C(5,2) equals…`,opts:["5","10","20","25"],ans:1})},
+  { topic:"algebra", q:(r)=>({stem:`Solve: 2x + 3 = 7. x = …`,opts:["1","2","3","4"],ans:1})},
+  { topic:"algebra", q:(r)=>({stem:`The quadratic formula solves…`,opts:["linear equations","systems of equations","quadratic equations","exponential equations"],ans:2})},
+];
+
 // ---------- helpers ----------
 // Archetypes build ONE flat array of [input, expected] pairs; accept it as-is.
 function cases(pairs) {
@@ -456,13 +563,14 @@ function buildQuestion(lang, spec, quizId, idx, tier) {
 
 const LANG_IDS = {
   java: ["java"], python: ["python"], cpp: ["cpp"], c: ["c"],
+  javascript: ["node"], cybersecurity: null, webdev: null, math: null,
 };
 
 // ---------- assembly ----------
 function assembleLanguage(lang, cfg) {
-  const ojPool = lang === "java" ? javaOJ : lang === "python" ? pyOJ : lang === "cpp" ? cppOJ : cOJ;
-  const bugPool = lang === "java" ? javaBugs : lang === "python" ? pyBugs : lang === "cpp" ? cppBugs : cBugs;
-  const mcqPool = lang === "java" ? javaMcq : lang === "python" ? pyMcq : lang === "cpp" ? cppMcq : cMcq;
+  const ojPool = lang === "java" ? javaOJ : lang === "python" ? pyOJ : lang === "cpp" ? cppOJ : lang === "c" ? cOJ : lang === "javascript" ? jsOJ : [];
+  const bugPool = lang === "java" ? javaBugs : lang === "python" ? pyBugs : lang === "cpp" ? cppBugs : lang === "c" ? cBugs : lang === "javascript" ? jsBugs : [];
+  const mcqPool = lang === "java" ? javaMcq : lang === "python" ? pyMcq : lang === "cpp" ? cppMcq : lang === "c" ? cMcq : lang === "javascript" ? jsMcq : lang === "cybersecurity" ? cyberMcq : lang === "webdev" ? webMcq : lang === "math" ? mathMcq : [];
 
   const quizzes = [];
   let n = 0;
@@ -532,18 +640,45 @@ function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 function hashStr(s){ let h=0; for(const ch of s) h=(h*31+ch.charCodeAt(0))|0; return Math.abs(h); }
 
 const PLAN = [
+  // Java: expanded to 200+ sets
   { lang:"java",   bands:[{label:"Essentials",diff:0,count:40}], topics:["objects","arrays","strings","primitives","lists"], seedBase:1101 },
-  { lang:"python", bands:[{label:"Essentials",diff:0,count:25}], topics:["lists","strings","primitives","objects","arrays"], seedBase:1201 },
-  { lang:"cpp",    bands:[{label:"Essentials",diff:0,count:20}], topics:["arrays","primitives","strings","objects","search-sort"], seedBase:1301 },
-  { lang:"c",      bands:[{label:"Essentials",diff:0,count:15}], topics:["primitives","arrays","strings","recursion","search-sort"], seedBase:1401 },
   { lang:"java",   bands:[{label:"Foundations",diff:0,count:18},{label:"Intermediate",diff:1,count:20},{label:"Advanced",diff:2,count:12}],
-    topics:["objects","arrays","arrays","strings","lists","search-sort","recursion","arrays2d","polymorphism","inheritance","primitives","objects"] , seedBase:101},
+    topics:["objects","arrays","arrays","strings","lists","search-sort","recursion","arrays2d","polymorphism","inheritance","primitives","objects"] , seedBase:101 },
+  { lang:"java",   bands:[{label:"Easy",diff:0,count:30},{label:"Medium",diff:1,count:30},{label:"Hard",diff:2,count:20}],
+    topics:["objects","arrays","strings","primitives","lists","search-sort","recursion","arrays2d","polymorphism","inheritance"], seedBase:501 },
+  // Python: expanded to 130+ sets
+  { lang:"python", bands:[{label:"Essentials",diff:0,count:25}], topics:["lists","strings","primitives","objects","arrays"], seedBase:1201 },
   { lang:"python", bands:[{label:"Foundations",diff:0,count:7},{label:"Intermediate",diff:1,count:8},{label:"Advanced",diff:2,count:5}],
     topics:["lists","strings","objects","arrays","recursion","search-sort","arrays2d","primitives","lists","strings"], seedBase:202 },
+  { lang:"python", bands:[{label:"Easy",diff:0,count:20},{label:"Medium",diff:1,count:20},{label:"Hard",diff:2,count:15}],
+    topics:["lists","strings","primitives","objects","arrays","recursion","search-sort","arrays2d"], seedBase:601 },
+  // C++: expanded to 100+ sets
+  { lang:"cpp",    bands:[{label:"Essentials",diff:0,count:20}], topics:["arrays","primitives","strings","objects","search-sort"], seedBase:1301 },
   { lang:"cpp",    bands:[{label:"Foundations",diff:0,count:7},{label:"Intermediate",diff:1,count:8},{label:"Advanced",diff:2,count:5}],
     topics:["arrays","objects","strings","search-sort","arrays2d","primitives","inheritance","polymorphism","recursion","arrays"], seedBase:303 },
+  { lang:"cpp",    bands:[{label:"Easy",diff:0,count:15},{label:"Medium",diff:1,count:15},{label:"Hard",diff:2,count:10}],
+    topics:["arrays","primitives","strings","objects","search-sort","arrays2d","recursion","inheritance"], seedBase:701 },
+  // C: expanded to 65+ sets
+  { lang:"c",      bands:[{label:"Essentials",diff:0,count:15}], topics:["primitives","arrays","strings","recursion","search-sort"], seedBase:1401 },
   { lang:"c",      bands:[{label:"Foundations",diff:0,count:4},{label:"Intermediate",diff:1,count:4},{label:"Advanced",diff:2,count:2}],
     topics:["arrays","primitives","strings","recursion","search-sort","arrays","primitives","strings","arrays","recursion"], seedBase:404 },
+  { lang:"c",      bands:[{label:"Easy",diff:0,count:10},{label:"Medium",diff:1,count:10},{label:"Hard",diff:2,count:8}],
+    topics:["primitives","arrays","strings","recursion","search-sort","arrays2d"], seedBase:801 },
+  // JavaScript: 80+ sets
+  { lang:"javascript", bands:[{label:"Essentials",diff:0,count:15}], topics:["primitives","arrays","strings","objects","functions"], seedBase:1501 },
+  { lang:"javascript", bands:[{label:"Foundations",diff:0,count:10},{label:"Intermediate",diff:1,count:10},{label:"Advanced",diff:2,count:8}],
+    topics:["primitives","arrays","strings","objects","functions","search-sort","recursion","arrays2d"], seedBase:901 },
+  { lang:"javascript", bands:[{label:"Easy",diff:0,count:12},{label:"Medium",diff:1,count:12},{label:"Hard",diff:2,count:10}],
+    topics:["arrays","strings","objects","functions","recursion","search-sort"], seedBase:1001 },
+  // Cybersecurity: 30+ sets
+  { lang:"cybersecurity", bands:[{label:"Fundamentals",diff:0,count:15},{label:"Intermediate",diff:1,count:15}],
+    topics:["networks","encryption","vulnerabilities","best-practices"], seedBase:1601 },
+  // Web Dev: 30+ sets
+  { lang:"webdev", bands:[{label:"Fundamentals",diff:0,count:15},{label:"Intermediate",diff:1,count:15}],
+    topics:["html","css","javascript"], seedBase:1701 },
+  // Math: 20+ sets
+  { lang:"math", bands:[{label:"Fundamentals",diff:0,count:10},{label:"Intermediate",diff:1,count:10}],
+    topics:["logic","sets","probability","combinatorics","algebra"], seedBase:1801 },
 ];
 
 fs.rmSync(SETS_DIR, { recursive: true, force: true });
