@@ -11,6 +11,7 @@ import { LogoMark } from "../components/LogoMark";
 import { motion, AnimatePresence } from "framer-motion";
 
 type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
+type GameMode = "STANDARD" | "AUTO_PILOT" | "PRACTICE" | "EXAM" | "TEAM" | "BATTLE";
 
 const TABS: { id: AdminTab; label: string }[] = [
     { id: "dashboard", label: "Dashboard" },
@@ -27,6 +28,7 @@ export function AdminDashboard() {
     const setView = useUIStore((s) => s.setView);
     const setPin = useUIStore((s) => s.setPin);
     const [tab, setTab] = useState<AdminTab>("dashboard");
+    const [gameMode, setGameMode] = useState<GameMode>("STANDARD");
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
     const [busy, setBusy] = useState(false);
@@ -92,10 +94,10 @@ export function AdminDashboard() {
         );
     }
 
-    const host = async (quizId: string) => {
+    const host = async (quizId: string, mode: GameMode = gameMode) => {
         setBusy(true);
         try {
-            const game = await adminApi.createGame(quizId);
+            const game = await adminApi.createGame(quizId, mode);
             setPin(game.pinCode);
             setView("host");
         } finally {
@@ -203,7 +205,19 @@ export function AdminDashboard() {
                                 </Card>
                             </div>
                             <h3 className="header-double mb-4">Quick actions</h3>
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-3 items-center">
+                                <select
+                                    value={gameMode}
+                                    onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                    className="input-underline min-h-[36px] text-sm"
+                                >
+                                    <option value="STANDARD">Standard</option>
+                                    <option value="AUTO_PILOT">Auto-pilot</option>
+                                    <option value="PRACTICE">Practice</option>
+                                    <option value="EXAM">Exam</option>
+                                    <option value="TEAM">Team</option>
+                                    <option value="BATTLE">Battle</option>
+                                </select>
                                 <Button
                                     variant="primary"
                                     className="bg-[var(--oq-red)] text-white"
@@ -217,7 +231,7 @@ export function AdminDashboard() {
                                 <Button
                                     variant="outline"
                                     onPress={() => {
-                                        if (quizzes.length > 0) host(quizzes[0].id);
+                                        if (quizzes.length > 0) host(quizzes[0].id, gameMode);
                                     }}
                                     isDisabled={quizzes.length === 0 || busy}
                                 >
@@ -311,12 +325,24 @@ export function AdminDashboard() {
                                                 >
                                                     Questions
                                                 </Button>
+                                                <select
+                                                    value={gameMode}
+                                                    onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                                    className="input-underline min-h-[30px] text-xs max-w-[100px]"
+                                                >
+                                                    <option value="STANDARD">Standard</option>
+                                                    <option value="AUTO_PILOT">Auto</option>
+                                                    <option value="PRACTICE">Practice</option>
+                                                    <option value="EXAM">Exam</option>
+                                                    <option value="TEAM">Team</option>
+                                                    <option value="BATTLE">Battle</option>
+                                                </select>
                                                 <Button
                                                     size="sm"
                                                     variant="primary"
                                                     className="bg-[var(--oq-red)] text-white"
                                                     isDisabled={busy}
-                                                    onPress={() => host(q.id)}
+                                                    onPress={() => host(q.id, gameMode)}
                                                 >
                                                     Host
                                                 </Button>
