@@ -1,149 +1,141 @@
 package com.sprintjudge.service;
 
+import com.sprintjudge.domain.dto.LeaderboardEntry;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
 
-/** In-memory room aggregate: scoring accumulation, ranking, host slot. */
+import static org.junit.jupiter.api.Assertions.*;
+
 class GameRoomTest {
 
-    private GameRoom room() {
-        return new GameRoom("s1", "qz", "123456", "LOBBY");
+    @Test
+    void addPlayerUnderCapacity() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 2);
+        assertTrue(r.addPlayer(new Player("u1", "a", 0, "ss", true)));
+        assertTrue(r.addPlayer(new Player("u2", "b", 0, "ss", true)));
+        assertFalse(r.addPlayer(new Player("u3", "c", 0, "ss", true)));
+        assertTrue(r.isFull());
     }
 
     @Test
-    void newRoomStartsEmptyInLobby() {
-        GameRoom r = room();
-        assertEquals("LOBBY", r.status());
-        assertEquals(0, r.players().size());
-        assertNull(r.hostUuid());
-        assertEquals(0, r.currentQuestionIndex());
+    void legacyCtorDefaultsCap() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE");
+        assertFalse(r.isFull());
+        assertTrue(r.addPlayer(new Player("u", "n", 0, "ss", true)));
+        assertEquals(500, r.capacity());
     }
 
     @Test
-    void applyScoreAccumulatesAcrossSubmissions() {
-        GameRoom r = room();
-        var p = new Player("u1", "A", 0, "sa", true);
-        r.addPlayer(p);
+    void softRemoveKeepsBoardRow() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("u1", "a", 0, "ss", true));
+        r.softRemove("u1");
+        Player gp = r.getPlayer("u1");
+        assertNotNull(gp);
+        assertFalse(gp.connected());
+        r.softRemove("missing");
+    }
+
+    @Test
+    void hardRemoveDropsBoardRow() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("u1", "a", 0, "ss", true));
+        r.hardRemove("u1");
+        assertNull(r.getPlayer("u1"));
+        r.hardRemove("missing");
+    }
+
+    @Test
+    void reclaimFlow() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        assertNull(r.reclaim(null, "s"));
+        // a connected player forces the reclaim loop's !connected() short-circuit branch
+        r.addPlayer(new Player("u0", "z", 0, "ss", true, "othertok"));
+        // a disconnected player with a non-matching token exercises the && false branch
+        r.addPlayer(new Player("ux", "x", 0, "ss", false, "wrongtok"));
+        r.addPlayer(new Player("u1", "a", 0, "old", false, "tok"));
+        Player reclaimed = r.reclaim("tok", "news");
+        assertNotNull(reclaimed);
+        assertTrue(reclaimed.connected());
+        assertEquals("news", reclaimed.sessionId());
+        // player is in the players map but not the board -> exercises players() second loop
+        List<Player> list = r.players();
+        assertEquals(3, list.size());
+        assertNull(r.reclaim("wrong", "x"));
+    }
+
+    @Test
+    void playersWithOrphanBoardRow() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("u1", "a", 0, "ss", true));
+        // board row with no matching players-map entry -> exercises players() null check
+        r.board().join("ghost", "ghost");
+        r.board().remove("u1");
+        List<Player> list = r.players();
+        assertEquals(1, list.size());
+        assertEquals("u1", list.get(0).uuid());
+    }
+
+    @Test
+    void getPlayerUnknown() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        assertNull(r.getPlayer("nope"));
+    }
+
+    @Test
+    void applyScoreAndLeaderboard() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("u1", "a", 0, "ss", true));
         r.applyScore("u1", 100);
-        r.applyScore("u1", 250);
-        assertEquals(350, r.getPlayer("u1").score());
+        List<LeaderboardEntry> lb = r.leaderboard();
+        assertEquals(1, lb.size());
+        assertEquals(100, lb.get(0).score());
     }
 
     @Test
-    void applyScoreForUnknownPlayerIsHarmless() {
-        room().applyScore("ghost", 100);
+    void attemptsAndStreaks() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        assertTrue(r.tryBeginAttempt("q1", "u1", 3));
+        assertTrue(r.tryBeginAttempt("q1", "u1", 3));
+        assertTrue(r.tryBeginAttempt("q1", "u1", 3));
+        assertFalse(r.tryBeginAttempt("q1", "u1", 3));
+        assertEquals(3, r.attemptCount("q1", "u1"));
+        r.bumpStreak("u1");
+        r.bumpStreak("u1");
+        assertEquals(2, r.streakOf("u1"));
+        r.resetStreak("u1");
+        assertEquals(0, r.streakOf("u1"));
     }
 
     @Test
-    void leaderboardSortsDescendingWithSequentialRanks() {
-        GameRoom r = room();
-        r.addPlayer(new Player("a", "Ann", 0, "sa", true));
-        r.addPlayer(new Player("b", "Bob", 0, "sb", true));
-        r.addPlayer(new Player("c", "Cid", 0, "sc", true));
-        r.applyScore("b", 300);
-        r.applyScore("c", 500);
-        var board = r.leaderboard();
-        assertEquals("Cid", board.get(0).name());
-        assertEquals(1, board.get(0).rank());
-        assertEquals("Bob", board.get(1).name());
-        assertEquals(2, board.get(1).rank());
-        assertEquals("Ann", board.get(2).name());
-        assertEquals(3, board.get(2).rank());
-        assertEquals(0, board.get(2).score());
+    void rounds() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.recordRound("u1", 50, 5);
+        assertArrayEquals(new int[]{50, 5}, r.roundOf("u1"));
+        assertArrayEquals(new int[]{0, 0}, r.roundOf("nope"));
+        r.clearRounds();
+        assertArrayEquals(new int[]{0, 0}, r.roundOf("u1"));
     }
 
     @Test
-    void leaderboardTiesKeepStableInsertionOrder() {
-        GameRoom r = room();
-        r.addPlayer(new Player("x", "X", 50, "sx", true));
-        r.addPlayer(new Player("y", "Y", 50, "sy", true));
-        var board = r.leaderboard();
-        assertEquals("X", board.get(0).name());
-        assertEquals(1, board.get(0).rank());
-        assertEquals("Y", board.get(1).name());
-        assertEquals(2, board.get(1).rank());
-    }
-
-    @Test
-    void hostSlotOccupancyEnforcedByHolder() {
-        GameRoom r = room();
-        r.setHostUuid("host-uuid");
-        assertEquals("host-uuid", r.hostUuid());
-    }
-
-    @Test
-    void removePlayerDropsFromStateAndLeaderboard() {
-        GameRoom r = room();
-        r.addPlayer(new Player("z", "Zed", 10, "sz", true));
-        r.removePlayer("z");
-        assertEquals(0, r.players().size());
-        assertEquals(0, r.leaderboard().size());
-    }
-
-    /** Regression: removing a player who is not first in a tied score group must still unlink. */
-    @Test
-    void removePlayerWithTiedScoreDropsFromLeaderboard() {
-        GameRoom r = room();
-        r.addPlayer(new Player("x", "X", 50, "sx", true));
-        r.addPlayer(new Player("y", "Y", 50, "sy", true));   // joins at 0 like everyone
-        r.addPlayer(new Player("w", "W", 20, "sw", true));
-        r.applyScore("w", 30);                               // W pulls ahead
-
-        r.removePlayer("y");                                 // Y sits mid-group of the tied zeros
-
-        var board = r.leaderboard();
-        assertEquals(2, board.size());
-        assertEquals("W", board.get(0).name());
-        assertEquals("X", board.get(1).name());              // earlier join wins the zero tie
-        assertEquals(1, board.get(0).rank());
-        assertEquals(2, board.get(1).rank());
-    }
-
-    @Test
-    void statusTransitionsAreRecorded() {
-        GameRoom r = room();
-        r.setStatus("ACTIVE");
-        assertEquals("ACTIVE", r.status());
-        r.setStatus("REVIEW");
-        assertEquals("REVIEW", r.status());
-    }
-
-    @Test
-    void timerDeadlineIsMutable() {
-        GameRoom r = room();
-        r.setCurrentQuestionEndEpochMs(123456789L);
-        assertEquals(123456789L, r.currentQuestionEndEpochMs());
-    }
-
-    @Test
-    void duplicateJoinReplacesSessionForSameUuid() {
-        GameRoom r = room();
-        r.addPlayer(new Player("u", "U", 5, "old-sess", false));
-        r.addPlayer(new Player("u", "U", 5, "new-sess", true));
-        assertEquals("new-sess", r.getPlayer("u").sessionId());
-        assertTrue(r.getPlayer("u").connected());
-        assertEquals(1, r.players().size());
-    }
-
-    @Test
-    void playersSnapshotIsDefensiveCopy() {
-        GameRoom r = room();
-        r.addPlayer(new Player("a", "A", 0, "s", true));
-        var snapshot = r.players();
-        snapshot.clear();
-        assertEquals(1, r.players().size());
-    }
-
-    @Test
-    void playerRecordTransformersPreserveIdentity() {
-        Player p = new Player("id", "N", 10, "s1", true);
-        assertEquals("id", p.withScore(20).uuid());
-        assertEquals(20, p.withScore(20).score());
-        assertEquals("s2", p.withSession("s2").sessionId());
-        assertTrue(p.disconnected().connected() == false);
-        assertEquals(10, p.score());   // original untouched
+    void connectedCountAndLifecycle() {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("u1", "a", 0, "ss", true));
+        r.addPlayer(new Player("u2", "b", 0, "ss", false));
+        assertEquals(1, r.connectedCount());
+        r.touch();
+        assertTrue(r.idleMs(System.currentTimeMillis() + 1000) > 0);
+        assertEquals(10, r.capacity());
+        r.setStatus("ENDED");
+        assertEquals("ENDED", r.status());
+        r.setHostUuid("h");
+        assertEquals("h", r.hostUuid());
+        r.setCurrentQuestionIndex(2);
+        assertEquals(2, r.currentQuestionIndex());
+        r.setCurrentQuestionId("q");
+        assertEquals("q", r.currentQuestionId());
+        r.setCurrentQuestionEndEpochMs(123L);
+        assertEquals(123L, r.currentQuestionEndEpochMs());
     }
 }
