@@ -104,6 +104,12 @@ public class AdminController {
             if (e != null && !e.isBlank()) email = e;
             String n = oauth.<String>getAttribute("name");
             if (n != null && !n.isBlank()) name = n;
+        } else if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails user) {
+            email = user.getUsername();
+            name = user.getUsername();
+        } else if (auth != null && auth.getPrincipal() instanceof String s && !s.isBlank()) {
+            email = s;
+            name = s;
         }
         com.sprintjudge.domain.models.User host = userRepository.upsertByEmail(email, name, null);
         return roomManager.createRoom(quizId, host.id());
