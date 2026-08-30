@@ -1,5 +1,6 @@
 package com.sprintjudge.service;
 
+import com.sprintjudge.TestDb;
 import com.sprintjudge.domain.dto.export.ExportBundle;
 import com.sprintjudge.domain.models.Question;
 import com.sprintjudge.domain.models.Quiz;
@@ -7,145 +8,174 @@ import com.sprintjudge.repository.AdminSettingsRepository;
 import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
 import com.sprintjudge.util.Json;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class ImportExportServiceTest {
 
-    @Mock QuizRepository quizRepository;
-    @Mock QuestionRepository questionRepository;
-    @Mock AdminSettingsRepository settingsRepository;
+    private record Repos(QuizRepository qr, QuestionRepository qnr, AdminSettingsRepository sr) {}
 
-    private ImportExportService service() {
-        return new ImportExportService(quizRepository, questionRepository, settingsRepository);
-    }
-
-    private Quiz quiz(String id) {
-        return new Quiz(id, "Algorithms 101", "Intro", "admin", Instant.now(), false);
-    }
-
-    private Question question(String id, String type, String config) {
-        return new Question(id, "qz", "T" + id, "D", type, List.of("python"), 45, 250,
-                Json.write(Map.of("correctIndex", 1)), 0, Instant.now());
-    }
-
-    // ---------- export ----------
-
-    @Test
-    void exportProducesVersionedBundleWithQuizzesAndQuestions() {
-        when(quizRepository.findAll()).thenReturn(List.of(quiz("qz")));
-        when(questionRepository.findByQuiz("qz"))
-                .thenReturn(List.of(question("q1", "MCQ", "{\"correctIndex\":1}")));
-        when(settingsRepository.findAllAsMap()).thenReturn(Map.of("default_time_limit", "60"));
-
-        String json = service().exportAll();
-        ExportBundle bundle = Json.read(json, ExportBundle.class);
-
-        assertEquals("1.0", bundle.version());
-        assertEquals(1, bundle.quizzes().size());
-        assertEquals("Algorithms 101", bundle.quizzes().get(0).title());
-        ExportBundle.QuestionExport q = bundle.quizzes().get(0).questions().get(0);
-        assertEquals("MCQ", q.type());
-        assertEquals(45, q.timeLimitSec());
-        assertEquals(250, q.pointsBase());
-        assertEquals(List.of("python"), q.languagesAllowed());
-        assertEquals(1, ((Number) q.config().get("correctIndex")).intValue());
-        assertTrue(bundle.exportedAt() > 0);
+    private Repos repos() throws Exception {
+        DSLContext dsl = TestDb.inMemory();
+        return new Repos(new QuizRepository(dsl), new QuestionRepository(dsl), new AdminSettingsRepository(dsl));
     }
 
     @Test
-    void exportWithEmptyBankIsStillValidJson() {
-        when(quizRepository.findAll()).thenReturn(List.of());
-        ExportBundle bundle = Json.read(service().exportAll(), ExportBundle.class);
-        assertTrue(bundle.quizzes().isEmpty());
+    void exportAllEmptyWhenNoQuizzes() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+        String json = svc.exportAll();
+        ExportBundle b = Json.read(json, ExportBundle.class);
+        assertTrue(b.quizzes().isEmpty());
     }
 
     @Test
-    void exportBlankQuestionConfigYieldsEmptyMapNotGarbage() {
-        when(quizRepository.findAll()).thenReturn(List.of(quiz("qz")));
-        when(questionRepository.findByQuiz("qz")).thenAnswer(inv -> List.of(
-                new Question("e1", "qz", "E", "", "MCQ", null, 30, 100, "", 0, null),
-                new Question("e2", "qz", "E2", "", "MCQ", null, 30, 100, null, 1, null)));
-        ExportBundle bundle = Json.read(service().exportAll(), ExportBundle.class);
-        assertEquals(0, bundle.quizzes().get(0).questions().get(0).config().size());
-        assertEquals(0, bundle.quizzes().get(0).questions().get(1).config().size());
-    }
+    void exportAllSerializesQuizzesQuestionsAndSettings() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
-    // ---------- import ----------
+        rp.qr().create(new Quiz("qz1", "Quiz1", "desc", "admin", Instant.now(), false));
+        // null config -> LinkedHashMap branch
+        rp.qnr().save(new Question("qu1", "qz1", "Q1", "d", "MCQ", List.of("java"), 30, 100, null, 0, Instant.now()));
+        // blank config -> LinkedHashMap branch
+        rp.qnr().save(new Question("qu2", "qz1", "Q2", "d", "MCQ", null, 30, 100, "", 1, Instant.now()));
+        // non-blank config -> Json.readMap branch
+        rp.qnr().save(new Question("qu3", "qz1", "Q3", "d", "MCQ", null, 30, 100, "{\"k\":1}", 2, Instant.now()));
+        rp.sr().put("theme", "dark");
 
-    private String bankJson(boolean withSettings) {
-        String settings = withSettings ? ",\"adminSettings\":{\"mcq_max_attempts\":\"2\"}" : "";
-        return """
-        {"version":"1.0","exportedAt":123,"quizzes":[{"id":"qzX","title":"Imported",
-          "description":"","questions":[
-            {"id":"n1","type":"MCQ","title":"Q1","description":"","timeLimitSec":20,
-             "pointsBase":100,"config":{"correctIndex":0},"languagesAllowed":null},
-            {"id":"n2","type":"NUMERIC","title":"Q2","description":"","timeLimitSec":20,
-             "pointsBase":100,"config":{"answer":7},"languagesAllowed":null}]}]%s}
-        """.formatted(settings);
+        String json = svc.exportAll();
+        ExportBundle b = Json.read(json, ExportBundle.class);
+        assertEquals(1, b.quizzes().size());
+        assertEquals("qz1", b.quizzes().get(0).id());
+        assertEquals(3, b.quizzes().get(0).questions().size());
+        assertEquals("dark", b.adminSettings().get("theme"));
     }
 
     @Test
-    void importReplaceDeletesExistingQuizzesFirst() {
-        when(quizRepository.findAll()).thenReturn(List.of(quiz("old-1"), quiz("old-2")));
+    void importAllUsesProvidedIdsAndWritesSettings() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
-        int imported = service().importAll(bankJson(false), true);
+        ExportBundle.QuestionExport ex1 = new ExportBundle.QuestionExport(
+                "qu1", "MCQ", "Q1", "d", 30, 100, Map.of("correctIndex", 2), List.of("java"));
+        ExportBundle.QuestionExport ex2 = new ExportBundle.QuestionExport(
+                "qu2", "MCQ", "Q2", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q1", "Quiz1", "desc", false, List.of(ex1, ex2));
+        ExportBundle bundle = new ExportBundle("1.0", 123L, List.of(qe), Map.of("theme", "light"));
 
-        assertEquals(2, imported);
-        verify(quizRepository).delete("old-1");
-        verify(quizRepository).delete("old-2");
-        verify(quizRepository).create(any(Quiz.class));
+        int count = svc.importAll(Json.write(bundle), false);
+        assertEquals(2, count);
+        assertTrue(rp.qr().findById("q1").isPresent());
+        assertEquals(2, rp.qnr().findByQuiz("q1").size());
+        assertEquals("light", rp.sr().findByKey("theme").orElseThrow().value());
     }
 
     @Test
-    void importMergeKeepsExistingQuizzes() {
-        service().importAll(bankJson(false), false);
-        verify(quizRepository, times(0)).delete(anyString());
+    void importAllGeneratesIdsWhenAbsent() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                null, "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                null, "QuizG", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), Map.of("k", "v"));
+
+        int count = svc.importAll(Json.write(bundle), false);
+        assertEquals(1, count);
+        List<Quiz> all = rp.qr().findAll();
+        assertEquals(1, all.size());
+        assertNotNull(all.get(0).id());
+        assertFalse(all.get(0).id().isBlank());
+        assertEquals(1, rp.qnr().findByQuiz(all.get(0).id()).size());
+        assertEquals("v", rp.sr().findByKey("k").orElseThrow().value());
     }
 
     @Test
-    void importedQuestionsCarrySequentialOrderIndexes() {
-        when(quizRepository.findAll()).thenReturn(List.of());
+    void importAllFallsBackToUuidForBlankIds() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
-        service().importAll(bankJson(false), true);
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "", "QuizB", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), Map.of("k", "v"));
 
-        ArgumentCaptor<Question> cap = ArgumentCaptor.forClass(Question.class);
-        verify(questionRepository, times(2)).save(cap.capture());
-        assertEquals(0, cap.getAllValues().get(0).orderIndex());
-        assertEquals(1, cap.getAllValues().get(1).orderIndex());
-        assertEquals("qzX", cap.getAllValues().get(0).quizId());
+        int count = svc.importAll(Json.write(bundle), false);
+        assertEquals(1, count);
+        List<Quiz> all = rp.qr().findAll();
+        assertEquals(1, all.size());
+        assertFalse(all.get(0).id().isBlank());
     }
 
     @Test
-    void importAppliesBundledAdminSettings() {
-        when(quizRepository.findAll()).thenReturn(List.of());
+    void importAllSkipsSettingsWhenNull() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
-        service().importAll(bankJson(true), true);
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q1", "Quiz1", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
 
-        verify(settingsRepository).put("mcq_max_attempts", "2");
+        int count = svc.importAll(Json.write(bundle), false);
+        assertEquals(1, count);
+        assertTrue(rp.qr().findById("q1").isPresent());
+        assertFalse(rp.sr().findByKey("theme").isPresent());
     }
 
     @Test
-    void importMalformedJsonThrowsWithoutSideEffects() {
-        assertThrows(Exception.class, () -> service().importAll("{broken", true));
-        verify(quizRepository, times(0)).delete(anyString());
-        verify(questionRepository, times(0)).save(any(Question.class));
+    void importAllReplaceDeletesExisting() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+
+        rp.qr().create(new Quiz("old", "Old", "d", "a", Instant.now(), false));
+        rp.qnr().save(new Question("oldq", "old", "Q", "d", "MCQ", null, 30, 100, null, 0, Instant.now()));
+
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q1", "New", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
+
+        int count = svc.importAll(Json.write(bundle), true);
+        assertEquals(1, count);
+        assertFalse(rp.qr().findById("old").isPresent());
+        assertTrue(rp.qr().findById("q1").isPresent());
+    }
+
+    @Test
+    void importAllNoReplaceKeepsExisting() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+
+        rp.qr().create(new Quiz("keep", "Keep", "d", "a", Instant.now(), false));
+
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu2", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q2", "Add", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
+
+        int count = svc.importAll(Json.write(bundle), false);
+        assertEquals(1, count);
+        assertTrue(rp.qr().findById("keep").isPresent());
+        assertTrue(rp.qr().findById("q2").isPresent());
+    }
+
+    @Test
+    void importAllInvalidJsonThrows() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+        assertThrows(IllegalStateException.class, () -> svc.importAll("{not json", false));
     }
 }
