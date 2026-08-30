@@ -25,6 +25,9 @@ public class EvaluationService {
             case MCQ, OUTPUT_PRED, COMPLEXITY ->
                     response.path("selectedIndex").asInt(-1) == config.path("correctIndex").asInt(-2) ? 1.0 : 0.0;
             case TRUE_FALSE -> {
+                // Sentinel mismatch: a missing/empty value must not coincidentally
+                // match a `false` answer. Require the field to be present.
+                if (!response.has("value")) yield 0.0;
                 boolean ans = config.path("correct").asBoolean();
                 yield response.path("value").asBoolean() == ans ? 1.0 : 0.0;
             }
@@ -48,6 +51,9 @@ public class EvaluationService {
         for (int c : chosen) if (correct.contains(c)) intersect++;
         int missed = correct.size() - intersect;
         int extra = chosen.size() - intersect;
+        // Selecting everything must never farm credit: if a player adds more
+        // wrong options than correct ones, the answer is simply wrong.
+        if (extra > intersect) return 0.0;
         double score = 1.0 - (missed * 0.5 + extra * 0.5) / Math.max(1, correct.size());
         return Math.max(0.0, score);
     }
@@ -75,6 +81,6 @@ public class EvaluationService {
     }
 
     private String normalize(String s) {
-        return s == null ? "" : s.strip().replaceAll("\\s+", " ");
+        return s.strip().replaceAll("\\s+", " ");
     }
 }
