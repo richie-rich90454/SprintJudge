@@ -333,7 +333,7 @@ class GameWebSocketSecurityTest {
         Player p = new Player("uuid-host", "Host", 0, "sess", true);
         when(roomManager.join(eq("123456"), eq("Host"), eq("sess"), eq("host"), any())).thenReturn(p);
         when(roomManager.getRoomState(anyString())).thenReturn(
-                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of(), "STANDARD"));
         ws().onMessage(session, "{\"type\":\"JOIN\",\"role\":\"host\",\"pin\":\"123456\",\"name\":\"Host\"}");
         assertTrue(lastMessage().contains("\"type\":\"JOINED\""));
         assertEquals("host", props.get("role"));
@@ -348,7 +348,7 @@ class GameWebSocketSecurityTest {
         Player p = new Player("uuid-new", "Al", 0, "sess", true);
         when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
         when(roomManager.getRoomState(anyString())).thenReturn(
-                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of(), "STANDARD"));
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
         verify(roomManager).leave("oldpin", "olduuid");
         verify(roomManager).join(eq("123456"), eq("Al"), eq("sess"), eq("player"), any());
@@ -363,7 +363,7 @@ class GameWebSocketSecurityTest {
         Player p = new Player("uuid-new", "Al", 0, "sess", true);
         when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
         when(roomManager.getRoomState(anyString())).thenReturn(
-                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of(), "STANDARD"));
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
         assertTrue(lastMessage().contains("\"type\":\"JOINED\""));
     }
@@ -514,7 +514,7 @@ class GameWebSocketSecurityTest {
         Player p = new Player("uuid-new", "Al", 0, "sess", true);
         when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
         when(roomManager.getRoomState(anyString())).thenReturn(
-                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of()));
+                new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of(), "STANDARD"));
         ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
         verify(roomManager, never()).leave(anyString(), anyString());
         verify(roomManager).join(eq("123456"), eq("Al"), eq("sess"), eq("player"), any());

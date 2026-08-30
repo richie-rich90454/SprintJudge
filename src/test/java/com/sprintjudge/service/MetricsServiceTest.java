@@ -25,7 +25,8 @@ class MetricsServiceTest {
         SubmissionWriteBuffer buffer = new SubmissionWriteBuffer(repo, 100000, 1000);
         CompileArtifactCache cache = new CompileArtifactCache(tempDir.toString(), 16, 16);
         return new MetricsService(new Semaphore(5), buffer, cache,
-                mock(GameRoomManager.class), mock(BroadcastScheduler.class));
+                mock(GameRoomManager.class), mock(BroadcastScheduler.class),
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
     }
 
     @Test
@@ -61,7 +62,8 @@ class MetricsServiceTest {
         CompileArtifactCache cache = new CompileArtifactCache(tempDir.resolve("c2").toString(), 16, 16);
         MetricsService svc = new MetricsService(new Semaphore(1),
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
-                cache, mock(GameRoomManager.class), mock(BroadcastScheduler.class));
+                cache, mock(GameRoomManager.class), mock(BroadcastScheduler.class),
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
         cache.misses();
         assertTrue(svc.snapshot().containsKey("compile_cache"));
     }
@@ -75,7 +77,8 @@ class MetricsServiceTest {
         MetricsService svc = new MetricsService(new Semaphore(2),
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
                 new CompileArtifactCache(tempDir.resolve("rt").toString(), 16, 16),
-                rooms, sched);
+                rooms, sched,
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
         @SuppressWarnings("unchecked")
         Map<String, Object> rt = (Map<String, Object>) svc.snapshot().get("runtime");
         int roomsActive = (Integer) rt.get("rooms_active");
@@ -93,7 +96,8 @@ class MetricsServiceTest {
         cache.get("k"); // a hit
         MetricsService svc = new MetricsService(new Semaphore(1),
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
-                cache, mock(GameRoomManager.class), mock(BroadcastScheduler.class));
+                cache, mock(GameRoomManager.class), mock(BroadcastScheduler.class),
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
         @SuppressWarnings("unchecked")
         Map<String, Object> cc = (Map<String, Object>) svc.snapshot().get("compile_cache");
         long hits = (Long) cc.get("hits");
@@ -107,7 +111,8 @@ class MetricsServiceTest {
         MetricsService svc = new MetricsService(new Semaphore(1),
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
                 new CompileArtifactCache(tempDir.resolve("cnt").toString(), 16, 16),
-                mock(GameRoomManager.class), mock(BroadcastScheduler.class));
+                mock(GameRoomManager.class), mock(BroadcastScheduler.class),
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
         svc.recordJudge(5_000_000L, false, false);
         svc.recordJudge(15_000_000L, true, false);
         svc.recordJudge(25_000_000L, false, true);
@@ -126,7 +131,8 @@ class MetricsServiceTest {
         MetricsService svc = new MetricsService(new Semaphore(1),
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
                 new CompileArtifactCache(tempDir.resolve("pct").toString(), 16, 16),
-                mock(GameRoomManager.class), mock(BroadcastScheduler.class));
+                mock(GameRoomManager.class), mock(BroadcastScheduler.class),
+                mock(io.micrometer.core.instrument.MeterRegistry.class));
         for (int i = 1; i <= 1500; i++) {
             svc.recordJudge((long) i * 1_000_000L, false, false);
         }

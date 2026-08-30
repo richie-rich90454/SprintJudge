@@ -67,13 +67,14 @@ class GameRoomManagerTest {
     @Mock BroadcastScheduler scheduler;
     @Mock SubmissionWriteBuffer writeBuffer;
     @Mock RoundTimeoutScheduler roundTimer;
+    @Mock org.springframework.context.ApplicationEventPublisher eventPublisher;
     @Captor ArgumentCaptor<java.util.Collection<String>> ids;
     @Captor ArgumentCaptor<Runnable> runnableCaptor;
 
     private GameRoomManager manager() {
         return new GameRoomManager(sessionRepository, quizRepository, questionRepository,
                 submissionRepository, scoringEngine, processorProvider, ws,
-                evaluationService, settingsService, scheduler, writeBuffer, roundTimer);
+                evaluationService, settingsService, scheduler, writeBuffer, roundTimer, eventPublisher);
     }
 
     private GameSession session(String pin) {
@@ -270,7 +271,7 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(true);
+                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
 
         mgr.submit("123456", "oj1", player.uuid(), "python",
@@ -290,7 +291,7 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Pat", "sess-j", "player", null);
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(false);
+                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
         armRound(mgr, "oj1");
 
         mgr.submit("123456", "oj1", player.uuid(), "python",
@@ -645,7 +646,7 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(true);
+                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
         mgr.submit("123456", "oj1", player.uuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\"}"));
@@ -661,7 +662,7 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(true);
+                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
         mgr.submit("123456", "oj1", player.uuid(), "python", null);
         verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
@@ -909,9 +910,9 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), any()))
                 .thenAnswer(inv -> {
                     CodingOutcomeConsumer h = inv.getArgument(9);
-                    h.accept(player.uuid(), 500, true, 5, 5);    // correct path -> streak bonus 0, score 500
-                    h.accept(player.uuid(), 100, false, 2, 5);   // wrong path -> resetStreak, score 100
-                    return true;
+                    h.accept(player.uuid(), 500, true, 5, 5, null);    // correct path -> streak bonus 0, score 500
+                    h.accept(player.uuid(), 100, false, 2, 5, null);   // wrong path -> resetStreak, score 100
+                    return java.util.concurrent.CompletableFuture.completedFuture(true);
                 });
         armRound(mgr, "oj1");
         mgr.submit("123456", "oj1", player.uuid(), "python",
@@ -1076,7 +1077,7 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(true);
+                anyString(), anyString(), anyString(), anyInt(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
         mgr.submit("123456", "oj1", player.uuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\"}"));
