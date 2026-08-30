@@ -28,8 +28,9 @@ public class BankSeeder implements org.springframework.boot.ApplicationRunner {
 
     @Override
     public void run(org.springframework.boot.ApplicationArguments args) {
-        if (!quizRepository.findAll().isEmpty()) {
-            log.info("Question bank not empty - skipping bundled library seed");
+        boolean force = Boolean.getBoolean("sprintjudge.seed.force");
+        if (!force && !quizRepository.findAll().isEmpty()) {
+            log.info("Question bank not empty - skipping bundled library seed (set -Dsprintjudge.seed.force=true to re-seed)");
             return;
         }
         try (var in = new ClassPathResource(BUNDLE).getInputStream()) {
