@@ -70,7 +70,8 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             // the relative work-dir segment.
             runDir = runDir.toAbsolutePath();
             String ext = extension(language);
-            Path sourceFile = runDir.resolve("solution" + ext).toAbsolutePath();
+            String judgeFileName = language.equals("java") ? "Main" : "solution";
+            Path sourceFile = runDir.resolve(judgeFileName + ext).toAbsolutePath();
             Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
 
             List<JudgeResult.CaseResult> results = new ArrayList<>();
@@ -152,7 +153,8 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
         }
         try {
             runDir = runDir.toAbsolutePath();
-            Path sourceFile = runDir.resolve("solution" + extension(language)).toAbsolutePath();
+            String runFileName = language.equals("java") ? "Main" : "solution";
+            Path sourceFile = runDir.resolve(runFileName + extension(language)).toAbsolutePath();
             Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
             Path inputFile = runDir.resolve("input.txt").toAbsolutePath();
             Files.writeString(inputFile, request.stdin() == null ? "" : request.stdin());

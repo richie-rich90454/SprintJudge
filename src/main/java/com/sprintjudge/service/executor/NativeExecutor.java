@@ -86,7 +86,9 @@ public class NativeExecutor implements CodeExecutor {
                 case "node" -> ".js";
                 default -> ".py";
             };
-            Path sourceFile = runDir.resolve("solution" + ext).toAbsolutePath();
+            // Java requires filename to match the public class name.
+            String fileName = language.equals("java") ? "Main" : "solution";
+            Path sourceFile = runDir.resolve(fileName + ext).toAbsolutePath();
             Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
 
             int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
@@ -261,7 +263,8 @@ public class NativeExecutor implements CodeExecutor {
                 case "node" -> ".js";
                 default -> ".py";
             };
-            Path sourceFile = runDir.resolve("solution" + ext).toAbsolutePath();
+            String runFileName = language.equals("java") ? "Main" : "solution";
+            Path sourceFile = runDir.resolve(runFileName + ext).toAbsolutePath();
             Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
 
             int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
