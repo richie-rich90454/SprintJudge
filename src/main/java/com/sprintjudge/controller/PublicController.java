@@ -8,10 +8,10 @@ import com.sprintjudge.service.executor.RunResult;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Deliberately minimal public surface. Question payloads (which embed answer
@@ -20,14 +20,13 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/public")
-@CrossOrigin(originPatterns = "*")
 public class PublicController {
 
     private final QuizRepository quizRepository;
     private final CodeExecutor executor;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
-    private final Map<String, long[]> runWindow = new HashMap<>();
+    private final Map<String, long[]> runWindow = new ConcurrentHashMap<>();
     private static final int RUN_LIMIT_PER_MIN = 30;
     private static final long WINDOW_MS = 60_000;
     private static final long STALE_MS = 120_000;

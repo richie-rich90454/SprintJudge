@@ -52,12 +52,13 @@ public class BroadcastScheduler {
 
     private void drain() {
         if (due.isEmpty()) return;
-        for (Integer key : due.keySet()) {
-            // ConcurrentHashMap never stores a null value, so remove() is non-null here.
+        Map<Integer, Runnable> snapshot = new java.util.HashMap<>(due);
+        due.clear();
+        for (var entry : snapshot.entrySet()) {
             try {
-                due.remove(key).run();
+                entry.getValue().run();
             } catch (RuntimeException e) {
-                log.warn("Broadcast flush failed for room {}", key, e);
+                log.warn("Broadcast flush failed for room {}", entry.getKey(), e);
             }
         }
     }

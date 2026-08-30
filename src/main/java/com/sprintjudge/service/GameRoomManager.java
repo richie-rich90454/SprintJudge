@@ -135,16 +135,16 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 if (!room.addPlayer(p)) throw new IllegalStateException("Room is full");
                 room.setHostUuid(p.uuid());
                 room.touch();
-            broadcastLeaderboard(pin);
-            eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
-            return p;
-        }
-        // Rejoin: reclaim a disconnected seat by token so scores survive.
-        if (rejoinToken != null) {
-            Player reclaimed = room.reclaim(rejoinToken, sessionId);
-            if (reclaimed != null) {
-                room.touch();
-            broadcastLeaderboard(pin);
+                broadcastLeaderboard(pin);
+                eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
+                return p;
+            }
+            // Rejoin: reclaim a disconnected seat by token so scores survive.
+            if (rejoinToken != null) {
+                Player reclaimed = room.reclaim(rejoinToken, sessionId);
+                if (reclaimed != null) {
+                    room.touch();
+                    broadcastLeaderboard(pin);
                     return reclaimed;
                 }
             }
@@ -304,6 +304,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String sessionId = p.sessionId();
         String pin = room.pin();
         String questionId = q.id();
+        long startMs = room.currentQuestionStartEpochMs();
 
         CodingOutcomeConsumer handler = (uuid, baseScore, allPassed, passed, totalTests, aiFeedback) -> {
             int bonus;
@@ -319,8 +320,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             broadcastLeaderboard(pin);
         };
 
+        long timeTakenSec = Math.max(0, (Instant.now().toEpochMilli() - startMs) / 1000);
         submissionProcessor.getObject().processCoding(room.sessionId(), pin,
-                questionId, p.name(), playerUuid, language, source, attempts, settingsService.asMap(), handler)
+                questionId, p.name(), playerUuid, language, source, attempts, settingsService.asMap(), timeTakenSec, handler)
                 .thenAccept(accepted -> {
                     if (!accepted) {
                         ws.send(p.sessionId(), new ErrorMessage("ERROR",
@@ -331,11 +333,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     /** Updates streak and returns the bonus to add; 0 until the second correct in a row. */
     private int streakBonus(GameRoom room, String uuid, boolean correct, int base) {
-        int streak = correct ? room.bumpStreak(uuid) : 0;
         if (!correct) {
             room.resetStreak(uuid);
             return 0;
         }
+        int streak = room.bumpStreak(uuid);
         if (streak < 2) return 0;
         double mult = Math.min(streak - 1, STREAK_BONUS_CAP_STEPS);
         return (int) Math.round(base * STREAK_BONUS_RATE * mult);

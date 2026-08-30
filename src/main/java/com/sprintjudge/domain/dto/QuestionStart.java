@@ -3,7 +3,7 @@ package com.sprintjudge.domain.dto;
 public record QuestionStart(
         String type,
         QuestionDto question,
-        long timeLimitSec,
+        int timeLimitSec,
         long startedAtEpochMs,
         long serverNowEpochMs
 ) {}

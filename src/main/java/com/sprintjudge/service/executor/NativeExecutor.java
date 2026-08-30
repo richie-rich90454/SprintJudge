@@ -124,14 +124,6 @@ public class NativeExecutor implements CodeExecutor {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
                     continue;
                 }
-                // ponytail: Java's Process API reports RSS only after exit on some JDKs; log if over limit post-hoc.
-                int memLimitMb = request.memoryLimitMb();
-                if (memLimitMb > 0) {
-                    long memBytes = proc.info().totalMemorySize().orElse(0L);
-                    if (memBytes > 0 && memBytes > (long) memLimitMb * 1024 * 1024) {
-                        log.warn("Memory limit exceeded: {}MB > {}MB limit", memBytes / (1024 * 1024), memLimitMb);
-                    }
-                }
                 String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
                     results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
@@ -286,16 +278,12 @@ public class NativeExecutor implements CodeExecutor {
             ProcessBuilder pb = new ProcessBuilder(cmd)
                     .directory(runDir.toFile())
                     .redirectErrorStream(true);
-            Process proc = pb.start();
-
-            // Feed stdin (best-effort; stdin may be empty for non-interactive programs).
             if (request.stdin() != null && !request.stdin().isEmpty()) {
-                try (var os = proc.getOutputStream()) {
-                    os.write(request.stdin().getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                } catch (IOException ignored) {
-                    // program may have exited before consuming all stdin
-                }
+                Path inputFile = runDir.resolve("stdin.txt").toAbsolutePath();
+                Files.writeString(inputFile, request.stdin());
+                pb.redirectInput(inputFile.toFile());
             }
+            Process proc = pb.start();
 
             if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
                 proc.destroyForcibly();

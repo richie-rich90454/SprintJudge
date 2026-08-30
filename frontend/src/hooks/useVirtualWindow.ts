@@ -22,7 +22,7 @@ export function useVirtualWindow(total: number, rowHeight: number, overscan = 6)
         return () => el.removeEventListener("scroll", onScroll);
     }, [rowHeight, overscan]);
 
-    const viewportRows = 12 + overscan * 2; // ~420px viewport at 28px rows
+    const viewportRows = Math.ceil(460 / rowHeight) + overscan * 2;
     const end = Math.min(total, start + viewportRows);
     return { ref, start, end };
 }

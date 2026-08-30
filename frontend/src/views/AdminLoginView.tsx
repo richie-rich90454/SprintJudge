@@ -14,12 +14,6 @@ export function AdminLoginView() {
         e.preventDefault();
         setError("");
         try {
-            await fetch("/admin/login", { credentials: "include" });
-            const csrf =
-                document.cookie
-                    .split("; ")
-                    .find((c) => c.startsWith("XSRF-TOKEN="))
-                    ?.split("=")[1] ?? "";
             const res = await fetch("/admin/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -27,7 +21,6 @@ export function AdminLoginView() {
                 body: new URLSearchParams({
                     username,
                     password,
-                    _csrf: csrf ?? new URLSearchParams(window.location.search).get("_csrf") ?? "",
                 }),
             });
             if (res.redirected || (res.url && !res.url.includes("error"))) {

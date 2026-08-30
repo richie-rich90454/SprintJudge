@@ -6,7 +6,10 @@ interface GameStore extends GameState {
     connect: (url: string) => void;
     join: (pin: string, name: string, role?: "player" | "host") => void;
     submit: (questionId: string, response: unknown, language?: string) => void;
-    hostCommand: (action: "NEXT_QUESTION" | "FORCE_SUBMIT" | "END_GAME", payload?: Record<string, unknown>) => void;
+    hostCommand: (
+        action: "NEXT_QUESTION" | "FORCE_SUBMIT" | "END_GAME",
+        payload?: Record<string, unknown>,
+    ) => void;
     extendTimer: (seconds: number) => void;
     kick: (uuid: string) => void;
     clearError: () => void;

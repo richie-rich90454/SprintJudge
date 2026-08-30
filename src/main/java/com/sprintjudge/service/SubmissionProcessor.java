@@ -66,7 +66,7 @@ public class SubmissionProcessor {
     @Async("virtualThreadExecutor")
     public CompletableFuture<Boolean> processCoding(String sessionId, String pin, String questionId, String playerName,
                                   String playerUuid, String language, String sourceCode, int attemptsUsed,
-                                  Map<String, Object> settings, CodingOutcomeConsumer handler) {
+                                  Map<String, Object> settings, long timeTakenSec, CodingOutcomeConsumer handler) {
         // Edge case Y companion: never block the caller on a saturated judge.
         if (!slot.tryAcquire()) {
             return CompletableFuture.completedFuture(false);
@@ -74,7 +74,7 @@ public class SubmissionProcessor {
         JudgeResult result = null;
         try {
             result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
-                    attemptsUsed, settings, handler);
+                    attemptsUsed, settings, timeTakenSec, handler);
             return CompletableFuture.completedFuture(true);
         } finally {
             slot.release();
@@ -87,7 +87,7 @@ public class SubmissionProcessor {
     private JudgeResult judge(String sessionId, String questionId, String playerName,
                                String playerUuid, String language, String sourceCode,
                                int attemptsUsed, Map<String, Object> settings,
-                               CodingOutcomeConsumer handler) {
+                               long timeTakenSec, CodingOutcomeConsumer handler) {
         Question question = questionRepository.findById(questionId).orElse(null);
         if (question == null) return null;
         QuestionType type = QuestionType.from(question.questionType());
@@ -123,7 +123,7 @@ public class SubmissionProcessor {
 
         int score = scoringEngine.scoreCoding(
                 result.passed(), result.total(), question.pointsBase(),
-                result.allPassed(), 0, question.timeLimitSec(), attemptsUsed, settings);
+                result.allPassed(), timeTakenSec, question.timeLimitSec(), attemptsUsed, settings);
 
         Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
         if (best == null || score > best.scoreEarned()) {

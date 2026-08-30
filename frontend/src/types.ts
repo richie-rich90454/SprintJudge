@@ -79,6 +79,7 @@ export interface GameState {
     pin: string | null;
     playerUuid: string | null;
     playerName: string | null;
+    role: "player" | "host";
     quizId: string | null;
     currentQuestion: QuestionDto | null;
     leaderboard: LeaderboardEntry[];

@@ -25,10 +25,22 @@ class AudioEngine {
     private sfxGain!: Tone.Gain;
 
     private readonly leadPattern = [
-        60, 64, 67, 64, // C E G E
-        62, 65, 69, 65, // D F A F
-        64, 67, 71, 67, // E G B G
-        59, 62, 67, 62, // B D G D
+        60,
+        64,
+        67,
+        64, // C E G E
+        62,
+        65,
+        69,
+        65, // D F A F
+        64,
+        67,
+        71,
+        67, // E G B G
+        59,
+        62,
+        67,
+        62, // B D G D
     ];
     private readonly bassPattern = [36, 36, 43, 43, 41, 41, 38, 38];
 
@@ -154,12 +166,7 @@ class AudioEngine {
     private arpeggio(notes: number[], dur = 0.06) {
         notes.forEach((n, i) => {
             const t = Tone.now() + i * dur;
-            this.lead.triggerAttackRelease(
-                Tone.Frequency(n, "midi").toNote(),
-                "16n",
-                t,
-                0.6,
-            );
+            this.lead.triggerAttackRelease(Tone.Frequency(n, "midi").toNote(), "16n", t, 0.6);
         });
     }
 

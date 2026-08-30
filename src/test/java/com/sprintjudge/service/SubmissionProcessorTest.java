@@ -56,7 +56,7 @@ class SubmissionProcessorTest {
         SubmissionProcessor p = processor(slot);
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertFalse(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertFalse(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         slot.release();
         verifyNoInteractions(executor);
         assertEquals(-1, received[0]);
@@ -69,7 +69,7 @@ class SubmissionProcessorTest {
         when(questionRepository.findById("q")).thenReturn(Optional.empty());
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer, never()).offer(any());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
         assertEquals(-1, received[0]);
@@ -84,7 +84,7 @@ class SubmissionProcessorTest {
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any());
         verify(executor, never()).judge(any());
         verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
@@ -100,7 +100,7 @@ class SubmissionProcessorTest {
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(70000), 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(70000), 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any());
         verify(executor, never()).judge(any());
         assertEquals(-1, received[0]);
@@ -121,7 +121,7 @@ class SubmissionProcessorTest {
 
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any(Submission.class));
         verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
         assertEquals(90, received[0]);
@@ -143,7 +143,7 @@ class SubmissionProcessorTest {
 
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer, never()).offer(any(Submission.class));
         assertEquals(10, received[0]);
     }
@@ -157,7 +157,7 @@ class SubmissionProcessorTest {
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", null, 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", null, 1, Map.of(), 0L, handler).get());
         verify(executor, never()).judge(any(JudgeRequest.class));
         verify(writeBuffer).offer(any());
         verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
@@ -179,7 +179,7 @@ class SubmissionProcessorTest {
 
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         assertEquals(0, received[0]);
     }
 
@@ -199,7 +199,7 @@ class SubmissionProcessorTest {
 
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
-        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), handler).get());
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any(Submission.class)); // 50 > 10 so it overwrites
         assertEquals(50, received[0]);
     }

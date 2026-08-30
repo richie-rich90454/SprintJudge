@@ -1,12 +1,21 @@
 import { BehaviorSubject } from "rxjs";
 import { webSocketService, WsMessage } from "./WebSocketService";
-import { GameState, QuestionDto, RoomState, LeaderboardEntry, LeaderboardDelta, GameReview, SubmissionResult } from "../types";
+import {
+    GameState,
+    QuestionDto,
+    RoomState,
+    LeaderboardEntry,
+    LeaderboardDelta,
+    GameReview,
+    SubmissionResult,
+} from "../types";
 
 const initial: GameState = {
     status: "LOBBY",
     pin: null,
     playerUuid: null,
     playerName: null,
+    role: "player",
     quizId: null,
     currentQuestion: null,
     leaderboard: [],
@@ -40,7 +49,7 @@ export class GameStateManager {
             if (status === "open" && this.state.playerUuid) {
                 webSocketService.send({
                     type: "JOIN",
-                    role: "player",
+                    role: this.state.role,
                     name: this.state.playerName,
                     pin: this.state.pin,
                 });
@@ -64,6 +73,7 @@ export class GameStateManager {
     }
 
     join(pin: string, name: string, role: "player" | "host" = "player") {
+        this.patch({ role });
         webSocketService.send({ type: "JOIN", role, name, pin });
     }
 

@@ -28,10 +28,13 @@ function SettingsTab() {
     const [saved, setSaved] = useState(false);
 
     useEffect(() => {
-        adminApi.getSettings().then((s) => {
-            setSettings(s);
-            setLoading(false);
-        }).catch(() => setLoading(false));
+        adminApi
+            .getSettings()
+            .then((s) => {
+                setSettings(s);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
     }, []);
 
     const handleSave = async () => {
@@ -45,7 +48,8 @@ function SettingsTab() {
         }
     };
 
-    if (loading) return <div className="text-center py-16 text-default-500">Loading settings...</div>;
+    if (loading)
+        return <div className="text-center py-16 text-default-500">Loading settings...</div>;
 
     return (
         <motion.div
@@ -65,7 +69,9 @@ function SettingsTab() {
                             <label className="label-caps">{key}</label>
                             <input
                                 value={value}
-                                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                                onChange={(e) =>
+                                    setSettings({ ...settings, [key]: e.target.value })
+                                }
                                 className="input-underline"
                             />
                         </div>
@@ -79,7 +85,9 @@ function SettingsTab() {
                         >
                             {saving ? "Saving..." : "Save"}
                         </Button>
-                        {saved && <span className="text-sm text-green-600 self-center">Saved!</span>}
+                        {saved && (
+                            <span className="text-sm text-green-600 self-center">Saved!</span>
+                        )}
                     </div>
                 </div>
             )}
@@ -121,11 +129,7 @@ export function AdminDashboard() {
                             <LogoMark size={28} />
                             <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
                         </div>
-                        <form
-                            method="POST"
-                            action="/admin/login"
-                            className="flex flex-col gap-4"
-                        >
+                        <form method="POST" action="/admin/login" className="flex flex-col gap-4">
                             <label className="label-caps block mb-1" htmlFor="un">
                                 Username
                             </label>
@@ -192,8 +196,11 @@ export function AdminDashboard() {
     });
 
     const filteredQuizzes = quizzes.filter((q) => {
-        return !quizSearch || q.title.toLowerCase().includes(quizSearch.toLowerCase())
-            || (q.description && q.description.toLowerCase().includes(quizSearch.toLowerCase()));
+        return (
+            !quizSearch ||
+            q.title.toLowerCase().includes(quizSearch.toLowerCase()) ||
+            (q.description && q.description.toLowerCase().includes(quizSearch.toLowerCase()))
+        );
     });
 
     return (
@@ -405,7 +412,9 @@ export function AdminDashboard() {
                                                 </Button>
                                                 <select
                                                     value={gameMode}
-                                                    onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                                    onChange={(e) =>
+                                                        setGameMode(e.target.value as GameMode)
+                                                    }
                                                     className="input-underline min-h-[30px] text-xs max-w-[100px]"
                                                 >
                                                     <option value="STANDARD">Standard</option>
@@ -512,7 +521,9 @@ export function AdminDashboard() {
                                                             {q.questionType.replace(/_/g, " ")}
                                                         </Chip>
                                                     </td>
-                                                    <td className="mono text-sm">{q.timeLimitSec}s</td>
+                                                    <td className="mono text-sm">
+                                                        {q.timeLimitSec}s
+                                                    </td>
                                                     <td className="mono text-sm">{q.pointsBase}</td>
                                                 </tr>
                                             ))}
@@ -540,14 +551,15 @@ export function AdminDashboard() {
                             <h2 className="text-lg font-extrabold mb-4">Game history</h2>
                             <div className="text-center py-16 text-default-500">
                                 <p className="label-caps mb-2">No games played yet</p>
-                                <p>Game history will be available after games are played. Check the host view for live game status.</p>
+                                <p>
+                                    Game history will be available after games are played. Check the
+                                    host view for live game status.
+                                </p>
                             </div>
                         </motion.div>
                     )}
 
-                    {tab === "settings" && (
-                        <SettingsTab />
-                    )}
+                    {tab === "settings" && <SettingsTab />}
                 </AnimatePresence>
             </main>
 

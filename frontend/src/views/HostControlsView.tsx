@@ -9,7 +9,9 @@ export function HostControlsView() {
     const status = useGameStore((s) => s.status);
     const room = useGameStore((s) => s.room);
     const [teamName, setTeamName] = useState("");
-    const [teams, setTeams] = useState<{ id: string; name: string; memberUuids: string[]; score: number }[]>([]);
+    const [teams, setTeams] = useState<
+        { id: string; name: string; memberUuids: string[]; score: number }[]
+    >([]);
 
     const players = room?.players ?? [];
     const active = status === "ACTIVE";

@@ -14,7 +14,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(originPatterns = "*")
 public class AdminController {
 
     private final QuizRepository quizRepository;

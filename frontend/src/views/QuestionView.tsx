@@ -60,7 +60,9 @@ export function QuestionView() {
                     <CardContent className="p-8 gap-2">
                         <p className="label-caps mb-2">Round complete</p>
                         <h2 className="text-2xl font-extrabold">Answers locked.</h2>
-                        <p className="text-default-500 mt-2">The host is preparing the next round.</p>
+                        <p className="text-default-500 mt-2">
+                            The host is preparing the next round.
+                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -72,7 +74,9 @@ export function QuestionView() {
             <div className="pattern-exam min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <p className="label-caps mb-2">Standby</p>
-                    <p className="text-default-500">Waiting for the host to start the next question.</p>
+                    <p className="text-default-500">
+                        Waiting for the host to start the next question.
+                    </p>
                 </div>
             </div>
         );
@@ -83,11 +87,7 @@ export function QuestionView() {
 
     const doSubmit = () => {
         if (submitted) return;
-        submit(
-            q.id,
-            response,
-            coding ? (response as { language?: string })?.language : undefined,
-        );
+        submit(q.id, response, coding ? (response as { language?: string })?.language : undefined);
         setSubmitted(true);
         audio.play("click");
         try {
@@ -112,9 +112,7 @@ export function QuestionView() {
                         />
                     </div>
                 )}
-                {untimed && (
-                    <span className="chip chip-neutral">Untimed</span>
-                )}
+                {untimed && <span className="chip chip-neutral">Untimed</span>}
             </div>
 
             <motion.div
@@ -146,7 +144,9 @@ export function QuestionView() {
                                 exit={{ opacity: 0 }}
                                 className="mt-4 rounded-xl px-4 py-3 font-bold"
                                 style={{
-                                    background: feedback.ok ? "var(--color-kahoot-green)" : "var(--oq-red)",
+                                    background: feedback.ok
+                                        ? "var(--color-kahoot-green)"
+                                        : "var(--oq-red)",
                                     color: "#fff",
                                     boxShadow: feedback.ok
                                         ? "0 0 24px rgba(31,190,107,0.5)"
