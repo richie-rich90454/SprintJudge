@@ -13,6 +13,7 @@ const initial: GameState = {
     room: null,
     lastResult: null,
     error: null,
+    gameMode: "STANDARD",
 };
 
 /**
@@ -100,14 +101,21 @@ export class GameStateManager {
                 const connected = new Set(room.players.map((p) => p.uuid));
                 this.patch({
                     room,
+                    gameMode: room.gameMode ?? "STANDARD",
                     leaderboard: this.state$.value.leaderboard.filter((e) => connected.has(e.uuid)),
                 });
                 break;
             }
             case "QUESTION_START": {
                 const q = m.question as QuestionDto;
-                const end = (m.startedAtEpochMs as number) + (m.timeLimitSec as number) * 1000;
-                pushTimer(q.id, m.timeLimitSec as number, end);
+                const tl = m.timeLimitSec as number;
+                // Practice mode sends timeLimitSec=-1 → no timer.
+                if (tl > 0) {
+                    const end = (m.startedAtEpochMs as number) + tl * 1000;
+                    pushTimer(q.id, tl, end);
+                } else {
+                    pushTimer(q.id, 0, Infinity);
+                }
                 this.patch({ status: "ACTIVE", currentQuestion: q, lastResult: null, error: null });
                 break;
             }
@@ -156,6 +164,12 @@ export class GameStateManager {
             case "ERROR":
                 this.resyncInFlight = false;
                 this.patch({ error: m.message as string });
+                break;
+            case "TEAM_CREATED":
+            case "TEAM_JOINED":
+            case "TEAM_LIST":
+            case "BRACKET":
+                // Team/battle events are consumed by UI components, not state machine.
                 break;
         }
     }
