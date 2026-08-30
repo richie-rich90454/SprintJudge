@@ -31,11 +31,15 @@ export interface PlayerInfo {
     score: number;
 }
 
+export type GameMode = "STANDARD" | "AUTO_PILOT" | "PRACTICE" | "EXAM" | "TEAM" | "BATTLE";
+
 export interface RoomState {
     type: "ROOM_STATE";
     status: GameStatus;
     questionCount: number;
+    currentQuestionId: string | null;
     players: PlayerInfo[];
+    gameMode: GameMode;
 }
 
 export interface QuestionStart {
@@ -70,6 +74,7 @@ export interface GameState {
     room: RoomState | null;
     lastResult: unknown | null;
     error: string | null;
+    gameMode: GameMode;
 }
 
 export const ALL_QUESTION_TYPES: QuestionType[] = [
