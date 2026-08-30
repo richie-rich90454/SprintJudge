@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import { webSocketService, WsMessage } from "./WebSocketService";
-import { GameState, QuestionDto, RoomState, LeaderboardEntry, LeaderboardDelta } from "../types";
+import { GameState, QuestionDto, RoomState, LeaderboardEntry, LeaderboardDelta, GameReview } from "../types";
 
 const initial: GameState = {
     status: "LOBBY",
@@ -14,6 +14,7 @@ const initial: GameState = {
     lastResult: null,
     error: null,
     gameMode: "STANDARD",
+    review: null,
 };
 
 /**
@@ -149,6 +150,14 @@ export class GameStateManager {
                 this.patch({
                     status: "ENDED",
                     leaderboard: m.rankings as LeaderboardEntry[],
+                    currentQuestion: null,
+                });
+                clearTimer();
+                break;
+            case "GAME_REVIEW":
+                this.patch({
+                    status: "ENDED",
+                    review: m as unknown as GameReview,
                     currentQuestion: null,
                 });
                 clearTimer();

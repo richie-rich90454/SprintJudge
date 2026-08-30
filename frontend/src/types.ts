@@ -75,6 +75,52 @@ export interface GameState {
     lastResult: unknown | null;
     error: string | null;
     gameMode: GameMode;
+    review: GameReview | null;
+}
+
+export interface GameReview {
+    type: "GAME_REVIEW";
+    rankings: LeaderboardEntry[];
+    questions: QuestionReview[];
+    players: PlayerReview[];
+    classStats: ClassStats;
+}
+
+export interface QuestionReview {
+    questionId: string;
+    title: string;
+    questionType: string;
+    timeLimitSec: number;
+    pointsBase: number;
+    answer: unknown;
+    totalAttempts: number;
+    correctCount: number;
+    correctRate: number;
+    avgTimeSec: number;
+}
+
+export interface PlayerReview {
+    playerUuid: string;
+    playerName: string;
+    totalScore: number;
+    answers: PlayerAnswer[];
+}
+
+export interface PlayerAnswer {
+    questionId: string;
+    correct: boolean;
+    scoreEarned: number;
+    attemptCount: number;
+}
+
+export interface ClassStats {
+    totalPlayers: number;
+    totalQuestions: number;
+    avgScore: number;
+    totalCorrect: number;
+    totalAttempts: number;
+    hardestQuestionId: string;
+    easiestQuestionId: string;
 }
 
 export const ALL_QUESTION_TYPES: QuestionType[] = [
