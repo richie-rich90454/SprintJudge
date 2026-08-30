@@ -60,10 +60,8 @@ public class SubmissionWriteBuffer {
         if (queue.isEmpty()) return 0;
         List<Submission> batch = new ArrayList<>(queue.size());
         queue.drainTo(batch);
-        if (!batch.isEmpty()) {
-            repository.saveAll(batch);
-            flushed.addAndGet(batch.size());
-        }
+        repository.saveAll(batch);
+        flushed.addAndGet(batch.size());
         lastFlushMs = System.currentTimeMillis();
         return batch.size();
     }
