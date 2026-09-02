@@ -61,7 +61,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**", "/ws")
+                .ignoringRequestMatchers("/api/**", "/ws", "/admin/login")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
