@@ -216,6 +216,8 @@ export abstract class OjBase extends BaseQuestionRenderer {
         }
         this.editor?.destroy();
         this.editor = null;
+        this.fit?.dispose();
+        this.fit = null;
         this.terminal?.dispose();
         this.terminal = null;
         super.destroy();

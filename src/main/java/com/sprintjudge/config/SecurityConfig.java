@@ -1,5 +1,7 @@
 package com.sprintjudge.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +22,8 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${sprintjudge.admin.username:admin}")
     private String adminUsername;
@@ -39,6 +44,9 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
+        if ("changeme".equals(adminPassword)) {
+            log.warn("Using default admin password — set sprintjudge.admin.password environment variable!");
+        }
         var admin = User.builder()
                 .username(adminUsername)
                 .password(passwordEncoder().encode(adminPassword))
@@ -52,7 +60,9 @@ public class SecurityConfig {
                                                    CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**", "/ws")
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
                 .httpStrictTransportSecurity(hsts -> hsts
@@ -88,7 +98,7 @@ public class SecurityConfig {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         cfg.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);

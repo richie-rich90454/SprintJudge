@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Bridges Jakarta WebSocket endpoints to the Spring context WITHOUT requiring
@@ -32,6 +33,13 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 
     private static volatile ApplicationContext context;
 
+    /**
+     * Per-connection IP staging map. The handshake writes the IP here keyed by a
+     * unique token; onOpen reads and removes it. This avoids the race where two
+     * concurrent handshakes overwrite each other on the shared ServerEndpointConfig.
+     */
+    private static final ConcurrentHashMap<String, String> stagedIPs = new ConcurrentHashMap<>();
+
     @Autowired
     void holdApplicationContext(ApplicationContext applicationContext) {
         context = applicationContext;
@@ -49,15 +57,24 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
     @Override
     public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
         super.modifyHandshake(sec, request, response);
-        // Per-request security context is stashed on the SHARED config object; a
-        // concurrent handshake could overwrite it before onOpen reads it, letting
-        // an anonymous client inherit another's authenticated flag. We therefore
-        // do NOT rely on these properties at all — onOpen reads the authoritative
-        // per-session Principal directly from the live Session. Only the rate-
-        // limiting source address is derived here (bucket attribution only).
         String addr = firstHeader(request, "X-Forwarded-For");
         if (addr == null) addr = firstHeader(request, "X-Real-IP");
-        sec.getUserProperties().put(REMOTE_ADDR, addr == null ? "unresolved" : addr);
+        String remoteAddr = addr == null ? "unresolved" : addr;
+        // Stage the IP for this connection — onOpen will read-and-remove it.
+        String token = java.util.UUID.randomUUID().toString();
+        stagedIPs.put(token, remoteAddr);
+        sec.getUserProperties().put(REMOTE_ADDR, token);
+    }
+
+    /**
+     * Called from onOpen to retrieve the staged IP for this connection.
+     * Returns the IP address and removes the staging entry (no leak).
+     */
+    public static String consumeStagedIP(ServerEndpointConfig config) {
+        Object token = config.getUserProperties().get(REMOTE_ADDR);
+        if (token == null) return "unresolved";
+        String ip = stagedIPs.remove(token);
+        return ip != null ? ip : "unresolved";
     }
 
     private String firstHeader(HandshakeRequest request, String name) {

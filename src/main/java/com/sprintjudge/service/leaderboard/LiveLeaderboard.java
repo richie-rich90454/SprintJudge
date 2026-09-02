@@ -54,7 +54,7 @@ public final class LiveLeaderboard {
         return rank;
     }
 
-    public void remove(String uuid) {
+    public synchronized void remove(String uuid) {
         Slot s = players.remove(uuid);
         if (s == null) return;
         s.present = false;

@@ -21,6 +21,7 @@ class AudioEngine {
     private lead!: Tone.PolySynth;
     private bass!: Tone.MonoSynth;
     private noise!: Tone.NoiseSynth;
+    private buzzSynth: Tone.Synth | null = null;
     private musicGain!: Tone.Gain;
     private sfxGain!: Tone.Gain;
 
@@ -171,12 +172,13 @@ class AudioEngine {
     }
 
     private buzz() {
-        const o = new Tone.Synth({
-            oscillator: { type: "sawtooth" },
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 },
-        }).connect(this.sfxGain);
-        o.triggerAttackRelease("C3", "8n", undefined, 0.4);
-        setTimeout(() => o.dispose(), 400);
+        if (!this.buzzSynth) {
+            this.buzzSynth = new Tone.Synth({
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 },
+            }).connect(this.sfxGain);
+        }
+        this.buzzSynth.triggerAttackRelease("C3", "8n", undefined, 0.4);
     }
 }
 

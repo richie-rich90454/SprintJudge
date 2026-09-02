@@ -299,7 +299,7 @@ public class NativeExecutor implements CodeExecutor {
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
-            proc.destroyForcibly();
+            if (proc != null) proc.destroyForcibly();
             Thread.currentThread().interrupt();
             log.error("Native run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");

@@ -49,8 +49,15 @@ public class GameWebSocket {
         // the shared handshake config object is race-prone (H4) and unused here.
         boolean authed = session.getUserPrincipal() != null;
         session.getUserProperties().put(AUTHED_KEY, authed);
-        Object addr = config.getUserProperties().get(IP_KEY);
-        session.getUserProperties().put(IP_KEY, addr == null ? "unresolved" : addr);
+        // Read the per-connection IP from the staging map (no shared-object race).
+        // In tests the config may not be a ServerEndpointConfig — fall back to "unresolved".
+        String addr;
+        if (config instanceof jakarta.websocket.server.ServerEndpointConfig sec) {
+            addr = SecureHandshakeConfigurator.consumeStagedIP(sec);
+        } else {
+            addr = "unresolved";
+        }
+        session.getUserProperties().put(IP_KEY, addr);
         // Without registration the fan-out map stays empty and every broadcast
         // (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.
         sessions.register(session.getId(), session);
@@ -138,7 +145,9 @@ public class GameWebSocket {
             // the old code left before join, so a failed join destroyed
             // the player's seat in the previous room.
             if (prevPin != null && prevUuid != null && !prevPin.equals(pin)) {
-                try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException ignored) {}
+                try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException e) {
+                    org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).debug("leave old room failed", e);
+                }
             }
             rateLimiter.recordSuccess(ip);
             session.getUserProperties().put(UUID_KEY, player.uuid());
@@ -224,7 +233,7 @@ public class GameWebSocket {
 
     private void send(Session session, Object message) {
         try {
-            if (session.isOpen()) session.getBasicRemote().sendText(Json.write(message));
+            sessions.sendRaw(session.getId(), Json.write(message));
         } catch (Exception ignored) {
         }
     }

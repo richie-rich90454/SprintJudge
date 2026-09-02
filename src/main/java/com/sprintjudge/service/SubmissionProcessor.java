@@ -11,6 +11,8 @@ import com.sprintjudge.service.executor.JudgeRequest;
 import com.sprintjudge.service.executor.JudgeResult;
 import com.sprintjudge.util.Ids;
 import com.sprintjudge.util.Json;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ import java.util.concurrent.Semaphore;
 @Service
 public class SubmissionProcessor {
 
+    private static final Logger log = LoggerFactory.getLogger(SubmissionProcessor.class);
     private static final int MAX_SOURCE_CHARS = 65_536;
 
     private final CodeExecutor executor;
@@ -142,7 +145,7 @@ public class SubmissionProcessor {
                         result.allPassed(), score, question.pointsBase());
                 if (aiResult.available()) aiFeedback = aiResult.feedback();
             } catch (Exception e) {
-                // AI grading is best-effort; never block the main flow.
+                log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
             }
         }
 

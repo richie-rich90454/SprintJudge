@@ -137,7 +137,22 @@ export function AdminDashboard() {
                             <LogoMark size={28} />
                             <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
                         </div>
-                        <form method="POST" action="/admin/login" className="flex flex-col gap-4">
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const fd = new FormData(e.currentTarget);
+                            try {
+                                const res = await fetch("/admin/login", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                    credentials: "include",
+                                    body: new URLSearchParams(Object.fromEntries(fd) as Record<string, string>),
+                                });
+                                if (res.ok || res.redirected) {
+                                    setNeedsAuth(false);
+                                    loadQuizzes();
+                                }
+                            } catch { /* ignore */ }
+                        }} className="flex flex-col gap-4">
                             <label className="label-caps block mb-1" htmlFor="un">
                                 Username
                             </label>
@@ -190,10 +205,12 @@ export function AdminDashboard() {
         try {
             const json = await adminApi.exportBank();
             const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
+            a.href = url;
             a.download = "sprintjudge-bank.json";
             a.click();
+            URL.revokeObjectURL(url);
         } catch {
             alert("Export failed — are you logged in?");
         }

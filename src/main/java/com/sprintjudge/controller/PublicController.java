@@ -6,9 +6,13 @@ import com.sprintjudge.service.executor.CodeExecutor;
 import com.sprintjudge.service.executor.RunRequest;
 import com.sprintjudge.service.executor.RunResult;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,13 +24,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @RestController
 @RequestMapping("/api/public")
+@EnableScheduling
 public class PublicController {
+
+    private static final Logger log = LoggerFactory.getLogger(PublicController.class);
 
     private final QuizRepository quizRepository;
     private final CodeExecutor executor;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
-    private final Map<String, long[]> runWindow = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, long[]> runWindow = new ConcurrentHashMap<>();
     private static final int RUN_LIMIT_PER_MIN = 30;
     private static final long WINDOW_MS = 60_000;
     private static final long STALE_MS = 120_000;
@@ -46,25 +53,26 @@ public class PublicController {
      * supplied stdin and returns combined output. Rate-limited per IP.
      */
     @PostMapping("/run")
-    public RunResult run(@RequestBody RunRequest request, HttpServletRequest http) {
+    public RunResult run(@Valid @RequestBody RunRequest request, HttpServletRequest http) {
         String ip = http.getRemoteAddr();
         long now = System.currentTimeMillis();
-        synchronized (runWindow) {
-            Iterator<Map.Entry<String, long[]>> it = runWindow.entrySet().iterator();
-            while (it.hasNext()) {
-                long[] w = it.next().getValue();
-                if (now - w[0] > STALE_MS) it.remove();
+        long[] window = runWindow.compute(ip, (k, v) -> {
+            if (v == null || now - v[0] > WINDOW_MS) {
+                return new long[]{now, 1};
             }
-            long[] window = runWindow.computeIfAbsent(ip, k -> new long[]{0, 0});
-            if (now - window[0] > WINDOW_MS) {
-                window[0] = now;
-                window[1] = 0;
-            }
-            if (window[1] >= RUN_LIMIT_PER_MIN) {
-                return new RunResult(false, "", "", "rate_limited");
-            }
-            window[1]++;
+            v[1]++;
+            return v;
+        });
+        if (window[1] > RUN_LIMIT_PER_MIN) {
+            log.warn("Rate limit exceeded for IP: {}", ip);
+            return new RunResult(false, "", "", "rate_limited");
         }
         return executor.run(request);
+    }
+
+    @Scheduled(fixedRate = 60_000)
+    public void evictStaleRateLimits() {
+        long now = System.currentTimeMillis();
+        runWindow.entrySet().removeIf(e -> now - e.getValue()[0] > STALE_MS);
     }
 }

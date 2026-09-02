@@ -60,15 +60,28 @@ public class AdminController {
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND, "Quiz not found"));
         String title = body.getOrDefault("title", existing.title());
+        if (title == null || title.isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Title must not be blank");
+        }
+        if (title.length() > 200) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Title exceeds 200 characters");
+        }
         String description = body.getOrDefault("description", existing.description());
+        if (description != null && description.length() > 4000) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Description exceeds 4000 characters");
+        }
         com.sprintjudge.domain.models.Quiz updated = new com.sprintjudge.domain.models.Quiz(
                 id, title, description, existing.createdBy(), existing.createdAt(), existing.template());
         return quizRepository.update(updated);
     }
 
     @DeleteMapping("/quizzes/{id}")
-    public void deleteQuiz(@PathVariable String id) {
+    public org.springframework.http.ResponseEntity<Void> deleteQuiz(@PathVariable String id) {
         quizRepository.delete(id);
+        return org.springframework.http.ResponseEntity.noContent().build();
     }
 
     @GetMapping("/quizzes/{id}/questions")
@@ -93,8 +106,9 @@ public class AdminController {
     }
 
     @DeleteMapping("/questions/{id}")
-    public void deleteQuestion(@PathVariable String id) {
+    public org.springframework.http.ResponseEntity<Void> deleteQuestion(@PathVariable String id) {
         questionRepository.delete(id);
+        return org.springframework.http.ResponseEntity.noContent().build();
     }
 
     @GetMapping("/settings")
@@ -109,6 +123,10 @@ public class AdminController {
     @PostMapping("/games")
     public com.sprintjudge.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
         String quizId = body.get("quizId");
+        if (quizId == null || quizId.isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "quizId is required");
+        }
         String gameModeStr = body.getOrDefault("gameMode", "STANDARD");
         com.sprintjudge.service.GameRoom.GameMode gameMode;
         try {
@@ -138,7 +156,13 @@ public class AdminController {
 
     @PutMapping("/settings")
     public void updateSettings(@RequestBody Map<String, String> body) {
-        body.forEach(settingsService::set);
+        body.forEach((k, v) -> {
+            if (v == null) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.BAD_REQUEST, "Setting value must not be null: " + k);
+            }
+            settingsService.set(k, v);
+        });
     }
 
     @GetMapping("/export")
@@ -148,9 +172,14 @@ public class AdminController {
 
     @PostMapping("/import")
     public Map<String, Object> importBank(@RequestBody Map<String, Object> body) {
-        String json = (String) body.get("json");
+        Object raw = body.get("json");
+        if (!(raw instanceof String json) || json.isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Missing or invalid 'json' field");
+        }
         boolean replace = Boolean.TRUE.equals(body.get("replace"));
         int imported = importExportService.importAll(json, replace);
+        if (imported < 0) imported = 0;
         return Map.of("importedQuestions", imported);
     }
 }

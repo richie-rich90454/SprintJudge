@@ -84,8 +84,8 @@ public class AiGradingService {
             String response = callLlm(prompt);
             AiGradeResult result = parseResponse(response, judgeScore, pointsBase);
             // ponytail: simple size cap, replace with LRU if eviction pattern matters
-            if (cache.size() >= MAX_CACHE_SIZE) cache.clear();
             cache.put(cacheKey, result);
+            if (cache.size() > MAX_CACHE_SIZE * 2) cache.clear();
             return result;
         } catch (Exception e) {
             log.warn("AI grading failed: {}", e.getMessage());

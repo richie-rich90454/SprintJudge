@@ -80,15 +80,16 @@ export class WebSocketService {
     }
 
     send(msg: WsMessage): void {
-        if (
-            !this.socket ||
-            this.socket.readyState === WebSocket.CLOSING ||
-            this.socket.readyState === WebSocket.CLOSED
-        )
-            return;
+        if (!this.socket) return;
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(msg));
-        } else if (this.pending.length < 100) {
+        } else if (
+            this.socket.readyState === WebSocket.CONNECTING ||
+            this.socket.readyState === WebSocket.CLOSING
+        ) {
+            if (this.pending.length < 100) this.pending.push(msg);
+        } else if (this._url && !this._intentionalClose && this.pending.length < 100) {
+            // CLOSED but reconnect is scheduled — queue for next connection
             this.pending.push(msg);
         }
     }

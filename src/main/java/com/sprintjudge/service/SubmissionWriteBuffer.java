@@ -2,6 +2,8 @@ package com.sprintjudge.service;
 
 import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.repository.SubmissionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Component
 public class SubmissionWriteBuffer {
+
+    private static final Logger log = LoggerFactory.getLogger(SubmissionWriteBuffer.class);
 
     private final SubmissionRepository repository;
     private final BlockingQueue<Submission> queue;
@@ -63,7 +67,12 @@ public class SubmissionWriteBuffer {
         try {
             repository.saveAll(batch);
         } catch (RuntimeException ex) {
-            queue.addAll(batch); // re-enqueue on failure — ponytail: O(n) retry, acceptable at flush cadence
+            for (Submission s : batch) {
+                if (!queue.offer(s)) {
+                    log.warn("Write buffer full — dropped {} submissions on DB failure", batch.size() - batch.indexOf(s));
+                    break;
+                }
+            }
             throw ex;
         }
         flushed.addAndGet(batch.size());

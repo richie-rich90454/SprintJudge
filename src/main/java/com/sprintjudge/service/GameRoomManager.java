@@ -207,7 +207,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             // Exam: use the total end time (set at game creation), no per-question timer.
             room.setCurrentQuestionStartEpochMs(now);
             long end = room.totalEndEpochMs();
-            if (end <= 0) end = now + (long) q.timeLimitSec() * questions.size() * 1000;
+            if (end <= 0) {
+                long totalSec = questions.stream().mapToLong(Question::timeLimitSec).sum();
+                end = now + totalSec * 1000;
+            }
             room.setCurrentQuestionEndEpochMs(end);
             broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, (int) ((end - now) / 1000), now, now));
             broadcastRoomState(pin);
