@@ -51,7 +51,7 @@ export function JoinView() {
                         className="font-extrabold tracking-tight leading-none mb-10"
                         style={{ fontSize: "clamp(40px, 8vw, 88px)" }}
                     >
-                        Sprint<span style={{ color: "var(--oq-red)" }}>Judge</span>
+                        Sprint<span style={{ color: "var(--oq-accent)" }}>Judge</span>
                     </h1>
 
                     <Card className="bg-content1">
@@ -94,7 +94,7 @@ export function JoinView() {
                                 type="submit"
                                 variant="primary"
                                 size="lg"
-                                className="w-full mt-4 font-bold bg-[var(--oq-red)] text-white"
+                                className="w-full mt-4 font-bold bg-[var(--oq-accent)] text-white"
                                 isDisabled={pin.length !== 6 || !name.trim()}
                             >
                                 Let us go

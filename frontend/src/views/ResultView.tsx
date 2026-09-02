@@ -51,7 +51,7 @@ export function ResultView() {
                     </h1>
                     <div
                         className="mt-4 h-[3px] w-20 mx-auto"
-                        style={{ background: "var(--oq-red)" }}
+                        style={{ background: "var(--oq-accent)" }}
                     />
                 </div>
 
@@ -64,7 +64,7 @@ export function ResultView() {
                             className={
                                 "px-4 py-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap " +
                                 (tab === t.id
-                                    ? "border-[var(--oq-red)] text-[var(--oq-red)]"
+                                    ? "border-[var(--oq-accent)] text-[var(--oq-accent)]"
                                     : "border-transparent text-default-500 hover:text-default-700")
                             }
                         >
@@ -101,7 +101,7 @@ export function ResultView() {
                                                 className="mono font-extrabold mb-2"
                                                 style={{
                                                     fontSize: idx === 0 ? 30 : 22,
-                                                    color: "var(--oq-red)",
+                                                    color: "var(--oq-accent)",
                                                 }}
                                             >
                                                 {p.score.toLocaleString()}
@@ -116,7 +116,7 @@ export function ResultView() {
                                                 className="w-full mt-2 border-x-2 border-t-2 flex items-start justify-center pt-2"
                                                 style={{
                                                     height: heights[idx],
-                                                    borderColor: "var(--oq-red)",
+                                                    borderColor: "var(--oq-accent)",
                                                     background: "var(--oq-row-alt)",
                                                     borderRadius: "12px 12px 0 0",
                                                 }}
@@ -125,7 +125,7 @@ export function ResultView() {
                                                     className="mono font-extrabold"
                                                     style={{
                                                         fontSize: idx === 0 ? 44 : 30,
-                                                        color: "var(--oq-red)",
+                                                        color: "var(--oq-accent)",
                                                         lineHeight: 1,
                                                     }}
                                                 >
@@ -191,10 +191,10 @@ export function ResultView() {
                                                     <span
                                                         className={
                                                             q.correctRate >= 0.7
-                                                                ? "text-green-600"
+                                                                ? "text-[var(--oq-success)]"
                                                                 : q.correctRate >= 0.4
-                                                                  ? "text-yellow-600"
-                                                                  : "text-red-600"
+                                                                  ? "text-[var(--oq-warning)]"
+                                                                  : "text-[var(--oq-accent)]"
                                                         }
                                                     >
                                                         {Math.round(q.correctRate * 100)}%
@@ -268,8 +268,8 @@ export function ResultView() {
                                                             <span
                                                                 className={
                                                                     a.correct
-                                                                        ? "text-green-600"
-                                                                        : "text-red-600"
+                                                                        ? "text-[var(--oq-success)]"
+                                                                        : "text-[var(--oq-accent)]"
                                                                 }
                                                             >
                                                                 {a.correct ? "✓" : "✗"}{" "}
@@ -342,7 +342,7 @@ export function ResultView() {
                                                                 ? "var(--color-kahoot-green)"
                                                                 : q.correctRate >= 0.4
                                                                   ? "var(--color-kahoot-yellow)"
-                                                                  : "var(--oq-red)",
+                                                                  : "var(--oq-accent)",
                                                     }}
                                                 />
                                             </div>

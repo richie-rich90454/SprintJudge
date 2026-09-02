@@ -43,7 +43,7 @@ export function HostControlsView() {
                     <>
                         <Button
                             variant="primary"
-                            className="w-full bg-[var(--oq-red)] text-white"
+                            className="w-full bg-[var(--oq-accent)] text-white"
                             onPress={() => hostCommand("FORCE_SUBMIT")}
                         >
                             Force submit
@@ -60,7 +60,7 @@ export function HostControlsView() {
                     <>
                         <Button
                             variant="primary"
-                            className="w-full bg-[var(--oq-red)] text-white"
+                            className="w-full bg-[var(--oq-accent)] text-white"
                             onPress={() => hostCommand("NEXT_QUESTION")}
                         >
                             {status === "LOBBY" ? "Start round" : "Next question"}

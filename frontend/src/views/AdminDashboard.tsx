@@ -87,14 +87,14 @@ function SettingsTab() {
                     <div className="flex gap-2 pt-2">
                         <Button
                             variant="primary"
-                            className="bg-[var(--oq-red)] text-white"
+                            className="bg-[var(--oq-accent)] text-white"
                             onPress={handleSave}
                             isDisabled={saving}
                         >
                             {saving ? "Saving..." : "Save"}
                         </Button>
                         {saved && (
-                            <span className="text-sm text-green-600 self-center">Saved!</span>
+                            <span className="text-sm text-[var(--oq-success)] self-center">Saved!</span>
                         )}
                     </div>
                 </div>
@@ -137,22 +137,31 @@ export function AdminDashboard() {
                             <LogoMark size={28} />
                             <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
                         </div>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            const fd = new FormData(e.currentTarget);
-                            try {
-                                const res = await fetch("/admin/login", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                                    credentials: "include",
-                                    body: new URLSearchParams(Object.fromEntries(fd) as Record<string, string>),
-                                });
-                                if (res.ok || res.redirected) {
-                                    setNeedsAuth(false);
-                                    loadQuizzes();
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const fd = new FormData(e.currentTarget);
+                                try {
+                                    const res = await fetch("/admin/login", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/x-www-form-urlencoded",
+                                        },
+                                        credentials: "include",
+                                        body: new URLSearchParams(
+                                            Object.fromEntries(fd) as Record<string, string>,
+                                        ),
+                                    });
+                                    if (res.ok || res.redirected) {
+                                        setNeedsAuth(false);
+                                        loadQuizzes();
+                                    }
+                                } catch {
+                                    /* ignore */
                                 }
-                            } catch { /* ignore */ }
-                        }} className="flex flex-col gap-4">
+                            }}
+                            className="flex flex-col gap-4"
+                        >
                             <label className="label-caps block mb-1" htmlFor="un">
                                 Username
                             </label>
@@ -177,7 +186,7 @@ export function AdminDashboard() {
                             <Button
                                 type="submit"
                                 variant="primary"
-                                className="w-full bg-[var(--oq-red)] text-white"
+                                className="w-full bg-[var(--oq-accent)] text-white"
                             >
                                 Sign in
                             </Button>
@@ -277,7 +286,7 @@ export function AdminDashboard() {
                             className={
                                 "px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap " +
                                 (tab === t.id
-                                    ? "border-[var(--oq-red)] text-[var(--oq-red)]"
+                                    ? "border-[var(--oq-accent)] text-[var(--oq-accent)]"
                                     : "border-transparent text-default-500 hover:text-default-700")
                             }
                         >
@@ -334,7 +343,7 @@ export function AdminDashboard() {
                                 </select>
                                 <Button
                                     variant="primary"
-                                    className="bg-[var(--oq-red)] text-white"
+                                    className="bg-[var(--oq-accent)] text-white"
                                     onPress={() => {
                                         setTab("quizzes");
                                         setShowCreate(true);
@@ -377,7 +386,7 @@ export function AdminDashboard() {
                                 <Button
                                     size="sm"
                                     variant="primary"
-                                    className="bg-[var(--oq-red)] text-white"
+                                    className="bg-[var(--oq-accent)] text-white"
                                     onPress={() => setShowCreate(true)}
                                 >
                                     New set
@@ -403,7 +412,7 @@ export function AdminDashboard() {
                                             />
                                             <Button
                                                 variant="primary"
-                                                className="bg-[var(--oq-red)] text-white"
+                                                className="bg-[var(--oq-accent)] text-white"
                                                 onPress={async () => {
                                                     if (title.trim()) {
                                                         await createQuiz(title.trim(), desc.trim());
@@ -462,7 +471,7 @@ export function AdminDashboard() {
                                                 <Button
                                                     size="sm"
                                                     variant="primary"
-                                                    className="bg-[var(--oq-red)] text-white"
+                                                    className="bg-[var(--oq-accent)] text-white"
                                                     isDisabled={busy}
                                                     onPress={() => host(q.id, gameMode)}
                                                 >
@@ -526,7 +535,7 @@ export function AdminDashboard() {
                                 <Button
                                     size="sm"
                                     variant="primary"
-                                    className="bg-[var(--oq-red)] text-white"
+                                    className="bg-[var(--oq-accent)] text-white"
                                     isDisabled={!activeQuizId}
                                     onPress={() => activeQuizId && openWizard(activeQuizId)}
                                 >

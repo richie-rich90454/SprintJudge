@@ -97,10 +97,7 @@ export function QuestionView() {
     const doSubmit = () => {
         if (submitted) return;
         const lang =
-            coding &&
-            typeof response === "object" &&
-            response !== null &&
-            "language" in response
+            coding && typeof response === "object" && response !== null && "language" in response
                 ? (response as { language?: string }).language
                 : undefined;
         submit(q.id, response, lang);
@@ -116,7 +113,7 @@ export function QuestionView() {
     return (
         <div className="pattern-exam h-screen flex flex-col overflow-hidden">
             {/* Top bar: type + points + timer */}
-            <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b-2 border-[var(--oq-red)]">
+            <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b-2 border-[var(--oq-accent)]">
                 <span className="label-caps">{q.type.replace(/_/g, " ")}</span>
                 <span className="mono text-sm text-default-500">{q.pointsBase} pts</span>
                 {!untimed && (
@@ -162,7 +159,7 @@ export function QuestionView() {
                                 style={{
                                     background: feedback.ok
                                         ? "var(--color-kahoot-green)"
-                                        : "var(--oq-red)",
+                                        : "var(--oq-accent)",
                                     color: "#fff",
                                     boxShadow: feedback.ok
                                         ? "0 0 24px rgba(31,190,107,0.5)"
@@ -195,7 +192,7 @@ export function QuestionView() {
                         isDisabled={submitted}
                         variant="primary"
                         size="lg"
-                        className="w-full mt-2 font-bold bg-[var(--oq-red)] text-white"
+                        className="w-full mt-2 font-bold bg-[var(--oq-accent)] text-white"
                     >
                         {submitted
                             ? "Answer locked in"

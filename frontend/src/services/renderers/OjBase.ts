@@ -136,7 +136,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
             theme: {
                 background: "#000000",
                 foreground: "#e6e6e6",
-                cursor: "#ff2e63",
+                cursor: "var(--oq-accent)",
             },
             convertEol: true,
         });

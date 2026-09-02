@@ -49,7 +49,7 @@ export function HostLeaderboardView() {
                                                 className="mono font-bold w-8 text-right"
                                                 style={
                                                     podium
-                                                        ? { color: "var(--oq-red)", fontSize: 18 }
+                                                        ? { color: "var(--oq-accent)", fontSize: 18 }
                                                         : { color: "var(--oq-border-strong)" }
                                                 }
                                             >

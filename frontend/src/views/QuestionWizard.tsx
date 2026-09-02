@@ -164,7 +164,7 @@ function ConfigForm() {
                         onClick={() =>
                             set({ lines: [...lines, { id: String(lines.length), text: "" }] })
                         }
-                        className="text-[var(--oq-red)] text-sm self-start"
+                        className="text-[var(--oq-accent)] text-sm self-start"
                     >
                         Add line
                     </button>
@@ -260,7 +260,7 @@ function ConfigForm() {
                                 ],
                             })
                         }
-                        className="text-[var(--oq-red)] text-sm self-start"
+                        className="text-[var(--oq-accent)] text-sm self-start"
                     >
                         Add test case
                     </button>
@@ -308,7 +308,7 @@ export function QuestionWizard() {
                                     variant={wizardStep === s ? "primary" : "outline"}
                                     className={
                                         wizardStep === s
-                                            ? "bg-[var(--oq-red)] text-white capitalize"
+                                            ? "bg-[var(--oq-accent)] text-white capitalize"
                                             : "capitalize"
                                     }
                                     onPress={() => setStep(s)}
@@ -326,7 +326,7 @@ export function QuestionWizard() {
                                         size="sm"
                                         variant={wizardType === t ? "primary" : "outline"}
                                         className={
-                                            wizardType === t ? "bg-[var(--oq-red)] text-white" : ""
+                                            wizardType === t ? "bg-[var(--oq-accent)] text-white" : ""
                                         }
                                         onPress={() => {
                                             setType(t);
@@ -379,7 +379,7 @@ export function QuestionWizard() {
                                 </div>
                                 <Button
                                     variant="primary"
-                                    className="bg-[var(--oq-red)] text-white"
+                                    className="bg-[var(--oq-accent)] text-white"
                                     onPress={() => setStep("config")}
                                 >
                                     Next: configure
@@ -392,7 +392,7 @@ export function QuestionWizard() {
                                 <ConfigForm />
                                 <Button
                                     variant="primary"
-                                    className="bg-[var(--oq-red)] text-white mt-4"
+                                    className="bg-[var(--oq-accent)] text-white mt-4"
                                     onPress={() => setStep("preview")}
                                 >
                                     Preview
@@ -416,7 +416,7 @@ export function QuestionWizard() {
                                     </Button>
                                     <Button
                                         variant="primary"
-                                        className="bg-[var(--oq-red)] text-white"
+                                        className="bg-[var(--oq-accent)] text-white"
                                         onPress={() => saveQuestion()}
                                     >
                                         Save question

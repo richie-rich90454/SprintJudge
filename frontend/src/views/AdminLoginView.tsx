@@ -72,7 +72,7 @@ export function AdminLoginView() {
                         <Button
                             type="submit"
                             variant="primary"
-                            className="w-full bg-[var(--oq-red)] text-white"
+                            className="w-full bg-[var(--oq-accent)] text-white"
                         >
                             Sign in
                         </Button>
