@@ -6,6 +6,7 @@ import { HostControlsView } from "./HostControlsView";
 import { HostLeaderboardView } from "./HostLeaderboardView";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { webSocketService } from "../services/WebSocketService";
 
 export function HostLobbyView() {
     const pin = useUIStore((s) => s.pin);
@@ -23,6 +24,7 @@ export function HostLobbyView() {
         const proto = location.protocol === "https:" ? "wss" : "ws";
         connect(`${proto}://${location.host}/ws`);
         join(pin, "Host", "host");
+        return () => webSocketService.disconnect();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pin]);
 

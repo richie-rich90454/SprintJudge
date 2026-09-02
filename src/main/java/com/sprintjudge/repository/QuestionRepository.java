@@ -23,21 +23,7 @@ public class QuestionRepository {
         String id = q.id() != null ? q.id() : Ids.uuid();
         long now = Instant.now().getEpochSecond();
         String langs = q.languagesAllowed() == null ? null : String.join(",", q.languagesAllowed());
-        boolean exists = dsl.fetchExists(Tables.QUESTIONS, Tables.QUESTIONS_ID.eq(id));
-        if (exists) {
-            dsl.update(Tables.QUESTIONS)
-                .set(Tables.QUESTIONS_TITLE, q.title())
-                .set(Tables.QUESTIONS_DESC, q.description())
-                .set(Tables.QUESTIONS_TYPE, q.questionType())
-                .set(Tables.QUESTIONS_LANGS, langs)
-                .set(Tables.QUESTIONS_TIME, q.timeLimitSec())
-                .set(Tables.QUESTIONS_POINTS, q.pointsBase())
-                .set(Tables.QUESTIONS_CONFIG, q.config())
-                .set(Tables.QUESTIONS_ORDER, q.orderIndex())
-                .where(Tables.QUESTIONS_ID.eq(id))
-                .execute();
-            return q;
-        }
+        // ponytail: atomic upsert replaces the TOCTOU check-then-insert.
         dsl.insertInto(Tables.QUESTIONS)
             .columns(Tables.QUESTIONS_ID, Tables.QUESTIONS_QUIZ_ID, Tables.QUESTIONS_TITLE,
                     Tables.QUESTIONS_DESC, Tables.QUESTIONS_TYPE, Tables.QUESTIONS_LANGS,
@@ -45,9 +31,19 @@ public class QuestionRepository {
                     Tables.QUESTIONS_ORDER, Tables.QUESTIONS_CREATED_AT)
             .values(id, q.quizId(), q.title(), q.description(), q.questionType(), langs,
                     q.timeLimitSec(), q.pointsBase(), q.config(), q.orderIndex(), now)
+            .onConflict(Tables.QUESTIONS_ID).doUpdate()
+            .set(Tables.QUESTIONS_TITLE, q.title())
+            .set(Tables.QUESTIONS_DESC, q.description())
+            .set(Tables.QUESTIONS_TYPE, q.questionType())
+            .set(Tables.QUESTIONS_LANGS, langs)
+            .set(Tables.QUESTIONS_TIME, q.timeLimitSec())
+            .set(Tables.QUESTIONS_POINTS, q.pointsBase())
+            .set(Tables.QUESTIONS_CONFIG, q.config())
+            .set(Tables.QUESTIONS_ORDER, q.orderIndex())
             .execute();
         return new Question(id, q.quizId(), q.title(), q.description(), q.questionType(),
-                q.languagesAllowed(), q.timeLimitSec(), q.pointsBase(), q.config(), q.orderIndex(), Instant.ofEpochSecond(now));
+                q.languagesAllowed(), q.timeLimitSec(), q.pointsBase(), q.config(),
+                q.orderIndex(), q.createdAt());
     }
 
     public List<Question> findByQuiz(String quizId) {

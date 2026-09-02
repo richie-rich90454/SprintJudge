@@ -24,6 +24,7 @@ export function ResultView() {
     useEffect(() => {
         motion.killFor(listRef.current);
         motion.countUp(listRef.current);
+        return () => motion.killFor(listRef.current);
     }, [rest.length]);
 
     const heights = [128, 88, 64];

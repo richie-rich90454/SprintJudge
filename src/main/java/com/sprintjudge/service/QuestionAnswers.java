@@ -61,8 +61,10 @@ public final class QuestionAnswers {
     public static JsonNode answerPayload(QuestionType type, JsonNode raw) {
         if (raw == null || raw.isNull()) return null;
         if (type.isCoding()) return null; // OJ results are per-player, never a shared key
+        String[] keys = REVEAL_KEYS.get(type);
+        if (keys == null) return null; // ponytail: unknown type -> empty reveal, not NPE
         ObjectNode out = Json.MAPPER.createObjectNode();
-        for (String key : REVEAL_KEYS.get(type)) copy(out, raw, key);
+        for (String key : keys) copy(out, raw, key);
         return out;
     }
 

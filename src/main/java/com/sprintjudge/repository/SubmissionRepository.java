@@ -19,19 +19,10 @@ public class SubmissionRepository {
         this.dsl = dsl;
     }
 
-    public Submission save(Submission s) {        String id = s.id() != null ? s.id() : Ids.uuid();
+    public Submission save(Submission s) {
+        String id = s.id() != null ? s.id() : Ids.uuid();
         long now = Instant.now().getEpochSecond();
-        boolean exists = s.id() != null && dsl.fetchExists(Tables.SUBMISSIONS, Tables.SUB_ID.eq(s.id()));
-        if (exists) {
-            dsl.update(Tables.SUBMISSIONS)
-                .set(Tables.SUB_DATA, s.responseData())
-                .set(Tables.SUB_SCORE, s.scoreEarned())
-                .set(Tables.SUB_CORRECT, s.correct())
-                .set(Tables.SUB_LOG, s.judgeLog())
-                .set(Tables.SUB_ATTEMPTS, s.attemptCount())
-                .where(Tables.SUB_ID.eq(id)).execute();
-            return s;
-        }
+        // ponytail: atomic upsert replaces the TOCTOU check-then-insert.
         dsl.insertInto(Tables.SUBMISSIONS)
             .columns(Tables.SUB_ID, Tables.SUB_SESS, Tables.SUB_QUESTION, Tables.SUB_PNAME,
                     Tables.SUB_PUUID, Tables.SUB_DATA, Tables.SUB_SCORE, Tables.SUB_CORRECT,
@@ -39,9 +30,16 @@ public class SubmissionRepository {
             .values(id, s.gameSessionId(), s.questionId(), s.playerName(), s.playerUuid(),
                     s.responseData(), s.scoreEarned(), s.correct(), s.judgeLog(),
                     s.attemptCount(), now)
+            .onConflict(Tables.SUB_ID).doUpdate()
+            .set(Tables.SUB_DATA, s.responseData())
+            .set(Tables.SUB_SCORE, s.scoreEarned())
+            .set(Tables.SUB_CORRECT, s.correct())
+            .set(Tables.SUB_LOG, s.judgeLog())
+            .set(Tables.SUB_ATTEMPTS, s.attemptCount())
             .execute();
-        return new Submission(id, s.gameSessionId(), s.questionId(), s.playerName(), s.playerUuid(),
-                s.responseData(), s.scoreEarned(), s.correct(), s.judgeLog(), s.attemptCount(), Instant.ofEpochSecond(now));
+        return new Submission(id, s.gameSessionId(), s.questionId(), s.playerName(),
+                s.playerUuid(), s.responseData(), s.scoreEarned(), s.correct(),
+                s.judgeLog(), s.attemptCount(), s.submittedAt());
     }
 
     public Optional<Submission> findBest(String sessionId, String questionId, String playerUuid) {

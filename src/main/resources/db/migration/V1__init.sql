@@ -72,3 +72,4 @@ CREATE INDEX IF NOT EXISTS idx_game_sessions_pin ON game_sessions(pin_code);
 CREATE INDEX IF NOT EXISTS idx_questions_quiz_order ON questions(quiz_id, order_index);
 CREATE INDEX IF NOT EXISTS idx_submissions_session_question ON submissions(game_session_id, question_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_session_player ON submissions(game_session_id, player_name);
+CREATE INDEX IF NOT EXISTS idx_submissions_session_uuid ON submissions(game_session_id, player_uuid);

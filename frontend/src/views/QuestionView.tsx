@@ -34,6 +34,13 @@ export function QuestionView() {
         }
     }, [q?.id]);
 
+    // Cleanup shake timer on unmount
+    useEffect(() => {
+        return () => {
+            if (shakeTimer.current) clearTimeout(shakeTimer.current);
+        };
+    }, []);
+
     // React to submission result: play sfx + show feedback, no forced lock-in.
     useEffect(() => {
         if (!q) return;

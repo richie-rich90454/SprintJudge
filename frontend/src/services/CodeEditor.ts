@@ -62,11 +62,15 @@ export async function createCodeEditor(
         ta.style.minHeight = `${opts.height ?? 260}px`;
         ta.spellcheck = false;
         ta.value = opts.value;
-        ta.addEventListener("input", () => opts.onChange(ta.value));
+        const handler = () => opts.onChange(ta.value);
+        ta.addEventListener("input", handler);
         host.appendChild(ta);
         return {
             getValue: () => ta.value,
-            destroy: () => ta.remove(),
+            destroy: () => {
+                ta.removeEventListener("input", handler);
+                ta.remove();
+            },
         };
     }
 }

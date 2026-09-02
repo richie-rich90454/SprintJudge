@@ -30,8 +30,11 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
     }, [endEpochMs]);
 
     const secs = Math.ceil(remaining / 1000);
+    const wasLow = useRef(false);
     useEffect(() => {
-        if (secs <= 10 && secs > 0) motion.pulse(wrapRef.current);
+        const low = secs <= 10 && secs > 0;
+        if (low && !wasLow.current) motion.pulse(wrapRef.current);
+        wasLow.current = low;
     }, [secs]);
     const frac = totalSec > 0 ? Math.min(1, remaining / (totalSec * 1000)) : 0;
     const r = 34;

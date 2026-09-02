@@ -84,9 +84,15 @@ public class ImportExportService {
     }
 
     private ExportBundle.QuestionExport toExport(Question q) {
-        Map<String, Object> config = q.config() == null || q.config().isBlank()
-                ? new LinkedHashMap<>()
-                : Json.readMap(q.config());
+        Map<String, Object> config;
+        try {
+            config = q.config() == null || q.config().isBlank()
+                    ? new LinkedHashMap<>()
+                    : Json.readMap(q.config());
+        } catch (Exception e) {
+            // ponytail: malformed config must not crash the entire export.
+            config = new LinkedHashMap<>();
+        }
         return new ExportBundle.QuestionExport(q.id(), q.questionType(), q.title(), q.description(),
                 q.timeLimitSec(), q.pointsBase(), config, q.languagesAllowed());
     }

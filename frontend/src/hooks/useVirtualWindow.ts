@@ -20,7 +20,7 @@ export function useVirtualWindow(total: number, rowHeight: number, overscan = 6)
         onScroll();
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
-    }, [rowHeight, overscan]);
+    }, [rowHeight, overscan, total]);
 
     const viewportRows = Math.ceil(460 / rowHeight) + overscan * 2;
     const end = Math.min(total, start + viewportRows);

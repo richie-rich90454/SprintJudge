@@ -35,7 +35,8 @@ public class BankSeeder implements org.springframework.boot.ApplicationRunner {
         }
         try (var in = new ClassPathResource(BUNDLE).getInputStream()) {
             String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            int imported = importExportService.importAll(json, false);
+            // ponytail: force=true means wipe + re-import; replace=false would duplicate.
+            int imported = importExportService.importAll(json, force);
             log.info("Seeded bundled question library: {} questions", imported);
         } catch (Exception e) {
             log.error("Bundled library seed failed", e);

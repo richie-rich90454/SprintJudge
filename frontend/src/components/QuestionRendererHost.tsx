@@ -33,7 +33,7 @@ export function QuestionRendererHost({ question, onResponse, revealSignal }: Pro
         return () => renderer.destroy();
         // Key on id too: consecutive questions of the same type must not reuse
         // the previous question's mounted DOM.
-    }, [question.type, question.id]);
+    }, [question.type, question.id, onResponse]);
 
     useEffect(() => {
         if (revealSignal && revealSignal > 0) rendererRef.current?.reveal();

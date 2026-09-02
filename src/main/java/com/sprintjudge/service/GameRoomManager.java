@@ -454,6 +454,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     private void transitionToReview(String pin) {
         GameRoom room = require(pin);
+        // ponytail: idempotency guard — timer expiry + forceSubmit can race here.
+        if (!"ACTIVE".equals(room.status())) return;
         roundTimer.cancel(Integer.parseInt(pin));
         room.setStatus("REVIEW");
         sessionRepository.updateStatus(room.sessionId(), "REVIEW");
@@ -517,20 +519,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                     byQuestion.getOrDefault(q.id(), List.of());
             int total = qSubs.size();
             int correct = 0;
-            long totalTime = 0;
+            long totalAttempts = 0;
             for (var s : qSubs) {
                 if (s.correct()) correct++;
-                totalTime += s.attemptCount();
+                totalAttempts += s.attemptCount();
             }
             double rate = total > 0 ? (double) correct / total : 0;
-            double avgTime = total > 0 ? (double) totalTime / total : 0;
+            double avgAttempts = total > 0 ? (double) totalAttempts / total : 0;
 
             JsonNode answer = QuestionAnswers.answerPayload(
                     QuestionType.from(q.questionType()), Json.readTree(q.config()));
 
             qReviews.add(new GameReview.QuestionReview(
                     q.id(), q.title(), q.questionType(), q.timeLimitSec(),
-                    q.pointsBase(), answer, total, correct, rate, avgTime));
+                    q.pointsBase(), answer, total, correct, rate, avgAttempts));
 
             if (rate < hardestRate) { hardestRate = rate; hardestId = q.id(); }
             if (rate > easiestRate) { easiestRate = rate; easiestId = q.id(); }

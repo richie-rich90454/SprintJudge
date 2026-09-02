@@ -18,7 +18,13 @@ export function JoinView() {
     const fieldsRef = useStaggerIn<HTMLDivElement>(".oq-field", []);
 
     useEffect(() => {
-        if (error) cardRef.current?.classList.add("animate-pulse");
+        const el = cardRef.current;
+        if (!el) return;
+        if (error) {
+            el.classList.add("animate-pulse");
+        } else {
+            el.classList.remove("animate-pulse");
+        }
     }, [error]);
 
     const submit = (e: React.FormEvent) => {

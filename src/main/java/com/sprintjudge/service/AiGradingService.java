@@ -155,33 +155,14 @@ public class AiGradingService {
 
     private AiGradeResult parseResponse(String llmResponse, int judgeScore, int maxScore) {
         try {
-            // Extract content from OpenAI-compatible response format.
-            int contentStart = llmResponse.indexOf("\"content\":");
-            if (contentStart < 0) return AiGradeResult.unavailable();
-            int quoteStart = llmResponse.indexOf("\"", contentStart + 11);
-            int quoteEnd = llmResponse.indexOf("\"", quoteStart + 1);
-            if (quoteStart < 0 || quoteEnd < 0) return AiGradeResult.unavailable();
-            String content = llmResponse.substring(quoteStart + 1, quoteEnd)
-                    .replace("\\n", "\n").replace("\\\"", "\"");
+            // Extract content from OpenAI-compatible response format using Jackson.
+            com.fasterxml.jackson.databind.JsonNode root = com.sprintjudge.util.Json.MAPPER.readTree(llmResponse);
+            String content = root.path("choices").path(0).path("message").path("content").asText("");
+            if (content.isBlank()) return AiGradeResult.unavailable();
 
-            // Parse the JSON response from the AI.
-            int feedbackStart = content.indexOf("\"feedback\":");
-            int scoreStart = content.indexOf("\"suggestedScore\":");
-            if (feedbackStart < 0 || scoreStart < 0) return AiGradeResult.unavailable();
-
-            int fbQuoteStart = content.indexOf("\"", feedbackStart + 12);
-            int fbQuoteEnd = content.indexOf("\"", fbQuoteStart + 1);
-            String feedback = fbQuoteStart >= 0 && fbQuoteEnd >= 0
-                    ? content.substring(fbQuoteStart + 1, fbQuoteEnd) : "";
-
-            int scoreValStart = content.indexOf(":", scoreStart) + 1;
-            int scoreValEnd = scoreValStart;
-            while (scoreValEnd < content.length()) {
-                char c = content.charAt(scoreValEnd);
-                if (c == ',' || c == '}' || c == ' ') break;
-                scoreValEnd++;
-            }
-            int suggestedScore = Integer.parseInt(content.substring(scoreValStart, scoreValEnd).trim());
+            com.fasterxml.jackson.databind.JsonNode parsed = com.sprintjudge.util.Json.MAPPER.readTree(content);
+            String feedback = parsed.path("feedback").asText("");
+            int suggestedScore = parsed.path("suggestedScore").asInt(0);
             suggestedScore = Math.max(0, Math.min(suggestedScore, maxScore));
 
             return new AiGradeResult(true, feedback, suggestedScore, "ok");
