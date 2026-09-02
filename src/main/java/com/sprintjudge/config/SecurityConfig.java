@@ -70,8 +70,8 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'self'; script-src 'self' 'unsafe-inline' data:; "
                   + "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
-                  + "connect-src 'self' ws: wss:; base-uri 'self'; "
-                  + "form-action 'self'; frame-ancestors 'none'"))
+                  + "worker-src 'self' blob:; connect-src 'self' ws: wss: blob:; "
+                  + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
             .authorizeHttpRequests(auth -> auth
