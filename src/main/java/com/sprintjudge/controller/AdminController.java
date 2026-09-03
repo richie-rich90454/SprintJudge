@@ -178,7 +178,8 @@ public class AdminController {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Missing or invalid 'json' field");
         }
-        boolean replace = Boolean.TRUE.equals(body.get("replace"));
+        boolean replace = Boolean.TRUE.equals(body.get("replace"))
+                || (body.get("replace") instanceof String s && s.equalsIgnoreCase("true"));
         int imported = importExportService.importAll(json, replace);
         if (imported < 0) imported = 0;
         return Map.of("importedQuestions", imported);

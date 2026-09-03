@@ -13,7 +13,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
             variant="ghost"
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             onPress={toggleTheme}
-            className={`text-lg ${className}`}
+            className={`text-lg min-h-[44px] min-w-[44px] ${className}`}
         >
             {isDark ? (
                 <svg

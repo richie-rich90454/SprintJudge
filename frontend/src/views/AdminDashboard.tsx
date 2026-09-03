@@ -57,7 +57,19 @@ function SettingsTab() {
     };
 
     if (loading)
-        return <div className="text-center py-16 text-default-500">Loading settings...</div>;
+        return (
+            <div aria-label="Loading settings">
+                <div className="flex flex-col gap-4 max-w-lg" aria-hidden="true">
+                    {[0, 1, 2].map((i) => (
+                        <div
+                            key={i}
+                            className="h-11 animate-pulse rounded-[10px] bg-[var(--oq-border)] opacity-40"
+                        />
+                    ))}
+                </div>
+                <p className="text-[var(--oq-ink-soft)] text-sm mt-4">Loading settings…</p>
+            </div>
+        );
 
     return (
         <motion.div
@@ -69,9 +81,9 @@ function SettingsTab() {
         >
             <h2 className="text-lg font-extrabold mb-4">Settings</h2>
             {Object.keys(settings).length === 0 ? (
-                <p className="text-default-500">No settings configured.</p>
+                <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
             ) : (
-                <div className="flex flex-col gap-3 max-w-lg">
+                <div className="flex flex-col gap-4 max-w-lg">
                     {Object.entries(settings).map(([key, value]) => (
                         <div key={key} className="flex flex-col gap-1">
                             <label className="label-caps">{key}</label>
@@ -84,17 +96,18 @@ function SettingsTab() {
                             />
                         </div>
                     ))}
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex gap-4 pt-2">
                         <Button
-                            variant="primary"
-                            className="bg-[var(--oq-accent)] text-white"
+                            className="btn btn-primary"
                             onPress={handleSave}
                             isDisabled={saving}
                         >
                             {saving ? "Saving..." : "Save"}
                         </Button>
                         {saved && (
-                            <span className="text-sm text-[var(--oq-success)] self-center">Saved!</span>
+                            <span className="text-sm text-[var(--oq-success)] self-center">
+                                Saved!
+                            </span>
                         )}
                     </div>
                 </div>
@@ -118,12 +131,15 @@ export function AdminDashboard() {
     const [showCreate, setShowCreate] = useState(false);
     const [search, setSearch] = useState("");
     const [quizSearch, setQuizSearch] = useState("");
+    const [bannerError, setBannerError] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     const gridRef = useStaggerIn<HTMLDivElement>(".oq-quiz-card", [quizzes.length], 0.06);
 
     useEffect(() => {
         loadQuizzes().catch((e: unknown) => {
             if (axios.isAxiosError(e) && e.response?.status === 401) setNeedsAuth(true);
+            else setLoadError("Failed to load quizzes. Check your connection and retry.");
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -131,7 +147,7 @@ export function AdminDashboard() {
     if (needsAuth) {
         return (
             <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
-                <Card className="bg-content1 w-full max-w-sm">
+                <Card className="bg-[var(--oq-surface)] w-full max-w-sm">
                     <CardContent className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
@@ -147,6 +163,9 @@ export function AdminDashboard() {
                                 className="input-underline"
                                 placeholder="admin"
                                 autoComplete="username"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="admin-auth-error"
                             />
                             <label className="label-caps block mb-1" htmlFor="pw">
                                 Password
@@ -158,12 +177,16 @@ export function AdminDashboard() {
                                 className="input-underline"
                                 placeholder="password"
                                 autoComplete="current-password"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="admin-auth-error"
                             />
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                className="w-full bg-[var(--oq-accent)] text-white"
-                            >
+                            <p
+                                id="admin-auth-error"
+                                role="alert"
+                                className="hidden text-[var(--oq-danger)] text-sm"
+                            />
+                            <Button type="submit" className="btn btn-primary w-full">
                                 Sign in
                             </Button>
                         </form>
@@ -175,18 +198,20 @@ export function AdminDashboard() {
 
     const host = async (quizId: string, mode: GameMode = gameMode) => {
         setBusy(true);
+        setBannerError(null);
         try {
             const game = await adminApi.createGame(quizId, mode);
             setPin(game.pinCode);
             setView("host");
         } catch {
-            alert("Failed to create game — try again.");
+            setBannerError("Failed to create game — try again.");
         } finally {
             setBusy(false);
         }
     };
 
     const doExport = async () => {
+        setBannerError(null);
         try {
             const json = await adminApi.exportBank();
             const blob = new Blob([json], { type: "application/json" });
@@ -197,17 +222,18 @@ export function AdminDashboard() {
             a.click();
             URL.revokeObjectURL(url);
         } catch {
-            alert("Export failed — are you logged in?");
+            setBannerError("Export failed — are you logged in?");
         }
     };
 
     const doImport = async (file: File) => {
+        setBannerError(null);
         try {
             const json = await file.text();
             await adminApi.importBank(json, true);
             await loadQuizzes();
         } catch {
-            alert("Import failed — check the file format.");
+            setBannerError("Import failed — check the file format.");
         }
     };
 
@@ -226,18 +252,18 @@ export function AdminDashboard() {
     return (
         <div className="pattern-exam min-h-screen flex flex-col">
             {/* Header */}
-            <header className="border-b border-default-200 bg-surface">
-                <div className="page-shell py-3 flex items-center gap-3">
+            <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
+                <div className="page-shell py-3 flex items-center gap-4">
                     <div className="flex items-center gap-2.5">
                         <LogoMark size={24} />
                         <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
                     </div>
                     <div className="flex-1" />
                     <ThemeToggle />
-                    <Button size="sm" variant="outline" onPress={() => setView("join")}>
+                    <Button className="btn btn-secondary btn-sm" onPress={() => setView("join")}>
                         Player view
                     </Button>
-                    <Button size="sm" variant="outline" onPress={doExport}>
+                    <Button className="btn btn-secondary btn-sm" onPress={doExport}>
                         Export
                     </Button>
                     <label className="btn btn-secondary btn-sm cursor-pointer">
@@ -253,17 +279,17 @@ export function AdminDashboard() {
             </header>
 
             {/* Tab bar */}
-            <nav className="border-b border-default-200 bg-surface">
+            <nav className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell flex gap-1 overflow-x-auto">
                     {TABS.map((t) => (
                         <button
                             key={t.id}
                             onClick={() => setTab(t.id)}
                             className={
-                                "px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap " +
+                                "px-4 py-3 min-h-[44px] text-sm font-bold border-b-2 transition-colors whitespace-nowrap " +
                                 (tab === t.id
                                     ? "border-[var(--oq-accent)] text-[var(--oq-accent)]"
-                                    : "border-transparent text-default-500 hover:text-default-700")
+                                    : "border-transparent text-[var(--oq-ink-soft)] hover:text-[var(--oq-ink)]")
                             }
                         >
                             {t.label}
@@ -274,6 +300,34 @@ export function AdminDashboard() {
 
             {/* Tab content */}
             <main className="flex-1 page-shell py-6">
+                {bannerError && (
+                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-4">
+                        {bannerError}
+                    </p>
+                )}
+                {loadError && (
+                    <div className="mb-4 flex items-center gap-4 flex-wrap">
+                        <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                            {loadError}
+                        </p>
+                        <Button
+                            className="btn btn-secondary btn-sm"
+                            onPress={() => {
+                                setLoadError(null);
+                                loadQuizzes().catch((e: unknown) => {
+                                    if (axios.isAxiosError(e) && e.response?.status === 401)
+                                        setNeedsAuth(true);
+                                    else
+                                        setLoadError(
+                                            "Failed to load quizzes. Check your connection and retry.",
+                                        );
+                                });
+                            }}
+                        >
+                            Retry
+                        </Button>
+                    </div>
+                )}
                 <AnimatePresence mode="wait">
                     {tab === "dashboard" && (
                         <motion.div
@@ -284,31 +338,31 @@ export function AdminDashboard() {
                             transition={{ duration: 0.15 }}
                         >
                             <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                                <Card className="bg-content1">
-                                    <CardContent className="p-5">
+                                <Card className="bg-[var(--oq-surface)]">
+                                    <CardContent className="p-6">
                                         <p className="label-caps mb-1">Quiz sets</p>
                                         <p className="stat-value">{quizzes.length}</p>
                                     </CardContent>
                                 </Card>
-                                <Card className="bg-content1">
-                                    <CardContent className="p-5">
+                                <Card className="bg-[var(--oq-surface)]">
+                                    <CardContent className="p-6">
                                         <p className="label-caps mb-1">Questions loaded</p>
                                         <p className="stat-value">{questions.length}</p>
                                     </CardContent>
                                 </Card>
-                                <Card className="bg-content1">
-                                    <CardContent className="p-5">
+                                <Card className="bg-[var(--oq-surface)]">
+                                    <CardContent className="p-6">
                                         <p className="label-caps mb-1">Question types</p>
                                         <p className="stat-value">12</p>
                                     </CardContent>
                                 </Card>
                             </div>
                             <h3 className="header-double mb-4">Quick actions</h3>
-                            <div className="flex flex-wrap gap-3 items-center">
+                            <div className="flex flex-wrap gap-4 items-center">
                                 <select
                                     value={gameMode}
                                     onChange={(e) => setGameMode(e.target.value as GameMode)}
-                                    className="input-underline min-h-[36px] text-sm"
+                                    className="input-underline text-sm"
                                 >
                                     <option value="STANDARD">Standard</option>
                                     <option value="AUTO_PILOT">Auto-pilot</option>
@@ -318,8 +372,7 @@ export function AdminDashboard() {
                                     <option value="BATTLE">Battle</option>
                                 </select>
                                 <Button
-                                    variant="primary"
-                                    className="bg-[var(--oq-accent)] text-white"
+                                    className="btn btn-primary"
                                     onPress={() => {
                                         setTab("quizzes");
                                         setShowCreate(true);
@@ -328,15 +381,18 @@ export function AdminDashboard() {
                                     Create quiz
                                 </Button>
                                 <Button
-                                    variant="outline"
+                                    className="btn btn-secondary"
                                     onPress={() => {
                                         if (quizzes.length > 0) host(quizzes[0].id, gameMode);
                                     }}
                                     isDisabled={quizzes.length === 0 || busy}
                                 >
-                                    Host first quiz
+                                    {busy ? "Hosting…" : "Host first quiz"}
                                 </Button>
-                                <Button variant="outline" onPress={() => setTab("questions")}>
+                                <Button
+                                    className="btn btn-secondary"
+                                    onPress={() => setTab("questions")}
+                                >
                                     Browse questions
                                 </Button>
                             </div>
@@ -351,18 +407,17 @@ export function AdminDashboard() {
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.15 }}
                         >
-                            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+                            <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
                                 <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
                                 <input
                                     value={quizSearch}
                                     onChange={(e) => setQuizSearch(e.target.value)}
                                     placeholder="Search quizzes…"
-                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                    aria-label="Search quizzes"
+                                    className="input-underline text-sm max-w-xs"
                                 />
                                 <Button
-                                    size="sm"
-                                    variant="primary"
-                                    className="bg-[var(--oq-accent)] text-white"
+                                    className="btn btn-primary btn-sm"
                                     onPress={() => setShowCreate(true)}
                                 >
                                     New set
@@ -370,25 +425,26 @@ export function AdminDashboard() {
                             </div>
 
                             {showCreate && (
-                                <Card className="bg-content1 mb-4">
-                                    <CardContent className="p-5">
+                                <Card className="bg-[var(--oq-surface)] mb-4">
+                                    <CardContent className="p-6">
                                         <h3 className="header-double">Create question set</h3>
-                                        <div className="flex flex-col sm:flex-row gap-3">
+                                        <div className="flex flex-col sm:flex-row gap-4">
                                             <input
                                                 value={title}
                                                 onChange={(e) => setTitle(e.target.value)}
                                                 placeholder="Title"
+                                                aria-label="Quiz title"
                                                 className="input-underline flex-1"
                                             />
                                             <input
                                                 value={desc}
                                                 onChange={(e) => setDesc(e.target.value)}
                                                 placeholder="Description"
+                                                aria-label="Quiz description"
                                                 className="input-underline flex-1"
                                             />
                                             <Button
-                                                variant="primary"
-                                                className="bg-[var(--oq-accent)] text-white"
+                                                className="btn btn-primary"
                                                 onPress={async () => {
                                                     if (title.trim()) {
                                                         await createQuiz(title.trim(), desc.trim());
@@ -407,22 +463,24 @@ export function AdminDashboard() {
 
                             <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredQuizzes.map((q) => (
-                                    <Card key={q.id} className="oq-quiz-card bg-content1">
-                                        <CardContent className="p-5 flex flex-col gap-3">
-                                            <div className="flex items-start justify-between gap-2">
+                                    <Card
+                                        key={q.id}
+                                        className="oq-quiz-card bg-[var(--oq-surface)]"
+                                    >
+                                        <CardContent className="p-6 flex flex-col gap-4">
+                                            <div className="flex items-start justify-between gap-4">
                                                 <h3 className="font-bold text-base leading-snug">
                                                     {q.title}
                                                 </h3>
                                             </div>
                                             {q.description && (
-                                                <p className="text-default-500 text-sm line-clamp-2 flex-1">
+                                                <p className="text-[var(--oq-ink-soft)] text-sm line-clamp-2 flex-1">
                                                     {q.description}
                                                 </p>
                                             )}
-                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-default-200">
+                                            <div className="flex flex-wrap gap-4 pt-2 border-t border-[var(--oq-border)]">
                                                 <Button
-                                                    size="sm"
-                                                    variant="outline"
+                                                    className="btn btn-secondary btn-sm"
                                                     onPress={() => {
                                                         loadQuestions(q.id);
                                                         setTab("questions");
@@ -435,7 +493,8 @@ export function AdminDashboard() {
                                                     onChange={(e) =>
                                                         setGameMode(e.target.value as GameMode)
                                                     }
-                                                    className="input-underline min-h-[30px] text-xs max-w-[100px]"
+                                                    aria-label="Game mode"
+                                                    className="input-underline text-xs max-w-[100px]"
                                                 >
                                                     <option value="STANDARD">Standard</option>
                                                     <option value="AUTO_PILOT">Auto</option>
@@ -445,17 +504,14 @@ export function AdminDashboard() {
                                                     <option value="BATTLE">Battle</option>
                                                 </select>
                                                 <Button
-                                                    size="sm"
-                                                    variant="primary"
-                                                    className="bg-[var(--oq-accent)] text-white"
+                                                    className="btn btn-primary btn-sm"
                                                     isDisabled={busy}
                                                     onPress={() => host(q.id, gameMode)}
                                                 >
-                                                    Host
+                                                    {busy ? "Hosting…" : "Host"}
                                                 </Button>
                                                 <Button
-                                                    size="sm"
-                                                    variant="outline"
+                                                    className="btn btn-secondary btn-sm"
                                                     onPress={() => openWizard(q.id)}
                                                 >
                                                     Add
@@ -465,10 +521,10 @@ export function AdminDashboard() {
                                     </Card>
                                 ))}
                                 {filteredQuizzes.length === 0 && (
-                                    <Card className="oq-quiz-card col-span-full bg-content1">
+                                    <Card className="oq-quiz-card col-span-full bg-[var(--oq-surface)]">
                                         <CardContent className="text-center py-16">
                                             <p className="label-caps mb-2">Empty library</p>
-                                            <p className="text-default-500">
+                                            <p className="text-[var(--oq-ink-soft)]">
                                                 Create your first set or import a bank JSON.
                                             </p>
                                         </CardContent>
@@ -486,14 +542,15 @@ export function AdminDashboard() {
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.15 }}
                         >
-                            <div className="flex items-center gap-3 mb-4 flex-wrap">
+                            <div className="flex items-center gap-4 mb-4 flex-wrap">
                                 <h2 className="text-lg font-extrabold mr-auto">Questions</h2>
                                 <select
                                     value={activeQuizId ?? ""}
                                     onChange={(e) => {
                                         if (e.target.value) loadQuestions(e.target.value);
                                     }}
-                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                    aria-label="Select quiz set"
+                                    className="input-underline text-sm max-w-xs"
                                 >
                                     <option value="">Select a quiz set…</option>
                                     {quizzes.map((q) => (
@@ -506,12 +563,11 @@ export function AdminDashboard() {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search…"
-                                    className="input-underline min-h-[36px] text-sm max-w-xs"
+                                    aria-label="Search questions"
+                                    className="input-underline text-sm max-w-xs"
                                 />
                                 <Button
-                                    size="sm"
-                                    variant="primary"
-                                    className="bg-[var(--oq-accent)] text-white"
+                                    className="btn btn-primary btn-sm"
                                     isDisabled={!activeQuizId}
                                     onPress={() => activeQuizId && openWizard(activeQuizId)}
                                 >
@@ -551,7 +607,7 @@ export function AdminDashboard() {
                                     </table>
                                 </div>
                             ) : (
-                                <div className="text-center py-16 text-default-500">
+                                <div className="text-center py-16 text-[var(--oq-ink-soft)]">
                                     {activeQuizId
                                         ? "No questions match your search."
                                         : "Select a quiz set to view questions."}
@@ -568,14 +624,65 @@ export function AdminDashboard() {
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.15 }}
                         >
-                            <h2 className="text-lg font-extrabold mb-4">Game history</h2>
-                            <div className="text-center py-16 text-default-500">
-                                <p className="label-caps mb-2">No games played yet</p>
-                                <p>
-                                    Game history will be available after games are played. Check the
-                                    host view for live game status.
-                                </p>
-                            </div>
+                            <h2 className="text-lg font-extrabold mb-4">Games</h2>
+                            {quizzes.length === 0 ? (
+                                <div className="text-center py-16 text-[var(--oq-ink-soft)]">
+                                    <p className="label-caps mb-2">No quiz sets yet</p>
+                                    <p>Create a quiz set first, then host a game from here.</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-4 flex-wrap">
+                                        <label className="label-caps" htmlFor="games-mode">
+                                            Mode
+                                        </label>
+                                        <select
+                                            id="games-mode"
+                                            value={gameMode}
+                                            onChange={(e) =>
+                                                setGameMode(e.target.value as GameMode)
+                                            }
+                                            className="input-underline text-sm max-w-[160px]"
+                                        >
+                                            <option value="STANDARD">Standard</option>
+                                            <option value="AUTO_PILOT">Auto-pilot</option>
+                                            <option value="PRACTICE">Practice</option>
+                                            <option value="EXAM">Exam</option>
+                                            <option value="TEAM">Team</option>
+                                            <option value="BATTLE">Battle</option>
+                                        </select>
+                                    </div>
+                                    {filteredQuizzes.map((q) => (
+                                        <div
+                                            key={q.id}
+                                            className="flex items-center justify-between gap-4 rounded-[16px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                                        >
+                                            <div className="min-w-0">
+                                                <p className="font-bold truncate" title={q.title}>
+                                                    {q.title}
+                                                </p>
+                                                {q.description && (
+                                                    <p className="text-[var(--oq-ink-soft)] text-sm truncate">
+                                                        {q.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <Button
+                                                className="btn btn-primary btn-sm shrink-0"
+                                                isDisabled={busy}
+                                                onPress={() => host(q.id, gameMode)}
+                                            >
+                                                {busy ? "Hosting…" : "Host game"}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {filteredQuizzes.length === 0 && (
+                                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                                            No quiz sets match your search.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </motion.div>
                     )}
 

@@ -38,7 +38,7 @@ export function JoinView() {
 
     return (
         <div className="pattern-exam min-h-screen flex flex-col">
-            <header className="border-b border-default-200">
+            <header className="border-b border-[var(--oq-border)]">
                 <div className="page-shell py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                         <LogoMark size={28} />
@@ -60,7 +60,7 @@ export function JoinView() {
                         Sprint<span style={{ color: "var(--oq-accent)" }}>Judge</span>
                     </h1>
 
-                    <Card className="bg-content1">
+                    <Card className="bg-[var(--oq-surface)]">
                         <CardContent className="p-6">
                             <div ref={fieldsRef} className="flex flex-col gap-5">
                                 <div className="oq-field text-left">
@@ -95,16 +95,18 @@ export function JoinView() {
                             </div>
 
                             {error && (
-                                <p role="alert" className="text-danger text-sm text-left mt-4">
+                                <p
+                                    role="alert"
+                                    className="text-[var(--oq-danger)] text-sm text-left mt-4"
+                                >
                                     {error}
                                 </p>
                             )}
 
                             <Button
                                 type="submit"
-                                variant="primary"
                                 size="lg"
-                                className="w-full mt-4 font-bold bg-[var(--oq-accent)] text-white"
+                                className="btn btn-primary w-full mt-4 font-bold"
                                 isDisabled={pin.length !== 6 || !name.trim()}
                             >
                                 Let us go
@@ -114,8 +116,8 @@ export function JoinView() {
                 </form>
             </main>
 
-            <footer className="border-t border-default-200 py-3">
-                <div className="page-shell flex justify-between text-xs text-default-500">
+            <footer className="border-t border-[var(--oq-border)] py-3">
+                <div className="page-shell flex justify-between text-xs text-[var(--oq-ink-soft)]">
                     <span>GPLv3</span>
                     <span>Self-hosted · Real-time code judge</span>
                 </div>

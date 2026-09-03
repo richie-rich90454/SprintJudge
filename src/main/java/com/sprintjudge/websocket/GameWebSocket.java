@@ -95,8 +95,12 @@ public class GameWebSocket {
                     String teamId = msg.path("teamId").asText("");
                     String uuid = (String) session.getUserProperties().get(UUID_KEY);
                     if (uuid != null && !teamId.isBlank()) {
-                        var team = roomManager.joinTeam(pinOf(session), teamId, uuid);
-                        if (team != null) send(session, Map.of("type", "TEAM_JOINED", "teamId", team.id()));
+                        try {
+                            var team = roomManager.joinTeam(pinOf(session), teamId, uuid);
+                            if (team != null) send(session, Map.of("type", "TEAM_JOINED", "teamId", team.id()));
+                        } catch (IllegalArgumentException | IllegalStateException e) {
+                            send(session, new ErrorMessage("ERROR", e.getMessage()));
+                        }
                     }
                 }
                 case "GET_TEAMS" -> {

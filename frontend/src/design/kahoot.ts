@@ -1,17 +1,17 @@
-/** Kahoot / JuiceMind signature 4-color answer system. */
-export const KAHOT_COLORS = {
-    blue: "#2e7cf6",
-    green: "#1fbe6b",
-    yellow: "#ffc62e",
-    pink: "#ff4da6",
+/** Kahoot / JuiceMind signature 4-color answer system (CSS vars = single source). */
+export const KAHOOT_COLORS = {
+    blue: "var(--color-kahoot-blue)",
+    green: "var(--color-kahoot-green)",
+    yellow: "var(--color-kahoot-yellow)",
+    pink: "var(--color-kahoot-pink)",
 } as const;
 
 /** Ordered palette used for answer slots 0..3 (and beyond, by index). */
 export const ANSWER_PALETTE = [
-    KAHOT_COLORS.blue,
-    KAHOT_COLORS.green,
-    KAHOT_COLORS.yellow,
-    KAHOT_COLORS.pink,
+    KAHOOT_COLORS.blue,
+    KAHOOT_COLORS.green,
+    KAHOOT_COLORS.yellow,
+    KAHOOT_COLORS.pink,
 ];
 
 /** Returns the Kahoot color for an answer index (wraps if > 3). */

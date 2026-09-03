@@ -33,6 +33,8 @@ public class GameRoom {
     private volatile String currentQuestionId;
     private volatile long currentQuestionEndEpochMs;
     private volatile long currentQuestionStartEpochMs;
+    // Original deadline at round start; extendTimer caps total growth at +300s over this.
+    private volatile long questionEndBaseEpochMs;
     private volatile String hostUuid;
     private final int maxPlayers;
     private final GameMode gameMode;
@@ -188,6 +190,11 @@ public class GameRoom {
         return attempts.getOrDefault(questionId + " " + uuid, 0);
     }
 
+    /** Returns one attempt (busy-rejected judge submissions must not consume the cap). */
+    public void refundAttempt(String questionId, String uuid) {
+        attempts.computeIfPresent(questionId + " " + uuid, (k, v) -> v > 0 ? v - 1 : v);
+    }
+
     public int bumpStreak(String uuid) {
         return streaks.merge(uuid, 1, (a, b) -> a + b);
     }
@@ -241,6 +248,8 @@ public class GameRoom {
     public void setCurrentQuestionId(String id) { this.currentQuestionId = id; }
     public long currentQuestionEndEpochMs() { return currentQuestionEndEpochMs; }
     public void setCurrentQuestionEndEpochMs(long ms) { this.currentQuestionEndEpochMs = ms; }
+    public long questionEndBaseEpochMs() { return questionEndBaseEpochMs; }
+    public void setQuestionEndBaseEpochMs(long ms) { this.questionEndBaseEpochMs = ms; }
     public long currentQuestionStartEpochMs() { return currentQuestionStartEpochMs; }
     public void setCurrentQuestionStartEpochMs(long ms) { this.currentQuestionStartEpochMs = ms; }
     public GameMode gameMode() { return gameMode; }

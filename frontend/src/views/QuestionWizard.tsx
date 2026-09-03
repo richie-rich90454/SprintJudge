@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
@@ -20,13 +21,13 @@ function ConfigForm() {
         case "COMPLEXITY": {
             const options = (config["options"] as string[]) ?? ["", "", "", ""];
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     {type === "OUTPUT_PRED" && (
                         <textarea
                             placeholder="Code snippet"
                             value={(config["code"] as string) ?? ""}
                             onChange={(e) => set({ code: e.target.value })}
-                            className="mono w-full min-h-[100px] p-3 border border-default-200 bg-content1 text-sm"
+                            className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                         />
                     )}
                     {options.map((o, i) => (
@@ -42,7 +43,9 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-default-500 mt-2">Correct option index</label>
+                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
+                        Correct option index
+                    </label>
                     <input
                         type="number"
                         min={0}
@@ -55,7 +58,7 @@ function ConfigForm() {
         }
         case "TRUE_FALSE":
             return (
-                <label className="text-sm text-default-500">
+                <label className="text-sm text-[var(--oq-ink-soft)]">
                     Correct answer
                     <select
                         value={String(config["correct"] ?? "true")}
@@ -70,7 +73,7 @@ function ConfigForm() {
         case "MULTIPLE_SELECT": {
             const options = (config["options"] as string[]) ?? ["", "", "", ""];
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     {options.map((o, i) => (
                         <input
                             key={i}
@@ -84,7 +87,7 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-default-500 mt-2">
+                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
                         Correct indices (comma sep)
                     </label>
                     <input
@@ -104,7 +107,7 @@ function ConfigForm() {
         }
         case "NUMERIC":
             return (
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-4 flex-wrap">
                     <label className="text-sm">
                         Answer
                         <input
@@ -128,12 +131,12 @@ function ConfigForm() {
             );
         case "FILL_BLANK":
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     <textarea
                         placeholder="Snippet (use ___ for the blank)"
                         value={(config["snippet"] as string) ?? ""}
                         onChange={(e) => set({ snippet: e.target.value })}
-                        className="mono w-full min-h-[100px] p-3 border border-default-200 bg-content1 text-sm"
+                        className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                     />
                     <input
                         placeholder="Correct answer"
@@ -146,7 +149,12 @@ function ConfigForm() {
         case "DRAG_SORT": {
             const lines = (config["lines"] as { id: string; text: string }[]) ?? [];
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
+                    {lines.length === 0 && (
+                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                            No lines yet — add the first line below.
+                        </p>
+                    )}
                     {lines.map((l, i) => (
                         <input
                             key={i}
@@ -164,7 +172,7 @@ function ConfigForm() {
                         onClick={() =>
                             set({ lines: [...lines, { id: String(lines.length), text: "" }] })
                         }
-                        className="text-[var(--oq-accent)] text-sm self-start"
+                        className="text-[var(--oq-accent)] text-sm self-start min-h-[44px] px-2 inline-flex items-center font-bold"
                     >
                         Add line
                     </button>
@@ -173,15 +181,23 @@ function ConfigForm() {
         }
         case "CLICK_BUG": {
             const codeLines = (config["codeLines"] as string[]) ?? [];
+            const empty = codeLines.length === 0 || codeLines.every((l) => !l.trim());
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
+                    {empty && (
+                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                            No code lines yet — add one buggy line per row below.
+                        </p>
+                    )}
                     <textarea
                         placeholder="One buggy line per row"
                         value={codeLines.join("\n")}
                         onChange={(e) => set({ codeLines: e.target.value.split("\n") })}
-                        className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                        className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                     />
-                    <label className="text-sm text-default-500">Bug line index (0-based)</label>
+                    <label className="text-sm text-[var(--oq-ink-soft)]">
+                        Bug line index (0-based)
+                    </label>
                     <input
                         type="number"
                         value={(config["bugLine"] as number) ?? 0}
@@ -197,7 +213,7 @@ function ConfigForm() {
                     placeholder="Skeleton / starter code (editable region)"
                     value={(config["skeleton"] as string) ?? ""}
                     onChange={(e) => set({ skeleton: e.target.value })}
-                    className="mono w-full min-h-[140px] p-3 border border-default-200 bg-content1 text-sm"
+                    className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                 />
             );
         case "OJ_FULL":
@@ -209,13 +225,13 @@ function ConfigForm() {
                     isHidden: boolean;
                 }[]) ?? [];
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     {type === "OJ_PATCH" && (
                         <textarea
                             placeholder="Buggy function"
                             value={(config["buggyFunction"] as string) ?? ""}
                             onChange={(e) => set({ buggyFunction: e.target.value })}
-                            className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                         />
                     )}
                     {type === "OJ_FULL" && (
@@ -223,12 +239,12 @@ function ConfigForm() {
                             placeholder="Starter code"
                             value={(config["starter"] as string) ?? ""}
                             onChange={(e) => set({ starter: e.target.value })}
-                            className="mono w-full min-h-[120px] p-3 border border-default-200 bg-content1 text-sm"
+                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
                         />
                     )}
-                    <p className="text-sm text-default-500 mt-1">Test cases</p>
+                    <p className="text-sm text-[var(--oq-ink-soft)] mt-1">Test cases</p>
                     {tc.map((c, i) => (
-                        <div key={i} className="flex gap-2">
+                        <div key={i} className="tc-row flex gap-4">
                             <input
                                 placeholder="input"
                                 value={c.input}
@@ -260,7 +276,7 @@ function ConfigForm() {
                                 ],
                             })
                         }
-                        className="text-[var(--oq-accent)] text-sm self-start"
+                        className="text-[var(--oq-accent)] text-sm self-start min-h-[44px] px-2 inline-flex items-center font-bold"
                     >
                         Add test case
                     </button>
@@ -268,13 +284,15 @@ function ConfigForm() {
             );
         }
         default:
-            return <p className="text-default-500">No config editor for this type.</p>;
+            return <p className="text-[var(--oq-ink-soft)]">No config editor for this type.</p>;
     }
 }
 
 export function QuestionWizard() {
     const { wizardStep, wizardType, draft, setStep, setType, setDraft, saveQuestion, closeWizard } =
         useAdminStore();
+    const [validationError, setValidationError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
     const previewQuestion: QuestionDto = {
         id: "preview",
         type: (draft.questionType as QuestionType) ?? "MCQ",
@@ -288,28 +306,54 @@ export function QuestionWizard() {
 
     const panelRef = useEnter<HTMLDivElement>("modal");
 
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") closeWizard();
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [closeWizard]);
+
+    const doSave = async () => {
+        if (!(draft.title ?? "").trim()) {
+            setValidationError("Title is required — add a title before saving.");
+            setStep("statement");
+            return;
+        }
+        setValidationError(null);
+        setSaving(true);
+        try {
+            await saveQuestion();
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+        <div
+            className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Question wizard"
+        >
             <div ref={panelRef}>
-                <Card className="modal-topbar bg-content1 w-full max-w-2xl max-h-[90vh] overflow-auto">
+                <Card className="modal-topbar bg-[var(--oq-surface)] w-full max-w-2xl max-h-[90vh] overflow-auto">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold">Question wizard</h2>
-                            <Button size="sm" variant="ghost" onPress={closeWizard}>
+                            <Button variant="ghost" className="min-h-[44px]" onPress={closeWizard}>
                                 Close
                             </Button>
                         </div>
 
-                        <div className="flex gap-2 mb-5 flex-wrap">
+                        <div className="flex gap-4 mb-5 flex-wrap">
                             {STEPS.map((s) => (
                                 <Button
                                     key={s}
-                                    size="sm"
-                                    variant={wizardStep === s ? "primary" : "outline"}
                                     className={
                                         wizardStep === s
-                                            ? "bg-[var(--oq-accent)] text-white capitalize"
-                                            : "capitalize"
+                                            ? "btn btn-primary btn-sm capitalize"
+                                            : "btn btn-secondary btn-sm capitalize"
                                     }
                                     onPress={() => setStep(s)}
                                 >
@@ -319,14 +363,14 @@ export function QuestionWizard() {
                         </div>
 
                         {wizardStep === "type" && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {ALL_QUESTION_TYPES.map((t) => (
                                     <Button
                                         key={t}
-                                        size="sm"
-                                        variant={wizardType === t ? "primary" : "outline"}
                                         className={
-                                            wizardType === t ? "bg-[var(--oq-accent)] text-white" : ""
+                                            wizardType === t
+                                                ? "btn btn-primary btn-sm"
+                                                : "btn btn-secondary btn-sm"
                                         }
                                         onPress={() => {
                                             setType(t);
@@ -340,20 +384,27 @@ export function QuestionWizard() {
                         )}
 
                         {wizardStep === "statement" && (
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-4">
                                 <input
                                     placeholder="Title"
                                     value={draft.title ?? ""}
                                     onChange={(e) => setDraft({ title: e.target.value })}
+                                    aria-required="true"
+                                    aria-invalid={!(draft.title ?? "").trim()}
                                     className="input-underline"
                                 />
+                                {validationError && (
+                                    <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                                        {validationError}
+                                    </p>
+                                )}
                                 <textarea
                                     placeholder="Description (Markdown)"
                                     value={draft.description ?? ""}
                                     onChange={(e) => setDraft({ description: e.target.value })}
-                                    className="min-h-[80px] p-3 border border-default-200 bg-content1"
+                                    className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[10px]"
                                 />
-                                <div className="flex gap-3">
+                                <div className="flex gap-4">
                                     <label className="text-sm flex-1">
                                         Time limit (s)
                                         <input
@@ -378,8 +429,7 @@ export function QuestionWizard() {
                                     </label>
                                 </div>
                                 <Button
-                                    variant="primary"
-                                    className="bg-[var(--oq-accent)] text-white"
+                                    className="btn btn-primary"
                                     onPress={() => setStep("config")}
                                 >
                                     Next: configure
@@ -391,8 +441,7 @@ export function QuestionWizard() {
                             <div>
                                 <ConfigForm />
                                 <Button
-                                    variant="primary"
-                                    className="bg-[var(--oq-accent)] text-white mt-4"
+                                    className="btn btn-primary mt-4"
                                     onPress={() => setStep("preview")}
                                 >
                                     Preview
@@ -402,24 +451,42 @@ export function QuestionWizard() {
 
                         {wizardStep === "preview" && (
                             <div>
-                                <Card className="bg-content1">
-                                    <CardContent className="p-4">
+                                <Card className="bg-[var(--oq-surface)]">
+                                    <CardContent className="p-6">
                                         <QuestionRendererHost
                                             question={previewQuestion}
                                             onResponse={() => {}}
                                         />
                                     </CardContent>
                                 </Card>
-                                <div className="flex gap-2 mt-4">
-                                    <Button variant="outline" onPress={() => setStep("config")}>
+                                {validationError && (
+                                    <p
+                                        role="alert"
+                                        className="text-[var(--oq-danger)] text-sm mt-4"
+                                    >
+                                        {validationError}
+                                    </p>
+                                )}
+                                <div className="flex gap-4 mt-4">
+                                    <Button
+                                        className="btn btn-secondary"
+                                        onPress={() => setStep("config")}
+                                    >
                                         Back
                                     </Button>
                                     <Button
-                                        variant="primary"
-                                        className="bg-[var(--oq-accent)] text-white"
-                                        onPress={() => saveQuestion()}
+                                        className="btn btn-primary"
+                                        isDisabled={saving}
+                                        onPress={doSave}
                                     >
-                                        Save question
+                                        {saving ? (
+                                            <span className="inline-flex items-center gap-2">
+                                                <span className="oq-spin" aria-hidden="true" />
+                                                Saving…
+                                            </span>
+                                        ) : (
+                                            "Save question"
+                                        )}
                                     </Button>
                                 </div>
                             </div>

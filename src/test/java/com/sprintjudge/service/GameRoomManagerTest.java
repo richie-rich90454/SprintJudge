@@ -807,9 +807,14 @@ class GameRoomManagerTest {
         mgr.startQuestion("123456");
         verify(roundTimer).schedule(eq(123456), anyLong(), runnableCaptor.capture());
         setField(roomOf(mgr), "currentQuestionEndEpochMs", System.currentTimeMillis() - 10_000);
-        runnableCaptor.getValue().run();            // now >= end -> transition
+        runnableCaptor.getValue().run();            // now >= end -> async transition
+        // Timer expiry hands blocking DB work to the sweeper; await the transition.
+        long deadline = System.currentTimeMillis() + 5000;
+        while (!"REVIEW".equals(roomOf(mgr).status()) && System.currentTimeMillis() < deadline) {
+            try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+        }
         assertEquals("REVIEW", mgr.getRoomState("123456").status());
-        verify(sessionRepository).updateStatus("s1", "REVIEW");
+        verify(sessionRepository, org.mockito.Mockito.timeout(5000)).updateStatus("s1", "REVIEW");
     }
 
     @Test
@@ -1271,10 +1276,20 @@ class GameRoomManagerTest {
 
         // Set end time in the past so the timer fires
         setField(roomOf(mgr), "currentQuestionEndEpochMs", System.currentTimeMillis() - 10_000);
-        runnableCaptor.getValue().run(); // onTimerExpired -> EXAM path -> endGame
+        runnableCaptor.getValue().run(); // onTimerExpired -> EXAM path -> async endGame
 
-        // endGame removes the room from the registry
-        verify(sessionRepository).updateStatus("s1", "ENDED");
+        // endGame removes the room from the registry (await the sweeper handoff)
+        verify(sessionRepository, org.mockito.Mockito.timeout(5000)).updateStatus("s1", "ENDED");
+        long deadline = System.currentTimeMillis() + 5000;
+        while (true) {
+            try {
+                mgr.getRoomState("123456");
+            } catch (IllegalArgumentException expected) {
+                break;
+            }
+            if (System.currentTimeMillis() >= deadline) break;
+            try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+        }
         assertThrows(IllegalArgumentException.class, () -> mgr.getRoomState("123456"));
     }
 

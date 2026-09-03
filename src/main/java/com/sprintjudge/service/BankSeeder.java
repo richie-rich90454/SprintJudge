@@ -29,7 +29,7 @@ public class BankSeeder implements org.springframework.boot.ApplicationRunner {
     @Override
     public void run(org.springframework.boot.ApplicationArguments args) {
         boolean force = Boolean.getBoolean("sprintjudge.seed.force");
-        if (!force && !quizRepository.findAll().isEmpty()) {
+        if (!force && quizRepository.count() > 0) {
             log.info("Question bank not empty - skipping bundled library seed (set -Dsprintjudge.seed.force=true to re-seed)");
             return;
         }

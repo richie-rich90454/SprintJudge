@@ -10,11 +10,13 @@ import { Confetti } from "../components/Confetti";
 import { audio } from "../services/AudioEngine";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { QuestionDto, SubmissionResult } from "../types";
+import { KAHOOT_COLORS } from "../design/kahoot";
 
 export function QuestionView() {
     const q = useGameStore((s) => s.currentQuestion) as QuestionDto | null;
     const status = useGameStore((s) => s.status);
     const submit = useGameStore((s) => s.submit);
+    const wsError = useGameStore((s) => s.error);
     const lastResult = useGameStore((s) => s.lastResult) as SubmissionResult | null;
     const end = useTimerStore((s) => s.endEpochMs);
     const [response, setResponse] = useState<unknown>(null);
@@ -72,12 +74,14 @@ export function QuestionView() {
         return (
             <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
                 <Confetti fireKey={q?.id ?? "review"} />
-                <Card className="bg-content1 text-center max-w-md w-full">
-                    <CardContent className="p-8 gap-2">
+                <Card className="bg-[var(--oq-surface)] text-center max-w-md w-full">
+                    <CardContent className="p-6 gap-2">
                         <p className="label-caps mb-2">Round complete</p>
                         <h2 className="text-2xl font-extrabold">Answers locked.</h2>
-                        <p className="text-default-500 mt-2">
-                            The host is preparing the next round.
+                        <p className="text-[var(--oq-ink-soft)] mt-2">
+                            {q
+                                ? "The host is preparing the next round."
+                                : "No question was active. The host is preparing the next round."}
                         </p>
                     </CardContent>
                 </Card>
@@ -87,12 +91,25 @@ export function QuestionView() {
 
     if (!q || end === null) {
         return (
-            <div className="pattern-exam min-h-screen flex items-center justify-center">
-                <div className="text-center">
+            <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
+                <div className="text-center w-full max-w-sm">
                     <p className="label-caps mb-2">Standby</p>
-                    <p className="text-default-500">
+                    <div
+                        className="mx-auto mb-4 h-3 w-40 animate-pulse rounded-[10px] bg-[var(--oq-border)]"
+                        aria-hidden="true"
+                    />
+                    <div
+                        className="mx-auto mb-4 h-3 w-28 animate-pulse rounded-[10px] bg-[var(--oq-border)]"
+                        aria-hidden="true"
+                    />
+                    <p className="text-[var(--oq-ink-soft)]">
                         Waiting for the host to start the next question.
                     </p>
+                    {wsError && (
+                        <p role="alert" className="text-[var(--oq-danger)] text-sm mt-3">
+                            {wsError}
+                        </p>
+                    )}
                 </div>
             </div>
         );
@@ -120,9 +137,9 @@ export function QuestionView() {
     return (
         <div className="pattern-exam h-screen flex flex-col overflow-hidden">
             {/* Top bar: type + points + timer */}
-            <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b-2 border-[var(--oq-accent)]">
-                <span className="label-caps">{q.type.replace(/_/g, " ")}</span>
-                <span className="mono text-sm text-default-500">{q.pointsBase} pts</span>
+            <div className="flex items-center justify-between flex-wrap gap-2 px-4 md:px-6 py-3 border-b-2 border-[var(--oq-accent)] min-w-0">
+                <span className="label-caps min-w-0 truncate">{q.type.replace(/_/g, " ")}</span>
+                <span className="mono text-sm text-[var(--oq-ink-soft)]">{q.pointsBase} pts</span>
                 {!untimed && (
                     <div className="scale-90">
                         <CircularTimer
@@ -141,12 +158,12 @@ export function QuestionView() {
                 className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden"
             >
                 {/* LEFT: question */}
-                <div className="w-full lg:w-1/2 p-4 md:p-6 overflow-y-auto flex flex-col">
+                <div className="w-full lg:w-1/2 p-4 md:p-6 overflow-y-auto flex flex-col min-h-0">
                     <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
                         {q.title}
                     </h1>
                     {q.description && (
-                        <p className="text-default-500 mt-3 whitespace-pre-wrap leading-relaxed">
+                        <p className="text-[var(--oq-ink-soft)] mt-3 whitespace-pre-wrap leading-relaxed">
                             {q.description}
                         </p>
                     )}
@@ -162,11 +179,12 @@ export function QuestionView() {
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="mt-4 rounded-xl px-4 py-3 font-bold"
+                                aria-live="polite"
+                                className="mt-4 rounded-[10px] px-4 py-3 font-bold"
                                 style={{
                                     background: feedback.ok
-                                        ? "var(--color-kahoot-green)"
-                                        : "var(--oq-accent)",
+                                        ? KAHOOT_COLORS.green
+                                        : "var(--oq-danger)",
                                     color: "#fff",
                                     boxShadow: feedback.ok
                                         ? "0 0 24px rgba(31,190,107,0.5)"
@@ -182,8 +200,7 @@ export function QuestionView() {
                 {/* RIGHT: answer area / editor */}
                 <div
                     className={
-                        "w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-3 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] " +
-                        (coding ? "overflow-hidden" : "overflow-y-auto")
+                        "w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-4 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] overflow-y-auto min-h-0"
                     }
                 >
                     <ErrorBoundary>
@@ -197,9 +214,7 @@ export function QuestionView() {
                     <Button
                         onPress={doSubmit}
                         isDisabled={submitted}
-                        variant="primary"
-                        size="lg"
-                        className="w-full mt-2 font-bold bg-[var(--oq-accent)] text-white"
+                        className="btn btn-primary w-full mt-2 font-bold shrink-0"
                     >
                         {submitted
                             ? "Answer locked in"

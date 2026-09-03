@@ -82,4 +82,29 @@ class PublicControllerRunTest {
         assertTrue(afterReset.ok());
         assertEquals("ok", afterReset.status());
     }
+
+    @Test
+    void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
+        Map<String, long[]> windows = runWindowMap();
+        windows.clear();
+        long now = System.currentTimeMillis();
+        windows.put("stale-ip", new long[]{now - 130_000, 5});
+        windows.put("fresh-ip", new long[]{now, 3});
+
+        controller.evictStaleRateLimits();
+
+        assertFalse(windows.containsKey("stale-ip"));
+        assertTrue(windows.containsKey("fresh-ip"));
+    }
+
+    @Test
+    void evictStaleRateLimitsKeepsBoundaryEntry() throws Exception {
+        Map<String, long[]> windows = runWindowMap();
+        windows.clear();
+        windows.put("edge-ip", new long[]{System.currentTimeMillis(), 1});
+
+        controller.evictStaleRateLimits();
+
+        assertTrue(windows.containsKey("edge-ip"));
+    }
 }

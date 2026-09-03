@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -52,12 +54,18 @@ public class BroadcastScheduler {
 
     private void drain() {
         if (due.isEmpty()) return;
-        // Snapshot-then-clear is safe here: entries lost to a concurrent markDirty
-        // will be re-marked on the next tick (within 16ms). Acceptable for
-        // coalescing precision — worst case is one extra tick delay.
-        Map<Integer, Runnable> snapshot = new java.util.HashMap<>(due);
-        due.clear();
-        for (var entry : snapshot.entrySet()) {
+        // Per-key remove (never snapshot-then-clear): a markDirty racing this
+        // drain either lands before our remove (flushed now) or after (kept
+        // for the next tick). Nothing is ever dropped; worst case is one
+        // extra coalesce-ms delay. Ledger truth also survives via re-mark in
+        // flushLeaderboardDelta for deltas arriving mid-flush.
+        List<Integer> keys = new ArrayList<>(due.keySet());
+        List<Map.Entry<Integer, Runnable>> batch = new ArrayList<>(keys.size());
+        for (Integer key : keys) {
+            Runnable task = due.remove(key);
+            if (task != null) batch.add(Map.entry(key, task));
+        }
+        for (var entry : batch) {
             try {
                 entry.getValue().run();
             } catch (RuntimeException e) {

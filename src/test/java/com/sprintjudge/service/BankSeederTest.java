@@ -7,9 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,8 +28,7 @@ class BankSeederTest {
 
     @Test
     void skipsWhenBankNotEmpty() {
-        when(quizRepository.findAll()).thenReturn(List.of(
-                new com.sprintjudge.domain.models.Quiz("q1", "T", null, null, Instant.now(), false)));
+        when(quizRepository.count()).thenReturn(3);
 
         seeder.run(null);
 
@@ -41,7 +37,7 @@ class BankSeederTest {
 
     @Test
     void seedsWhenBankEmpty() {
-        when(quizRepository.findAll()).thenReturn(List.of());
+        when(quizRepository.count()).thenReturn(0);
         when(importExportService.importAll(anyString(), eq(false))).thenReturn(7);
 
         seeder.run(null);
@@ -51,7 +47,7 @@ class BankSeederTest {
 
     @Test
     void logsErrorWhenImportFails() {
-        when(quizRepository.findAll()).thenReturn(List.of());
+        when(quizRepository.count()).thenReturn(0);
         when(importExportService.importAll(anyString(), eq(false)))
                 .thenThrow(new RuntimeException("boom"));
 

@@ -64,7 +64,11 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
                     strokeDashoffset={c * (1 - frac)}
                 />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center font-mono text-lg font-semibold">
+            <div
+                role="timer"
+                aria-label={`${secs} seconds remaining`}
+                className="absolute inset-0 flex items-center justify-center font-mono text-lg font-semibold"
+            >
                 {secs}
             </div>
         </div>

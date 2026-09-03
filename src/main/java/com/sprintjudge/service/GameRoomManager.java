@@ -18,6 +18,8 @@ import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.Map;
 @Service
 public class GameRoomManager implements LeaderboardBroadcaster {
 
+    private static final Logger log = LoggerFactory.getLogger(GameRoomManager.class);
     private static final int MAX_ATTEMPTS_PER_QUESTION = 50;
     // ponytail: streak bonus = roundScore * BONUS_RATE * min(streak-1, BONUS_CAP_STEPS).
     private static final double STREAK_BONUS_RATE = 0.1;
@@ -198,6 +201,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             // Practice: no timer, unlimited time.
             room.setCurrentQuestionStartEpochMs(now);
             room.setCurrentQuestionEndEpochMs(Long.MAX_VALUE);
+            room.setQuestionEndBaseEpochMs(Long.MAX_VALUE);
             broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, -1, now, now));
             broadcastRoomState(pin);
             return;
@@ -212,6 +216,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 end = now + totalSec * 1000;
             }
             room.setCurrentQuestionEndEpochMs(end);
+            room.setQuestionEndBaseEpochMs(end);
             broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, (int) ((end - now) / 1000), now, now));
             broadcastRoomState(pin);
             // Schedule exam total timer.
@@ -223,6 +228,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         room.setCurrentQuestionStartEpochMs(now);
         long end = now + (long) q.timeLimitSec() * 1000;
         room.setCurrentQuestionEndEpochMs(end);
+        room.setQuestionEndBaseEpochMs(end);
         broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, q.timeLimitSec(), now, now));
         broadcastRoomState(pin);
         roundTimer.schedule(Integer.parseInt(pin), end, () -> onTimerExpired(pin));
@@ -323,7 +329,6 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         }
         String source = response == null ? "" : response.path("source").asText("");
         int attempts = room.attemptCount(q.id(), playerUuid);
-        String sessionId = p.sessionId();
         String pin = room.pin();
         String questionId = q.id();
         long startMs = room.currentQuestionStartEpochMs();
@@ -337,7 +342,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 room.applyScore(uuid, total);
                 room.recordRound(uuid, baseScore, bonus);
             }
-            ws.send(sessionId, new SubmissionResult("SUBMISSION_RESULT", questionId,
+            // ponytail: re-resolve the session at reply time — the player may
+            // have reconnected (new sessionId) while the judge was running.
+            Player current = room.getPlayer(uuid);
+            ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT", questionId,
                     baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
             broadcastLeaderboard(pin);
         };
@@ -347,7 +355,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 questionId, p.name(), playerUuid, language, source, attempts, settingsService.asMap(), timeTakenSec, handler)
                 .thenAccept(accepted -> {
                     if (!accepted) {
-                        ws.send(p.sessionId(), new ErrorMessage("ERROR",
+                        // Busy-reject consumed nothing: refund the attempt so a
+                        // retry is not punished for judge saturation.
+                        room.refundAttempt(questionId, playerUuid);
+                        Player current = room.getPlayer(playerUuid);
+                        ws.send(current == null ? null : current.sessionId(), new ErrorMessage("ERROR",
                                 "Judge queue is busy — resubmit shortly (auto-retry in 250ms)"));
                     }
                 });
@@ -377,10 +389,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     public void extendTimer(String pin, int seconds) {
         GameRoom room = require(pin);
         if (!"ACTIVE".equals(room.status())) return;
-        long newEnd = room.currentQuestionEndEpochMs() + (long) seconds * 1000;
+        // ponytail: total cap +300s over the original deadline — repeated
+        // +time calls previously grew the round without bound.
+        long base = room.questionEndBaseEpochMs();
+        if (base <= 0) base = room.currentQuestionEndEpochMs();
+        long cap = base >= Long.MAX_VALUE - 300_000 ? Long.MAX_VALUE : base + 300_000;
+        long cur = room.currentQuestionEndEpochMs();
+        long extension = (long) seconds * 1000;
+        long newEnd = extension >= 0 && cur >= Long.MAX_VALUE - extension
+                ? Long.MAX_VALUE : cur + extension;
+        if (newEnd > cap) newEnd = cap;
+        long appliedSec = (newEnd - cur) / 1000;
         room.setCurrentQuestionEndEpochMs(newEnd);
         roundTimer.schedule(Integer.parseInt(pin), newEnd, () -> onTimerExpired(pin));
-        broadcastToRoom(pin, new TimerUpdate("TIMER_UPDATE", newEnd, seconds));
+        broadcastToRoom(pin, new TimerUpdate("TIMER_UPDATE", newEnd, appliedSec));
     }
 
     public void kickPlayer(String pin, String playerUuid) {
@@ -401,12 +423,18 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public GameRoom.Team createTeam(String pin, String name) {
         GameRoom room = require(pin);
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Team name is required");
         return room.createTeam(name);
     }
 
     public GameRoom.Team joinTeam(String pin, String teamId, String playerUuid) {
         GameRoom room = require(pin);
-        return room.joinTeam(teamId, playerUuid);
+        if (teamId == null || teamId.isBlank()) throw new IllegalArgumentException("teamId is required");
+        if (playerUuid == null || playerUuid.isBlank()) throw new IllegalArgumentException("playerUuid is required");
+        if (room.getPlayer(playerUuid) == null) throw new IllegalArgumentException("Unknown player: " + playerUuid);
+        GameRoom.Team team = room.joinTeam(teamId, playerUuid);
+        if (team == null) throw new IllegalArgumentException("Unknown team: " + teamId);
+        return team;
     }
 
     public java.util.List<GameRoom.Team> getTeams(String pin) {
@@ -418,13 +446,21 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public void startBattle(String pin) {
         GameRoom room = require(pin);
+        if (!"LOBBY".equals(room.status())) throw new IllegalStateException("Battle can only start from LOBBY");
         List<Player> players = room.players();
         if (players.size() < 2) {
             throw new IllegalStateException("Need at least 2 players for battle");
         }
         List<Question> questions = questionRepository.findByQuiz(room.quizId());
-        if (questions.isEmpty()) return;
+        if (questions.isEmpty()) throw new IllegalStateException("Quiz has no questions");
+        if (room.currentQuestionIndex() < 0 || room.currentQuestionIndex() >= questions.size()) {
+            throw new IllegalStateException("No question available for battle at index " + room.currentQuestionIndex());
+        }
         Question q = questions.get(room.currentQuestionIndex());
+
+        // Clear any prior battle state so a re-start never stacks matches.
+        room.battleMatches().clear();
+        room.bracket().clear();
 
         // Pair players for 1v1 matches.
         java.util.Collections.shuffle(players);
@@ -441,6 +477,14 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             rounds.add(new String[]{m.p1Uuid(), m.p2Uuid()});
         }
         room.setBracket(rounds);
+
+        if (players.size() % 2 == 1) {
+            Player odd = players.get(players.size() - 1);
+            Player current = room.getPlayer(odd.uuid());
+            ws.send(current == null ? null : current.sessionId(),
+                    new ErrorMessage("ERROR", "Odd player out — waiting for the next battle round"));
+            broadcastRoomState(pin);
+        }
 
         // Start the question for all players.
         startQuestion(pin);
@@ -459,17 +503,38 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     private void onTimerExpired(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
+        // Fast guards stay on the timer thread (in-memory only); the blocking
+        // DB work in transitionToReview/endGame runs on the sweeper instead so
+        // one slow database never stalls other rooms' deadlines.
+        String status;
+        GameRoom.GameMode mode;
+        long end;
         synchronized (room) {
-            if (!"ACTIVE".equals(room.status())) return;
-            if (room.gameMode() == GameRoom.GameMode.PRACTICE) return; // no timer in practice
-            if (room.gameMode() == GameRoom.GameMode.EXAM) {
-                // Exam: total time expired, end game immediately.
-                endGame(pin);
-                return;
-            }
-            if (Instant.now().toEpochMilli() < room.currentQuestionEndEpochMs()) return;
-            transitionToReview(pin);
+            status = room.status();
+            mode = room.gameMode();
+            end = room.currentQuestionEndEpochMs();
         }
+        if (!"ACTIVE".equals(status)) return;
+        if (mode == GameRoom.GameMode.PRACTICE) return; // no timer in practice
+        if (mode == GameRoom.GameMode.EXAM) {
+            // Exam: total time expired, end game immediately.
+            sweeper.execute(() -> {
+                try {
+                    endGame(pin);
+                } catch (RuntimeException e) {
+                    log.warn("Async exam expiry failed for room {}", pin, e);
+                }
+            });
+            return;
+        }
+        if (Instant.now().toEpochMilli() < end) return;
+        sweeper.execute(() -> {
+            try {
+                transitionToReview(pin);
+            } catch (RuntimeException e) {
+                log.warn("Async round expiry failed for room {}", pin, e);
+            }
+        });
     }
 
     private void transitionToReview(String pin) {
@@ -591,16 +656,35 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         return new GameReview("GAME_REVIEW", room.leaderboard(), qReviews, pReviews, stats);
     }
 
-    /** Sweeps unrecoverable rooms: empty lobbies idle past the TTL. */
+    /** Sweeps unrecoverable rooms: lobbies idle past the TTL, plus ACTIVE/REVIEW
+     * rooms with zero connected players past the TTL (abandoned mid-game).
+     * Eviction cancels timers, flushes the audit trail, and ends the session
+     * row so neither pins nor memory leak. */
     public void sweepIdleRooms() {
         long now = System.currentTimeMillis();
+        boolean evicted = false;
         for (GameRoom room : registry.snapshot()) {
-            if ("LOBBY".equals(room.status()) && room.idleMs(now) > LOBBY_TTL_MS) {
-                synchronized (room) {
-                    if (room.connectedCount() == 0) {
-                        registry.remove(Integer.parseInt(room.pin()));
-                    }
+            String status = room.status();
+            boolean eligible = "LOBBY".equals(status) || "ACTIVE".equals(status) || "REVIEW".equals(status);
+            if (!eligible || room.idleMs(now) <= LOBBY_TTL_MS) continue;
+            synchronized (room) {
+                if (room.connectedCount() != 0) continue;
+                int key = Integer.parseInt(room.pin());
+                roundTimer.cancel(key);
+                try {
+                    sessionRepository.updateStatus(room.sessionId(), "ENDED");
+                } catch (RuntimeException e) {
+                    log.warn("Sweep failed to end session for room {}", room.pin(), e);
                 }
+                registry.remove(key);
+                evicted = true;
+            }
+        }
+        if (evicted) {
+            try {
+                writeBuffer.flush();
+            } catch (RuntimeException e) {
+                log.warn("Sweep flush failed", e);
             }
         }
     }
@@ -629,8 +713,19 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     public void flushLeaderboardDelta(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
-        String json = deltaJson(room.board().drainDeltas(false));
+        com.sprintjudge.service.leaderboard.DeltaLedger.Batch batch = room.board().drainDeltas(false);
+        if (batch.resync() && batch.upserts().isEmpty()) {
+            // Nothing pending: a client that missed the last batch still has a
+            // seq gap, so heal with the authoritative baseline instead of
+            // dropping the flush. Empty boards (seq 0) stay silent.
+            if (batch.seq() <= 0 || room.board().size() == 0) return;
+            batch = room.board().fullBatch();
+        }
+        String json = deltaJson(batch);
         if (json != null) ws.broadcastRaw(playerSessionIds(pin), json);
+        // Deltas that arrived mid-flush would otherwise wait for the next
+        // score event; re-mark so the next tick drains them.
+        if (room.board().pendingDeltaCount() > 0) broadcastLeaderboard(pin);
     }
 
     public void sendFullLeaderboard(String pin, String sessionId) {

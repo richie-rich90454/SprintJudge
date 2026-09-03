@@ -53,6 +53,19 @@ public class ImportExportService {
     @Transactional
     public int importAll(String json, boolean replace) {
         ExportBundle bundle = Json.read(json, ExportBundle.class);
+        // Null-safe: malformed shapes are BAD_REQUEST (IAE), never NPE-500.
+        // (Unparseable JSON still throws IllegalStateException from Json.read.)
+        if (bundle == null || bundle.quizzes() == null) {
+            throw new IllegalArgumentException("Invalid import bundle: missing 'quizzes'");
+        }
+        if (replace && bundle.quizzes().isEmpty()) {
+            throw new IllegalArgumentException("Replace import requires at least one quiz — refusing to wipe the bank");
+        }
+        // Validate EVERYTHING before any delete so @Transactional atomicity is
+        // honest: a bad row never wipes good data (even via rollback).
+        for (ExportBundle.QuizExport qe : bundle.quizzes()) {
+            validateQuiz(qe);
+        }
         if (replace) {
             for (Quiz q : quizRepository.findAll()) {
                 questionRepository.deleteByQuiz(q.id());
@@ -64,7 +77,8 @@ public class ImportExportService {
             String quizId = qe.id() != null && !qe.id().isBlank() ? qe.id() : Ids.uuid();
             quizRepository.create(new Quiz(quizId, qe.title(), qe.description(), null, Instant.now(), qe.template()));
             int order = 0;
-            for (ExportBundle.QuestionExport ex : qe.questions()) {
+            List<ExportBundle.QuestionExport> exports = qe.questions() == null ? List.of() : qe.questions();
+            for (ExportBundle.QuestionExport ex : exports) {
                 String qid = ex.id() != null && !ex.id().isBlank() ? ex.id() : Ids.uuid();
                 questionRepository.save(new Question(qid, quizId, ex.title(), ex.description(),
                         ex.type(), ex.languagesAllowed(), ex.timeLimitSec(), ex.pointsBase(),
@@ -81,6 +95,38 @@ public class ImportExportService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void importSettings(Map<String, String> settings) {
         settings.forEach(settingsRepository::put);
+    }
+
+    private void validateQuiz(ExportBundle.QuizExport qe) {
+        if (qe == null) throw new IllegalArgumentException("Invalid import bundle: null quiz entry");
+        if (qe.title() == null || qe.title().isBlank()) {
+            throw new IllegalArgumentException("Quiz title must not be blank");
+        }
+        if (qe.title().length() > 200) {
+            throw new IllegalArgumentException("Quiz title exceeds 200 characters");
+        }
+        List<ExportBundle.QuestionExport> exports = qe.questions() == null ? List.of() : qe.questions();
+        for (ExportBundle.QuestionExport ex : exports) {
+            validateQuestion(ex);
+        }
+    }
+
+    private void validateQuestion(ExportBundle.QuestionExport ex) {
+        if (ex == null) throw new IllegalArgumentException("Invalid import bundle: null question entry");
+        if (ex.title() == null || ex.title().isBlank()) {
+            throw new IllegalArgumentException("Question title must not be blank");
+        }
+        if (ex.title().length() > 200) {
+            throw new IllegalArgumentException("Question title exceeds 200 characters");
+        }
+        // Throws IllegalArgumentException on unknown/blank type (maps to 400).
+        com.sprintjudge.domain.enums.QuestionType.from(ex.type());
+        if (ex.timeLimitSec() < 1) {
+            throw new IllegalArgumentException("Question timeLimitSec must be >= 1");
+        }
+        if (ex.pointsBase() < 0) {
+            throw new IllegalArgumentException("Question pointsBase must be >= 0");
+        }
     }
 
     private ExportBundle.QuestionExport toExport(Question q) {

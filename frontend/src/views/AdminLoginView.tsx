@@ -8,7 +8,7 @@ export function AdminLoginView() {
 
     return (
         <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
-            <Card className="bg-content1 w-full max-w-sm">
+            <Card className="bg-[var(--oq-surface)] w-full max-w-sm">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2.5">
@@ -26,6 +26,9 @@ export function AdminLoginView() {
                             name="username"
                             placeholder="admin"
                             autoComplete="username"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="al-error"
                             className="input-underline"
                         />
                         <label className="label-caps block mb-1" htmlFor="al-pass">
@@ -37,18 +40,21 @@ export function AdminLoginView() {
                             type="password"
                             placeholder="password"
                             autoComplete="current-password"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="al-error"
                             className="input-underline"
                         />
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            className="w-full bg-[var(--oq-accent)] text-white"
-                        >
+                        <p
+                            id="al-error"
+                            role="alert"
+                            className="hidden text-[var(--oq-danger)] text-sm"
+                        />
+                        <Button type="submit" className="btn btn-primary w-full">
                             Sign in
                         </Button>
                         <Button
-                            variant="outline"
-                            className="w-full"
+                            className="btn btn-secondary w-full"
                             onPress={() => setView("join")}
                         >
                             Back to player view

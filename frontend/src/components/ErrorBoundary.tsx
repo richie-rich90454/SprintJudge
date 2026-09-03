@@ -22,8 +22,10 @@ export class ErrorBoundary extends Component<Props, State> {
             return (
                 this.props.fallback ?? (
                     <div className="p-6 text-center">
-                        <p className="text-lg font-bold text-danger">Something went wrong</p>
-                        <p className="text-default-500 mt-2 text-sm">
+                        <p className="text-lg font-bold text-[var(--oq-danger)]">
+                            Something went wrong
+                        </p>
+                        <p className="text-[var(--oq-ink-soft)] mt-2 text-sm">
                             {this.state.error?.message ?? "An unexpected error occurred."}
                         </p>
                     </div>

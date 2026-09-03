@@ -136,4 +136,59 @@ class WebSocketSessionManagerTest {
         mgr.broadcastRaw(List.of("a"), "{\"k\":2}");
         verify(remote).sendText("{\"k\":2}");
     }
+
+    @Test
+    void sendNullIdIsNoop() {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        mgr.send(null, new ErrorMessage("X", "y"));
+    }
+
+    @Test
+    void sendRawNullIdIsNoop() throws Exception {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        RemoteEndpoint.Basic remote = mock(RemoteEndpoint.Basic.class);
+        mgr.register("a", openSession("a", remote));
+        mgr.sendRaw(null, "{\"k\":1}");
+        verify(remote, never()).sendText(anyString());
+    }
+
+    @Test
+    void closeNullAndUnknownAreNoop() {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        mgr.close(null);
+        mgr.close("ghost");
+        assertEquals(0, mgr.size());
+    }
+
+    @Test
+    void closeOpenSessionRemovesAndCloses() throws Exception {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        Session s = openSession("a", mock(RemoteEndpoint.Basic.class));
+        mgr.register("a", s);
+        mgr.close("a");
+        assertEquals(0, mgr.size());
+        verify(s).close();
+    }
+
+    @Test
+    void closeClosedSessionRemovesWithoutCloseCall() throws Exception {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        Session s = mock(Session.class);
+        when(s.getId()).thenReturn("c");
+        when(s.isOpen()).thenReturn(false);
+        mgr.register("c", s);
+        mgr.close("c");
+        assertEquals(0, mgr.size());
+        verify(s, never()).close();
+    }
+
+    @Test
+    void closeSwallowsException() throws Exception {
+        WebSocketSessionManager mgr = new WebSocketSessionManager();
+        Session s = openSession("a", mock(RemoteEndpoint.Basic.class));
+        org.mockito.Mockito.doThrow(new java.io.IOException("boom")).when(s).close();
+        mgr.register("a", s);
+        mgr.close("a");
+        assertEquals(0, mgr.size());
+    }
 }

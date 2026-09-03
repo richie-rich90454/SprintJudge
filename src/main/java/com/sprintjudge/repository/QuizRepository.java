@@ -40,6 +40,11 @@ public class QuizRepository {
                 .fetch(this::toQuiz);
     }
 
+    public int count() {
+        Integer n = dsl.selectCount().from(Tables.QUIZZES).fetchOne(0, Integer.class);
+        return n == null ? 0 : n;
+    }
+
     public Quiz update(Quiz quiz) {
         dsl.update(Tables.QUIZZES)
             .set(Tables.QUIZZES_TITLE, quiz.title())

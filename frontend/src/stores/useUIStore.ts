@@ -12,7 +12,24 @@ function detectInitialView(): AppView {
 
 const THEME_KEY = "oq-theme";
 
-/** Reads the persisted theme; falls back to the OS preference, dark if unset. */
+const THEME_COLORS = { light: "#f5f4f1", dark: "#0b0d12" } as const;
+
+/** Syncs the theme-color meta with the active theme (no token disagreement). */
+function syncThemeColor(t: "light" | "dark"): void {
+    try {
+        let meta = document.querySelector('meta[name="theme-color"]');
+        if (!meta) {
+            meta = document.createElement("meta");
+            meta.setAttribute("name", "theme-color");
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute("content", THEME_COLORS[t]);
+    } catch {
+        /* ignore */
+    }
+}
+
+/** Reads the persisted theme; dark is the single default (matches index.html). */
 function readTheme(): "light" | "dark" {
     try {
         const t = localStorage.getItem(THEME_KEY);
@@ -20,28 +37,20 @@ function readTheme(): "light" | "dark" {
     } catch {
         /* ignore */
     }
-    try {
-        return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-    } catch {
-        return "dark";
-    }
+    return "dark";
 }
 
-/** Applies the persisted (or OS) theme to <html> (called once at boot). */
+/** Applies the persisted theme to <html> (called once at boot). */
 export function applyStoredTheme(): void {
     const t = readTheme();
     document.documentElement.classList.toggle("dark", t === "dark");
+    syncThemeColor(t);
 }
 
-/** Live-syncs the theme with OS changes until the user picks manually. */
+/** Live-syncs the theme-color meta with OS changes until the user picks manually. */
 export function watchSystemTheme(): void {
     try {
-        const mq = window.matchMedia("(prefers-color-scheme: light)");
-        mq.addEventListener("change", (e) => {
-            if (!localStorage.getItem(THEME_KEY)) {
-                document.documentElement.classList.toggle("dark", !e.matches);
-            }
-        });
+        syncThemeColor(readTheme());
     } catch {
         /* ignore */
     }
@@ -67,6 +76,7 @@ export const useUIStore = create<UIState>((set, get) => ({
     setView: (view) => set({ view }),
     setTheme: (theme) => {
         document.documentElement.classList.toggle("dark", theme === "dark");
+        syncThemeColor(theme);
         try {
             localStorage.setItem(THEME_KEY, theme);
         } catch {
