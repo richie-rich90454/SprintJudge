@@ -578,10 +578,12 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        // questionRepository.findById("q1") defaults to empty -> q == null -> return
+        // questionRepository.findById("q1") defaults to empty -> q == null -> error to sender
         mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
-        verify(ws, never()).send(anyString(), any());
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(anyString(), sent.capture());
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Unknown question"));
     }
 
     @Test

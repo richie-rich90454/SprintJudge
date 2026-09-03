@@ -31,10 +31,12 @@ public class WebSocketSessionManager {
     }
 
     public void send(String sessionId, Object message) {
+        if (sessionId == null) return;
         sendRaw(sessionId, Json.write(message));
     }
 
     public void sendRaw(String sessionId, String json) {
+        if (sessionId == null) return;
         Session s = sessions.get(sessionId);
         if (s == null || !s.isOpen()) return;
         // Serialize per session: getBasicRemote() is not safe for concurrent
@@ -56,6 +58,16 @@ public class WebSocketSessionManager {
     public void broadcastRaw(Collection<String> sessionIds, String json) {
         for (String id : sessionIds) {
             sendRaw(id, json);
+        }
+    }
+
+    public void close(String sessionId) {
+        if (sessionId == null) return;
+        Session s = sessions.remove(sessionId);
+        if (s == null) return;
+        try {
+            if (s.isOpen()) s.close();
+        } catch (Exception ignored) {
         }
     }
 

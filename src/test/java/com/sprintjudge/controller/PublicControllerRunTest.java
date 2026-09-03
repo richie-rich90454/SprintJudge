@@ -58,9 +58,9 @@ class PublicControllerRunTest {
             controller.run(req("python", "x"), http);
         }
 
-        RunResult blocked = controller.run(req("python", "x"), http);
-        assertFalse(blocked.ok());
-        assertEquals("rate_limited", blocked.status());
+        var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.run(req("python", "x"), http));
+        assertEquals(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, ex.getStatusCode());
         assertEquals(1, runWindowMap().size());
     }
 
@@ -72,9 +72,8 @@ class PublicControllerRunTest {
         for (int i = 0; i < 30; i++) {
             controller.run(req("python", "x"), http);
         }
-        RunResult blocked = controller.run(req("python", "x"), http);
-        assertFalse(blocked.ok());
-        assertEquals("rate_limited", blocked.status());
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.run(req("python", "x"), http));
 
         // Inject a window timestamp 61 seconds in the past to simulate expiry.
         runWindowMap().get("10.0.0.2")[0] = System.currentTimeMillis() - 61_000;

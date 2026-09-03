@@ -78,6 +78,7 @@ export interface GameState {
     status: GameStatus;
     pin: string | null;
     playerUuid: string | null;
+    rejoinToken: string | null;
     playerName: string | null;
     role: "player" | "host";
     quizId: string | null;

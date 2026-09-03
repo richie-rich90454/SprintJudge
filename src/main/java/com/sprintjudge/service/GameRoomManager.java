@@ -230,6 +230,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public void nextQuestion(String pin) {
         GameRoom room = require(pin);
+        synchronized (room) {
+            if ("ACTIVE".equals(room.status())) {
+                // Host skip mid-round: close the live round first so startQuestion
+                // below (LOBBY/REVIEW-only) can proceed instead of silently stalling.
+                roundTimer.cancel(Integer.parseInt(pin));
+                room.setStatus("REVIEW");
+                sessionRepository.updateStatus(room.sessionId(), "REVIEW");
+            }
+            nextQuestionLocked(room);
+        }
+    }
+
+    private void nextQuestionLocked(GameRoom room) {
+        String pin = room.pin();
         if (!"LOBBY".equals(room.status())) {
             room.setCurrentQuestionIndex(room.currentQuestionIndex() + 1);
             sessionRepository.setCurrentIndex(room.sessionId(), room.currentQuestionIndex());
@@ -247,7 +261,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                         String language, JsonNode response) {
         GameRoom room = require(pin);
         Question q = questionRepository.findById(questionId).orElse(null);
-        if (q == null) return;
+        if (q == null) {
+            ws.send(sessionIdOf(room, playerUuid),
+                    new ErrorMessage("ERROR", "Unknown question — wait for the next round"));
+            return;
+        }
         QuestionType type = QuestionType.from(q.questionType());
 
         // Gate: score only during the live round for the current question.
@@ -369,8 +387,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         GameRoom room = require(pin);
         Player p = room.getPlayer(playerUuid);
         if (p != null) {
-            ws.send(p.sessionId(), new ErrorMessage("ERROR", "You were removed by the host"));
+            String kickedSession = p.sessionId();
+            ws.send(kickedSession, new ErrorMessage("ERROR", "You were removed by the host"));
             room.hardRemove(playerUuid);
+            ws.close(kickedSession);
         }
         if (playerUuid.equals(room.hostUuid())) room.setHostUuid(null);
         broadcastRoomState(pin);

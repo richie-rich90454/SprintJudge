@@ -94,7 +94,11 @@ export function JoinView() {
                                 </div>
                             </div>
 
-                            {error && <p className="text-danger text-sm text-left mt-4">{error}</p>}
+                            {error && (
+                                <p role="alert" className="text-danger text-sm text-left mt-4">
+                                    {error}
+                                </p>
+                            )}
 
                             <Button
                                 type="submit"

@@ -45,18 +45,19 @@ public class GameWebSocket {
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
-        // Authoritative auth is read per-session from the container principal;
-        // the shared handshake config object is race-prone (H4) and unused here.
-        boolean authed = session.getUserPrincipal() != null;
-        session.getUserProperties().put(AUTHED_KEY, authed);
-        // Read the per-connection IP from the staging map (no shared-object race).
-        // In tests the config may not be a ServerEndpointConfig — fall back to "unresolved".
+        // Auth comes from the staged handshake (form-login session); the container
+        // principal is a fallback for tests and non-standard containers.
+        boolean authed;
         String addr;
         if (config instanceof jakarta.websocket.server.ServerEndpointConfig sec) {
-            addr = SecureHandshakeConfigurator.consumeStagedIP(sec);
+            var staged = SecureHandshakeConfigurator.consumeStaged(sec);
+            addr = staged.ip();
+            authed = staged.authed() || session.getUserPrincipal() != null;
         } else {
+            authed = session.getUserPrincipal() != null;
             addr = "unresolved";
         }
+        session.getUserProperties().put(AUTHED_KEY, authed);
         session.getUserProperties().put(IP_KEY, addr);
         // Without registration the fan-out map stays empty and every broadcast
         // (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.
@@ -184,7 +185,11 @@ public class GameWebSocket {
             send(session, new ErrorMessage("ERROR", "Source exceeds 64KB limit"));
             return;
         }
-        roomManager.submit(pin, questionId, uuid, language, response);
+        try {
+            roomManager.submit(pin, questionId, uuid, language, response);
+        } catch (IllegalArgumentException e) {
+            send(session, new ErrorMessage("ERROR", e.getMessage()));
+        }
     }
 
     /** Host-only guard: the connection must have joined as host AND be authenticated. */

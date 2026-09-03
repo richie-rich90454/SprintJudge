@@ -37,6 +37,13 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage("ERROR", "Malformed JSON body"));
     }
 
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ErrorMessage> handleStatus(
+            org.springframework.web.server.ResponseStatusException e) {
+        return ResponseEntity.status(e.getStatusCode())
+                .body(new ErrorMessage("ERROR", e.getReason() != null ? e.getReason() : e.getMessage()));
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorMessage> handleConflict(IllegalStateException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

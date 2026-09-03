@@ -61,7 +61,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**", "/ws", "/admin/login")
+                .ignoringRequestMatchers("/api/**", "/ws", "/admin/login", "/admin/logout")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
@@ -77,7 +77,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
                         "/favicon.ico", "/favicon.svg", "/api/public/**", "/ws",
-                        "/admin/login").permitAll()
+                        "/admin/login", "/actuator/health").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
                 .anyRequest().denyAll())
             .formLogin(form -> form
@@ -98,7 +98,7 @@ public class SecurityConfig {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "X-XSRF-TOKEN"));
         cfg.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);

@@ -38,7 +38,7 @@ export async function createCodeEditor(
             theme: "vs",
             minimap: { enabled: false },
             fontSize: 13,
-            fontFamily: "Noto Sans Mono, monospace",
+            fontFamily: "Noto Sans Mono",
             automaticLayout: true,
             scrollBeyondLastLine: false,
             lineNumbers: "on",

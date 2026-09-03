@@ -65,7 +65,8 @@ public class PublicController {
         });
         if (window[1] > RUN_LIMIT_PER_MIN) {
             log.warn("Rate limit exceeded for IP: {}", ip);
-            return new RunResult(false, "", "", "rate_limited");
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
         }
         return executor.run(request);
     }

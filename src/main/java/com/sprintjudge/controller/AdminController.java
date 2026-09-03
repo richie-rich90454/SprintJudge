@@ -132,7 +132,8 @@ public class AdminController {
         try {
             gameMode = com.sprintjudge.service.GameRoom.GameMode.valueOf(gameModeStr.toUpperCase());
         } catch (IllegalArgumentException e) {
-            gameMode = com.sprintjudge.service.GameRoom.GameMode.STANDARD;
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Unknown gameMode: " + gameModeStr);
         }
         org.springframework.security.core.Authentication auth =
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

@@ -35,7 +35,7 @@ export function HostLobbyView() {
     if (!pin) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <p className="text-muted">Create a game from the Admin dashboard first.</p>
+                <p style={{ color: "var(--oq-ink-soft)" }}>Create a game from the Admin dashboard first.</p>
             </div>
         );
     }
@@ -50,10 +50,7 @@ export function HostLobbyView() {
                 <div className="page-shell py-4 flex items-center gap-8">
                     <div>
                         <p className="label-caps mb-1">Game PIN</p>
-                        <p
-                            className="font-extrabold text-4xl tracking-[.2em] leading-none"
-                            style={{ fontFamily: '"Noto Sans Mono", monospace' }}
-                        >
+                        <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
                             {pin}
                         </p>
                     </div>

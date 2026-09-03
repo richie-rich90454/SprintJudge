@@ -34,11 +34,12 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
     private static volatile ApplicationContext context;
 
     /**
-     * Per-connection IP staging map. The handshake writes the IP here keyed by a
-     * unique token; onOpen reads and removes it. This avoids the race where two
+     * Per-connection staging maps. The handshake writes IP + auth here keyed by a
+     * unique token; onOpen reads and removes them. This avoids the race where two
      * concurrent handshakes overwrite each other on the shared ServerEndpointConfig.
      */
     private static final ConcurrentHashMap<String, String> stagedIPs = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Boolean> stagedAuth = new ConcurrentHashMap<>();
 
     @Autowired
     void holdApplicationContext(ApplicationContext applicationContext) {
@@ -60,10 +61,27 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         String addr = firstHeader(request, "X-Forwarded-For");
         if (addr == null) addr = firstHeader(request, "X-Real-IP");
         String remoteAddr = addr == null ? "unresolved" : addr;
-        // Stage the IP for this connection — onOpen will read-and-remove it.
+        // Stage IP + auth for this connection — onOpen reads-and-removes them.
+        // The WS upgrade carries the JSESSIONID cookie, so the HttpSession holds
+        // the form-login auth even though /ws itself is permitAll.
         String token = java.util.UUID.randomUUID().toString();
         stagedIPs.put(token, remoteAddr);
+        stagedAuth.put(token, isAuthenticated(request));
         sec.getUserProperties().put(REMOTE_ADDR, token);
+    }
+
+    public record StagedConnection(String ip, boolean authed) {}
+
+    /**
+     * Called from onOpen to retrieve the staged IP + auth for this connection.
+     * Removes both staging entries (no leak).
+     */
+    public static StagedConnection consumeStaged(ServerEndpointConfig config) {
+        Object token = config.getUserProperties().get(REMOTE_ADDR);
+        if (token == null) return new StagedConnection("unresolved", false);
+        String ip = stagedIPs.remove(token);
+        boolean authed = Boolean.TRUE.equals(stagedAuth.remove(token));
+        return new StagedConnection(ip != null ? ip : "unresolved", authed);
     }
 
     /**
@@ -71,10 +89,24 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
      * Returns the IP address and removes the staging entry (no leak).
      */
     public static String consumeStagedIP(ServerEndpointConfig config) {
-        Object token = config.getUserProperties().get(REMOTE_ADDR);
-        if (token == null) return "unresolved";
-        String ip = stagedIPs.remove(token);
-        return ip != null ? ip : "unresolved";
+        return consumeStaged(config).ip();
+    }
+
+    private boolean isAuthenticated(HandshakeRequest request) {
+        if (request.getUserPrincipal() != null) return true;
+        try {
+            Object httpSession = request.getHttpSession();
+            if (httpSession instanceof jakarta.servlet.http.HttpSession session) {
+                Object ctx = session.getAttribute("SPRING_SECURITY_CONTEXT");
+                if (ctx instanceof org.springframework.security.core.context.SecurityContext security) {
+                    var auth = security.getAuthentication();
+                    return auth != null && auth.isAuthenticated()
+                            && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     private String firstHeader(HandshakeRequest request, String name) {

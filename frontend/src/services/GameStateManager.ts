@@ -14,6 +14,7 @@ const initial: GameState = {
     status: "LOBBY",
     pin: null,
     playerUuid: null,
+    rejoinToken: null,
     playerName: null,
     role: "player",
     quizId: null,
@@ -52,6 +53,7 @@ export class GameStateManager {
                     role: this.state.role,
                     name: this.state.playerName,
                     pin: this.state.pin,
+                    rejoinToken: this.state.rejoinToken,
                 });
                 this.requestLeaderboardResync();
             }
@@ -73,7 +75,7 @@ export class GameStateManager {
     }
 
     join(pin: string, name: string, role: "player" | "host" = "player") {
-        this.patch({ role });
+        this.patch({ role, pin, playerName: name });
         webSocketService.send({ type: "JOIN", role, name, pin });
     }
 
@@ -111,6 +113,7 @@ export class GameStateManager {
             case "JOINED":
                 this.patch({
                     playerUuid: m.uuid as string,
+                    rejoinToken: (m.rejoinToken as string) ?? null,
                     room: m.room as unknown as RoomState,
                     status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
                 });

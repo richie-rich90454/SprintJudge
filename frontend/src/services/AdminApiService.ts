@@ -38,6 +38,9 @@ export class AdminApiService {
         this.client = axios.create({
             baseURL: base,
             headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+            xsrfCookieName: "XSRF-TOKEN",
+            xsrfHeaderName: "X-XSRF-TOKEN",
         });
     }
 
