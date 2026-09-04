@@ -195,7 +195,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
             } catch (e) {
                 stdin = "";
                 this.terminal?.write(
-                    "\r\n\x1b[31m[error] runner unavailable — check that g++/gcc/python/node is installed\x1b[0m\r\n",
+                    "\r\n\x1b[31m[error] runner unavailable - check that g++/gcc/python/node is installed\x1b[0m\r\n",
                 );
             } finally {
                 runBtn.removeAttribute("disabled");
