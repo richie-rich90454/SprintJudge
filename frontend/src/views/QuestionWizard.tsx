@@ -3,7 +3,8 @@ import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { useEnter } from "../hooks/useMotion";
-import { Card, CardContent, Button } from "@heroui/react";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
 import { QuestionDto } from "../types";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
@@ -338,10 +339,10 @@ export function QuestionWizard() {
         >
             <div ref={panelRef}>
                 <Card className="modal-topbar bg-[var(--oq-surface)] w-full max-w-2xl max-h-[90vh] overflow-auto">
-                    <CardContent className="p-6">
+                    <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold">Question wizard</h2>
-                            <Button variant="ghost" className="min-h-[44px]" onPress={closeWizard}>
+                            <Button variant="ghost" className="min-h-[44px]" onClick={closeWizard}>
                                 Close
                             </Button>
                         </div>
@@ -350,12 +351,10 @@ export function QuestionWizard() {
                             {STEPS.map((s) => (
                                 <Button
                                     key={s}
-                                    className={
-                                        wizardStep === s
-                                            ? "btn btn-primary btn-sm capitalize"
-                                            : "btn btn-secondary btn-sm capitalize"
-                                    }
-                                    onPress={() => setStep(s)}
+                                    variant={wizardStep === s ? "primary" : "secondary"}
+                                    size="sm"
+                                    className="capitalize"
+                                    onClick={() => setStep(s)}
                                 >
                                     {s}
                                 </Button>
@@ -367,12 +366,9 @@ export function QuestionWizard() {
                                 {ALL_QUESTION_TYPES.map((t) => (
                                     <Button
                                         key={t}
-                                        className={
-                                            wizardType === t
-                                                ? "btn btn-primary btn-sm"
-                                                : "btn btn-secondary btn-sm"
-                                        }
-                                        onPress={() => {
+                                        variant={wizardType === t ? "primary" : "secondary"}
+                                        size="sm"
+                                        onClick={() => {
                                             setType(t);
                                             setStep("statement");
                                         }}
@@ -428,10 +424,7 @@ export function QuestionWizard() {
                                         />
                                     </label>
                                 </div>
-                                <Button
-                                    className="btn btn-primary"
-                                    onPress={() => setStep("config")}
-                                >
+                                <Button variant="primary" onClick={() => setStep("config")}>
                                     Next: configure
                                 </Button>
                             </div>
@@ -441,8 +434,9 @@ export function QuestionWizard() {
                             <div>
                                 <ConfigForm />
                                 <Button
-                                    className="btn btn-primary mt-4"
-                                    onPress={() => setStep("preview")}
+                                    variant="primary"
+                                    className="mt-4"
+                                    onClick={() => setStep("preview")}
                                 >
                                     Preview
                                 </Button>
@@ -452,12 +446,12 @@ export function QuestionWizard() {
                         {wizardStep === "preview" && (
                             <div>
                                 <Card className="bg-[var(--oq-surface)]">
-                                    <CardContent className="p-6">
+                                    <div className="p-6">
                                         <QuestionRendererHost
                                             question={previewQuestion}
                                             onResponse={() => {}}
                                         />
-                                    </CardContent>
+                                    </div>
                                 </Card>
                                 {validationError && (
                                     <p
@@ -469,15 +463,15 @@ export function QuestionWizard() {
                                 )}
                                 <div className="flex gap-4 mt-4">
                                     <Button
-                                        className="btn btn-secondary"
-                                        onPress={() => setStep("config")}
+                                        variant="secondary"
+                                        onClick={() => setStep("config")}
                                     >
                                         Back
                                     </Button>
                                     <Button
-                                        className="btn btn-primary"
-                                        isDisabled={saving}
-                                        onPress={doSave}
+                                        variant="primary"
+                                        disabled={saving}
+                                        onClick={doSave}
                                     >
                                         {saving ? (
                                             <span className="inline-flex items-center gap-2">
@@ -491,7 +485,7 @@ export function QuestionWizard() {
                                 </div>
                             </div>
                         )}
-                    </CardContent>
+                    </div>
                 </Card>
             </div>
         </div>
