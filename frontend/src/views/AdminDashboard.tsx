@@ -392,6 +392,21 @@ export function AdminDashboard() {
                             >
                                 <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
                                     <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
+                                    <select
+                                        value={gameMode}
+                                        onChange={(e) =>
+                                            setGameMode(e.target.value as GameMode)
+                                        }
+                                        aria-label="Game mode for hosting"
+                                        className="input-underline text-sm max-w-[140px]"
+                                    >
+                                        <option value="STANDARD">Standard</option>
+                                        <option value="AUTO_PILOT">Auto-pilot</option>
+                                        <option value="PRACTICE">Practice</option>
+                                        <option value="EXAM">Exam</option>
+                                        <option value="TEAM">Team</option>
+                                        <option value="BATTLE">Battle</option>
+                                    </select>
                                     <TextInput
                                         value={quizSearch}
                                         onChange={(e) => setQuizSearch(e.target.value)}
@@ -477,23 +492,6 @@ export function AdminDashboard() {
                                                     >
                                                         Questions
                                                     </Button>
-                                                    <select
-                                                        value={gameMode}
-                                                        onChange={(e) =>
-                                                            setGameMode(
-                                                                e.target.value as GameMode,
-                                                            )
-                                                        }
-                                                        aria-label="Game mode"
-                                                        className="input-underline text-xs max-w-[100px]"
-                                                    >
-                                                        <option value="STANDARD">Standard</option>
-                                                        <option value="AUTO_PILOT">Auto</option>
-                                                        <option value="PRACTICE">Practice</option>
-                                                        <option value="EXAM">Exam</option>
-                                                        <option value="TEAM">Team</option>
-                                                        <option value="BATTLE">Battle</option>
-                                                    </select>
                                                     <Button
                                                         variant="primary"
                                                         size="sm"
