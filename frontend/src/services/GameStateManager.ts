@@ -75,7 +75,7 @@ export class GameStateManager {
     }
 
     join(pin: string, name: string, role: "player" | "host" = "player") {
-        this.patch({ role, pin, playerName: name });
+        this.patch({ role, pin, playerName: name, error: null });
         webSocketService.send({ type: "JOIN", role, name, pin });
     }
 
@@ -116,6 +116,7 @@ export class GameStateManager {
                     rejoinToken: (m.rejoinToken as string) ?? null,
                     room: m.room as unknown as RoomState,
                     status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
+                    error: null,
                 });
                 // Baseline for the delta protocol; server answers with a full batch.
                 this.requestLeaderboardResync();
