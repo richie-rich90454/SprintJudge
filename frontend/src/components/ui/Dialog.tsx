@@ -1,4 +1,5 @@
 import * as RadixDialog from "@radix-ui/react-dialog";
+import { X } from "@phosphor-icons/react";
 import { ReactNode } from "react";
 
 interface DialogProps {
@@ -26,7 +27,7 @@ export function Dialog({ open, onOpenChange, title, children }: DialogProps) {
                             aria-label="Close dialog"
                             className="btn btn-ghost btn-icon"
                         >
-                            ✕
+                            <X size={18} weight="bold" />
                         </RadixDialog.Close>
                     </div>
                     {children}
