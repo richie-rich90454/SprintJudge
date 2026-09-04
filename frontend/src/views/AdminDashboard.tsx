@@ -13,6 +13,7 @@ import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { SoundToggle } from "../components/SoundToggle";
+import { MotionToggle } from "../components/MotionToggle";
 import { LogoMark } from "../components/LogoMark";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -257,6 +258,7 @@ export function AdminDashboard() {
                     </div>
                     <div className="flex-1" />
                     <SoundToggle />
+                    <MotionToggle />
                     <ThemeToggle />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
                         Player view
