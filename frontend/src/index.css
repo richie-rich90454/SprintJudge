@@ -1,57 +1,61 @@
 @import "tailwindcss";
-@import "@heroui/styles";
 @import "@xterm/xterm/css/xterm.css";
 
 /* ------------------------------------------------------------------ */
-/* Kahoot / JuiceMind answer-color tokens (single source of truth)    */
+/* SprintJudge design tokens (single source of truth)                  */
+/* Deep-teal classroom identity. Light + dark both fully designed.     */
 /* ------------------------------------------------------------------ */
 @theme {
     --color-kahoot-blue: #2e7cf6;
     --color-kahoot-green: #1fbe6b;
     --color-kahoot-yellow: #ffc62e;
-    --color-kahoot-pink: #ff4da6;
-    --color-brand: #4f6f8c;
+    --color-kahoot-pink: #e84393;
+    --color-brand: #0e6e62;
 
-    /* Override Tailwind's system-font defaults: Noto Sans only */
+    /* Noto Sans only — no system fallbacks */
     --font-sans: "Noto Sans";
     --font-mono: "Noto Sans Mono";
 
     /* Semantic status colors */
-    --color-success: #2d8a56;
-    --color-warning: #b8860b;
-    --color-danger: #a04040;
+    --color-success: #1f7a4d;
+    --color-warning: #9a7400;
+    --color-danger: #b3352b;
 }
 
 :root {
-    --oq-bg: #f5f4f1;
-    --oq-surface: #fff;
+    --oq-bg: #f7f6f2;
+    --oq-surface: #ffffff;
+    --oq-surface-2: #eff0ea;
     --oq-ink: #16181d;
-    --oq-ink-soft: #555a66;
-    --oq-border: #d5d2cc;
-    --oq-border-strong: #b0ada6;
-    --oq-row-alt: #f7f6f3;
-    --oq-accent: #4f6f8c;
-    --oq-accent-dark: #3d5a73;
-    --oq-accent-tint: #edf1f5;
-    --oq-success: #2d8a56;
-    --oq-warning: #b8860b;
-    --oq-danger: #a04040;
+    --oq-ink-soft: #5b606c;
+    --oq-border: #ddd9cf;
+    --oq-border-strong: #b3aea2;
+    --oq-row-alt: #f1efe8;
+    --oq-accent: #0e6e62;
+    --oq-accent-dark: #0a544b;
+    --oq-accent-ink: #ffffff;
+    --oq-accent-tint: #e3f2ed;
+    --oq-success: #1f7a4d;
+    --oq-warning: #9a7400;
+    --oq-danger: #b3352b;
     color-scheme: light;
 }
 .dark {
-    --oq-bg: #0b0d12;
-    --oq-surface: #151922;
-    --oq-ink: #eef1f7;
+    --oq-bg: #0c0f14;
+    --oq-surface: #141a24;
+    --oq-surface-2: #1b2230;
+    --oq-ink: #edf0f6;
     --oq-ink-soft: #9aa3b4;
-    --oq-border: #262c38;
-    --oq-border-strong: #3a4151;
-    --oq-row-alt: #11151d;
-    --oq-accent: #6b8fad;
-    --oq-accent-dark: #5a7d99;
-    --oq-accent-tint: #1a2530;
+    --oq-border: #263041;
+    --oq-border-strong: #3a4658;
+    --oq-row-alt: #11161f;
+    --oq-accent: #2dd4a8;
+    --oq-accent-dark: #25b38d;
+    --oq-accent-ink: #06231d;
+    --oq-accent-tint: #122a25;
     --oq-success: #4abe82;
     --oq-warning: #e0a820;
-    --oq-danger: #d06060;
+    --oq-danger: #e0685c;
     color-scheme: dark;
 }
 
@@ -135,7 +139,7 @@ textarea {
         position: relative;
         background: var(--oq-surface);
         border: 1px solid var(--oq-border);
-        border-radius: 16px;
+        border-radius: 14px;
         padding: 24px;
     }
 
@@ -160,22 +164,24 @@ textarea {
     .btn:active {
         transform: scale(0.98);
     }
+    .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+    }
     .btn-primary {
         background: var(--oq-accent);
-        color: #fff;
+        color: var(--oq-accent-ink);
     }
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
         background: var(--oq-accent-dark);
-    }
-    .dark .btn-primary {
-        color: #0b0d12;
     }
     .btn-secondary {
         background: transparent;
         color: var(--oq-ink);
         border: 1px solid var(--oq-border-strong);
     }
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
         border-color: var(--oq-accent);
         color: var(--oq-accent);
         background: var(--oq-accent-tint);
@@ -185,15 +191,33 @@ textarea {
         color: var(--oq-danger);
         border: 1px solid var(--oq-danger);
     }
-    .btn-danger:hover {
+    .btn-danger:hover:not(:disabled) {
         background: var(--oq-danger);
         color: #fff;
+    }
+    .btn-ghost {
+        background: transparent;
+        color: var(--oq-ink-soft);
+    }
+    .btn-ghost:hover:not(:disabled) {
+        color: var(--oq-accent);
+        background: var(--oq-accent-tint);
     }
     .btn-sm {
         min-height: 44px;
         padding: 0 14px;
         font-size: 13px;
         border-radius: 10px;
+    }
+    .btn-lg {
+        min-height: 52px;
+        padding: 0 28px;
+        font-size: 15px;
+    }
+    .btn-icon {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0;
     }
 
     .input-underline {
@@ -212,6 +236,16 @@ textarea {
     }
     .input-underline::placeholder {
         color: var(--oq-ink-soft);
+    }
+
+    .field-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--oq-ink-soft);
+        display: block;
+        margin-bottom: 6px;
     }
 
     .header-double {
@@ -254,14 +288,14 @@ textarea {
     .modal-topbar {
         border-top: 4px solid var(--oq-accent);
         background: var(--oq-surface);
-        border-radius: 16px;
+        border-radius: 14px;
     }
 
     .pattern-exam {
         background-color: var(--oq-bg);
         background-image: radial-gradient(
             circle at 1px 1px,
-            color-mix(in oklab, var(--oq-border) 60%, transparent) 0.5px,
+            color-mix(in oklab, var(--oq-border) 45%, transparent) 0.5px,
             transparent 0.5px
         );
         background-size: 28px 28px;
@@ -276,7 +310,7 @@ textarea {
         align-items: center;
         gap: 6px;
         padding: 3px 10px;
-        border-radius: 10px;
+        border-radius: 999px;
         font-size: 12px;
         font-weight: 700;
     }
@@ -284,10 +318,35 @@ textarea {
         background: var(--oq-accent-tint);
         color: var(--oq-accent);
     }
+    .dark .chip-accent {
+        color: var(--oq-accent);
+    }
     .chip-neutral {
         background: var(--oq-row-alt);
         color: var(--oq-ink-soft);
         border: 1px solid var(--oq-border);
+    }
+    .chip-success {
+        background: color-mix(in oklab, var(--oq-success) 14%, transparent);
+        color: var(--oq-success);
+    }
+    .chip-danger {
+        background: color-mix(in oklab, var(--oq-danger) 12%, transparent);
+        color: var(--oq-danger);
+    }
+
+    /* Flat instant-feedback banner — no glow by design */
+    .feedback-banner {
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-weight: 700;
+        color: #fff;
+    }
+    .feedback-banner.ok {
+        background: var(--oq-success);
+    }
+    .feedback-banner.bad {
+        background: var(--oq-danger);
     }
 
     .stat-block {
@@ -307,6 +366,42 @@ textarea {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--oq-ink-soft);
+    }
+
+    .skeleton {
+        border-radius: 10px;
+        background: var(--oq-border);
+        opacity: 0.4;
+        animation: oq-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes oq-pulse {
+        0%,
+        100% {
+            opacity: 0.25;
+        }
+        50% {
+            opacity: 0.45;
+        }
+    }
+
+    .avatar-disc {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        font-weight: 800;
+        flex: 0 0 auto;
+        background: var(--oq-accent-tint);
+        color: var(--oq-accent);
+        border: 1px solid var(--oq-border);
+    }
+
+    .qr-frame {
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px;
+        display: inline-block;
+        border: 1px solid var(--oq-border);
     }
 }
 
@@ -387,7 +482,7 @@ pre {
     min-height: 76px;
     padding: 16px 20px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     color: #fff;
     font-weight: 800;
     font-size: clamp(15px, 2.2vw, 21px);
@@ -398,7 +493,7 @@ pre {
     gap: 16px;
     text-align: left;
     cursor: pointer;
-    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28);
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
     transition:
         transform 0.12s ease,
         box-shadow 0.12s ease,
@@ -437,18 +532,18 @@ pre {
 .renderer-host .kahoot-options button[data-selected="true"] {
     outline: 4px solid #fff;
     outline-offset: -4px;
-    filter: brightness(1.1);
+    filter: brightness(1.08);
 }
 .renderer-host .kahoot-options button[disabled] {
     cursor: default;
-    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.16);
 }
 .renderer-host .kahoot-options button.is-correct {
     outline: 4px solid #fff;
     outline-offset: -4px;
     box-shadow:
-        0 0 0 6px rgba(255, 255, 255, 0.35),
-        0 6px 0 rgba(0, 0, 0, 0.28);
+        0 0 0 5px rgba(255, 255, 255, 0.3),
+        0 5px 0 rgba(0, 0, 0, 0.25);
 }
 
 .lb-row {
