@@ -16,7 +16,7 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
     }, []);
 
     return (
-        <div className="pattern-exam min-h-screen flex flex-col">
+        <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-3 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2.5" aria-label="SprintJudge home">
