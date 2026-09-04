@@ -70,7 +70,7 @@ function SettingsTab() {
                     {[0, 1, 2].map((i) => (
                         <div
                             key={i}
-                            className="h-11 animate-pulse rounded-[10px] bg-[var(--oq-border)] opacity-40"
+                            className="h-11 animate-pulse rounded-[6px] bg-[var(--oq-border)] opacity-40"
                         />
                     ))}
                 </div>
@@ -653,7 +653,7 @@ export function AdminDashboard() {
                                         {filteredQuizzes.map((q) => (
                                             <div
                                                 key={q.id}
-                                                className="flex items-center justify-between gap-4 rounded-[16px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                                                className="flex items-center justify-between gap-4 rounded-[8px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
                                             >
                                                 <div className="min-w-0">
                                                     <p
