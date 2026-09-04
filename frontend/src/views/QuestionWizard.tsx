@@ -28,7 +28,7 @@ function ConfigForm() {
                             placeholder="Code snippet"
                             value={(config["code"] as string) ?? ""}
                             onChange={(e) => set({ code: e.target.value })}
-                            className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                            className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                         />
                     )}
                     {options.map((o, i) => (
@@ -137,7 +137,7 @@ function ConfigForm() {
                         placeholder="Snippet (use ___ for the blank)"
                         value={(config["snippet"] as string) ?? ""}
                         onChange={(e) => set({ snippet: e.target.value })}
-                        className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                        className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                     />
                     <input
                         placeholder="Correct answer"
@@ -194,7 +194,7 @@ function ConfigForm() {
                         placeholder="One buggy line per row"
                         value={codeLines.join("\n")}
                         onChange={(e) => set({ codeLines: e.target.value.split("\n") })}
-                        className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                        className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                     />
                     <label className="text-sm text-[var(--oq-ink-soft)]">
                         Bug line index (0-based)
@@ -214,7 +214,7 @@ function ConfigForm() {
                     placeholder="Skeleton / starter code (editable region)"
                     value={(config["skeleton"] as string) ?? ""}
                     onChange={(e) => set({ skeleton: e.target.value })}
-                    className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                    className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                 />
             );
         case "OJ_FULL":
@@ -232,7 +232,7 @@ function ConfigForm() {
                             placeholder="Buggy function"
                             value={(config["buggyFunction"] as string) ?? ""}
                             onChange={(e) => set({ buggyFunction: e.target.value })}
-                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                         />
                     )}
                     {type === "OJ_FULL" && (
@@ -240,7 +240,7 @@ function ConfigForm() {
                             placeholder="Starter code"
                             value={(config["starter"] as string) ?? ""}
                             onChange={(e) => set({ starter: e.target.value })}
-                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[10px]"
+                            className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[6px]"
                         />
                     )}
                     <p className="text-sm text-[var(--oq-ink-soft)] mt-1">Test cases</p>
@@ -381,7 +381,7 @@ export function QuestionWizard() {
                                     placeholder="Description (Markdown)"
                                     value={draft.description ?? ""}
                                     onChange={(e) => setDraft({ description: e.target.value })}
-                                    className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[10px]"
+                                    className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[6px]"
                                 />
                                 <div className="flex gap-4">
                                     <label className="text-sm flex-1">
