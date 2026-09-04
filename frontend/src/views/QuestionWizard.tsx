@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
-import { useEnter } from "../hooks/useMotion";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { Dialog } from "../components/ui/Dialog";
 import { QuestionDto } from "../types";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
@@ -305,16 +305,6 @@ export function QuestionWizard() {
         config: draft.config ?? {},
     };
 
-    const panelRef = useEnter<HTMLDivElement>("modal");
-
-    useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") closeWizard();
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [closeWizard]);
-
     const doSave = async () => {
         if (!(draft.title ?? "").trim()) {
             setValidationError("Title is required - add a title before saving.");
@@ -331,22 +321,15 @@ export function QuestionWizard() {
     };
 
     return (
-        <div
-            className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Question wizard"
+        <Dialog
+            open
+            onOpenChange={(open) => {
+                if (!open) closeWizard();
+            }}
+            title="Question wizard"
+            size="lg"
         >
-            <div ref={panelRef}>
-                <Card className="modal-topbar bg-[var(--oq-surface)] w-full max-w-2xl max-h-[90vh] overflow-auto">
-                    <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold">Question wizard</h2>
-                            <Button variant="ghost" className="min-h-[44px]" onClick={closeWizard}>
-                                Close
-                            </Button>
-                        </div>
-
+            <div>
                         <div className="flex gap-4 mb-5 flex-wrap">
                             {STEPS.map((s) => (
                                 <Button
@@ -445,7 +428,7 @@ export function QuestionWizard() {
 
                         {wizardStep === "preview" && (
                             <div>
-                                <Card className="bg-[var(--oq-surface)]">
+                                <Card>
                                     <div className="p-6">
                                         <QuestionRendererHost
                                             question={previewQuestion}
@@ -485,9 +468,7 @@ export function QuestionWizard() {
                                 </div>
                             </div>
                         )}
-                    </div>
-                </Card>
             </div>
-        </div>
+        </Dialog>
     );
 }
