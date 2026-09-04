@@ -3,72 +3,91 @@ import { Shell } from "../components/Shell";
 import { Card } from "../components/ui/Card";
 import { JoinForm } from "../components/JoinForm";
 
-const MODES = [
-    {
-        eyebrow: "Live",
-        title: "Live game",
-        text: "Join your class with a 6-digit PIN and answer in real time.",
-        to: "/join" as const,
-        cta: "Enter PIN",
-    },
-    {
-        eyebrow: "Solo",
-        title: "Solo practice",
-        text: "Untimed drills with instant feedback. No waiting, no leaderboard pressure.",
-        to: "/solo" as const,
-        cta: "Practice alone",
-    },
-    {
-        eyebrow: "Library",
-        title: "Browse library",
-        text: "See what quizzes exist before you ask for a PIN.",
-        to: "/explore" as const,
-        cta: "Explore quizzes",
-    },
-];
-
 export function LandingView() {
     return (
         <Shell>
-            <div className="page-shell py-10 md:py-16 flex flex-col gap-10">
-                <section className="max-w-3xl">
-                    <p className="label-caps mb-4">Self-hosted classroom quiz + code judge</p>
-                    <h1
-                        className="font-extrabold tracking-tight leading-none"
-                        style={{ fontSize: "clamp(44px, 9vw, 110px)" }}
-                    >
-                        Sprint<span style={{ color: "var(--oq-accent)" }}>Judge</span>
-                    </h1>
-                    <p className="text-[var(--oq-ink-soft)] mt-4 text-lg leading-relaxed">
-                        Live quizzes and real code judging on your own server. Pick a mode and
-                        start answering.
-                    </p>
-                </section>
-                <section
-                    aria-label="Ways to play"
-                    className="grid gap-4 md:grid-cols-3"
-                >
-                    {MODES.map((m) => (
-                        <Card key={m.title} className="p-6 flex flex-col gap-2">
-                            <p className="label-caps">{m.eyebrow}</p>
-                            <h2 className="text-xl font-extrabold">{m.title}</h2>
-                            <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
-                                {m.text}
-                            </p>
+            <div className="page-shell py-10 md:py-16 flex flex-col gap-12 md:gap-16">
+                <section className="grid gap-8 lg:grid-cols-2 lg:items-center">
+                    <div className="max-w-xl">
+                        <p className="label-caps mb-4">Self-hosted classroom quiz + code judge</p>
+                        <h1
+                            className="font-extrabold tracking-tight leading-none"
+                            style={{ fontSize: "clamp(44px, 7vw, 88px)" }}
+                        >
+                            Sprint<span style={{ color: "var(--oq-accent)" }}>Judge</span>
+                        </h1>
+                        <p className="text-[var(--oq-ink-soft)] mt-4 text-lg leading-relaxed">
+                            Live quizzes and real code judging on your own server. No accounts,
+                            just a PIN.
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-6">
+                            <a href="#join" className="btn btn-primary btn-lg font-bold">
+                                Join a game
+                            </a>
                             <Link
-                                to={m.to}
-                                className="btn btn-secondary mt-3 text-center font-bold"
+                                to="/explore"
+                                className="btn btn-secondary btn-lg font-bold"
                             >
-                                {m.cta}
+                                Explore quizzes
                             </Link>
-                        </Card>
-                    ))}
+                        </div>
+                    </div>
+                    <img
+                        src="https://picsum.photos/seed/sprintjudge-classroom/880/660"
+                        width={880}
+                        height={660}
+                        alt="Students answering a live classroom quiz together"
+                        loading="eager"
+                        className="w-full aspect-[4/3] object-cover rounded-[14px] border border-[var(--oq-border)]"
+                    />
                 </section>
-                <section className="max-w-xl w-full">
+
+                <section aria-label="Ways to play" className="grid gap-4 md:grid-cols-5">
+                    <Card
+                        className="p-6 flex flex-col gap-2 md:col-span-3"
+                        style={{ background: "var(--oq-accent-tint)" }}
+                    >
+                        <h2 className="text-xl font-extrabold">Solo practice</h2>
+                        <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
+                            Untimed drills with instant feedback. No waiting, no leaderboard
+                            pressure.
+                        </p>
+                        <Link to="/solo" className="btn btn-secondary mt-3 self-start font-bold">
+                            Practice alone
+                        </Link>
+                    </Card>
+                    <Card className="p-6 flex flex-col gap-2 md:col-span-2">
+                        <h2 className="text-xl font-extrabold">Browse library</h2>
+                        <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
+                            See what quizzes exist before you ask for a PIN.
+                        </p>
+                        <Link
+                            to="/explore"
+                            className="btn btn-secondary mt-3 self-start font-bold"
+                        >
+                            Explore quizzes
+                        </Link>
+                    </Card>
+                </section>
+
+                <section
+                    id="join"
+                    aria-label="Join a live game"
+                    className="grid gap-8 lg:grid-cols-2 lg:items-center scroll-mt-6"
+                >
                     <Card className="p-6">
                         <JoinForm heading="Join a live game" />
                     </Card>
+                    <img
+                        src="https://picsum.photos/seed/sprintjudge-code-quiz/720/540"
+                        width={720}
+                        height={540}
+                        alt="Code editor with a judged programming question"
+                        loading="lazy"
+                        className="w-full aspect-[4/3] object-cover rounded-[14px] border border-[var(--oq-border)]"
+                    />
                 </section>
+
                 <p className="text-sm text-[var(--oq-ink-soft)]">
                     Host or teach? <Link to="/admin">Open the admin dashboard</Link>.
                 </p>
