@@ -146,7 +146,7 @@ export function AdminDashboard() {
 
     if (needsAuth) {
         return (
-            <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
+            <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
                 <Card className="bg-[var(--oq-surface)] w-full max-w-sm">
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
@@ -202,7 +202,7 @@ export function AdminDashboard() {
             setPin(game.pinCode);
             navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
         } catch {
-            setBannerError("Failed to create game — try again.");
+            setBannerError("Failed to create game - try again.");
         } finally {
             setBusy(false);
         }
@@ -220,7 +220,7 @@ export function AdminDashboard() {
             a.click();
             URL.revokeObjectURL(url);
         } catch {
-            setBannerError("Export failed — are you logged in?");
+            setBannerError("Export failed - are you logged in?");
         }
     };
 
@@ -231,7 +231,7 @@ export function AdminDashboard() {
             await adminApi.importBank(json, true);
             await loadQuizzes();
         } catch {
-            setBannerError("Import failed — check the file format.");
+            setBannerError("Import failed - check the file format.");
         }
     };
 
@@ -248,7 +248,7 @@ export function AdminDashboard() {
     });
 
     return (
-        <div className="pattern-exam min-h-screen flex flex-col">
+        <div className="pattern-exam min-h-[100dvh] flex flex-col">
             {/* Header */}
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-3 flex items-center gap-4">
