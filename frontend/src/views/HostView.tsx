@@ -288,7 +288,7 @@ function ControlsPanel() {
                     {teams.map((t) => (
                         <li
                             key={t.id}
-                            className="flex items-center justify-between text-sm min-h-[44px] px-3 rounded-[10px] hover:bg-[var(--oq-row-alt)] transition-colors"
+                            className="flex items-center justify-between text-sm min-h-[44px] px-3 rounded-[6px] hover:bg-[var(--oq-row-alt)] transition-colors"
                         >
                             <span className="font-medium">{t.name}</span>
                             <span className="mono text-xs text-[var(--oq-ink-soft)]">
@@ -318,7 +318,7 @@ function ControlsPanel() {
                     {players.map((p) => (
                         <li
                             key={p.uuid}
-                            className="flex items-center justify-between gap-2 text-sm min-h-[44px] px-3 rounded-[10px] hover:bg-[var(--oq-row-alt)] transition-colors"
+                            className="flex items-center justify-between gap-2 text-sm min-h-[44px] px-3 rounded-[6px] hover:bg-[var(--oq-row-alt)] transition-colors"
                         >
                             <span className="font-medium truncate" title={p.name}>
                                 {p.name}
@@ -503,15 +503,15 @@ export function HostView() {
             <main className="page-shell flex-1 grid md:grid-cols-[1fr_280px] gap-6 py-6 items-start w-full">
                 {!room ? (
                     <div
-                        className="rounded-[14px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                        className="rounded-[8px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
                         aria-label="Loading room"
                     >
-                        <div className="h-5 w-40 animate-pulse rounded-[10px] bg-[var(--oq-border)] mb-4" />
+                        <div className="h-5 w-40 animate-pulse rounded-[6px] bg-[var(--oq-border)] mb-4" />
                         <div className="flex flex-col gap-4" aria-hidden="true">
                             {[0, 1, 2, 3].map((i) => (
                                 <div
                                     key={i}
-                                    className="h-11 animate-pulse rounded-[10px] bg-[var(--oq-border)] opacity-40"
+                                    className="h-11 animate-pulse rounded-[6px] bg-[var(--oq-border)] opacity-40"
                                 />
                             ))}
                         </div>
