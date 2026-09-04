@@ -147,7 +147,7 @@ export function AdminDashboard() {
     if (needsAuth) {
         return (
             <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
-                <Card className="bg-[var(--oq-surface)] w-full max-w-sm">
+                <Card className="w-full max-w-sm">
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
@@ -325,15 +325,15 @@ export function AdminDashboard() {
                                 transition={{ duration: 0.15 }}
                             >
                                 <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                                    <Card className="bg-[var(--oq-surface)]">
+                                    <Card className="stat-block">
                                         <p className="label-caps mb-1">Quiz sets</p>
                                         <p className="stat-value">{quizzes.length}</p>
                                     </Card>
-                                    <Card className="bg-[var(--oq-surface)]">
+                                    <Card className="stat-block">
                                         <p className="label-caps mb-1">Questions loaded</p>
                                         <p className="stat-value">{questions.length}</p>
                                     </Card>
-                                    <Card className="bg-[var(--oq-surface)]">
+                                    <Card className="stat-block">
                                         <p className="label-caps mb-1">Question types</p>
                                         <p className="stat-value">12</p>
                                     </Card>
@@ -409,7 +409,7 @@ export function AdminDashboard() {
                                 </div>
 
                                 {showCreate && (
-                                    <Card className="bg-[var(--oq-surface)] mb-4">
+                                    <Card className="mb-4">
                                         <h3 className="header-double">Create question set</h3>
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <TextInput
@@ -453,7 +453,7 @@ export function AdminDashboard() {
                                     {filteredQuizzes.map((q) => (
                                         <Card
                                             key={q.id}
-                                            className="oq-quiz-card bg-[var(--oq-surface)]"
+                                            className="oq-quiz-card"
                                         >
                                             <div className="flex flex-col gap-4">
                                                 <div className="flex items-start justify-between gap-4">
@@ -514,7 +514,7 @@ export function AdminDashboard() {
                                         </Card>
                                     ))}
                                     {filteredQuizzes.length === 0 && (
-                                        <Card className="oq-quiz-card col-span-full bg-[var(--oq-surface)]">
+                                        <Card className="oq-quiz-card col-span-full">
                                             <div className="text-center py-16">
                                                 <p className="label-caps mb-2">Empty library</p>
                                                 <p className="text-[var(--oq-ink-soft)]">
