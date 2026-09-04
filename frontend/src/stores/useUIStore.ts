@@ -4,7 +4,7 @@ const THEME_KEY = "oq-theme";
 const SOUND_KEY = "oq-sound";
 const MOTION_KEY = "oq-motion";
 
-const THEME_COLORS = { light: "#f7f6f2", dark: "#0c0f14" } as const;
+const THEME_COLORS = { light: "#fff0e4", dark: "#170c04" } as const;
 
 /** Syncs the theme-color meta with the active theme (no token disagreement). */
 function syncThemeColor(t: "light" | "dark"): void {
