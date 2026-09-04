@@ -75,6 +75,13 @@ const adminRoute = createRoute({
     component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
 });
 
+// Spring Security's form-login success URL; alias of the dashboard.
+const adminDashboardAliasRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/admin/dashboard",
+    component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
+});
+
 const adminLoginRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/login",
@@ -91,6 +98,7 @@ const routeTree = rootRoute.addChildren([
     hostRoute,
     resultsRoute,
     adminRoute,
+    adminDashboardAliasRoute,
     adminLoginRoute,
 ]);
 
