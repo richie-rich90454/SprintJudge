@@ -27,28 +27,27 @@ format specifications, see the [documentation site](#testing--documentation).
 
 ## Quick start
 
-Prerequisites: JDK 25, Maven 3.9+ (`./mvnw` wrapper included), Node.js 20+.
-
-### Linux / macOS
+Prerequisites: JDK 25, Maven 3.9+ (`./mvnw` wrapper included), Node.js 20+,
+GNU Make.
 
 ```bash
-mvn spring-boot:run                      # backend on :8080
+make check-env          # audit toolchain
+make dev-backend        # API + WebSocket on :8080 (dev profile)
 
-cd frontend && npm install && npm run dev   # frontend on :5173
+make dev-frontend       # UI on :5173 (proxies /api and /ws)
+make dev                # both side by side (make -j2)
 ```
 
-### Windows
-
-PowerShell helper scripts handle build, launch, and verification:
-
-```powershell
-.\scripts\check-env.ps1      # audit toolchain, guided fixes
-.\scripts\dev-backend.ps1    # API + WebSocket on :8080
-.\scripts\dev-frontend.ps1   # UI on :5173 (proxies /api and /ws)
-.\scripts\run-tests.ps1      # full backend test suite
-.\scripts\run-prod.ps1       # single-jar production launch (UI + API + library)
-.\scripts\verify-prod.ps1    # build + boot the prod jar + HTTP/WS health checks
-```
+| Command | Purpose |
+|---------|---------|
+| `make test` | full backend test suite |
+| `make test-frontend` | frontend typecheck |
+| `make test-e2e` | browser end-to-end specs (needs `make dev-backend` running) |
+| `make package` | SPA + single-jar production build (`SKIP_FRONTEND=1` skips the SPA) |
+| `make prod` | single-jar production launch (`BUILD=1` rebuilds first) |
+| `make verify-prod` | boot the prod jar on :8091 + HTTP health checks (`PORT=8091`) |
+| `make format` | frontend formatter |
+| `make clean` | remove `target/` + `frontend/dist/` |
 
 The frontend dev server proxies `/api` and `/ws` to the backend, so both processes run
 side by side during development.
