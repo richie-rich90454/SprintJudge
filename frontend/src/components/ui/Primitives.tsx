@@ -54,17 +54,3 @@ export function EmptyState({
 export function Skeleton({ className = "" }: { className?: string }) {
     return <div aria-hidden="true" className={`skeleton ${className}`.trim()} />;
 }
-
-/** Deterministic initial-disc avatar. */
-export function Avatar({ name, size = 36 }: { name: string; size?: number }) {
-    const initial = (name.trim().charAt(0) || "?").toUpperCase();
-    return (
-        <span
-            aria-hidden="true"
-            className="avatar-disc"
-            style={{ width: size, height: size, fontSize: size * 0.45 }}
-        >
-            {initial}
-        </span>
-    );
-}
