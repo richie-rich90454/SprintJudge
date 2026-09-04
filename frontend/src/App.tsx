@@ -1,19 +1,6 @@
-import { useUIStore } from "./stores/useUIStore";
-import { useGameStore } from "./stores/useGameStore";
-import { JoinView } from "./views/JoinView";
-import { QuestionView } from "./views/QuestionView";
-import { ResultView } from "./views/ResultView";
-import { HostLobbyView } from "./views/HostLobbyView";
-import { AdminLoginView } from "./views/AdminLoginView";
-import { AdminDashboard } from "./views/AdminDashboard";
+import { RouterProvider } from "@tanstack/react-router";
+import { router } from "./router";
 
 export function App() {
-    const view = useUIStore((s) => s.view);
-    const status = useGameStore((s) => s.status);
-
-    if (view === "admin-login") return <AdminLoginView />;
-    if (view === "admin") return <AdminDashboard />;
-    if (view === "host") return <HostLobbyView />;
-    if (view === "play") return status === "ENDED" ? <ResultView /> : <QuestionView />;
-    return <JoinView />;
+    return <RouterProvider router={router} />;
 }
