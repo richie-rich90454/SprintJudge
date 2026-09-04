@@ -358,6 +358,7 @@ export function HostView() {
     const connect = useGameStore((s) => s.connect);
     const join = useGameStore((s) => s.join);
     const room = useGameStore((s) => s.room);
+    const gameStatus = useGameStore((s) => s.status);
     const wsError = useGameStore((s) => s.error);
     const q = useGameStore((s) => s.currentQuestion);
     const end = useTimerStore((s) => s.endEpochMs);
@@ -395,10 +396,17 @@ export function HostView() {
     }
 
     const playerCount = room?.players.length ?? 0;
+    const liveStatus = gameStatus === "ENDED" ? "ENDED" : (room?.status ?? gameStatus);
     const statusLabel =
-        room?.status === "ACTIVE" ? "Live" : room?.status === "REVIEW" ? "Reviewing" : "Lobby open";
+        liveStatus === "ACTIVE"
+            ? "Live"
+            : liveStatus === "REVIEW"
+              ? "Reviewing"
+              : liveStatus === "ENDED"
+                ? "Game over"
+                : "Lobby open";
     const tone: "success" | "accent" | "neutral" =
-        room?.status === "ACTIVE" ? "success" : room?.status === "REVIEW" ? "accent" : "neutral";
+        liveStatus === "ACTIVE" ? "success" : liveStatus === "REVIEW" ? "accent" : "neutral";
     const joinUrl = `${window.location.origin}/j/${pin}`;
 
     const copyLink = () => {
@@ -517,7 +525,20 @@ export function HostView() {
                         Connection error: {wsError}
                     </p>
                 )}
-                <ControlsPanel />
+                {liveStatus === "ENDED" ? (
+                    <Card className="p-6 flex flex-col gap-4">
+                        <h3 className="font-extrabold text-lg">Game over</h3>
+                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                            Final standings are on the board. Open the full review with
+                            answer key and class analysis.
+                        </p>
+                        <Link to="/results" className="btn btn-primary w-full">
+                            View results
+                        </Link>
+                    </Card>
+                ) : (
+                    <ControlsPanel />
+                )}
             </main>
         </div>
     );
