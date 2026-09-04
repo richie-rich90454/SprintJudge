@@ -1,4 +1,3 @@
-import { Button } from "@heroui/react";
 import { useUIStore } from "../stores/useUIStore";
 
 /** Theme switch (dark is the default). Persists to localStorage via useUIStore. */
@@ -8,12 +7,11 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     const isDark = theme === "dark";
 
     return (
-        <Button
-            isIconOnly
-            variant="ghost"
+        <button
+            type="button"
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            onPress={toggleTheme}
-            className={`text-lg min-h-[44px] min-w-[44px] ${className}`}
+            onClick={toggleTheme}
+            className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}
         >
             {isDark ? (
                 <svg
@@ -42,6 +40,6 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
                     <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
                 </svg>
             )}
-        </Button>
+        </button>
     );
 }
