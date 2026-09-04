@@ -285,9 +285,13 @@ export function ResultView() {
                                         {[...review.players]
                                             .sort((a, b) => b.totalScore - a.totalScore)
                                             .map((p, i) => (
-                                                <div
+                                                <button
                                                     key={p.playerUuid}
-                                                    className="border border-[var(--oq-border)] rounded-[14px] p-6 cursor-pointer hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px]"
+                                                    type="button"
+                                                    aria-expanded={
+                                                        selectedStudent === p.playerUuid
+                                                    }
+                                                    className="border border-[var(--oq-border)] rounded-[14px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
                                                     onClick={() =>
                                                         setSelectedStudent(
                                                             selectedStudent === p.playerUuid
@@ -332,7 +336,7 @@ export function ResultView() {
                                                                 ))}
                                                             </div>
                                                         )}
-                                                </div>
+                                                </button>
                                             ))}
                                     </div>
                                 )}
