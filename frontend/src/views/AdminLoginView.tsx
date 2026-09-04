@@ -8,7 +8,7 @@ export function AdminLoginView() {
     return (
         <Shell minimal>
             <div className="flex-1 flex items-center justify-center p-4">
-                <Card className="bg-[var(--oq-surface)] w-full max-w-sm">
+                <Card className="w-full max-w-sm">
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
