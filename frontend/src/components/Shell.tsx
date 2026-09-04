@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
 import { ThemeToggle } from "./ThemeToggle";
 import { SoundToggle } from "./SoundToggle";
+import { MotionToggle } from "./MotionToggle";
 import { webSocketService } from "../services/WebSocketService";
 import { useEffect, useState } from "react";
 
@@ -41,6 +42,7 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
                             </span>
                         )}
                         <SoundToggle />
+                        <MotionToggle />
                         <ThemeToggle />
                     </div>
                 </div>
