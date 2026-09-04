@@ -362,6 +362,7 @@ export function HostView() {
     const wsError = useGameStore((s) => s.error);
     const q = useGameStore((s) => s.currentQuestion);
     const end = useTimerStore((s) => s.endEpochMs);
+    const totalSec = useTimerStore((s) => s.totalSec);
     const [copied, setCopied] = useState(false);
     const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -440,7 +441,7 @@ export function HostView() {
                             <p className="font-bold text-2xl">{playerCount} players</p>
                         </div>
                         {room?.status === "ACTIVE" && end && isFinite(end) && q && (
-                            <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} />
+                            <CircularTimer endEpochMs={end} totalSec={totalSec} />
                         )}
                     </div>
                 </header>
@@ -471,7 +472,7 @@ export function HostView() {
                             </div>
                             <div className="flex-1" />
                             {room?.status === "ACTIVE" && end && isFinite(end) && q && (
-                                <CircularTimer endEpochMs={end} totalSec={q.timeLimitSec} />
+                                <CircularTimer endEpochMs={end} totalSec={totalSec} />
                             )}
                             {(!room || room.status === "LOBBY") && <RoomQr pin={pin} />}
                             <div className="flex items-center gap-2">
