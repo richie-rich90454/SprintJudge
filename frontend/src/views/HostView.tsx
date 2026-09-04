@@ -387,9 +387,13 @@ export function HostView() {
 
     if (!pin) {
         return (
-            <div className="min-h-[100dvh] flex items-center justify-center">
-                <p style={{ color: "var(--oq-ink-soft)" }}>
-                    Create a game from the Admin dashboard first.
+            <div className="min-h-[100dvh] flex items-center justify-center p-6">
+                <p className="text-[var(--oq-ink-soft)] text-center">
+                    Create a game from the{" "}
+                    <Link to="/admin" className="font-bold text-[var(--oq-accent)]">
+                        Admin dashboard
+                    </Link>{" "}
+                    first.
                 </p>
             </div>
         );
