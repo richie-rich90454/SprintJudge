@@ -10,7 +10,7 @@ export function JoinView() {
 
     return (
         <Shell>
-            <main className="flex-1 flex items-center justify-center p-6">
+            <div className="flex-1 flex items-center justify-center p-6">
                 <div className="w-full max-w-lg flex flex-col gap-4">
                     {invitedPin && (
                         <div className="text-center">
@@ -30,7 +30,7 @@ export function JoinView() {
                         <Link to="/">Back</Link>
                     </p>
                 </div>
-            </main>
+            </div>
         </Shell>
     );
 }
