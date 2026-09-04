@@ -206,8 +206,11 @@ class GameRoomManagerTest {
         // submit does not broadcast ROOM_STATE immediately; the leaderboard delta is coalesced.
         verify(ws, never()).broadcast(any(), any());
         ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
-        verify(scheduler, times(2)).markDirty(eq(123456), task.capture());   // join + submit
-        task.getAllValues().get(1).run();
+        // STANDARD delays the public board: only the join armed a flush. The
+        // score mutation still sits in the ledger, so draining the join task
+        // ships it with the review-time snapshot.
+        verify(scheduler, times(1)).markDirty(eq(123456), task.capture());   // join only
+        task.getAllValues().get(0).run();
 
         ArgumentCaptor<java.util.Collection<String>> ids = this.ids;
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
@@ -220,7 +223,7 @@ class GameRoomManagerTest {
     }
 
     @Test
-    void wrongSelectionSavesZeroAndStillMarksDirty() {
+    void wrongSelectionSavesZeroWithoutBoardFlush() {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -239,7 +242,8 @@ class GameRoomManagerTest {
         assertEquals(false, saved.getValue().correct());
         // Fraction flows into the engine, which hard-zeroes it internally.
         verify(scoringEngine).scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any());
-        verify(scheduler, atLeastOnce()).markDirty(eq(123456), any());
+        // STANDARD delays the public board mid-round: only the join armed a flush.
+        verify(scheduler, times(1)).markDirty(eq(123456), any());
     }
 
     @Test
@@ -628,6 +632,47 @@ class GameRoomManagerTest {
         assertEquals(990, saved.getAllValues().get(1).scoreEarned());   // +10% streak bonus
     }
 
+    @Test
+    void standardSelectionSubmitSendsInstantFeedbackAndDelaysBoard() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
+                .thenReturn(900);
+
+        var player = mgr.join("123456", "Alice", "sess-1", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq(player.sessionId()), sent.capture());
+        assertTrue(sent.getValue() instanceof SubmissionResult r && r.score() == 900
+                && r.allPassed());
+        // Host-led STANDARD: the public board stays frozen (join armed the only flush).
+        verify(scheduler, times(1)).markDirty(eq(123456), any());
+    }
+
+    @Test
+    void practiceSelectionSubmitKeepsLiveBoard() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
+                .thenReturn(900);
+
+        var player = mgr.join("123456", "Alice", "sess-1", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq(player.sessionId()), sent.capture());
+        assertTrue(sent.getValue() instanceof SubmissionResult);
+        // PRACTICE keeps the historical live board: join + submit both arm a flush.
+        verify(scheduler, times(2)).markDirty(eq(123456), any());
+    }
+
     // ---------- submit: coding language gating ----------
 
     @Test
@@ -940,7 +985,8 @@ class GameRoomManagerTest {
         assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.score() == 500));
         assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.score() == 100
                 && !r.allPassed()));
-        verify(scheduler, atLeastOnce()).markDirty(eq(123456), any());   // broadcastLeaderboard
+        // STANDARD delays the public board mid-round (join armed the only flush).
+        verify(scheduler, times(1)).markDirty(eq(123456), any());
     }
 
     // ---------- startQuestion when index already past the last question ----------
