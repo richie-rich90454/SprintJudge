@@ -87,7 +87,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any());
         verify(executor, never()).judge(any());
-        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
         assertEquals(-1, received[0]); // handler is not invoked for rejected routing
     }
 
@@ -107,7 +107,7 @@ class SubmissionProcessorTest {
     }
 
     @Test
-    void normalCodingFlowWritesAndBroadcasts() throws Exception {
+    void normalCodingFlowWritesWithoutBroadcast() throws Exception {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = codingQuestion(
@@ -123,7 +123,7 @@ class SubmissionProcessorTest {
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any(Submission.class));
-        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
         assertEquals(90, received[0]);
     }
 
@@ -160,7 +160,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", null, 1, Map.of(), 0L, handler).get());
         verify(executor, never()).judge(any(JudgeRequest.class));
         verify(writeBuffer).offer(any());
-        verify(leaderboardBroadcaster).broadcastLeaderboard("pin");
+        verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
         assertEquals(-1, received[0]); // handler not invoked for rejected source
     }
 
