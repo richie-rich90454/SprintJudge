@@ -1,5 +1,6 @@
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { el } from "./dom";
+import { answerShape } from "../../design/kahoot";
 import { motion } from "../MotionService";
 
 export class MultipleSelectRenderer extends BaseQuestionRenderer {
@@ -13,7 +14,12 @@ export class MultipleSelectRenderer extends BaseQuestionRenderer {
         });
         options.forEach((opt, i) => {
             const btn = el("button", { class: "min-h-tap", type: "button" }) as HTMLButtonElement;
-            btn.append(el("span", { class: "opt-letter" }, [String.fromCharCode(65 + i)]), opt);
+            btn.append(
+                el("span", { class: "opt-letter" }, [
+                    el("span", { class: `opt-shape shape-${answerShape(i)}` }),
+                ]),
+                opt,
+            );
             btn.addEventListener("click", () => {
                 const idx = this.selected.indexOf(i);
                 if (idx >= 0) {
