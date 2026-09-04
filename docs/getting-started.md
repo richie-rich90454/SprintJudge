@@ -7,15 +7,15 @@ SprintJudge runs as a Spring Boot backend (port `8080`) and a Vite/React fronten
 ```mermaid
 flowchart TD
     A["Fresh machine"] --> B{"Windows?"}
-    B -->|"yes"| C["scripts/check-env.ps1<br/>audits JDK, Node, toolchains"]
+    B -->|"yes"| C["make check-env<br/>audits JDK, Node, toolchains"]
     B -->|"no"| D["Verify Java 25 + Node 20+"]
     C --> E{"Compilers on PATH?<br/>gcc · g++ · javac · python"}
     E -->|"yes"| F["native executor — done"]
     E -->|"no"| G["Install toolchains, or set<br/>SPRINTJUDGE_EXECUTOR_MODE=wsl"]
     D --> F
     G --> F
-    F --> H["scripts/dev-backend.ps1"]
-    F --> I["scripts/dev-frontend.ps1"]
+    F --> H["make dev-backend"]
+    F --> I["make dev-frontend"]
     H --> J["Open http://localhost:5173"]
     I --> J
 ```
@@ -48,21 +48,21 @@ npm run dev
 
 The Vite dev server proxies `/api` and `/ws` to `http://localhost:8080`.
 
-## Windows quick start
+## Quick start (GNU Make)
 
-No WSL required. From PowerShell at the repo root:
+No WSL required. From a shell with GNU Make at the repo root:
 
-```powershell
-.\scripts\check-env.ps1      # one-time environment audit with guided fixes
-.\scripts\run-tests.ps1      # prove the backend suite green on your box
-.\scripts\dev-backend.ps1    # terminal 1 — API + WebSocket on :8080
-.\scripts\dev-frontend.ps1   # terminal 2 — UI on :5173 (proxies /api and /ws)
-.\scripts\run-prod.ps1       # single-jar production: UI + API + bundled library
-.\scripts\verify-prod.ps1    # boot prod and probe REST + SPA + auth + WebSocket
+```bash
+make check-env          # one-time environment audit
+make test               # prove the backend suite green on your box
+make dev-backend        # terminal 1 — API + WebSocket on :8080
+make dev-frontend       # terminal 2 — UI on :5173 (proxies /api and /ws)
+make prod               # single-jar production: UI + API + bundled library
+make verify-prod        # boot prod and probe the REST health endpoints
 ```
 
 The dev profile defaults to the `native` executor: toolchains are invoked directly, so a
-fresh machine only needs its compilers on PATH. Set `OPENQUIZ_EXECUTOR_MODE=wsl` to run
+fresh machine only needs its compilers on PATH. Set `SPRINTJUDGE_EXECUTOR_MODE=wsl` to run
 the same judge inside Ubuntu instead. The production build bundles the compiled frontend
 and the graded starter library into one fat jar — first launch creates and seeds the
 SQLite database automatically (only when the bank is empty).
@@ -83,7 +83,7 @@ OS environment variables always win over `.env`.
 
 ## First run
 
-1. Sign in as admin at `/login`.
-2. Create a quiz, add questions via the 12-step wizard.
+1. Sign in as admin at `/admin/login`.
+2. Create a quiz, add questions via the 4-step wizard.
 3. Click **Host** to generate a 6-digit PIN.
 4. Players join at the join screen with the PIN and a nickname.
