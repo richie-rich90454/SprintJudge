@@ -120,16 +120,6 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                         </p>
                     )}
                 </div>
-                {rows.length * rh > maxH && (
-                    <div
-                        className="pointer-events-none absolute bottom-0 inset-x-0 h-8"
-                        style={{
-                            background:
-                                "linear-gradient(to bottom, transparent, var(--oq-surface))",
-                        }}
-                        aria-hidden="true"
-                    />
-                )}
             </div>
         </Card>
     );
