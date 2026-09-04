@@ -325,15 +325,15 @@ export function AdminDashboard() {
                                 transition={{ duration: 0.15 }}
                             >
                                 <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                                    <Card className="stat-block">
+                                    <Card className="stat-block card-accent">
                                         <p className="label-caps mb-1">Quiz sets</p>
                                         <p className="stat-value">{quizzes.length}</p>
                                     </Card>
-                                    <Card className="stat-block">
+                                    <Card className="stat-block card-accent">
                                         <p className="label-caps mb-1">Questions loaded</p>
                                         <p className="stat-value">{questions.length}</p>
                                     </Card>
-                                    <Card className="stat-block">
+                                    <Card className="stat-block card-accent">
                                         <p className="label-caps mb-1">Question types</p>
                                         <p className="stat-value">12</p>
                                     </Card>
