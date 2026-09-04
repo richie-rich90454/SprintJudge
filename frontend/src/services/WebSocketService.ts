@@ -60,7 +60,10 @@ export class WebSocketService {
             }
         };
         socket.onclose = () => {
-            this.pending = [];
+            // Keep the queue across unintended drops so a JOIN sent during a
+            // failed first handshake still flushes on reconnect. Only an
+            // intentional disconnect discards queued messages.
+            if (this._intentionalClose) this.pending = [];
             this.status$.next("closed");
             if (!this._intentionalClose && this._url) {
                 this._scheduleReconnect();
@@ -104,6 +107,7 @@ export class WebSocketService {
 
     disconnect(): void {
         this._intentionalClose = true;
+        this.pending = [];
         if (this._reconnectTimer) {
             clearTimeout(this._reconnectTimer);
             this._reconnectTimer = null;
