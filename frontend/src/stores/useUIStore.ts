@@ -3,7 +3,6 @@ import { create } from "zustand";
 const THEME_KEY = "oq-theme";
 const SOUND_KEY = "oq-sound";
 const MOTION_KEY = "oq-motion";
-const AVATAR_KEY = "oq-avatar";
 
 const THEME_COLORS = { light: "#f7f6f2", dark: "#0c0f14" } as const;
 
@@ -80,26 +79,16 @@ export function motionReduced(): boolean {
     }
 }
 
-export function readAvatar(): string {
-    try {
-        return localStorage.getItem(AVATAR_KEY) ?? "⚡";
-    } catch {
-        return "⚡";
-    }
-}
-
 interface UIState {
     theme: "light" | "dark";
     sound: "on" | "off";
     motion: "full" | "reduced" | "system";
-    avatar: string;
     pin: string | null;
     setTheme: (t: "light" | "dark") => void;
     toggleTheme: () => void;
     setSound: (s: "on" | "off") => void;
     toggleSound: () => void;
     setMotion: (m: "full" | "reduced" | "system") => void;
-    setAvatar: (a: string) => void;
     setPin: (p: string | null) => void;
 }
 
@@ -107,7 +96,6 @@ export const useUIStore = create<UIState>((set, get) => ({
     theme: readTheme(),
     sound: readSound(),
     motion: readMotion(),
-    avatar: readAvatar(),
     pin: null,
     setTheme: (theme) => {
         document.documentElement.classList.toggle("dark", theme === "dark");
@@ -136,14 +124,6 @@ export const useUIStore = create<UIState>((set, get) => ({
             /* ignore */
         }
         set({ motion });
-    },
-    setAvatar: (avatar) => {
-        try {
-            localStorage.setItem(AVATAR_KEY, avatar);
-        } catch {
-            /* ignore */
-        }
-        set({ avatar });
     },
     setPin: (pin) => set({ pin }),
 }));
