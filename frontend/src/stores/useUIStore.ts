@@ -1,7 +1,5 @@
 import { create } from "zustand";
 
-export type AppView = "join" | "play" | "host" | "admin" | "admin-login";
-
 const THEME_KEY = "oq-theme";
 const SOUND_KEY = "oq-sound";
 const MOTION_KEY = "oq-motion";
@@ -91,34 +89,26 @@ export function readAvatar(): string {
 }
 
 interface UIState {
-    /** Legacy view slot — navigation now lives in the router; kept for compat. */
-    view: AppView;
     theme: "light" | "dark";
     sound: "on" | "off";
     motion: "full" | "reduced" | "system";
     avatar: string;
-    modal: string | null;
     pin: string | null;
-    setView: (v: AppView) => void;
     setTheme: (t: "light" | "dark") => void;
     toggleTheme: () => void;
     setSound: (s: "on" | "off") => void;
     toggleSound: () => void;
     setMotion: (m: "full" | "reduced" | "system") => void;
     setAvatar: (a: string) => void;
-    openModal: (m: string | null) => void;
     setPin: (p: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
-    view: "join",
     theme: readTheme(),
     sound: readSound(),
     motion: readMotion(),
     avatar: readAvatar(),
-    modal: null,
     pin: null,
-    setView: (view) => set({ view }),
     setTheme: (theme) => {
         document.documentElement.classList.toggle("dark", theme === "dark");
         syncThemeColor(theme);
@@ -155,6 +145,5 @@ export const useUIStore = create<UIState>((set, get) => ({
         }
         set({ avatar });
     },
-    openModal: (modal) => set({ modal }),
     setPin: (pin) => set({ pin }),
 }));
