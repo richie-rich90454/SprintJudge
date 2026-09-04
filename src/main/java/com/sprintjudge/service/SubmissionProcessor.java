@@ -74,16 +74,14 @@ public class SubmissionProcessor {
         if (!slot.tryAcquire()) {
             return CompletableFuture.completedFuture(false);
         }
-        JudgeResult result = null;
         try {
-            result = judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
+            judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
                     attemptsUsed, settings, timeTakenSec, handler);
             return CompletableFuture.completedFuture(true);
         } finally {
             slot.release();
-            if (result != null) {
-                leaderboardBroadcaster.broadcastLeaderboard(pin);
-            }
+            // No board broadcast here: GameRoomManager's outcome handler is the
+            // single decision point (it delays the board in host-led modes).
         }
     }
 
