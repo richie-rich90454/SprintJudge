@@ -23,7 +23,13 @@ export function SoloView() {
                 </Card>
                 <p className="text-sm text-[var(--oq-ink-soft)]">
                     Ask your teacher for the practice PIN, or launch one from{" "}
-                    <Link to="/admin">/admin</Link>.
+                    <Link
+                        to="/admin"
+                        className="font-bold text-[var(--oq-accent-dark)] underline underline-offset-4"
+                    >
+                        /admin
+                    </Link>
+                    .
                 </p>
             </div>
         </Shell>
