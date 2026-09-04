@@ -8,9 +8,9 @@ export class TrueFalseRenderer extends BaseQuestionRenderer {
 
     mount(): void {
         const wrap = el("div", { class: "kahoot-options cols-2 flex gap-3" });
-        const mk = (label: string, v: boolean, letter: string) => {
+        const mk = (label: string, v: boolean, shape: string) => {
             const btn = el("button", { class: "min-h-tap", type: "button" }) as HTMLButtonElement;
-            btn.append(el("span", { class: "opt-letter" }, [letter]), label);
+            btn.append(el("span", { class: "opt-letter" }, [el("span", { class: `opt-shape shape-${shape}` })]), label);
             btn.addEventListener("click", () => {
                 this.value = v;
                 this.buttons.forEach((b) => b.removeAttribute("data-selected"));
@@ -21,7 +21,7 @@ export class TrueFalseRenderer extends BaseQuestionRenderer {
             this.buttons.push(btn);
             return btn;
         };
-        wrap.append(mk("True", true, "T"), mk("False", false, "F"));
+        wrap.append(mk("True", true, "triangle"), mk("False", false, "diamond"));
         this.container.append(wrap);
     }
 
