@@ -153,7 +153,7 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {lines.length === 0 && (
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            No lines yet — add the first line below.
+                            No lines yet - add the first line below.
                         </p>
                     )}
                     {lines.map((l, i) => (
@@ -187,7 +187,7 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {empty && (
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            No code lines yet — add one buggy line per row below.
+                            No code lines yet - add one buggy line per row below.
                         </p>
                     )}
                     <textarea
@@ -317,7 +317,7 @@ export function QuestionWizard() {
 
     const doSave = async () => {
         if (!(draft.title ?? "").trim()) {
-            setValidationError("Title is required — add a title before saving.");
+            setValidationError("Title is required - add a title before saving.");
             setStep("statement");
             return;
         }
