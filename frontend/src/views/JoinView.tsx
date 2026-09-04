@@ -27,7 +27,12 @@ export function JoinView() {
                         />
                     </Card>
                     <p className="text-center text-sm text-[var(--oq-ink-soft)]">
-                        <Link to="/">Back</Link>
+                        <Link
+                            to="/"
+                            className="font-bold text-[var(--oq-accent-dark)] underline underline-offset-4"
+                        >
+                            Back
+                        </Link>
                     </p>
                 </div>
             </div>
