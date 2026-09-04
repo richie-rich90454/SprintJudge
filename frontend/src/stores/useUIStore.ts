@@ -2,17 +2,12 @@ import { create } from "zustand";
 
 export type AppView = "join" | "play" | "host" | "admin" | "admin-login";
 
-/** Detects the initial view from the URL path. */
-function detectInitialView(): AppView {
-    const path = window.location.pathname;
-    if (path === "/admin/login") return "admin-login";
-    if (path.startsWith("/admin")) return "admin";
-    return "join";
-}
-
 const THEME_KEY = "oq-theme";
+const SOUND_KEY = "oq-sound";
+const MOTION_KEY = "oq-motion";
+const AVATAR_KEY = "oq-avatar";
 
-const THEME_COLORS = { light: "#f5f4f1", dark: "#0b0d12" } as const;
+const THEME_COLORS = { light: "#f7f6f2", dark: "#0c0f14" } as const;
 
 /** Syncs the theme-color meta with the active theme (no token disagreement). */
 function syncThemeColor(t: "light" | "dark"): void {
@@ -56,21 +51,71 @@ export function watchSystemTheme(): void {
     }
 }
 
+function readSound(): "on" | "off" {
+    try {
+        if (localStorage.getItem(SOUND_KEY) === "off") return "off";
+    } catch {
+        /* ignore */
+    }
+    return "on";
+}
+
+function readMotion(): "full" | "reduced" | "system" {
+    try {
+        const m = localStorage.getItem(MOTION_KEY);
+        if (m === "full" || m === "reduced" || m === "system") return m;
+    } catch {
+        /* ignore */
+    }
+    return "system";
+}
+
+/** Motion is reduced when the user asked for it OR the OS prefers it. */
+export function motionReduced(): boolean {
+    try {
+        const m = localStorage.getItem(MOTION_KEY);
+        if (m === "reduced") return true;
+        if (m === "full") return false;
+        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {
+        return false;
+    }
+}
+
+export function readAvatar(): string {
+    try {
+        return localStorage.getItem(AVATAR_KEY) ?? "⚡";
+    } catch {
+        return "⚡";
+    }
+}
+
 interface UIState {
+    /** Legacy view slot — navigation now lives in the router; kept for compat. */
     view: AppView;
     theme: "light" | "dark";
+    sound: "on" | "off";
+    motion: "full" | "reduced" | "system";
+    avatar: string;
     modal: string | null;
     pin: string | null;
     setView: (v: AppView) => void;
     setTheme: (t: "light" | "dark") => void;
     toggleTheme: () => void;
+    setSound: (s: "on" | "off") => void;
+    toggleSound: () => void;
+    setMotion: (m: "full" | "reduced" | "system") => void;
+    setAvatar: (a: string) => void;
     openModal: (m: string | null) => void;
     setPin: (p: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
-    view: detectInitialView(),
+    view: "join",
     theme: readTheme(),
+    sound: readSound(),
+    motion: readMotion(),
+    avatar: readAvatar(),
     modal: null,
     pin: null,
     setView: (view) => set({ view }),
@@ -85,6 +130,31 @@ export const useUIStore = create<UIState>((set, get) => ({
         set({ theme });
     },
     toggleTheme: () => get().setTheme(get().theme === "dark" ? "light" : "dark"),
+    setSound: (sound) => {
+        try {
+            localStorage.setItem(SOUND_KEY, sound);
+        } catch {
+            /* ignore */
+        }
+        set({ sound });
+    },
+    toggleSound: () => get().setSound(get().sound === "on" ? "off" : "on"),
+    setMotion: (motion) => {
+        try {
+            localStorage.setItem(MOTION_KEY, motion);
+        } catch {
+            /* ignore */
+        }
+        set({ motion });
+    },
+    setAvatar: (avatar) => {
+        try {
+            localStorage.setItem(AVATAR_KEY, avatar);
+        } catch {
+            /* ignore */
+        }
+        set({ avatar });
+    },
     openModal: (modal) => set({ modal }),
     setPin: (pin) => set({ pin }),
 }));
