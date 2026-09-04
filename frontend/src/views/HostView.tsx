@@ -116,7 +116,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                     )}
                     {rows.length === 0 && (
                         <p className="text-[var(--oq-ink-soft)] text-sm p-6">
-                            No players yet — share the PIN.
+                            No players yet - share the PIN.
                         </p>
                     )}
                 </div>
@@ -371,7 +371,7 @@ export function HostView() {
 
     if (!pin) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[100dvh] flex items-center justify-center">
                 <p style={{ color: "var(--oq-ink-soft)" }}>
                     Create a game from the Admin dashboard first.
                 </p>
@@ -399,7 +399,7 @@ export function HostView() {
 
     if (projector) {
         return (
-            <div className="pattern-exam min-h-screen flex flex-col">
+            <div className="pattern-exam min-h-[100dvh] flex flex-col">
                 <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                     <div className="page-shell py-6 flex items-center gap-8">
                         <p
@@ -425,7 +425,7 @@ export function HostView() {
     }
 
     return (
-        <div className="pattern-exam min-h-screen flex flex-col">
+        <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-4">
                     <Card className="bg-[var(--oq-surface)]">
