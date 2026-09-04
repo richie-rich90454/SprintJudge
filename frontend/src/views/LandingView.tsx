@@ -22,7 +22,7 @@ export function LandingView() {
                         </p>
                         <div className="flex flex-wrap gap-3 mt-6">
                             <a href="#join" className="btn btn-primary btn-lg font-bold">
-                                Join a game
+                                Join game
                             </a>
                             <Link
                                 to="/explore"
