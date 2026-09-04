@@ -8,7 +8,6 @@ import { useGameStore } from "../stores/useGameStore";
 import { motionReduced } from "../stores/useUIStore";
 import { motion } from "../services/MotionService";
 import { Confetti } from "../components/Confetti";
-import { KAHOOT_COLORS } from "../design/kahoot";
 import { GameReview } from "../types";
 
 type ReviewTab = "podium" | "answers" | "students" | "analysis";
@@ -68,7 +67,7 @@ export function ResultView() {
                     label="Result views"
                 >
                     <TabPanel value="podium">
-                        <Card className="bg-[var(--oq-surface)] pt-10 pb-6 px-6 md:px-10">
+                        <Card className="pt-10 pb-6 px-6 md:px-10">
                             <div className="flex flex-col gap-8">
                                 <div className="flex items-end justify-start sm:justify-center gap-4 mb-10 min-h-[190px] overflow-x-auto pb-2">
                                     {podium.length === 0 && (
@@ -161,7 +160,7 @@ export function ResultView() {
                     </TabPanel>
 
                     <TabPanel value="answers">
-                        <Card className="bg-[var(--oq-surface)]">
+                        <Card>
                             <div className="p-6">
                                 <h3 className="font-extrabold text-lg mb-4">Answer Key</h3>
                                 {wsError && (
@@ -175,7 +174,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-16 animate-pulse rounded-[16px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-16 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -192,7 +191,7 @@ export function ResultView() {
                                         {review.questions.map((q, i) => (
                                             <div
                                                 key={q.questionId}
-                                                className="border border-[var(--oq-border)] rounded-[16px] p-6"
+                                                className="border border-[var(--oq-border)] rounded-[14px] p-6"
                                             >
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div className="flex-1">
@@ -238,7 +237,7 @@ export function ResultView() {
                     </TabPanel>
 
                     <TabPanel value="students">
-                        <Card className="bg-[var(--oq-surface)]">
+                        <Card>
                             <div className="p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-extrabold text-lg">Student Results</h3>
@@ -261,7 +260,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-14 animate-pulse rounded-[16px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-14 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -280,7 +279,7 @@ export function ResultView() {
                                             .map((p, i) => (
                                                 <div
                                                     key={p.playerUuid}
-                                                    className="border border-[var(--oq-border)] rounded-[16px] p-6 cursor-pointer hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px]"
+                                                    className="border border-[var(--oq-border)] rounded-[14px] p-6 cursor-pointer hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px]"
                                                     onClick={() =>
                                                         setSelectedStudent(
                                                             selectedStudent === p.playerUuid
@@ -334,7 +333,7 @@ export function ResultView() {
                     </TabPanel>
 
                     <TabPanel value="analysis">
-                        <Card className="bg-[var(--oq-surface)]">
+                        <Card>
                             <div className="p-6">
                                 <h3 className="font-extrabold text-lg mb-4">Class Analysis</h3>
                                 {wsError && (
@@ -351,7 +350,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-20 animate-pulse rounded-[16px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-20 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -366,19 +365,19 @@ export function ResultView() {
                                 ) : (
                                     <>
                                         <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                                            <div className="border border-[var(--oq-border)] rounded-[16px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
                                                 <p className="label-caps mb-1">Players</p>
                                                 <p className="stat-value">
                                                     {review.classStats.totalPlayers}
                                                 </p>
                                             </div>
-                                            <div className="border border-[var(--oq-border)] rounded-[16px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
                                                 <p className="label-caps mb-1">Avg Score</p>
                                                 <p className="stat-value">
                                                     {Math.round(review.classStats.avgScore)}
                                                 </p>
                                             </div>
-                                            <div className="border border-[var(--oq-border)] rounded-[16px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
                                                 <p className="label-caps mb-1">Correct Rate</p>
                                                 <p className="stat-value">
                                                     {review.classStats.totalAttempts > 0
@@ -403,26 +402,20 @@ export function ResultView() {
                                                         className="flex items-center gap-4 text-sm"
                                                     >
                                                         <div
-                                                            className="w-32 truncate font-medium"
+                                                            className="flex-1 truncate font-medium"
                                                             title={q.title}
                                                         >
                                                             {q.title}
                                                         </div>
-                                                        <div className="flex-1 h-4 bg-[var(--oq-border)] rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full rounded-full transition-all"
-                                                                style={{
-                                                                    width: `${q.correctRate * 100}%`,
-                                                                    background:
-                                                                        q.correctRate >= 0.7
-                                                                            ? KAHOOT_COLORS.green
-                                                                            : q.correctRate >= 0.4
-                                                                              ? KAHOOT_COLORS.yellow
-                                                                              : "var(--oq-danger)",
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        <span className="mono text-xs w-12 text-right">
+                                                        <span
+                                                            className={`mono text-sm w-12 text-right ${
+                                                                q.correctRate >= 0.7
+                                                                    ? "text-[var(--oq-success)]"
+                                                                    : q.correctRate >= 0.4
+                                                                      ? "text-[var(--oq-warning)]"
+                                                                      : "text-[var(--oq-danger)]"
+                                                            }`}
+                                                        >
                                                             {Math.round(q.correctRate * 100)}%
                                                         </span>
                                                     </div>
