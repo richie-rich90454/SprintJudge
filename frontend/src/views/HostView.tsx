@@ -179,7 +179,7 @@ function ControlsPanel() {
     };
 
     return (
-        <Card className="bg-[var(--oq-surface)] overflow-hidden">
+        <Card className="p-0 overflow-hidden">
             <div className="pb-4 border-b border-[var(--oq-border)]">
                 <h3 className="font-extrabold text-lg">Controls</h3>
                 <p className="label-caps mt-1">{active ? "Round live" : "Awaiting start"}</p>
