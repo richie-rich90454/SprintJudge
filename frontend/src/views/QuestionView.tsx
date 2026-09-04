@@ -89,6 +89,14 @@ export function QuestionView() {
                     <div className="p-6">
                         <p className="label-caps mb-2">Round complete</p>
                         <h2 className="text-2xl font-extrabold">Answers locked.</h2>
+                        {feedback && (
+                            <p
+                                aria-live="polite"
+                                className={`mt-3 font-bold ${feedback.ok ? "text-[var(--oq-success)]" : "text-[var(--oq-danger)]"}`}
+                            >
+                                {feedback.text}
+                            </p>
+                        )}
                         <p className="text-[var(--oq-ink-soft)] mt-2">
                             {q
                                 ? "The host is preparing the next round."
