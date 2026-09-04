@@ -10,13 +10,14 @@ import { audio } from "../services/AudioEngine";
 interface JoinFormProps {
     initialPin?: string;
     heading?: string;
+    submitClassName?: string;
 }
 
 function sanitizePin(value: string): string {
     return value.replace(/\D/g, "").slice(0, 6);
 }
 
-export function JoinForm({ initialPin = "", heading }: JoinFormProps) {
+export function JoinForm({ initialPin = "", heading, submitClassName = "" }: JoinFormProps) {
     const [name, setName] = useState("");
     const [pin, setPinState] = useState(() => sanitizePin(initialPin));
     const error = useGameStore((s) => s.error);
@@ -69,7 +70,12 @@ export function JoinForm({ initialPin = "", heading }: JoinFormProps) {
                     {error}
                 </p>
             )}
-            <Button type="submit" size="lg" disabled={!canSubmit} className="w-full font-bold">
+            <Button
+                type="submit"
+                size="lg"
+                disabled={!canSubmit}
+                className={`w-full font-bold ${submitClassName}`.trim()}
+            >
                 Join game
             </Button>
         </form>
