@@ -3,6 +3,7 @@ import { Link, useSearch } from "@tanstack/react-router";
 import { motion as fm } from "framer-motion";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { Dialog } from "../components/ui/Dialog";
 import { TextInput } from "../components/ui/TextInput";
 import { Chip } from "../components/ui/Primitives";
 import { useGameStore } from "../stores/useGameStore";
@@ -48,7 +49,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
     const slice = rows.slice(start, end);
 
     return (
-        <Card className="bg-[var(--oq-surface)] p-0 overflow-hidden">
+        <Card className="p-0 overflow-hidden">
             <div className="flex items-center justify-between px-6 pt-6 pb-6 border-b border-[var(--oq-border)]">
                 <h3 className="header-double" style={{ marginBottom: 0 }}>
                     Leaderboard
@@ -136,6 +137,7 @@ function ControlsPanel() {
     const [teamsLoading, setTeamsLoading] = useState(false);
     const [teamsError, setTeamsError] = useState<string | null>(null);
     const [teams, setTeams] = useState<TeamRow[]>([]);
+    const [confirmEndOpen, setConfirmEndOpen] = useState(false);
 
     const players = room?.players ?? [];
     const active = status === "ACTIVE";
@@ -170,8 +172,10 @@ function ControlsPanel() {
         setTeamName("");
     };
 
-    const confirmEnd = () => {
-        if (window.confirm("End the game for all players?")) hostCommand("END_GAME");
+    const confirmEnd = () => setConfirmEndOpen(true);
+    const doEndGame = () => {
+        setConfirmEndOpen(false);
+        hostCommand("END_GAME");
     };
 
     return (
@@ -222,6 +226,27 @@ function ControlsPanel() {
                 <Button variant="danger" className="w-full" onClick={confirmEnd}>
                     End game
                 </Button>
+                <Dialog
+                    open={confirmEndOpen}
+                    onOpenChange={setConfirmEndOpen}
+                    title="End the game?"
+                >
+                    <p className="text-[var(--oq-ink-soft)] text-sm">
+                        This ends the game for all players immediately.
+                    </p>
+                    <div className="flex gap-2 mt-4">
+                        <Button
+                            variant="secondary"
+                            className="flex-1"
+                            onClick={() => setConfirmEndOpen(false)}
+                        >
+                            Keep playing
+                        </Button>
+                        <Button variant="danger" className="flex-1" onClick={doEndGame}>
+                            End game
+                        </Button>
+                    </div>
+                </Dialog>
             </div>
 
             <div className="py-4 border-t border-[var(--oq-border)]">
@@ -418,8 +443,7 @@ export function HostView() {
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-4">
-                    <Card className="bg-[var(--oq-surface)]">
-                        <div className="flex items-center gap-6 flex-wrap">
+                    <div className="flex items-center gap-6 flex-wrap">
                             <div>
                                 <p className="label-caps mb-1">Game PIN</p>
                                 <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
@@ -457,17 +481,16 @@ export function HostView() {
                             <MotionToggle />
                             <ThemeToggle />
                         </div>
-                        <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
-                            {joinUrl}
-                        </p>
-                    </Card>
+                    <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
+                        {joinUrl}
+                    </p>
                 </div>
             </header>
 
             <main className="page-shell flex-1 grid md:grid-cols-[1fr_280px] gap-6 py-6 items-start w-full">
                 {!room ? (
                     <div
-                        className="rounded-[16px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                        className="rounded-[14px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
                         aria-label="Loading room"
                     >
                         <div className="h-5 w-40 animate-pulse rounded-[10px] bg-[var(--oq-border)] mb-4" />
