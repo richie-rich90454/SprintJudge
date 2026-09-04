@@ -44,7 +44,7 @@ export function ResultView() {
     ];
 
     return (
-        <div className="pattern-exam min-h-screen py-10">
+        <div className="pattern-exam min-h-[100dvh] py-10">
             {!motionReduced() && <Confetti fireKey="final" />}
             <div className="page-shell max-w-4xl">
                 <div className="text-center mb-8">
