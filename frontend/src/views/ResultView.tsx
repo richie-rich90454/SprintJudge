@@ -143,10 +143,10 @@ export function ResultView() {
                                             <fm.li
                                                 key={r.uuid}
                                                 layout
-                                                className="flex items-center justify-between px-4 py-3 min-h-[44px] border border-[var(--oq-border)] rounded-[10px] bg-[var(--oq-row-alt)]"
+                                                className="flex items-center justify-between px-4 py-3 min-h-[44px] border border-[var(--oq-border)] rounded-[6px] bg-[var(--oq-row-alt)]"
                                             >
                                                 <span className="flex items-center gap-4 min-w-0">
-                                                    <span className="min-w-8 h-8 px-1 mono text-sm flex items-center justify-center border border-[var(--oq-border)] rounded-[10px] tabular-nums shrink-0">
+                                                    <span className="min-w-8 h-8 px-1 mono text-sm flex items-center justify-center border border-[var(--oq-border)] rounded-[6px] tabular-nums shrink-0">
                                                         {r.rank}
                                                     </span>
                                                     <span className="truncate" title={r.name}>
@@ -182,7 +182,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-16 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-16 animate-pulse rounded-[8px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -199,7 +199,7 @@ export function ResultView() {
                                         {review.questions.map((q, i) => (
                                             <div
                                                 key={q.questionId}
-                                                className="border border-[var(--oq-border)] rounded-[14px] p-6"
+                                                className="border border-[var(--oq-border)] rounded-[8px] p-6"
                                             >
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div className="flex-1">
@@ -232,7 +232,7 @@ export function ResultView() {
                                                     </div>
                                                 </div>
                                                 {q.answer != null && (
-                                                    <div className="mt-3 p-3 rounded-[10px] bg-[var(--oq-row-alt)] text-sm mono">
+                                                    <div className="mt-3 p-3 rounded-[6px] bg-[var(--oq-row-alt)] text-sm mono">
                                                         Answer: {String(JSON.stringify(q.answer))}
                                                     </div>
                                                 )}
@@ -268,7 +268,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-14 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-14 animate-pulse rounded-[8px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -291,7 +291,7 @@ export function ResultView() {
                                                     aria-expanded={
                                                         selectedStudent === p.playerUuid
                                                     }
-                                                    className="border border-[var(--oq-border)] rounded-[14px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
+                                                    className="border border-[var(--oq-border)] rounded-[8px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
                                                     onClick={() =>
                                                         setSelectedStudent(
                                                             selectedStudent === p.playerUuid
@@ -362,7 +362,7 @@ export function ResultView() {
                                             {[0, 1, 2].map((i) => (
                                                 <div
                                                     key={i}
-                                                    className="h-20 animate-pulse rounded-[14px] bg-[var(--oq-border)] opacity-40"
+                                                    className="h-20 animate-pulse rounded-[8px] bg-[var(--oq-border)] opacity-40"
                                                 />
                                             ))}
                                         </div>
@@ -377,19 +377,19 @@ export function ResultView() {
                                 ) : (
                                     <>
                                         <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Players</p>
                                                 <p className="stat-value">
                                                     {review.classStats.totalPlayers}
                                                 </p>
                                             </div>
-                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Avg Score</p>
                                                 <p className="stat-value">
                                                     {Math.round(review.classStats.avgScore)}
                                                 </p>
                                             </div>
-                                            <div className="stat-block border border-[var(--oq-border)] rounded-[14px] p-6 text-center">
+                                            <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Correct Rate</p>
                                                 <p className="stat-value">
                                                     {review.classStats.totalAttempts > 0
