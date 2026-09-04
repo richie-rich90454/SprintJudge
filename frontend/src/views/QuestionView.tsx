@@ -55,7 +55,7 @@ export function QuestionView() {
         const sub = lastResult?.submission;
         if (!sub || sub.questionId !== q.id) return;
         const ok = sub.allPassed === true;
-        const aiNote = sub.aiFeedback ? ` — ${sub.aiFeedback}` : "";
+        const aiNote = sub.aiFeedback ? ` - ${sub.aiFeedback}` : "";
         setFeedback({
             ok,
             text: isCoding(q.type)
@@ -78,7 +78,7 @@ export function QuestionView() {
 
     if (status === "REVIEW") {
         return (
-            <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
+            <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
                 {!reduced && <Confetti fireKey={q?.id ?? "review"} />}
                 <Card className="text-center max-w-md w-full">
                     <div className="p-6">
@@ -97,7 +97,7 @@ export function QuestionView() {
 
     if (!q || end === null) {
         return (
-            <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
+            <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
                 <div className="text-center w-full max-w-sm">
                     <p className="label-caps mb-2">Standby</p>
                     <div
@@ -141,7 +141,7 @@ export function QuestionView() {
     };
 
     return (
-        <div className="pattern-exam h-screen flex flex-col overflow-hidden">
+        <div className="pattern-exam min-h-[100dvh] flex flex-col overflow-hidden">
             {/* Top bar: type + points + timer */}
             <div className="flex items-center justify-between flex-wrap gap-2 px-4 md:px-6 py-3 border-b-2 border-[var(--oq-accent)] min-w-0">
                 <span className="label-caps min-w-0 truncate">{q.type.replace(/_/g, " ")}</span>
@@ -159,7 +159,7 @@ export function QuestionView() {
             </div>
             {boardLocked && (
                 <div className="px-4 md:px-6 pt-2">
-                    <Chip tone="neutral">Board locked — updates at round end</Chip>
+                    <Chip tone="neutral">Board locked - updates at round end</Chip>
                 </div>
             )}
 
