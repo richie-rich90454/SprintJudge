@@ -308,14 +308,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         room.applyScore(playerUuid, total);
         room.recordRound(playerUuid, base, bonus);
 
-        // Practice/Exam: send immediate feedback to the player.
-        boolean immediateFeedback = room.gameMode() == GameRoom.GameMode.PRACTICE
-                || room.gameMode() == GameRoom.GameMode.EXAM;
-        if (immediateFeedback) {
-            ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
-                    questionId, total, correct, correct ? 1 : 0, 1, null));
-        }
-        broadcastLeaderboard(pin);
+        // Every mode gets immediate per-player feedback (correct/wrong + score)
+        // the moment they submit — host-led rooms reveal instantly per player.
+        ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
+                questionId, total, correct, correct ? 1 : 0, 1, null));
+        broadcastScoreChanged(room);
     }
 
     private void submitCoding(GameRoom room, Question q, String playerUuid, String language, JsonNode response) {
@@ -347,7 +344,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             Player current = room.getPlayer(uuid);
             ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT", questionId,
                     baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
-            broadcastLeaderboard(pin);
+            broadcastScoreChanged(room);
         };
 
         long timeTakenSec = Math.max(0, (Instant.now().toEpochMilli() - startMs) / 1000);
@@ -704,6 +701,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     }
 
     // ---------- leaderboard transport ----------
+
+    /**
+     * Score-driven board updates. Host-led live modes (STANDARD/TEAM/BATTLE/
+     * AUTO_PILOT) freeze the public board mid-round — deltas accumulate in the
+     * ledger and flush at review — while each player still gets instant
+     * per-player feedback via SUBMISSION_RESULT. PRACTICE/EXAM keep the
+     * historical live-board behavior.
+     */
+    private void broadcastScoreChanged(GameRoom room) {
+        GameRoom.GameMode mode = room.gameMode();
+        if (mode == GameRoom.GameMode.PRACTICE || mode == GameRoom.GameMode.EXAM) {
+            broadcastLeaderboard(room.pin());
+        }
+    }
 
     public void broadcastLeaderboard(String pin) {
         int key = Integer.parseInt(pin);
