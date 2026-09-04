@@ -19,6 +19,11 @@ export function answerColor(index: number): string {
     return ANSWER_PALETTE[index % ANSWER_PALETTE.length];
 }
 
+/** True for host-led live modes where the board stays frozen mid-round. */
+export function boardDelayedForMode(mode: string | null | undefined): boolean {
+    return mode === "STANDARD" || mode === "TEAM" || mode === "BATTLE" || mode === "AUTO_PILOT";
+}
+
 /** Letter badge for an answer index: A, B, C, D … */
 export function answerLetter(index: number): string {
     return String.fromCharCode(65 + index);
