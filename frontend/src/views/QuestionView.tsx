@@ -23,6 +23,7 @@ export function QuestionView() {
     const wsError = useGameStore((s) => s.error);
     const lastResult = useGameStore((s) => s.lastResult);
     const end = useTimerStore((s) => s.endEpochMs);
+    const totalSec = useTimerStore((s) => s.totalSec);
     const [response, setResponse] = useState<unknown>(null);
     const [submitted, setSubmitted] = useState(false);
     const [feedback, setFeedback] = useState<null | { ok: boolean; text: string }>(null);
@@ -163,7 +164,7 @@ export function QuestionView() {
                     <div className="scale-90">
                         <CircularTimer
                             endEpochMs={end}
-                            totalSec={q.timeLimitSec}
+                            totalSec={totalSec}
                             onExpire={() => !submitted && doSubmit()}
                         />
                     </div>
