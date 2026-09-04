@@ -1,29 +1,35 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, Button } from "@heroui/react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { useTimerStore } from "../stores/useTimerStore";
+import { motionReduced } from "../stores/useUIStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
+import { boardDelayedForMode } from "../design/kahoot";
 import { Confetti } from "../components/Confetti";
 import { audio } from "../services/AudioEngine";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { QuestionDto, SubmissionResult } from "../types";
-import { KAHOOT_COLORS } from "../design/kahoot";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
+import { Chip } from "../components/ui/Primitives";
 
 export function QuestionView() {
-    const q = useGameStore((s) => s.currentQuestion) as QuestionDto | null;
+    const q = useGameStore((s) => s.currentQuestion);
     const status = useGameStore((s) => s.status);
+    const gameMode = useGameStore((s) => s.gameMode);
     const submit = useGameStore((s) => s.submit);
     const wsError = useGameStore((s) => s.error);
-    const lastResult = useGameStore((s) => s.lastResult) as SubmissionResult | null;
+    const lastResult = useGameStore((s) => s.lastResult);
     const end = useTimerStore((s) => s.endEpochMs);
     const [response, setResponse] = useState<unknown>(null);
     const [submitted, setSubmitted] = useState(false);
     const [feedback, setFeedback] = useState<null | { ok: boolean; text: string }>(null);
     const [shake, setShake] = useState(false);
     const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const reduced = motionReduced();
+    const boardLocked = boardDelayedForMode(gameMode) && status === "ACTIVE";
 
     useEffect(() => {
         setSubmitted(false);
@@ -73,9 +79,9 @@ export function QuestionView() {
     if (status === "REVIEW") {
         return (
             <div className="pattern-exam min-h-screen flex items-center justify-center p-4">
-                <Confetti fireKey={q?.id ?? "review"} />
-                <Card className="bg-[var(--oq-surface)] text-center max-w-md w-full">
-                    <CardContent className="p-6 gap-2">
+                {!reduced && <Confetti fireKey={q?.id ?? "review"} />}
+                <Card className="text-center max-w-md w-full">
+                    <div className="p-6">
                         <p className="label-caps mb-2">Round complete</p>
                         <h2 className="text-2xl font-extrabold">Answers locked.</h2>
                         <p className="text-[var(--oq-ink-soft)] mt-2">
@@ -83,7 +89,7 @@ export function QuestionView() {
                                 ? "The host is preparing the next round."
                                 : "No question was active. The host is preparing the next round."}
                         </p>
-                    </CardContent>
+                    </div>
                 </Card>
             </div>
         );
@@ -151,9 +157,14 @@ export function QuestionView() {
                 )}
                 {untimed && <span className="chip chip-neutral">Untimed</span>}
             </div>
+            {boardLocked && (
+                <div className="px-4 md:px-6 pt-2">
+                    <Chip tone="neutral">Board locked — updates at round end</Chip>
+                </div>
+            )}
 
             <motion.div
-                animate={shake ? { x: [0, -10, 10, -8, 8, 0] } : { x: 0 }}
+                animate={shake && !reduced ? { x: [0, -10, 10, -8, 8, 0] } : { x: 0 }}
                 transition={{ duration: 0.4 }}
                 className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden"
             >
@@ -180,16 +191,7 @@ export function QuestionView() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
                                 aria-live="polite"
-                                className="mt-4 rounded-[10px] px-4 py-3 font-bold"
-                                style={{
-                                    background: feedback.ok
-                                        ? KAHOOT_COLORS.green
-                                        : "var(--oq-danger)",
-                                    color: "#fff",
-                                    boxShadow: feedback.ok
-                                        ? "0 0 24px rgba(31,190,107,0.5)"
-                                        : "0 0 24px rgba(255,46,99,0.4)",
-                                }}
+                                className={`feedback-banner mt-4 ${feedback.ok ? "ok" : "bad"}`}
                             >
                                 {feedback.text}
                             </motion.div>
@@ -198,11 +200,7 @@ export function QuestionView() {
                 </div>
 
                 {/* RIGHT: answer area / editor */}
-                <div
-                    className={
-                        "w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-4 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] overflow-y-auto min-h-0"
-                    }
-                >
+                <div className="w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-4 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] overflow-y-auto min-h-0">
                     <ErrorBoundary>
                         <QuestionRendererHost
                             question={q}
@@ -212,9 +210,9 @@ export function QuestionView() {
                     </ErrorBoundary>
 
                     <Button
-                        onPress={doSubmit}
-                        isDisabled={submitted}
-                        className="btn btn-primary w-full mt-2 font-bold shrink-0"
+                        onClick={doSubmit}
+                        disabled={submitted}
+                        className="w-full mt-2 font-bold shrink-0"
                     >
                         {submitted
                             ? "Answer locked in"
