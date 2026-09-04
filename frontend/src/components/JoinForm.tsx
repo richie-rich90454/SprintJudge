@@ -3,7 +3,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "./ui/Button";
 import { TextInput } from "./ui/TextInput";
 import { Field } from "./ui/Primitives";
-import { AvatarPicker } from "./AvatarPicker";
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
 import { audio } from "../services/AudioEngine";
@@ -24,7 +23,6 @@ export function JoinForm({ initialPin = "", heading }: JoinFormProps) {
     const connect = useGameStore((s) => s.connect);
     const join = useGameStore((s) => s.join);
     const setPin = useUIStore((s) => s.setPin);
-    const avatar = useUIStore((s) => s.avatar);
     const navigate = useNavigate();
 
     const canSubmit = pin.length === 6 && name.trim().length > 0;
@@ -66,23 +64,6 @@ export function JoinForm({ initialPin = "", heading }: JoinFormProps) {
                     className="text-center mono font-bold tracking-[0.25em] text-2xl"
                 />
             </Field>
-            <div className="flex items-center gap-3">
-                <span
-                    className="avatar-disc"
-                    style={{ width: 40, height: 40, fontSize: 20 }}
-                    aria-hidden="true"
-                >
-                    {avatar}
-                </span>
-                <details>
-                    <summary className="cursor-pointer text-sm font-semibold text-[var(--oq-ink-soft)]">
-                        Change avatar
-                    </summary>
-                    <div className="mt-2">
-                        <AvatarPicker />
-                    </div>
-                </details>
-            </div>
             {error && (
                 <p role="alert" className="text-[var(--oq-danger)] text-sm">
                     {error}
