@@ -31,7 +31,6 @@ function clearInline(el: Element): void {
  */
 export class MotionService {
     private reduced: boolean;
-    private pressInstalled = false;
 
     constructor() {
         this.reduced = prefersReducedMotion();
@@ -135,37 +134,6 @@ export class MotionService {
                 registry.delete(node);
             }
         });
-    }
-
-    installGlobalPressFeedback(): void {
-        if (this.reduced || this.pressInstalled) return;
-        this.pressInstalled = true;
-        document.addEventListener(
-            "pointerdown",
-            (e) => {
-                const target = (e.target as HTMLElement | null)?.closest("button");
-                if (!target) return;
-                const down = animate(
-                    target,
-                    { scale: [1, 0.96] },
-                    { duration: 0.08, ease: "easeOut" },
-                );
-                track(target, down);
-                const release = () => {
-                    const up = animate(
-                        target,
-                        { scale: [0.96, 1] },
-                        { duration: 0.14, ease: "backOut", onComplete: () => clearInline(target) },
-                    );
-                    track(target, up);
-                    window.removeEventListener("pointerup", release);
-                    window.removeEventListener("pointercancel", release);
-                };
-                window.addEventListener("pointerup", release, { once: true });
-                window.addEventListener("pointercancel", release, { once: true });
-            },
-            { passive: true },
-        );
     }
 }
 
