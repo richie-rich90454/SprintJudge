@@ -45,7 +45,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
     const rh = projector ? PROJECTOR_ROW_H : ROW_H;
     const maxH = projector ? 640 : 460;
     const listRef = useStaggerIn<HTMLDivElement>(".lb-row", [rows.length], 0.05);
-    const { ref, start, end } = useVirtualWindow(rows.length, rh);
+    const { ref, start, end } = useVirtualWindow(rows.length, rh, 6, maxH);
     const slice = rows.slice(start, end);
 
     return (
