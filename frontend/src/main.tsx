@@ -2,16 +2,28 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./App";
-import { applyStoredTheme, watchSystemTheme } from "./stores/useUIStore";
+import {
+    applyStoredTheme,
+    motionReduced,
+    useUIStore,
+    watchSystemTheme,
+} from "./stores/useUIStore";
 import { audio } from "./services/AudioEngine";
+import { motion } from "./services/MotionService";
 import "./index.css";
 
 // Sync the <html> class with the persisted theme (also handled inline in
 // index.html to avoid a flash; this keeps it correct after HMR / re-mounts).
-// HeroUI v3 (3.2.x) themes via @heroui/styles + the `.dark` class on <html>;
-// dark is the default (set in index.html and useUIStore).
+// Dark is the default (set in index.html and useUIStore).
 applyStoredTheme();
 watchSystemTheme();
+
+// Keep the imperative motion engine in sync with the persisted motion
+// preference (the system default honors the OS reduced-motion setting).
+motion.setReduced(motionReduced());
+useUIStore.subscribe((s, prev) => {
+    if (s.motion !== prev.motion) motion.setReduced(motionReduced());
+});
 
 const queryClient = new QueryClient({
     defaultOptions: {
