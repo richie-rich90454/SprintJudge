@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Navigate } from "@tanstack/react-router";
 import { useGameStore } from "../stores/useGameStore";
 import { useTimerStore } from "../stores/useTimerStore";
 import { motionReduced } from "../stores/useUIStore";
@@ -75,6 +76,10 @@ export function QuestionView() {
             }, 400);
         }
     }, [lastResult, q?.id]);
+
+    if (status === "ENDED") {
+        return <Navigate to="/results" />;
+    }
 
     if (status === "REVIEW") {
         return (
