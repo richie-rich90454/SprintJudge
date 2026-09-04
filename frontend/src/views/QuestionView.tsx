@@ -115,11 +115,11 @@ export function QuestionView() {
                 <div className="text-center w-full max-w-sm">
                     <p className="label-caps mb-2">Standby</p>
                     <div
-                        className="mx-auto mb-4 h-3 w-40 animate-pulse rounded-[10px] bg-[var(--oq-border)]"
+                        className="mx-auto mb-4 h-3 w-40 animate-pulse rounded-[6px] bg-[var(--oq-border)]"
                         aria-hidden="true"
                     />
                     <div
-                        className="mx-auto mb-4 h-3 w-28 animate-pulse rounded-[10px] bg-[var(--oq-border)]"
+                        className="mx-auto mb-4 h-3 w-28 animate-pulse rounded-[6px] bg-[var(--oq-border)]"
                         aria-hidden="true"
                     />
                     <p className="text-[var(--oq-ink-soft)]">
