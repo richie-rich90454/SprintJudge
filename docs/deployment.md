@@ -20,8 +20,8 @@ flowchart TB
 `prod` runs on Windows too. The `native` executor drives gcc/g++/javac/node/python
 directly (no nsjail on Windows), and the database defaults to a portable relative path.
 
-```powershell
-.\scripts\run-prod.ps1          # builds target\sprintjudge.jar and starts it with ZGC
+```bash
+make prod          # builds target/sprintjudge.jar and starts it with ZGC
 # optional environment:
 #   SPRINTJUDGE_DB_PATH=D:\data\sprintjudge.db
 #   SPRINTJUDGE_PORT=8080
@@ -33,11 +33,11 @@ Without an explicit path, the database (and a `.env` file if present) lives next
 the running jar, so the whole deployment is one folder you can copy around.
 Verify any Windows launch in one command:
 
-```powershell
-.\scripts\verify-prod.ps1 -SkipBuild   # boots prod, checks REST + SPA + auth wall + WebSocket
+```bash
+make verify-prod SKIP_BUILD=1   # boots prod, checks the REST health endpoints
 ```
 
-For hardened Linux hosts keep `OPENQUIZ_EXECUTOR_MODE=nsjail` (the systemd unit already
+For hardened Linux hosts keep `SPRINTJUDGE_EXECUTOR_MODE=nsjail` (the systemd unit already
 pins it); on Windows, prefer running the JVM under a dedicated service account and rely
 on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
 
