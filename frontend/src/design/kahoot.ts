@@ -28,3 +28,11 @@ export function boardDelayedForMode(mode: string | null | undefined): boolean {
 export function answerLetter(index: number): string {
     return String.fromCharCode(65 + index);
 }
+
+/** Kahoot shape per answer slot: triangle, diamond, circle, square. */
+export const ANSWER_SHAPES = ["triangle", "diamond", "circle", "square"] as const;
+
+/** Returns the Kahoot shape for an answer index (wraps if > 3). */
+export function answerShape(index: number): (typeof ANSWER_SHAPES)[number] {
+    return ANSWER_SHAPES[index % ANSWER_SHAPES.length];
+}
