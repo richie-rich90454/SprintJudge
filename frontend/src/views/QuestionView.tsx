@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Navigate } from "@tanstack/react-router";
 import { useGameStore } from "../stores/useGameStore";
 import { useTimerStore } from "../stores/useTimerStore";
-import { motionReduced } from "../stores/useUIStore";
+import { motionReduced, useUIStore } from "../stores/useUIStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
@@ -34,6 +34,8 @@ export function QuestionView() {
     const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const reduced = motionReduced();
+    // Subscribe so a motion-preference flip re-renders immediately.
+    useUIStore((s) => s.motion);
     const boardLocked = boardDelayedForMode(gameMode) && status === "ACTIVE";
 
     useEffect(() => {
