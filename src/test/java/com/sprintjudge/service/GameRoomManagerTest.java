@@ -167,6 +167,20 @@ class GameRoomManagerTest {
         verify(scheduler).markDirty(eq(123456), any());
     }
 
+    /** Regression: the host holds a roster seat but never enters the scored board. */
+    @Test
+    void hostJoinExcludedFromLeaderboard() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        var host = mgr.join("123456", "Host", "sess-h", "host", null);
+        var player = mgr.join("123456", "Alice", "sess-a", "player", null);
+
+        var lb = roomOf(mgr).leaderboard();
+        assertEquals(1, lb.size());
+        assertEquals(player.uuid(), lb.get(0).uuid());
+        assertTrue(roomOf(mgr).players().stream().anyMatch(p -> p.uuid().equals(host.uuid())));
+    }
+
     @Test
     void roomRejectsPlayersBeyondCapacity() throws Exception {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
