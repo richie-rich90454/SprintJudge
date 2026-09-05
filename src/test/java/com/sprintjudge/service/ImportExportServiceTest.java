@@ -178,4 +178,47 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         assertThrows(IllegalStateException.class, () -> svc.importAll("{not json", false));
     }
+
+    @Test
+    void importAllNoReplaceRejectsCollidingQuizId() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+        rp.qr().create(new Quiz("q1", "Keep", "d", "a", Instant.now(), false));
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu9", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q1", "Clash", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
+        assertThrows(IllegalArgumentException.class, () -> svc.importAll(Json.write(bundle), false));
+        assertEquals("Keep", rp.qr().findById("q1").orElseThrow().title());
+    }
+
+    @Test
+    void importAllNoReplaceRejectsCollidingQuestionId() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+        rp.qr().create(new Quiz("q1", "Keep", "d", "a", Instant.now(), false));
+        rp.qnr().save(new Question("qu1", "q1", "Q", "d", "MCQ", null, 30, 100, null, 0, Instant.now()));
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu1", "MCQ", "Changed", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q2", "Add", "desc", false, List.of(ex));
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
+        assertThrows(IllegalArgumentException.class, () -> svc.importAll(Json.write(bundle), false));
+    }
+
+    @Test
+    void importAllRejectsNullSettingValue() throws Exception {
+        Repos rp = repos();
+        ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
+        ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
+                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+        ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
+                "q1", "Quiz1", "desc", false, List.of(ex));
+        java.util.Map<String, String> settings = new java.util.HashMap<>();
+        settings.put("k", null);
+        ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), settings);
+        assertThrows(IllegalArgumentException.class, () -> svc.importAll(Json.write(bundle), false));
+        assertFalse(rp.qr().findById("q1").isPresent());
+    }
 }
