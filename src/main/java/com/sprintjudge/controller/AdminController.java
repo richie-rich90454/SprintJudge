@@ -51,6 +51,10 @@ public class AdminController {
 
     @PostMapping("/quizzes")
     public Quiz createQuiz(@Valid @RequestBody Quiz quiz) {
+        if (quiz.id() != null && quizRepository.findById(quiz.id()).isPresent()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT, "Quiz id already exists");
+        }
         return quizRepository.create(quiz);
     }
 
@@ -91,6 +95,7 @@ public class AdminController {
 
     @PostMapping("/quizzes/{id}/questions")
     public Question addQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
+        requireKnownType(question.questionType());
         Question q = new Question(question.id(), id, question.title(), question.description(),
                 question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
                 question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
@@ -99,10 +104,24 @@ public class AdminController {
 
     @PutMapping("/questions/{id}")
     public Question updateQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
-        Question q = new Question(id, question.quizId(), question.title(), question.description(),
+        Question existing = questionRepository.findById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Question not found"));
+        requireKnownType(question.questionType());
+        // The quiz home comes from the stored record, never the client body.
+        Question q = new Question(id, existing.quizId(), question.title(), question.description(),
                 question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
                 question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
         return questionRepository.save(q);
+    }
+
+    private static void requireKnownType(String type) {
+        try {
+            com.sprintjudge.domain.enums.QuestionType.from(type);
+        } catch (IllegalArgumentException e) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Unknown question type: " + type);
+        }
     }
 
     @DeleteMapping("/questions/{id}")
