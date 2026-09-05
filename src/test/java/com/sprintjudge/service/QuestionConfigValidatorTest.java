@@ -22,7 +22,9 @@ class QuestionConfigValidatorTest {
 
     @Test
     void unknownTypeRejected() {
-        invalid("BOGUS", "{}", "Unknown question type");
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> QuestionConfigValidator.requireValid("BOGUS", "{}"));
+        assertTrue(e.getMessage().contains("BOGUS"), e.getMessage());
     }
 
     @Test
