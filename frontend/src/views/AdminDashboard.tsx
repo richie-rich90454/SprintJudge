@@ -99,7 +99,9 @@ function SettingsTab() {
                             <label className="label-caps">{key}</label>
                             <TextInput
                                 value={value}
-                                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                                onChange={(e) =>
+                                    setSettings({ ...settings, [key]: e.target.value })
+                                }
                             />
                         </div>
                     ))}
@@ -113,7 +115,10 @@ function SettingsTab() {
                             </span>
                         )}
                         {saveError && (
-                            <span role="alert" className="text-sm text-[var(--oq-danger)] self-center">
+                            <span
+                                role="alert"
+                                className="text-sm text-[var(--oq-danger)] self-center"
+                            >
                                 {saveError}
                             </span>
                         )}
@@ -381,10 +386,7 @@ export function AdminDashboard() {
                                     >
                                         {busy ? "Hosting…" : "Host first quiz"}
                                     </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => setTab("questions")}
-                                    >
+                                    <Button variant="secondary" onClick={() => setTab("questions")}>
                                         Browse questions
                                     </Button>
                                 </div>
@@ -405,9 +407,7 @@ export function AdminDashboard() {
                                     <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
                                     <select
                                         value={gameMode}
-                                        onChange={(e) =>
-                                            setGameMode(e.target.value as GameMode)
-                                        }
+                                        onChange={(e) => setGameMode(e.target.value as GameMode)}
                                         aria-label="Game mode for hosting"
                                         className="input-underline text-sm max-w-[140px]"
                                     >
@@ -456,10 +456,7 @@ export function AdminDashboard() {
                                                 variant="primary"
                                                 onClick={async () => {
                                                     if (title.trim()) {
-                                                        await createQuiz(
-                                                            title.trim(),
-                                                            desc.trim(),
-                                                        );
+                                                        await createQuiz(title.trim(), desc.trim());
                                                         setTitle("");
                                                         setDesc("");
                                                         setShowCreate(false);
@@ -477,10 +474,7 @@ export function AdminDashboard() {
                                     className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
                                 >
                                     {filteredQuizzes.map((q) => (
-                                        <Card
-                                            key={q.id}
-                                            className="oq-quiz-card"
-                                        >
+                                        <Card key={q.id} className="oq-quiz-card">
                                             <div className="flex flex-col gap-4">
                                                 <div className="flex items-start justify-between gap-4">
                                                     <h3 className="font-bold text-base leading-snug">
