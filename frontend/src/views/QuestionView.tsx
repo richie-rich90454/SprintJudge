@@ -26,6 +26,9 @@ export function QuestionView() {
     const totalSec = useTimerStore((s) => s.totalSec);
     const [response, setResponse] = useState<unknown>(null);
     const [submitted, setSubmitted] = useState(false);
+    // Ref mirror: a click and the timer expiry in the same tick both read
+    // stale state, so the ref (not the state) owns the once-only guard.
+    const submittedRef = useRef(false);
     const [feedback, setFeedback] = useState<null | { ok: boolean; text: string }>(null);
     const [shake, setShake] = useState(false);
     const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,6 +38,7 @@ export function QuestionView() {
 
     useEffect(() => {
         setSubmitted(false);
+        submittedRef.current = false;
         setResponse(null);
         setFeedback(null);
         setShake(false);
@@ -71,6 +75,7 @@ export function QuestionView() {
         } else {
             audio.play("wrong");
             setShake(true);
+            if (shakeTimer.current) clearTimeout(shakeTimer.current);
             shakeTimer.current = setTimeout(() => {
                 setShake(false);
                 shakeTimer.current = null;
@@ -139,7 +144,8 @@ export function QuestionView() {
     const coding = isCoding(q.type);
 
     const doSubmit = () => {
-        if (submitted) return;
+        if (submittedRef.current) return;
+        submittedRef.current = true;
         const lang =
             coding && typeof response === "object" && response !== null && "language" in response
                 ? (response as { language?: string }).language
@@ -165,7 +171,7 @@ export function QuestionView() {
                         <CircularTimer
                             endEpochMs={end}
                             totalSec={totalSec}
-                            onExpire={() => !submitted && doSubmit()}
+                            onExpire={() => doSubmit()}
                         />
                     </div>
                 )}
@@ -215,7 +221,9 @@ export function QuestionView() {
 
                 {/* RIGHT: answer area / editor */}
                 <div className="w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-4 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] overflow-y-auto min-h-0">
-                    <ErrorBoundary>
+                    {/* Key per question: a crashed renderer resets instead of
+                        bricking the answer area for the rest of the game. */}
+                    <ErrorBoundary key={q.id}>
                         <QuestionRendererHost
                             question={q}
                             onResponse={setResponse}
