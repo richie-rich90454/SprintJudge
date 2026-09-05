@@ -332,153 +332,143 @@ export function QuestionWizard() {
             size="lg"
         >
             <div>
-                        <div className="flex gap-4 mb-5 flex-wrap">
-                            {STEPS.map((s) => (
-                                <Button
-                                    key={s}
-                                    variant={wizardStep === s ? "primary" : "secondary"}
-                                    size="sm"
-                                    className="capitalize"
-                                    onClick={() => setStep(s)}
-                                >
-                                    {s}
-                                </Button>
-                            ))}
-                        </div>
+                <div className="flex gap-4 mb-5 flex-wrap">
+                    {STEPS.map((s) => (
+                        <Button
+                            key={s}
+                            variant={wizardStep === s ? "primary" : "secondary"}
+                            size="sm"
+                            className="capitalize"
+                            onClick={() => setStep(s)}
+                        >
+                            {s}
+                        </Button>
+                    ))}
+                </div>
 
-                        {wizardStep === "type" && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {ALL_QUESTION_TYPES.map((t) => (
-                                    <Button
-                                        key={t}
-                                        variant={wizardType === t ? "primary" : "secondary"}
-                                        size="sm"
-                                        onClick={() => {
-                                            setType(t);
-                                            setStep("statement");
-                                        }}
-                                    >
-                                        {t.replace("_", " ")}
-                                    </Button>
-                                ))}
-                            </div>
+                {wizardStep === "type" && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {ALL_QUESTION_TYPES.map((t) => (
+                            <Button
+                                key={t}
+                                variant={wizardType === t ? "primary" : "secondary"}
+                                size="sm"
+                                onClick={() => {
+                                    setType(t);
+                                    setStep("statement");
+                                }}
+                            >
+                                {t.replace("_", " ")}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+
+                {wizardStep === "statement" && (
+                    <div className="flex flex-col gap-4">
+                        <input
+                            placeholder="Title"
+                            value={draft.title ?? ""}
+                            onChange={(e) => setDraft({ title: e.target.value })}
+                            aria-required="true"
+                            aria-invalid={!(draft.title ?? "").trim()}
+                            className="input-underline"
+                        />
+                        {validationError && (
+                            <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                                {validationError}
+                            </p>
                         )}
-
-                        {wizardStep === "statement" && (
-                            <div className="flex flex-col gap-4">
+                        <textarea
+                            placeholder="Description (Markdown)"
+                            value={draft.description ?? ""}
+                            onChange={(e) => setDraft({ description: e.target.value })}
+                            className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[6px]"
+                        />
+                        <div className="flex gap-4">
+                            <label className="text-sm flex-1">
+                                Time limit (s)
                                 <input
-                                    placeholder="Title"
-                                    value={draft.title ?? ""}
-                                    onChange={(e) => setDraft({ title: e.target.value })}
-                                    aria-required="true"
-                                    aria-invalid={!(draft.title ?? "").trim()}
-                                    className="input-underline"
+                                    type="number"
+                                    value={draft.timeLimitSec ?? 30}
+                                    onChange={(e) =>
+                                        setDraft({ timeLimitSec: Number(e.target.value) })
+                                    }
+                                    className="input-underline w-full mt-1"
                                 />
-                                {validationError && (
-                                    <p role="alert" className="text-[var(--oq-danger)] text-sm">
-                                        {validationError}
-                                    </p>
-                                )}
-                                <textarea
-                                    placeholder="Description (Markdown)"
-                                    value={draft.description ?? ""}
-                                    onChange={(e) => setDraft({ description: e.target.value })}
-                                    className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[6px]"
+                            </label>
+                            <label className="text-sm flex-1">
+                                Base points
+                                <input
+                                    type="number"
+                                    value={draft.pointsBase ?? 100}
+                                    onChange={(e) =>
+                                        setDraft({ pointsBase: Number(e.target.value) })
+                                    }
+                                    className="input-underline w-full mt-1"
                                 />
-                                <div className="flex gap-4">
-                                    <label className="text-sm flex-1">
-                                        Time limit (s)
-                                        <input
-                                            type="number"
-                                            value={draft.timeLimitSec ?? 30}
-                                            onChange={(e) =>
-                                                setDraft({ timeLimitSec: Number(e.target.value) })
-                                            }
-                                            className="input-underline w-full mt-1"
-                                        />
-                                    </label>
-                                    <label className="text-sm flex-1">
-                                        Base points
-                                        <input
-                                            type="number"
-                                            value={draft.pointsBase ?? 100}
-                                            onChange={(e) =>
-                                                setDraft({ pointsBase: Number(e.target.value) })
-                                            }
-                                            className="input-underline w-full mt-1"
-                                        />
-                                    </label>
-                                </div>
-                                <Button variant="primary" onClick={() => setStep("config")}>
-                                    Next: configure
-                                </Button>
-                            </div>
-                        )}
+                            </label>
+                        </div>
+                        <Button variant="primary" onClick={() => setStep("config")}>
+                            Next: configure
+                        </Button>
+                    </div>
+                )}
 
-                        {wizardStep === "config" && (
-                            <div>
-                                <ConfigForm />
-                                <Button
-                                    variant="primary"
-                                    className="mt-4"
-                                    onClick={() => setStep("preview")}
-                                >
-                                    Preview
-                                </Button>
-                            </div>
-                        )}
+                {wizardStep === "config" && (
+                    <div>
+                        <ConfigForm />
+                        <Button
+                            variant="primary"
+                            className="mt-4"
+                            onClick={() => setStep("preview")}
+                        >
+                            Preview
+                        </Button>
+                    </div>
+                )}
 
-                        {wizardStep === "preview" && (
-                            <div>
-                                <Card>
-                                    <div className="p-6">
-                                        {/* Key on content: the host only remounts on
+                {wizardStep === "preview" && (
+                    <div>
+                        <Card>
+                            <div className="p-6">
+                                {/* Key on content: the host only remounts on
                                             type/id, so statement/config edits need
                                             an explicit remount signal. */}
-                                        <QuestionRendererHost
-                                            key={JSON.stringify([
-                                                previewQuestion.type,
-                                                previewQuestion.title,
-                                                previewQuestion.description,
-                                                previewQuestion.config,
-                                            ])}
-                                            question={previewQuestion}
-                                            onResponse={() => {}}
-                                        />
-                                    </div>
-                                </Card>
-                                {validationError && (
-                                    <p
-                                        role="alert"
-                                        className="text-[var(--oq-danger)] text-sm mt-4"
-                                    >
-                                        {validationError}
-                                    </p>
-                                )}
-                                <div className="flex gap-4 mt-4">
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => setStep("config")}
-                                    >
-                                        Back
-                                    </Button>
-                                    <Button
-                                        variant="primary"
-                                        disabled={saving}
-                                        onClick={doSave}
-                                    >
-                                        {saving ? (
-                                            <span className="inline-flex items-center gap-2">
-                                                <span className="oq-spin" aria-hidden="true" />
-                                                Saving…
-                                            </span>
-                                        ) : (
-                                            "Save question"
-                                        )}
-                                    </Button>
-                                </div>
+                                <QuestionRendererHost
+                                    key={JSON.stringify([
+                                        previewQuestion.type,
+                                        previewQuestion.title,
+                                        previewQuestion.description,
+                                        previewQuestion.config,
+                                    ])}
+                                    question={previewQuestion}
+                                    onResponse={() => {}}
+                                />
                             </div>
+                        </Card>
+                        {validationError && (
+                            <p role="alert" className="text-[var(--oq-danger)] text-sm mt-4">
+                                {validationError}
+                            </p>
                         )}
+                        <div className="flex gap-4 mt-4">
+                            <Button variant="secondary" onClick={() => setStep("config")}>
+                                Back
+                            </Button>
+                            <Button variant="primary" disabled={saving} onClick={doSave}>
+                                {saving ? (
+                                    <span className="inline-flex items-center gap-2">
+                                        <span className="oq-spin" aria-hidden="true" />
+                                        Saving…
+                                    </span>
+                                ) : (
+                                    "Save question"
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
         </Dialog>
     );
