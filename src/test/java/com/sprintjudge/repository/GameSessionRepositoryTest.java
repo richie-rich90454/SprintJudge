@@ -354,6 +354,12 @@ class GameSessionRepositoryTest {
     }
 
     @Test
+    void createWithBlankModeFallsBackToStandard() {
+        GameSession s = repo.create("quiz1", "host1", "900026", null, "  ");
+        assertEquals("STANDARD", s.gameMode());
+    }
+
+    @Test
     void deleteByPinRemovesEndedRow() {
         GameSession s = repo.create("quiz1", "host1", "900023", null);
         repo.updateStatus(s.id(), "ENDED");
@@ -374,5 +380,15 @@ class GameSessionRepositoryTest {
                 .values("legacy", "quiz1", "900025", "host1", "LOBBY", "", 0)
                 .execute();
         assertEquals("STANDARD", repo.findByPin("900025").orElseThrow().gameMode());
+    }
+
+    @Test
+    void legacyNullModeReadsAsStandard() {
+        dsl.insertInto(Tables.GAME_SESSIONS)
+                .columns(Tables.SESS_ID, Tables.SESS_QUIZ_ID, Tables.SESS_PIN,
+                        Tables.SESS_HOST, Tables.SESS_STATUS, Tables.SESS_MODE, Tables.SESS_INDEX)
+                .values("legacy-null", "quiz1", "900027", "host1", "LOBBY", null, 0)
+                .execute();
+        assertEquals("STANDARD", repo.findByPin("900027").orElseThrow().gameMode());
     }
 }
