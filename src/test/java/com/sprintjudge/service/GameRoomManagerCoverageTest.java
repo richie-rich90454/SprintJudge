@@ -28,9 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -426,13 +424,14 @@ class GameRoomManagerCoverageTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void nullSessionFilteredFromFanout() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
         roomOf(mgr).addPlayer(new Player("ghost", "G", 0, null, true, "tok"));
         mgr.flushLeaderboardDelta("123456");
-        ArgumentCaptor<Collection<String>> ids = ArgumentCaptor.forClass(Collection.class);
+        ArgumentCaptor<Collection<String>> ids = ArgumentCaptor.forClass((Class) Collection.class);
         verify(ws).broadcastRaw(ids.capture(), anyString());
         assertEquals(List.of("sa"), List.copyOf(ids.getValue()));
     }
