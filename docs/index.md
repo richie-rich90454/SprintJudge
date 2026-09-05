@@ -17,5 +17,5 @@ features:
   - title: Real code execution
     details: Players write actual C, C++, Java, Node.js or Python, compiled and run against hidden test cases with nsjail (Linux) or WSL2 (Windows) isolation.
   - title: Portable & fast
-    details: Single-file SQLite (WAL), Java 25 virtual threads + ZGC, vanilla Jakarta WebSocket, Semaphore(100) concurrency throttle.
+    details: Single-file SQLite (WAL), Java 25 virtual threads + ZGC, vanilla Jakarta WebSocket, auto-sized judge concurrency.
 ---
