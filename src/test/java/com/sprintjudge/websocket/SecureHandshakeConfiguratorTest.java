@@ -48,12 +48,12 @@ class SecureHandshakeConfiguratorTest {
     }
 
     @Test
-    void forwardedForTakesFirstBeforeComma() {
+    void forwardedForTakesLastSegment() {
         Map<String, Object> props = new HashMap<>();
         configurator.modifyHandshake(secWith(props),
                 requestWith(Map.of("X-Forwarded-For", List.of(" 1.2.3.4 , 5.6.7.8 ")), null),
                 mock(HandshakeResponse.class));
-        assertEquals("1.2.3.4", stagedIp(props));
+        assertEquals("5.6.7.8", stagedIp(props));
     }
 
     @Test
