@@ -80,6 +80,7 @@ vi.mock("framer-motion", () => ({
 }));
 
 import { QuestionRendererFactory } from "./QuestionRendererFactory";
+import { createCodeEditor } from "./CodeEditor";
 import { McqRenderer } from "./renderers/McqRenderer";
 import { TrueFalseRenderer } from "./renderers/TrueFalseRenderer";
 import { MultipleSelectRenderer } from "./renderers/MultipleSelectRenderer";
@@ -168,5 +169,106 @@ describe("QuestionRendererFactory", () => {
 
     test("unknown type throws a descriptive error", () => {
         expect(() => make("NOPE" as QuestionType)).toThrow("No renderer for type NOPE");
+    });
+});
+
+describe("QuestionRendererFactory edges", () => {
+    test("supported returns the exact twelve types in registry order", () => {
+        expect(QuestionRendererFactory.supported()).toEqual([
+            "MCQ",
+            "TRUE_FALSE",
+            "MULTIPLE_SELECT",
+            "NUMERIC",
+            "OUTPUT_PRED",
+            "FILL_BLANK",
+            "DRAG_SORT",
+            "CLICK_BUG",
+            "CODE_COMPLETION",
+            "COMPLEXITY",
+            "OJ_FULL",
+            "OJ_PATCH",
+        ]);
+    });
+
+    test("supported returns a fresh array that callers cannot corrupt", () => {
+        const first = QuestionRendererFactory.supported();
+        first.length = 0;
+        expect(QuestionRendererFactory.supported()).toHaveLength(12);
+    });
+
+    test("empty string type throws a descriptive error", () => {
+        expect(() => make("" as QuestionType)).toThrow("No renderer for type ");
+    });
+
+    test("lowercase type names throw instead of resolving", () => {
+        expect(() => make("mcq" as QuestionType)).toThrow("No renderer for type mcq");
+        expect(() => make("oj_full" as QuestionType)).toThrow("No renderer for type oj_full");
+    });
+
+    test("null and undefined types throw", () => {
+        expect(() => make(null as unknown as QuestionType)).toThrow("No renderer for type null");
+        expect(() => make(undefined as unknown as QuestionType)).toThrow("No renderer for type undefined");
+    });
+
+    test("created TRUE_FALSE renderer mounts and answers through destroy", () => {
+        const div = document.createElement("div");
+        const seen: unknown[] = [];
+        const r = QuestionRendererFactory.create("TRUE_FALSE", div, {}, (v) => seen.push(v));
+        r.mount();
+        expect(div.querySelectorAll("button")).toHaveLength(2);
+        (div.querySelectorAll("button")[0] as HTMLButtonElement).click();
+        expect(r.getResponse()).toEqual({ value: true });
+        expect(seen).toEqual([{ value: true }]);
+        r.destroy();
+        expect(div.innerHTML).toBe("");
+    });
+
+    test("created DRAG_SORT renderer emits its initial order on mount", () => {
+        const div = document.createElement("div");
+        const seen: unknown[] = [];
+        const r = QuestionRendererFactory.create(
+            "DRAG_SORT",
+            div,
+            { lines: [{ id: "x", text: "X" }] },
+            (v) => seen.push(v),
+        );
+        r.mount();
+        expect(r.getResponse()).toEqual({ order: ["x"] });
+        expect(seen).toEqual([{ order: ["x"] }]);
+        r.destroy();
+    });
+
+    test("created OJ renderer with a single allowed language hides the switcher", () => {
+        vi.mocked(createCodeEditor).mockResolvedValue({
+            getValue: () => "",
+            setLanguage: () => {},
+            destroy: () => {},
+        });
+        const div = document.createElement("div");
+        const r = QuestionRendererFactory.create("OJ_FULL", div, { starter: "s" }, () => {}, "factory-q", ["java"]);
+        r.mount();
+        expect(div.querySelector("select")).toBeNull();
+        expect(r.getResponse()).toEqual({ source: "s", language: "java" });
+        r.destroy();
+    });
+
+    test("two created MCQ renderers hold independent selections", () => {
+        const a = document.createElement("div");
+        const b = document.createElement("div");
+        const ra = QuestionRendererFactory.create("MCQ", a, { options: ["x", "y"] }, () => {});
+        const rb = QuestionRendererFactory.create("MCQ", b, { options: ["x", "y"] }, () => {});
+        ra.mount();
+        rb.mount();
+        (a.querySelectorAll("button")[1] as HTMLButtonElement).click();
+        expect(ra.getResponse()).toEqual({ selectedIndex: 1 });
+        expect(rb.getResponse()).toEqual({ selectedIndex: -1 });
+        ra.destroy();
+        rb.destroy();
+    });
+
+    test("error message names the offending unknown type", () => {
+        for (const bad of ["VIDEO", "ESSAY", "  MCQ  "]) {
+            expect(() => make(bad as QuestionType)).toThrow(`No renderer for type ${bad}`);
+        }
     });
 });
