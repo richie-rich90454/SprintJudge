@@ -94,12 +94,22 @@ describe("GameStateManager basics", () => {
         expect(s.lastResult).toBeNull();
         expect(s.review).toBeNull();
         expect(s.error).toBeNull();
-        expect(fakeWs.send).toHaveBeenCalledWith({ type: "JOIN", role: "player", name: "Ada", pin: "1234" });
+        expect(fakeWs.send).toHaveBeenCalledWith({
+            type: "JOIN",
+            role: "player",
+            name: "Ada",
+            pin: "1234",
+        });
     });
 
     test("join passes explicit host role", () => {
         gameStateManager.join("9999", "Host", "host");
-        expect(fakeWs.send).toHaveBeenCalledWith({ type: "JOIN", role: "host", name: "Host", pin: "9999" });
+        expect(fakeWs.send).toHaveBeenCalledWith({
+            type: "JOIN",
+            role: "host",
+            name: "Host",
+            pin: "9999",
+        });
         expect(gameStateManager.state.role).toBe("host");
     });
 
@@ -234,7 +244,16 @@ describe("GameStateManager QUESTION_START", () => {
     test("timed start arms the countdown and activates the question", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "q1", type: "MCQ", title: "T", description: "", timeLimitSec: 30, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "q1",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: 30,
             startedAtEpochMs: 10_000,
         });
@@ -243,13 +262,26 @@ describe("GameStateManager QUESTION_START", () => {
         expect(s.currentQuestion?.id).toBe("q1");
         expect(s.lastResult).toBeNull();
         expect(s.error).toBeNull();
-        expect(useTimerStore.getState()).toMatchObject({ questionId: "q1", totalSec: 30, endEpochMs: 40_000 });
+        expect(useTimerStore.getState()).toMatchObject({
+            questionId: "q1",
+            totalSec: 30,
+            endEpochMs: 40_000,
+        });
     });
 
     test("practice mode with negative limit sets an untimed clock", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "qp", type: "MCQ", title: "T", description: "", timeLimitSec: -1, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "qp",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: -1,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: -1,
             startedAtEpochMs: 10_000,
         });
@@ -260,7 +292,16 @@ describe("GameStateManager QUESTION_START", () => {
     test("missing time limit sets an untimed clock", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "qz", type: "MCQ", title: "T", description: "", timeLimitSec: 0, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "qz",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 0,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
         });
         expect(useTimerStore.getState().questionId).toBe("qz");
         expect(useTimerStore.getState().totalSec).toBe(0);
@@ -276,7 +317,16 @@ describe("GameStateManager QUESTION_START", () => {
         vi.spyOn(Date, "now").mockReturnValue(5_000);
         msg({
             type: "QUESTION_START",
-            question: { id: "qn", type: "MCQ", title: "T", description: "", timeLimitSec: 30, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "qn",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: 30,
         });
         expect(useTimerStore.getState().endEpochMs).toBe(35_000);
@@ -355,11 +405,23 @@ describe("GameStateManager results and game end", () => {
     test("ROUND_RESULT reviews the submission and clears the timer", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "q1", type: "MCQ", title: "T", description: "", timeLimitSec: 30, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "q1",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: 30,
             startedAtEpochMs: 1_000,
         });
-        msg({ type: "ROUND_RESULT", submission: { questionId: "q1", allPassed: true, score: 100 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "q1", allPassed: true, score: 100 },
+        });
         const s = gameStateManager.state;
         expect(s.status).toBe("REVIEW");
         expect(s.lastResult?.submission.questionId).toBe("q1");
@@ -367,16 +429,41 @@ describe("GameStateManager results and game end", () => {
     });
 
     test("SUBMISSION_RESULT merges over the previous result and nulls missing feedback", () => {
-        msg({ type: "ROUND_RESULT", submission: { questionId: "q1", allPassed: true, score: 100 }, note: "keep" });
-        msg({ type: "SUBMISSION_RESULT", questionId: "q1", score: 80, allPassed: false, passed: 3, totalTests: 5 });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "q1", allPassed: true, score: 100 },
+            note: "keep",
+        });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "q1",
+            score: 80,
+            allPassed: false,
+            passed: 3,
+            totalTests: 5,
+        });
         const last = gameStateManager.state.lastResult as unknown as Record<string, unknown>;
         expect(last["note"]).toBe("keep");
-        expect(last["submission"]).toMatchObject({ questionId: "q1", score: 80, allPassed: false, aiFeedback: null });
+        expect(last["submission"]).toMatchObject({
+            questionId: "q1",
+            score: 80,
+            allPassed: false,
+            aiFeedback: null,
+        });
     });
 
     test("SUBMISSION_RESULT with feedback stores it", () => {
-        msg({ type: "SUBMISSION_RESULT", questionId: "q1", score: 80, allPassed: false, aiFeedback: "retry" });
-        const last = gameStateManager.state.lastResult as unknown as Record<string, { aiFeedback: string }>;
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "q1",
+            score: 80,
+            allPassed: false,
+            aiFeedback: "retry",
+        });
+        const last = gameStateManager.state.lastResult as unknown as Record<
+            string,
+            { aiFeedback: string }
+        >;
         expect(last["submission"].aiFeedback).toBe("retry");
     });
 
@@ -399,7 +486,15 @@ describe("GameStateManager results and game end", () => {
             rankings: [{ uuid: "w", name: "W", score: 50, rank: 1 }],
             questions: [],
             players: [],
-            classStats: { totalPlayers: 1, totalQuestions: 1, avgScore: 50, totalCorrect: 1, totalAttempts: 1, hardestQuestionId: "q", easiestQuestionId: "q" },
+            classStats: {
+                totalPlayers: 1,
+                totalQuestions: 1,
+                avgScore: 50,
+                totalCorrect: 1,
+                totalAttempts: 1,
+                hardestQuestionId: "q",
+                easiestQuestionId: "q",
+            },
         };
         msg(review);
         const s = gameStateManager.state;
@@ -420,12 +515,25 @@ describe("GameStateManager timer and errors", () => {
     test("TIMER_UPDATE accumulates extensions onto the live total", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "q1", type: "MCQ", title: "T", description: "", timeLimitSec: 30, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "q1",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: 30,
             startedAtEpochMs: 1_000,
         });
         msg({ type: "TIMER_UPDATE", extendSec: 15, newEndEpochMs: 99_000 });
-        expect(useTimerStore.getState()).toMatchObject({ questionId: "q1", totalSec: 45, endEpochMs: 99_000 });
+        expect(useTimerStore.getState()).toMatchObject({
+            questionId: "q1",
+            totalSec: 45,
+            endEpochMs: 99_000,
+        });
     });
 
     test("TIMER_UPDATE without an active question is a no-op", () => {
@@ -436,7 +544,16 @@ describe("GameStateManager timer and errors", () => {
     test("TIMER_UPDATE without extendSec keeps the total", () => {
         msg({
             type: "QUESTION_START",
-            question: { id: "q1", type: "MCQ", title: "T", description: "", timeLimitSec: 30, pointsBase: 100, languagesAllowed: null, config: {} },
+            question: {
+                id: "q1",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
             timeLimitSec: 30,
             startedAtEpochMs: 1_000,
         });
@@ -482,7 +599,9 @@ describe("GameStateManager connection status", () => {
 
     test("failed status surfaces a connection error", () => {
         fakeWs.emitStatus("failed");
-        expect(gameStateManager.state.error).toBe("Connection failed after 10 retries — refresh to rejoin");
+        expect(gameStateManager.state.error).toBe(
+            "Connection failed after 10 retries — refresh to rejoin",
+        );
     });
 
     test("closed status changes nothing", () => {
