@@ -259,4 +259,242 @@ class AdminControllerTest {
         when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(2);
         assertEquals(2, controller.importBank(Map.of("json", "{}")).get("importedQuestions"));
     }
+
+    @Test
+    void updateQuizHappyPath() {
+        Quiz existing = new Quiz("q1", "Old", "olddesc", "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
+        Quiz got = controller.updateQuiz("q1", Map.of("title", "New", "description", "newdesc"));
+        assertEquals("New", got.title());
+        assertEquals("newdesc", got.description());
+        assertEquals("q1", got.id());
+    }
+
+    @Test
+    void updateQuizKeepsExistingWhenBodyEmpty() {
+        Quiz existing = new Quiz("q1", "Old", "olddesc", "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
+        Quiz got = controller.updateQuiz("q1", Map.of());
+        assertEquals("Old", got.title());
+        assertEquals("olddesc", got.description());
+    }
+
+    @Test
+    void updateMissingQuizIs404() {
+        when(quizRepository.findById("nope")).thenReturn(Optional.empty());
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("nope", Map.of("title", "T")));
+    }
+
+    @Test
+    void updateQuizBlankTitleIs400() {
+        Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "  ")));
+    }
+
+    @Test
+    void updateQuizNullTitleIs400() {
+        Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("title", null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", body));
+    }
+
+    @Test
+    void updateQuizLongTitleIs400() {
+        Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "t".repeat(201))));
+    }
+
+    @Test
+    void updateQuizTitleBoundary200Ok() {
+        Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(200, controller.updateQuiz("q1", Map.of("title", "t".repeat(200))).title().length());
+    }
+
+    @Test
+    void updateQuizLongDescriptionIs400() {
+        Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("description", "d".repeat(4001))));
+    }
+
+    @Test
+    void createQuizWithFreshIdCreates() {
+        when(quizRepository.findById("fresh")).thenReturn(Optional.empty());
+        when(quizRepository.create(any())).thenReturn(new Quiz("fresh", "T", null, null, null, false));
+        assertEquals("fresh", controller.createQuiz(new Quiz("fresh", "T", null, null, null, false)).id());
+    }
+
+    @Test
+    void createQuizNullIdSkipsConflictCheck() {
+        when(quizRepository.create(any())).thenReturn(new Quiz("gen", "T", null, null, null, false));
+        assertEquals("gen", controller.createQuiz(new Quiz(null, "T", null, null, null, false)).id());
+        verify(quizRepository, org.mockito.Mockito.never()).findById(anyString());
+    }
+
+    @Test
+    void addQuestionLowercaseTypeAccepted() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Question in = new Question(null, "q1", "Q", null, "mcq", null, 30, 10, "{}", 0, null);
+        assertNotNull(controller.addQuestion("q1", in));
+    }
+
+    @Test
+    void addQuestionBindsPathQuizId() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Question in = new Question(null, "other", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        assertEquals("q1", controller.addQuestion("q1", in).quizId());
+    }
+
+    @Test
+    void updateQuestionBadTypeIs400() {
+        Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
+        Question body = new Question("qid", "q1", "Q", null, "NOPE", null, 30, 10, "{}", 0, null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuestion("qid", body));
+    }
+
+    @Test
+    void createGameMissingQuizIdIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.createGame(Map.of()));
+    }
+
+    @Test
+    void createGameBlankQuizIdIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.createGame(Map.of("quizId", "  ")));
+    }
+
+    @Test
+    void createGameUnknownModeIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.createGame(Map.of("quizId", "q1", "gameMode", "CHAOS")));
+    }
+
+    @Test
+    void createGameLowercaseModeAccepted() {
+        User host = new User("host", "a@b.c", "Al", null, null, null);
+        when(userRepository.upsertByEmail(anyString(), anyString(), any())).thenReturn(host);
+        when(roomManager.createRoom(eq("q1"), eq("host"), any()))
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "battle")));
+        verify(roomManager).createRoom("q1", "host", com.sprintjudge.service.GameRoom.GameMode.BATTLE);
+    }
+
+    @Test
+    void createGameWithUserDetailsPrincipal() {
+        User host = new User("host", "u@x.y", "U", null, null, null);
+        var details = org.springframework.security.core.userdetails.User.withUsername("u@x.y")
+                .password("p").roles("ADMIN").build();
+        Authentication auth = org.mockito.Mockito.mock(Authentication.class);
+        when(auth.getPrincipal()).thenReturn(details);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
+        when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
+        when(roomManager.createRoom(eq("q1"), eq("host"), any()))
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+        assertNotNull(controller.createGame(Map.of("quizId", "q1")));
+        assertEquals("u@x.y", email.getValue());
+    }
+
+    @Test
+    void createGameWithStringPrincipal() {
+        User host = new User("host", "s@x.y", "S", null, null, null);
+        Authentication auth = org.mockito.Mockito.mock(Authentication.class);
+        when(auth.getPrincipal()).thenReturn("s@x.y");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
+        when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
+        when(roomManager.createRoom(eq("q1"), eq("host"), any()))
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+        assertNotNull(controller.createGame(Map.of("quizId", "q1")));
+        assertEquals("s@x.y", email.getValue());
+    }
+
+    @Test
+    void createGameWithBlankStringPrincipalUsesDefaults() {
+        User host = new User("host", "a@b.c", "Al", null, null, null);
+        Authentication auth = org.mockito.Mockito.mock(Authentication.class);
+        when(auth.getPrincipal()).thenReturn("   ");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
+        when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
+        when(roomManager.createRoom(eq("q1"), eq("host"), any()))
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+        assertNotNull(controller.createGame(Map.of("quizId", "q1")));
+        assertEquals("system@sprintjudge.local", email.getValue());
+    }
+
+    @Test
+    void updateSettingsNullValueIs400() {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("theme", null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateSettings(body));
+    }
+
+    @Test
+    void updateSettingsEmptyIsNoop() {
+        controller.updateSettings(Map.of());
+        verify(settingsService, org.mockito.Mockito.never()).set(anyString(), anyString());
+    }
+
+    @Test
+    void importBankMissingJsonIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.importBank(Map.of()));
+    }
+
+    @Test
+    void importBankNonStringJsonIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.importBank(Map.of("json", (Object) 42)));
+    }
+
+    @Test
+    void importBankBlankJsonIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.importBank(Map.of("json", (Object) "  ")));
+    }
+
+    @Test
+    void importBankReplaceStringTrue() {
+        when(importExportService.importAll(eq("{}"), eq(true))).thenReturn(5);
+        assertEquals(5, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) "true"))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void importBankReplaceStringCaseInsensitive() {
+        when(importExportService.importAll(eq("{}"), eq(true))).thenReturn(5);
+        assertEquals(5, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) "TRUE"))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void importBankReplaceStringFalse() {
+        when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(1);
+        assertEquals(1, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) "false"))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void importBankNegativeClampedToZero() {
+        when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(-1);
+        assertEquals(0, controller.importBank(Map.of("json", (Object) "{}")).get("importedQuestions"));
+    }
 }
