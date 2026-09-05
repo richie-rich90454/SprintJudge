@@ -57,19 +57,19 @@ public class MetricsService {
         this.scheduler = scheduler;
 
         // Register Prometheus gauges for key metrics.
-        Gauge.builder("sprintjudge.rooms.active", roomManager, GameRoomManager::activeRooms)
+        Gauge.builder("sprintjudge.rooms.active", roomManager, r -> r.activeRooms())
                 .description("Number of active game rooms").register(meterRegistry);
-        Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, Semaphore::availablePermits)
+        Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, s -> s.availablePermits())
                 .description("Available judge execution permits").register(meterRegistry);
         Gauge.builder("sprintjudge.judge.runs.total", this, m -> m.judgeCount.get())
                 .description("Total judge runs").register(meterRegistry);
         Gauge.builder("sprintjudge.judge.timeouts.total", this, m -> m.judgeTimeouts.get())
                 .description("Total judge timeouts").register(meterRegistry);
-        Gauge.builder("sprintjudge.persistence.buffer.depth", writeBuffer, SubmissionWriteBuffer::depth)
+        Gauge.builder("sprintjudge.persistence.buffer.depth", writeBuffer, w -> w.depth())
                 .description("Write buffer depth").register(meterRegistry);
-        Gauge.builder("sprintjudge.compile.cache.entries", compileCache, CompileArtifactCache::entries)
+        Gauge.builder("sprintjudge.compile.cache.entries", compileCache, c -> c.entries())
                 .description("Compile cache entries").register(meterRegistry);
-        Gauge.builder("sprintjudge.broadcast.pending.rooms", scheduler, BroadcastScheduler::pendingRooms)
+        Gauge.builder("sprintjudge.broadcast.pending.rooms", scheduler, s -> s.pendingRooms())
                 .description("Rooms pending broadcast").register(meterRegistry);
         Gauge.builder("sprintjudge.memory.heap.used.mb", this, m -> m.memory.getHeapMemoryUsage().getUsed() >> 20)
                 .description("Heap memory used (MB)").register(meterRegistry);
