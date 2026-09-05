@@ -73,8 +73,13 @@ describe("AdminApiService endpoints", () => {
     test("createQuiz POSTs the quiz body", async () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ id: "n" }));
-        await expect(svc.createQuiz({ title: "T", description: "D" })).resolves.toEqual({ id: "n" });
-        expect(client.post).toHaveBeenCalledWith("/admin/quizzes", { title: "T", description: "D" });
+        await expect(svc.createQuiz({ title: "T", description: "D" })).resolves.toEqual({
+            id: "n",
+        });
+        expect(client.post).toHaveBeenCalledWith("/admin/quizzes", {
+            title: "T",
+            description: "D",
+        });
     });
 
     test("deleteQuiz DELETEs the quiz", async () => {
@@ -85,7 +90,17 @@ describe("AdminApiService endpoints", () => {
 
     test("addQuestion POSTs under the quiz", async () => {
         const svc = new AdminApiService();
-        const q = { quizId: "quiz-1", title: "T", description: "", questionType: "MCQ", languagesAllowed: null, timeLimitSec: 30, pointsBase: 100, config: {}, orderIndex: 0 };
+        const q = {
+            quizId: "quiz-1",
+            title: "T",
+            description: "",
+            questionType: "MCQ",
+            languagesAllowed: null,
+            timeLimitSec: 30,
+            pointsBase: 100,
+            config: {},
+            orderIndex: 0,
+        };
         client.post.mockResolvedValue(ok({ ...q, id: "new" }));
         await expect(svc.addQuestion(q)).resolves.toMatchObject({ id: "new" });
         expect(client.post).toHaveBeenCalledWith("/admin/quizzes/quiz-1/questions", q);
@@ -93,7 +108,18 @@ describe("AdminApiService endpoints", () => {
 
     test("updateQuestion PUTs the question by id", async () => {
         const svc = new AdminApiService();
-        const q = { id: "q1", quizId: "quiz-1", title: "T", description: "", questionType: "MCQ", languagesAllowed: null, timeLimitSec: 30, pointsBase: 100, config: {}, orderIndex: 0 };
+        const q = {
+            id: "q1",
+            quizId: "quiz-1",
+            title: "T",
+            description: "",
+            questionType: "MCQ",
+            languagesAllowed: null,
+            timeLimitSec: 30,
+            pointsBase: 100,
+            config: {},
+            orderIndex: 0,
+        };
         client.put.mockResolvedValue(ok(q));
         await expect(svc.updateQuestion(q)).resolves.toEqual(q);
         expect(client.put).toHaveBeenCalledWith("/admin/questions/q1", q);
@@ -122,14 +148,20 @@ describe("AdminApiService endpoints", () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ id: "g", pinCode: "1" }));
         await expect(svc.createGame("quiz-1")).resolves.toEqual({ id: "g", pinCode: "1" });
-        expect(client.post).toHaveBeenCalledWith("/admin/games", { quizId: "quiz-1", gameMode: "STANDARD" });
+        expect(client.post).toHaveBeenCalledWith("/admin/games", {
+            quizId: "quiz-1",
+            gameMode: "STANDARD",
+        });
     });
 
     test("createGame passes an explicit mode", async () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ id: "g", pinCode: "2" }));
         await svc.createGame("quiz-1", "BATTLE");
-        expect(client.post).toHaveBeenCalledWith("/admin/games", { quizId: "quiz-1", gameMode: "BATTLE" });
+        expect(client.post).toHaveBeenCalledWith("/admin/games", {
+            quizId: "quiz-1",
+            gameMode: "BATTLE",
+        });
     });
 
     test("exportBank GETs the export payload", async () => {
@@ -152,7 +184,17 @@ describe("AdminApiService endpoints", () => {
         await expect(svc.listQuizzes()).rejects.toThrow("500");
         client.post.mockRejectedValue(new Error("down"));
         await expect(
-            svc.addQuestion({ quizId: "z", title: "", description: "", questionType: "X", languagesAllowed: null, timeLimitSec: 0, pointsBase: 0, config: {}, orderIndex: 0 }),
+            svc.addQuestion({
+                quizId: "z",
+                title: "",
+                description: "",
+                questionType: "X",
+                languagesAllowed: null,
+                timeLimitSec: 0,
+                pointsBase: 0,
+                config: {},
+                orderIndex: 0,
+            }),
         ).rejects.toThrow("down");
     });
 });
@@ -244,7 +286,10 @@ describe("AdminApiService error matrix", () => {
         const svc = new AdminApiService();
         client.put.mockRejectedValue(http(404));
         await expect(svc.updateQuestion({ ...qPayload(), id: "gone" })).rejects.toThrow("404");
-        expect(client.put).toHaveBeenCalledWith("/admin/questions/gone", expect.objectContaining({ id: "gone" }));
+        expect(client.put).toHaveBeenCalledWith(
+            "/admin/questions/gone",
+            expect.objectContaining({ id: "gone" }),
+        );
     });
 
     test("updateQuestion 409 propagates the version conflict", async () => {
@@ -362,7 +407,10 @@ describe("AdminApiService error matrix", () => {
         const game = { id: "g", pinCode: null };
         client.post.mockResolvedValue(ok(game));
         await expect(svc.createGame("quiz-1", "EXAM")).resolves.toEqual(game);
-        expect(client.post).toHaveBeenCalledWith("/admin/games", { quizId: "quiz-1", gameMode: "EXAM" });
+        expect(client.post).toHaveBeenCalledWith("/admin/games", {
+            quizId: "quiz-1",
+            gameMode: "EXAM",
+        });
     });
 
     test("create then list chains the new quiz id", async () => {
@@ -378,15 +426,30 @@ describe("AdminApiService error matrix", () => {
         client.post.mockResolvedValue(ok({ ...qPayload(), id: "chain-q" }));
         const added = await svc.addQuestion(qPayload());
         client.get.mockResolvedValue(ok([added]));
-        await expect(svc.getQuestions("quiz-1")).resolves.toEqual([expect.objectContaining({ id: "chain-q" })]);
+        await expect(svc.getQuestions("quiz-1")).resolves.toEqual([
+            expect.objectContaining({ id: "chain-q" }),
+        ]);
     });
 
     test("createGame sweeps every supported mode", async () => {
         const svc = new AdminApiService();
-        for (const mode of ["STANDARD", "AUTO_PILOT", "PRACTICE", "EXAM", "TEAM", "BATTLE"] as const) {
+        for (const mode of [
+            "STANDARD",
+            "AUTO_PILOT",
+            "PRACTICE",
+            "EXAM",
+            "TEAM",
+            "BATTLE",
+        ] as const) {
             client.post.mockResolvedValue(ok({ id: `g-${mode}`, pinCode: "1" }));
-            await expect(svc.createGame("quiz-1", mode)).resolves.toEqual({ id: `g-${mode}`, pinCode: "1" });
-            expect(client.post).toHaveBeenCalledWith("/admin/games", { quizId: "quiz-1", gameMode: mode });
+            await expect(svc.createGame("quiz-1", mode)).resolves.toEqual({
+                id: `g-${mode}`,
+                pinCode: "1",
+            });
+            expect(client.post).toHaveBeenCalledWith("/admin/games", {
+                quizId: "quiz-1",
+                gameMode: mode,
+            });
         }
     });
 
@@ -394,7 +457,10 @@ describe("AdminApiService error matrix", () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ importedQuestions: 1 }));
         await svc.importBank("{}", false);
-        expect(client.post).toHaveBeenLastCalledWith("/admin/import", { json: "{}", replace: false });
+        expect(client.post).toHaveBeenLastCalledWith("/admin/import", {
+            json: "{}",
+            replace: false,
+        });
         client.post.mockResolvedValue(ok({ importedQuestions: 2 }));
         await expect(svc.importBank("{}", true)).resolves.toEqual({ importedQuestions: 2 });
     });
