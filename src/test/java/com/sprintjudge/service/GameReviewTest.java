@@ -7,7 +7,6 @@ import com.sprintjudge.repository.GameSessionRepository;
 import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
 import com.sprintjudge.repository.SubmissionRepository;
-import com.sprintjudge.service.SubmissionProcessor;
 import com.sprintjudge.util.Json;
 import com.sprintjudge.websocket.WebSocketSessionManager;
 import org.junit.jupiter.api.Test;
@@ -19,10 +18,8 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
