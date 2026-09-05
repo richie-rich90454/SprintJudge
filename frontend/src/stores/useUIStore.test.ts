@@ -377,7 +377,9 @@ describe("useUIStore preference workflows", () => {
     test("subscribe notifies on every preference change in order then stops", async () => {
         const mod = await fresh();
         const events: string[] = [];
-        const unsub = mod.useUIStore.subscribe((s) => events.push(`${s.sound}/${s.motion}/${s.pin}`));
+        const unsub = mod.useUIStore.subscribe((s) =>
+            events.push(`${s.sound}/${s.motion}/${s.pin}`),
+        );
         mod.useUIStore.getState().setSound("off");
         mod.useUIStore.getState().setMotion("reduced");
         mod.useUIStore.getState().setPin("9999");
