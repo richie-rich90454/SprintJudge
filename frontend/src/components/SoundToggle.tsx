@@ -21,6 +21,7 @@ export function SoundToggle({ className = "" }: { className?: string }) {
         <button
             type="button"
             aria-label={on ? "Mute sounds" : "Unmute sounds"}
+            title={on ? "Sound: on" : "Sound: off"}
             aria-pressed={on}
             onClick={toggleSound}
             className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}
