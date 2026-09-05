@@ -23,4 +23,14 @@ export default defineConfig({
         sourcemap: false,
         cssTarget: "chrome60",
     },
+    test: {
+        environment: "jsdom",
+        include: ["src/**/*.test.ts"],
+        coverage: {
+            provider: "v8",
+            include: ["src/**/*.ts"],
+            exclude: ["src/**/*.test.ts", "src/vite-env.d.ts"],
+            thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
+        },
+    },
 });
