@@ -120,7 +120,7 @@ public final class QuestionConfigValidator {
         } catch (IllegalStateException e) {
             throw new IllegalArgumentException("config is not valid JSON");
         }
-        if (c == null || !c.isObject()) throw new IllegalArgumentException("config must be a JSON object");
+        if (!c.isObject()) throw new IllegalArgumentException("config must be a JSON object");
         return c;
     }
 
