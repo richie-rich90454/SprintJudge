@@ -25,9 +25,27 @@ You can also create questions live during a lobby and add them to the queue.
 Click **Host** on a quiz to generate a 6-digit PIN. Share the invite link
 `/j/<PIN>` (or the on-screen QR code, which encodes the same URL) — it works
 logged-out. Use the host controls to start rounds,
-force-submit, extend the timer (+30s per call, capped at +300s over the round
+force-submit, extend the timer (+30s per call, clamped to 1..300s, capped at +300s over the round
 deadline), kick players, and end the game. The live leaderboard
 updates after every submission and never includes the host.
+
+```mermaid
+flowchart TB
+    H["Host console"] --> N["NEXT_QUESTION"]
+    H --> F["FORCE_SUBMIT"]
+    H --> T["EXTEND_TIMER +30s"]
+    H --> K["KICK_PLAYER"]
+    H --> E["END_GAME"]
+    N --> R["Round live"]
+    F --> V["Review now"]
+    T --> R
+    K --> L["Seat removed"]
+    E --> G["GAME_REVIEW"]
+```
+
+The dashboard has five tabs (Dashboard, Quizzes, Questions, Games, Settings);
+Games and Settings beyond the basics are still stubs. Team battles need at
+least 2 contestants besides the host; odd players wait for the next round.
 
 ## Wizard and scoring at a glance
 
@@ -62,6 +80,16 @@ flowchart TD
 - **Export** downloads the entire question bank as a single JSON document.
 - **Import** validates and (optionally) replaces the bank. The schema is documented in the
   API Reference.
+
+```mermaid
+flowchart LR
+    U["Upload JSON"] --> V{"valid? ids free?"}
+    V -->|no| E["400, bank untouched"]
+    V -->|replace| W["wipe bank"]
+    V -->|merge| K["keep bank"]
+    W --> I["insert all"]
+    K --> I
+```
 
 ## Question types at a glance
 
