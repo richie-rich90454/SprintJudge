@@ -47,7 +47,9 @@ describe("useAdminStore loading", () => {
     test("loadQuizzes stores the fetched quizzes", async () => {
         adminMock.listQuizzes.mockResolvedValue([{ id: "z1", title: "T", description: "D" }]);
         await useAdminStore.getState().loadQuizzes();
-        expect(useAdminStore.getState().quizzes).toEqual([{ id: "z1", title: "T", description: "D" }]);
+        expect(useAdminStore.getState().quizzes).toEqual([
+            { id: "z1", title: "T", description: "D" },
+        ]);
     });
 
     test("loadQuizzes propagates errors", async () => {
@@ -203,7 +205,14 @@ describe("useAdminStore wizard workflows", () => {
 
     test("twelve-type sweep keeps statement fields and scopes languages per type", () => {
         useAdminStore.getState().openWizard("quiz-1");
-        useAdminStore.getState().setDraft({ title: "Keep me", description: "Keep too", timeLimitSec: 45, pointsBase: 250 });
+        useAdminStore
+            .getState()
+            .setDraft({
+                title: "Keep me",
+                description: "Keep too",
+                timeLimitSec: 45,
+                pointsBase: 250,
+            });
         for (const t of TWELVE) {
             useAdminStore.getState().setType(t);
             const s = useAdminStore.getState();
@@ -213,7 +222,8 @@ describe("useAdminStore wizard workflows", () => {
             expect(s.draft.description).toBe("Keep too");
             expect(s.draft.timeLimitSec).toBe(45);
             expect(s.draft.pointsBase).toBe(250);
-            if (t === "OJ_FULL" || t === "OJ_PATCH") expect(s.draft.languagesAllowed).toEqual(OJ_LANGS);
+            if (t === "OJ_FULL" || t === "OJ_PATCH")
+                expect(s.draft.languagesAllowed).toEqual(OJ_LANGS);
             else expect(s.draft.languagesAllowed).toBeNull();
         }
     });
@@ -228,7 +238,11 @@ describe("useAdminStore wizard workflows", () => {
         useAdminStore.getState().setDraft({ title: "Fill it", config: { snippet: "x = ___" } });
         await useAdminStore.getState().saveQuestion();
         expect(adminMock.addQuestion).toHaveBeenCalledWith(
-            expect.objectContaining({ quizId: "quiz-7", questionType: "FILL_BLANK", title: "Fill it" }),
+            expect.objectContaining({
+                quizId: "quiz-7",
+                questionType: "FILL_BLANK",
+                title: "Fill it",
+            }),
         );
         expect(adminMock.getQuestions).toHaveBeenCalledWith("quiz-7");
         expect(useAdminStore.getState().wizardOpen).toBe(false);
@@ -237,7 +251,13 @@ describe("useAdminStore wizard workflows", () => {
 
     test("type switch resets leaked config but preserves the statement", () => {
         useAdminStore.getState().openWizard("quiz-1");
-        useAdminStore.getState().setDraft({ title: "T", description: "D", config: { options: ["a", "b"], correctIndex: 0 } });
+        useAdminStore
+            .getState()
+            .setDraft({
+                title: "T",
+                description: "D",
+                config: { options: ["a", "b"], correctIndex: 0 },
+            });
         useAdminStore.getState().setType("NUMERIC");
         const d = useAdminStore.getState().draft;
         expect(d.title).toBe("T");
@@ -261,7 +281,9 @@ describe("useAdminStore wizard workflows", () => {
         useAdminStore.getState().openWizard("quiz-1");
         useAdminStore.getState().setDraft({ id: "q1", title: "Edited" });
         await useAdminStore.getState().saveQuestion();
-        expect(adminMock.updateQuestion).toHaveBeenCalledWith(expect.objectContaining({ id: "q1" }));
+        expect(adminMock.updateQuestion).toHaveBeenCalledWith(
+            expect.objectContaining({ id: "q1" }),
+        );
         expect(adminMock.addQuestion).not.toHaveBeenCalled();
         expect(adminMock.getQuestions).toHaveBeenCalledWith("quiz-1");
         expect(useAdminStore.getState().wizardOpen).toBe(false);
@@ -332,7 +354,13 @@ describe("useAdminStore wizard workflows", () => {
         useAdminStore.getState().setDraft({ description: "B" });
         useAdminStore.getState().setDraft({ timeLimitSec: 90, pointsBase: 300 });
         const d = useAdminStore.getState().draft;
-        expect(d).toMatchObject({ title: "A", description: "B", timeLimitSec: 90, pointsBase: 300, quizId: "quiz-1" });
+        expect(d).toMatchObject({
+            title: "A",
+            description: "B",
+            timeLimitSec: 90,
+            pointsBase: 300,
+            quizId: "quiz-1",
+        });
     });
 
     test("wizard walks all four steps in order", () => {
@@ -368,7 +396,9 @@ describe("useAdminStore wizard workflows", () => {
         adminMock.addQuestion.mockResolvedValue({ id: "ordered" });
         adminMock.getQuestions.mockResolvedValue([]);
         useAdminStore.getState().openWizard("quiz-3");
-        useAdminStore.getState().setDraft({ title: "Ordered", orderIndex: 4, config: { options: ["x"] } });
+        useAdminStore
+            .getState()
+            .setDraft({ title: "Ordered", orderIndex: 4, config: { options: ["x"] } });
         await useAdminStore.getState().saveQuestion();
         expect(adminMock.addQuestion).toHaveBeenCalledWith(
             expect.objectContaining({ orderIndex: 4, config: { options: ["x"] } }),
