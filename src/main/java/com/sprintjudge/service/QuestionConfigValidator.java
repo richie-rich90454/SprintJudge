@@ -21,7 +21,7 @@ public final class QuestionConfigValidator {
         // Expression form (not a statement switch): the synthetic
         // exhaustiveness default is filtered from coverage, while a statement
         // switch leaves one phantom branch no test can satisfy.
-        boolean valid = switch (t) {
+        boolean _ = switch (t) {
             case MCQ -> {
                 int n = requireOptions(c, 2);
                 requireIndexInBounds(c, "correctIndex", n);
