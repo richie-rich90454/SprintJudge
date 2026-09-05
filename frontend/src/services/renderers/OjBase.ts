@@ -130,7 +130,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
         this.container.append(wrap);
 
         this.terminal = new Terminal({
-            fontFamily: "Noto Sans Mono",
+            fontFamily: "Noto Sans",
             fontSize: 12,
             cursorBlink: true,
             theme: {
