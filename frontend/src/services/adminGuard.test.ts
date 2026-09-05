@@ -36,9 +36,7 @@ describe("requireAdmin", () => {
         )) as Response | null;
         expect(err).toBeInstanceOf(Response);
         expect(err?.status).toBe(307);
-        expect((err as unknown as { options?: { to?: string } })?.options?.to).toBe(
-            "/admin/login",
-        );
+        expect((err as unknown as { options?: { to?: string } })?.options?.to).toBe("/admin/login");
     });
 
     test("bounces to the login page on 403", async () => {
