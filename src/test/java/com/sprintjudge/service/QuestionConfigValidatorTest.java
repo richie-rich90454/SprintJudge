@@ -136,6 +136,7 @@ class QuestionConfigValidatorTest {
         assertDoesNotThrow(() -> QuestionConfigValidator.requireValid("CODE_COMPLETION",
                 cfg("{\"expected\":\"x = 1\"}")));
         invalid("CODE_COMPLETION", cfg("{}"), "must not be blank");
+        invalid("CODE_COMPLETION", cfg("{\"expected\":\"   \"}"), "must not be blank");
     }
 
     @ParameterizedTest
@@ -144,6 +145,7 @@ class QuestionConfigValidatorTest {
         assertDoesNotThrow(() -> QuestionConfigValidator.requireValid(type,
                 cfg("{\"testCases\":[{\"input\":\"1\",\"expectedOutput\":\"1\"}],\"memoryLimitMb\":256}")));
         invalid(type, cfg("{}"), "non-empty array");
+        invalid(type, cfg("{\"testCases\":[]}"), "non-empty array");
         invalid(type, cfg("{\"testCases\":[{\"input\":\"1\"}]}"), "expectedOutput");
         invalid(type, cfg("{\"testCases\":[\"x\"]}"), "expectedOutput");
         invalid(type, cfg("{\"testCases\":[{\"input\":\"1\",\"expectedOutput\":\"1\"}],\"memoryLimitMb\":0}"),
