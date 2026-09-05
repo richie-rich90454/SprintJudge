@@ -57,6 +57,7 @@ class SubmissionWriteBufferBreadthTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void flushPreservesInsertionOrder() {
         SubmissionWriteBuffer b = new SubmissionWriteBuffer(repository, 1_000_000L, 10);
         try {
@@ -64,7 +65,7 @@ class SubmissionWriteBufferBreadthTest {
             b.offer(sub("second"));
             b.offer(sub("third"));
             assertEquals(3, b.flush());
-            ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass(List.class);
+            ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass((Class) List.class);
             verify(repository).saveAll(cap.capture());
             assertEquals("first", cap.getValue().get(0).id());
             assertEquals("second", cap.getValue().get(1).id());
@@ -75,6 +76,7 @@ class SubmissionWriteBufferBreadthTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void requeuePreservesOrderOnRetry() {
         doThrow(new RuntimeException("once")).doNothing().when(repository).saveAll(any());
         SubmissionWriteBuffer b = new SubmissionWriteBuffer(repository, 1_000_000L, 10);
@@ -86,7 +88,7 @@ class SubmissionWriteBufferBreadthTest {
             } catch (RuntimeException ignored) {
             }
             assertEquals(2, b.flush());
-            ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass(List.class);
+            ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass((Class) List.class);
             verify(repository, times(2)).saveAll(cap.capture());
             List<Submission> retried = cap.getAllValues().get(1);
             assertEquals("one", retried.get(0).id());
