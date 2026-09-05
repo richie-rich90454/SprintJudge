@@ -187,7 +187,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException e) {
-            if (proc != null) ExecIo.killAndReap(proc);
+            ExecIo.killAndReap(proc);
             log.error("Run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");
         } finally {
