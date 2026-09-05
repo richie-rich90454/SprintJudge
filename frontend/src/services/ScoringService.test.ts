@@ -57,7 +57,20 @@ describe("isCoding", () => {
 
 describe("isCoding boundaries", () => {
     test("full twelve-type sweep matches exactly the two coding formats", () => {
-        const types = ["MCQ", "TRUE_FALSE", "MULTIPLE_SELECT", "NUMERIC", "OUTPUT_PRED", "FILL_BLANK", "DRAG_SORT", "CLICK_BUG", "CODE_COMPLETION", "COMPLEXITY", "OJ_FULL", "OJ_PATCH"] as const;
+        const types = [
+            "MCQ",
+            "TRUE_FALSE",
+            "MULTIPLE_SELECT",
+            "NUMERIC",
+            "OUTPUT_PRED",
+            "FILL_BLANK",
+            "DRAG_SORT",
+            "CLICK_BUG",
+            "CODE_COMPLETION",
+            "COMPLEXITY",
+            "OJ_FULL",
+            "OJ_PATCH",
+        ] as const;
         expect(types.filter((t) => isCoding(t))).toEqual(["OJ_FULL", "OJ_PATCH"]);
         expect(types.filter((t) => !isCoding(t))).toHaveLength(10);
     });
