@@ -96,6 +96,7 @@ public final class ExecIo {
 
     /** Destroys a child and reaps it so handles release before directory cleanup. */
     public static void killAndReap(Process proc) {
+        if (proc == null) return;
         proc.destroyForcibly();
         try {
             proc.waitFor(5, TimeUnit.SECONDS);
