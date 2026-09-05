@@ -391,7 +391,7 @@ class AdminControllerTest {
         User host = new User("host", "a@b.c", "Al", null, null, null);
         when(userRepository.upsertByEmail(anyString(), anyString(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("q1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "battle")));
         verify(roomManager).createRoom("q1", "host", com.sprintjudge.service.GameRoom.GameMode.BATTLE);
     }
@@ -407,7 +407,7 @@ class AdminControllerTest {
         org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("q1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "q1")));
         assertEquals("u@x.y", email.getValue());
     }
@@ -421,7 +421,7 @@ class AdminControllerTest {
         org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("q1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "q1")));
         assertEquals("s@x.y", email.getValue());
     }
@@ -435,7 +435,7 @@ class AdminControllerTest {
         org.mockito.ArgumentCaptor<String> email = org.mockito.ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), anyString(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("q1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "q1")));
         assertEquals("system@sprintjudge.local", email.getValue());
     }
