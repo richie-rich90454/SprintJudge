@@ -14,7 +14,7 @@ import "./index.css";
 
 // Sync the <html> class with the persisted theme (also handled inline in
 // index.html to avoid a flash; this keeps it correct after HMR / re-mounts).
-// Dark is the default (set in index.html and useUIStore).
+// Light-only lockdown (see useUIStore).
 applyStoredTheme();
 watchSystemTheme();
 
