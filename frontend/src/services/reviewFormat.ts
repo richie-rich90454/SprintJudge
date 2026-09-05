@@ -3,11 +3,7 @@ function letter(i: number): string {
 }
 
 /** Human-readable answer key: letters + option text, never raw JSON. */
-export function formatAnswer(
-    type: string,
-    answer: unknown,
-    options: string[] | null,
-): string {
+export function formatAnswer(type: string, answer: unknown, options: string[] | null): string {
     if (answer == null || typeof answer !== "object") return String(answer ?? "—");
     const a = answer as Record<string, unknown>;
     const opt = (i: unknown): string => {
@@ -24,7 +20,9 @@ export function formatAnswer(
         case "TRUE_FALSE":
             return `Correct: ${a["correct"] === true ? "True" : a["correct"] === false ? "False" : "?"}`;
         case "MULTIPLE_SELECT": {
-            const idx = Array.isArray(a["correctIndices"]) ? (a["correctIndices"] as unknown[]) : [];
+            const idx = Array.isArray(a["correctIndices"])
+                ? (a["correctIndices"] as unknown[])
+                : [];
             return `Correct: ${idx.map(opt).join(", ") || "?"}`;
         }
         case "NUMERIC": {
