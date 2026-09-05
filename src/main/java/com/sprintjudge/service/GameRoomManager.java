@@ -511,8 +511,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
         if (players.size() % 2 == 1) {
             Player odd = players.get(players.size() - 1);
-            Player current = room.getPlayer(odd.uuid());
-            ws.send(current == null ? null : current.sessionId(),
+            ws.send(odd.sessionId(),
                     new ErrorMessage("ERROR", "Odd player out — waiting for the next battle round"));
             broadcastRoomState(pin);
         }
@@ -778,10 +777,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return;
         com.sprintjudge.service.leaderboard.DeltaLedger.Batch batch = room.board().drainDeltas(false);
-        if (batch.resync() && batch.upserts().isEmpty()) {
+        if (batch.resync()) {
             // Nothing pending: a client that missed the last batch still has a
             // seq gap, so heal with the authoritative baseline instead of
             // dropping the flush. Empty boards (seq 0) stay silent.
+            // (drain guarantees resync batches carry no upserts.)
             if (batch.seq() <= 0 || room.board().size() == 0) return;
             batch = room.board().fullBatch();
         }
@@ -842,6 +842,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     }
 
     private String sessionIdOf(GameRoom room, String uuid) {
+        if (uuid == null) return null;
         Player p = room.getPlayer(uuid);
         return p == null ? null : p.sessionId();
     }
