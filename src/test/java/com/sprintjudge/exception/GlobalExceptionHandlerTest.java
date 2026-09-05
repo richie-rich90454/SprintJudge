@@ -1,6 +1,5 @@
 package com.sprintjudge.exception;
 
-import com.sprintjudge.domain.dto.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpMethod;
