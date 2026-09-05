@@ -63,9 +63,11 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
         ExportBundle.QuestionExport ex1 = new ExportBundle.QuestionExport(
-                "qu1", "MCQ", "Q1", "d", 30, 100, Map.of("correctIndex", 2), List.of("java"));
+                "qu1", "MCQ", "Q1", "d", 30, 100,
+                Map.of("options", List.of("a", "b", "c"), "correctIndex", 2), List.of("java"));
         ExportBundle.QuestionExport ex2 = new ExportBundle.QuestionExport(
-                "qu2", "MCQ", "Q2", "d", 30, 100, Map.of(), null);
+                "qu2", "MCQ", "Q2", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q1", "Quiz1", "desc", false, List.of(ex1, ex2));
         ExportBundle bundle = new ExportBundle("1.0", 123L, List.of(qe), Map.of("theme", "light"));
@@ -83,7 +85,8 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                null, "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                null, "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 null, "QuizG", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), Map.of("k", "v"));
@@ -104,7 +107,8 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "", "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "", "QuizB", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), Map.of("k", "v"));
@@ -122,7 +126,8 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
 
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "qu1",                 "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q1", "Quiz1", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
@@ -142,7 +147,8 @@ class ImportExportServiceTest {
         rp.qnr().save(new Question("oldq", "old", "Q", "d", "MCQ", null, 30, 100, null, 0, Instant.now()));
 
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "qu1",                 "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q1", "New", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
@@ -161,7 +167,8 @@ class ImportExportServiceTest {
         rp.qr().create(new Quiz("keep", "Keep", "d", "a", Instant.now(), false));
 
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu2", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "qu2",                 "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q2", "Add", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
@@ -185,7 +192,8 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         rp.qr().create(new Quiz("q1", "Keep", "d", "a", Instant.now(), false));
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu9", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "qu9",                 "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q1", "Clash", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
@@ -212,7 +220,8 @@ class ImportExportServiceTest {
         Repos rp = repos();
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu1", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "qu1",                 "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q1", "Quiz1", "desc", false, List.of(ex));
         java.util.Map<String, String> settings = new java.util.HashMap<>();
@@ -223,7 +232,8 @@ class ImportExportServiceTest {
     }
 
     private ExportBundle.QuestionExport qex(String id, String title) {
-        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100, Map.of(), null);
+        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
     }
 
     private ExportBundle.QuizExport qzex(String id, String title, List<ExportBundle.QuestionExport> qs) {
