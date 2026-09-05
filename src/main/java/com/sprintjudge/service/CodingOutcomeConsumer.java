@@ -8,4 +8,13 @@ package com.sprintjudge.service;
  */
 public interface CodingOutcomeConsumer {
     void accept(String playerUuid, int baseScore, boolean allPassed, int passed, int total, String aiFeedback);
+
+    /**
+     * The submission never reached the judge (unknown question, misrouted
+     * type, bad source, judge crash). Default: same visible outcome as a
+     * zero-score run; the manager overrides to also refund the attempt.
+     */
+    default void rejected(String playerUuid) {
+        accept(playerUuid, 0, false, 0, 0, null);
+    }
 }
