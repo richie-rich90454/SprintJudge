@@ -349,7 +349,7 @@ class GameSessionRepositoryTest {
 
     @Test
     void createWithBlankModeFallsBackToStandard() {
-        GameSession s = repo.create("quiz1", "host1", "900022", null, "  ");
+        GameSession s = repo.create("quiz1", "host1", "900022", null, null);
         assertEquals("STANDARD", s.gameMode());
     }
 
@@ -364,5 +364,15 @@ class GameSessionRepositoryTest {
     @Test
     void deleteByPinMissingIsZero() {
         assertEquals(0, repo.deleteByPin("900024"));
+    }
+
+    @Test
+    void legacyBlankModeReadsAsStandard() {
+        dsl.insertInto(Tables.GAME_SESSIONS)
+                .columns(Tables.SESS_ID, Tables.SESS_QUIZ_ID, Tables.SESS_PIN,
+                        Tables.SESS_HOST, Tables.SESS_STATUS, Tables.SESS_MODE, Tables.SESS_INDEX)
+                .values("legacy", "quiz1", "900025", "host1", "LOBBY", "", 0)
+                .execute();
+        assertEquals("STANDARD", repo.findByPin("900025").orElseThrow().gameMode());
     }
 }
