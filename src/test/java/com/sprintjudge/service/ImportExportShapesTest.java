@@ -34,7 +34,27 @@ class ImportExportShapesTest {
     }
 
     private ExportBundle.QuestionExport qx(String id, String title) {
-        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100, Map.of(), null);
+        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
+    }
+
+    private static Map<String, Object> validConfigFor(String type) {
+        return switch (type) {
+            case "TRUE_FALSE" -> Map.of("correct", true);
+            case "MULTIPLE_SELECT" ->
+                    Map.of("options", List.of("a", "b"), "correctIndices", List.of(0));
+            case "NUMERIC" -> Map.of("answer", 1);
+            case "OUTPUT_PRED" -> Map.of("correctIndex", 0);
+            case "FILL_BLANK" -> Map.of("answer", "x");
+            case "DRAG_SORT" -> Map.of("correctOrder", List.of("a", "b"));
+            case "CLICK_BUG" -> Map.of("codeLines", List.of("a", "b"), "bugLine", 0);
+            case "CODE_COMPLETION" -> Map.of("expected", "x");
+            case "COMPLEXITY" ->
+                    Map.of("options", List.of("O(1)", "O(n)"), "correctIndex", 0);
+            case "OJ_FULL", "OJ_PATCH" -> Map.of("testCases",
+                    List.of(Map.of("input", "i", "expectedOutput", "o")));
+            default -> Map.of("options", List.of("a", "b"), "correctIndex", 0);
+        };
     }
 
     private ExportBundle bundle(List<ExportBundle.QuizExport> quizzes, Map<String, String> settings) {
@@ -65,7 +85,8 @@ class ImportExportShapesTest {
     void emptyLanguagesListNormalizesToNull() throws Exception {
         Repos rp = repos();
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
-                "e", "OJ_FULL", "OJ", "d", 60, 500, Map.of(), List.of());
+                "e", "OJ_FULL", "OJ", "d", 60, 500,
+                Map.of("testCases", List.of(Map.of("input", "1", "expectedOutput", "1"))), List.of());
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
@@ -76,7 +97,9 @@ class ImportExportShapesTest {
     void multiLanguageListPreservesOrder() throws Exception {
         Repos rp = repos();
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
-                "m", "OJ_FULL", "OJ", "d", 60, 500, Map.of(), List.of("python", "java", "c"));
+                "m", "OJ_FULL", "OJ", "d", 60, 500,
+                Map.of("testCases", List.of(Map.of("input", "1", "expectedOutput", "1"))),
+                List.of("python", "java", "c"));
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
@@ -183,7 +206,7 @@ class ImportExportShapesTest {
         settings.put("rounds", "5");
         List<ExportBundle.QuestionExport> qs = List.of(
                 new ExportBundle.QuestionExport("a", "MCQ", "QA", "da", 30, 100,
-                        Map.of("correctIndex", 1), null),
+                        Map.of("options", List.of("x", "y"), "correctIndex", 1), null),
                 new ExportBundle.QuestionExport("b", "NUMERIC", "QB", "db", 45, 200,
                         Map.of("answer", 42, "tolerance", 0.5), null));
         db1.svc().importAll(Json.write(bundle(
@@ -200,6 +223,7 @@ class ImportExportShapesTest {
     void questionConfigValuesSurviveRoundTrip() throws Exception {
         Repos rp = repos();
         Map<String, Object> config = new HashMap<>();
+        config.put("options", List.of("a", "b", "c"));
         config.put("correctIndex", 2);
         config.put("hint", "think");
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
@@ -216,7 +240,8 @@ class ImportExportShapesTest {
     void zeroPointsBaseImportsCleanly() throws Exception {
         Repos rp = repos();
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
-                "z", "MCQ", "Q", "d", 30, 0, Map.of(), null);
+                "z", "MCQ", "Q", "d", 30, 0,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         assertEquals(1, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
         assertEquals(0, rp.qnr().findByQuiz("q1").get(0).pointsBase());
@@ -226,7 +251,8 @@ class ImportExportShapesTest {
     void minimalTimeLimitOneImportsCleanly() throws Exception {
         Repos rp = repos();
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
-                "t", "MCQ", "Q", "d", 1, 100, Map.of(), null);
+                "t", "MCQ", "Q", "d", 1, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         assertEquals(1, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
     }
@@ -257,7 +283,8 @@ class ImportExportShapesTest {
                 "OJ_FULL", "OJ_PATCH"};
         List<ExportBundle.QuestionExport> qs = new ArrayList<>();
         for (int i = 0; i < types.length; i++) {
-            qs.add(new ExportBundle.QuestionExport("t-" + i, types[i], "Q" + i, "d", 30, 100, Map.of(), null));
+            qs.add(new ExportBundle.QuestionExport("t-" + i, types[i], "Q" + i, "d", 30, 100,
+                    validConfigFor(types[i]), null));
         }
         assertEquals(types.length, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("mix", "Mix", "d", false, qs)), null)), false));
@@ -328,9 +355,42 @@ class ImportExportShapesTest {
     void blankQuestionIdFallsBackToUuid() throws Exception {
         Repos rp = repos();
         ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
-                "", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "", "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         assertEquals(1, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
         assertFalse(rp.qnr().findByQuiz("q1").get(0).id().isBlank());
+    }
+
+    @Test
+    void tooManyQuizzesRejected() throws Exception {
+        Repos rp = repos();
+        List<ExportBundle.QuizExport> quizzes = new ArrayList<>();
+        for (int i = 0; i < 201; i++) {
+            quizzes.add(new ExportBundle.QuizExport("cap-" + i, "T", "d", false, List.of()));
+        }
+        assertThrows(IllegalArgumentException.class,
+                () -> rp.svc().importAll(Json.write(bundle(quizzes, null)), false));
+        assertTrue(rp.qr().findAll().isEmpty());
+    }
+
+    @Test
+    void tooManyQuestionsRejected() throws Exception {
+        Repos rp = repos();
+        List<ExportBundle.QuestionExport> qs = new ArrayList<>();
+        for (int i = 0; i < 5001; i++) qs.add(qx("cap-q" + i, "Q"));
+        assertThrows(IllegalArgumentException.class, () -> rp.svc().importAll(Json.write(bundle(
+                List.of(new ExportBundle.QuizExport("big", "Big", "d", false, qs)), null)), false));
+        assertTrue(rp.qr().findAll().isEmpty());
+    }
+
+    @Test
+    void invalidQuestionConfigRejected() throws Exception {
+        Repos rp = repos();
+        ExportBundle.QuestionExport qe = new ExportBundle.QuestionExport(
+                "bad", "MCQ", "Q", "d", 30, 100, Map.of("correctIndex", 9), null);
+        assertThrows(IllegalArgumentException.class, () -> rp.svc().importAll(Json.write(bundle(
+                List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
+        assertTrue(rp.qr().findById("q1").isEmpty());
     }
 }
