@@ -1,18 +1,8 @@
 import { defineConfig } from "vitepress";
 
-// Self-hosted Noto fonts (no external CDNs); declared in theme/custom.css.
+// Self-hosted Noto Sans (no external CDNs); declared in theme/custom.css.
 const fontPreload: (string | Record<string, unknown>)[][] = [
   ["link", { rel: "preload", href: "/fonts/noto-sans-latin-var.woff2", as: "font", type: "font/woff2", crossorigin: "" }],
-  [
-    "link",
-    {
-      rel: "preload",
-      href: "/fonts/noto-sans-mono-latin-var.woff2",
-      as: "font",
-      type: "font/woff2",
-      crossorigin: "",
-    },
-  ],
 ];
 
 export default defineConfig({
@@ -21,6 +11,7 @@ export default defineConfig({
     "The open-source, real-time coding quiz platform with a built-in Online Judge engine.",
   lang: "en-US",
   head: fontPreload,
+  appearance: false,
   // Mermaid ships as one intentionally large lazy-loaded chunk.
   build: { chunkSizeWarningLimit: 1500 },
   themeConfig: {
