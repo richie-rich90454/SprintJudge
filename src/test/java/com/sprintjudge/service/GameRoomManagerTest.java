@@ -7,7 +7,6 @@ import com.sprintjudge.domain.dto.RoomState;
 import com.sprintjudge.domain.dto.RoundResult;
 import com.sprintjudge.domain.dto.SubmissionResult;
 import com.sprintjudge.domain.dto.TimerUpdate;
-import com.sprintjudge.service.CodingOutcomeConsumer;
 import com.sprintjudge.domain.models.GameSession;
 import com.sprintjudge.domain.models.Question;
 import com.sprintjudge.repository.GameSessionRepository;
@@ -15,7 +14,6 @@ import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
 import com.sprintjudge.repository.SubmissionRepository;
 import com.sprintjudge.domain.models.Quiz;
-import com.sprintjudge.service.GameRoom;
 import com.sprintjudge.util.Json;
 import com.sprintjudge.service.room.RoomRegistry;
 import com.sprintjudge.websocket.WebSocketSessionManager;
@@ -438,7 +436,7 @@ class GameRoomManagerTest {
 
         var state = mgr.getRoomState("123456");
         assertEquals(1, state.players().size());
-        assertTrue(state.players().stream().noneMatch(RoomState.PlayerInfo::connected));
+        assertTrue(state.players().stream().noneMatch(pi -> pi.connected()));
     }
 
     // ---------- creation ----------
@@ -1482,8 +1480,8 @@ class GameRoomManagerTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
         createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
-        var p1 = mgr.join("123456", "Alice", "s1", "player", null);
-        var p2 = mgr.join("123456", "Bob", "s2", "player", null);
+        mgr.join("123456", "Alice", "s1", "player", null);
+        mgr.join("123456", "Bob", "s2", "player", null);
 
         mgr.startBattle("123456");
 
