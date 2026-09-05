@@ -57,6 +57,16 @@ public class ImportExportService {
         if (bundle == null || bundle.quizzes() == null) {
             throw new IllegalArgumentException("Invalid import bundle: missing 'quizzes'");
         }
+        if (bundle.quizzes().size() > 200) {
+            throw new IllegalArgumentException("Import too large: max 200 quizzes");
+        }
+        int totalQuestions = 0;
+        for (ExportBundle.QuizExport qe : bundle.quizzes()) {
+            totalQuestions += qe.questions() == null ? 0 : qe.questions().size();
+        }
+        if (totalQuestions > 5000) {
+            throw new IllegalArgumentException("Import too large: max 5000 questions");
+        }
         if (replace && bundle.quizzes().isEmpty()) {
             throw new IllegalArgumentException("Replace import requires at least one quiz — refusing to wipe the bank");
         }
@@ -169,6 +179,8 @@ public class ImportExportService {
         if (ex.pointsBase() < 0) {
             throw new IllegalArgumentException("Question pointsBase must be >= 0");
         }
+        // A bad config row must fail the import, never detonate mid-round.
+        QuestionConfigValidator.requireValid(ex.type(), Json.write(ex.config()));
     }
 
     private ExportBundle.QuestionExport toExport(Question q) {
