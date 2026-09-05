@@ -10,7 +10,6 @@ import com.sprintjudge.util.Ids;
 import com.sprintjudge.util.Json;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -66,6 +65,14 @@ public class ImportExportService {
         for (ExportBundle.QuizExport qe : bundle.quizzes()) {
             validateQuiz(qe);
         }
+        rejectCollisions(bundle, replace);
+        if (bundle.adminSettings() != null) {
+            for (Map.Entry<String, String> e : bundle.adminSettings().entrySet()) {
+                if (e.getKey() == null || e.getKey().isBlank() || e.getValue() == null) {
+                    throw new IllegalArgumentException("Invalid import bundle: setting keys must be non-blank and values non-null");
+                }
+            }
+        }
         if (replace) {
             for (Quiz q : quizRepository.findAll()) {
                 questionRepository.deleteByQuiz(q.id());
@@ -92,9 +99,42 @@ public class ImportExportService {
         return count;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void importSettings(Map<String, String> settings) {
+    private void importSettings(Map<String, String> settings) {
         settings.forEach(settingsRepository::put);
+    }
+
+    /**
+     * A non-replace import must never silently overwrite bank rows or 500 on a
+     * raw quiz INSERT: colliding or intra-bundle duplicate ids are rejected
+     * up front (replace mode wipes the bank first, so only intra-bundle
+     * duplicates matter there).
+     */
+    private void rejectCollisions(ExportBundle bundle, boolean replace) {
+        java.util.Set<String> quizIds = new java.util.HashSet<>();
+        java.util.Set<String> questionIds = new java.util.HashSet<>();
+        for (ExportBundle.QuizExport qe : bundle.quizzes()) {
+            String quizId = qe.id() != null && !qe.id().isBlank() ? qe.id() : null;
+            if (quizId != null) {
+                if (!quizIds.add(quizId)) {
+                    throw new IllegalArgumentException("Invalid import bundle: duplicate quiz id " + quizId);
+                }
+                if (!replace && quizRepository.findById(quizId).isPresent()) {
+                    throw new IllegalArgumentException("Import would overwrite quiz " + quizId + " — use replace mode");
+                }
+            }
+            List<ExportBundle.QuestionExport> exports = qe.questions() == null ? List.of() : qe.questions();
+            for (ExportBundle.QuestionExport ex : exports) {
+                String qid = ex.id() != null && !ex.id().isBlank() ? ex.id() : null;
+                if (qid != null) {
+                    if (!questionIds.add(qid)) {
+                        throw new IllegalArgumentException("Invalid import bundle: duplicate question id " + qid);
+                    }
+                    if (!replace && questionRepository.findById(qid).isPresent()) {
+                        throw new IllegalArgumentException("Import would overwrite question " + qid + " — use replace mode");
+                    }
+                }
+            }
+        }
     }
 
     private void validateQuiz(ExportBundle.QuizExport qe) {
