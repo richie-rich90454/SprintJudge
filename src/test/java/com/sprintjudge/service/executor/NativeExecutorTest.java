@@ -35,6 +35,7 @@ class NativeExecutorTest {
     }
 
     private static volatile Boolean cCompiles;
+    private static volatile Boolean cppCompiles;
 
     private static boolean canCompileC() {
         if (cCompiles != null) return cCompiles;
@@ -56,6 +57,29 @@ class NativeExecutorTest {
             ok = false;
         }
         cCompiles = ok;
+        return ok;
+    }
+
+    private static boolean canCompileCpp() {
+        if (cppCompiles != null) return cppCompiles;
+        boolean ok = false;
+        try {
+            Path dir = Files.createTempDirectory("oq-gpp-probe");
+            try {
+                Path src = dir.resolve("t.cpp");
+                Files.writeString(src, "int main(){return 0;}");
+                Path out = dir.resolve("tprobe.exe");
+                Process p = new ProcessBuilder("g++", "-O2", "-std=c++17", "-o",
+                        out.toString(), src.toString())
+                        .directory(dir.toFile()).redirectErrorStream(true).start();
+                ok = p.waitFor(60, TimeUnit.SECONDS) && p.exitValue() == 0 && Files.exists(out);
+            } finally {
+                ExecIo.deleteTree(dir);
+            }
+        } catch (Exception e) {
+            ok = false;
+        }
+        cppCompiles = ok;
         return ok;
     }
 
@@ -244,7 +268,7 @@ class NativeExecutorTest {
 
     @Test
     void judgeCppCompilationError(@TempDir Path tmp) throws IOException {
-        assumeTrue(toolAvailable("g++", "--version"));
+        assumeTrue(canCompileCpp());
         NativeExecutor ex = executor(tmp, tmp, 20);
         JudgeResult r = ex.judge(judgeReq("cpp", "int main( { broken", List.of(tc("in", "out")), 20));
         assertEquals("compilation_error", r.cases().get(0).error());
@@ -330,7 +354,7 @@ class NativeExecutorTest {
 
     @Test
     void runCppCompilationError(@TempDir Path tmp) throws IOException {
-        assumeTrue(toolAvailable("g++", "--version"));
+        assumeTrue(canCompileCpp());
         NativeExecutor ex = executor(tmp, tmp, 20);
         var r = ex.run(new RunRequest("cpp", "int main( { broken", "", 20));
         assertEquals("compilation_error", r.status());
@@ -795,5 +819,625 @@ class NativeExecutorTest {
             assertEquals("compilation_error", r.status());
             assertEquals("stdout_exceeded_1MB", r.error());
         }
+    }
+
+    private static final String MX_PY_CRASH = "import sys; sys.exit(3)";
+    private static final String MX_PY_SYNTAX = "def broken(((\n";
+    private static final String MX_PY_STDERR = "import sys; sys.stderr.write('warn-py\\n')";
+    private static final String MX_PY_UNI =
+            "import sys; sys.stdout.buffer.write('h\u00e9llo w\u00f6rld \u00fc123 \u2192\u4e2d\u6587\ud83c\udf89'.encode('utf8'))";
+    private static final String MX_EXPECT_UNI = "h\u00e9llo w\u00f6rld \u00fc123 \u2192\u4e2d\u6587\ud83c\udf89";
+    private static final String MX_PY_BIG = "print('q' * 100000)";
+    private static final String MX_PY_HANG = "import time; time.sleep(30)";
+    private static final String MX_NODE_ECHO =
+            "const fs=require('fs');process.stdout.write(fs.readFileSync(0,'utf8').trim());";
+    private static final String MX_NODE_CRASH = "process.exit(3);";
+    private static final String MX_NODE_SYNTAX = "const = broken {{{";
+    private static final String MX_NODE_STDERR = "console.error('warn-node');";
+    private static final String MX_NODE_UNI =
+            "process.stdout.write('h\u00e9llo w\u00f6rld \u00fc123 \u2192\u4e2d\u6587\ud83c\udf89');";
+    private static final String MX_NODE_BIG = "console.log('n'.repeat(100000));";
+    private static final String MX_NODE_HANG = "setInterval(()=>{},1000);";
+    private static final String MX_JAVA_ECHO = "public class Main { public static void main(String[] a)"
+            + " throws Exception { System.out.print(new String(System.in.readAllBytes()).strip()); } }";
+    private static final String MX_JAVA_CRASH =
+            "public class Main { public static void main(String[] a) { System.exit(2); } }";
+    private static final String MX_JAVA_STDERR = "public class Main { public static void main(String[] a)"
+            + " { System.err.println(\"warn-j\"); } }";
+    private static final String MX_JAVA_UNI = "public class Main { public static void main(String[] a)"
+            + " throws Exception { System.out.write(\"h\\u00e9llo w\\u00f6rld \\u00fc123 \\u2192\\u4e2d\\u6587\\ud83c\\udf89\""
+            + ".getBytes(java.nio.charset.StandardCharsets.UTF_8)); System.out.flush(); } }";
+    private static final String MX_JAVA_BIG = "public class Main { public static void main(String[] a)"
+            + " { StringBuilder b=new StringBuilder(); for(int i=0;i<100000;i++)b.append('j');"
+            + " System.out.print(b); } }";
+    private static final String MX_JAVA_HANG = "public class Main { public static void main(String[] a)"
+            + " throws Exception { Thread.sleep(30000); } }";
+    private static final String MX_C_ECHO = "#include <stdio.h>\n"
+            + "int main(){int c;while((c=getchar())!=EOF)putchar(c);return 0;}";
+    private static final String MX_C_CRASH = "int main(){return 3;}";
+    private static final String MX_C_SYNTAX = "int main( { broken";
+    private static final String MX_C_STDERR = "#include <stdio.h>\n"
+            + "int main(){fprintf(stderr,\"warn-c\\n\");return 0;}";
+    private static final String MX_C_UNI = "#include <stdio.h>\n"
+            + "int main(){printf(\"h\u00e9llo w\u00f6rld \u00fc123 \u2192\u4e2d\u6587\ud83c\udf89\");return 0;}";
+    private static final String MX_C_BIG = "#include <stdio.h>\n"
+            + "int main(){for(int i=0;i<100000;i++)putchar('c');return 0;}";
+    private static final String MX_C_HANG = "int main(){while(1){}return 0;}";
+    private static final String MX_CPP_ECHO = "#include <iostream>\n#include <string>\n"
+            + "int main(){std::string s,all;bool f=true;while(std::getline(std::cin,s))"
+            + "{if(!f)all+=\"\\n\";f=false;all+=s;}std::cout<<all;return 0;}";
+    private static final String MX_CPP_CRASH = "int main(){return 3;}";
+    private static final String MX_CPP_SYNTAX = "int main( { broken";
+    private static final String MX_CPP_STDERR = "#include <iostream>\n"
+            + "int main(){std::cerr<<\"warn-cpp\"<<std::endl;return 0;}";
+    private static final String MX_CPP_UNI = "#include <iostream>\n"
+            + "int main(){std::cout<<\"h\u00e9llo w\u00f6rld \u00fc123 \u2192\u4e2d\u6587\ud83c\udf89\";return 0;}";
+    private static final String MX_CPP_BIG = "#include <iostream>\n"
+            + "int main(){for(int i=0;i<100000;i++)std::cout<<'p';return 0;}";
+    private static final String MX_CPP_HANG = "int main(){while(1){}return 0;}";
+
+    @Test
+    void mxPythonEmptySourceOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", "", "", 10));
+        assertEquals("ok", r.status());
+        assertTrue(r.ok());
+    }
+
+    @Test
+    void mxPythonWhitespaceSourceOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", "   \n\t  \n", "", 10));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxPythonSyntaxErrorIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_SYNTAX, "", 10));
+        assertEquals("runtime_error", r.status());
+        assertFalse(r.ok());
+    }
+
+    @Test
+    void mxPythonCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_CRASH, "", 10));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxPythonStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_STDERR, "", 10));
+        assertEquals("ok", r.status());
+        assertTrue(r.output().contains("warn-py"));
+    }
+
+    @Test
+    void mxPythonUnicodeOutputOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_UNI, "", 10));
+        assertEquals("ok", r.status());
+        assertEquals(MX_EXPECT_UNI, r.output());
+    }
+
+    @Test
+    void mxPython100kUnderCapOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_BIG, "", 10));
+        assertEquals("ok", r.status());
+        assertEquals(100000, r.output().length());
+    }
+
+    @Test
+    void mxPythonStdinEchoOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "echo-me", 10));
+        assertEquals("ok", r.status());
+        assertEquals("echo-me", r.output());
+    }
+
+    @Test
+    void mxPythonJudgeMixedPassFail(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        JudgeResult r = executor(tmp, tmp, 10).judge(
+                judgeReq("python", ECHO_PY, List.of(tc("a", "a"), tc("b", "NOPE")), 10));
+        assertEquals(1, r.passed());
+        assertEquals(2, r.total());
+        assertFalse(r.allPassed());
+        assertEquals("", r.cases().get(0).error());
+        assertEquals("mismatch", r.cases().get(1).error());
+    }
+
+    @Test
+    void mxPythonJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        JudgeResult r = executor(tmp, tmp, 10).judge(judgeReq("python", "", List.of(), 10));
+        assertEquals(0, r.passed());
+        assertTrue(r.allPassed());
+    }
+
+    @Test
+    void mxPythonRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 2).run(new RunRequest("python", MX_PY_HANG, "", 0));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxPythonRunNegativeTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 2).run(new RunRequest("python", MX_PY_HANG, "", -5));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxPythonJudgeZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        JudgeResult r = executor(tmp, tmp, 2).judge(
+                judgeReq("python", MX_PY_HANG, List.of(tc("", "")), 0));
+        assertEquals("timeout", r.cases().get(0).error());
+    }
+
+    @Test
+    void mxNodeEmptySourceOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", "", "", 10));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxNodeWhitespaceSourceOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", "  \n  ", "", 10));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxNodeSyntaxErrorIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_SYNTAX, "", 10));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxNodeCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_CRASH, "", 10));
+        assertEquals("runtime_error", r.status());
+        assertFalse(r.ok());
+    }
+
+    @Test
+    void mxNodeStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_STDERR, "", 10));
+        assertEquals("ok", r.status());
+        assertTrue(r.output().contains("warn-node"));
+    }
+
+    @Test
+    void mxNodeUnicodeOutputOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_UNI, "", 10));
+        assertEquals("ok", r.status());
+        assertEquals(MX_EXPECT_UNI, r.output());
+    }
+
+    @Test
+    void mxNode100kUnderCapOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_BIG, "", 10));
+        assertEquals("ok", r.status());
+        assertEquals(100000, r.output().length());
+    }
+
+    @Test
+    void mxNodeStdinEchoOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_ECHO, "n-echo", 10));
+        assertEquals("ok", r.status());
+        assertEquals("n-echo", r.output());
+    }
+
+    @Test
+    void mxNodeJudgeMixedPassFail(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        JudgeResult r = executor(tmp, tmp, 10).judge(
+                judgeReq("node", MX_NODE_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 10));
+        assertEquals(1, r.passed());
+        assertFalse(r.allPassed());
+        assertEquals("mismatch", r.cases().get(1).error());
+    }
+
+    @Test
+    void mxNodeJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        JudgeResult r = executor(tmp, tmp, 10).judge(judgeReq("node", "", List.of(), 10));
+        assertTrue(r.allPassed());
+        assertEquals(0, r.passed());
+    }
+
+    @Test
+    void mxNodeRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 2).run(new RunRequest("node", MX_NODE_HANG, "", 0));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxNodeRunNegativeTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        var r = executor(tmp, tmp, 2).run(new RunRequest("node", MX_NODE_HANG, "", -1));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxNodeJudgeZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("node", "--version"));
+        JudgeResult r = executor(tmp, tmp, 2).judge(
+                judgeReq("node", MX_NODE_HANG, List.of(tc("", "")), 0));
+        assertEquals("timeout", r.cases().get(0).error());
+    }
+
+    @Test
+    void mxJavaEmptySourceCompilesToNothingThenFailsAtRuntime(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", "", "", 20));
+        assertEquals("runtime_error", r.status());
+        assertFalse(r.ok());
+    }
+
+    @Test
+    void mxJavaWhitespaceSourceCompilesToNothingThenFailsAtRuntime(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", "  \n ", "", 20));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxJavaSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", "public class Main { broken", "", 20));
+        assertEquals("compilation_error", r.status());
+        assertFalse(r.error().isBlank());
+    }
+
+    @Test
+    void mxJavaCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_CRASH, "", 20));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxJavaStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_STDERR, "", 20));
+        assertEquals("ok", r.status());
+        assertTrue(r.output().contains("warn-j"));
+    }
+
+    @Test
+    void mxJavaUnicodeOutputOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_UNI, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(MX_EXPECT_UNI, r.output());
+    }
+
+    @Test
+    void mxJava100kUnderCapOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_BIG, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(100000, r.output().length());
+    }
+
+    @Test
+    void mxJavaStdinEchoOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_ECHO, "j-echo", 20));
+        assertEquals("ok", r.status());
+        assertEquals("j-echo", r.output());
+    }
+
+    @Test
+    void mxJavaJudgeMixedPassFail(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        JudgeResult r = executor(tmp, tmp, 20).judge(
+                judgeReq("java", MX_JAVA_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
+        assertEquals(1, r.passed());
+        assertFalse(r.allPassed());
+        assertEquals("mismatch", r.cases().get(1).error());
+    }
+
+    @Test
+    void mxJavaJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("java",
+                "public class Main { public static void main(String[] a) { } }", List.of(), 20));
+        assertTrue(r.allPassed());
+        assertEquals(0, r.passed());
+    }
+
+    @Test
+    void mxJavaRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 12).run(new RunRequest("java", MX_JAVA_HANG, "", 0));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxJavaRunNegativeTimeoutHandled(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        assumeTrue(toolAvailable("java", "-version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_UNI, "", -3));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxCEmptySourceIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("gcc", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", "", "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCWhitespaceSourceIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("gcc", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", "\n  \n", "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("gcc", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_SYNTAX, "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_CRASH, "", 20));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxCStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_STDERR, "", 20));
+        assertEquals("ok", r.status());
+        assertTrue(r.output().contains("warn-c"));
+    }
+
+    @Test
+    void mxCUnicodeOutputOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_UNI, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(MX_EXPECT_UNI, r.output());
+    }
+
+    @Test
+    void mxC100kUnderCapOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_BIG, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(100000, r.output().length());
+    }
+
+    @Test
+    void mxCStdinEchoOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_ECHO, "c-echo", 20));
+        assertEquals("ok", r.status());
+        assertEquals("c-echo", r.output());
+    }
+
+    @Test
+    void mxCJudgeMixedPassFail(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        JudgeResult r = executor(tmp, tmp, 20).judge(
+                judgeReq("c", MX_C_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
+        assertEquals(1, r.passed());
+        assertFalse(r.allPassed());
+        assertEquals("mismatch", r.cases().get(1).error());
+    }
+
+    @Test
+    void mxCJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("c", MX_C_UNI, List.of(), 20));
+        assertTrue(r.allPassed());
+        assertEquals(0, r.passed());
+    }
+
+    @Test
+    void mxCRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 8).run(new RunRequest("c", MX_C_HANG, "", 0));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxCRunNegativeTimeoutHandled(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileC());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_UNI, "", -2));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxCppEmptySourceIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("g++", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", "", "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCppWhitespaceSourceIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("g++", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", " \t\n ", "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCppSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("g++", "--version"));
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_SYNTAX, "", 20));
+        assertEquals("compilation_error", r.status());
+    }
+
+    @Test
+    void mxCppCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_CRASH, "", 20));
+        assertEquals("runtime_error", r.status());
+    }
+
+    @Test
+    void mxCppStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_STDERR, "", 20));
+        assertEquals("ok", r.status());
+        assertTrue(r.output().contains("warn-cpp"));
+    }
+
+    @Test
+    void mxCppUnicodeOutputOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_UNI, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(MX_EXPECT_UNI, r.output());
+    }
+
+    @Test
+    void mxCpp100kUnderCapOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_BIG, "", 20));
+        assertEquals("ok", r.status());
+        assertEquals(100000, r.output().length());
+    }
+
+    @Test
+    void mxCppStdinEchoOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_ECHO, "p-echo", 20));
+        assertEquals("ok", r.status());
+        assertEquals("p-echo", r.output());
+    }
+
+    @Test
+    void mxCppJudgeMixedPassFail(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        JudgeResult r = executor(tmp, tmp, 20).judge(
+                judgeReq("cpp", MX_CPP_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
+        assertEquals(1, r.passed());
+        assertFalse(r.allPassed());
+        assertEquals("mismatch", r.cases().get(1).error());
+    }
+
+    @Test
+    void mxCppJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("cpp", MX_CPP_UNI, List.of(), 20));
+        assertTrue(r.allPassed());
+        assertEquals(0, r.passed());
+    }
+
+    @Test
+    void mxCppRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 10).run(new RunRequest("cpp", MX_CPP_HANG, "", 0));
+        assertEquals("timeout", r.status());
+    }
+
+    @Test
+    void mxCppRunNegativeTimeoutHandled(@TempDir Path tmp) throws IOException {
+        assumeTrue(canCompileCpp());
+        var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_UNI, "", -4));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxRunBlankLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
+        var r = executor(tmp, tmp, 5).run(new RunRequest("  ", "x", "", 5));
+        assertEquals("unsupported_language", r.status());
+        assertFalse(r.ok());
+    }
+
+    @Test
+    void mxRunEmptyLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
+        var r = executor(tmp, tmp, 5).run(new RunRequest("", "x", "", 5));
+        assertEquals("unsupported_language", r.status());
+    }
+
+    @Test
+    void mxRunSource65536ExactAccepted(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", "#" + "x".repeat(65535), "", 10));
+        assertEquals("ok", r.status());
+    }
+
+    @Test
+    void mxRunSource65537Rejected(@TempDir Path tmp) throws IOException {
+        var r = executor(tmp, tmp, 5).run(new RunRequest("python", "x".repeat(65537), "", 5));
+        assertEquals("source_too_large", r.status());
+        assertFalse(r.ok());
+    }
+
+    @Test
+    void mxRunStdin10000CharsPassesThrough(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "s".repeat(10000), 10));
+        assertEquals("ok", r.status());
+        assertEquals(10000, r.output().length());
+    }
+
+    @Test
+    void mxRunStdin10001CharsPassesThrough(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "s".repeat(10001), 10));
+        assertEquals("ok", r.status());
+        assertEquals(10001, r.output().length());
+    }
+
+    @Test
+    void mxRunTimeout31QuickProgramOk(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        var r = executor(tmp, tmp, 10).run(new RunRequest("python", "print('fast')", "", 31));
+        assertEquals("ok", r.status());
+        assertEquals("fast", r.output());
+    }
+
+    @Test
+    void mxJudgeBlankLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
+        JudgeResult r = executor(tmp, tmp, 5).judge(judgeReq("   ", "x", List.of(tc("i", "o")), 5));
+        assertEquals("unsupported_language", r.cases().get(0).error());
+    }
+
+    @Test
+    void mxJudgeEmptyLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
+        JudgeResult r = executor(tmp, tmp, 5).judge(judgeReq("", "x", List.of(tc("i", "o")), 5));
+        assertEquals("unsupported_language", r.cases().get(0).error());
+    }
+
+    @Test
+    void mxPythonJudgeNegativeTimeoutFallsBack(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("python", "--version"));
+        JudgeResult r = executor(tmp, tmp, 2).judge(
+                judgeReq("python", MX_PY_HANG, List.of(tc("", "")), -7));
+        assertEquals("timeout", r.cases().get(0).error());
     }
 }
