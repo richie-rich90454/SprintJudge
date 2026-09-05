@@ -72,9 +72,19 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
     setType: (wizardType) => {
         const quizId = get().activeQuizId ?? "";
+        const prev = get().draft;
         set({
             wizardType,
-            draft: { ...emptyDraft(wizardType, quizId), ...get().draft, questionType: wizardType },
+            // Statement fields carry over; type-specific config resets so an
+            // MCQ options array can never leak into a NUMERIC draft.
+            draft: {
+                ...emptyDraft(wizardType, quizId),
+                title: prev.title ?? "",
+                description: prev.description ?? "",
+                timeLimitSec: prev.timeLimitSec ?? 30,
+                pointsBase: prev.pointsBase ?? 100,
+                questionType: wizardType,
+            },
         });
     },
 
