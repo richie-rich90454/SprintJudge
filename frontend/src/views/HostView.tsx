@@ -34,12 +34,14 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
 
     const rows = leaderboard.length
         ? leaderboard
-        : (room?.players ?? []).map((p, i) => ({
-              uuid: p.uuid,
-              name: p.name,
-              score: p.score,
-              rank: i + 1,
-          }));
+        : [...(room?.players ?? [])]
+              .sort((a, b) => b.score - a.score)
+              .map((p, i) => ({
+                  uuid: p.uuid,
+                  name: p.name,
+                  score: p.score,
+                  rank: i + 1,
+              }));
 
     const rh = projector ? PROJECTOR_ROW_H : ROW_H;
     const maxH = projector ? 640 : 460;
@@ -137,6 +139,9 @@ function ControlsPanel() {
     const [teamsError, setTeamsError] = useState<string | null>(null);
     const [teams, setTeams] = useState<TeamRow[]>([]);
     const [confirmEndOpen, setConfirmEndOpen] = useState(false);
+    // True while a team round-trip is outstanding; unrelated ERRORs (submit
+    // lockouts, rate limits) must not paint the Teams panel red.
+    const teamOp = useRef(false);
 
     const players = room?.players ?? [];
     const active = status === "ACTIVE";
@@ -147,10 +152,19 @@ function ControlsPanel() {
                 setTeams((m.teams as typeof teams) ?? []);
                 setTeamsLoading(false);
                 setTeamsError(null);
+                teamOp.current = false;
             }
-            if (m.type === "ERROR") {
+            if (m.type === "TEAM_CREATED" || m.type === "TEAM_JOINED") {
+                // Creation confirmed: reload the list instead of waiting for
+                // a manual retry.
+                teamOp.current = true;
+                setTeamsLoading(true);
+                webSocketService.send({ type: "GET_TEAMS" });
+            }
+            if (m.type === "ERROR" && teamOp.current) {
                 setTeamsLoading(false);
                 setTeamsError(String(m.message ?? "Failed to load teams."));
+                teamOp.current = false;
             }
         });
         return () => sub.unsubscribe();
@@ -162,11 +176,13 @@ function ControlsPanel() {
     const requestTeams = () => {
         setTeamsLoading(true);
         setTeamsError(null);
+        teamOp.current = true;
         send({ type: "GET_TEAMS" });
     };
 
     const createTeam = () => {
         if (!teamName.trim()) return;
+        teamOp.current = true;
         send({ type: "CREATE_TEAM", name: teamName.trim() });
         setTeamName("");
     };
@@ -414,14 +430,31 @@ export function HostView() {
     const joinUrl = `${window.location.origin}/j/${pin}`;
 
     const copyLink = () => {
-        void navigator.clipboard.writeText(joinUrl).then(
-            () => {
-                setCopied(true);
-                if (copyTimer.current) clearTimeout(copyTimer.current);
-                copyTimer.current = setTimeout(() => setCopied(false), 2000);
-            },
-            () => setCopied(false),
-        );
+        const done = (ok: boolean) => {
+            setCopied(ok);
+            if (!ok) return;
+            if (copyTimer.current) clearTimeout(copyTimer.current);
+            copyTimer.current = setTimeout(() => setCopied(false), 2000);
+        };
+        try {
+            const clip = navigator.clipboard;
+            if (clip?.writeText) {
+                void clip.writeText(joinUrl).then(
+                    () => done(true),
+                    () => done(false),
+                );
+                return;
+            }
+            // Clipboard API is undefined in insecure contexts: legacy fallback.
+            const ta = document.createElement("textarea");
+            ta.value = joinUrl;
+            document.body.appendChild(ta);
+            ta.select();
+            done(document.execCommand("copy"));
+            ta.remove();
+        } catch {
+            done(false);
+        }
     };
 
     if (projector) {
