@@ -138,7 +138,7 @@ public class NativeExecutor implements CodeExecutor {
             }
             return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
         } catch (IOException | InterruptedException e) {
-            if (proc != null) ExecIo.killAndReap(proc);
+            ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Native judge execution failed for language {}", language, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
@@ -319,7 +319,7 @@ public class NativeExecutor implements CodeExecutor {
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
-            if (proc != null) ExecIo.killAndReap(proc);
+            ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Native run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");
