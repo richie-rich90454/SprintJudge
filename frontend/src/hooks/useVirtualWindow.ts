@@ -6,12 +6,7 @@ import { useEffect, useRef, useState } from "react";
  * spacers guarantee total scroll height equals rows*rowHeight, so the
  * scrollbar never lies and no row is ever clipped or duplicated.
  */
-export function useVirtualWindow(
-    total: number,
-    rowHeight: number,
-    overscan = 6,
-    viewportH = 460,
-) {
+export function useVirtualWindow(total: number, rowHeight: number, overscan = 6, viewportH = 460) {
     const ref = useRef<HTMLDivElement>(null);
     const [start, setStart] = useState(0);
 
