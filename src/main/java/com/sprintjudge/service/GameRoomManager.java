@@ -330,21 +330,34 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String questionId = q.id();
         long startMs = room.currentQuestionStartEpochMs();
 
-        CodingOutcomeConsumer handler = (uuid, baseScore, allPassed, passed, totalTests, aiFeedback) -> {
-            int bonus;
-            synchronized (room) {
-                boolean correct = allPassed;
-                bonus = streakBonus(room, uuid, correct, baseScore);
-                int total = baseScore + bonus;
-                room.applyScore(uuid, total);
-                room.recordRound(uuid, baseScore, bonus);
+        CodingOutcomeConsumer handler = new CodingOutcomeConsumer() {
+            @Override
+            public void accept(String uuid, int baseScore, boolean allPassed, int passed, int totalTests,
+                               String aiFeedback) {
+                int bonus;
+                synchronized (room) {
+                    boolean correct = allPassed;
+                    bonus = streakBonus(room, uuid, correct, baseScore);
+                    int total = baseScore + bonus;
+                    room.applyScore(uuid, total);
+                    room.recordRound(uuid, baseScore, bonus);
+                }
+                // ponytail: re-resolve the session at reply time — the player may
+                // have reconnected (new sessionId) while the judge was running.
+                Player current = room.getPlayer(uuid);
+                ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT", questionId,
+                        baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
+                broadcastScoreChanged(room);
             }
-            // ponytail: re-resolve the session at reply time — the player may
-            // have reconnected (new sessionId) while the judge was running.
-            Player current = room.getPlayer(uuid);
-            ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT", questionId,
-                    baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
-            broadcastScoreChanged(room);
+
+            @Override
+            public void rejected(String uuid) {
+                // Never reached the judge: refund the consumed attempt and say so.
+                room.refundAttempt(questionId, uuid);
+                Player current = room.getPlayer(uuid);
+                ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
+                        questionId, 0, false, 0, 0, null));
+            }
         };
 
         long timeTakenSec = Math.max(0, (Instant.now().toEpochMilli() - startMs) / 1000);
