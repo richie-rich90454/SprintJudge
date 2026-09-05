@@ -97,7 +97,10 @@ describe("WebSocketService open and queue flush", () => {
         sock.readyState = FakeSocket.OPEN;
         sock.onopen?.();
         expect(seen).toEqual(["closed", "open"]);
-        expect(sock.sent).toEqual([JSON.stringify({ type: "JOIN" }), JSON.stringify({ type: "SUBMIT" })]);
+        expect(sock.sent).toEqual([
+            JSON.stringify({ type: "JOIN" }),
+            JSON.stringify({ type: "SUBMIT" }),
+        ]);
     });
 
     test("open signal fires before the flushed backlog", () => {
@@ -376,7 +379,9 @@ describe("WebSocketService connect-open-join-drop-rejoin sagas", () => {
         svc.send({ type: "JOIN", pin: "1234", rejoinToken: "tok" });
         second.readyState = FakeSocket.OPEN;
         second.onopen?.();
-        expect(second.sent).toEqual([JSON.stringify({ type: "JOIN", pin: "1234", rejoinToken: "tok" })]);
+        expect(second.sent).toEqual([
+            JSON.stringify({ type: "JOIN", pin: "1234", rejoinToken: "tok" }),
+        ]);
         svc.send({ type: "SUBMIT", n: 2 });
         expect(second.sent).toHaveLength(2);
     });
@@ -500,7 +505,10 @@ describe("WebSocketService backlog cap flows", () => {
         const second = lastSocket();
         second.readyState = FakeSocket.OPEN;
         second.onopen?.();
-        expect(second.sent).toEqual([JSON.stringify({ type: "ONE" }), JSON.stringify({ type: "TWO" })]);
+        expect(second.sent).toEqual([
+            JSON.stringify({ type: "ONE" }),
+            JSON.stringify({ type: "TWO" }),
+        ]);
     });
 
     test("flush clears the queue so a second open sends nothing twice", () => {
@@ -575,7 +583,10 @@ describe("WebSocketService close-code variants", () => {
     test("close with a normal payload still schedules a reconnect", () => {
         const svc = makeService();
         svc.connect("ws://host/game");
-        (lastSocket().onclose as unknown as (ev: unknown) => void)?.({ code: 1000, reason: "done" });
+        (lastSocket().onclose as unknown as (ev: unknown) => void)?.({
+            code: 1000,
+            reason: "done",
+        });
         vi.advanceTimersByTime(1000);
         expect(FakeSocket.created).toHaveLength(2);
     });
@@ -603,7 +614,10 @@ describe("WebSocketService close-code variants", () => {
         const seen: string[] = [];
         svc.onStatus().subscribe((s) => seen.push(s));
         svc.connect("ws://host/game");
-        (lastSocket().onclose as unknown as (ev: unknown) => void)?.({ code: 1008, reason: "policy" });
+        (lastSocket().onclose as unknown as (ev: unknown) => void)?.({
+            code: 1008,
+            reason: "policy",
+        });
         expect(seen).toContain("closed");
         vi.advanceTimersByTime(1000);
         expect(FakeSocket.created).toHaveLength(2);
