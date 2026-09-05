@@ -55,6 +55,8 @@ public class AdminController {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.CONFLICT, "Quiz id already exists");
         }
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", quiz.title());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", quiz.description());
         return quizRepository.create(quiz);
     }
 
@@ -77,6 +79,8 @@ public class AdminController {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Description exceeds 4000 characters");
         }
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", title);
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", description);
         com.sprintjudge.domain.models.Quiz updated = new com.sprintjudge.domain.models.Quiz(
                 id, title, description, existing.createdBy(), existing.createdAt(), existing.template());
         return quizRepository.update(updated);
@@ -96,6 +100,9 @@ public class AdminController {
     @PostMapping("/quizzes/{id}/questions")
     public Question addQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
         requireKnownType(question.questionType());
+        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.questionType(), question.config());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.title());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.description());
         Question q = new Question(question.id(), id, question.title(), question.description(),
                 question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
                 question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
@@ -108,6 +115,9 @@ public class AdminController {
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND, "Question not found"));
         requireKnownType(question.questionType());
+        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.questionType(), question.config());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.title());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.description());
         // The quiz home comes from the stored record, never the client body.
         Question q = new Question(id, existing.quizId(), question.title(), question.description(),
                 question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
@@ -196,6 +206,11 @@ public class AdminController {
         if (!(raw instanceof String json) || json.isBlank()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Missing or invalid 'json' field");
+        }
+        // Unbounded imports are a memory-DoS vector: cap the document.
+        if (json.length() > 2_000_000) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Import too large (max 2MB)");
         }
         boolean replace = Boolean.TRUE.equals(body.get("replace"))
                 || (body.get("replace") instanceof String s && s.equalsIgnoreCase("true"));
