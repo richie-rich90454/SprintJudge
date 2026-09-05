@@ -91,7 +91,9 @@ public final class LiveLeaderboard {
      */
     public DeltaLedger.Batch drainDeltas(boolean forceResync) {
         DeltaLedger.Batch b = ledger.drain(forceResync);
-        if (b.resync() || b.upserts().isEmpty()) return b;
+        // drain guarantees resync batches carry no upserts, so resync alone
+        // selects the early return.
+        if (b.resync()) return b;
         List<DeltaLedger.Delta> fresh = new java.util.ArrayList<>(b.upserts().size());
         for (DeltaLedger.Delta d : b.upserts()) {
             int rank = ordered.rankOf(d.uuid());
