@@ -74,36 +74,67 @@ public class SubmissionProcessor {
         if (!slot.tryAcquire()) {
             return CompletableFuture.completedFuture(false);
         }
+        Core core;
         try {
-            judge(sessionId, questionId, playerName, playerUuid, language, sourceCode,
-                    attemptsUsed, settings, timeTakenSec, handler);
-            return CompletableFuture.completedFuture(true);
+            core = judgeCore(sessionId, questionId, playerName, playerUuid, language, sourceCode,
+                    attemptsUsed, settings, timeTakenSec);
+        } catch (RuntimeException e) {
+            log.error("Judge pipeline failed for question {}", questionId, e);
+            core = null;
         } finally {
+            // Release BEFORE the AI call below: grading feedback can wait up
+            // to timeout-sec while judge permits must keep flowing.
             slot.release();
             // No board broadcast here: GameRoomManager's outcome handler is the
             // single decision point (it delays the board in host-led modes).
         }
+        if (core == null) {
+            handler.rejected(playerUuid);
+            return CompletableFuture.completedFuture(true);
+        }
+        // AI grading: when tests fail and AI is enabled, get feedback.
+        String aiFeedback = null;
+        if (!core.allPassed() && aiGradingService.isEnabled()) {
+            try {
+                var aiResult = aiGradingService.grade(language, sourceCode,
+                        core.title(), core.description(),
+                        core.allPassed(), core.score(), core.pointsBase());
+                if (aiResult.available()) aiFeedback = aiResult.feedback();
+            } catch (Exception e) {
+                log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
+            }
+        }
+        handler.accept(playerUuid, core.score(), core.allPassed(), core.passed(), core.total(), aiFeedback);
+        return CompletableFuture.completedFuture(true);
     }
 
-    private JudgeResult judge(String sessionId, String questionId, String playerName,
-                               String playerUuid, String language, String sourceCode,
-                               int attemptsUsed, Map<String, Object> settings,
-                               long timeTakenSec, CodingOutcomeConsumer handler) {
+    /** Judge outcome that survived to need scoring + notification. Null = rejected. */
+    private record Core(String title, String description, int score, boolean allPassed, int passed, int total,
+                        int pointsBase) {}
+
+    private Core judgeCore(String sessionId, String questionId, String playerName,
+                           String playerUuid, String language, String sourceCode,
+                           int attemptsUsed, Map<String, Object> settings,
+                           long timeTakenSec) {
         Question question = questionRepository.findById(questionId).orElse(null);
-        if (question == null) return null;
+        if (question == null) {
+            // No audit row: submissions.question_id is FK-bound, so persisting
+            // a row for a deleted question would poison the write buffer.
+            return null;
+        }
         QuestionType type = QuestionType.from(question.questionType());
 
         // Async-boundary guard: misrouted selection answers must never reach tools.
         if (!type.isCoding()) {
             recordRejected(sessionId, questionId, playerName, playerUuid, "not_a_coding_question");
-            return new JudgeResult(0, 0, false, List.of());
+            return null;
         }
 
         // Defense-in-depth: the WS layer already caps this; enforce again here.
         if (sourceCode == null || sourceCode.length() > MAX_SOURCE_CHARS) {
             recordRejected(sessionId, questionId, playerName, playerUuid,
                     sourceCode == null ? "source_missing" : "source_too_large");
-            return new JudgeResult(0, 0, false, List.of());
+            return null;
         }
 
         JsonNode config = Json.readTree(question.config());
@@ -133,22 +164,8 @@ public class SubmissionProcessor {
                     Json.write(Map.of("language", language, "source", sourceCode)),
                     score, result.allPassed(), Json.write(result), attemptsUsed, Instant.now()));
         }
-
-        // AI grading: when tests fail and AI is enabled, get feedback.
-        String aiFeedback = null;
-        if (!result.allPassed() && aiGradingService.isEnabled()) {
-            try {
-                var aiResult = aiGradingService.grade(language, sourceCode,
-                        question.title(), question.description(),
-                        result.allPassed(), score, question.pointsBase());
-                if (aiResult.available()) aiFeedback = aiResult.feedback();
-            } catch (Exception e) {
-                log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
-            }
-        }
-
-        handler.accept(playerUuid, score, result.allPassed(), result.passed(), result.total(), aiFeedback);
-        return result;
+        return new Core(question.title(), question.description(), score,
+                result.allPassed(), result.passed(), result.total(), question.pointsBase());
     }
 
     private void recordRejected(String sessionId, String questionId, String playerName,
