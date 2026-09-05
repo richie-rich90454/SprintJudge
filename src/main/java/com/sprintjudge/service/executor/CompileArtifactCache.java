@@ -91,12 +91,12 @@ public class CompileArtifactCache {
         while (map.size() > maxEntries || totalBytes.get() > maxBytes) {
             map.entrySet().stream()
                     .min(Comparator.comparingLong(e -> e.getValue().lastAccess().get()))
-                    .ifPresent(eldest -> {
-                        if (map.remove(eldest.getKey()) != null) {
-                            totalBytes.addAndGet(-fileSize(eldest.getValue().file()));
-                            safeDelete(eldest.getValue().file());
-                        }
-                    });
+                    // Atomic take: concurrent double-evicts adjust bytes once.
+                    .ifPresent(eldest -> map.computeIfPresent(eldest.getKey(), (k, v) -> {
+                        totalBytes.addAndGet(-fileSize(v.file()));
+                        safeDelete(v.file());
+                        return null;
+                    }));
             if (map.isEmpty()) return;
         }
     }
