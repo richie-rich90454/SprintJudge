@@ -18,10 +18,14 @@ public final class QuestionConfigValidator {
         QuestionType t = QuestionType.from(type);
         JsonNode c = parseObject(config);
         requireNoScript(c, "config");
-        switch (t) {
+        // Expression form (not a statement switch): the synthetic
+        // exhaustiveness default is filtered from coverage, while a statement
+        // switch leaves one phantom branch no test can satisfy.
+        boolean valid = switch (t) {
             case MCQ -> {
                 int n = requireOptions(c, 2);
                 requireIndexInBounds(c, "correctIndex", n);
+                yield true;
             }
             case OUTPUT_PRED -> {
                 int idx = requireIndex(c, "correctIndex");
@@ -29,15 +33,18 @@ public final class QuestionConfigValidator {
                     int n = requireOptions(c, 1);
                     if (idx >= n) throw new IllegalArgumentException("correctIndex out of bounds");
                 }
+                yield true;
             }
             case COMPLEXITY -> {
                 int n = requireOptions(c, 2);
                 requireIndexInBounds(c, "correctIndex", n);
+                yield true;
             }
             case TRUE_FALSE -> {
                 if (!c.path("correct").isBoolean()) {
                     throw new IllegalArgumentException("correct must be true or false");
                 }
+                yield true;
             }
             case MULTIPLE_SELECT -> {
                 int n = requireOptions(c, 2);
@@ -50,6 +57,7 @@ public final class QuestionConfigValidator {
                         throw new IllegalArgumentException("correctIndices out of bounds");
                     }
                 }
+                yield true;
             }
             case NUMERIC -> {
                 if (!c.path("answer").isNumber()) {
@@ -58,17 +66,20 @@ public final class QuestionConfigValidator {
                 if (c.has("tolerance") && (!c.path("tolerance").isNumber() || c.path("tolerance").asDouble() < 0)) {
                     throw new IllegalArgumentException("tolerance must be >= 0");
                 }
+                yield true;
             }
             case FILL_BLANK -> {
                 if (!c.path("answer").isTextual() || c.path("answer").asText().isBlank()) {
                     throw new IllegalArgumentException("answer must not be blank");
                 }
+                yield true;
             }
             case DRAG_SORT -> {
                 JsonNode order = c.path("correctOrder");
                 if (!order.isArray() || order.size() < 2) {
                     throw new IllegalArgumentException("correctOrder needs at least 2 lines");
                 }
+                yield true;
             }
             case CLICK_BUG -> {
                 JsonNode lines = c.path("codeLines");
@@ -76,11 +87,13 @@ public final class QuestionConfigValidator {
                     throw new IllegalArgumentException("codeLines must be a non-empty array");
                 }
                 requireIndexInBounds(c, "bugLine", lines.size());
+                yield true;
             }
             case CODE_COMPLETION -> {
                 if (!c.path("expected").isTextual() || c.path("expected").asText().isBlank()) {
                     throw new IllegalArgumentException("expected must not be blank");
                 }
+                yield true;
             }
             case OJ_FULL, OJ_PATCH -> {
                 JsonNode cases = c.path("testCases");
@@ -95,8 +108,9 @@ public final class QuestionConfigValidator {
                 if (c.has("memoryLimitMb") && (!c.path("memoryLimitMb").isInt() || c.path("memoryLimitMb").asInt() <= 0)) {
                     throw new IllegalArgumentException("memoryLimitMb must be > 0");
                 }
+                yield true;
             }
-        }
+        };
     }
 
     /**
