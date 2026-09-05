@@ -29,21 +29,58 @@ flowchart LR
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/admin/quizzes` | List quizzes |
-| POST | `/api/admin/quizzes` | Create quiz (validated) |
+| POST | `/api/admin/quizzes` | Create quiz (validated); duplicate id is 409 |
+| PUT | `/api/admin/quizzes/{id}` | Update title/description (validated) |
 | DELETE | `/api/admin/quizzes/{id}` | Delete quiz |
 | GET | `/api/admin/quizzes/{id}/questions` | List questions |
-| POST | `/api/admin/quizzes/{id}/questions` | Add question (validated) |
-| PUT | `/api/admin/questions/{id}` | Update question (validated) |
+| POST | `/api/admin/quizzes/{id}/questions` | Add question (validated; unknown type is 400) |
+| PUT | `/api/admin/questions/{id}` | Update question (validated; missing id is 404; quiz home is server-kept) |
 | DELETE | `/api/admin/questions/{id}` | Delete question |
 | GET | `/api/admin/settings` | Admin settings map |
 | PUT | `/api/admin/settings` | Update settings |
 | POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the login session |
 | GET | `/api/admin/export` | Export entire bank as JSON |
-| POST | `/api/admin/import` | Import bank (`{ json, replace }`) |
+| POST | `/api/admin/import` | Import bank (`{ json, replace }`); non-replace rejects colliding ids with 400 |
 | GET | `/api/admin/metrics` | Runtime metrics: memory/GC/threads, judge latency percentiles, compile-cache ratio, write-buffer depth |
 
 Question payloads embed answer keys in their `config`, so they are admin-only by design —
 the public surface never exposes them.
+
+## Auth matrix (who may call what)
+
+| Surface | Auth | Notes |
+|---------|------|-------|
+| `/`, `/j/**`, `/join`, `/play`, `/host`, `/results`, `/solo`, `/explore` | none | Public SPA deep links |
+| `/api/public/**` | none | Quiz list + live runner (30/min per IP) |
+| `/api/admin/**` | login session | Else 302 to `/admin/login` |
+| `/actuator/health` | none | Minimal detail when anonymous |
+| `/actuator/prometheus`, `/metrics`, `/info` | login session | Ops only |
+| `/admin/**` pages | login session | Dashboard, login form |
+
+## Live-run example
+
+```bash
+curl -X POST http://localhost:3000/api/public/run \
+  -H 'Content-Type: application/json' \
+  -d '{"language":"python","sourceCode":"print(41+1)","stdin":"","timeoutSec":10}'
+```
+
+```json
+{ "ok": true, "output": "42", "error": "", "status": "ok" }
+```
+
+Statuses: `ok`, `compilation_error`, `runtime_error`, `timeout`,
+`stdout_exceeded_1MB`, `unsupported_language`, `source_too_large`, `io_error`.
+
+## Error shapes
+
+| Code | When |
+|------|------|
+| 400 | Bean validation failure, unknown question type, bad import bundle, colliding import ids |
+| 401/302 | Missing admin session on `/api/admin/**` |
+| 404 | Unknown quiz/question id |
+| 409 | Duplicate quiz id on create |
+| 429 | Live-run throttle (30/min per IP) or join throttle (10 failures/min) |
 
 ## Export JSON schema
 
