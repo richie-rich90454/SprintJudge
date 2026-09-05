@@ -1,6 +1,5 @@
 package com.sprintjudge.service;
 
-import com.sprintjudge.domain.enums.QuestionType;
 import com.sprintjudge.domain.models.Question;
 import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.repository.QuestionRepository;
@@ -10,14 +9,12 @@ import com.sprintjudge.service.executor.JudgeRequest;
 import com.sprintjudge.service.executor.JudgeResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 import static org.junit.jupiter.api.Assertions.*;
