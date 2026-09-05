@@ -11,7 +11,6 @@ import { useUIStore } from "../stores/useUIStore";
 import { adminApi } from "../services/AdminApiService";
 import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
-import { ThemeToggle } from "../components/ThemeToggle";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { LogoMark } from "../components/LogoMark";
@@ -259,7 +258,6 @@ export function AdminDashboard() {
                     <div className="flex-1" />
                     <SoundToggle />
                     <MotionToggle />
-                    <ThemeToggle />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
                         Player view
                     </Button>
