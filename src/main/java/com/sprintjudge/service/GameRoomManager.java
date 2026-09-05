@@ -636,7 +636,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
      * config must never break the end-of-game review.
      */
     private static List<String> displayOptions(JsonNode config) {
-        if (config == null || !config.isObject()) return null;
+        if (!config.isObject()) return null;
         JsonNode options = config.has("options") ? config.get("options") : config.get("lines");
         if (options == null || !options.isArray() || options.isEmpty()) return null;
         List<String> out = new java.util.ArrayList<>();
@@ -676,13 +676,16 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             double rate = total > 0 ? (double) correct / total : 0;
             double avgAttempts = total > 0 ? (double) totalAttempts / total : 0;
 
+            JsonNode config = q.config() == null
+                    ? com.fasterxml.jackson.databind.node.JsonNodeFactory.instance.objectNode()
+                    : Json.readTree(q.config());
             JsonNode answer = QuestionAnswers.answerPayload(
-                    QuestionType.from(q.questionType()), Json.readTree(q.config()));
+                    QuestionType.from(q.questionType()), config);
 
             qReviews.add(new GameReview.QuestionReview(
                     q.id(), q.title(), q.questionType(), q.timeLimitSec(),
                     q.pointsBase(), answer, total, correct, rate, avgAttempts,
-                    displayOptions(Json.readTree(q.config()))));
+                    displayOptions(config)));
 
             if (rate < hardestRate) { hardestRate = rate; hardestId = q.id(); }
             if (rate > easiestRate) { easiestRate = rate; easiestId = q.id(); }
