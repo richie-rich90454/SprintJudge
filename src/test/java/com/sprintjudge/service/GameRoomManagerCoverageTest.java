@@ -75,7 +75,7 @@ class GameRoomManagerCoverageTest {
     }
 
     private GameSession session(String pin) {
-        return new GameSession("s1", "qz", pin, "host", "LOBBY", 0, null, null, null, Instant.now());
+        return new GameSession("s1", "qz", pin, "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now());
     }
 
     private Question mcq(String id) {
@@ -138,12 +138,12 @@ class GameRoomManagerCoverageTest {
         when(sessionRepository.findByPin(anyString()))
                 .thenReturn(Optional.of(session("123456")))
                 .thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        inv.getArgument(1), "LOBBY", 0, null, null, null, Instant.now()));
+                        inv.getArgument(1), "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameSession created = manager().createRoom("qz", "host-1");
         assertTrue(created.pinCode().matches("\\d{6}"));
-        verify(sessionRepository).create(eq("qz"), eq("host-1"), anyString(), eq(null));
+        verify(sessionRepository).create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString());
     }
 
     // ---------- capacity ----------
@@ -440,9 +440,9 @@ class GameRoomManagerCoverageTest {
     void createRoomRetriesRegistryCollision() {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
-        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        inv.getArgument(1), "LOBBY", 0, null, null, null, Instant.now()));
+                        inv.getArgument(1), "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameRoomManager mgr = manager();
         try (var mocked = org.mockito.Mockito.mockStatic(com.sprintjudge.util.Ids.class)) {
             mocked.when(com.sprintjudge.util.Ids::pin).thenReturn("123456", "654321");
