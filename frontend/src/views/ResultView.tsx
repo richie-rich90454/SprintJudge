@@ -31,7 +31,7 @@ export function ResultView() {
         motion.killFor(listRef.current);
         motion.countUp(listRef.current);
         return () => motion.killFor(listRef.current);
-    }, [rest.length]);
+    }, [rest.length, podium.length]);
 
     const heights = [128, 88, 64];
     const order = [1, 0, 2];
