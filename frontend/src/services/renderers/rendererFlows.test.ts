@@ -157,7 +157,10 @@ function runButton(div: HTMLElement): HTMLButtonElement {
 
 function fetchBody(): Record<string, unknown> {
     const calls = fetchMock.mock.calls as unknown[][];
-    return JSON.parse((calls[calls.length - 1][1] as { body: string }).body) as Record<string, unknown>;
+    return JSON.parse((calls[calls.length - 1][1] as { body: string }).body) as Record<
+        string,
+        unknown
+    >;
 }
 
 async function mountOjFull(config: unknown, questionId?: string, allowed?: string[] | null) {
@@ -186,7 +189,10 @@ beforeEach(() => {
     FakeFit.instances.length = 0;
     editorMock.handles.length = 0;
     fetchMock.mockReset();
-    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true, output: "", status: "OK" }) });
+    fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({ ok: true, output: "", status: "OK" }),
+    });
     vi.stubGlobal("fetch", fetchMock);
     window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
         cb(0);
@@ -248,7 +254,11 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
 
     test("MultipleSelect full cycle toggles on off on then remounts clean", () => {
         const a = host();
-        const r1 = new MultipleSelectRenderer(a.div, { options: ["a", "b", "c"] }, onChange(a.seen));
+        const r1 = new MultipleSelectRenderer(
+            a.div,
+            { options: ["a", "b", "c"] },
+            onChange(a.seen),
+        );
         r1.mount();
         const btns = a.div.querySelectorAll("button");
         (btns[0] as HTMLButtonElement).click();
@@ -260,7 +270,11 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
         expect(a.seen[a.seen.length - 1]).toEqual({ selectedIndices: [0, 1] });
         r1.destroy();
         const b = host();
-        const r2 = new MultipleSelectRenderer(b.div, { options: ["a", "b", "c"] }, onChange(b.seen));
+        const r2 = new MultipleSelectRenderer(
+            b.div,
+            { options: ["a", "b", "c"] },
+            onChange(b.seen),
+        );
         r2.mount();
         expect(r2.getResponse()).toEqual({ selectedIndices: [] });
         r2.destroy();
@@ -290,14 +304,22 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
 
     test("OutputPred full cycle previews code then selects across remount", () => {
         const a = host();
-        const r1 = new OutputPredRenderer(a.div, { code: "print(1+1)", options: ["1", "2", "3"] }, onChange(a.seen));
+        const r1 = new OutputPredRenderer(
+            a.div,
+            { code: "print(1+1)", options: ["1", "2", "3"] },
+            onChange(a.seen),
+        );
         r1.mount();
         expect(a.div.querySelector("pre")?.textContent).toContain("print(1+1)");
         (a.div.querySelectorAll("button")[1] as HTMLButtonElement).click();
         expect(r1.getResponse()).toEqual({ selectedIndex: 1 });
         r1.destroy();
         const b = host();
-        const r2 = new OutputPredRenderer(b.div, { code: "print(1+1)", options: ["1", "2", "3"] }, onChange(b.seen));
+        const r2 = new OutputPredRenderer(
+            b.div,
+            { code: "print(1+1)", options: ["1", "2", "3"] },
+            onChange(b.seen),
+        );
         r2.mount();
         expect(r2.getResponse()).toEqual({ selectedIndex: -1 });
         (b.div.querySelectorAll("button")[2] as HTMLButtonElement).click();
@@ -375,7 +397,11 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
 
     test("CodeCompletion full cycle edits then remounts back at the skeleton", () => {
         const a = host();
-        const r1 = new CodeCompletionRenderer(a.div, { skeleton: "def f():\n  pass" }, onChange(a.seen));
+        const r1 = new CodeCompletionRenderer(
+            a.div,
+            { skeleton: "def f():\n  pass" },
+            onChange(a.seen),
+        );
         r1.mount();
         expect(r1.getResponse()).toEqual({ code: "def f():\n  pass" });
         const ta = a.div.querySelector("textarea") as HTMLTextAreaElement;
@@ -384,7 +410,11 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
         expect(r1.getResponse()).toEqual({ code: "def f():\n  return 1" });
         r1.destroy();
         const b = host();
-        const r2 = new CodeCompletionRenderer(b.div, { skeleton: "def f():\n  pass" }, onChange(b.seen));
+        const r2 = new CodeCompletionRenderer(
+            b.div,
+            { skeleton: "def f():\n  pass" },
+            onChange(b.seen),
+        );
         r2.mount();
         expect(r2.getResponse()).toEqual({ code: "def f():\n  pass" });
         r2.destroy();
@@ -411,7 +441,10 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
         const first = await mountOjFull({ starter: "print(1)" }, "flow-q1");
         expect(first.seen[0]).toEqual({ source: "print(1)", language: "python" });
         lastEditorOnChange()("print(2)");
-        expect(first.seen[first.seen.length - 1]).toEqual({ source: "print(2)", language: "python" });
+        expect(first.seen[first.seen.length - 1]).toEqual({
+            source: "print(2)",
+            language: "python",
+        });
         expect(localStorage.getItem("sprintjudge_code_flow-q1")).toBe("print(2)");
         first.renderer.destroy();
         expect(first.div.innerHTML).toBe("");
@@ -423,7 +456,12 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
     test("OjPatch full cycle shows the note then remounts the buggy function", async () => {
         const a = host();
         const seen: unknown[] = [];
-        const r1 = new OjPatchRenderer(a.div, { buggyFunction: "def f(:\n pass" }, onChange(seen), "patch-q1");
+        const r1 = new OjPatchRenderer(
+            a.div,
+            { buggyFunction: "def f(:\n pass" },
+            onChange(seen),
+            "patch-q1",
+        );
         r1.mount();
         await flush();
         expect(a.div.textContent).toContain("highlighted lines");
@@ -433,7 +471,12 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
         r1.destroy();
         const b = host();
         const seen2: unknown[] = [];
-        const r2 = new OjPatchRenderer(b.div, { buggyFunction: "def f(:\n pass" }, onChange(seen2), "patch-q1");
+        const r2 = new OjPatchRenderer(
+            b.div,
+            { buggyFunction: "def f(:\n pass" },
+            onChange(seen2),
+            "patch-q1",
+        );
         r2.mount();
         await flush();
         expect(seen2[0]).toEqual({ source: "def f():\n  pass", language: "python" });
@@ -491,7 +534,16 @@ describe("rendererFlows timer-expiry submits", () => {
 
     test("untouched DragSort expiry submits the initial order", () => {
         const { div } = host();
-        const r = new DragSortRenderer(div, { lines: [{ id: "a", text: "A" }, { id: "b", text: "B" }] }, () => {});
+        const r = new DragSortRenderer(
+            div,
+            {
+                lines: [
+                    { id: "a", text: "A" },
+                    { id: "b", text: "B" },
+                ],
+            },
+            () => {},
+        );
         r.mount();
         expect(r.getResponse()).toEqual({ order: ["a", "b"] });
         r.destroy();
@@ -506,7 +558,11 @@ describe("rendererFlows timer-expiry submits", () => {
     });
 
     test("untouched OjFull expiry submits starter code with the default language", async () => {
-        const { renderer } = await mountOjFull({ starter: "x = 1", defaultLanguage: "java" }, "exp-q1", ["java", "python"]);
+        const { renderer } = await mountOjFull(
+            { starter: "x = 1", defaultLanguage: "java" },
+            "exp-q1",
+            ["java", "python"],
+        );
         expect(renderer.getResponse()).toEqual({ source: "x = 1", language: "java" });
         renderer.destroy();
     });
@@ -570,7 +626,11 @@ describe("rendererFlows language switch mid-draft", () => {
     });
 
     test("disallowed defaultLanguage falls back to the first allowed language", async () => {
-        const { renderer } = await mountOjFull({ starter: "s", defaultLanguage: "cobol" }, "lang-q6", ["java", "python"]);
+        const { renderer } = await mountOjFull(
+            { starter: "s", defaultLanguage: "cobol" },
+            "lang-q6",
+            ["java", "python"],
+        );
         expect(renderer.getResponse()).toEqual({ source: "s", language: "java" });
         renderer.destroy();
     });
@@ -693,7 +753,11 @@ describe("rendererFlows multi-select toggle sequences", () => {
 
     test("reveal after a toggle chain marks correct and shakes the wrong pick", () => {
         const { div } = host();
-        const r = new MultipleSelectRenderer(div, { options: ["a", "b", "c"], correctIndices: [0, 2] }, () => {});
+        const r = new MultipleSelectRenderer(
+            div,
+            { options: ["a", "b", "c"], correctIndices: [0, 2] },
+            () => {},
+        );
         r.mount();
         const btns = div.querySelectorAll("button");
         (btns[0] as HTMLButtonElement).click();
@@ -739,7 +803,16 @@ describe("rendererFlows drag-sort reorder chains", () => {
 
     test("drop with an unreadable payload is a safe no-op", () => {
         const { div, seen } = host();
-        const r = new DragSortRenderer(div, { lines: [{ id: "a", text: "A" }, { id: "b", text: "B" }] }, onChange(seen));
+        const r = new DragSortRenderer(
+            div,
+            {
+                lines: [
+                    { id: "a", text: "A" },
+                    { id: "b", text: "B" },
+                ],
+            },
+            onChange(seen),
+        );
         r.mount();
         const ev = new Event("drop", { bubbles: true, cancelable: true });
         Object.defineProperty(ev, "dataTransfer", { value: { getData: () => "nope" } });
@@ -752,7 +825,9 @@ describe("rendererFlows drag-sort reorder chains", () => {
         const { div } = host();
         const r = new DragSortRenderer(div, { lines: [{ id: "a", text: "A" }] }, () => {});
         r.mount();
-        expect(() => dragRows(div)[0].dispatchEvent(new Event("drop", { bubbles: true, cancelable: true }))).not.toThrow();
+        expect(() =>
+            dragRows(div)[0].dispatchEvent(new Event("drop", { bubbles: true, cancelable: true })),
+        ).not.toThrow();
         expect(r.getResponse()).toEqual({ order: ["a"] });
         r.destroy();
     });
@@ -769,7 +844,16 @@ describe("rendererFlows drag-sort reorder chains", () => {
 
     test("row numbers rerender after a reorder", () => {
         const { div } = host();
-        const r = new DragSortRenderer(div, { lines: [{ id: "a", text: "A" }, { id: "b", text: "B" }] }, () => {});
+        const r = new DragSortRenderer(
+            div,
+            {
+                lines: [
+                    { id: "a", text: "A" },
+                    { id: "b", text: "B" },
+                ],
+            },
+            () => {},
+        );
         r.mount();
         dropOn(dragRows(div)[1], "0");
         const firstRow = dragRows(div)[0].textContent ?? "";
@@ -781,7 +865,10 @@ describe("rendererFlows drag-sort reorder chains", () => {
 
 describe("rendererFlows OJ run-button state machine", () => {
     test("idle to running to ok back to idle re-enables the button", async () => {
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, output: "42\n", status: "OK" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: true, output: "42\n", status: "OK" }),
+        });
         const { div, renderer } = await mountOjFull({ starter: "print(42)" }, "run-q1");
         const btn = runButton(div);
         expect(btn.getAttribute("disabled")).toBeNull();
@@ -810,7 +897,10 @@ describe("rendererFlows OJ run-button state machine", () => {
     });
 
     test("ok then error then ok distinguishes outputs across runs", async () => {
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, output: "first", status: "OK" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: true, output: "first", status: "OK" }),
+        });
         const { div, renderer } = await mountOjFull({ starter: "s" }, "run-q3");
         const btn = runButton(div);
         btn.click();
@@ -822,7 +912,10 @@ describe("rendererFlows OJ run-button state machine", () => {
         await flush();
         expect(termText()).toContain("first");
         expect(termText()).toContain("server error");
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, output: "third", status: "OK" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: true, output: "third", status: "OK" }),
+        });
         btn.click();
         await flush();
         await flush();
@@ -856,7 +949,10 @@ describe("rendererFlows OJ run-button state machine", () => {
         await flush();
         expect(termText()).toContain("runner unavailable");
         expect(btn.getAttribute("disabled")).toBeNull();
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, output: "back", status: "OK" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: true, output: "back", status: "OK" }),
+        });
         btn.click();
         await flush();
         await flush();
@@ -865,7 +961,10 @@ describe("rendererFlows OJ run-button state machine", () => {
     });
 
     test("non-zero exit writes the status banner but keeps the program output", async () => {
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: false, output: "partial", status: "RE" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: false, output: "partial", status: "RE" }),
+        });
         const { div, renderer } = await mountOjFull({ starter: "s" }, "run-q6");
         runButton(div).click();
         await flush();
@@ -876,14 +975,21 @@ describe("rendererFlows OJ run-button state machine", () => {
     });
 
     test("run posts language, source and stdin then clears stdin for the next run", async () => {
-        fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true, output: "", status: "OK" }) });
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: async () => ({ ok: true, output: "", status: "OK" }),
+        });
         const { div, renderer } = await mountOjFull({ starter: "s" }, "run-q7");
         lastEditorOnChange()("input()");
         typeIntoTerm("hello");
         runButton(div).click();
         await flush();
         await flush();
-        expect(fetchBody()).toMatchObject({ language: "python", sourceCode: "input()", stdin: "hello" });
+        expect(fetchBody()).toMatchObject({
+            language: "python",
+            sourceCode: "input()",
+            stdin: "hello",
+        });
         runButton(div).click();
         await flush();
         await flush();
@@ -949,7 +1055,10 @@ describe("rendererFlows console stdin flows", () => {
         runButton(div).click();
         await flush();
         await flush();
-        fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, output: "", status: "OK" }) });
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ ok: true, output: "", status: "OK" }),
+        });
         runButton(div).click();
         await flush();
         await flush();
@@ -1066,7 +1175,9 @@ describe("rendererFlows reveal and misc interaction chains", () => {
     test("OjPatch mounts without a select when only one language is allowed", async () => {
         const { div } = host();
         const seen: unknown[] = [];
-        const r = new OjPatchRenderer(div, { buggyFunction: "x" }, onChange(seen), "patch-1", ["java"]);
+        const r = new OjPatchRenderer(div, { buggyFunction: "x" }, onChange(seen), "patch-1", [
+            "java",
+        ]);
         r.mount();
         await flush();
         expect(div.querySelector("select")).toBeNull();
@@ -1079,11 +1190,14 @@ describe("rendererFlows reveal and misc interaction chains", () => {
             () => new McqRenderer(document.createElement("div"), { options: ["a"] }, () => {}),
             () => new TrueFalseRenderer(document.createElement("div"), {}, () => {}),
             () => new NumericRenderer(document.createElement("div"), {}, () => {}),
-            () => new OutputPredRenderer(document.createElement("div"), { options: ["a"] }, () => {}),
+            () =>
+                new OutputPredRenderer(document.createElement("div"), { options: ["a"] }, () => {}),
             () => new FillBlankRenderer(document.createElement("div"), {}, () => {}),
-            () => new ClickBugRenderer(document.createElement("div"), { codeLines: ["a"] }, () => {}),
+            () =>
+                new ClickBugRenderer(document.createElement("div"), { codeLines: ["a"] }, () => {}),
             () => new CodeCompletionRenderer(document.createElement("div"), {}, () => {}),
-            () => new ComplexityRenderer(document.createElement("div"), { options: ["a"] }, () => {}),
+            () =>
+                new ComplexityRenderer(document.createElement("div"), { options: ["a"] }, () => {}),
         ];
         for (const make of cases) {
             const r = make();
