@@ -605,6 +605,33 @@ class GameRoomManagerTest {
     }
 
     @Test
+    void hostSubmitRejectedWithoutScoring() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var host = mgr.join("123456", "Host", "sess-h", "host", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", host.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        verify(writeBuffer, never()).offer(any());
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-h"), sent.capture());
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Hosts can't submit"));
+    }
+
+    @Test
+    void submitFromDepartedPlayerBurnsNoAttempt() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        var player = mgr.join("123456", "Alice", "sess-1", "player", null);
+        armRound(mgr, "q1");
+        mgr.leave("123456", player.uuid());
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        verify(writeBuffer, never()).offer(any());
+        assertEquals(0, roomOf(mgr).attemptCount("q1", player.uuid()));
+    }
+
+    @Test
     void submitAttemptLimitSendsError() {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
