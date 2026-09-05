@@ -111,7 +111,7 @@ Three exact, lock-light structures carry the hot path:
 
 ```mermaid
 flowchart LR
-    SUB["score mutation"] --> IDX["RankedSkipList<br/>order-statistic skip list<br/>O(log n) · exact spans"]
+    SUB["score mutation"] --> IDX["RankedSkipList<br/>order-statistic skiplist<br/>O(log n), exact spans"]
     IDX --> LED["DeltaLedger<br/>monotonic seq per room"]
     LED --> CO["BroadcastScheduler<br/>16 ms coalescing tick"]
     CO --> OUT["serialize once →<br/>fan out to sessions"]
@@ -135,3 +135,45 @@ flowchart LR
 | `native` | Windows/Linux dev | None (dev only) | Fastest setup; toolchains on PATH |
 | `wsl` | Windows dev | Separate Linux VM | Parity with production scripts |
 | `nsjail` | Linux production | chroot + rlimits | Always, in production |
+
+## Hard budgets (single source: code defaults)
+
+| Budget | Value | Where |
+|--------|-------|-------|
+| Players per room | 10000 | sprintjudge.room.max-players |
+| Judge slots | cores × factor (8..512) | ExecutorSizingConfig |
+| Attempts per question | 50 | GameRoomManager |
+| Source cap | 64KB | WS gate + processor |
+| Stdout cap | 1MB per case | ExecIo |
+| Live-run throttle | 30/min per IP | PublicController |
+| Join throttle | 10 failures/min | JoinRateLimiter |
+| Write buffer | 20000 rows, 250ms flush | SubmissionWriteBuffer |
+| Broadcast tick | 16ms coalesce | BroadcastScheduler |
+| Idle-room sweep | 60s cadence, 30min TTL | GameRoomManager |
+| Timer grace | 500ms past zero | RoundTimeoutScheduler |
+| Extend cap | +300s over deadline | GameRoomManager |
+| Compile scripts | shared linking, loud errors | executor/compile-scripts |
+
+Write-buffer durability flow:
+
+```mermaid
+flowchart TB
+    A["submit path offer()"] --> B{"queue full?"}
+    B -->|no| C["250 ms tick flush()"]
+    B -->|yes| W["warn + drop row"]
+    C --> D{"DB write ok?"}
+    D -->|yes| E["durable audit trail"]
+    D -->|no| F["re-queue + retry"]
+```
+
+Idle-room sweep:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Scan: every 60 s
+    Scan --> Skip: players online
+    Scan --> Evict: empty past TTL
+    Evict --> Flush: end session row
+    Flush --> Drop: remove registry
+    Drop --> [*]
+```
