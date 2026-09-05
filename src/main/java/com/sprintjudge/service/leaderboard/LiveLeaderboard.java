@@ -84,11 +84,23 @@ public final class LiveLeaderboard {
         return ordered.snapshot();
     }
 
-    // ---------- broadcast plumbing ----------
-
+    /**
+     * Drains pending deltas with ranks refreshed at send time: a rank frozen
+     * when recorded goes stale the moment a later submit overtakes it, so a
+     * coalesced batch would otherwise ship mixed-vintage ranks.
+     */
     public DeltaLedger.Batch drainDeltas(boolean forceResync) {
-        return ledger.drain(forceResync);
+        DeltaLedger.Batch b = ledger.drain(forceResync);
+        if (b.resync() || b.upserts().isEmpty()) return b;
+        List<DeltaLedger.Delta> fresh = new java.util.ArrayList<>(b.upserts().size());
+        for (DeltaLedger.Delta d : b.upserts()) {
+            int rank = ordered.rankOf(d.uuid());
+            fresh.add(new DeltaLedger.Delta(d.uuid(), d.name(), d.score(), rank < 0 ? d.rank() : rank));
+        }
+        return new DeltaLedger.Batch(b.seq(), false, fresh);
     }
+
+    // ---------- broadcast plumbing ----------
 
     /**
      * Builds a fresh full batch (joiner/resync path) stamped with current seq.
