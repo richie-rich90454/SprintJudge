@@ -8,6 +8,7 @@ public record GameSession(
         String pinCode,
         String hostUserId,
         String status,
+        String gameMode,
         int currentQuestionIndex,
         Instant startedAt,
         Instant endedAt,
