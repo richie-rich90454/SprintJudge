@@ -5,6 +5,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -71,5 +72,18 @@ class SecurityConfigTest {
         assertTrue(cfg.getAllowedMethods().containsAll(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")));
         assertTrue(cfg.getAllowedHeaders().contains("Authorization"));
         assertTrue(cfg.getAllowedHeaders().contains("X-XSRF-TOKEN"));
+    }
+
+    @Test
+    void corsWildcardWithCredentialsRefusesToBoot() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> config("admin", "x").corsConfigurationSource("*"));
+        assertTrue(e.getMessage().contains("wildcard"));
+    }
+
+    @Test
+    void corsWildcardAmongOriginsRefusesToBoot() {
+        assertThrows(IllegalStateException.class,
+                () -> config("admin", "x").corsConfigurationSource("https://a.example, *"));
     }
 }
