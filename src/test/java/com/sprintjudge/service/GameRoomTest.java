@@ -265,4 +265,491 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
         assertEquals(0, r.streakOf("ghost"));
     }
+
+    @Test
+    void concurrentEightThreadsApplyScoreToOneSeat() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 20);
+        r.addPlayer(new Player("solo", "S", 0, "ss", true));
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 150; i++) r.applyScore("solo", 4);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(8 * 150 * 4, r.getPlayer("solo").score());
+    }
+
+    @Test
+    void concurrentTwelveThreadsAddDistinctSeats() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 20);
+        int threads = 12;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.addPlayer(new Player("n" + idx, "N", 0, "s" + idx, true));
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(12, r.players().size());
+        assertEquals(12, r.leaderboard().size());
+    }
+
+    @Test
+    void concurrentSoftRemoveAllThenConnectedZero() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 15);
+        for (int i = 0; i < 10; i++) r.addPlayer(new Player("d" + i, "N", 0, "s" + i, true));
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final String uuid = "d" + t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.softRemove(uuid);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(0, r.connectedCount());
+        assertEquals(10, r.players().size());
+    }
+
+    @Test
+    void concurrentReclaimSingleDisconnectedSeatOneWin() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("rc", "R", 0, "old", true, "tok-rc"));
+        r.applyScore("rc", 123);
+        r.softRemove("rc");
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.atomic.AtomicInteger wins = new java.util.concurrent.atomic.AtomicInteger();
+        String[] winnerSess = {null};
+        for (int t = 0; t < threads; t++) {
+            final String sess = "ns-" + t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                Player got = r.reclaim("tok-rc", sess);
+                if (got != null) { wins.incrementAndGet(); synchronized (winnerSess) { winnerSess[0] = sess; } }
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(1, wins.get());
+        assertEquals(winnerSess[0], r.getPlayer("rc").sessionId());
+        assertEquals(123, r.getPlayer("rc").score());
+    }
+
+    @Test
+    void concurrentTryBeginAttemptRespectsCapTen() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.atomic.AtomicInteger ok = new java.util.concurrent.atomic.AtomicInteger();
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 20; i++) if (r.tryBeginAttempt("qq", "uu", 10)) ok.incrementAndGet();
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(10, ok.get());
+        assertEquals(10, r.attemptCount("qq", "uu"));
+    }
+
+    @Test
+    void concurrentBumpStreakTenThreadsHundredEach() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 100; i++) r.bumpStreak("st");
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(1000, r.streakOf("st"));
+    }
+
+    @Test
+    void concurrentMixedAddScoreRemoveKeepsInvariants() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 30);
+        int threads = 12;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.addPlayer(new Player("m" + idx, "M", 0, "s" + idx, true));
+                for (int i = 0; i < 40; i++) r.applyScore("m" + idx, 5);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(12, r.leaderboard().size());
+        for (int i = 0; i < 12; i++) assertEquals(200, r.getPlayer("m" + i).score());
+    }
+
+    @Test
+    void concurrentGetPlayerDuringScoresSeesMonotonicGrowth() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("g", "G", 0, "ss", true));
+        int writers = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(writers + 2);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(writers + 2);
+        java.util.concurrent.atomic.AtomicInteger maxSeen = new java.util.concurrent.atomic.AtomicInteger(0);
+        for (int t = 0; t < writers; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 80; i++) r.applyScore("g", 10);
+                done.countDown();
+            });
+        }
+        for (int t = 0; t < 2; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 200; i++) {
+                    int s = r.getPlayer("g").score();
+                    maxSeen.accumulateAndGet(s, Math::max);
+                }
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(8 * 80 * 10, r.getPlayer("g").score());
+        org.junit.jupiter.api.Assertions.assertTrue(maxSeen.get() <= 8 * 80 * 10);
+        org.junit.jupiter.api.Assertions.assertTrue(maxSeen.get() >= 0);
+    }
+
+    @Test
+    void concurrentIsFullStableAtCapacity() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 6);
+        int threads = 12;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.addPlayer(new Player("f" + idx, "F", 0, "s" + idx, true));
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertTrue(r.isFull());
+        assertEquals(6, r.players().size());
+    }
+
+    @Test
+    void concurrentPlayersListDuringChurnNeverNull() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 25);
+        for (int i = 0; i < 10; i++) r.addPlayer(new Player("p" + i, "N", 0, "s" + i, true));
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.atomic.AtomicInteger nulls = new java.util.concurrent.atomic.AtomicInteger();
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 60; i++) {
+                    if (idx % 2 == 0) r.applyScore("p" + (i % 10), 3);
+                    else if (r.players() == null) nulls.incrementAndGet();
+                    else r.players().size();
+                }
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(0, nulls.get());
+    }
+
+    @Test
+    void concurrentApplyScoreAndRefundKeepAttemptsCapped() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("ar", "A", 0, "ss", true));
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 50; i++) {
+                    r.tryBeginAttempt("qa", "ar", 200);
+                    r.applyScore("ar", 7);
+                    if (i % 5 == 0) r.refundAttempt("qa", "ar");
+                }
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        org.junit.jupiter.api.Assertions.assertTrue(r.attemptCount("qa", "ar") <= 200);
+        assertEquals((long) 8 * 50 * 7, r.getPlayer("ar").score());
+    }
+
+    @Test
+    void concurrentHardRemoveUnknownNeverAffectsBoard() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("keep", "K", 0, "ss", true));
+        r.applyScore("keep", 250);
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 100; i++) r.hardRemove("ghost-" + i);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(250, r.getPlayer("keep").score());
+        assertEquals(1, r.leaderboard().size());
+    }
+
+    @Test
+    void concurrentReclaimWrongTokenAlwaysNull() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        r.addPlayer(new Player("wt", "W", 0, "old", false, "real-tok"));
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.atomic.AtomicInteger hits = new java.util.concurrent.atomic.AtomicInteger();
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 50; i++) if (r.reclaim("wrong-tok", "s") != null) hits.incrementAndGet();
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(0, hits.get());
+    }
+
+    @Test
+    void concurrentLeaderboardSizeStableUnderScoreStorm() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 20);
+        for (int i = 0; i < 10; i++) r.addPlayer(new Player("sz" + i, "N", 0, "s" + i, true));
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final String uuid = "sz" + t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 70; i++) r.applyScore(uuid, 11);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(10, r.leaderboard().size());
+        for (int i = 0; i < 10; i++) assertEquals(770, r.getPlayer("sz" + i).score());
+    }
+
+    @Test
+    void concurrentTeamCreateAndJoinConverge() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 30);
+        for (int i = 0; i < 10; i++) r.addPlayer(new Player("tj" + i, "N", 0, "s" + i, true));
+        GameRoom.Team team = r.createTeam("United");
+        int threads = 10;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final String uuid = "tj" + t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.joinTeam(team.id(), uuid);
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.id()).memberUuids().size() <= 10);
+        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.id()).memberUuids().size() >= 1);
+    }
+
+    @Test
+    void concurrentBracketWritesKeepLastValue() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 50; i++) r.setBracket(java.util.List.<String[]>of(new String[]{"p" + idx, "q" + i}));
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(1, r.bracket().size());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.bracket().get(0));
+    }
+
+    @Test
+    void concurrentStreakResetsKeepZeroFloor() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 60; i++) r.resetStreak("floor");
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(0, r.streakOf("floor"));
+    }
+
+    @Test
+    void concurrentUnknownScoreReturnsMinusOneAlways() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        int threads = 8;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.atomic.AtomicInteger bad = new java.util.concurrent.atomic.AtomicInteger();
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                for (int i = 0; i < 100; i++) if (r.applyScore("nope", 10) != -1) bad.incrementAndGet();
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(0, bad.get());
+    }
+
+    @Test
+    void concurrentClearRoundsEmptiesAllPlayerRounds() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+        for (int i = 0; i < 5; i++) r.recordRound("cl" + i, 100 + i, i);
+        int threads = 4;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.clearRounds();
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        for (int i = 0; i < 5; i++) assertEquals(0, r.roundOf("cl" + i)[0]);
+    }
+
+    @Test
+    void concurrentAddBeyondCapacityKeepsExactlyFull() throws Exception {
+        GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 4);
+        int threads = 12;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int idx = t;
+            pool.submit(() -> {
+                try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                r.addPlayer(new Player("cap" + idx, "C", 0, "s" + idx, true));
+                done.countDown();
+            });
+        }
+        start.countDown();
+        org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
+        pool.shutdown();
+        pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertEquals(4, r.players().size());
+        assertTrue(r.isFull());
+    }
 }
