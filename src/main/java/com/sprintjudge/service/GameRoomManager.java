@@ -109,10 +109,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String pin;
         do {
             pin = Ids.pin();
+            String candidate = pin;
             // ENDED rows never come back: reclaim the PIN instead of letting
             // 900k dead rows exhaust the space.
-            sessionRepository.findByPin(pin).ifPresent(s -> {
-                if ("ENDED".equals(s.status())) sessionRepository.deleteByPin(pin);
+            sessionRepository.findByPin(candidate).ifPresent(s -> {
+                if ("ENDED".equals(s.status())) sessionRepository.deleteByPin(candidate);
             });
         } while (registry.get(Integer.parseInt(pin)) != null
                 || sessionRepository.findByPin(pin).isPresent());
