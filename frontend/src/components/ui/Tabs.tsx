@@ -13,10 +13,7 @@ interface TabsProps {
 export function Tabs({ value, onValueChange, tabs, children, label }: TabsProps) {
     return (
         <RadixTabs.Root value={value} onValueChange={onValueChange}>
-            <RadixTabs.List
-                aria-label={label}
-                className="flex gap-1 mb-6 overflow-x-auto"
-            >
+            <RadixTabs.List aria-label={label} className="flex gap-1 mb-6 overflow-x-auto">
                 {tabs.map((t) => (
                     <RadixTabs.Trigger
                         key={t.id}
