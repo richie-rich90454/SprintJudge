@@ -57,9 +57,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
+                                                    CorsConfigurationSource corsConfigurationSource,
+                                                    LoginRateLimitFilter loginRateLimitFilter) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            .addFilterBefore(loginRateLimitFilter,
+                    org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/**", "/ws", "/admin/login", "/admin/logout")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
