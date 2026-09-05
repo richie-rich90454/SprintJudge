@@ -280,3 +280,155 @@ describe("AudioEngine mute and resume", () => {
         await expect(audio.resume()).resolves.toBeUndefined();
     });
 });
+
+describe("AudioEngine cold-start SFX matrix", () => {
+    test("correct plays from a cold engine without throwing", () => {
+        expect(() => audio.play("correct")).not.toThrow();
+        expect(priv().started).toBe(true);
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4);
+    });
+
+    test("wrong plays from a cold engine without throwing", () => {
+        expect(() => audio.play("wrong")).not.toThrow();
+        expect(priv().started).toBe(true);
+        expect((priv().buzzSynth as VoiceFake).triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("timer plays from a cold engine without throwing", () => {
+        expect(() => audio.play("timer")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("join plays from a cold engine without throwing", () => {
+        expect(() => audio.play("join")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("leave plays from a cold engine without throwing", () => {
+        expect(() => audio.play("leave")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("victory plays from a cold engine without throwing", () => {
+        expect(() => audio.play("victory")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(6);
+    });
+
+    test("combo plays from a cold engine without throwing", () => {
+        expect(() => audio.play("combo")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(3);
+    });
+
+    test("click plays from a cold engine without throwing", () => {
+        expect(() => audio.play("click")).not.toThrow();
+        expect(noise().triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("start plays from a cold engine without throwing", () => {
+        expect(() => audio.play("start")).not.toThrow();
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4);
+    });
+});
+
+describe("AudioEngine SFX sequences", () => {
+    const ALL = ["correct", "wrong", "timer", "join", "leave", "victory", "combo", "click", "start"] as const;
+
+    test("every SfxName plays while muted without throwing", () => {
+        audio.init();
+        audio.setMuted(true);
+        for (const name of ALL) expect(() => audio.play(name)).not.toThrow();
+        expect(audio.isMuted()).toBe(true);
+        audio.setMuted(false);
+        expect(audio.isMuted()).toBe(false);
+    });
+
+    test("full fanfare sequence drives exact synth call totals", () => {
+        audio.init();
+        for (const name of ALL) audio.play(name);
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4 + 1 + 1 + 1 + 6 + 3 + 4);
+        expect(noise().triggerAttackRelease).toHaveBeenCalledTimes(1);
+        expect((priv().buzzSynth as VoiceFake).triggerAttackRelease).toHaveBeenCalledTimes(1);
+    });
+
+    test("mute play unmute play keeps the synths firing", () => {
+        audio.init();
+        audio.setMuted(true);
+        audio.play("correct");
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4);
+        audio.setMuted(false);
+        audio.play("correct");
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(8);
+        expect(audio.isMuted()).toBe(false);
+    });
+
+    test("start stop start stop lifecycle resets the step", () => {
+        audio.startMusic();
+        loop().cb(0);
+        loop().cb(0);
+        expect(priv().step).toBe(2);
+        audio.stopMusic();
+        audio.stopMusic();
+        expect(priv().musicLoop).toBeNull();
+        audio.startMusic();
+        expect(priv().step).toBe(0);
+        audio.startMusic();
+        audio.stopMusic();
+        expect(priv().musicOn).toBe(false);
+    });
+
+    test("stop without start then play then stop is a safe chain", () => {
+        audio.stopMusic();
+        audio.play("victory");
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(6);
+        audio.stopMusic();
+        expect(priv().musicOn).toBe(false);
+        expect(priv().musicLoop).toBeNull();
+    });
+
+    test("resume rejection then play then resume recovers silently", async () => {
+        vi.mocked(Tone.start).mockRejectedValueOnce(new Error("blocked"));
+        await expect(audio.resume()).resolves.toBeUndefined();
+        audio.play("click");
+        expect(noise().triggerAttackRelease).toHaveBeenCalledTimes(1);
+        await expect(audio.resume()).resolves.toBeUndefined();
+        expect(Tone.start).toHaveBeenCalled();
+    });
+
+    test("buzz synth is shared across an interleaved wrong and correct chain", () => {
+        audio.init();
+        audio.play("wrong");
+        audio.play("correct");
+        audio.play("wrong");
+        audio.play("wrong");
+        expect((priv().buzzSynth as VoiceFake).triggerAttackRelease).toHaveBeenCalledTimes(3);
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4);
+    });
+
+    test("sixteen loop steps wrap the patterns with exact voice totals", () => {
+        audio.startMusic();
+        const cb = loop().cb;
+        for (let i = 0; i < 16; i++) cb(i);
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(16);
+        expect(bass().triggerAttackRelease).toHaveBeenCalledTimes(8);
+        expect(noise().triggerAttackRelease).toHaveBeenCalledTimes(4);
+        expect(priv().step).toBe(16);
+        audio.stopMusic();
+    });
+
+    test("play startMusic play stopMusic play lifecycle never throws", () => {
+        audio.play("start");
+        audio.startMusic();
+        audio.play("combo");
+        audio.stopMusic();
+        audio.play("victory");
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(4 + 3 + 6);
+        expect(priv().musicOn).toBe(false);
+    });
+
+    test("rapid timer ticks queue eleven lead hits in a row", () => {
+        audio.init();
+        for (let i = 0; i < 11; i++) audio.play("timer");
+        expect(lead().triggerAttackRelease).toHaveBeenCalledTimes(11);
+        expect(bass().triggerAttackRelease).not.toHaveBeenCalled();
+    });
+});
