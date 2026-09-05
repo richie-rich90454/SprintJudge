@@ -1,6 +1,7 @@
 package com.sprintjudge.service;
 
 import com.sprintjudge.domain.dto.ErrorMessage;
+import com.sprintjudge.domain.dto.GameReview;
 import com.sprintjudge.domain.dto.QuestionStart;
 import com.sprintjudge.domain.dto.RoomState;
 import com.sprintjudge.domain.dto.RoundResult;
@@ -1572,5 +1573,640 @@ class GameRoomManagerTest {
 
         // AUTO_PILOT uses per-question timer like STANDARD
         verify(roundTimer).schedule(eq(123456), anyLong(), any());
+    }
+
+    // ==================== HOT-PATH GAP COVERAGE ====================
+
+    @Test
+    void startQuestionWhileActiveIsNoOp() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.clearInvocations(sessionRepository, ws, roundTimer);
+        mgr.startQuestion("123456");
+        verify(sessionRepository, never()).updateStatus(anyString(), anyString());
+        verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
+    }
+
+    @Test
+    void startQuestionFromReviewReactivatesSameRound() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        mgr.startQuestion("123456");
+        mgr.forceSubmit("123456");
+        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.startQuestion("123456");
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof QuestionStart));
+    }
+
+    @Test
+    void nextQuestionFromActiveClosesRoundThenAdvances() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.clearInvocations(sessionRepository);
+        mgr.nextQuestion("123456");
+        verify(sessionRepository).updateStatus("s1", "REVIEW");
+        verify(sessionRepository).updateStatus("s1", "ACTIVE");
+        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("q2", roomOf(mgr).currentQuestionId());
+    }
+
+    @Test
+    void nextQuestionFromLobbyKeepsIndexAtZero() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        mgr.nextQuestion("123456");
+        assertEquals(0, roomOf(mgr).currentQuestionIndex());
+        assertEquals("q1", roomOf(mgr).currentQuestionId());
+    }
+
+    @Test
+    void nextQuestionFromReviewIncrementsIndex() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        mgr.startQuestion("123456");
+        mgr.forceSubmit("123456");
+        mgr.nextQuestion("123456");
+        assertEquals(1, roomOf(mgr).currentQuestionIndex());
+        assertEquals("q2", roomOf(mgr).currentQuestionId());
+    }
+
+    @Test
+    void forceSubmitIgnoredWhenLobby() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        mgr.forceSubmit("123456");
+        verify(roundTimer, never()).cancel(anyInt());
+        verify(sessionRepository, never()).updateStatus(anyString(), eq("REVIEW"));
+    }
+
+    @Test
+    void forceSubmitIgnoredWhenReview() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        mgr.forceSubmit("123456");
+        org.mockito.Mockito.clearInvocations(roundTimer, sessionRepository);
+        mgr.forceSubmit("123456");
+        verify(roundTimer, never()).cancel(anyInt());
+        verify(sessionRepository, never()).updateStatus(anyString(), eq("REVIEW"));
+    }
+
+    @Test
+    void endGameTwiceSecondIsNoOp() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        mgr.endGame("123456");
+        org.mockito.Mockito.clearInvocations(sessionRepository, ws);
+        mgr.endGame("123456");
+        verify(sessionRepository, never()).updateStatus(anyString(), anyString());
+        verify(ws, never()).broadcast(any(), any());
+    }
+
+    @Test
+    void extendTimerCapsTotalGrowthAt300s() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        long base = roomOf(mgr).questionEndBaseEpochMs();
+        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        mgr.extendTimer("123456", 10_000);
+        long after = roomOf(mgr).currentQuestionEndEpochMs();
+        assertEquals(base + 300_000, after);
+        assertTrue(after - cur < 10_000_000L);
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        TimerUpdate tu = (TimerUpdate) msg.getAllValues().stream()
+                .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
+        assertTrue(tu.extendSec() < 10_000);
+    }
+
+    @Test
+    void extendTimerFallsBackToCurrentWhenBaseUnset() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        setField(roomOf(mgr), "questionEndBaseEpochMs", 0L);
+        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        mgr.extendTimer("123456", 20);
+        assertEquals(cur + 20_000, roomOf(mgr).currentQuestionEndEpochMs());
+    }
+
+    @Test
+    void extendTimerNegativeShrinksDeadline() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        mgr.extendTimer("123456", -10);
+        assertEquals(cur - 10_000, roomOf(mgr).currentQuestionEndEpochMs());
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        TimerUpdate tu = (TimerUpdate) msg.getAllValues().stream()
+                .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
+        assertEquals(-10, tu.extendSec());
+    }
+
+    @Test
+    void extendTimerAtMaxValueDoesNotOverflow() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        setField(roomOf(mgr), "questionEndBaseEpochMs", Long.MAX_VALUE);
+        setField(roomOf(mgr), "currentQuestionEndEpochMs", Long.MAX_VALUE);
+        mgr.extendTimer("123456", 30);
+        assertEquals(Long.MAX_VALUE, roomOf(mgr).currentQuestionEndEpochMs());
+    }
+
+    @Test
+    void kickClosesKickedSession() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "Bad", "sess-k", "player", null);
+        mgr.kickPlayer("123456", p.uuid());
+        verify(ws).close("sess-k");
+    }
+
+    @Test
+    void kickUnknownStillMarksLeaderboardDirty() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "A", "sa", "player", null);
+        org.mockito.Mockito.clearInvocations(scheduler);
+        mgr.kickPlayer("123456", "ghost");
+        verify(scheduler).markDirty(eq(123456), any());
+        verify(ws, never()).close(anyString());
+    }
+
+    @Test
+    void leaveUnknownPlayerKeepsRoomIntact() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "A", "sa", "player", null);
+        mgr.leave("123456", "ghost-uuid");
+        assertEquals(1, mgr.getRoomState("123456").players().size());
+        assertTrue(roomOf(mgr).getPlayer(p.uuid()).connected());
+    }
+
+    @Test
+    void leaveMissingPlayerPublishesEventAnyway() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "A", "sa", "player", null);
+        org.mockito.Mockito.clearInvocations(eventPublisher);
+        mgr.leave("123456", "ghost");
+        verify(eventPublisher).publishEvent(any(com.sprintjudge.service.event.GameEvent.PlayerLeft.class));
+    }
+
+    @Test
+    void battleExcludesHostFromPairing() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        var host = mgr.join("123456", "Host", "sh", "host", null);
+        var p1 = mgr.join("123456", "A", "s1", "player", null);
+        var p2 = mgr.join("123456", "B", "s2", "player", null);
+        mgr.startBattle("123456");
+        var matches = mgr.getBattleMatches("123456");
+        assertEquals(1, matches.size());
+        String pair = matches.get(0).p1Uuid() + matches.get(0).p2Uuid();
+        assertTrue(pair.contains(p1.uuid()) && pair.contains(p2.uuid()));
+        assertTrue(!matches.get(0).p1Uuid().equals(host.uuid())
+                && !matches.get(0).p2Uuid().equals(host.uuid()));
+    }
+
+    @Test
+    void battleWithHostOnlyPlusTwoExcludesHost() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        mgr.join("123456", "H", "sh", "host", null);
+        mgr.join("123456", "A", "s1", "player", null);
+        mgr.join("123456", "B", "s2", "player", null);
+        mgr.join("123456", "C", "s3", "player", null);
+        mgr.startBattle("123456");
+        assertEquals(1, mgr.getBattleMatches("123456").size());
+    }
+
+    @Test
+    void battleRestartClearsStaleMatches() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        mgr.join("123456", "A", "s1", "player", null);
+        mgr.join("123456", "B", "s2", "player", null);
+        mgr.startBattle("123456");
+        assertEquals(1, mgr.getBattleMatches("123456").size());
+        setField(roomOf(mgr), "status", "LOBBY");
+        mgr.startBattle("123456");
+        assertEquals(1, mgr.getBattleMatches("123456").size());
+    }
+
+    @Test
+    void battleFromActiveThrows() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        mgr.join("123456", "A", "s1", "player", null);
+        mgr.join("123456", "B", "s2", "player", null);
+        mgr.startBattle("123456");
+        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
+    }
+
+    @Test
+    void battleIndexOutOfRangeThrows() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        mgr.join("123456", "A", "s1", "player", null);
+        mgr.join("123456", "B", "s2", "player", null);
+        setField(roomOf(mgr), "currentQuestionIndex", 7);
+        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
+    }
+
+    @Test
+    void battleEmptyQuizThrows() {
+        GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        createRoomWithMode(mgr, GameRoom.GameMode.BATTLE);
+        mgr.join("123456", "A", "s1", "player", null);
+        mgr.join("123456", "B", "s2", "player", null);
+        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
+    }
+
+    @Test
+    void examStartFallsBackToSummedLimitsWhenTotalUnset() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.EXAM);
+        mgr.join("123456", "H", "sh", "host", null);
+        Question a = new Question("qa", "qz", "A", "D", "MCQ", null, 30, 100,
+                Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
+        Question b = new Question("qb", "qz", "B", "D", "MCQ", null, 45, 100,
+                Json.write(Map.of("correctIndex", 0)), 1, Instant.now());
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(a, b));
+        long before = System.currentTimeMillis();
+        mgr.startQuestion("123456");
+        ArgumentCaptor<Long> endCap = ArgumentCaptor.forClass(Long.class);
+        verify(roundTimer).schedule(eq(123456), endCap.capture(), any());
+        long scheduled = endCap.getValue();
+        assertTrue(scheduled - before >= 74_000 && scheduled - before <= 76_000);
+    }
+
+    @Test
+    void practiceStartUsesMaxEndAndMinusOne() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        mgr.join("123456", "H", "sh", "host", null);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        assertEquals(Long.MAX_VALUE, roomOf(mgr).currentQuestionEndEpochMs());
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        QuestionStart qs = (QuestionStart) msg.getAllValues().stream()
+                .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
+        assertEquals(-1, qs.timeLimitSec());
+    }
+
+    @Test
+    void examSubmitKeepsLiveBoardArmed() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.EXAM);
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(700);
+        var player = mgr.join("123456", "E", "se", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        verify(scheduler, times(2)).markDirty(eq(123456), any());
+    }
+
+    @Test
+    void reviewFlushFailureStillReveals() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.doThrow(new RuntimeException("flush down")).when(writeBuffer).flush();
+        mgr.forceSubmit("123456");
+        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof RoundResult));
+    }
+
+    @Test
+    void examReviewSuppressesLeaderboardBroadcast() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.EXAM);
+        mgr.join("123456", "H", "sh", "host", null);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.forceSubmit("123456");
+        verify(ws, never()).broadcastRaw(any(), anyString());
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof RoundResult));
+    }
+
+    @Test
+    void standardReviewFlushesLeaderboardDelta() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.forceSubmit("123456");
+        verify(ws, atLeastOnce()).broadcastRaw(any(), anyString());
+    }
+
+    @Test
+    void endGameFlushFailureStillEvictsAndReveals() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        lenient().when(submissionRepository.findBySession("s1")).thenReturn(List.of());
+        mgr.startQuestion("123456");
+        org.mockito.Mockito.doThrow(new RuntimeException("flush down")).when(writeBuffer).flush();
+        mgr.endGame("123456");
+        assertThrows(IllegalArgumentException.class, () -> mgr.getRoomState("123456"));
+        verify(sessionRepository).updateStatus("s1", "ENDED");
+    }
+
+    @Test
+    void buildReviewExcludesHostFromPlayerStats() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var host = mgr.join("123456", "Host", "sh", "host", null);
+        var p1 = mgr.join("123456", "A", "s1", "player", null);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        com.sprintjudge.domain.models.Submission sub = new com.sprintjudge.domain.models.Submission(
+                "sub1", "s1", "q1", "A", p1.uuid(), "{}", 900, true, null, 1, Instant.now());
+        when(submissionRepository.findBySession("s1")).thenReturn(List.of(sub));
+        mgr.endGame("123456");
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        GameReview review = (GameReview) msg.getAllValues().stream()
+                .filter(m -> m instanceof GameReview).findFirst().orElseThrow();
+        assertTrue(review.players().stream().noneMatch(pr -> pr.playerUuid().equals(host.uuid())));
+        assertTrue(review.players().stream().anyMatch(pr -> pr.playerUuid().equals(p1.uuid())));
+        assertEquals(1, review.classStats().totalPlayers());
+    }
+
+    @Test
+    void buildReviewWithHostOnlyProducesZeroContestants() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "Host", "sh", "host", null);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        when(submissionRepository.findBySession("s1")).thenReturn(List.of());
+        mgr.endGame("123456");
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        GameReview review = (GameReview) msg.getAllValues().stream()
+                .filter(m -> m instanceof GameReview).findFirst().orElseThrow();
+        assertEquals(0, review.classStats().totalPlayers());
+        assertTrue(review.players().isEmpty());
+    }
+
+    @Test
+    void flushLeaderboardEmptyBoardStaysSilent() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.STANDARD);
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.flushLeaderboardDelta("123456");
+        verify(ws, never()).broadcastRaw(any(), anyString());
+    }
+
+    @Test
+    void flushLeaderboardHealsWithFullBatchOnSecondFlush() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "A", "sa", "player", null);
+        mgr.flushLeaderboardDelta("123456");
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.flushLeaderboardDelta("123456");
+        ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+        verify(ws).broadcastRaw(any(), payload.capture());
+        assertTrue(payload.getValue().contains("\"resync\":true"));
+    }
+
+    @Test
+    void deltaJsonResyncEmptyReturnsNull() throws Exception {
+        GameRoomManager mgr = manager();
+        var m = GameRoomManager.class.getDeclaredMethod("deltaJson",
+                com.sprintjudge.service.leaderboard.DeltaLedger.Batch.class);
+        m.setAccessible(true);
+        var empty = new com.sprintjudge.service.leaderboard.DeltaLedger.Batch(5L, true, List.of());
+        assertNull(m.invoke(mgr, empty));
+    }
+
+    @Test
+    void deltaJsonBuildsEntriesForNonEmpty() throws Exception {
+        GameRoomManager mgr = manager();
+        var m = GameRoomManager.class.getDeclaredMethod("deltaJson",
+                com.sprintjudge.service.leaderboard.DeltaLedger.Batch.class);
+        m.setAccessible(true);
+        var batch = new com.sprintjudge.service.leaderboard.DeltaLedger.Batch(2L, false,
+                List.of(new com.sprintjudge.service.leaderboard.DeltaLedger.Delta("u1", "A", 900, 1)));
+        String json = (String) m.invoke(mgr, batch);
+        assertTrue(json.contains("LEADERBOARD_DELTA"));
+        assertTrue(json.contains("u1"));
+        assertTrue(json.contains("900"));
+    }
+
+    @Test
+    void sendRoundResultExcludesHostFromScores() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var host = mgr.join("123456", "Host", "sh", "host", null);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(500);
+        var p = mgr.join("123456", "A", "sa", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.forceSubmit("123456");
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        RoundResult rr = (RoundResult) msg.getAllValues().stream()
+                .filter(m -> m instanceof RoundResult).findFirst().orElseThrow();
+        assertTrue(rr.scores().stream().noneMatch(s -> s.uuid().equals(host.uuid())));
+        assertTrue(rr.scores().stream().anyMatch(s -> s.uuid().equals(p.uuid())));
+    }
+
+    @Test
+    void wrongThenCorrectResetsStreakWithoutBonus() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(0.0, 1.0);
+        when(scoringEngine.scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(800);
+        var player = mgr.join("123456", "A", "sa", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
+        verify(writeBuffer, times(2)).offer(saved.capture());
+        assertEquals(0, saved.getAllValues().get(0).scoreEarned());
+        assertEquals(800, saved.getAllValues().get(1).scoreEarned());
+    }
+
+    @Test
+    void streakBonusCapsAtFiveSteps() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(100);
+        var player = mgr.join("123456", "A", "sa", "player", null);
+        armRound(mgr, "q1");
+        for (int i = 0; i < 8; i++) {
+            mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        }
+        ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
+                ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
+        verify(writeBuffer, times(8)).offer(saved.capture());
+        assertEquals(100, saved.getAllValues().get(0).scoreEarned());
+        assertEquals(110, saved.getAllValues().get(1).scoreEarned());
+        assertEquals(150, saved.getAllValues().get(5).scoreEarned());
+        assertEquals(150, saved.getAllValues().get(6).scoreEarned());
+        assertEquals(150, saved.getAllValues().get(7).scoreEarned());
+    }
+
+    @Test
+    void submitActiveWrongQuestionForKnownPlayerTargetsSession() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
+        var player = mgr.join("123456", "A", "sa", "player", null);
+        armRound(mgr, "q1");
+        mgr.submit("123456", "q2", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sa"), sent.capture());
+        assertTrue(((ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        verify(writeBuffer, never()).offer(any());
+    }
+
+    @Test
+    void codingRejectedRefundsAttemptAndSendsZeroResult() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        var player = mgr.join("123456", "Cody", "sess-c", "player", null);
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenAnswer(inv -> {
+            CodingOutcomeConsumer h = inv.getArgument(10);
+            h.rejected(player.uuid());
+            return java.util.concurrent.CompletableFuture.completedFuture(true);
+        });
+        armRound(mgr, "oj1");
+        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.uuid()));
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-c"), sent.capture());
+        assertTrue(sent.getValue() instanceof SubmissionResult r && r.score() == 0 && !r.allPassed());
+    }
+
+    @Test
+    void codingAcceptWithFeedbackSendsFeedbackAndKeepsAttempt() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        var player = mgr.join("123456", "Cody", "sess-c", "player", null);
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenAnswer(inv -> {
+            CodingOutcomeConsumer h = inv.getArgument(10);
+            h.accept(player.uuid(), 400, false, 3, 5, "fix edge cases");
+            return java.util.concurrent.CompletableFuture.completedFuture(true);
+        });
+        armRound(mgr, "oj1");
+        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(1, roomOf(mgr).attemptCount("oj1", player.uuid()));
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-c"), sent.capture());
+        assertTrue(sent.getValue() instanceof SubmissionResult r
+                && r.score() == 400 && "fix edge cases".equals(r.aiFeedback()));
+    }
+
+    @Test
+    void codingBusyFalseRefundsSoRetryKeepsZeroAttempts() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        var player = mgr.join("123456", "Cody", "sess-c", "player", null);
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+                .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
+        armRound(mgr, "oj1");
+        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.uuid()));
+    }
+
+    @Test
+    void sweepEvictsAbandonedActiveRoom() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "A", "sa", "player", null);
+        lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        roomOf(mgr).setStatus("ACTIVE");
+        roomOf(mgr).softRemove(p.uuid());
+        setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
+        mgr.sweepIdleRooms();
+        assertEquals(0, mgr.activeRooms());
+        verify(sessionRepository).updateStatus("s1", "ENDED");
+    }
+
+    @Test
+    void createTeamBlankNameThrows() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "H", "sh", "host", null);
+        assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", "  "));
+        assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", null));
+    }
+
+    @Test
+    void joinTeamBlankIdsThrow() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        var p = mgr.join("123456", "A", "sa", "player", null);
+        var team = mgr.createTeam("123456", "Alpha");
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "  ", p.uuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), "  "));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", null, p.uuid()));
+    }
+
+    @Test
+    void joinTeamUnknownPlayerThrows() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        mgr.join("123456", "A", "sa", "player", null);
+        var team = mgr.createTeam("123456", "Alpha");
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), "ghost"));
     }
 }
