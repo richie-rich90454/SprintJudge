@@ -109,7 +109,7 @@ export interface QuestionReview {
     totalAttempts: number;
     correctCount: number;
     correctRate: number;
-    avgTimeSec: number;
+    avgAttempts: number;
 }
 
 export interface PlayerReview {
