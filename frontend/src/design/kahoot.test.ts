@@ -138,7 +138,16 @@ describe("kahoot boundary sweeps", () => {
     });
 
     test("answerLetter covers A through H exactly", () => {
-        expect([0, 1, 2, 3, 4, 5, 6, 7].map(answerLetter)).toEqual(["A", "B", "C", "D", "E", "F", "G", "H"]);
+        expect([0, 1, 2, 3, 4, 5, 6, 7].map(answerLetter)).toEqual([
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+        ]);
     });
 
     test("answerLetter past Z continues through char codes", () => {
@@ -161,7 +170,9 @@ describe("kahoot boundary sweeps", () => {
     });
 
     test("boardDelayed covers every game mode exactly", () => {
-        expect(["STANDARD", "TEAM", "BATTLE", "AUTO_PILOT"].map((m) => boardDelayedForMode(m))).toEqual([true, true, true, true]);
+        expect(
+            ["STANDARD", "TEAM", "BATTLE", "AUTO_PILOT"].map((m) => boardDelayedForMode(m)),
+        ).toEqual([true, true, true, true]);
         expect(["PRACTICE", "EXAM"].map((m) => boardDelayedForMode(m))).toEqual([false, false]);
     });
 
