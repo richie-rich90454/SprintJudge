@@ -11,9 +11,7 @@ import { motionReduced, useUIStore } from "./stores/useUIStore";
 function MotionGate({ children }: { children: React.ReactNode }) {
     useUIStore((s) => s.motion);
     return (
-        <MotionConfig reducedMotion={motionReduced() ? "always" : "user"}>
-            {children}
-        </MotionConfig>
+        <MotionConfig reducedMotion={motionReduced() ? "always" : "user"}>{children}</MotionConfig>
     );
 }
 
