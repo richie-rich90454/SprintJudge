@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Card } from "../components/ui/Card";
 import { JoinForm } from "../components/JoinForm";
-import { ThemeToggle } from "../components/ThemeToggle";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 
@@ -16,7 +15,6 @@ export function LandingView() {
             <header className="w-full max-w-3xl mx-auto px-6 pt-4 flex items-center justify-end gap-1">
                 <SoundToggle />
                 <MotionToggle />
-                <ThemeToggle />
             </header>
 
             <main className="flex-1 flex items-center justify-center px-6 py-10">
