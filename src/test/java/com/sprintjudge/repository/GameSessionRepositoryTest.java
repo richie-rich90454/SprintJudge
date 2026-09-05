@@ -333,4 +333,36 @@ class GameSessionRepositoryTest {
         assertEquals("host-xyz", got.hostUserId());
         assertEquals("900019", got.pinCode());
     }
+
+    @Test
+    void createDefaultsToStandardMode() {
+        GameSession s = repo.create("quiz1", "host1", "900020", null);
+        assertEquals("STANDARD", s.gameMode());
+        assertEquals("STANDARD", repo.findById(s.id()).orElseThrow().gameMode());
+    }
+
+    @Test
+    void createWithExplicitModeRoundTrips() {
+        GameSession s = repo.create("quiz1", "host1", "900021", null, "EXAM");
+        assertEquals("EXAM", repo.findByPin("900021").orElseThrow().gameMode());
+    }
+
+    @Test
+    void createWithBlankModeFallsBackToStandard() {
+        GameSession s = repo.create("quiz1", "host1", "900022", null, "  ");
+        assertEquals("STANDARD", s.gameMode());
+    }
+
+    @Test
+    void deleteByPinRemovesEndedRow() {
+        GameSession s = repo.create("quiz1", "host1", "900023", null);
+        repo.updateStatus(s.id(), "ENDED");
+        assertEquals(1, repo.deleteByPin("900023"));
+        assertTrue(repo.findByPin("900023").isEmpty());
+    }
+
+    @Test
+    void deleteByPinMissingIsZero() {
+        assertEquals(0, repo.deleteByPin("900024"));
+    }
 }
