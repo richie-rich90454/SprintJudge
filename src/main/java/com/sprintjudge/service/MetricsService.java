@@ -78,8 +78,10 @@ public class MetricsService {
     }
 
     public void recordJudge(long nanos, boolean timedOut, boolean stdoutCapped) {
-        long idx = judgeCount.incrementAndGet();
-        judgeNanos[(int) ((idx - 1) % WINDOW)] = nanos;
+        synchronized (judgeNanos) {
+            long idx = judgeCount.incrementAndGet();
+            judgeNanos[(int) ((idx - 1) % WINDOW)] = nanos;
+        }
         if (timedOut) judgeTimeouts.incrementAndGet();
         if (stdoutCapped) judgeStdoutCaps.incrementAndGet();
     }
@@ -146,7 +148,9 @@ public class MetricsService {
             return;
         }
         long[] copy = new long[n];
-        System.arraycopy(ring, 0, copy, 0, n);
+        synchronized (judgeNanos) {
+            System.arraycopy(ring, 0, copy, 0, n);
+        }
         java.util.Arrays.sort(copy);
         into.put("latency_ms_p50", copy[(int) (n * 0.50)] / 1_000_000.0);
         into.put("latency_ms_p95", copy[Math.min(n - 1, (int) (n * 0.95))] / 1_000_000.0);
