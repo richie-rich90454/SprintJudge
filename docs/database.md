@@ -82,13 +82,36 @@ erDiagram
 | `questions` | `(quiz_id, order_index)` | Ordered question fetch per quiz |
 | `submissions` | `(game_session_id, question_id)` | Round result aggregation |
 | `submissions` | `(game_session_id, player_name)` | Per-player attempt history |
+| `submissions` | `(game_session_id, player_uuid)` | Rejoin-safe history |
+
+## Delete cascades (read before deleting)
+
+```mermaid
+flowchart LR
+    QZ["delete quiz"] --> QD["questions cascade"]
+    GS["delete session"] --> SD["submissions cascade"]
+    Q["delete question"] --> SB["submissions BLOCK<br/>FK restrict"]
+```
+
+- Deleting a **quiz** cascades to its questions.
+- Deleting a **game session** cascades to its submissions.
+- Deleting a **question** is RESTRICTED while submissions reference it — the
+  audit trail is never orphaned, and the judge never persists rows for
+  questions that no longer exist (the pipeline drops those outcomes
+  before the write buffer).
 
 ## Operational notes
 
 - **WAL mode** is enabled in the JDBC URL, along with a 5-second busy timeout and
   foreign-key enforcement, so readers never block the single writer for long.
+- SQLite returns Integer for BIGINT columns — every read goes through
+  `RepoUtil.asLong()`, never a direct cast.
 - The database is one portable file: back it up with any file copy while idle.
+- An unreachable `SPRINTJUDGE_DB_PATH` fails fast at boot instead of silently
+  running on `./sprintjudge.db`.
 - Production should run a weekly checkpoint:
   `sqlite3 /var/lib/sprintjudge/sprintjudge.db "PRAGMA wal_checkpoint(TRUNCATE);"`
 - Question `config` payloads embed answer keys and hidden test cases — they are exposed
   exclusively through admin-authenticated endpoints.
+- `admin_settings.value` is nullable in DDL: imports reject null values up
+  front so scoring never NPEs on a poisoned setting.
