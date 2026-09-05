@@ -1,13 +1,12 @@
 import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
-import { ThemeToggle } from "./ThemeToggle";
 import { SoundToggle } from "./SoundToggle";
 import { MotionToggle } from "./MotionToggle";
 import { webSocketService } from "../services/WebSocketService";
 import { useEffect, useState } from "react";
 
-/** Shared outer shell: header (logo, sound, theme, connection) + footer. */
+/** Shared outer shell: header (logo, sound, motion, connection) + footer. */
 export function Shell({ children, minimal = false }: { children: ReactNode; minimal?: boolean }) {
     const [online, setOnline] = useState(false);
     useEffect(() => {
@@ -43,7 +42,6 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
                         )}
                         <SoundToggle />
                         <MotionToggle />
-                        <ThemeToggle />
                     </div>
                 </div>
             </header>
