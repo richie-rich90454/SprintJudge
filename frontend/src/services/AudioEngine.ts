@@ -56,8 +56,7 @@ class AudioEngine {
         this.lead = new Tone.PolySynth(Tone.Synth, {
             oscillator: { type: "square" },
             envelope: { attack: 0.01, decay: 0.12, sustain: 0.2, release: 0.15 },
-        }).connect(this.mfx());
-        this.lead.connect(this.musicGain);
+        }).connect(this.mfx(this.musicGain));
 
         this.bass = new Tone.MonoSynth({
             oscillator: { type: "triangle" },
@@ -70,9 +69,10 @@ class AudioEngine {
         }).connect(this.sfxGain);
     }
 
-    // Light chiptune tone-shaping chain.
-    private mfx(): Tone.BitCrusher {
-        const filter = new Tone.Filter(2600, "lowpass").toDestination();
+    // Light chiptune tone-shaping chain, ending at the given bus so every
+    // voice honors the music attenuation.
+    private mfx(dest: Tone.Gain): Tone.BitCrusher {
+        const filter = new Tone.Filter(2600, "lowpass").connect(dest);
         const bit = new Tone.BitCrusher(6).connect(filter);
         return bit;
     }
