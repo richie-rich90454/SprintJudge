@@ -32,7 +32,8 @@ class ImportExportServiceBreadthTest {
     }
 
     private ExportBundle.QuestionExport qx(String id, String title) {
-        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100, Map.of(), null);
+        return new ExportBundle.QuestionExport(id, "MCQ", title, "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
     }
 
     private ExportBundle bundle(List<ExportBundle.QuizExport> quizzes, Map<String, String> settings) {
@@ -190,9 +191,12 @@ class ImportExportServiceBreadthTest {
         Repos rp = repos();
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         ExportBundle.QuestionExport multi = new ExportBundle.QuestionExport(
-                "m", "OJ_FULL", "OJ", "d", 60, 500, Map.of(), List.of("java", "python"));
+                "m", "OJ_FULL", "OJ", "d", 60, 500,
+                Map.of("testCases", List.of(Map.of("input", "1", "expectedOutput", "1"))),
+                List.of("java", "python"));
         ExportBundle.QuestionExport none = new ExportBundle.QuestionExport(
-                "n", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "n", "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport("q1", "T", "d", false, List.of(multi, none));
         svc.importAll(Json.write(bundle(List.of(qe), null)), false);
         ExportBundle back = Json.read(svc.exportAll(), ExportBundle.class);
@@ -217,7 +221,8 @@ class ImportExportServiceBreadthTest {
         Repos rp = repos();
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "  ", "MCQ", "Q", "d", 30, 100, Map.of(), null);
+                "  ", "MCQ", "Q", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport("   ", "Ws", "d", false, List.of(ex));
         assertEquals(1, svc.importAll(Json.write(bundle(List.of(qe), null)), false));
         assertEquals(1, rp.qr().findAll().size());
@@ -225,14 +230,15 @@ class ImportExportServiceBreadthTest {
     }
 
     @Test
-    void nullQuestionConfigImportsCleanly() throws Exception {
+    void nullQuestionConfigThrows() throws Exception {
         Repos rp = repos();
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
                 "nc", "MCQ", "Q", "d", 30, 100, null, null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport("q1", "T", "d", false, List.of(ex));
-        assertEquals(1, svc.importAll(Json.write(bundle(List.of(qe), null)), false));
-        assertEquals(1, rp.qnr().findByQuiz("q1").size());
+        assertThrows(IllegalArgumentException.class,
+                () -> svc.importAll(Json.write(bundle(List.of(qe), null)), false));
+        assertTrue(rp.qr().findById("q1").isEmpty());
     }
 
     @Test
