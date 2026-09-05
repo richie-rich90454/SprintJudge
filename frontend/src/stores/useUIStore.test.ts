@@ -265,3 +265,161 @@ describe("motionReduced", () => {
         expect(motionReduced()).toBe(false);
     });
 });
+
+describe("useUIStore preference workflows", () => {
+    test("sound off survives a reload then toggles back on across reloads", async () => {
+        const first = await fresh();
+        first.useUIStore.getState().setSound("off");
+        const second = await fresh();
+        expect(second.useUIStore.getState().sound).toBe("off");
+        second.useUIStore.getState().toggleSound();
+        expect(second.useUIStore.getState().sound).toBe("on");
+        const third = await fresh();
+        expect(third.useUIStore.getState().sound).toBe("on");
+    });
+
+    test("double toggle returns to the original with persistence", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setSound("on");
+        mod.useUIStore.getState().toggleSound();
+        mod.useUIStore.getState().toggleSound();
+        expect(mod.useUIStore.getState().sound).toBe("on");
+        expect(localStorage.getItem("oq-sound")).toBe("on");
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().sound).toBe("on");
+    });
+
+    test("motion chain persists each step and reload reads the last", async () => {
+        const mod = await fresh();
+        for (const m of ["reduced", "system", "full"] as const) {
+            mod.useUIStore.getState().setMotion(m);
+            expect(localStorage.getItem("oq-motion")).toBe(m);
+        }
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().motion).toBe("full");
+        reloaded.useUIStore.getState().setMotion("reduced");
+        const again = await fresh();
+        expect(again.useUIStore.getState().motion).toBe("reduced");
+    });
+
+    test("pin is session-only and never survives a reload", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setPin("4242");
+        expect(mod.useUIStore.getState().pin).toBe("4242");
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().pin).toBeNull();
+    });
+
+    test("pin overwrite chain keeps the latest then clears", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setPin("1111");
+        mod.useUIStore.getState().setPin("2222");
+        expect(mod.useUIStore.getState().pin).toBe("2222");
+        mod.useUIStore.getState().setPin(null);
+        expect(mod.useUIStore.getState().pin).toBeNull();
+    });
+
+    test("theme dark request persists as light and reloads light", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setTheme("dark");
+        expect(localStorage.getItem("oq-theme")).toBe("light");
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().theme).toBe("light");
+    });
+
+    test("toggleTheme twice stays light with the meta intact", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().toggleTheme();
+        mod.useUIStore.getState().toggleTheme();
+        expect(mod.useUIStore.getState().theme).toBe("light");
+        expect(metaContent()).toBe("#fff0e4");
+    });
+
+    test("sound and motion matrix persists jointly across a reload", async () => {
+        const mod = await fresh();
+        const combos = [
+            ["off", "reduced"],
+            ["off", "full"],
+            ["on", "system"],
+        ] as const;
+        for (const [sound, motion] of combos) {
+            mod.useUIStore.getState().setSound(sound);
+            mod.useUIStore.getState().setMotion(motion);
+            const reloaded = await fresh();
+            expect(reloaded.useUIStore.getState().sound).toBe(sound);
+            expect(reloaded.useUIStore.getState().motion).toBe(motion);
+        }
+    });
+
+    test("motionReduced tracks the full preference chain against the OS", async () => {
+        const mod = await fresh();
+        stubMatchMedia(true);
+        mod.useUIStore.getState().setMotion("full");
+        expect(mod.motionReduced()).toBe(false);
+        mod.useUIStore.getState().setMotion("reduced");
+        expect(mod.motionReduced()).toBe(true);
+        mod.useUIStore.getState().setMotion("system");
+        expect(mod.motionReduced()).toBe(true);
+        stubMatchMedia(false);
+        expect(mod.motionReduced()).toBe(false);
+    });
+
+    test("repeated identical sets are idempotent", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setSound("off");
+        mod.useUIStore.getState().setSound("off");
+        mod.useUIStore.getState().setMotion("system");
+        mod.useUIStore.getState().setMotion("system");
+        expect(mod.useUIStore.getState().sound).toBe("off");
+        expect(mod.useUIStore.getState().motion).toBe("system");
+    });
+
+    test("subscribe notifies on every preference change in order then stops", async () => {
+        const mod = await fresh();
+        const events: string[] = [];
+        const unsub = mod.useUIStore.subscribe((s) => events.push(`${s.sound}/${s.motion}/${s.pin}`));
+        mod.useUIStore.getState().setSound("off");
+        mod.useUIStore.getState().setMotion("reduced");
+        mod.useUIStore.getState().setPin("9999");
+        expect(events).toEqual(["off/system/null", "off/reduced/null", "off/reduced/9999"]);
+        unsub();
+        mod.useUIStore.getState().setSound("on");
+        expect(events).toHaveLength(3);
+    });
+
+    test("theme meta content stays locked across sets and reloads", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setTheme("light");
+        mod.useUIStore.getState().setTheme("dark");
+        expect(metaContent()).toBe("#fff0e4");
+        expect(document.head.querySelectorAll('meta[name="theme-color"]')).toHaveLength(1);
+    });
+
+    test("corrupt persisted values fall back then accept fresh sets", async () => {
+        localStorage.setItem("oq-sound", "loud");
+        localStorage.setItem("oq-motion", "turbo");
+        const mod = await fresh();
+        expect(mod.useUIStore.getState().sound).toBe("on");
+        expect(mod.useUIStore.getState().motion).toBe("system");
+        mod.useUIStore.getState().setSound("off");
+        mod.useUIStore.getState().setMotion("full");
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().sound).toBe("off");
+        expect(reloaded.useUIStore.getState().motion).toBe("full");
+    });
+
+    test("full preference reset flow returns to defaults", async () => {
+        const mod = await fresh();
+        mod.useUIStore.getState().setSound("off");
+        mod.useUIStore.getState().setMotion("reduced");
+        mod.useUIStore.getState().setPin("1234");
+        mod.useUIStore.getState().setTheme("dark");
+        localStorage.clear();
+        document.head.querySelector('meta[name="theme-color"]')?.remove();
+        const reloaded = await fresh();
+        expect(reloaded.useUIStore.getState().sound).toBe("on");
+        expect(reloaded.useUIStore.getState().motion).toBe("system");
+        expect(reloaded.useUIStore.getState().pin).toBeNull();
+        expect(reloaded.useUIStore.getState().theme).toBe("light");
+    });
+});
