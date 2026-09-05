@@ -44,12 +44,29 @@ on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
 ## Production (Linux — 12 cores / 48GB RAM)
 
 - Run as a systemd service (see `deploy/sprintjudge.service`) with `-XX:+UseZGC` and virtual threads.
+- The unit pins `--sprintjudge.executor.mode=nsjail` and reads an optional
+  `/opt/sprintjudge/.env` for PORT, DB path and admin credentials.
 - Nginx reverse proxy terminates TLS and upgrades `/ws` to WebSocket (see `deploy/nginx-sprintjudge.conf`).
+  Both locations forward `X-Forwarded-For`/`X-Real-IP` so rate limiting sees
+  real client IPs. Upstream is `127.0.0.1:8080` — match it with SPRINTJUDGE_PORT.
+- Set `SPRINTJUDGE_COOKIE_SECURE=true` behind TLS nginx.
 - Use the `prod` profile: `SPRINTJUDGE_EXECUTOR_MODE=nsjail`, executor `nsjail` binary on `PATH`.
 - Weekly SQLite WAL checkpoint:
 
 ```bash
 sqlite3 /var/lib/sprintjudge/sprintjudge.db "PRAGMA wal_checkpoint(TRUNCATE);"
+```
+
+Go-live checklist:
+
+```mermaid
+flowchart TB
+    A["nsjail on PATH"] --> B[".env set + perms"]
+    B --> C["nginx up, certs live"]
+    C --> D["make prod smoke test"]
+    D --> E["QR join from a phone"]
+    E --> F["submit + console run"]
+    F --> G["check /actuator/prometheus"]
 ```
 
 ## Development (Windows)
