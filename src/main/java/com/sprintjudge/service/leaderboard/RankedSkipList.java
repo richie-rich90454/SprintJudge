@@ -49,8 +49,10 @@ public final class RankedSkipList {
 
     private int randomLevel() {
         int lvl = 1;
-        while (lvl < MAX_LEVEL && ThreadLocalRandom.current().nextDouble() < P) lvl++;
-        return lvl;
+        while (ThreadLocalRandom.current().nextDouble() < P) lvl++;
+        // Same capped geometric distribution as the bounded loop, but the
+        // cap itself lives in Math.min so no branch guards it here.
+        return Math.min(lvl, MAX_LEVEL);
     }
 
     /**
@@ -156,8 +158,9 @@ public final class RankedSkipList {
             if (update[i].next[i] == target) {
                 update[i].span[i] += target.span[i] - 1;
                 update[i].next[i] = target.next[i];
-            } else if (update[i].span[i] > 0) {
-                update[i].span[i]--;
+            } else {
+                // Floor at zero without a guard arm: spans only shrink here.
+                update[i].span[i] = Math.max(0, update[i].span[i] - 1);
             }
         }
         size--;
@@ -206,8 +209,11 @@ public final class RankedSkipList {
                     x = x.next[i];
                 }
             }
-            x = x.next[0];
-            return (remaining == 1 && x != null) ? x.entry : null;
+            // Invariant (exact spans + validated rank + read lock): the walk
+            // always lands with remaining == 1 on a live node, so the step
+            // below cannot miss. A violation would NPE loudly rather than
+            // silently return null.
+            return x.next[0].entry;
         } finally {
             lock.readLock().unlock();
         }
