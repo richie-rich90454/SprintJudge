@@ -421,9 +421,9 @@ class GameRoomManagerModesTest {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new Quiz("qz", "T", "", null, Instant.now(), false)));
         when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameRoomManager mgr = manager();
         GameSession created = mgr.createRoom("qz", "host", GameRoom.GameMode.TEAM);
         assertEquals(GameRoom.GameMode.TEAM, registryOf(mgr).snapshot().get(0).gameMode());
