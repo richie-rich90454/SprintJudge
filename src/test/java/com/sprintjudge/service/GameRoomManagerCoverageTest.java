@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -428,5 +429,133 @@ class GameRoomManagerCoverageTest {
         ArgumentCaptor<Collection<String>> ids = ArgumentCaptor.forClass(Collection.class);
         verify(ws).broadcastRaw(ids.capture(), anyString());
         assertEquals(List.of("sa"), List.copyOf(ids.getValue()));
+    }
+
+    @Test
+    void createRoomRetriesRegistryCollision() {
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(
+                new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
+                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
+                        inv.getArgument(1), "LOBBY", 0, null, null, null, Instant.now()));
+        GameRoomManager mgr = manager();
+        try (var mocked = org.mockito.Mockito.mockStatic(com.sprintjudge.util.Ids.class)) {
+            mocked.when(com.sprintjudge.util.Ids::pin).thenReturn("123456", "654321");
+            // Pre-occupy the first pin so the generator loops exactly once.
+            registryOf(mgr).put(123456,
+                    new GameRoom("s9", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.STANDARD));
+            GameSession created = mgr.createRoom("qz", "host-1");
+            assertEquals("654321", created.pinCode());
+        }
+    }
+
+    @Test
+    void busyRejectToDepartedPlayerSendsNowhere() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        GameRoomManager mgr = manager();
+        var player = mgr.join("123456", "Cody", "sess-c", "player", null);
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+                .thenAnswer(inv -> {
+                    mgr.kickPlayer("123456", player.uuid());
+                    return java.util.concurrent.CompletableFuture.completedFuture(false);
+                });
+        armActive(mgr, "oj1");
+        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws, times(1)).send(eq((String) null), sent.capture());
+        assertTrue(sent.getValue() instanceof com.sprintjudge.domain.dto.ErrorMessage);
+    }
+
+    @Test
+    void endGameOnEndedRoomIsNoop() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        roomOf(mgr).setStatus("ENDED");
+        mgr.endGame("123456");
+        verify(sessionRepository, never()).updateStatus(anyString(), anyString());
+    }
+
+    @Test
+    void reviewRanksEasiestAboveHardest() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        when(submissionRepository.findBySession("s1")).thenReturn(List.of(
+                new com.sprintjudge.domain.models.Submission("s1", "s1", "q1", "A", "ua",
+                        "{}", 900, true, null, 1, Instant.now()),
+                new com.sprintjudge.domain.models.Submission("s2", "s1", "q2", "A", "ua",
+                        "{}", 0, false, null, 1, Instant.now())));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        mgr.endGame("123456");
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).broadcast(anyCollection(), sent.capture());
+        Object review = sent.getAllValues().stream()
+                .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
+                .findFirst().orElseThrow();
+        var gr = (com.sprintjudge.domain.dto.GameReview) review;
+        assertEquals("q1", gr.classStats().easiestQuestionId());
+        assertEquals("q2", gr.classStats().hardestQuestionId());
+    }
+
+    @Test
+    void sweepSkipsConnectedActiveRoom() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        roomOf(mgr).setStatus("ACTIVE");
+        setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
+        mgr.sweepIdleRooms();
+        assertEquals(1, mgr.activeRooms());
+    }
+
+    @Test
+    void sweepEvictsIdleReviewRoom() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        GameRoom room = roomOf(mgr);
+        room.softRemove(room.players().get(0).uuid());
+        room.setStatus("REVIEW");
+        setField(room, "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
+        mgr.sweepIdleRooms();
+        assertEquals(0, mgr.activeRooms());
+    }
+
+    @Test
+    void flushEmptyBoardStaysSilent() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "Host", "sess-h", "host", null);
+        org.mockito.Mockito.clearInvocations(scheduler);
+        mgr.flushLeaderboardDelta("123456");
+        verify(ws, never()).broadcastRaw(any(), anyString());
+    }
+
+    @Test
+    void flushAfterKickHealsWithoutNoise() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        GameRoomManager mgr = manager();
+        var player = mgr.join("123456", "A", "sa", "player", null);
+        mgr.flushLeaderboardDelta("123456");
+        mgr.kickPlayer("123456", player.uuid());
+        org.mockito.Mockito.clearInvocations(ws);
+        mgr.flushLeaderboardDelta("123456");
+        verify(ws, never()).broadcastRaw(any(), anyString());
+    }
+
+    @Test
+    void submitNullUuidWithLiveRoundIsIgnored() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "Alice", "sess-1", "player", null);
+        armActive(mgr, "q1");
+        mgr.submit("123456", "q1", null, "python", Json.readTree("{\"selectedIndex\":0}"));
+        verify(writeBuffer, never()).offer(any());
+        assertEquals(0, roomOf(mgr).attemptCount("q1", null));
     }
 }
