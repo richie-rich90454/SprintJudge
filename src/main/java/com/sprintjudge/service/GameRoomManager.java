@@ -224,7 +224,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             room.setCurrentQuestionStartEpochMs(now);
             long end = room.totalEndEpochMs();
             if (end <= 0) {
-                long totalSec = questions.stream().mapToLong(Question::timeLimitSec).sum();
+                long totalSec = questions.stream().mapToLong(qq -> qq.timeLimitSec()).sum();
                 end = now + totalSec * 1000;
             }
             room.setCurrentQuestionEndEpochMs(end);
