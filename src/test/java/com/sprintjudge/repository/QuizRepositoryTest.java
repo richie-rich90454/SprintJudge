@@ -83,4 +83,71 @@ class QuizRepositoryTest {
         Quiz q = repo.findById("qn").orElseThrow();
         assertFalse(q.template());
     }
+
+    @Test
+    void countEmpty() {
+        assertEquals(0, repo.count());
+    }
+
+    @Test
+    void countAfterCreates() {
+        repo.create(new Quiz(null, "A", null, null, Instant.now(), false));
+        repo.create(new Quiz(null, "B", null, null, Instant.now(), false));
+        assertEquals(2, repo.count());
+    }
+
+    @Test
+    void updateTitleAndDescription() {
+        Quiz created = repo.create(new Quiz(null, "Old", "olddesc", "u1", Instant.now(), false));
+        Quiz updated = new Quiz(created.id(), "New", "newdesc", "u1", created.createdAt(), false);
+        repo.update(updated);
+        Quiz got = repo.findById(created.id()).orElseThrow();
+        assertEquals("New", got.title());
+        assertEquals("newdesc", got.description());
+    }
+
+    @Test
+    void updateMissingRowIsNoop() {
+        repo.update(new Quiz("ghost", "T", null, null, Instant.now(), false));
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void createPreservesCreatedByAndDescription() {
+        Quiz q = repo.create(new Quiz(null, "T", "D", "author-9", Instant.now(), false));
+        Quiz got = repo.findById(q.id()).orElseThrow();
+        assertEquals("author-9", got.createdBy());
+        assertEquals("D", got.description());
+        assertNotNull(got.createdAt());
+    }
+
+    @Test
+    void deleteMissingRowIsNoop() {
+        repo.delete("nope");
+        assertEquals(0, repo.count());
+    }
+
+    @Test
+    void countReflectsDelete() {
+        Quiz q = repo.create(new Quiz(null, "T", null, null, Instant.now(), false));
+        assertEquals(1, repo.count());
+        repo.delete(q.id());
+        assertEquals(0, repo.count());
+    }
+
+    @Test
+    void templateRoundTrip() {
+        repo.create(new Quiz("tpl", "T", null, null, Instant.now(), true));
+        assertTrue(repo.findById("tpl").orElseThrow().template());
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void countNullFallsBackToZero() {
+        DSLContext dsl = org.mockito.Mockito.mock(DSLContext.class,
+                org.mockito.Mockito.RETURNS_DEEP_STUBS);
+        org.mockito.Mockito.when(dsl.selectCount().from((org.jooq.Table) org.mockito.ArgumentMatchers.any())
+                .fetchOne(0, Integer.class)).thenReturn(null);
+        assertEquals(0, new QuizRepository(dsl).count());
+    }
 }
