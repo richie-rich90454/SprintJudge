@@ -228,4 +228,317 @@ class RepositoryBreadthTest {
         assertFalse(repo.findByEmail("z@x.com").isPresent());
         assertNotNull(repo.findByEmail("b@x.com").orElseThrow().id());
     }
+
+    @Test
+    void mxSubBestMissingIsEmpty() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        assertTrue(repo.findBest("no-sess", "no-q", "no-u").isEmpty());
+    }
+
+    @Test
+    void mxSubHighestMissingIsEmpty() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        assertTrue(repo.findHighestByPlayer("no-sess", "no-u").isEmpty());
+    }
+
+    @Test
+    void mxSubUpsertSameIdOverwritesScore() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        repo.save(sub("dup", "s1", "q1", "u1", 10, false));
+        repo.save(sub("dup", "s1", "q1", "u1", 99, true));
+        assertEquals(99, repo.findBest("s1", "q1", "u1").orElseThrow().scoreEarned());
+        assertEquals(1, repo.findBySession("s1").size());
+    }
+
+    @Test
+    void mxSubBySessionQuestionIsolatesQuestions() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        repo.save(sub("a", "s1", "q1", "u1", 5, true));
+        repo.save(sub("b", "s1", "q2", "u1", 6, true));
+        repo.save(sub("c", "s1", "q1", "u2", 7, true));
+        assertEquals(2, repo.findBySessionQuestion("s1", "q1").size());
+        assertEquals(1, repo.findBySessionQuestion("s1", "q2").size());
+        assertTrue(repo.findBySessionQuestion("s1", "qx").isEmpty());
+    }
+
+    @Test
+    void mxSubEmptyStringFieldsRoundTrip() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        repo.save(new Submission("e1", "s1", "q1", "", "u1", "", 0, false, "", 1, Instant.now()));
+        Submission got = repo.findBest("s1", "q1", "u1").orElseThrow();
+        assertEquals("", got.playerName());
+        assertEquals("", got.responseData());
+        assertEquals("", got.judgeLog());
+    }
+
+    @Test
+    void mxSubUnicodeFieldsRoundTrip() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        repo.save(new Submission("u1", "s1", "q1", "h\u00e9llo \u4e2d\u6587", "uu",
+                "{\"code\":\"print('\u00fc')\"}", 8, true, "log-\u00fc", 1, Instant.now()));
+        Submission got = repo.findBest("s1", "q1", "uu").orElseThrow();
+        assertEquals("h\u00e9llo \u4e2d\u6587", got.playerName());
+        assertEquals("log-\u00fc", got.judgeLog());
+    }
+
+    @Test
+    void mxSubBulk100AllInSession() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        List<Submission> batch = new ArrayList<>();
+        for (int i = 0; i < 100; i++) batch.add(sub("bulk" + i, "sb", "qb", "u" + i, i, true));
+        repo.saveAll(batch);
+        assertEquals(100, repo.findBySession("sb").size());
+    }
+
+    @Test
+    void mxSubBulk100HighestIs99() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        List<Submission> batch = new ArrayList<>();
+        for (int i = 0; i < 100; i++) batch.add(sub("h" + i, "sh", "qh", "solo", i, true));
+        repo.saveAll(batch);
+        assertEquals(99, repo.findHighestByPlayer("sh", "solo").orElseThrow().scoreEarned());
+    }
+
+    @Test
+    void mxSubSaveAllEmptyIsNoop() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        repo.saveAll(List.of());
+        assertTrue(repo.findBySession("sb").isEmpty());
+    }
+
+    @Test
+    void mxSubNullIdGeneratesId() throws Exception {
+        SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
+        Submission saved = repo.save(sub(null, "s1", "q1", "u1", 3, true));
+        assertNotNull(saved.id());
+        assertFalse(saved.id().isBlank());
+    }
+
+    @Test
+    void mxQuestionNullIdGeneratesId() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        Question saved = repo.save(question(null, "qk", 0));
+        assertNotNull(saved.id());
+        assertEquals(1, repo.findByQuiz("qk").size());
+    }
+
+    @Test
+    void mxQuestionFindByIdMissingIsEmpty() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void mxQuestionSaveSameIdOverwrites() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        repo.save(question("w1", "qk", 0));
+        Question changed = new Question("w1", "qk", "CHANGED", "D", "MCQ", null, 30, 100, "{}", 0,
+                Instant.now());
+        repo.save(changed);
+        assertEquals("CHANGED", repo.findById("w1").orElseThrow().title());
+        assertEquals(1, repo.findByQuiz("qk").size());
+    }
+
+    @Test
+    void mxQuestionDeleteByQuizMissingIsNoop() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        repo.save(question("a1", "qa", 0));
+        repo.deleteByQuiz("nope");
+        assertEquals(1, repo.findByQuiz("qa").size());
+    }
+
+    @Test
+    void mxQuestionEmptyTitleRoundTrips() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        repo.save(new Question("e1", "qe", "", "D", "MCQ", null, 30, 100, "{}", 0, Instant.now()));
+        assertEquals("", repo.findById("e1").orElseThrow().title());
+    }
+
+    @Test
+    void mxQuestionUnicodeTitleRoundTrips() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        repo.save(new Question("u1", "qu", "h\u00e9llo \u4e2d\u6587 \ud83c\udf89", "D", "MCQ", null,
+                30, 100, "{}", 0, Instant.now()));
+        assertEquals("h\u00e9llo \u4e2d\u6587 \ud83c\udf89", repo.findById("u1").orElseThrow().title());
+    }
+
+    @Test
+    void mxQuestionBulk100OrderedByIndex() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        for (int i = 99; i >= 0; i--) repo.save(question("o" + i, "qo", i));
+        List<Question> list = repo.findByQuiz("qo");
+        assertEquals(100, list.size());
+        for (int i = 0; i < 100; i++) assertEquals(i, list.get(i).orderIndex());
+    }
+
+    @Test
+    void mxQuestionNullLanguagesRoundTrips() throws Exception {
+        QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
+        repo.save(new Question("l1", "ql", "T", "D", "MCQ", null, 30, 100, "{}", 0, Instant.now()));
+        assertTrue(repo.findById("l1").isPresent());
+    }
+
+    @Test
+    void mxQuizDuplicateIdThrows() throws Exception {
+        QuizRepository repo = new QuizRepository(TestDb.inMemory());
+        repo.create(new Quiz("dup", "A", null, null, Instant.now(), false));
+        boolean thrown = false;
+        try {
+            repo.create(new Quiz("dup", "B", null, null, Instant.now(), false));
+        } catch (RuntimeException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
+        assertEquals("A", repo.findById("dup").orElseThrow().title());
+    }
+
+    @Test
+    void mxQuizEmptyTitleRoundTrips() throws Exception {
+        QuizRepository repo = new QuizRepository(TestDb.inMemory());
+        Quiz created = repo.create(new Quiz(null, "", null, null, Instant.now(), false));
+        assertEquals("", repo.findById(created.id()).orElseThrow().title());
+    }
+
+    @Test
+    void mxQuizUnicodeTitleRoundTrips() throws Exception {
+        QuizRepository repo = new QuizRepository(TestDb.inMemory());
+        Quiz created = repo.create(new Quiz(null, "h\u00e9llo \u4e2d\u6587", "d-\u00fc", null,
+                Instant.now(), false));
+        Quiz got = repo.findById(created.id()).orElseThrow();
+        assertEquals("h\u00e9llo \u4e2d\u6587", got.title());
+        assertEquals("d-\u00fc", got.description());
+    }
+
+    @Test
+    void mxQuizBulk100CountAndSpotReads() throws Exception {
+        QuizRepository repo = new QuizRepository(TestDb.inMemory());
+        for (int i = 0; i < 100; i++) repo.create(new Quiz("bulk" + i, "T" + i, null, null,
+                Instant.now(), i % 2 == 0));
+        assertEquals(100, repo.count());
+        assertEquals(100, repo.findAll().size());
+        assertEquals("T42", repo.findById("bulk42").orElseThrow().title());
+        assertTrue(repo.findById("bulk42").orElseThrow().template());
+        assertFalse(repo.findById("bulk43").orElseThrow().template());
+    }
+
+    @Test
+    void mxQuizNullCreatedByRoundTrips() throws Exception {
+        QuizRepository repo = new QuizRepository(TestDb.inMemory());
+        Quiz created = repo.create(new Quiz(null, "T", "D", null, Instant.now(), false));
+        assertTrue(repo.findById(created.id()).isPresent());
+    }
+
+    @Test
+    void mxSessionFindByIdMissingIsEmpty() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void mxSessionSetNegativeIndex() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        GameSession s = repo.create("q1", "h", "200001", null);
+        repo.setCurrentIndex(s.id(), -1);
+        assertEquals(-1, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+    }
+
+    @Test
+    void mxSessionUnicodeOverrideRoundTrips() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        GameSession s = repo.create("q1", "h", "200002", null);
+        repo.setOverride(s.id(), "{\"name\":\"h\u00e9llo \u4e2d\u6587\"}");
+        assertEquals("{\"name\":\"h\u00e9llo \u4e2d\u6587\"}",
+                repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxSessionBulk100AllPinsFindable() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        for (int i = 0; i < 100; i++) repo.create("q1", "h", String.format("%06d", 300000 + i), null);
+        assertTrue(repo.findByPin("300000").isPresent());
+        assertTrue(repo.findByPin("300099").isPresent());
+        assertTrue(repo.findByPin("399999").isEmpty());
+    }
+
+    @Test
+    void mxSessionResetToLobbyKeepsStarted() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        GameSession s = repo.create("q1", "h", "200003", null);
+        repo.updateStatus(s.id(), "ACTIVE");
+        repo.updateStatus(s.id(), "LOBBY");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("LOBBY", got.status());
+        assertNotNull(got.startedAt());
+    }
+
+    @Test
+    void mxSessionLongOverrideRoundTrips() throws Exception {
+        GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
+        GameSession s = repo.create("q1", "h", "200004", null);
+        String big = "{\"x\":\"" + "y".repeat(5000) + "\"}";
+        repo.setOverride(s.id(), big);
+        assertEquals(big, repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxUserFindMissingIsEmpty() throws Exception {
+        UserRepository repo = new UserRepository(TestDb.inMemory());
+        assertTrue(repo.findByEmail("nobody@x.com").isEmpty());
+        assertTrue(repo.findAll().isEmpty());
+    }
+
+    @Test
+    void mxUserUpsertConflictKeepsNameAndRole() throws Exception {
+        UserRepository repo = new UserRepository(TestDb.inMemory());
+        User first = repo.upsertByEmail("k@x.com", "First", "av1");
+        User second = repo.upsertByEmail("k@x.com", "Second", "av2");
+        assertEquals(first.id(), second.id());
+        assertEquals("First", second.name());
+        assertEquals("ADMIN", second.role());
+    }
+
+    @Test
+    void mxUserUnicodeNameRoundTrips() throws Exception {
+        UserRepository repo = new UserRepository(TestDb.inMemory());
+        repo.upsertByEmail("uni@x.com", "h\u00e9llo \u4e2d\u6587", null);
+        assertEquals("h\u00e9llo \u4e2d\u6587", repo.findByEmail("uni@x.com").orElseThrow().name());
+    }
+
+    @Test
+    void mxUserBulk100AllListed() throws Exception {
+        UserRepository repo = new UserRepository(TestDb.inMemory());
+        for (int i = 0; i < 100; i++) repo.upsertByEmail("bulk" + i + "@x.com", "N" + i, null);
+        assertEquals(100, repo.findAll().size());
+        assertTrue(repo.findByEmail("bulk99@x.com").isPresent());
+    }
+
+    @Test
+    void mxSettingsMissingKeyIsEmpty() throws Exception {
+        AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
+        assertTrue(repo.findByKey("ghost").isEmpty());
+        assertTrue(repo.findAllAsMap().isEmpty());
+    }
+
+    @Test
+    void mxSettingsBulk100RoundTrip() throws Exception {
+        AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
+        for (int i = 0; i < 100; i++) repo.put("k" + i, "v" + i);
+        assertEquals(100, repo.findAllAsMap().size());
+        assertEquals("v42", repo.findByKey("k42").orElseThrow().value());
+    }
+
+    @Test
+    void mxSettingsEmptyKeyRoundTrips() throws Exception {
+        AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
+        repo.put("", "empty-key");
+        assertEquals("empty-key", repo.findByKey("").orElseThrow().value());
+    }
+
+    @Test
+    void mxSettingsRepeatedOverwriteKeepsLast() throws Exception {
+        AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
+        for (int i = 0; i < 10; i++) repo.put("flip", "v" + i);
+        assertEquals("v9", repo.findByKey("flip").orElseThrow().value());
+        assertEquals(1, repo.findAllAsMap().size());
+    }
 }
