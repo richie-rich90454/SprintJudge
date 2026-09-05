@@ -169,7 +169,10 @@ beforeEach(() => {
     FakeFit.instances.length = 0;
     editorMock.handles.length = 0;
     fetchMock.mockReset();
-    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true, output: "", status: "OK" }) });
+    fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({ ok: true, output: "", status: "OK" }),
+    });
     vi.stubGlobal("fetch", fetchMock);
     rafCb = null;
     cancelSpy = vi.fn();
@@ -222,7 +225,10 @@ describe("OjFullRenderer mounting", () => {
     });
 
     test("unpermitted default falls back to the first allowed language", async () => {
-        const { div, seen } = await mountFull({ starter: "x", defaultLanguage: "python" }, "q1", ["java", "node"]);
+        const { div, seen } = await mountFull({ starter: "x", defaultLanguage: "python" }, "q1", [
+            "java",
+            "node",
+        ]);
         expect((div.querySelector("select") as HTMLSelectElement).value).toBe("java");
         expect(seen[0]).toEqual({ source: "x", language: "java" });
     });
@@ -322,7 +328,12 @@ describe("OjPatchRenderer", () => {
     test("shows the fix-the-bug note and mounts the buggy function", async () => {
         const div = document.createElement("div");
         const seen: unknown[] = [];
-        const r = new OjPatchRenderer(div, { buggyFunction: "def f():\n  retrun 1" }, (v) => seen.push(v), "qp");
+        const r = new OjPatchRenderer(
+            div,
+            { buggyFunction: "def f():\n  retrun 1" },
+            (v) => seen.push(v),
+            "qp",
+        );
         r.mount();
         await flush();
         expect(div.textContent).toContain("Edit only the highlighted lines");
@@ -374,7 +385,10 @@ describe("OjBase console", () => {
         okRun("out\n");
         runButton(div).click();
         await flush();
-        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<string, unknown>;
+        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<
+            string,
+            unknown
+        >;
         expect(body["stdin"]).toBe("hello");
         expect(body["language"]).toBe("python");
         expect(body["sourceCode"]).toBe("print(1)");
@@ -389,7 +403,10 @@ describe("OjBase console", () => {
         okRun("");
         runButton(div).click();
         await flush();
-        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<string, unknown>;
+        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<
+            string,
+            unknown
+        >;
         expect(body["stdin"]).toBe("a");
         expect(termOutput()).toContain("\b \b");
     });
@@ -406,7 +423,10 @@ describe("OjBase console", () => {
         okRun("");
         runButton(div).click();
         await flush();
-        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<string, unknown>;
+        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<
+            string,
+            unknown
+        >;
         expect(body["stdin"]).toBe("");
     });
 
@@ -416,7 +436,10 @@ describe("OjBase console", () => {
         okRun("");
         runButton(div).click();
         await flush();
-        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<string, unknown>;
+        const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body) as Record<
+            string,
+            unknown
+        >;
         expect(body["stdin"]).toBe("a\nb");
     });
 
@@ -518,7 +541,10 @@ describe("OjBase console", () => {
         runButton(div).click();
         await flush();
         await flush();
-        const second = JSON.parse((fetchMock.mock.calls[1][1] as { body: string }).body) as Record<string, unknown>;
+        const second = JSON.parse((fetchMock.mock.calls[1][1] as { body: string }).body) as Record<
+            string,
+            unknown
+        >;
         expect(second["stdin"]).toBe("");
     });
 });
@@ -528,7 +554,7 @@ describe("OjBase destroy", () => {
         const { div, renderer } = await mountFull({ starter: "x" }, "qd");
         const handle = lastHandle();
         renderer.destroy();
-        expect((handle["destroy"] as ReturnType<typeof vi.fn>)).toHaveBeenCalled();
+        expect(handle["destroy"] as ReturnType<typeof vi.fn>).toHaveBeenCalled();
         expect(FakeTerminal.instances[0].dispose).toHaveBeenCalled();
         expect(FakeFit.instances[0].dispose).toHaveBeenCalled();
         expect(div.innerHTML).toBe("");
