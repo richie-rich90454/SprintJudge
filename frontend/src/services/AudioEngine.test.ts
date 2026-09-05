@@ -331,7 +331,17 @@ describe("AudioEngine cold-start SFX matrix", () => {
 });
 
 describe("AudioEngine SFX sequences", () => {
-    const ALL = ["correct", "wrong", "timer", "join", "leave", "victory", "combo", "click", "start"] as const;
+    const ALL = [
+        "correct",
+        "wrong",
+        "timer",
+        "join",
+        "leave",
+        "victory",
+        "combo",
+        "click",
+        "start",
+    ] as const;
 
     test("every SfxName plays while muted without throwing", () => {
         audio.init();
