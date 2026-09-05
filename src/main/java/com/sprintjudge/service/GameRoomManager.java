@@ -153,7 +153,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             }
             if (room.isFull()) throw new IllegalStateException("Room is full");
             Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
-            if (!room.addPlayer(p)) throw new IllegalStateException("Room is full");
+            // isFull above holds under synchronized(room), so the add cannot fail.
+            room.addPlayer(p);
             room.touch();
             broadcastLeaderboard(pin);
             eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
@@ -786,7 +787,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             batch = room.board().fullBatch();
         }
         String json = deltaJson(batch);
-        if (json != null) ws.broadcastRaw(playerSessionIds(pin), json);
+        // Non-null by construction: non-resync batches carry upserts, and the
+        // healing branch above replaces resync batches with a full snapshot.
+        ws.broadcastRaw(playerSessionIds(pin), json);
         // Deltas that arrived mid-flush would otherwise wait for the next
         // score event; re-mark so the next tick drains them.
         if (room.board().pendingDeltaCount() > 0) broadcastLeaderboard(pin);
