@@ -193,9 +193,7 @@ public class NativeExecutor implements CodeExecutor {
     static void maybeCache(CompileArtifactCache cache, String language, String sourceCode,
                            Path runDir, String compileErr) {
         if (compileErr != null) return;
-        String key = CompileArtifactCache.keyFor(language, sourceCode);
-        cache.put(key, runDir.resolve(
-                System.getProperty("os.name", "").toLowerCase().contains("win") ? "program.exe" : "program"));
+        cache.put(CompileArtifactCache.keyFor(language, sourceCode), runDir.resolve(binaryName()));
     }
 
     private List<String> runCommand(String language, Path sourceFile, Path runDir) {
@@ -208,8 +206,11 @@ public class NativeExecutor implements CodeExecutor {
     }
 
     private Path binary(Path runDir) {
-        String name = System.getProperty("os.name", "").toLowerCase().contains("win") ? "program.exe" : "program";
-        return runDir.resolve(name);
+        return runDir.resolve(binaryName());
+    }
+
+    static String binaryName() {
+        return System.getProperty("os.name", "").toLowerCase().contains("win") ? "program.exe" : "program";
     }
 
     private String mainClass(Path sourceFile) {
