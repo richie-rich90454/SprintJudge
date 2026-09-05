@@ -3,7 +3,6 @@ package com.sprintjudge.domain.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Post-game review data sent to all players after the game ends.
