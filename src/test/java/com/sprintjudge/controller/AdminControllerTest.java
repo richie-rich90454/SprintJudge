@@ -88,13 +88,15 @@ class AdminControllerTest {
     @Test
     void addQuestion() {
         when(questionRepository.save(any())).thenReturn(new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null));
-        Question in = new Question(null, "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        Question in = new Question(null, "q1", "Q", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         assertNotNull(controller.addQuestion("q1", in));
     }
 
     @Test
     void updateQuestion() {
-        Question in = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        Question in = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         when(questionRepository.findById("qid")).thenReturn(Optional.of(in));
         when(questionRepository.save(any())).thenReturn(new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null));
         assertNotNull(controller.updateQuestion("qid", in));
@@ -105,7 +107,8 @@ class AdminControllerTest {
         Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
         when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        Question body = new Question("qid", "evil-quiz", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        Question body = new Question("qid", "evil-quiz", "Q", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         assertEquals("q1", controller.updateQuestion("qid", body).quizId());
     }
 
@@ -348,14 +351,16 @@ class AdminControllerTest {
     @Test
     void addQuestionLowercaseTypeAccepted() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        Question in = new Question(null, "q1", "Q", null, "mcq", null, 30, 10, "{}", 0, null);
+        Question in = new Question(null, "q1", "Q", null, "mcq", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         assertNotNull(controller.addQuestion("q1", in));
     }
 
     @Test
     void addQuestionBindsPathQuizId() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        Question in = new Question(null, "other", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        Question in = new Question(null, "other", "Q", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         assertEquals("q1", controller.addQuestion("q1", in).quizId());
     }
 
@@ -499,6 +504,35 @@ class AdminControllerTest {
         assertEquals(0, controller.importBank(Map.of("json", (Object) "{}")).get("importedQuestions"));
     }
 
+    @Test
+    void importBankTooLargeIs400() {
+        String big = "{\"quizzes\":[]}".concat(" ".repeat(2_000_001));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.importBank(Map.of("json", (Object) big)));
+    }
+
+    @Test
+    void addQuestionBadConfigIs400() {
+        Question in = new Question(null, "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        assertThrows(IllegalArgumentException.class, () -> controller.addQuestion("q1", in));
+    }
+
+    @Test
+    void updateQuestionBadConfigIs400() {
+        Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
+        Question body = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        assertThrows(IllegalArgumentException.class, () -> controller.updateQuestion("qid", body));
+    }
+
+    @Test
+    void addQuestionScriptTitleIs400() {
+        Question in = new Question(null, "q1", "<script>alert(1)</script>", null, "MCQ", null, 30, 10,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
+        assertThrows(IllegalArgumentException.class, () -> controller.addQuestion("q1", in));
+    }
+
     private Quiz mxExisting(String title, String desc) {
         return new Quiz("q1", title, desc, "u1", null, false);
     }
@@ -509,7 +543,22 @@ class AdminControllerTest {
     }
 
     private Question mxQuestion(String type, int timeLimit, int points) {
-        return new Question(null, "q1", "Q", null, type, null, timeLimit, points, "{}", 0, null);
+        return new Question(null, "q1", "Q", null, type, null, timeLimit, points, mxConfig(type), 0, null);
+    }
+
+    private static String mxConfig(String type) {
+        return switch (type) {
+            case "TRUE_FALSE" -> "{\"correct\":true}";
+            case "MULTIPLE_SELECT" -> "{\"options\":[\"a\",\"b\"],\"correctIndices\":[0]}";
+            case "NUMERIC" -> "{\"answer\":1}";
+            case "FILL_BLANK" -> "{\"answer\":\"x\"}";
+            case "DRAG_SORT" -> "{\"correctOrder\":[\"a\",\"b\"]}";
+            case "CLICK_BUG" -> "{\"codeLines\":[\"a\",\"b\"],\"bugLine\":0}";
+            case "CODE_COMPLETION" -> "{\"expected\":\"x\"}";
+            case "OJ_FULL", "OJ_PATCH" ->
+                    "{\"testCases\":[{\"input\":\"i\",\"expectedOutput\":\"o\"}]}";
+            default -> "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}";
+        };
     }
 
     @Test
@@ -744,7 +793,8 @@ class AdminControllerTest {
         Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
         when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        Question body = new Question("qid", "q1", "Q", null, "MCQ", null, 0, 0, "{}", 0, null);
+        Question body = new Question("qid", "q1", "Q", null, "MCQ", null, 0, 0,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         Question got = controller.updateQuestion("qid", body);
         assertEquals(0, got.timeLimitSec());
         assertEquals(0, got.pointsBase());
