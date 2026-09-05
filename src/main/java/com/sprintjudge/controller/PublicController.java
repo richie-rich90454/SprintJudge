@@ -1,6 +1,7 @@
 package com.sprintjudge.controller;
 
 import com.sprintjudge.domain.models.Quiz;
+import com.sprintjudge.repository.GameSessionRepository;
 import com.sprintjudge.repository.QuizRepository;
 import com.sprintjudge.service.executor.CodeExecutor;
 import com.sprintjudge.service.executor.RunRequest;
@@ -30,6 +31,7 @@ public class PublicController {
     private static final Logger log = LoggerFactory.getLogger(PublicController.class);
 
     private final QuizRepository quizRepository;
+    private final GameSessionRepository sessionRepository;
     private final CodeExecutor executor;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
@@ -38,14 +40,25 @@ public class PublicController {
     private static final long WINDOW_MS = 60_000;
     private static final long STALE_MS = 120_000;
 
-    public PublicController(QuizRepository quizRepository, CodeExecutor executor) {
+    public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,
+                              CodeExecutor executor) {
         this.quizRepository = quizRepository;
+        this.sessionRepository = sessionRepository;
         this.executor = executor;
     }
 
+    /**
+     * PIN-scoped quiz preview for the join flow. The full bank is never
+     * listed anonymously — without a live PIN there is nothing to see.
+     */
     @GetMapping("/quizzes")
-    public List<Quiz> listQuizzes() {
-        return quizRepository.findAll();
+    public List<Quiz> listQuizzes(@RequestParam(value = "pin", required = false) String pin) {
+        if (pin == null || pin.isBlank()) return List.of();
+        return sessionRepository.findByPin(pin.trim())
+                .filter(s -> !"ENDED".equals(s.status()))
+                .flatMap(s -> quizRepository.findById(s.quizId()))
+                .map(List::of)
+                .orElse(List.of());
     }
 
     /**
