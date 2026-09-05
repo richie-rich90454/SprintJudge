@@ -89,6 +89,8 @@ class QuestionConfigValidatorTest {
                 cfg("{\"options\":[\"a\",\"b\",\"c\"],\"correctIndices\":[0,2]}")));
         invalid("MULTIPLE_SELECT", cfg("{\"options\":[\"a\",\"b\"],\"correctIndices\":[]}"), "non-empty");
         invalid("MULTIPLE_SELECT", cfg("{\"options\":[\"a\",\"b\"],\"correctIndices\":[7]}"), "out of bounds");
+        invalid("MULTIPLE_SELECT", cfg("{\"options\":[\"a\",\"b\"],\"correctIndices\":[-1]}"), "out of bounds");
+        invalid("MULTIPLE_SELECT", cfg("{\"options\":[\"a\",\"b\"],\"correctIndices\":[\"x\"]}"), "out of bounds");
         invalid("MULTIPLE_SELECT", cfg("{\"options\":[\"a\",\"b\"]}"), "non-empty");
     }
 
@@ -143,6 +145,8 @@ class QuestionConfigValidatorTest {
         invalid(type, cfg("{\"testCases\":[{\"input\":\"1\"}]}"), "expectedOutput");
         invalid(type, cfg("{\"testCases\":[\"x\"]}"), "expectedOutput");
         invalid(type, cfg("{\"testCases\":[{\"input\":\"1\",\"expectedOutput\":\"1\"}],\"memoryLimitMb\":0}"),
+                "memoryLimitMb");
+        invalid(type, cfg("{\"testCases\":[{\"input\":\"1\",\"expectedOutput\":\"1\"}],\"memoryLimitMb\":\"x\"}"),
                 "memoryLimitMb");
     }
 
