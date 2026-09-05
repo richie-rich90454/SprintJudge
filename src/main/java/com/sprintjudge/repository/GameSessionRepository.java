@@ -19,14 +19,19 @@ public class GameSessionRepository {
     }
 
     public GameSession create(String quizId, String hostUserId, String pin, String settingsOverride) {
+        return create(quizId, hostUserId, pin, settingsOverride, "STANDARD");
+    }
+
+    public GameSession create(String quizId, String hostUserId, String pin, String settingsOverride, String gameMode) {
         String id = Ids.uuid();
         long now = Instant.now().getEpochSecond();
+        String mode = gameMode == null || gameMode.isBlank() ? "STANDARD" : gameMode;
         dsl.insertInto(Tables.GAME_SESSIONS)
             .columns(Tables.SESS_ID, Tables.SESS_QUIZ_ID, Tables.SESS_PIN, Tables.SESS_HOST,
-                    Tables.SESS_STATUS, Tables.SESS_INDEX, Tables.SESS_CREATED, Tables.SESS_OVERRIDE)
-            .values(id, quizId, pin, hostUserId, "LOBBY", 0, now, settingsOverride)
+                    Tables.SESS_STATUS, Tables.SESS_MODE, Tables.SESS_INDEX, Tables.SESS_CREATED, Tables.SESS_OVERRIDE)
+            .values(id, quizId, pin, hostUserId, "LOBBY", mode, 0, now, settingsOverride)
             .execute();
-        return new GameSession(id, quizId, pin, hostUserId, "LOBBY", 0, null, null, settingsOverride, Instant.ofEpochSecond(now));
+        return new GameSession(id, quizId, pin, hostUserId, "LOBBY", mode, 0, null, null, settingsOverride, Instant.ofEpochSecond(now));
     }
 
     public Optional<GameSession> findByPin(String pin) {
@@ -59,13 +64,20 @@ public class GameSessionRepository {
             .where(Tables.SESS_ID.eq(id)).execute();
     }
 
+    /** PIN reuse: ENDED rows never come back, so their PINs return to the pool. */
+    public int deleteByPin(String pin) {
+        return dsl.deleteFrom(Tables.GAME_SESSIONS).where(Tables.SESS_PIN.eq(pin)).execute();
+    }
+
     private GameSession toSession(org.jooq.Record r) {
         Long start = RepoUtil.asLongBoxed(r.get(Tables.SESS_STARTED));
         Long end = RepoUtil.asLongBoxed(r.get(Tables.SESS_ENDED));
         Long created = RepoUtil.asLongBoxed(r.get(Tables.SESS_CREATED));
+        String mode = r.get(Tables.SESS_MODE);
         return new GameSession(
                 r.get(Tables.SESS_ID), r.get(Tables.SESS_QUIZ_ID), r.get(Tables.SESS_PIN),
-                r.get(Tables.SESS_HOST), r.get(Tables.SESS_STATUS), r.get(Tables.SESS_INDEX),
+                r.get(Tables.SESS_HOST), r.get(Tables.SESS_STATUS),
+                mode == null || mode.isBlank() ? "STANDARD" : mode, r.get(Tables.SESS_INDEX),
                 start == null ? null : Instant.ofEpochSecond(start),
                 end == null ? null : Instant.ofEpochSecond(end),
                 r.get(Tables.SESS_OVERRIDE),
