@@ -174,7 +174,10 @@ export function ResultView() {
                             <div className="p-6">
                                 <h3 className="font-extrabold text-lg mb-4">Answer Key</h3>
                                 {wsError && (
-                                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-4">
+                                    <p
+                                        role="alert"
+                                        className="text-[var(--oq-danger)] text-sm mb-4"
+                                    >
                                         {wsError}
                                     </p>
                                 )}
@@ -255,7 +258,8 @@ export function ResultView() {
                                                     <div className="mt-3 border-t border-[var(--oq-border)] pt-3 flex flex-col gap-2">
                                                         {(review.players ?? []).map((p, pi) => {
                                                             const a = p.answers.find(
-                                                                (x) => x.questionId === q.questionId,
+                                                                (x) =>
+                                                                    x.questionId === q.questionId,
                                                             );
                                                             if (!a) return null;
                                                             return (
@@ -309,7 +313,10 @@ export function ResultView() {
                                     </Button>
                                 </div>
                                 {wsError && (
-                                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-4">
+                                    <p
+                                        role="alert"
+                                        className="text-[var(--oq-danger)] text-sm mb-4"
+                                    >
                                         {wsError}
                                     </p>
                                 )}
@@ -339,9 +346,7 @@ export function ResultView() {
                                                 <button
                                                     key={p.playerUuid}
                                                     type="button"
-                                                    aria-expanded={
-                                                        selectedStudent === p.playerUuid
-                                                    }
+                                                    aria-expanded={selectedStudent === p.playerUuid}
                                                     className="border border-[var(--oq-border)] rounded-[8px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
                                                     onClick={() =>
                                                         setSelectedStudent(
@@ -400,7 +405,10 @@ export function ResultView() {
                             <div className="p-6">
                                 <h3 className="font-extrabold text-lg mb-4">Class Analysis</h3>
                                 {wsError && (
-                                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-4">
+                                    <p
+                                        role="alert"
+                                        className="text-[var(--oq-danger)] text-sm mb-4"
+                                    >
                                         {wsError}
                                     </p>
                                 )}
