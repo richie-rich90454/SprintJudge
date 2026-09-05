@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     U["Players + Admins"] -->|"HTTPS / WSS"| NX["Nginx<br/>TLS · proxy headers · /ws upgrade"]
-    NX -->|"HTTP :8080"| APP["systemd unit sprintjudge.service<br/>Java 25 · ZGC · virtual threads"]
+    NX -->|"HTTP :$PORT (SPRINTJUDGE_PORT, default 8080)"| APP["systemd unit sprintjudge.service<br/>Java 25 · ZGC · virtual threads"]
     subgraph Host["Linux server - 12 cores · 48 GB RAM"]
         APP
         NJ["nsjail sandboxes<br/>chroot · rlimits · Semaphore(100)"]
@@ -24,7 +24,7 @@ directly (no nsjail on Windows), and the database defaults to a portable relativ
 make prod          # builds target/sprintjudge.jar and starts it with ZGC
 # optional environment:
 #   SPRINTJUDGE_DB_PATH=D:\data\sprintjudge.db
-#   SPRINTJUDGE_PORT=8080
+#   SPRINTJUDGE_PORT=3000
 #   SPRINTJUDGE_EXECUTOR_MODE=native
 ```
 
@@ -54,12 +54,15 @@ sqlite3 /var/lib/sprintjudge/sprintjudge.db "PRAGMA wal_checkpoint(TRUNCATE);"
 
 ## Development (Windows)
 
-- Use the `dev` profile; the executor runs compile scripts inside WSL2 (Ubuntu).
+- Use the `dev` profile; the executor defaults to `native` toolchains, with WSL2
+  Ubuntu opt-in via `SPRINTJUDGE_EXECUTOR_MODE=wsl`.
 - `spring.profiles.active=dev`.
 
 ## Concurrency
 
-Executions are throttled by a `Semaphore(100)` (configurable via `sprintjudge.executor.max-concurrent`).
+Executions are throttled by an auto-sized semaphore (`cores ×
+sprintjudge.executor.concurrency-factor`, floor 8, cap 512; override with
+`sprintjudge.executor.max-concurrent`).
 Stdout is capped at 1MB per test case; processes exceeding it are killed. Source is capped
 at 64KB and attempts at 50 per player per question.
 
