@@ -34,14 +34,10 @@ final class SqlScriptRunner {
      * internal constants only — never user input (identifiers are inlined).
      */
     static void ensureColumn(javax.sql.DataSource dataSource, String table, String column, String columnDdl) {
-        // Nested single-resource blocks: the compiler's close guards keep the
-        // exact shape JaCoCo filters, unlike one multi-resource header.
         try (var conn = dataSource.getConnection()) {
-            try (var probe = conn.prepareStatement("SELECT " + column + " FROM " + table + " LIMIT 0")) {
-                try (var rs = probe.executeQuery()) {
-                    return;
-                }
-            }
+            // ponytail: probe Statement/RS ride on conn.close(); runs once at startup
+            conn.prepareStatement("SELECT " + column + " FROM " + table + " LIMIT 0").executeQuery().next();
+            return;
         } catch (Exception ignored) {
             // Absent (or unreadable): fall through to ALTER.
         }
