@@ -553,6 +553,31 @@ class GameRoomManagerCoverageTest {
     }
 
     @Test
+    void reviewCarriesDisplayOptions() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        Question withOptions = new Question("q1", "qz", "T", "D", "MCQ", null, 30, 100,
+                Json.write(java.util.Map.of("options", List.of("A", "B"), "correctIndex", 1)), 0, Instant.now());
+        Question withLines = new Question("q2", "qz", "T", "D", "DRAG_SORT", null, 30, 100,
+                Json.write(java.util.Map.of("lines",
+                        List.of(java.util.Map.of("id", "l1", "text", "first")))), 1, Instant.now());
+        Question bare = new Question("q3", "qz", "T", "D", "NUMERIC", null, 30, 100, "{}", 2, Instant.now());
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(withOptions, withLines, bare));
+        when(submissionRepository.findBySession("s1")).thenReturn(List.of());
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        mgr.endGame("123456");
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).broadcast(anyCollection(), sent.capture());
+        var review = sent.getAllValues().stream()
+                .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
+                .map(o -> (com.sprintjudge.domain.dto.GameReview) o)
+                .findFirst().orElseThrow();
+        assertEquals(List.of("A", "B"), review.questions().get(0).options());
+        assertEquals(List.of("first"), review.questions().get(1).options());
+        assertEquals(null, review.questions().get(2).options());
+    }
+
+    @Test
     void submitNullUuidWithLiveRoundIsIgnored() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
