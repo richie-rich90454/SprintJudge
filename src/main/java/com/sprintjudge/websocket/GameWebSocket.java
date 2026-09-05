@@ -104,12 +104,22 @@ public class GameWebSocket {
                     }
                 }
                 case "GET_TEAMS" -> {
-                    var teams = roomManager.getTeams(pinOf(session));
+                    String pin = pinOf(session);
+                    if (pin == null) {
+                        send(session, new ErrorMessage("ERROR", "Join a room first"));
+                        break;
+                    }
+                    var teams = roomManager.getTeams(pin);
                     send(session, Map.of("type", "TEAM_LIST", "teams", teams));
                 }
                 case "START_BATTLE" -> asHost(session, () -> roomManager.startBattle(pinOf(session)));
                 case "GET_BRACKET" -> {
-                    var bracket = roomManager.getBracket(pinOf(session));
+                    String pin = pinOf(session);
+                    if (pin == null) {
+                        send(session, new ErrorMessage("ERROR", "Join a room first"));
+                        break;
+                    }
+                    var bracket = roomManager.getBracket(pin);
                     send(session, Map.of("type", "BRACKET", "rounds", bracket));
                 }
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
@@ -132,6 +142,12 @@ public class GameWebSocket {
         String role = msg.path("role").asText("player");
         if (pin.isBlank() || name.isBlank()) {
             send(session, new ErrorMessage("ERROR", "JOIN requires 'pin' and 'name'"));
+            return;
+        }
+        if (!pin.matches("\\d{6}")) {
+            // Reject before Integer.parseInt so JVM number-format internals
+            // never reach unauthenticated clients.
+            send(session, new ErrorMessage("ERROR", "Invalid PIN"));
             return;
         }
         boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
