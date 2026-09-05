@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Bridges Jakarta WebSocket endpoints to the Spring context WITHOUT requiring
@@ -35,11 +36,14 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 
     /**
      * Per-connection staging maps. The handshake writes IP + auth here keyed by a
-     * unique token; onOpen reads and removes them. This avoids the race where two
-     * concurrent handshakes overwrite each other on the shared ServerEndpointConfig.
+     * unique token; onOpen reads and removes them. Entries are timestamped and
+     * opportunistically evicted: a handshake that never reaches onOpen must not
+     * leak memory to unauthenticated clients.
      */
-    private static final ConcurrentHashMap<String, String> stagedIPs = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Boolean> stagedAuth = new ConcurrentHashMap<>();
+    private record Staged(String ip, boolean authed, long nanos) {}
+    private static final ConcurrentHashMap<String, Staged> staged = new ConcurrentHashMap<>();
+    private static final long STAGE_TTL_NANOS = TimeUnit.MINUTES.toNanos(5);
+    private static final int STAGE_MAX = 10_000;
 
     @Autowired
     void holdApplicationContext(ApplicationContext applicationContext) {
@@ -58,15 +62,19 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
     @Override
     public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
         super.modifyHandshake(sec, request, response);
-        String addr = firstHeader(request, "X-Forwarded-For");
+        // Trust the LAST X-Forwarded-For segment: nginx appends the real peer
+        // IP there ($proxy_add_x_forwarded_for), while earlier segments are
+        // client-controlled. Taking the first would let an attacker rotate
+        // identities past the join rate limiter.
+        String addr = lastHeader(request, "X-Forwarded-For");
         if (addr == null) addr = firstHeader(request, "X-Real-IP");
         String remoteAddr = addr == null ? "unresolved" : addr;
         // Stage IP + auth for this connection — onOpen reads-and-removes them.
         // The WS upgrade carries the JSESSIONID cookie, so the HttpSession holds
         // the form-login auth even though /ws itself is permitAll.
         String token = java.util.UUID.randomUUID().toString();
-        stagedIPs.put(token, remoteAddr);
-        stagedAuth.put(token, isAuthenticated(request));
+        if (staged.size() >= STAGE_MAX) evictStale();
+        staged.put(token, new Staged(remoteAddr, isAuthenticated(request), System.nanoTime()));
         sec.getUserProperties().put(REMOTE_ADDR, token);
     }
 
@@ -74,14 +82,14 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 
     /**
      * Called from onOpen to retrieve the staged IP + auth for this connection.
-     * Removes both staging entries (no leak).
+     * Removes the staging entry (no leak).
      */
     public static StagedConnection consumeStaged(ServerEndpointConfig config) {
         Object token = config.getUserProperties().get(REMOTE_ADDR);
         if (token == null) return new StagedConnection("unresolved", false);
-        String ip = stagedIPs.remove(token);
-        boolean authed = Boolean.TRUE.equals(stagedAuth.remove(token));
-        return new StagedConnection(ip != null ? ip : "unresolved", authed);
+        Staged s = staged.remove(token.toString());
+        if (s == null) return new StagedConnection("unresolved", false);
+        return new StagedConnection(s.ip() != null ? s.ip() : "unresolved", s.authed());
     }
 
     /**
@@ -107,6 +115,14 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         } catch (Exception ignored) {
         }
         return false;
+    }
+
+    private String lastHeader(HandshakeRequest request, String name) {
+        List<String> values = request.getHeaders().get(name);
+        if (values == null || values.isEmpty()) return null;
+        String v = values.get(values.size() - 1);
+        int comma = v.lastIndexOf(',');
+        return (comma > -1 ? v.substring(comma + 1) : v).trim();
     }
 
     private String firstHeader(HandshakeRequest request, String name) {
