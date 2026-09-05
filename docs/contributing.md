@@ -36,6 +36,7 @@ mvn -o verify                  # suite + JaCoCo gate (100% lines + branches)
 cd frontend && npx tsc --noEmit && npm run build
 cd frontend && npm run test:unit   # vitest, 700+ tests at 100% coverage
 cd docs && npm run docs:build
+cd docs && npm run docs:check-mermaid  # all 24 diagrams must parse
 ```
 
 Mermaid diagram rules (rendered client-side, must never overflow):
