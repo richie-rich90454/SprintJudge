@@ -23,6 +23,9 @@ flowchart LR
 3. Enter a nickname (alphanumerics, spaces, hyphens, underscores; max 20 chars).
 4. You appear in the host lobby.
 
+The public library at `/explore` lists available quizzes with a live search
+(title + description). It never links anywhere that needs a login.
+
 ## Header buttons
 
 - **Speaker** — toggles all game sounds (8-bit SFX + procedural music). Persisted.
@@ -72,3 +75,10 @@ your score survives. A full page reload loses the token and starts you fresh.
 
 The leaderboard only ever contains players — the host holds a roster seat but is
 never scored and never appears in the rankings.
+
+## Post-game review
+
+The results screen has four tabs: podium, answer key, students, analysis.
+The answer key shows the correct choice in plain words (letter plus option
+text), never raw JSON. Click any question to expand per-player results for
+that question: who got it, the points earned, and the attempts used.
