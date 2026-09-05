@@ -29,6 +29,7 @@ class SubmissionWriteBufferTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void offerAndFlushSavesBatch() {
         SubmissionWriteBuffer b = new SubmissionWriteBuffer(repository, 1_000_000L, 100);
         Submission s = mock(Submission.class);
@@ -36,7 +37,7 @@ class SubmissionWriteBufferTest {
         assertEquals(1, b.depth());
         assertEquals(1, b.offeredTotal());
         assertEquals(1, b.flush());
-        ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass((Class) List.class);
         verify(repository).saveAll(cap.capture());
         assertEquals(1, cap.getValue().size());
         assertEquals(1, b.flushedTotal());
