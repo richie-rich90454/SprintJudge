@@ -18,8 +18,18 @@ import type { MotionPreset } from "../services/MotionService";
 
 let captured = { start: -1, end: -1 };
 
-function WindowProbe(props: { total: number; rowHeight: number; overscan?: number; viewportH?: number }) {
-    const { ref, start, end } = useVirtualWindow(props.total, props.rowHeight, props.overscan, props.viewportH);
+function WindowProbe(props: {
+    total: number;
+    rowHeight: number;
+    overscan?: number;
+    viewportH?: number;
+}) {
+    const { ref, start, end } = useVirtualWindow(
+        props.total,
+        props.rowHeight,
+        props.overscan,
+        props.viewportH,
+    );
     captured = { start, end };
     return React.createElement("div", { ref });
 }
@@ -85,26 +95,34 @@ afterEach(() => {
 
 describe("useVirtualWindow", () => {
     test("small lists show every row", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 5, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 5, rowHeight: 20 }),
+        );
         expect(captured).toEqual({ start: 0, end: 5 });
         cleanup(host, root);
     });
 
     test("large lists clip to the viewport window", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         expect(captured).toEqual({ start: 0, end: 35 });
         cleanup(host, root);
     });
 
     test("scrolling advances the window", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         scrollInner(host, 400);
         expect(captured).toEqual({ start: 14, end: 49 });
         cleanup(host, root);
     });
 
     test("scroll near the top clamps the start at zero", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         scrollInner(host, 10);
         expect(captured.start).toBe(0);
         cleanup(host, root);
@@ -112,7 +130,12 @@ describe("useVirtualWindow", () => {
 
     test("custom overscan and viewport shrink the window", () => {
         const { host, root } = render(
-            React.createElement(WindowProbe, { total: 100, rowHeight: 20, overscan: 2, viewportH: 100 }),
+            React.createElement(WindowProbe, {
+                total: 100,
+                rowHeight: 20,
+                overscan: 2,
+                viewportH: 100,
+            }),
         );
         expect(captured).toEqual({ start: 0, end: 9 });
         scrollInner(host, 200);
@@ -121,14 +144,18 @@ describe("useVirtualWindow", () => {
     });
 
     test("end clamps at the total near the bottom", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 40, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 40, rowHeight: 20 }),
+        );
         scrollInner(host, 10000);
         expect(captured.end).toBe(40);
         cleanup(host, root);
     });
 
     test("unmount detaches the scroll listener", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         const inner = host.firstChild as HTMLDivElement;
         cleanup(host, root);
         expect(() => inner.dispatchEvent(new Event("scroll", { bubbles: true }))).not.toThrow();
@@ -141,7 +168,9 @@ describe("useVirtualWindow", () => {
     });
 
     test("row height change resubscribes with a new window", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         act(() => {
             root.render(React.createElement(WindowProbe, { total: 100, rowHeight: 10 }));
         });
@@ -152,7 +181,9 @@ describe("useVirtualWindow", () => {
 
 describe("useEnter", () => {
     test("enters with the element and preset on mount", () => {
-        const { host, root } = render(React.createElement(EnterProbe, { preset: "card", deps: [] }));
+        const { host, root } = render(
+            React.createElement(EnterProbe, { preset: "card", deps: [] }),
+        );
         expect(motionMock.enter).toHaveBeenCalledTimes(1);
         const [el, preset] = motionMock.enter.mock.calls[0] as unknown[];
         expect(el).toBe(host.firstChild);
@@ -161,14 +192,18 @@ describe("useEnter", () => {
     });
 
     test("kills the tween on unmount", () => {
-        const { host, root } = render(React.createElement(EnterProbe, { preset: "modal", deps: [] }));
+        const { host, root } = render(
+            React.createElement(EnterProbe, { preset: "modal", deps: [] }),
+        );
         const el = host.firstChild;
         cleanup(host, root);
         expect(motionMock.killFor).toHaveBeenCalledWith(el);
     });
 
     test("re-runs when deps change", () => {
-        const { host, root } = render(React.createElement(EnterProbe, { preset: "page", deps: ["a"] }));
+        const { host, root } = render(
+            React.createElement(EnterProbe, { preset: "page", deps: ["a"] }),
+        );
         act(() => {
             root.render(React.createElement(EnterProbe, { preset: "page", deps: ["b"] }));
         });
@@ -185,7 +220,9 @@ describe("useEnter", () => {
 
 describe("useStaggerIn", () => {
     test("staggers with selector and custom offset", () => {
-        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".item", deps: [], offset: 0.1 }));
+        const { host, root } = render(
+            React.createElement(StaggerProbe, { selector: ".item", deps: [], offset: 0.1 }),
+        );
         expect(motionMock.staggerIn).toHaveBeenCalledWith(host.firstChild, ".item", 0.1);
         cleanup(host, root);
     });
@@ -197,7 +234,9 @@ describe("useStaggerIn", () => {
     });
 
     test("kills the tweens on unmount", () => {
-        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".item", deps: [] }));
+        const { host, root } = render(
+            React.createElement(StaggerProbe, { selector: ".item", deps: [] }),
+        );
         cleanup(host, root);
         expect(motionMock.killFor).toHaveBeenCalled();
     });
@@ -205,21 +244,30 @@ describe("useStaggerIn", () => {
 
 describe("useVirtualWindow edges", () => {
     test("zero total renders an empty window", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 0, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 0, rowHeight: 20 }),
+        );
         expect(captured).toEqual({ start: 0, end: 0 });
         cleanup(host, root);
     });
 
     test("zero overscan narrows the window to the bare viewport", () => {
         const { host, root } = render(
-            React.createElement(WindowProbe, { total: 100, rowHeight: 20, overscan: 0, viewportH: 460 }),
+            React.createElement(WindowProbe, {
+                total: 100,
+                rowHeight: 20,
+                overscan: 0,
+                viewportH: 460,
+            }),
         );
         expect(captured).toEqual({ start: 0, end: 23 });
         cleanup(host, root);
     });
 
     test("scroll down then back up returns the start to zero", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         scrollInner(host, 400);
         expect(captured.start).toBe(14);
         scrollInner(host, 0);
@@ -228,7 +276,9 @@ describe("useVirtualWindow edges", () => {
     });
 
     test("three scroll stops walk the window forward", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 200, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 200, rowHeight: 20 }),
+        );
         const starts: number[] = [];
         for (const top of [200, 600, 1200]) {
             scrollInner(host, top);
@@ -239,7 +289,9 @@ describe("useVirtualWindow edges", () => {
     });
 
     test("shrinking the total clamps the end mid-life", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20 }),
+        );
         act(() => {
             root.render(React.createElement(WindowProbe, { total: 10, rowHeight: 20 }));
         });
@@ -249,14 +301,21 @@ describe("useVirtualWindow edges", () => {
 
     test("zero viewport height shows only the overscan rows", () => {
         const { host, root } = render(
-            React.createElement(WindowProbe, { total: 100, rowHeight: 20, overscan: 6, viewportH: 0 }),
+            React.createElement(WindowProbe, {
+                total: 100,
+                rowHeight: 20,
+                overscan: 6,
+                viewportH: 0,
+            }),
         );
         expect(captured).toEqual({ start: 0, end: 12 });
         cleanup(host, root);
     });
 
     test("scrolling past the bottom clamps the end at the total", () => {
-        const { host, root } = render(React.createElement(WindowProbe, { total: 30, rowHeight: 20 }));
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 30, rowHeight: 20 }),
+        );
         scrollInner(host, 50_000);
         expect(captured.end).toBe(30);
         expect(captured.start).toBeGreaterThanOrEqual(0);
@@ -287,7 +346,9 @@ describe("useMotion edges", () => {
     });
 
     test("identical deps across rerenders run the entrance once", () => {
-        const { host, root } = render(React.createElement(EnterProbe, { preset: "card", deps: ["x"] }));
+        const { host, root } = render(
+            React.createElement(EnterProbe, { preset: "card", deps: ["x"] }),
+        );
         act(() => {
             root.render(React.createElement(EnterProbe, { preset: "card", deps: ["x"] }));
         });
@@ -296,13 +357,17 @@ describe("useMotion edges", () => {
     });
 
     test("zero offset passes straight through to staggerIn", () => {
-        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".item", deps: [], offset: 0 }));
+        const { host, root } = render(
+            React.createElement(StaggerProbe, { selector: ".item", deps: [], offset: 0 }),
+        );
         expect(motionMock.staggerIn).toHaveBeenCalledWith(host.firstChild, ".item", 0);
         cleanup(host, root);
     });
 
     test("deps change re-runs the stagger and kills the old tweens", () => {
-        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".a", deps: ["a"] }));
+        const { host, root } = render(
+            React.createElement(StaggerProbe, { selector: ".a", deps: ["a"] }),
+        );
         act(() => {
             root.render(React.createElement(StaggerProbe, { selector: ".a", deps: ["b"] }));
         });
