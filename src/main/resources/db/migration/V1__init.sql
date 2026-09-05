@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS game_sessions (
     pin_code             TEXT UNIQUE,
     host_user_id         TEXT REFERENCES users(id),
     status               TEXT CHECK(status IN ('LOBBY','ACTIVE','REVIEW','ENDED')),
+    game_mode            TEXT DEFAULT 'STANDARD',
     current_question_index INTEGER DEFAULT 0,
     started_at          INTEGER,
     ended_at            INTEGER,
