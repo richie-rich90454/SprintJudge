@@ -28,4 +28,23 @@ class GameStatusTest {
     void fromThrowsOnUnknownValue() {
         assertThrows(IllegalArgumentException.class, () -> GameStatus.from("NOPE"));
     }
+
+    @Test
+    void fromNullIsRequired() {
+        assertThrows(IllegalArgumentException.class, () -> GameStatus.from(null));
+    }
+
+    @Test
+    void fromBlankIsRequired() {
+        assertThrows(IllegalArgumentException.class, () -> GameStatus.from(""));
+        assertThrows(IllegalArgumentException.class, () -> GameStatus.from("   "));
+    }
+
+    @Test
+    void everyValueRoundTrips() {
+        for (GameStatus s : GameStatus.values()) {
+            assertSame(s, GameStatus.from(s.name()));
+            assertSame(s, GameStatus.from(s.name().toLowerCase()));
+        }
+    }
 }
