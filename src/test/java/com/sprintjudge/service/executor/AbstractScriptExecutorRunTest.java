@@ -1047,4 +1047,26 @@ class AbstractScriptExecutorRunTest {
         assertEquals(1, r.passed());
         assertEquals("", r.cases().get(0).error());
     }
+
+    @Test
+    void mxJudgeMissingOutputFileIsStdoutExceeded(@TempDir Path tmp) {
+        StubExecutor ex = executor(tmp, tmp);
+        try (var mocked = org.mockito.Mockito.mockStatic(com.sprintjudge.util.ExecIo.class)) {
+            mocked.when(() -> com.sprintjudge.util.ExecIo.awaitBounded(
+                    org.mockito.ArgumentMatchers.any(Process.class),
+                    org.mockito.ArgumentMatchers.any(Path.class),
+                    org.mockito.ArgumentMatchers.anyLong()))
+                    .thenReturn(com.sprintjudge.util.ExecIo.WaitOutcome.FINISHED);
+            mocked.when(() -> com.sprintjudge.util.ExecIo.readCappedFile(
+                    org.mockito.ArgumentMatchers.any(Path.class))).thenReturn(null);
+            mocked.when(() -> com.sprintjudge.util.ExecIo.killAndReap(
+                    org.mockito.ArgumentMatchers.any(Process.class))).thenCallRealMethod();
+            mocked.when(() -> com.sprintjudge.util.ExecIo.deleteTree(
+                    org.mockito.ArgumentMatchers.any(Path.class))).thenCallRealMethod();
+            var r = ex.judge(judgeReq("node", "ignored",
+                    List.of(new TestCase("9", "9", false)), 10));
+            assertEquals(0, r.passed());
+            assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        }
+    }
 }
