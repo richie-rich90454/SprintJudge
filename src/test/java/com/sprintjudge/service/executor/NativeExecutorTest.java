@@ -105,6 +105,18 @@ class NativeExecutorTest {
     private static final String ECHO_PY = "import sys; print(sys.stdin.read().strip())";
 
     @Test
+    void judgeCppBrokenSourceFailsGracefully(@TempDir Path tmp) throws IOException {
+        // Toolchain-free: with g++ present this is a compilation_error, without
+        // it an IO failure — either way zero passes and the cpp arm is covered.
+        NativeExecutor ex = executor(tmp, Files.createTempDirectory("cache"), 5);
+        JudgeResult r = ex.judge(judgeReq("cpp", "int main( { broken",
+                List.of(tc("", "")), 10));
+        assertEquals(1, r.total());
+        assertEquals(0, r.passed());
+        assertFalse(r.allPassed());
+    }
+
+    @Test
     void supportsCanonicalAndAliases() throws IOException {
         NativeExecutor ex = executor(Path.of("wd"), Files.createTempDirectory("cache"), 5);
         assertTrue(ex.supports("c"));
