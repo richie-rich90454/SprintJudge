@@ -1,7 +1,10 @@
 package com.sprintjudge.config;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sqlite.SQLiteDataSource;
+
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,9 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SqlScriptRunnerTest {
 
+    @TempDir
+    Path tmp;
+
     private SQLiteDataSource ds() {
         SQLiteDataSource ds = new SQLiteDataSource();
-        ds.setUrl("jdbc:sqlite::memory:");
+        ds.setUrl("jdbc:sqlite:" + tmp.resolve("t.db"));
         return ds;
     }
 
