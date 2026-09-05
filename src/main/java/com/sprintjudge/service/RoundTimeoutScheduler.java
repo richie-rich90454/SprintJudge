@@ -28,14 +28,18 @@ public class RoundTimeoutScheduler {
     private final Map<Integer, ScheduledFuture<?>> tasks = new ConcurrentHashMap<>();
 
     /** Arms the timer for {@code pinKey}; any previous task for that room is replaced. */
-    public void schedule(int pinKey, long endEpochMs, Runnable fire) {
-        cancel(pinKey);
+    public synchronized void schedule(int pinKey, long endEpochMs, Runnable fire) {
+        cancelLocked(pinKey);
         long delay = Math.max(0, endEpochMs - System.currentTimeMillis());
         // Small grace so a client auto-submit landing right at zero still scores.
         tasks.put(pinKey, executor.schedule(fire::run, delay + 500, TimeUnit.MILLISECONDS));
     }
 
-    public void cancel(int pinKey) {
+    public synchronized void cancel(int pinKey) {
+        cancelLocked(pinKey);
+    }
+
+    private void cancelLocked(int pinKey) {
         ScheduledFuture<?> f = tasks.remove(pinKey);
         if (f != null) f.cancel(false);
     }
