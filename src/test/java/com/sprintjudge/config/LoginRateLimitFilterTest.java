@@ -66,6 +66,17 @@ class LoginRateLimitFilterTest {
     }
 
     @Test
+    void staleWindowResetsCount() throws Exception {
+        LoginRateLimitFilter f = new LoginRateLimitFilter();
+        f.windows.put("6.6.6.6", new long[]{0L, LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN});
+        FilterChain chain = mock(FilterChain.class);
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        f.doFilterInternal(login("6.6.6.6"), res, chain);
+        assertEquals(200, res.getStatus());
+        verify(chain).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void overflowClearsTracking() throws Exception {
         LoginRateLimitFilter f = new LoginRateLimitFilter();
         for (int i = 0; i < 10_001; i++) f.windows.put("10.0.0." + i, new long[]{0, 1});
