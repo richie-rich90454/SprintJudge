@@ -8,7 +8,6 @@ import { useGameStore } from "../stores/useGameStore";
 import { motionReduced } from "../stores/useUIStore";
 import { motion } from "../services/MotionService";
 import { Confetti } from "../components/Confetti";
-import { ThemeToggle } from "../components/ThemeToggle";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { GameReview } from "../types";
@@ -52,7 +51,6 @@ export function ResultView() {
                 <div className="flex justify-end gap-1 mb-2">
                     <SoundToggle />
                     <MotionToggle />
-                    <ThemeToggle />
                 </div>
                 <div className="text-center mb-8">
                     <p className="label-caps mb-2">Game complete</p>
