@@ -13,9 +13,9 @@ export function SoloView() {
                         Drill at your own pace
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Solo runs on a PRACTICE-mode room PIN: untimed, with instant
-                        feedback after every answer and automatic advance to the next
-                        question. No host, no waiting.
+                        Solo runs on a PRACTICE-mode room PIN: untimed, with instant feedback after
+                        every answer and automatic advance to the next question. No host, no
+                        waiting.
                     </p>
                 </div>
                 <Card className="p-6">
