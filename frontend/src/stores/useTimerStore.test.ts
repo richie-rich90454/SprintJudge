@@ -73,7 +73,11 @@ describe("useTimerStore overwrite chains", () => {
         pushTimer("q1", 30, 1000);
         pushTimer("q2", 45, 2000);
         pushTimer("q3", 60, 3000);
-        expect(useTimerStore.getState()).toEqual({ questionId: "q3", totalSec: 60, endEpochMs: 3000 });
+        expect(useTimerStore.getState()).toEqual({
+            questionId: "q3",
+            totalSec: 60,
+            endEpochMs: 3000,
+        });
     });
 
     test("push clear push clear push ends on the last push", () => {
@@ -83,7 +87,11 @@ describe("useTimerStore overwrite chains", () => {
         clearTimer();
         expect(useTimerStore.getState().questionId).toBeNull();
         pushTimer("q3", 35, 3000);
-        expect(useTimerStore.getState()).toEqual({ questionId: "q3", totalSec: 35, endEpochMs: 3000 });
+        expect(useTimerStore.getState()).toEqual({
+            questionId: "q3",
+            totalSec: 35,
+            endEpochMs: 3000,
+        });
     });
 
     test("repeated clears preserve the running total", () => {
@@ -116,7 +124,11 @@ describe("useTimerStore overwrite chains", () => {
     test("same question re-push updates the epoch", () => {
         pushTimer("q1", 30, 1000);
         pushTimer("q1", 40, 2000);
-        expect(useTimerStore.getState()).toEqual({ questionId: "q1", totalSec: 40, endEpochMs: 2000 });
+        expect(useTimerStore.getState()).toEqual({
+            questionId: "q1",
+            totalSec: 40,
+            endEpochMs: 2000,
+        });
     });
 
     test("subscribe notifies on push and clear in order then stops", () => {
@@ -140,7 +152,11 @@ describe("useTimerStore overwrite chains", () => {
 
     test("ten rapid pushes keep the last write", () => {
         for (let i = 0; i < 10; i++) pushTimer(`q${i}`, i * 5, i * 1000);
-        expect(useTimerStore.getState()).toEqual({ questionId: "q9", totalSec: 45, endEpochMs: 9000 });
+        expect(useTimerStore.getState()).toEqual({
+            questionId: "q9",
+            totalSec: 45,
+            endEpochMs: 9000,
+        });
     });
 
     test("clear on fresh then push then clear is a safe cycle", () => {
@@ -148,6 +164,10 @@ describe("useTimerStore overwrite chains", () => {
         pushTimer("solo", 15, 1500);
         expect(useTimerStore.getState().questionId).toBe("solo");
         clearTimer();
-        expect(useTimerStore.getState()).toEqual({ questionId: null, totalSec: 15, endEpochMs: null });
+        expect(useTimerStore.getState()).toEqual({
+            questionId: null,
+            totalSec: 15,
+            endEpochMs: null,
+        });
     });
 });
