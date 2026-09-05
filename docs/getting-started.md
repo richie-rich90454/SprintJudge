@@ -37,8 +37,19 @@ flowchart TD
 mvn spring-boot:run
 ```
 
-Profiles: `dev` (default; `native` or `wsl` executor) and `prod` (`nsjail`). Configure the
-executor and database in `src/main/resources/application.yml`.
+Profiles: `dev` (default; `native` executor) and `prod` (`nsjail` on Linux).
+Configure the executor and database in `src/main/resources/application.yml`.
+
+## Port map
+
+| Surface | Default | Override |
+|---------|---------|----------|
+| Backend dev (`mvn spring-boot:run`) | :8080 | application.yml |
+| Frontend dev (`npm run dev`) | :5173 | vite.config.ts |
+| Fat jar prod | :8080 | SPRINTJUDGE_PORT (repo .env ships 3000) |
+| Prod verifier | :8091 | make verify-prod PORT=... |
+
+The Vite dev server proxies `/api` and `/ws` to `http://localhost:8080`.
 
 ## Run the frontend
 
@@ -48,7 +59,30 @@ npm install
 npm run dev
 ```
 
-The Vite dev server proxies `/api` and `/ws` to `http://localhost:8080`.
+```mermaid
+flowchart LR
+    B["Browser :5173"] --> V["Vite dev server"]
+    V -->|"/api, /ws"| J["Backend :8080"]
+    V -->|all other| S["SPA bundle"]
+```
+
+## Environment variables (all optional)
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| SPRINTJUDGE_PORT | 8080 | Prod jar listen port |
+| SPRINTJUDGE_DB_PATH | next to jar / ./sprintjudge.db | SQLite file (forward slashes) |
+| SPRINTJUDGE_EXECUTOR_MODE | native dev, nsjail prod | native, wsl, or nsjail |
+| SPRINTJUDGE_CORS_ALLOWED_ORIGINS | http://localhost:5173 | Extra browser origins |
+| SPRINTJUDGE_ADMIN_USERNAME | admin | Form-login username |
+| SPRINTJUDGE_ADMIN_PASSWORD | changeme | Form-login password (change it) |
+| SPRINTJUDGE_COOKIE_SECURE | false | true behind TLS nginx |
+| SPRINTJUDGE_AI_ENABLED | false | AI feedback on failed cases |
+| SPRINTJUDGE_AI_PROVIDER | openai | openai or llamacpp |
+| SPRINTJUDGE_AI_ENDPOINT | — | e.g. http://localhost:11434/v1 |
+| SPRINTJUDGE_AI_MODEL | gpt-3.5-turbo | Model name |
+| SPRINTJUDGE_AI_API_KEY | — | Empty for local llama.cpp |
+| SPRINTJUDGE_AI_TIMEOUT_SEC | 30 | AI call budget |
 
 ## Quick start (GNU Make)
 
