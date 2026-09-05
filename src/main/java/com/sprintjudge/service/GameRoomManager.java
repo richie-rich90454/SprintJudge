@@ -109,9 +109,14 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String pin;
         do {
             pin = Ids.pin();
+            // ENDED rows never come back: reclaim the PIN instead of letting
+            // 900k dead rows exhaust the space.
+            sessionRepository.findByPin(pin).ifPresent(s -> {
+                if ("ENDED".equals(s.status())) sessionRepository.deleteByPin(pin);
+            });
         } while (registry.get(Integer.parseInt(pin)) != null
                 || sessionRepository.findByPin(pin).isPresent());
-        GameSession session = sessionRepository.create(quizId, hostUserId, pin, null);
+        GameSession session = sessionRepository.create(quizId, hostUserId, pin, null, gameMode.name());
         registry.put(Integer.parseInt(pin), new GameRoom(session.id(), quizId, pin, "LOBBY", maxPlayers, gameMode));
         eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.GameCreated(pin, quizId, gameMode.name()));
         return session;
@@ -126,7 +131,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             GameSession s = sessionRepository.findByPin(pin).orElse(null);
             if (s == null) throw new IllegalArgumentException("Invalid PIN");
             if ("ENDED".equals(s.status())) throw new IllegalStateException("This game has ended");
-            room = registry.computeIfAbsent(key, p -> new GameRoom(s.id(), s.quizId(), pin, s.status(), maxPlayers));
+            room = registry.computeIfAbsent(key, p -> new GameRoom(s.id(), s.quizId(), pin, s.status(),
+                    maxPlayers, GameRoom.GameMode.valueOf(s.gameMode())));
         }
         String safeName = NameSanitizer.sanitize(name);
         if (safeName.isEmpty()) safeName = "Player";
