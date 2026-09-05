@@ -161,4 +161,176 @@ class GameSessionRepositoryTest {
         assertTrue(repo.findByPin("888886").isPresent());
         assertEquals("ACTIVE", repo.findByPin("888886").orElseThrow().status());
     }
+
+    @Test
+    void mxSetCurrentIndexZero() {
+        GameSession s = repo.create("quiz1", "host1", "900001", null);
+        repo.setCurrentIndex(s.id(), 7);
+        repo.setCurrentIndex(s.id(), 0);
+        assertEquals(0, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+    }
+
+    @Test
+    void mxSetCurrentIndexNegative() {
+        GameSession s = repo.create("quiz1", "host1", "900002", null);
+        repo.setCurrentIndex(s.id(), -3);
+        assertEquals(-3, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+    }
+
+    @Test
+    void mxSetCurrentIndexLarge() {
+        GameSession s = repo.create("quiz1", "host1", "900003", null);
+        repo.setCurrentIndex(s.id(), Integer.MAX_VALUE);
+        assertEquals(Integer.MAX_VALUE, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+    }
+
+    @Test
+    void mxUpdateStatusSameActiveTwiceKeepsStarted() {
+        GameSession s = repo.create("quiz1", "host1", "900004", null);
+        repo.updateStatus(s.id(), "ACTIVE");
+        repo.updateStatus(s.id(), "ACTIVE");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("ACTIVE", got.status());
+        assertNotNull(got.startedAt());
+    }
+
+    @Test
+    void mxUpdateStatusMissingIdIsNoop() {
+        repo.updateStatus("ghost", "ACTIVE");
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void mxSetOverrideMissingIdIsNoop() {
+        repo.setOverride("ghost", "x");
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void mxSetCurrentIndexMissingIdIsNoop() {
+        repo.setCurrentIndex("ghost", 9);
+        assertTrue(repo.findById("ghost").isEmpty());
+    }
+
+    @Test
+    void mxSetOverrideEmptyStringRoundTrips() {
+        GameSession s = repo.create("quiz1", "host1", "900005", null);
+        repo.setOverride(s.id(), "");
+        assertEquals("", repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxSetOverrideUnicodeRoundTrips() {
+        GameSession s = repo.create("quiz1", "host1", "900006", null);
+        repo.setOverride(s.id(), "{\"t\":\"h\u00e9llo \u4e2d\u6587\"}");
+        assertEquals("{\"t\":\"h\u00e9llo \u4e2d\u6587\"}",
+                repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxSetOverrideLongJsonRoundTrips() {
+        GameSession s = repo.create("quiz1", "host1", "900007", null);
+        String big = "{\"pads\":[" + "\"x\",".repeat(2000) + "\"y\"]}";
+        repo.setOverride(s.id(), big);
+        assertEquals(big, repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxBulk20AllPinsFindable() {
+        for (int i = 0; i < 20; i++) repo.create("quiz1", "h", String.format("91%04d", i), null);
+        assertEquals(20, countSessions());
+        assertTrue(repo.findByPin("910000").isPresent());
+        assertTrue(repo.findByPin("910019").isPresent());
+        assertTrue(repo.findByPin("919999").isEmpty());
+    }
+
+    private int countSessions() {
+        int n = 0;
+        for (int i = 0; i < 20; i++) if (repo.findByPin(String.format("91%04d", i)).isPresent()) n++;
+        return n;
+    }
+
+    @Test
+    void mxFindByPinMissingAmongMany() {
+        repo.create("quiz1", "host1", "900008", "{}");
+        repo.create("quiz1", "host1", "900009", "{}");
+        assertTrue(repo.findByPin("900000").isEmpty());
+    }
+
+    @Test
+    void mxStatusActiveThenLobbyKeepsStarted() {
+        GameSession s = repo.create("quiz1", "host1", "900010", null);
+        repo.updateStatus(s.id(), "ACTIVE");
+        repo.updateStatus(s.id(), "LOBBY");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("LOBBY", got.status());
+        assertNotNull(got.startedAt());
+    }
+
+    @Test
+    void mxCreateOverrideJsonRoundTrips() {
+        GameSession s = repo.create("quiz1", "host1", "900011", "{\"timer\":30}");
+        assertEquals("{\"timer\":30}", repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxCreateReturnsDistinctIds() {
+        GameSession a = repo.create("quiz1", "host1", "900012", null);
+        GameSession b = repo.create("quiz1", "host1", "900013", null);
+        assertTrue(!a.id().equals(b.id()));
+        assertTrue(repo.findById(a.id()).isPresent());
+        assertTrue(repo.findById(b.id()).isPresent());
+    }
+
+    @Test
+    void mxFindByIdAfterStatusChange() {
+        GameSession s = repo.create("quiz1", "host1", "900014", null);
+        repo.updateStatus(s.id(), "ENDED");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("ENDED", got.status());
+        assertNotNull(got.endedAt());
+    }
+
+    @Test
+    void mxEndedWithoutActiveLeavesStartedNull() {
+        GameSession s = repo.create("quiz1", "host1", "900015", null);
+        repo.updateStatus(s.id(), "ENDED");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("ENDED", got.status());
+        assertNotNull(got.endedAt());
+        assertNull(got.startedAt());
+    }
+
+    @Test
+    void mxUpdateStatusEndedTwiceKeepsEnded() {
+        GameSession s = repo.create("quiz1", "host1", "900016", null);
+        repo.updateStatus(s.id(), "ENDED");
+        repo.updateStatus(s.id(), "ENDED");
+        assertEquals("ENDED", repo.findById(s.id()).orElseThrow().status());
+    }
+
+    @Test
+    void mxSetOverrideTwiceKeepsLast() {
+        GameSession s = repo.create("quiz1", "host1", "900017", null);
+        repo.setOverride(s.id(), "first");
+        repo.setOverride(s.id(), "second");
+        assertEquals("second", repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void mxFindByPinIsExactMatch() {
+        repo.create("quiz1", "host1", "900018", null);
+        assertTrue(repo.findByPin("900018 ").isEmpty());
+        assertTrue(repo.findByPin("90001").isEmpty());
+        assertTrue(repo.findByPin("900018").isPresent());
+    }
+
+    @Test
+    void mxCreatePreservesHostAndQuiz() {
+        GameSession s = repo.create("quiz-abc", "host-xyz", "900019", null);
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("quiz-abc", got.quizId());
+        assertEquals("host-xyz", got.hostUserId());
+        assertEquals("900019", got.pinCode());
+    }
 }
