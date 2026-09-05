@@ -23,8 +23,11 @@ public class WslExecutor extends AbstractScriptExecutor {
 
     @Override
     protected List<String> commandFor(String language, Path sourceFile, Path inputFile, Path runDir) {
+        // Absolutize like every other path: a relative scripts dir resolves
+        // against the WSL-side CWD otherwise, hiding the compile scripts.
+        Path script = scriptPath(language).toAbsolutePath();
         return Arrays.asList("wsl", "-d", wslDistro, "bash",
-                toWsl(scriptPath(language).toString()),
+                toWsl(script.toString()),
                 toWsl(sourceFile.toString()),
                 toWsl(inputFile.toString()),
                 toWsl(runDir.toString()));
