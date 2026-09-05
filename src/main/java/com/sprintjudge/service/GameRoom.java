@@ -119,7 +119,7 @@ public class GameRoom {
         board.remove(uuid);
     }
 
-    public Player reclaim(String token, String sessionId) {
+    public synchronized Player reclaim(String token, String sessionId) {
         if (token == null) return null;
         for (Player p : players.values()) {
             if (!p.connected() && token.equals(p.token())) {
