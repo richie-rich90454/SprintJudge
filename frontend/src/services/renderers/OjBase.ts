@@ -34,6 +34,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
     private fit: FitAddon | null = null;
     private destroyed = false;
     private rafId = 0;
+    private onResize: (() => void) | null = null;
 
     /** Requested default before allowlist resolution (subclass sets pre-mount). */
     protected requestedDefault = "python";
@@ -56,6 +57,9 @@ export abstract class OjBase extends BaseQuestionRenderer {
             select.value = this.language;
             select.addEventListener("change", () => {
                 this.language = select.value;
+                const monacoLang =
+                    LANGUAGES.find((l) => l.id === this.language)?.monaco ?? "plaintext";
+                this.editor?.setLanguage(monacoLang);
                 this.emitResponse();
             });
             this.container.append(select);
@@ -79,6 +83,9 @@ export abstract class OjBase extends BaseQuestionRenderer {
         this.editorHost = el("div", {
             class: "rounded-lg overflow-hidden border border-border flex-1 min-h-0",
         });
+        // Explicit floor: inside auto-height scroll parents flex-1 collapses
+        // to zero and Monaco would mount invisible.
+        this.editorHost.style.minHeight = "260px";
         this.container.append(this.editorHost);
 
         const monacoLang = LANGUAGES.find((l) => l.id === this.language)?.monaco ?? "plaintext";
@@ -148,11 +155,23 @@ export abstract class OjBase extends BaseQuestionRenderer {
             this.rafId = 0;
             this.fit?.fit();
         });
+        this.onResize = () => this.fit?.fit();
+        window.addEventListener("resize", this.onResize);
 
         let stdin = "";
         this.terminal.onData((d) => {
-            stdin += d;
-            this.terminal?.write(d);
+            if (d === "\x7f") {
+                // Backspace: erase from the buffer too, not just the screen.
+                if (stdin.length > 0) {
+                    stdin = stdin.slice(0, -1);
+                    this.terminal?.write("\b \b");
+                }
+                return;
+            }
+            if (d.startsWith("\x1b")) return; // arrows/keys: screen only
+            const clean = d.replace(/\r\n?/g, "\n");
+            stdin += clean;
+            this.terminal?.write(clean.replace(/\n/g, "\r\n"));
         });
 
         runBtn.addEventListener("click", async () => {
@@ -191,13 +210,13 @@ export abstract class OjBase extends BaseQuestionRenderer {
                         `\r\n\x1b[31m[${data.status}] program exited non-zero\x1b[0m\r\n`,
                     );
                 }
-                this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
             } catch (e) {
                 stdin = "";
                 this.terminal?.write(
                     "\r\n\x1b[31m[error] runner unavailable - check that g++/gcc/python/node is installed\x1b[0m\r\n",
                 );
             } finally {
+                this.terminal?.write("\r\n\x1b[90m$ \x1b[0m");
                 runBtn.removeAttribute("disabled");
                 this.fit?.fit();
             }
@@ -213,6 +232,10 @@ export abstract class OjBase extends BaseQuestionRenderer {
         if (this.rafId) {
             cancelAnimationFrame(this.rafId);
             this.rafId = 0;
+        }
+        if (this.onResize) {
+            window.removeEventListener("resize", this.onResize);
+            this.onResize = null;
         }
         this.editor?.destroy();
         this.editor = null;
