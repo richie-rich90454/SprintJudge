@@ -1056,7 +1056,12 @@ class AbstractScriptExecutorRunTest {
                     org.mockito.ArgumentMatchers.any(Process.class),
                     org.mockito.ArgumentMatchers.any(Path.class),
                     org.mockito.ArgumentMatchers.anyLong()))
-                    .thenReturn(com.sprintjudge.util.ExecIo.WaitOutcome.FINISHED);
+                    .thenAnswer(inv -> {
+                        // Reap the real child so Windows releases the output
+                        // file before cleanup; the read below is still mocked.
+                        ((Process) inv.getArgument(0)).waitFor(30, java.util.concurrent.TimeUnit.SECONDS);
+                        return com.sprintjudge.util.ExecIo.WaitOutcome.FINISHED;
+                    });
             mocked.when(() -> com.sprintjudge.util.ExecIo.readCappedFile(
                     org.mockito.ArgumentMatchers.any(Path.class))).thenReturn(null);
             mocked.when(() -> com.sprintjudge.util.ExecIo.killAndReap(
