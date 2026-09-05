@@ -102,6 +102,7 @@ class ExecIoTest {
         Path file = dir.resolve("locked.txt");
         Files.writeString(file, "x");
         try (FileOutputStream os = new FileOutputStream(file.toFile())) {
+            assertNotNull(os);
             ExecIo.deleteTree(dir); // deleteIfExists throws -> inner catch covered
         }
         ExecIo.deleteTree(dir); // cleanup after the handle is released
