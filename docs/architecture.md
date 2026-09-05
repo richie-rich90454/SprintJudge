@@ -54,13 +54,13 @@ A session walks a strict lifecycle. The host drives transitions; players never c
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LOBBY: host creates game (6-digit PIN)
+    [*] --> LOBBY: host creates game
     LOBBY --> ACTIVE: NEXT_QUESTION
-    ACTIVE --> REVIEW: timer hits zero or FORCE_SUBMIT
-    REVIEW --> ACTIVE: NEXT_QUESTION (more questions)
-    REVIEW --> ENDED: NEXT_QUESTION (last question) or END_GAME
+    ACTIVE --> REVIEW: timer zero or FORCE_SUBMIT
+    REVIEW --> ACTIVE: NEXT_QUESTION
+    REVIEW --> ENDED: last question or END_GAME
     ENDED --> [*]
-    note right of ACTIVE: coding submissions stay queued<br/>on the auto-sized semaphore; force-submit<br/>never preempts them
+    note right of ACTIVE: judge queue drains<br/>in the background
 ```
 
 ## Submission pipeline (Online Judge)
