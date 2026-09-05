@@ -73,7 +73,13 @@ function room(players: Array<{ uuid: string; name: string }>, extra: Msg = {}): 
 }
 
 function qstart(id: string, tl = 30, at = 10_000, extra: Msg = {}): void {
-    msg({ type: "QUESTION_START", question: q(id), timeLimitSec: tl, startedAtEpochMs: at, ...extra });
+    msg({
+        type: "QUESTION_START",
+        question: q(id),
+        timeLimitSec: tl,
+        startedAtEpochMs: at,
+        ...extra,
+    });
 }
 
 function delta(seq: number, entries: unknown[], resync = false): void {
@@ -112,7 +118,10 @@ describe("GameFlows standard full-game arcs", () => {
         qstart("q2");
         gameStateManager.submit("q2", { selectedIndex: 0 });
         msg({ type: "SUBMISSION_RESULT", questionId: "q2", score: 40, allPassed: false });
-        msg({ type: "ROUND_RESULT", submission: { questionId: "q2", allPassed: false, score: 40 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "q2", allPassed: false, score: 40 },
+        });
         expect(gameStateManager.state.status).toBe("REVIEW");
         msg({
             type: "GAME_REVIEW",
@@ -146,8 +155,16 @@ describe("GameFlows standard full-game arcs", () => {
         for (let i = 1; i <= 3; i++) {
             qstart(`q${i}`);
             gameStateManager.submit(`q${i}`, { selectedIndex: i % 4 });
-            msg({ type: "SUBMISSION_RESULT", questionId: `q${i}`, score: i * 10, allPassed: i !== 2 });
-            msg({ type: "ROUND_RESULT", submission: { questionId: `q${i}`, allPassed: i !== 2, score: i * 10 } });
+            msg({
+                type: "SUBMISSION_RESULT",
+                questionId: `q${i}`,
+                score: i * 10,
+                allPassed: i !== 2,
+            });
+            msg({
+                type: "ROUND_RESULT",
+                submission: { questionId: `q${i}`, allPassed: i !== 2, score: i * 10 },
+            });
             expect(gameStateManager.state.status).toBe("REVIEW");
             delta(i - 1, [entry("u1", 1, i * 10)]);
         }
@@ -165,7 +182,10 @@ describe("GameFlows standard full-game arcs", () => {
         expect(useTimerStore.getState().totalSec).toBe(0);
         gameStateManager.submit("qp", { selectedIndex: 1 });
         msg({ type: "SUBMISSION_RESULT", questionId: "qp", score: 100, allPassed: true });
-        msg({ type: "ROUND_RESULT", submission: { questionId: "qp", allPassed: true, score: 100 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "qp", allPassed: true, score: 100 },
+        });
         expect(gameStateManager.state.status).toBe("REVIEW");
         expect(useTimerStore.getState().questionId).toBeNull();
     });
@@ -176,9 +196,20 @@ describe("GameFlows standard full-game arcs", () => {
         room([{ uuid: "u1", name: "Ex" }], { gameMode: "EXAM" });
         qstart("qe1", 60);
         gameStateManager.submit("qe1", { text: "answer one" });
-        msg({ type: "SUBMISSION_RESULT", questionId: "qe1", score: 70, allPassed: false, passed: 7, totalTests: 10, aiFeedback: "partial" });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "qe1",
+            score: 70,
+            allPassed: false,
+            passed: 7,
+            totalTests: 10,
+            aiFeedback: "partial",
+        });
         expect(gameStateManager.state.lastResult?.submission.aiFeedback).toBe("partial");
-        msg({ type: "ROUND_RESULT", submission: { questionId: "qe1", allPassed: false, score: 70 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "qe1", allPassed: false, score: 70 },
+        });
         qstart("qe2", 60);
         expect(gameStateManager.state.currentQuestion?.id).toBe("qe2");
         gameStateManager.submit("qe2", { text: "answer two" });
@@ -228,7 +259,10 @@ describe("GameFlows standard full-game arcs", () => {
         joined();
         room([{ uuid: "u1", name: "Ap" }], { gameMode: "AUTO_PILOT" });
         qstart("qa1", 10);
-        msg({ type: "ROUND_RESULT", submission: { questionId: "qa1", allPassed: false, score: 0 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "qa1", allPassed: false, score: 0 },
+        });
         expect(gameStateManager.state.status).toBe("REVIEW");
         qstart("qa2", 10);
         expect(gameStateManager.state.status).toBe("ACTIVE");
@@ -252,7 +286,14 @@ describe("GameFlows standard full-game arcs", () => {
             response: { source: "print(2)", language: "python" },
             language: "python",
         });
-        msg({ type: "SUBMISSION_RESULT", questionId: "qc", score: 100, allPassed: true, passed: 5, totalTests: 5 });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "qc",
+            score: 100,
+            allPassed: true,
+            passed: 5,
+            totalTests: 5,
+        });
         expect(gameStateManager.state.lastResult?.submission.passed).toBe(5);
     });
 
@@ -350,7 +391,12 @@ describe("GameFlows double-join resets", () => {
         expect(gameStateManager.state.role).toBe("host");
         gameStateManager.join("2222", "Hosty");
         expect(gameStateManager.state.role).toBe("player");
-        expect(fakeWs.send).toHaveBeenLastCalledWith({ type: "JOIN", role: "player", name: "Hosty", pin: "2222" });
+        expect(fakeWs.send).toHaveBeenLastCalledWith({
+            type: "JOIN",
+            role: "player",
+            name: "Hosty",
+            pin: "2222",
+        });
     });
 });
 
@@ -459,7 +505,13 @@ describe("GameFlows disconnect and reconnect arcs", () => {
         fakeWs.emitStatus("open");
         const joins = fakeWs.send.mock.calls.filter((c) => (c[0] as Msg).type === "JOIN");
         expect(joins).toHaveLength(2);
-        expect(joins[0][0]).toEqual({ type: "JOIN", role: "player", name: "Rep", pin: "3434", rejoinToken: "tok-r" });
+        expect(joins[0][0]).toEqual({
+            type: "JOIN",
+            role: "player",
+            name: "Rep",
+            pin: "3434",
+            rejoinToken: "tok-r",
+        });
     });
 
     test("failed status after drop surfaces the refresh error without wiping the board", () => {
@@ -467,7 +519,9 @@ describe("GameFlows disconnect and reconnect arcs", () => {
         joined("u-f", "tok-f");
         delta(0, [entry("u-f", 1, 12)]);
         fakeWs.emitStatus("failed");
-        expect(gameStateManager.state.error).toBe("Connection failed after 10 retries — refresh to rejoin");
+        expect(gameStateManager.state.error).toBe(
+            "Connection failed after 10 retries — refresh to rejoin",
+        );
         expect(gameStateManager.state.leaderboard.map((e) => e.uuid)).toEqual(["u-f"]);
         gameStateManager.join("5656", "Unlucky");
         expect(gameStateManager.state.error).toBeNull();
@@ -599,7 +653,9 @@ describe("GameFlows error storms", () => {
         expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
         msg({ type: "ERROR", message: "storm" });
         gameStateManager.requestLeaderboardResync();
-        const resyncs = fakeWs.send.mock.calls.filter((c) => (c[0] as Msg).type === "RESYNC_LEADERBOARD");
+        const resyncs = fakeWs.send.mock.calls.filter(
+            (c) => (c[0] as Msg).type === "RESYNC_LEADERBOARD",
+        );
         expect(resyncs.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -633,7 +689,11 @@ describe("GameFlows timer extend chains", () => {
         msg({ type: "TIMER_UPDATE", extendSec: 30, newEndEpochMs: 61_000 });
         expect(useTimerStore.getState().totalSec).toBe(60);
         qstart("q2", 20, 100_000);
-        expect(useTimerStore.getState()).toMatchObject({ questionId: "q2", totalSec: 20, endEpochMs: 120_000 });
+        expect(useTimerStore.getState()).toMatchObject({
+            questionId: "q2",
+            totalSec: 20,
+            endEpochMs: 120_000,
+        });
         msg({ type: "TIMER_UPDATE", extendSec: 5, newEndEpochMs: 125_000 });
         expect(useTimerStore.getState().totalSec).toBe(25);
     });
@@ -656,7 +716,14 @@ describe("GameFlows timer extend chains", () => {
 describe("GameFlows malformed messages", () => {
     test("bare type-only messages never crash", () => {
         const before = gameStateManager.state.status;
-        for (const t of ["QUESTION_START", "ROOM_STATE", "TIMER_UPDATE", "ERROR", "SUBMISSION_RESULT", "ROUND_RESULT"] as const) {
+        for (const t of [
+            "QUESTION_START",
+            "ROOM_STATE",
+            "TIMER_UPDATE",
+            "ERROR",
+            "SUBMISSION_RESULT",
+            "ROUND_RESULT",
+        ] as const) {
             expect(() => msg({ type: t })).not.toThrow();
         }
         expect(gameStateManager.state.currentQuestion).toBeNull();
@@ -668,7 +735,12 @@ describe("GameFlows malformed messages", () => {
         expect(() => {
             msg({ type: "JOINED", uuid: "u9", rejoinToken: 123, room: null });
             msg({ type: "ROOM_STATE", players: null, gameMode: null, status: "ACTIVE" });
-            msg({ type: "QUESTION_START", question: null, timeLimitSec: "lots", startedAtEpochMs: "now" });
+            msg({
+                type: "QUESTION_START",
+                question: null,
+                timeLimitSec: "lots",
+                startedAtEpochMs: "now",
+            });
             msg({ type: "TIMER_UPDATE", extendSec: null, newEndEpochMs: null });
             msg({ type: "ERROR", message: null });
             msg({ type: "SUBMISSION_RESULT" });
@@ -682,7 +754,15 @@ describe("GameFlows malformed messages", () => {
         expect(gameStateManager.state.status).toBe("ENDED");
         gameStateManager.join("0000", "Tester");
         joined();
-        expect(() => msg({ type: "GAME_REVIEW", rankings: null, questions: null, players: null, classStats: null })).not.toThrow();
+        expect(() =>
+            msg({
+                type: "GAME_REVIEW",
+                rankings: null,
+                questions: null,
+                players: null,
+                classStats: null,
+            }),
+        ).not.toThrow();
         expect(gameStateManager.state.status).toBe("ENDED");
         expect(gameStateManager.state.leaderboard).toEqual([]);
     });
@@ -696,14 +776,29 @@ describe("GameFlows malformed messages", () => {
             gameStateManager.extendTimer(0);
             gameStateManager.kickPlayer("");
         }).not.toThrow();
-        expect(fakeWs.send).toHaveBeenCalledWith({ type: "SUBMIT", questionId: "q1", response: null, language: undefined });
+        expect(fakeWs.send).toHaveBeenCalledWith({
+            type: "SUBMIT",
+            questionId: "q1",
+            response: null,
+            language: undefined,
+        });
     });
 
     test("deeply nested unknown fields are ignored safely", () => {
         const before = gameStateManager.state;
         expect(() => {
-            msg({ type: "ROOM_STATE", status: "LOBBY", players: [{ uuid: "a" }], nested: { deep: [1, { two: true }] } });
-            msg({ type: "LEADERBOARD_DELTA", seq: 0, resync: true, entries: [{ uuid: "a", name: "A", score: "many", rank: "first" }] });
+            msg({
+                type: "ROOM_STATE",
+                status: "LOBBY",
+                players: [{ uuid: "a" }],
+                nested: { deep: [1, { two: true }] },
+            });
+            msg({
+                type: "LEADERBOARD_DELTA",
+                seq: 0,
+                resync: true,
+                entries: [{ uuid: "a", name: "A", score: "many", rank: "first" }],
+            });
             msg({ type: "QUESTION_START", question: { id: "qx" }, extra: [[["x"]]] });
         }).not.toThrow();
         expect(gameStateManager.state.room?.status).toBe("LOBBY");
@@ -762,13 +857,38 @@ describe("GameFlows mixed sagas", () => {
 
     test("submission results accumulate before the round result lands", () => {
         qstart("qm");
-        msg({ type: "SUBMISSION_RESULT", questionId: "qm", score: 10, allPassed: false, passed: 1, totalTests: 5 });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "qm",
+            score: 10,
+            allPassed: false,
+            passed: 1,
+            totalTests: 5,
+        });
         expect(gameStateManager.state.lastResult?.submission.score).toBe(10);
-        msg({ type: "SUBMISSION_RESULT", questionId: "qm", score: 60, allPassed: false, passed: 3, totalTests: 5 });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "qm",
+            score: 60,
+            allPassed: false,
+            passed: 3,
+            totalTests: 5,
+        });
         expect(gameStateManager.state.lastResult?.submission.score).toBe(60);
-        msg({ type: "SUBMISSION_RESULT", questionId: "qm", score: 100, allPassed: true, passed: 5, totalTests: 5, aiFeedback: "nice" });
+        msg({
+            type: "SUBMISSION_RESULT",
+            questionId: "qm",
+            score: 100,
+            allPassed: true,
+            passed: 5,
+            totalTests: 5,
+            aiFeedback: "nice",
+        });
         expect(gameStateManager.state.lastResult?.submission.aiFeedback).toBe("nice");
-        msg({ type: "ROUND_RESULT", submission: { questionId: "qm", allPassed: true, score: 100 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "qm", allPassed: true, score: 100 },
+        });
         expect(gameStateManager.state.status).toBe("REVIEW");
     });
 
@@ -776,9 +896,16 @@ describe("GameFlows mixed sagas", () => {
         qstart("q-old", 30, 1_000);
         qstart("q-new", 45, 50_000);
         expect(gameStateManager.state.currentQuestion?.id).toBe("q-new");
-        expect(useTimerStore.getState()).toMatchObject({ questionId: "q-new", totalSec: 45, endEpochMs: 95_000 });
+        expect(useTimerStore.getState()).toMatchObject({
+            questionId: "q-new",
+            totalSec: 45,
+            endEpochMs: 95_000,
+        });
         gameStateManager.submit("q-new", { selectedIndex: 3 });
-        msg({ type: "ROUND_RESULT", submission: { questionId: "q-new", allPassed: true, score: 20 } });
+        msg({
+            type: "ROUND_RESULT",
+            submission: { questionId: "q-new", allPassed: true, score: 20 },
+        });
         expect(gameStateManager.state.status).toBe("REVIEW");
     });
 
@@ -805,7 +932,13 @@ describe("GameFlows mixed sagas", () => {
 
     test("game review then a brand-new game leaves no review residue", () => {
         fullArc("1111", "Ada", "q1");
-        msg({ type: "GAME_REVIEW", rankings: [entry("u1", 1, 90)], questions: [], players: [], classStats: {} });
+        msg({
+            type: "GAME_REVIEW",
+            rankings: [entry("u1", 1, 90)],
+            questions: [],
+            players: [],
+            classStats: {},
+        });
         expect(gameStateManager.state.review).not.toBeNull();
         gameStateManager.join("2222", "Ada");
         joined("u-fresh");
