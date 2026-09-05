@@ -107,4 +107,58 @@ class GameSessionRepositoryTest {
         assertNull(s.endedAt());
         assertNull(s.createdAt());
     }
+
+    @Test
+    void updateStatusLobbySetsNoTimestamps() {
+        GameSession s = repo.create("quiz1", "host1", "888881", "{}");
+        repo.updateStatus(s.id(), "LOBBY");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("LOBBY", got.status());
+        assertNull(got.startedAt());
+        assertNull(got.endedAt());
+    }
+
+    @Test
+    void updateStatusReviewSetsNoTimestamps() {
+        GameSession s = repo.create("quiz1", "host1", "888882", "{}");
+        repo.updateStatus(s.id(), "REVIEW");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("REVIEW", got.status());
+        assertNull(got.startedAt());
+        assertNull(got.endedAt());
+    }
+
+    @Test
+    void activeThenEndedKeepsStarted() {
+        GameSession s = repo.create("quiz1", "host1", "888883", "{}");
+        repo.updateStatus(s.id(), "ACTIVE");
+        repo.updateStatus(s.id(), "ENDED");
+        GameSession got = repo.findById(s.id()).orElseThrow();
+        assertEquals("ENDED", got.status());
+        assertNotNull(got.startedAt());
+        assertNotNull(got.endedAt());
+    }
+
+    @Test
+    void setCurrentIndexTwice() {
+        GameSession s = repo.create("quiz1", "host1", "888884", "{}");
+        repo.setCurrentIndex(s.id(), 1);
+        repo.setCurrentIndex(s.id(), 5);
+        assertEquals(5, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+    }
+
+    @Test
+    void setOverrideNull() {
+        GameSession s = repo.create("quiz1", "host1", "888885", "{}");
+        repo.setOverride(s.id(), null);
+        assertNull(repo.findById(s.id()).orElseThrow().settingsOverride());
+    }
+
+    @Test
+    void findByPinAfterStatusChange() {
+        GameSession s = repo.create("quiz1", "host1", "888886", null);
+        repo.updateStatus(s.id(), "ACTIVE");
+        assertTrue(repo.findByPin("888886").isPresent());
+        assertEquals("ACTIVE", repo.findByPin("888886").orElseThrow().status());
+    }
 }
