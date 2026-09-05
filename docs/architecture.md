@@ -9,7 +9,7 @@ React 19 single-page frontend. Everything runs on a single portable SQLite datab
 flowchart TB
     subgraph Clients["Browsers"]
         P["Player SPA<br/>React 19 + RxJS services"]
-        H["Host / Admin SPA<br/>OAuth2 (Entra ID)"]
+        H["Host / Admin SPA<br/>form-login session"]
     end
 
     subgraph Edge["Nginx - TLS termination"]
@@ -60,7 +60,7 @@ stateDiagram-v2
     REVIEW --> ACTIVE: NEXT_QUESTION (more questions)
     REVIEW --> ENDED: NEXT_QUESTION (last question) or END_GAME
     ENDED --> [*]
-    note right of ACTIVE: coding submissions stay queued<br/>on Semaphore(100); force-submit<br/>never preempts them
+    note right of ACTIVE: coding submissions stay queued<br/>on the auto-sized semaphore; force-submit<br/>never preempts them
 ```
 
 ## Submission pipeline (Online Judge)
@@ -70,7 +70,7 @@ flowchart LR
     A["SUBMIT over WebSocket"] --> B{"Schema check<br/>language whitelist<br/>64KB source cap"}
     B -->|"rejected"| E1["ERROR to sender"]
     B -->|"accepted"| C["Enqueue on<br/>virtual-thread executor"]
-    C --> D{"Semaphore(100)<br/>slot available?"}
+    C --> D{"Auto-sized semaphore<br/>slot available?"}
     D -->|"wait in queue"| D
     D -->|"acquired"| F["Write source to temp dir"]
     F --> G{"Compiled language?"}
@@ -121,6 +121,9 @@ flowchart LR
 - `RankedSkipList` — Redis zskiplist spans; rank/select are exact, ties by join order.
 - `DeltaLedger` — merges pending changes per player; clients resync on any seq gap.
 - `LiveLeaderboard` — binds identity map + index + ledger behind one facade.
+  The host holds a roster seat only and never enters the scored board.
+- `ExecutorSizingConfig` — judge concurrency is `cores × factor` (floor 8, cap 512),
+  overridable via `sprintjudge.executor.max-concurrent`.
 - `RoomRegistry` — int-keyed open-addressing map for thousands of rooms.
 - `CompileArtifactCache` — SHA-256 keyed binaries for identical C/C++ resubmits.
 - `/api/admin/metrics` — heap/GC/threads, judge latency percentiles, cache ratio.
