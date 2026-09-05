@@ -94,9 +94,11 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                         .redirectOutput(outputFile.toFile());
                 proc = pb.start();
 
-                if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
-                    proc.destroyForcibly();
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
+                ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+                if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                    ExecIo.killAndReap(proc);
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "",
+                            outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout"));
                     continue;
                 }
                 // Edge case X: cap captured stdout at 1MB.
@@ -111,7 +113,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             }
             return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
         } catch (IOException | InterruptedException e) {
-            if (proc != null) proc.destroyForcibly();
+            if (proc != null) ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Judge execution failed for language {}", language, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
@@ -164,23 +166,30 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
 
             int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
             List<String> cmd = commandFor(language, sourceFile, inputFile, runDir);
+            Path outputFile = runDir.resolve("stdout.txt").toAbsolutePath();
             ProcessBuilder pb = new ProcessBuilder(cmd)
                     .directory(runDir.toFile())
-                    .redirectErrorStream(true);
+                    .redirectErrorStream(true)
+                    .redirectInput(inputFile.toFile())
+                    // File redirect (not a pipe): verbose console runs must
+                    // not deadlock the wait the way the old pipe read did.
+                    .redirectOutput(outputFile.toFile());
             proc = pb.start();
 
-            if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
-                proc.destroyForcibly();
-                return new RunResult(false, "", "", "timeout");
+            ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+            if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                ExecIo.killAndReap(proc);
+                return new RunResult(false, "", "",
+                        outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout");
             }
-            String output = ExecIo.readCapped(proc);
+            String output = ExecIo.readCappedFile(outputFile);
             if (output == null) {
                 return new RunResult(false, "", "", "stdout_exceeded_1MB");
             }
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
-            if (proc != null) proc.destroyForcibly();
+            if (proc != null) ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");
