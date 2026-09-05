@@ -110,6 +110,7 @@ export interface QuestionReview {
     correctCount: number;
     correctRate: number;
     avgAttempts: number;
+    options: string[] | null;
 }
 
 export interface PlayerReview {
