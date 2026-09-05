@@ -153,12 +153,26 @@ describe("QuestionRendererFactory", () => {
     });
 
     test("created MCQ renderer answers with its default response", () => {
-        const r = QuestionRendererFactory.create("MCQ", document.createElement("div"), { options: ["a"] }, () => {}, "q1", ["python"]);
+        const r = QuestionRendererFactory.create(
+            "MCQ",
+            document.createElement("div"),
+            { options: ["a"] },
+            () => {},
+            "q1",
+            ["python"],
+        );
         expect(r.getResponse()).toEqual({ selectedIndex: -1 });
     });
 
     test("created OJ renderer answers with empty source", () => {
-        const r = QuestionRendererFactory.create("OJ_FULL", document.createElement("div"), {}, () => {}, "q2", null);
+        const r = QuestionRendererFactory.create(
+            "OJ_FULL",
+            document.createElement("div"),
+            {},
+            () => {},
+            "q2",
+            null,
+        );
         expect(r.getResponse()).toEqual({ source: "", language: "python" });
     });
 
@@ -207,7 +221,9 @@ describe("QuestionRendererFactory edges", () => {
 
     test("null and undefined types throw", () => {
         expect(() => make(null as unknown as QuestionType)).toThrow("No renderer for type null");
-        expect(() => make(undefined as unknown as QuestionType)).toThrow("No renderer for type undefined");
+        expect(() => make(undefined as unknown as QuestionType)).toThrow(
+            "No renderer for type undefined",
+        );
     });
 
     test("created TRUE_FALSE renderer mounts and answers through destroy", () => {
@@ -245,7 +261,14 @@ describe("QuestionRendererFactory edges", () => {
             destroy: () => {},
         });
         const div = document.createElement("div");
-        const r = QuestionRendererFactory.create("OJ_FULL", div, { starter: "s" }, () => {}, "factory-q", ["java"]);
+        const r = QuestionRendererFactory.create(
+            "OJ_FULL",
+            div,
+            { starter: "s" },
+            () => {},
+            "factory-q",
+            ["java"],
+        );
         r.mount();
         expect(div.querySelector("select")).toBeNull();
         expect(r.getResponse()).toEqual({ source: "s", language: "java" });
