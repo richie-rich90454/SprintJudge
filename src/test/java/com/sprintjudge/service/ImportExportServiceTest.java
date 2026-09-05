@@ -208,7 +208,8 @@ class ImportExportServiceTest {
         rp.qr().create(new Quiz("q1", "Keep", "d", "a", Instant.now(), false));
         rp.qnr().save(new Question("qu1", "q1", "Q", "d", "MCQ", null, 30, 100, null, 0, Instant.now()));
         ExportBundle.QuestionExport ex = new ExportBundle.QuestionExport(
-                "qu1", "MCQ", "Changed", "d", 30, 100, Map.of(), null);
+                "qu1", "MCQ", "Changed", "d", 30, 100,
+                Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport(
                 "q2", "Add", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
