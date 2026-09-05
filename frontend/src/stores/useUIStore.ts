@@ -4,10 +4,10 @@ const THEME_KEY = "oq-theme";
 const SOUND_KEY = "oq-sound";
 const MOTION_KEY = "oq-motion";
 
-const THEME_COLORS = { light: "#fff0e4", dark: "#170c04" } as const;
+const THEME_COLORS = { light: "#fff0e4" } as const;
 
 /** Syncs the theme-color meta with the active theme (no token disagreement). */
-function syncThemeColor(t: "light" | "dark"): void {
+function syncThemeColor(_t: "light" | "dark"): void {
     try {
         let meta = document.querySelector('meta[name="theme-color"]');
         if (!meta) {
@@ -15,28 +15,22 @@ function syncThemeColor(t: "light" | "dark"): void {
             meta.setAttribute("name", "theme-color");
             document.head.appendChild(meta);
         }
-        meta.setAttribute("content", THEME_COLORS[t]);
+        meta.setAttribute("content", THEME_COLORS.light);
     } catch {
         /* ignore */
     }
 }
 
-/** Reads the persisted theme; dark is the single default (matches index.html). */
+/** Reads the persisted theme; light-only lockdown — always light. */
 function readTheme(): "light" | "dark" {
-    try {
-        const t = localStorage.getItem(THEME_KEY);
-        if (t === "light" || t === "dark") return t;
-    } catch {
-        /* ignore */
-    }
-    return "dark";
+    return "light";
 }
 
 /** Applies the persisted theme to <html> (called once at boot). */
 export function applyStoredTheme(): void {
-    const t = readTheme();
-    document.documentElement.classList.toggle("dark", t === "dark");
-    syncThemeColor(t);
+    // ponytail: dark deleted on purpose — force light, drop .dark class if present.
+    document.documentElement.classList.remove("dark");
+    syncThemeColor("light");
 }
 
 /** Live-syncs the theme-color meta with OS changes until the user picks manually. */
@@ -97,17 +91,17 @@ export const useUIStore = create<UIState>((set, get) => ({
     sound: readSound(),
     motion: readMotion(),
     pin: null,
-    setTheme: (theme) => {
-        document.documentElement.classList.toggle("dark", theme === "dark");
-        syncThemeColor(theme);
+    setTheme: (_theme) => {
+        document.documentElement.classList.remove("dark");
+        syncThemeColor("light");
         try {
-            localStorage.setItem(THEME_KEY, theme);
+            localStorage.setItem(THEME_KEY, "light");
         } catch {
             /* ignore */
         }
-        set({ theme });
+        set({ theme: "light" });
     },
-    toggleTheme: () => get().setTheme(get().theme === "dark" ? "light" : "dark"),
+    toggleTheme: () => get().setTheme("light"),
     setSound: (sound) => {
         try {
             localStorage.setItem(SOUND_KEY, sound);
