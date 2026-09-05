@@ -56,6 +56,8 @@ export class GameStateManager {
                     rejoinToken: this.state.rejoinToken,
                 });
                 this.requestLeaderboardResync();
+            } else if (status === "failed") {
+                this.patch({ error: "Connection failed after 10 retries — refresh to rejoin" });
             }
         });
     }
@@ -75,7 +77,24 @@ export class GameStateManager {
     }
 
     join(pin: string, name: string, role: "player" | "host" = "player") {
-        this.patch({ role, pin, playerName: name, error: null });
+        // New game, clean slate: stale leaderboard/review/results from a
+        // previous game must never leak into this one (replay guard).
+        this.lastSeq = null;
+        this.resyncInFlight = false;
+        this.patch({
+            role,
+            pin,
+            playerName: name,
+            error: null,
+            status: "LOBBY",
+            playerUuid: null,
+            rejoinToken: null,
+            room: null,
+            currentQuestion: null,
+            leaderboard: [],
+            lastResult: null,
+            review: null,
+        });
         webSocketService.send({ type: "JOIN", role, name, pin });
     }
 
@@ -108,6 +127,18 @@ export class GameStateManager {
         this.state$.next({ ...this.state$.value, ...p });
     }
 
+    /** A new game invalidates every cached code draft from the previous one. */
+    private clearStaleDrafts() {
+        try {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key?.startsWith("sprintjudge_code_")) localStorage.removeItem(key);
+            }
+        } catch {
+            /* ignore */
+        }
+    }
+
     private dispatch(m: WsMessage) {
         switch (m.type) {
             case "JOINED":
@@ -117,9 +148,14 @@ export class GameStateManager {
                     room: m.room as unknown as RoomState,
                     status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
                     error: null,
+                    currentQuestion: null,
+                    leaderboard: [],
+                    lastResult: null,
+                    review: null,
                 });
                 // Baseline for the delta protocol; server answers with a full batch.
                 this.requestLeaderboardResync();
+                this.clearStaleDrafts();
                 break;
             case "ROOM_STATE": {
                 const room = m as unknown as RoomState;
@@ -150,10 +186,6 @@ export class GameStateManager {
             case "LEADERBOARD_DELTA":
                 this.applyDelta(m as unknown as LeaderboardDelta);
                 break;
-            case "LEADERBOARD":
-                this.lastSeq = null;
-                this.patch({ leaderboard: m.rankings as LeaderboardEntry[] });
-                break;
             case "ROUND_RESULT":
                 this.patch({
                     status: "REVIEW",
@@ -183,22 +215,33 @@ export class GameStateManager {
                     status: "ENDED",
                     leaderboard: m.rankings as LeaderboardEntry[],
                     currentQuestion: null,
+                    rejoinToken: null,
                 });
                 clearTimer();
                 break;
-            case "GAME_REVIEW":
+            case "GAME_REVIEW": {
+                const review = m as unknown as GameReview;
                 this.patch({
                     status: "ENDED",
-                    review: m as unknown as GameReview,
+                    review,
+                    // The podium reads the leaderboard store: seed it from the
+                    // review when no GAME_END preceded it.
+                    leaderboard: review.rankings ?? [],
                     currentQuestion: null,
+                    rejoinToken: null,
                 });
                 clearTimer();
                 break;
+            }
             case "TIMER_UPDATE":
                 if (this.state.currentQuestion) {
+                    // Accumulate onto the live total: each update carries only
+                    // its own extension, and QUESTION_START resets the base.
+                    const total =
+                        useTimerStore.getState().totalSec + Number(m.extendSec ?? 0);
                     pushTimer(
                         this.state.currentQuestion.id,
-                        this.state.currentQuestion.timeLimitSec,
+                        total,
                         m.newEndEpochMs as number,
                     );
                 }
@@ -217,8 +260,7 @@ export class GameStateManager {
     }
 
     /** Strict seq application with automatic resync on gap — never approximate. */
-    private applyDelta(delta: LeaderboardDelta) {
-        if (this.lastSeq !== null && delta.seq <= this.lastSeq) return; // duplicate/old
+    private applyDelta(delta: LeaderboardDelta) {        if (this.lastSeq !== null && delta.seq <= this.lastSeq) return; // duplicate/old
         if (this.lastSeq !== null && delta.seq > this.lastSeq + 1) {
             this.requestLeaderboardResync(); // gap
             return;
@@ -239,6 +281,6 @@ export class GameStateManager {
 }
 
 // Local import to avoid a cycle with the timer store module graph.
-import { pushTimer, clearTimer } from "../stores/useTimerStore";
+import { pushTimer, clearTimer, useTimerStore } from "../stores/useTimerStore";
 
 export const gameStateManager = GameStateManager.instance;
