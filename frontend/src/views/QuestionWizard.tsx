@@ -315,6 +315,8 @@ export function QuestionWizard() {
         setSaving(true);
         try {
             await saveQuestion();
+        } catch {
+            setValidationError("Save failed - are you still logged in?");
         } finally {
             setSaving(false);
         }
@@ -430,7 +432,16 @@ export function QuestionWizard() {
                             <div>
                                 <Card>
                                     <div className="p-6">
+                                        {/* Key on content: the host only remounts on
+                                            type/id, so statement/config edits need
+                                            an explicit remount signal. */}
                                         <QuestionRendererHost
+                                            key={JSON.stringify([
+                                                previewQuestion.type,
+                                                previewQuestion.title,
+                                                previewQuestion.description,
+                                                previewQuestion.config,
+                                            ])}
                                             question={previewQuestion}
                                             onResponse={() => {}}
                                         />
