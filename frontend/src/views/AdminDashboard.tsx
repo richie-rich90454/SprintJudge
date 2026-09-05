@@ -32,6 +32,7 @@ function SettingsTab() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -52,11 +53,14 @@ function SettingsTab() {
 
     const handleSave = async () => {
         setSaving(true);
+        setSaveError(null);
         try {
             await adminApi.updateSettings(settings);
             setSaved(true);
             if (savedTimer.current) clearTimeout(savedTimer.current);
             savedTimer.current = setTimeout(() => setSaved(false), 2000);
+        } catch {
+            setSaveError("Save failed - are you still logged in?");
         } finally {
             setSaving(false);
         }
@@ -106,6 +110,11 @@ function SettingsTab() {
                         {saved && (
                             <span className="text-sm text-[var(--oq-success)] self-center">
                                 Saved!
+                            </span>
+                        )}
+                        {saveError && (
+                            <span role="alert" className="text-sm text-[var(--oq-danger)] self-center">
+                                {saveError}
                             </span>
                         )}
                     </div>
@@ -270,6 +279,10 @@ export function AdminDashboard() {
                             type="file"
                             accept="application/json"
                             className="hidden"
+                            // Reset so picking the same file twice still fires.
+                            onClick={(e) => {
+                                (e.target as HTMLInputElement).value = "";
+                            }}
                             onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])}
                         />
                     </label>
