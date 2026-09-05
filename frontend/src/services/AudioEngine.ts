@@ -78,9 +78,13 @@ class AudioEngine {
     }
 
     async resume() {
-        if (!this.started) this.init();
-        await Tone.getTransport().start();
-        await Tone.start();
+        try {
+            if (!this.started) this.init();
+            await Tone.getTransport().start();
+            await Tone.start();
+        } catch {
+            /* autoplay policy: stays silent until the next user gesture */
+        }
     }
 
     setMuted(m: boolean) {
