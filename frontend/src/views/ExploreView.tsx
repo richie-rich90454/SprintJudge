@@ -1,16 +1,27 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { TextInput } from "../components/ui/TextInput";
 import { EmptyState, Skeleton } from "../components/ui/Primitives";
 import { adminApi } from "../services/AdminApiService";
 
 export function ExploreView() {
+    const [query, setQuery] = useState("");
     const { data, isPending, isError, refetch } = useQuery({
         queryKey: ["public-quizzes"],
         queryFn: () => adminApi.listQuizzes(),
     });
+
+    const needle = query.trim().toLowerCase();
+    const visible = (data ?? []).filter(
+        (quiz) =>
+            !needle ||
+            quiz.title.toLowerCase().includes(needle) ||
+            (quiz.description ?? "").toLowerCase().includes(needle),
+    );
 
     return (
         <Shell>
@@ -24,6 +35,14 @@ export function ExploreView() {
                         A peek at what is available. To play anything you still need a
                         game PIN from your host.
                     </p>
+                </div>
+                <div className="max-w-md">
+                    <TextInput
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search quizzes…"
+                        aria-label="Search quizzes"
+                    />
                 </div>
                 {isPending && (
                     <div className="grid gap-4 md:grid-cols-2" aria-label="Loading quizzes">
@@ -53,29 +72,39 @@ export function ExploreView() {
                         />
                     </Card>
                 )}
-                {data && data.length > 0 && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {data.map((quiz) => (
-                            <Card key={quiz.id} className="p-6 flex flex-col gap-2">
-                                <h2 className="text-lg font-extrabold">{quiz.title}</h2>
-                                {quiz.description && (
-                                    <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
-                                        {quiz.description}
-                                    </p>
-                                )}
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    <Link
-                                        to="/join"
-                                        className="btn btn-secondary btn-sm font-bold"
-                                    >
-                                        Join with PIN
-                                    </Link>
-                                    <Link to="/admin" className="btn btn-ghost btn-sm">
-                                        Open in dashboard
-                                    </Link>
-                                </div>
-                            </Card>
-                        ))}
+                {data && data.length > 0 && visible.length === 0 && (
+                    <Card className="p-4">
+                        <EmptyState
+                            title="No matches"
+                            hint={`Nothing in the library matches "${query.trim()}".`}
+                        />
+                    </Card>
+                )}
+                {visible.length > 0 && (
+                    <div>
+                        <p className="label-caps mb-3" aria-live="polite">
+                            {visible.length} of {data?.length ?? 0} quizzes
+                        </p>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {visible.map((quiz) => (
+                                <Card key={quiz.id} className="p-6 flex flex-col gap-2">
+                                    <h2 className="text-lg font-extrabold">{quiz.title}</h2>
+                                    {quiz.description && (
+                                        <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
+                                            {quiz.description}
+                                        </p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        <Link
+                                            to="/join"
+                                            className="btn btn-secondary btn-sm font-bold"
+                                        >
+                                            Join with PIN
+                                        </Link>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
