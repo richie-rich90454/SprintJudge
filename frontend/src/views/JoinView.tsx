@@ -14,9 +14,7 @@ export function JoinView() {
                 <div className="w-full max-w-lg flex flex-col gap-4">
                     {invitedPin && (
                         <div className="text-center">
-                            <Chip tone="accent">
-                                You&apos;ve been invited to game {invitedPin}
-                            </Chip>
+                            <Chip tone="accent">You&apos;ve been invited to game {invitedPin}</Chip>
                         </div>
                     )}
                     <Card className="p-6">
