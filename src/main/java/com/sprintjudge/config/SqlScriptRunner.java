@@ -34,16 +34,21 @@ final class SqlScriptRunner {
      * internal constants only — never user input (identifiers are inlined).
      */
     static void ensureColumn(javax.sql.DataSource dataSource, String table, String column, String columnDdl) {
-        try (var conn = dataSource.getConnection();
-             var probe = conn.prepareStatement("SELECT " + column + " FROM " + table + " LIMIT 0");
-             var rs = probe.executeQuery()) {
-            return;
+        // Nested single-resource blocks: the compiler's close guards keep the
+        // exact shape JaCoCo filters, unlike one multi-resource header.
+        try (var conn = dataSource.getConnection()) {
+            try (var probe = conn.prepareStatement("SELECT " + column + " FROM " + table + " LIMIT 0")) {
+                try (var rs = probe.executeQuery()) {
+                    return;
+                }
+            }
         } catch (Exception ignored) {
             // Absent (or unreadable): fall through to ALTER.
         }
-        try (var conn = dataSource.getConnection();
-             var alter = conn.createStatement()) {
-            alter.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + columnDdl);
+        try (var conn = dataSource.getConnection()) {
+            try (var alter = conn.createStatement()) {
+                alter.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + columnDdl);
+            }
         } catch (Exception e) {
             throw new IllegalStateException("Schema migration failed: " + table + "." + column, e);
         }
