@@ -160,7 +160,7 @@ class QuizRepositoryTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("rawtypes")
     void countNullFallsBackToZero() {
         DSLContext dsl = org.mockito.Mockito.mock(DSLContext.class,
                 org.mockito.Mockito.RETURNS_DEEP_STUBS);
@@ -259,7 +259,7 @@ class QuizRepositoryTest {
     void mxFindAllContainsBothIds() {
         repo.create(new Quiz("fa", "A", null, null, Instant.now(), false));
         repo.create(new Quiz("fb", "B", null, null, Instant.now(), false));
-        List<String> ids = repo.findAll().stream().map(Quiz::id).toList();
+        List<String> ids = repo.findAll().stream().map((Quiz q) -> q.id()).toList();
         assertTrue(ids.contains("fa"));
         assertTrue(ids.contains("fb"));
     }
