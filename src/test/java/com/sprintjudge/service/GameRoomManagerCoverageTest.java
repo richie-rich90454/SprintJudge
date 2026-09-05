@@ -560,8 +560,9 @@ class GameRoomManagerCoverageTest {
         Question withLines = new Question("q2", "qz", "T", "D", "DRAG_SORT", null, 30, 100,
                 Json.write(java.util.Map.of("lines",
                         List.of(java.util.Map.of("id", "l1", "text", "first")))), 1, Instant.now());
-        Question bare = new Question("q3", "qz", "T", "D", "NUMERIC", null, 30, 100, "{}", 2, Instant.now());
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(withOptions, withLines, bare));
+        Question bare = new Question("q3", "qz", "T", "D", "NUMERIC", null, 30, 100, null, 2, Instant.now());
+        Question ragged = new Question("q4", "qz", "T", "D", "MCQ", null, 30, 100, "{\"options\":{}}", 3, Instant.now());
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(withOptions, withLines, bare, ragged));
         when(submissionRepository.findBySession("s1")).thenReturn(List.of());
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
@@ -575,6 +576,7 @@ class GameRoomManagerCoverageTest {
         assertEquals(List.of("A", "B"), review.questions().get(0).options());
         assertEquals(List.of("first"), review.questions().get(1).options());
         assertEquals(null, review.questions().get(2).options());
+        assertEquals(null, review.questions().get(3).options());
     }
 
     @Test
@@ -2237,5 +2239,37 @@ class GameRoomManagerCoverageTest {
         mgr.submit("123456", "q1", late.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         assertEquals(120, room.getPlayer(late.uuid()).score());
         assertEquals(0, room.getPlayer(early.uuid()).score());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> displayOptions(String json) throws Exception {
+        var m = GameRoomManager.class.getDeclaredMethod("displayOptions", com.fasterxml.jackson.databind.JsonNode.class);
+        m.setAccessible(true);
+        return (List<String>) m.invoke(null, Json.readTree(json));
+    }
+
+    @Test
+    void displayOptionsTextualOptions() throws Exception {
+        assertEquals(List.of("A", "B"), displayOptions("{\"options\":[\"A\",\"B\"]}"));
+    }
+
+    @Test
+    void displayOptionsLineObjects() throws Exception {
+        assertEquals(List.of("first", "second"),
+                displayOptions("{\"lines\":[{\"id\":\"l1\",\"text\":\"first\"},{\"id\":\"l2\",\"text\":\"second\"}]}"));
+    }
+
+    @Test
+    void displayOptionsLabelObjects() throws Exception {
+        assertEquals(List.of("X"), displayOptions("{\"options\":[{\"label\":\"X\"}]}"));
+    }
+
+    @Test
+    void displayOptionsNullForMissingShapes() throws Exception {
+        assertEquals(null, displayOptions("null"));
+        assertEquals(null, displayOptions("[1,2]"));
+        assertEquals(null, displayOptions("{}"));
+        assertEquals(null, displayOptions("{\"options\":[]}"));
+        assertEquals(null, displayOptions("{\"options\":[{\"id\":\"l1\"}]}"));
     }
 }
