@@ -69,9 +69,9 @@ describe("formatAnswer", () => {
     });
 
     test("DRAG_SORT numbers lines with texts", () => {
-        expect(
-            formatAnswer("DRAG_SORT", { correctOrder: ["1", "0"] }, ["first", "second"]),
-        ).toBe("Correct order: 1. second · 2. first");
+        expect(formatAnswer("DRAG_SORT", { correctOrder: ["1", "0"] }, ["first", "second"])).toBe(
+            "Correct order: 1. second · 2. first",
+        );
     });
 
     test("DRAG_SORT falls back to raw ids", () => {
