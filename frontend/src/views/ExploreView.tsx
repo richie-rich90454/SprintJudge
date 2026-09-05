@@ -32,8 +32,8 @@ export function ExploreView() {
                         Browse quizzes
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        A peek at what is available. To play anything you still need a
-                        game PIN from your host.
+                        A peek at what is available. To play anything you still need a game PIN from
+                        your host.
                     </p>
                 </div>
                 <div className="max-w-md">
