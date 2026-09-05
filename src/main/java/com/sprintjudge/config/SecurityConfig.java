@@ -101,6 +101,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
             @Value("${sprintjudge.cors.allowed-origins:http://localhost:5173}") String allowedOrigins) {
+        // Fail-closed: a wildcard origin combined with credentials lets any
+        // site ride the admin session cookie. Refuse to boot instead.
+        for (String origin : allowedOrigins.split(",")) {
+            if ("*".equals(origin.trim())) {
+                throw new IllegalStateException(
+                        "Refusing to boot: wildcard CORS origin with allowCredentials=true");
+            }
+        }
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
