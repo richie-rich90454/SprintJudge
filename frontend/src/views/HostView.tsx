@@ -12,7 +12,6 @@ import { useTimerStore } from "../stores/useTimerStore";
 import { webSocketService, type WsMessage } from "../services/WebSocketService";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { RoomQr } from "../components/RoomQr";
-import { ThemeToggle } from "../components/ThemeToggle";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { useStaggerIn } from "../hooks/useMotion";
@@ -492,7 +491,6 @@ export function HostView() {
                             </div>
                             <SoundToggle />
                             <MotionToggle />
-                            <ThemeToggle />
                         </div>
                     <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
                         {joinUrl}
