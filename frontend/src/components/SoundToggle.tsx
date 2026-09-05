@@ -15,7 +15,7 @@ export function SoundToggle({ className = "" }: { className?: string }) {
         } catch {
             /* engine boots on first user gesture; preference applies then */
         }
-    }, [on ]);
+    }, [on]);
 
     return (
         <button
@@ -26,11 +26,7 @@ export function SoundToggle({ className = "" }: { className?: string }) {
             onClick={toggleSound}
             className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}
         >
-            {on ? (
-                <SpeakerHigh size={18} weight="bold" />
-            ) : (
-                <SpeakerX size={18} weight="bold" />
-            )}
+            {on ? <SpeakerHigh size={18} weight="bold" /> : <SpeakerX size={18} weight="bold" />}
         </button>
     );
 }
