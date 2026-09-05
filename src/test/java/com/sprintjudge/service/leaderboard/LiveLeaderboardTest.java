@@ -108,4 +108,130 @@ class LiveLeaderboardTest {
         lb.join("u1", "Alice");
         assertTrue(lb.currentSeq() > before);
     }
+
+    @Test
+    void drainRefreshesStaleRanksAfterOvertake() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.join("u2", "Bob");
+        lb.drainDeltas(false);
+        lb.applyScore("u1", 10);
+        lb.applyScore("u2", 50);
+        var batch = lb.drainDeltas(false);
+        assertFalse(batch.resync());
+        assertEquals(2, batch.upserts().size());
+        var byUuid = new java.util.HashMap<String, Integer>();
+        for (var d : batch.upserts()) byUuid.put(d.uuid(), d.rank());
+        assertEquals(2, (int) byUuid.get("u1"));
+        assertEquals(1, (int) byUuid.get("u2"));
+        assertEquals(1, lb.rankOf("u2"));
+        assertEquals(2, lb.rankOf("u1"));
+    }
+
+    @Test
+    void drainFallsBackToRecordedRankWhenPlayerRemoved() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.join("u2", "Bob");
+        lb.applyScore("u1", 30);
+        lb.remove("u1");
+        var batch = lb.drainDeltas(false);
+        assertFalse(batch.resync());
+        var fallen = batch.upserts().stream().filter(d -> d.uuid().equals("u1")).findFirst().orElseThrow();
+        assertTrue(fallen.rank() >= 1);
+        assertEquals(-1, lb.rankOf("u1"));
+    }
+
+    @Test
+    void drainResyncPassthroughSkipsRankRefresh() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        var batch = lb.drainDeltas(true);
+        assertTrue(batch.resync());
+        assertTrue(batch.upserts().isEmpty());
+    }
+
+    @Test
+    void drainEmptyLedgerReturnsResyncBatch() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        var batch = lb.drainDeltas(false);
+        assertTrue(batch.resync());
+        assertTrue(batch.upserts().isEmpty());
+    }
+
+    @Test
+    void drainCoalescesMultipleScoresIntoLatestRank() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.join("u2", "Bob");
+        lb.join("u3", "Cara");
+        lb.drainDeltas(false);
+        lb.applyScore("u3", 5);
+        lb.applyScore("u3", 100);
+        lb.applyScore("u1", 50);
+        var batch = lb.drainDeltas(false);
+        var ranks = new java.util.HashMap<String, Integer>();
+        for (var d : batch.upserts()) ranks.put(d.uuid(), d.rank());
+        assertEquals(2, batch.upserts().size());
+        assertEquals(1, (int) ranks.get("u3"));
+        assertEquals(2, (int) ranks.get("u1"));
+        assertEquals(1, lb.rankOf("u3"));
+        assertEquals(2, lb.rankOf("u1"));
+        assertEquals(3, lb.rankOf("u2"));
+    }
+
+    @Test
+    void fullBatchRanksFollowScoreOrder() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.join("u2", "Bob");
+        lb.applyScore("u2", 70);
+        lb.applyScore("u1", 20);
+        var full = lb.fullBatch();
+        assertTrue(full.resync());
+        assertEquals(2, full.upserts().size());
+        assertEquals("u2", full.upserts().get(0).uuid());
+        assertEquals(1, full.upserts().get(0).rank());
+        assertEquals("u1", full.upserts().get(1).uuid());
+        assertEquals(2, full.upserts().get(1).rank());
+    }
+
+    @Test
+    void fullBatchDoesNotConsumePendingDeltas() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        assertEquals(1, lb.pendingDeltaCount());
+        lb.fullBatch();
+        assertEquals(1, lb.pendingDeltaCount());
+        var drained = lb.drainDeltas(false);
+        assertFalse(drained.resync());
+        assertEquals(0, lb.pendingDeltaCount());
+    }
+
+    @Test
+    void negativeDeltaDropsRankAtDrainTime() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.join("u2", "Bob");
+        lb.drainDeltas(false);
+        lb.applyScore("u1", 100);
+        lb.applyScore("u1", -90);
+        var batch = lb.drainDeltas(false);
+        var ranks = new java.util.HashMap<String, Integer>();
+        for (var d : batch.upserts()) ranks.put(d.uuid(), d.rank());
+        assertEquals(1, (int) ranks.get("u1"));
+        assertEquals(10L, lb.scoreOf("u1"));
+    }
+
+    @Test
+    void joinAfterDrainGetsFreshSequenceRank() {
+        LiveLeaderboard lb = new LiveLeaderboard();
+        lb.join("u1", "Alice");
+        lb.drainDeltas(false);
+        lb.join("u2", "Bob");
+        var batch = lb.drainDeltas(false);
+        assertEquals(1, batch.upserts().size());
+        assertEquals("u2", batch.upserts().get(0).uuid());
+        assertEquals(2, batch.upserts().get(0).rank());
+    }
 }
