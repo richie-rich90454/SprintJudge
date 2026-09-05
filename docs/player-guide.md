@@ -17,10 +17,18 @@ flowchart LR
 
 ## Joining a game
 
-1. Open the join screen.
+1. Open the join screen — or the invite link `/j/<PIN>` directly (this is also
+   what the host's QR code encodes; it works logged-out).
 2. Enter the 6-digit PIN shown by the host.
 3. Enter a nickname (alphanumerics, spaces, hyphens, underscores; max 20 chars).
 4. You appear in the host lobby.
+
+## Header buttons
+
+- **Speaker** — toggles all game sounds (8-bit SFX + procedural music). Persisted.
+- **Running figure** — cycles the motion preference: `system` (follow the OS
+  reduced-motion setting) → `full` (always animate) → `reduced` (no animation:
+  confetti, pulses, shakes and page transitions all stay off). Persisted.
 
 ## During a round
 
@@ -39,5 +47,10 @@ flowchart LR
 
 ## Disconnect behavior
 
-Guest sessions are ephemeral. If you disconnect, your score for missed rounds is 0, and
-rejoining starts you fresh.
+If the socket drops mid-game, the client auto-rejoins with its session token and
+your score survives. A full page reload loses the token and starts you fresh.
+
+## Leaderboard
+
+The leaderboard only ever contains players — the host holds a roster seat but is
+never scored and never appears in the rankings.
