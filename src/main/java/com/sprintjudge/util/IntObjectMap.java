@@ -97,6 +97,7 @@ public final class IntObjectMap<V> {
             j = (j + 1) & mask;
         }
         used[hole] = false;
+        values[hole] = null; // don't retain the shifted-out reference
         size--;
         return old;
     }
