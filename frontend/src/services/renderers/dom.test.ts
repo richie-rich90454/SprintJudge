@@ -65,7 +65,7 @@ describe("el security edges", () => {
         const payloads = [
             "<img src=x onerror=alert(1)>",
             "<svg onload=alert(1)>",
-            "<a href=\"javascript:alert(1)\">click</a>",
+            '<a href="javascript:alert(1)">click</a>',
         ];
         for (const p of payloads) {
             const node = el("button", {}, [p]);
@@ -79,7 +79,11 @@ describe("el security edges", () => {
     test("innerHTML assignment parses but never executes scripts", () => {
         const alerts: unknown[] = [];
         const orig = window.alert;
-        Object.defineProperty(window, "alert", { value: (...a: unknown[]) => alerts.push(a), writable: true, configurable: true });
+        Object.defineProperty(window, "alert", {
+            value: (...a: unknown[]) => alerts.push(a),
+            writable: true,
+            configurable: true,
+        });
         const node = el("div", { innerHTML: "<script>alert(1)</script><b>safe</b>" });
         expect(node.querySelector("b")?.textContent).toBe("safe");
         expect(alerts).toHaveLength(0);
@@ -93,7 +97,9 @@ describe("el security edges", () => {
     });
 
     test("dataset preserves arbitrary string keys verbatim", () => {
-        const node = el("div", { dataset: { payload: "<script>alert(1)</script>", quote: "\"'><&" } });
+        const node = el("div", {
+            dataset: { payload: "<script>alert(1)</script>", quote: "\"'><&" },
+        });
         expect(node.dataset.payload).toBe("<script>alert(1)</script>");
         expect(node.dataset.quote).toBe("\"'><&");
         expect(node.querySelector("script")).toBeNull();
@@ -108,7 +114,9 @@ describe("el security edges", () => {
     });
 
     test("class dataset and children compose without interference", () => {
-        const node = el("div", { class: "wrap", dataset: { kind: "row" } }, [el("span", {}, ["<b>not-bold</b>"])]);
+        const node = el("div", { class: "wrap", dataset: { kind: "row" } }, [
+            el("span", {}, ["<b>not-bold</b>"]),
+        ]);
         expect(node.className).toBe("wrap");
         expect(node.dataset.kind).toBe("row");
         expect(node.querySelector("b")).toBeNull();
@@ -125,7 +133,10 @@ describe("el security edges", () => {
     });
 
     test("select value assigned before children falls back then sticks after", () => {
-        const node = el("select", { value: "b" }, [el("option", { value: "a" }, ["A"]), el("option", { value: "b" }, ["B"])]);
+        const node = el("select", { value: "b" }, [
+            el("option", { value: "a" }, ["A"]),
+            el("option", { value: "b" }, ["B"]),
+        ]);
         expect(node.querySelectorAll("option")).toHaveLength(2);
         expect(node.value).toBe("a");
         node.value = "b";
