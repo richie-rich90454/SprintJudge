@@ -458,6 +458,25 @@ class GameRoomManagerTest {
         assertTrue(created.pinCode().matches("\\d{6}"));
     }
 
+    @Test
+    void createRoomReclaimsEndedPin() {
+        when(quizRepository.findById("qz")).thenReturn(Optional.of(
+                new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
+        GameSession ended = new GameSession("old", "qz", "123456", "host", "ENDED",
+                "STANDARD", 0, null, null, null, Instant.now());
+        when(sessionRepository.findByPin(anyString()))
+                .thenReturn(Optional.of(ended))
+                .thenReturn(Optional.empty());
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString()))
+                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
+                        inv.getArgument(1), "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
+
+        GameSession created = manager().createRoom("qz", "host-1");
+
+        assertTrue(created.pinCode().matches("\\d{6}"));
+        verify(sessionRepository).deleteByPin(anyString());
+    }
+
     // ---------- state shape ----------
 
     @Test
