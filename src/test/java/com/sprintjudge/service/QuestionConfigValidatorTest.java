@@ -128,6 +128,7 @@ class QuestionConfigValidatorTest {
         assertDoesNotThrow(() -> QuestionConfigValidator.requireValid("CLICK_BUG",
                 cfg("{\"codeLines\":[\"a\",\"b\"],\"bugLine\":1}")));
         invalid("CLICK_BUG", cfg("{\"codeLines\":[],\"bugLine\":0}"), "non-empty array");
+        invalid("CLICK_BUG", cfg("{}"), "non-empty array");
         invalid("CLICK_BUG", cfg("{\"codeLines\":[\"a\"],\"bugLine\":3}"), "out of bounds");
     }
 
