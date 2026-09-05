@@ -10,6 +10,7 @@ import { JoinView } from "./views/JoinView";
 import { SoloView } from "./views/SoloView";
 import { ExploreView } from "./views/ExploreView";
 import { AdminLoginView } from "./views/AdminLoginView";
+import { requireAdmin } from "./services/adminGuard";
 
 function Root() {
     return <Outlet />;
@@ -72,6 +73,7 @@ const resultsRoute = createRoute({
 const adminRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin",
+    beforeLoad: requireAdmin,
     component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
 });
 
@@ -79,6 +81,7 @@ const adminRoute = createRoute({
 const adminDashboardAliasRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/dashboard",
+    beforeLoad: requireAdmin,
     component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
 });
 
