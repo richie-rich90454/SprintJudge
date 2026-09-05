@@ -1,6 +1,6 @@
 # Admin Guide
 
-The admin panel is available to authenticated Microsoft Entra ID users.
+The admin panel sits behind a username/password form login at `/admin/login`.
 
 ## Creating a quiz
 
@@ -22,9 +22,12 @@ You can also create questions live during a lobby and add them to the queue.
 
 ## Hosting a game
 
-Click **Host** on a quiz to generate a 6-digit PIN. Use the host controls to start rounds,
-force-submit, extend the timer (+30s), kick players, and end the game. The live leaderboard
-updates after every submission.
+Click **Host** on a quiz to generate a 6-digit PIN. Share the invite link
+`/j/<PIN>` (or the on-screen QR code, which encodes the same URL) — it works
+logged-out. Use the host controls to start rounds,
+force-submit, extend the timer (+30s per call, capped at +300s over the round
+deadline), kick players, and end the game. The live leaderboard
+updates after every submission and never includes the host.
 
 ## Wizard and scoring at a glance
 
