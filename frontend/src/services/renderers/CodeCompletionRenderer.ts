@@ -17,6 +17,9 @@ export class CodeCompletionRenderer extends BaseQuestionRenderer {
             this.emit({ code: this.value });
         });
         this.container.append(ta);
+        // The untouched skeleton is a meaningful answer: emit it so a submit
+        // or timer-expiry never sends null.
+        this.emit({ code: this.value });
     }
 
     getResponse(): unknown {
