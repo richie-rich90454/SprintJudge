@@ -376,3 +376,168 @@ describe("MotionService killFor", () => {
         expect(anim()).not.toHaveBeenCalled();
     });
 });
+
+describe("MotionService workflow chains", () => {
+    test("enter kill enter kill on the same element tracks fresh controls", () => {
+        const el = document.createElement("div");
+        motion.enter(el, "card");
+        motion.killFor(el);
+        expect(stops()).toHaveLength(1);
+        anim().mockClear();
+        motion.enter(el, "page");
+        motion.killFor(el);
+        expect(stops()).toHaveLength(1);
+        anim().mockClear();
+        motion.killFor(el);
+        expect(anim()).not.toHaveBeenCalled();
+    });
+
+    test("all seven presets animate exactly once in sequence", () => {
+        const presets = ["card", "page", "modal", "bar", "pin", "podium", "ticker"] as const;
+        for (const p of presets) motion.enter(document.createElement("div"), p);
+        expect(anim()).toHaveBeenCalledTimes(7);
+    });
+
+    test("stagger kill stagger re-tracks the children", () => {
+        const c = document.createElement("div");
+        c.innerHTML = "<span class='i'></span><span class='i'></span>";
+        motion.staggerIn(c, ".i");
+        motion.killFor(c);
+        expect(stops()).toHaveLength(2);
+        anim().mockClear();
+        motion.staggerIn(c, ".i", 0.1);
+        expect(anim()).toHaveBeenCalledTimes(2);
+        motion.killFor(c);
+        expect(stops().slice(2).every((s) => s.mock.calls.length === 1)).toBe(true);
+    });
+
+    test("pulse shake pulse sequence stacks three controls on one node", () => {
+        const el = document.createElement("div");
+        motion.pulse(el);
+        motion.shake(el);
+        motion.pulse(el);
+        expect(anim()).toHaveBeenCalledTimes(3);
+        motion.killFor(el);
+        expect(stops()).toHaveLength(3);
+    });
+
+    test("countUp kill countUp rewrites the score text twice", () => {
+        const c = document.createElement("div");
+        c.innerHTML = "<span data-score='12'>0</span>";
+        motion.countUp(c);
+        expect(c.querySelector("span")?.textContent).toBe("12");
+        motion.killFor(c);
+        anim().mockClear();
+        const span = c.querySelector("span");
+        if (span) span.dataset.score = "34";
+        motion.countUp(c);
+        expect(c.querySelector("span")?.textContent).toBe("34");
+    });
+
+    test("reduced blocks the whole chain then full motion restores it", () => {
+        const el = document.createElement("div");
+        const c = document.createElement("div");
+        c.innerHTML = "<span class='i' data-score='5'>0</span>";
+        motion.setReduced(true);
+        motion.enter(el, "card");
+        motion.staggerIn(c, ".i");
+        motion.pulse(el);
+        motion.shake(el);
+        motion.countUp(c);
+        expect(anim()).not.toHaveBeenCalled();
+        motion.setReduced(false);
+        motion.enter(el, "card");
+        motion.staggerIn(c, ".i");
+        motion.pulse(el);
+        motion.shake(el);
+        motion.countUp(c);
+        expect(anim()).toHaveBeenCalledTimes(5);
+    });
+
+    test("killFor on a mixed container stops enter and stagger controls", () => {
+        const c = document.createElement("div");
+        c.innerHTML = "<span class='i'></span>";
+        motion.enter(c, "page");
+        motion.staggerIn(c, ".i");
+        motion.killFor(c);
+        const stopped = stops();
+        expect(stopped).toHaveLength(2);
+        expect(stopped.every((s) => s.mock.calls.length === 1)).toBe(true);
+    });
+
+    test("setReduced toggle chain ends reduced", () => {
+        const el = document.createElement("div");
+        motion.setReduced(true);
+        motion.setReduced(false);
+        motion.setReduced(true);
+        motion.enter(el, "card");
+        expect(anim()).not.toHaveBeenCalled();
+        motion.setReduced(false);
+    });
+
+    test("bar completion clears opacity while card clears transform", () => {
+        const bar = document.createElement("div");
+        bar.style.opacity = "0.5";
+        motion.enter(bar, "bar");
+        expect(bar.style.opacity).toBe("");
+        const card = document.createElement("div");
+        motion.enter(card, "card");
+        expect(card.style.transform).toBe("");
+        expect(card.style.opacity).toBe("");
+    });
+
+    test("null and empty targets are safe across the whole chain", () => {
+        const c = document.createElement("div");
+        expect(() => {
+            motion.enter(null, "card");
+            motion.staggerIn(null, ".x");
+            motion.staggerIn(c, ".missing");
+            motion.pulse(null);
+            motion.shake(null);
+            motion.countUp(null);
+            motion.killFor(null);
+        }).not.toThrow();
+        expect(anim()).not.toHaveBeenCalled();
+    });
+
+    test("countUp honors a custom selector across several nodes", () => {
+        const c = document.createElement("div");
+        c.innerHTML = "<b class='pts' data-score='7'>0</b><b class='pts' data-score='9'>0</b><span data-score='99'>0</span>";
+        motion.countUp(c, ".pts");
+        const pts = c.querySelectorAll(".pts");
+        expect(pts[0].textContent).toBe("7");
+        expect(pts[1].textContent).toBe("9");
+        expect(c.querySelector("span")?.textContent).toBe("0");
+    });
+
+    test("double enter on one node tracks two controls for one kill", () => {
+        const el = document.createElement("div");
+        motion.enter(el, "card");
+        motion.enter(el, "modal");
+        motion.killFor(el);
+        const stopped = stops();
+        expect(stopped).toHaveLength(2);
+        expect(stopped[0]).toHaveBeenCalled();
+        expect(stopped[1]).toHaveBeenCalled();
+    });
+
+    test("constructor reads the OS flag fresh every time", () => {
+        stubMatchMedia(true);
+        new MotionService().enter(document.createElement("div"), "card");
+        expect(anim()).not.toHaveBeenCalled();
+        stubMatchMedia(false);
+        new MotionService().enter(document.createElement("div"), "card");
+        expect(anim()).toHaveBeenCalledTimes(1);
+    });
+
+    test("shake then kill then pulse leaves only the pulse tracked", () => {
+        const el = document.createElement("div");
+        motion.shake(el);
+        motion.killFor(el);
+        anim().mockClear();
+        motion.pulse(el);
+        expect(anim()).toHaveBeenCalledTimes(1);
+        motion.killFor(el);
+        expect(stops()).toHaveLength(1);
+    });
+});
