@@ -54,7 +54,7 @@ class GameRoomTeamBattleTest {
     }
 
     private GameSession session(String pin) {
-        return new GameSession("s1", "qz", pin, "host", "LOBBY", 0, null, null, null, Instant.now());
+        return new GameSession("s1", "qz", pin, "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now());
     }
 
     private Question mcq(String id) {
