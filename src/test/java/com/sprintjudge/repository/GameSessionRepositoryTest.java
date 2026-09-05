@@ -6,8 +6,6 @@ import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -343,7 +341,7 @@ class GameSessionRepositoryTest {
 
     @Test
     void createWithExplicitModeRoundTrips() {
-        GameSession s = repo.create("quiz1", "host1", "900021", null, "EXAM");
+        repo.create("quiz1", "host1", "900021", null, "EXAM");
         assertEquals("EXAM", repo.findByPin("900021").orElseThrow().gameMode());
     }
 
