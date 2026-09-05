@@ -137,6 +137,7 @@ class GameRoomManagerCoverageTest {
                 new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
         when(sessionRepository.findByPin(anyString()))
                 .thenReturn(Optional.of(session("123456")))
+                .thenReturn(Optional.of(session("123456")))
                 .thenReturn(Optional.empty());
         when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
