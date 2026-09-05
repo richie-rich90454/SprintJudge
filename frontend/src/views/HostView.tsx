@@ -382,8 +382,7 @@ export function HostView() {
     const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const pin =
-        (typeof search.pin === "string" && search.pin.length > 0 ? search.pin : storePin) ??
-        null;
+        (typeof search.pin === "string" && search.pin.length > 0 ? search.pin : storePin) ?? null;
     const projector = search.projector === true || search.projector === "1";
 
     useEffect(() => {
@@ -489,42 +488,42 @@ export function HostView() {
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-4">
                     <div className="flex items-center gap-6 flex-wrap">
-                            <div>
-                                <p className="label-caps mb-1">Game PIN</p>
-                                <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
-                                    {pin}
-                                </p>
-                            </div>
-                            <div className="h-12 w-px bg-[var(--oq-border)] hidden sm:block" />
-                            <div>
-                                <div className="mb-1">
-                                    <Chip tone={tone}>{statusLabel}</Chip>
-                                </div>
-                                <p className="font-bold text-lg">{playerCount} players</p>
-                            </div>
-                            <div className="flex-1" />
-                            {room?.status === "ACTIVE" && end && isFinite(end) && q && (
-                                <CircularTimer endEpochMs={end} totalSec={totalSec} />
-                            )}
-                            {(!room || room.status === "LOBBY") && <RoomQr pin={pin} />}
-                            <div className="flex items-center gap-2">
-                                <Button variant="secondary" size="sm" onClick={copyLink}>
-                                    {copied ? "Copied" : "Copy join link"}
-                                </Button>
-                                <Link
-                                    to="/host"
-                                    search={{
-                                        pin,
-                                        projector: true,
-                                    }}
-                                    className="btn btn-secondary btn-sm"
-                                >
-                                    Projector
-                                </Link>
-                            </div>
-                            <SoundToggle />
-                            <MotionToggle />
+                        <div>
+                            <p className="label-caps mb-1">Game PIN</p>
+                            <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
+                                {pin}
+                            </p>
                         </div>
+                        <div className="h-12 w-px bg-[var(--oq-border)] hidden sm:block" />
+                        <div>
+                            <div className="mb-1">
+                                <Chip tone={tone}>{statusLabel}</Chip>
+                            </div>
+                            <p className="font-bold text-lg">{playerCount} players</p>
+                        </div>
+                        <div className="flex-1" />
+                        {room?.status === "ACTIVE" && end && isFinite(end) && q && (
+                            <CircularTimer endEpochMs={end} totalSec={totalSec} />
+                        )}
+                        {(!room || room.status === "LOBBY") && <RoomQr pin={pin} />}
+                        <div className="flex items-center gap-2">
+                            <Button variant="secondary" size="sm" onClick={copyLink}>
+                                {copied ? "Copied" : "Copy join link"}
+                            </Button>
+                            <Link
+                                to="/host"
+                                search={{
+                                    pin,
+                                    projector: true,
+                                }}
+                                className="btn btn-secondary btn-sm"
+                            >
+                                Projector
+                            </Link>
+                        </div>
+                        <SoundToggle />
+                        <MotionToggle />
+                    </div>
                     <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
                         {joinUrl}
                     </p>
@@ -565,8 +564,8 @@ export function HostView() {
                     <Card className="p-6 flex flex-col gap-4">
                         <h3 className="font-extrabold text-lg">Game over</h3>
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            Final standings are on the board. Open the full review with
-                            answer key and class analysis.
+                            Final standings are on the board. Open the full review with answer key
+                            and class analysis.
                         </p>
                         <Link to="/results" className="btn btn-primary w-full">
                             View results
