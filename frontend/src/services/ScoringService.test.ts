@@ -54,3 +54,42 @@ describe("isCoding", () => {
         expect(isCoding("COMPLEXITY")).toBe(false);
     });
 });
+
+describe("isCoding boundaries", () => {
+    test("full twelve-type sweep matches exactly the two coding formats", () => {
+        const types = ["MCQ", "TRUE_FALSE", "MULTIPLE_SELECT", "NUMERIC", "OUTPUT_PRED", "FILL_BLANK", "DRAG_SORT", "CLICK_BUG", "CODE_COMPLETION", "COMPLEXITY", "OJ_FULL", "OJ_PATCH"] as const;
+        expect(types.filter((t) => isCoding(t))).toEqual(["OJ_FULL", "OJ_PATCH"]);
+        expect(types.filter((t) => !isCoding(t))).toHaveLength(10);
+    });
+
+    test("undefined input is not coding", () => {
+        expect(isCoding(undefined as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("null input is not coding", () => {
+        expect(isCoding(null as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("empty string is not coding", () => {
+        expect(isCoding("" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("lowercase oj_full is not coding", () => {
+        expect(isCoding("oj_full" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("padded MCQ is not coding and not equal to MCQ", () => {
+        expect(isCoding("MCQ " as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+        expect(isCoding(" MCQ" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("numeric and object inputs are not coding", () => {
+        expect(isCoding(0 as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+        expect(isCoding({} as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+
+    test("OJ prefix alone is not coding", () => {
+        expect(isCoding("OJ" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+        expect(isCoding("OJ_" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+});
