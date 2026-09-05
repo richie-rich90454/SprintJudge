@@ -2,12 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./App";
-import {
-    applyStoredTheme,
-    motionReduced,
-    useUIStore,
-    watchSystemTheme,
-} from "./stores/useUIStore";
+import { applyStoredTheme, motionReduced, useUIStore, watchSystemTheme } from "./stores/useUIStore";
 import { audio } from "./services/AudioEngine";
 import { motion } from "./services/MotionService";
 import "./index.css";
