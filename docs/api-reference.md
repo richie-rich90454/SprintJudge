@@ -1,15 +1,15 @@
 # API Reference
 
-All REST endpoints under `/api/admin/**` require an authenticated admin (OAuth2). Public
+All REST endpoints under `/api/admin/**` require an authenticated admin session
+(form login at `/admin/login`). Public
 endpoints are under `/api/public/**`.
 
 ## Request lifecycle
 
 ```mermaid
 flowchart LR
-    R["HTTP request"] --> C["CSRF filter<br/>XSRF-TOKEN cookie"]
-    C --> A{"Route guard"}
-    A -->|"/api/admin/**"| OA["OAuth2 session required"]
+    R["HTTP request"] --> A{"Route guard"}
+    A -->|"/api/admin/**"| OA["Admin session cookie required<br/>else 302 to /admin/login"]
     A -->|"/api/public/**"| V
     OA --> V["Bean Validation<br/>@NotBlank · @Size · @Min"]
     V -->|"400 + field details"| X["Problem returned"]
@@ -22,8 +22,7 @@ flowchart LR
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/public/quizzes` | List all quizzes |
-| GET | `/api/public/quizzes/{id}` | Quiz with its questions |
-| POST | `/api/public/games` | Create a game from a quiz (`{ quizId, hostUserId }`) → returns PIN |
+| POST | `/api/public/run` | Live code console: compile + run with stdin, returns combined output (30 req/min per IP) |
 
 ## Admin
 
@@ -38,7 +37,7 @@ flowchart LR
 | DELETE | `/api/admin/questions/{id}` | Delete question |
 | GET | `/api/admin/settings` | Admin settings map |
 | PUT | `/api/admin/settings` | Update settings |
-| POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the OAuth2 session |
+| POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the login session |
 | GET | `/api/admin/export` | Export entire bank as JSON |
 | POST | `/api/admin/import` | Import bank (`{ json, replace }`) |
 | GET | `/api/admin/metrics` | Runtime metrics: memory/GC/threads, judge latency percentiles, compile-cache ratio, write-buffer depth |
@@ -83,8 +82,10 @@ also returns `400`.
 
 ## CSRF and headers
 
-Cookie-session auth is protected by CSRF tokens (XSRF-TOKEN cookie echoed as X-XSRF-TOKEN;
-axios does this automatically). Responses carry HSTS, `X-Content-Type-Options: nosniff`,
+Admin auth is a same-origin session cookie. CSRF protection is **relaxed for the
+MVP**: `/api/**`, `/admin/login` and `/admin/logout` are exempt from the CSRF
+filter — re-enable it before exposing any public form POST. Responses carry HSTS,
+`X-Content-Type-Options: nosniff`,
 a locked-down Content-Security-Policy, `frame-ancestors 'none'` and a same-origin referrer
 policy. CORS defaults to the Vite dev origin; configure `sprintjudge.cors.allowed-origins`
 in production.
