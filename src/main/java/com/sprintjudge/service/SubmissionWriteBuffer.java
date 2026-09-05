@@ -53,10 +53,14 @@ public class SubmissionWriteBuffer {
         flusher.scheduleWithFixedDelay(this::flushSafely, period, period, TimeUnit.MILLISECONDS);
     }
 
-    /** Non-blocking; drops-never policy via bounded backpressure to caller. */
+    /** Non-blocking; warns when the bound is hit so drops are never silent. */
     public boolean offer(Submission s) {
         offered.incrementAndGet();
-        return queue.offer(s);
+        boolean accepted = queue.offer(s);
+        if (!accepted) {
+            log.warn("Write buffer full ({} queued) — submission audit row dropped", queue.size());
+        }
+        return accepted;
     }
 
     /** Synchronous drain — used at accuracy boundaries (force-submit, game end). */
