@@ -120,9 +120,11 @@ public class NativeExecutor implements CodeExecutor {
                         .redirectOutput(outputFile.toFile());
                 proc = pb.start();
 
-                if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
-                    proc.destroyForcibly();
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "timeout"));
+                ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+                if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                    ExecIo.killAndReap(proc);
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "",
+                            outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout"));
                     continue;
                 }
                 String output = ExecIo.readCappedFile(outputFile);
@@ -136,7 +138,7 @@ public class NativeExecutor implements CodeExecutor {
             }
             return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
         } catch (IOException | InterruptedException e) {
-            if (proc != null) proc.destroyForcibly();
+            if (proc != null) ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Native judge execution failed for language {}", language, e);
             return new JudgeResult(0, request.testCases().size(), false, List.of());
@@ -174,8 +176,12 @@ public class NativeExecutor implements CodeExecutor {
         String key = CompileArtifactCache.keyFor(language, sourceCode);
         var cached = compileCache.get(key);
         if (cached.isPresent()) {
-            Files.copy(cached.get(), binary(runDir), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return null;
+            try {
+                Files.copy(cached.get(), binary(runDir), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                return null;
+            } catch (java.nio.file.NoSuchFileException e) {
+                log.warn("Compile cache entry vanished mid-copy, recompiling");
+            }
         }
         List<String> cmd = compileCommand(language, sourceFile, runDir);
         String err = runToCompletion(cmd, runDir, timeoutSec);
@@ -212,7 +218,7 @@ public class NativeExecutor implements CodeExecutor {
                 .redirectErrorStream(true)
                 .start();
         if (!proc.waitFor(timeoutSec, TimeUnit.SECONDS)) {
-            proc.destroyForcibly();
+            ExecIo.killAndReap(proc);
             return "compile_timeout";
         }
         if (proc.exitValue() == 0) return null;
@@ -278,9 +284,13 @@ public class NativeExecutor implements CodeExecutor {
             }
 
             List<String> cmd = runCommand(language, sourceFile, runDir);
+            Path outputFile = runDir.resolve("stdout.txt").toAbsolutePath();
             ProcessBuilder pb = new ProcessBuilder(cmd)
                     .directory(runDir.toFile())
-                    .redirectErrorStream(true);
+                    .redirectErrorStream(true)
+                    // File redirect (not a pipe): a chatty program must not
+                    // deadlock the wait the way the old pipe read did.
+                    .redirectOutput(outputFile.toFile());
             if (request.stdin() != null && !request.stdin().isEmpty()) {
                 Path inputFile = runDir.resolve("stdin.txt").toAbsolutePath();
                 Files.writeString(inputFile, request.stdin());
@@ -288,18 +298,20 @@ public class NativeExecutor implements CodeExecutor {
             }
             proc = pb.start();
 
-            if (!proc.waitFor(timeout, TimeUnit.SECONDS)) {
-                proc.destroyForcibly();
-                return new RunResult(false, "", "", "timeout");
+            ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+            if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                ExecIo.killAndReap(proc);
+                return new RunResult(false, "", "",
+                        outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout");
             }
-            String output = ExecIo.readCapped(proc);
+            String output = ExecIo.readCappedFile(outputFile);
             if (output == null) {
                 return new RunResult(false, "", "", "stdout_exceeded_1MB");
             }
             boolean ok = proc.exitValue() == 0;
             return new RunResult(ok, output, "", ok ? "ok" : "runtime_error");
         } catch (IOException | InterruptedException e) {
-            if (proc != null) proc.destroyForcibly();
+            if (proc != null) ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Native run execution failed for language {}", language, e);
             return new RunResult(false, "", "", "io_error");
