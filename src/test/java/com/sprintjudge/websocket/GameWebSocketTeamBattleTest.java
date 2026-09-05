@@ -156,9 +156,9 @@ class GameWebSocketTeamBattleTest {
     }
 
     @Test
-    void getTeamsWithoutPinSendsTeamList() {
+    void getTeamsWithoutPinSendsJoinFirstError() {
         ws().onMessage(session, "{\"type\":\"GET_TEAMS\"}");
-        assertTrue(lastMessage().contains("TEAM_LIST"));
+        assertTrue(lastMessage().contains("Join a room first"));
     }
 
     @Test
@@ -187,9 +187,9 @@ class GameWebSocketTeamBattleTest {
     }
 
     @Test
-    void getBracketWithoutPinSendsBracket() {
+    void getBracketWithoutPinSendsJoinFirstError() {
         ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
-        assertTrue(lastMessage().contains("BRACKET"));
+        assertTrue(lastMessage().contains("Join a room first"));
     }
 
     @Test
