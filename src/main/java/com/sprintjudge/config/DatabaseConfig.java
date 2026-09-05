@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -18,24 +16,17 @@ import java.nio.file.Path;
 @Configuration
 @EnableTransactionManagement
 public class DatabaseConfig {
-    private static final Logger log = LoggerFactory.getLogger(DatabaseConfig.class);
 
     @Value("${sprintjudge.db.path:./sprintjudge.db}")
     private String dbPath;
 
     @Bean
     public DataSource dataSource() throws IOException {
-        Path dbFile;
-        try {
-            dbFile = resolveDbFile();
-            Files.createDirectories(dbFile.getParent());
-        } catch (IOException e) {
-            // Configured path unreachable (missing drive, permissions) — fall
-            // back to ./sprintjudge.db so the app always boots.
-            log.error("Cannot create DB dir for '{}', falling back to ./sprintjudge.db", dbPath, e);
-            dbFile = Path.of("./sprintjudge.db").toAbsolutePath().normalize();
-            Files.createDirectories(dbFile.getParent());
-        }
+        // Fail fast on an unreachable path: silently booting on ./sprintjudge.db
+        // while the operator believes the configured path is live splits the
+        // database in two with no warning.
+        Path dbFile = resolveDbFile();
+        Files.createDirectories(dbFile.getParent());
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setUrl("jdbc:sqlite:" + dbFile + "?journal_mode=WAL&busy_timeout=5000&foreign_keys=ON");
