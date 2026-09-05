@@ -55,4 +55,53 @@ class BankSeederTest {
 
         verify(importExportService).importAll(anyString(), eq(false));
     }
+
+    @Test
+    void forcePropertySeedsEvenWhenBankNotEmpty() {
+        System.setProperty("sprintjudge.seed.force", "true");
+        try {
+            when(importExportService.importAll(anyString(), eq(true))).thenReturn(5);
+            seeder.run(null);
+            verify(importExportService).importAll(anyString(), eq(true));
+        } finally {
+            System.clearProperty("sprintjudge.seed.force");
+        }
+    }
+
+    @Test
+    void forcePropertyPassesReplaceTrueWhenBankEmpty() {
+        System.setProperty("sprintjudge.seed.force", "true");
+        try {
+            when(importExportService.importAll(anyString(), eq(true))).thenReturn(3);
+            seeder.run(null);
+            verify(importExportService).importAll(anyString(), eq(true));
+        } finally {
+            System.clearProperty("sprintjudge.seed.force");
+        }
+    }
+
+    @Test
+    void forcePropertyFailureIsSwallowed() {
+        System.setProperty("sprintjudge.seed.force", "true");
+        try {
+            when(importExportService.importAll(anyString(), eq(true)))
+                    .thenThrow(new RuntimeException("seed boom"));
+            seeder.run(null);
+            verify(importExportService).importAll(anyString(), eq(true));
+        } finally {
+            System.clearProperty("sprintjudge.seed.force");
+        }
+    }
+
+    @Test
+    void explicitFalseForceStillSkipsWhenNotEmpty() {
+        System.setProperty("sprintjudge.seed.force", "false");
+        try {
+            when(quizRepository.count()).thenReturn(2);
+            seeder.run(null);
+            verify(importExportService, never()).importAll(anyString(), anyBoolean());
+        } finally {
+            System.clearProperty("sprintjudge.seed.force");
+        }
+    }
 }
