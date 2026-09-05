@@ -630,6 +630,24 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         registry.remove(Integer.parseInt(pin));
     }
 
+    /**
+     * Display candidates for the review answer key (option texts, sortable
+     * lines); null when the type has none. Parsed defensively — a ragged
+     * config must never break the end-of-game review.
+     */
+    private static List<String> displayOptions(JsonNode config) {
+        if (config == null || !config.isObject()) return null;
+        JsonNode options = config.has("options") ? config.get("options") : config.get("lines");
+        if (options == null || !options.isArray() || options.isEmpty()) return null;
+        List<String> out = new java.util.ArrayList<>();
+        for (JsonNode o : options) {
+            if (o.isTextual()) out.add(o.asText());
+            else if (o.has("text")) out.add(o.path("text").asText(""));
+            else if (o.has("label")) out.add(o.path("label").asText(""));
+        }
+        return out.isEmpty() ? null : List.copyOf(out);
+    }
+
     private GameReview buildReview(GameRoom room) {
         List<Question> questions = questionRepository.findByQuiz(room.quizId());
         List<com.sprintjudge.domain.models.Submission> submissions =
@@ -663,7 +681,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
             qReviews.add(new GameReview.QuestionReview(
                     q.id(), q.title(), q.questionType(), q.timeLimitSec(),
-                    q.pointsBase(), answer, total, correct, rate, avgAttempts));
+                    q.pointsBase(), answer, total, correct, rate, avgAttempts,
+                    displayOptions(Json.readTree(q.config()))));
 
             if (rate < hardestRate) { hardestRate = rate; hardestId = q.id(); }
             if (rate > easiestRate) { easiestRate = rate; easiestId = q.id(); }
