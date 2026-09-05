@@ -5,7 +5,7 @@ import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Tabs, TabPanel } from "../components/ui/Tabs";
 import { useGameStore } from "../stores/useGameStore";
-import { motionReduced } from "../stores/useUIStore";
+import { motionReduced, useUIStore } from "../stores/useUIStore";
 import { motion } from "../services/MotionService";
 import { Confetti } from "../components/Confetti";
 import { SoundToggle } from "../components/SoundToggle";
@@ -43,6 +43,8 @@ export function ResultView() {
         { id: "students", label: "Students" },
         { id: "analysis", label: "Analysis" },
     ];
+    // Subscribe so a motion-preference flip re-renders immediately.
+    useUIStore((s) => s.motion);
 
     return (
         <div className="pattern-exam min-h-[100dvh] py-10">
