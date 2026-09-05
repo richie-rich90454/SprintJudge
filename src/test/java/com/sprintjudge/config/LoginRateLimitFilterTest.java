@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 class LoginRateLimitFilterTest {
@@ -50,7 +49,8 @@ class LoginRateLimitFilterTest {
         }
         assertEquals(429, last.getStatus());
         assertEquals("60", last.getHeader("Retry-After"));
-        verify(chain, never()).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verify(chain, org.mockito.Mockito.times(LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN))
+                .doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
