@@ -29,6 +29,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -496,5 +497,451 @@ class AdminControllerTest {
     void importBankNegativeClampedToZero() {
         when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(-1);
         assertEquals(0, controller.importBank(Map.of("json", (Object) "{}")).get("importedQuestions"));
+    }
+
+    private Quiz mxExisting(String title, String desc) {
+        return new Quiz("q1", title, desc, "u1", null, false);
+    }
+
+    private void mxStubQuiz(Quiz existing) {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
+        when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
+    }
+
+    private Question mxQuestion(String type, int timeLimit, int points) {
+        return new Question(null, "q1", "Q", null, type, null, timeLimit, points, "{}", 0, null);
+    }
+
+    @Test
+    void mxUpdateQuizTitle199Ok() {
+        mxStubQuiz(mxExisting("Old", null));
+        assertEquals(199, controller.updateQuiz("q1", Map.of("title", "t".repeat(199))).title().length());
+    }
+
+    @Test
+    void mxUpdateQuizTitle201Is400() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", null)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "t".repeat(201))));
+    }
+
+    @Test
+    void mxUpdateQuizTitleSingleCharOk() {
+        mxStubQuiz(mxExisting("Old", null));
+        assertEquals("x", controller.updateQuiz("q1", Map.of("title", "x")).title());
+    }
+
+    @Test
+    void mxUpdateQuizTitleTabOnlyIs400() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", null)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "\t")));
+    }
+
+    @Test
+    void mxUpdateQuizTitleNewlineOnlyIs400() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", null)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "\n")));
+    }
+
+    @Test
+    void mxUpdateQuizTitleMixedWhitespaceIs400() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", null)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", " \t \n ")));
+    }
+
+    @Test
+    void mxUpdateQuizTitleEmptyStringIs400() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", null)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuiz("q1", Map.of("title", "")));
+    }
+
+    @Test
+    void mxUpdateQuizTitleUnicode199Ok() {
+        mxStubQuiz(mxExisting("Old", null));
+        assertEquals("h\u00e9llo", controller.updateQuiz("q1", Map.of("title", "h\u00e9llo")).title());
+    }
+
+    @Test
+    void mxUpdateQuizDescription3999Ok() {
+        mxStubQuiz(mxExisting("Old", null));
+        assertEquals(3999,
+                controller.updateQuiz("q1", Map.of("description", "d".repeat(3999))).description().length());
+    }
+
+    @Test
+    void mxUpdateQuizDescription4000Ok() {
+        mxStubQuiz(mxExisting("Old", null));
+        assertEquals(4000,
+                controller.updateQuiz("q1", Map.of("description", "d".repeat(4000))).description().length());
+    }
+
+    @Test
+    void mxUpdateQuizDescriptionEmptyStringOk() {
+        mxStubQuiz(mxExisting("Old", "keep"));
+        assertEquals("", controller.updateQuiz("q1", Map.of("description", "")).description());
+    }
+
+    @Test
+    void mxUpdateQuizNullDescriptionPassesThrough() {
+        when(quizRepository.findById("q1")).thenReturn(Optional.of(mxExisting("Old", "keep")));
+        when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("description", null);
+        assertEquals(null, controller.updateQuiz("q1", body).description());
+    }
+
+    @Test
+    void mxUpdateQuizKeepsIdAndAuthor() {
+        mxStubQuiz(mxExisting("Old", "D"));
+        Quiz got = controller.updateQuiz("q1", Map.of("title", "New"));
+        assertEquals("q1", got.id());
+        assertEquals("u1", got.createdBy());
+    }
+
+    @Test
+    void mxAddQuestionTimeLimitZeroDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 0, 10)).timeLimitSec());
+    }
+
+    @Test
+    void mxAddQuestionTimeLimitOneDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(1, controller.addQuestion("q1", mxQuestion("MCQ", 1, 10)).timeLimitSec());
+    }
+
+    @Test
+    void mxAddQuestionTimeLimitNegativeDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(-5, controller.addQuestion("q1", mxQuestion("MCQ", -5, 10)).timeLimitSec());
+    }
+
+    @Test
+    void mxAddQuestionTimeLimitLargeDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(3600, controller.addQuestion("q1", mxQuestion("MCQ", 3600, 10)).timeLimitSec());
+    }
+
+    @Test
+    void mxAddQuestionPointsBaseZeroDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 30, 0)).pointsBase());
+    }
+
+    @Test
+    void mxAddQuestionPointsBaseNegativeDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(-10, controller.addQuestion("q1", mxQuestion("MCQ", 30, -10)).pointsBase());
+    }
+
+    @Test
+    void mxAddQuestionPointsBaseLargeDelegates() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals(1000000, controller.addQuestion("q1", mxQuestion("MCQ", 30, 1000000)).pointsBase());
+    }
+
+    @Test
+    void mxAddQuestionTypeMcq() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("MCQ", controller.addQuestion("q1", mxQuestion("MCQ", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeTrueFalse() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("TRUE_FALSE",
+                controller.addQuestion("q1", mxQuestion("TRUE_FALSE", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeMultipleSelect() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("MULTIPLE_SELECT",
+                controller.addQuestion("q1", mxQuestion("MULTIPLE_SELECT", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeNumeric() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("NUMERIC",
+                controller.addQuestion("q1", mxQuestion("NUMERIC", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeOutputPred() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("OUTPUT_PRED",
+                controller.addQuestion("q1", mxQuestion("OUTPUT_PRED", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeFillBlank() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("FILL_BLANK",
+                controller.addQuestion("q1", mxQuestion("FILL_BLANK", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeDragSort() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("DRAG_SORT",
+                controller.addQuestion("q1", mxQuestion("DRAG_SORT", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeClickBug() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("CLICK_BUG",
+                controller.addQuestion("q1", mxQuestion("CLICK_BUG", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeCodeCompletion() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("CODE_COMPLETION",
+                controller.addQuestion("q1", mxQuestion("CODE_COMPLETION", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeComplexity() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("COMPLEXITY",
+                controller.addQuestion("q1", mxQuestion("COMPLEXITY", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeOjFull() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("OJ_FULL",
+                controller.addQuestion("q1", mxQuestion("OJ_FULL", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionTypeOjPatch() {
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        assertEquals("OJ_PATCH",
+                controller.addQuestion("q1", mxQuestion("OJ_PATCH", 30, 10)).questionType());
+    }
+
+    @Test
+    void mxAddQuestionNullTypeIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.addQuestion("q1", mxQuestion(null, 30, 10)));
+    }
+
+    @Test
+    void mxAddQuestionBlankTypeIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.addQuestion("q1", mxQuestion("  ", 30, 10)));
+    }
+
+    @Test
+    void mxUpdateQuestionTimeLimitEdgeDelegates() {
+        Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Question body = new Question("qid", "q1", "Q", null, "MCQ", null, 0, 0, "{}", 0, null);
+        Question got = controller.updateQuestion("qid", body);
+        assertEquals(0, got.timeLimitSec());
+        assertEquals(0, got.pointsBase());
+    }
+
+    @Test
+    void mxUpdateQuestionNullTypeIs400() {
+        Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
+        Question body = new Question("qid", "q1", "Q", null, null, null, 30, 10, "{}", 0, null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuestion("qid", body));
+    }
+
+    @Test
+    void mxSettingsEmptyMapRoundTrip() {
+        when(settingsService.asMap()).thenReturn(Map.of());
+        assertTrue(controller.settings().isEmpty());
+    }
+
+    @Test
+    void mxSettingsMultipleEntriesRoundTrip() {
+        when(settingsService.asMap()).thenReturn(Map.of("a", "1", "b", "2", "c", "3"));
+        assertEquals(3, controller.settings().size());
+        assertEquals("2", controller.settings().get("b"));
+    }
+
+    @Test
+    void mxUpdateSettingsSingleEntry() {
+        controller.updateSettings(Map.of("only", "one"));
+        verify(settingsService).set("only", "one");
+    }
+
+    @Test
+    void mxUpdateSettingsBlankValueAccepted() {
+        controller.updateSettings(Map.of("k", "  "));
+        verify(settingsService).set("k", "  ");
+    }
+
+    @Test
+    void mxExportBankEmptyString() {
+        when(importExportService.exportAll()).thenReturn("");
+        assertEquals("", controller.exportBank());
+        verify(importExportService).exportAll();
+    }
+
+    @Test
+    void mxExportBankDelegatesOnce() {
+        when(importExportService.exportAll()).thenReturn("E");
+        controller.exportBank();
+        verify(importExportService, org.mockito.Mockito.times(1)).exportAll();
+    }
+
+    @Test
+    void mxImportBankReplaceBooleanTrueObject() {
+        when(importExportService.importAll(eq("{}"), eq(true))).thenReturn(4);
+        assertEquals(4, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) Boolean.TRUE))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void mxImportBankReplaceBooleanFalseObject() {
+        when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(4);
+        assertEquals(4, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) Boolean.FALSE))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void mxImportBankReplaceNumericOneIsFalse() {
+        when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(2);
+        assertEquals(2, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) 1))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void mxImportBankReplaceMixedCaseTrue() {
+        when(importExportService.importAll(eq("{}"), eq(true))).thenReturn(6);
+        assertEquals(6, controller.importBank(Map.of("json", (Object) "{}", "replace", (Object) "TrUe"))
+                .get("importedQuestions"));
+    }
+
+    @Test
+    void mxImportBankTabOnlyJsonIs400() {
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.importBank(Map.of("json", (Object) "\t\n")));
+    }
+
+    @Test
+    void mxImportBankZeroImportedShape() {
+        when(importExportService.importAll(eq("{}"), eq(false))).thenReturn(0);
+        assertEquals(0, controller.importBank(Map.of("json", (Object) "{}")).get("importedQuestions"));
+    }
+
+    private GameSession mxGameSession() {
+        return new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null);
+    }
+
+    private void mxStubGame(com.sprintjudge.service.GameRoom.GameMode mode) {
+        User host = new User("host", "a@b.c", "Al", null, null, null);
+        when(userRepository.upsertByEmail(anyString(), anyString(), any())).thenReturn(host);
+        when(roomManager.createRoom(eq("q1"), eq("host"), eq(mode))).thenReturn(mxGameSession());
+    }
+
+    @Test
+    void mxCreateGameModeStandard() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "STANDARD")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+    }
+
+    @Test
+    void mxCreateGameModeAutoPilot() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.AUTO_PILOT);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "AUTO_PILOT")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.AUTO_PILOT);
+    }
+
+    @Test
+    void mxCreateGameModePractice() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.PRACTICE);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "PRACTICE")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.PRACTICE);
+    }
+
+    @Test
+    void mxCreateGameModeExam() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.EXAM);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "EXAM")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.EXAM);
+    }
+
+    @Test
+    void mxCreateGameModeTeam() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.TEAM);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "TEAM")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.TEAM);
+    }
+
+    @Test
+    void mxCreateGameModeBattle() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.BATTLE);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "BATTLE")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.BATTLE);
+    }
+
+    @Test
+    void mxCreateGameDefaultsToStandard() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+    }
+
+    @Test
+    void mxCreateGameLowercaseStandard() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "standard")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.STANDARD);
+    }
+
+    @Test
+    void mxCreateGameMixedCaseBattle() {
+        mxStubGame(com.sprintjudge.service.GameRoom.GameMode.BATTLE);
+        assertNotNull(controller.createGame(Map.of("quizId", "q1", "gameMode", "Battle")));
+        verify(roomManager).createRoom("q1", "host",
+                com.sprintjudge.service.GameRoom.GameMode.BATTLE);
+    }
+
+    @Test
+    void mxMetricsEmptySnapshot() {
+        when(metricsService.snapshot()).thenReturn(Map.of());
+        assertTrue(controller.metrics().isEmpty());
+    }
+
+    @Test
+    void mxMetricsDelegatesOnce() {
+        when(metricsService.snapshot()).thenReturn(Map.of("a", 1));
+        controller.metrics();
+        verify(metricsService, org.mockito.Mockito.times(1)).snapshot();
+    }
+
+    @Test
+    void mxQuestionsEmptyList() {
+        when(questionRepository.findByQuiz("q9")).thenReturn(List.of());
+        assertTrue(controller.questions("q9").isEmpty());
+    }
+
+    @Test
+    void mxQuizzesEmptyList() {
+        when(quizRepository.findAll()).thenReturn(List.of());
+        assertTrue(controller.quizzes().isEmpty());
     }
 }
