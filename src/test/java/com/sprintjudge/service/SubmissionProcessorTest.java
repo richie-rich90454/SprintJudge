@@ -63,7 +63,7 @@ class SubmissionProcessorTest {
     }
 
     @Test
-    void questionNotFoundReturnsTrueButNoCallback() throws Exception {
+    void questionNotFoundNotifiesWithZero() throws Exception {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         when(questionRepository.findById("q")).thenReturn(Optional.empty());
@@ -72,11 +72,11 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer, never()).offer(any());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
-        assertEquals(-1, received[0]);
+        assertEquals(0, received[0]);
     }
 
     @Test
-    void nonCodingRejectedSilently() throws Exception {
+    void nonCodingRejectedWithZero() throws Exception {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
@@ -88,11 +88,11 @@ class SubmissionProcessorTest {
         verify(writeBuffer).offer(any());
         verify(executor, never()).judge(any());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
-        assertEquals(-1, received[0]); // handler is not invoked for rejected routing
+        assertEquals(0, received[0]); // rejected routing still notifies with zero
     }
 
     @Test
-    void sourceTooLargeRejected() throws Exception {
+    void sourceTooLargeRejectedWithZero() throws Exception {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
@@ -103,7 +103,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(70000), 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any());
         verify(executor, never()).judge(any());
-        assertEquals(-1, received[0]);
+        assertEquals(0, received[0]);
     }
 
     @Test
@@ -161,7 +161,7 @@ class SubmissionProcessorTest {
         verify(executor, never()).judge(any(JudgeRequest.class));
         verify(writeBuffer).offer(any());
         verify(leaderboardBroadcaster, never()).broadcastLeaderboard(anyString());
-        assertEquals(-1, received[0]); // handler not invoked for rejected source
+        assertEquals(0, received[0]); // rejected source still notifies with zero
     }
 
     @Test
