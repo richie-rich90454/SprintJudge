@@ -44,6 +44,7 @@ public final class Tables {
     public static final Field<String> SESS_PIN = DSL.field("pin_code", SQLDataType.VARCHAR);
     public static final Field<String> SESS_HOST = DSL.field("host_user_id", SQLDataType.VARCHAR);
     public static final Field<String> SESS_STATUS = DSL.field("status", SQLDataType.VARCHAR);
+    public static final Field<String> SESS_MODE = DSL.field("game_mode", SQLDataType.VARCHAR);
     public static final Field<Integer> SESS_INDEX = DSL.field("current_question_index", SQLDataType.INTEGER);
     public static final Field<Long> SESS_STARTED = DSL.field("started_at", SQLDataType.BIGINT);
     public static final Field<Long> SESS_ENDED = DSL.field("ended_at", SQLDataType.BIGINT);
