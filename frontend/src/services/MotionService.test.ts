@@ -195,7 +195,8 @@ describe("MotionService staggerIn", () => {
 
     test("each child animates with an incremental delay", () => {
         const c = document.createElement("div");
-        c.innerHTML = "<span class='item'></span><span class='item'></span><span class='item'></span>";
+        c.innerHTML =
+            "<span class='item'></span><span class='item'></span><span class='item'></span>";
         motion.staggerIn(c, ".item", 0.1);
         expect(anim()).toHaveBeenCalledTimes(3);
         expect(anim()).toHaveBeenNthCalledWith(
@@ -408,7 +409,11 @@ describe("MotionService workflow chains", () => {
         motion.staggerIn(c, ".i", 0.1);
         expect(anim()).toHaveBeenCalledTimes(2);
         motion.killFor(c);
-        expect(stops().slice(2).every((s) => s.mock.calls.length === 1)).toBe(true);
+        expect(
+            stops()
+                .slice(2)
+                .every((s) => s.mock.calls.length === 1),
+        ).toBe(true);
     });
 
     test("pulse shake pulse sequence stacks three controls on one node", () => {
@@ -502,7 +507,8 @@ describe("MotionService workflow chains", () => {
 
     test("countUp honors a custom selector across several nodes", () => {
         const c = document.createElement("div");
-        c.innerHTML = "<b class='pts' data-score='7'>0</b><b class='pts' data-score='9'>0</b><span data-score='99'>0</span>";
+        c.innerHTML =
+            "<b class='pts' data-score='7'>0</b><b class='pts' data-score='9'>0</b><span data-score='99'>0</span>";
         motion.countUp(c, ".pts");
         const pts = c.querySelectorAll(".pts");
         expect(pts[0].textContent).toBe("7");
