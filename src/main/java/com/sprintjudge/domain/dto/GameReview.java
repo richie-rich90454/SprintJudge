@@ -26,7 +26,8 @@ public record GameReview(
             int totalAttempts,
             int correctCount,
             double correctRate,
-            double avgAttempts
+            double avgAttempts,
+            List<String> options
     ) {}
 
     public record PlayerReview(
