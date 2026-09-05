@@ -332,6 +332,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         // the moment they submit — host-led rooms reveal instantly per player.
         ws.send(p.sessionId(), new SubmissionResult("SUBMISSION_RESULT",
                 questionId, total, correct, correct ? 1 : 0, 1, null));
+        eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.SubmissionReceived(
+                pin, questionId, playerUuid, correct));
         broadcastScoreChanged(room);
     }
 
@@ -367,6 +369,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 Player current = room.getPlayer(uuid);
                 ws.send(current == null ? null : current.sessionId(), new SubmissionResult("SUBMISSION_RESULT", questionId,
                         baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
+                eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.SubmissionReceived(
+                        pin, questionId, uuid, allPassed));
                 broadcastScoreChanged(room);
             }
 
