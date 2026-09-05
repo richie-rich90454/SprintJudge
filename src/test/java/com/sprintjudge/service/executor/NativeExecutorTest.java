@@ -672,6 +672,7 @@ class NativeExecutorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void runCommandShapes(@TempDir Path tmp) throws Exception {
         NativeExecutor ex = executor(tmp, tmp, 5);
         Method m = NativeExecutor.class.getDeclaredMethod("runCommand",
@@ -830,6 +831,25 @@ class NativeExecutorTest {
             var r = ex.run(new RunRequest("java", "broken {{{", "", 20));
             assertEquals("compilation_error", r.status());
             assertEquals("stdout_exceeded_1MB", r.error());
+        }
+    }
+
+    @Test
+    void nullCappedFileReportedAsStdoutExceeded(@TempDir Path tmp) throws IOException {
+        assumeTrue(toolAvailable("javac", "-version"));
+        NativeExecutor ex = executor(tmp, tmp, 20);
+        String src = "public class Main { public static void main(String[] a) { System.out.print(\"hi\"); } }";
+        try (var mocked = org.mockito.Mockito.mockStatic(ExecIo.class)) {
+            mocked.when(() -> ExecIo.awaitBounded(any(), any(), anyLong()))
+                    .thenCallRealMethod();
+            mocked.when(() -> ExecIo.readCappedFile(any(Path.class))).thenReturn(null);
+            mocked.when(() -> ExecIo.readCapped(any(Process.class))).thenCallRealMethod();
+            mocked.when(() -> ExecIo.deleteTree(any(Path.class))).thenCallRealMethod();
+            var jr = ex.judge(judgeReq("java", src, List.of(tc("", "hi")), 20));
+            assertEquals(0, jr.passed());
+            assertEquals("stdout_exceeded_1MB", jr.cases().get(0).error());
+            var rr = ex.run(new RunRequest("java", src, "", 20));
+            assertEquals("stdout_exceeded_1MB", rr.status());
         }
     }
 
