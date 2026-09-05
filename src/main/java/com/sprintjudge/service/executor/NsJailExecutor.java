@@ -21,6 +21,18 @@ public class NsJailExecutor extends AbstractScriptExecutor {
     @Value("${sprintjudge.executor.nsjail-binary:/usr/bin/nsjail}")
     private String nsjailBinary;
 
+    /**
+     * Fail-closed: this bean only exists when nsjail mode is selected, so a
+     * missing binary must abort boot — never silently judge unsandboxed.
+     */
+    @jakarta.annotation.PostConstruct
+    void verifyBinary() {
+        if (!java.nio.file.Files.isExecutable(Path.of(nsjailBinary))) {
+            throw new IllegalStateException(
+                    "nsjail executor selected but binary is not executable: " + nsjailBinary);
+        }
+    }
+
     @Override
     protected List<String> commandFor(String language, Path sourceFile, Path inputFile, Path runDir) {
         Path scriptsDir = scriptPath(language).toAbsolutePath().getParent();
