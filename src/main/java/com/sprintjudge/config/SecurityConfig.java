@@ -78,6 +78,10 @@ public class SecurityConfig {
                 .requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
                         "/favicon.ico", "/favicon.svg", "/api/public/**", "/ws",
                         "/admin/login", "/actuator/health").permitAll()
+                // Public SPA deep links (mirrors SpaWebConfig forward + router.tsx):
+                // join QR codes point at /j/<pin> on this origin.
+                .requestMatchers("/j/**", "/join", "/play", "/host", "/results",
+                        "/solo", "/explore").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
                 .anyRequest().denyAll())
             .formLogin(form -> form
