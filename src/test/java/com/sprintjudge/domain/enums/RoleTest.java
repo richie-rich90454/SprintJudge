@@ -24,4 +24,23 @@ class RoleTest {
     void fromThrowsOnUnknownValue() {
         assertThrows(IllegalArgumentException.class, () -> Role.from("GUEST"));
     }
+
+    @Test
+    void fromNullIsRequired() {
+        assertThrows(IllegalArgumentException.class, () -> Role.from(null));
+    }
+
+    @Test
+    void fromBlankIsRequired() {
+        assertThrows(IllegalArgumentException.class, () -> Role.from(""));
+        assertThrows(IllegalArgumentException.class, () -> Role.from("   "));
+    }
+
+    @Test
+    void everyValueRoundTrips() {
+        for (Role r : Role.values()) {
+            assertSame(r, Role.from(r.name()));
+            assertSame(r, Role.from(r.name().toLowerCase()));
+        }
+    }
 }
