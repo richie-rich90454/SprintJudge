@@ -135,7 +135,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
             if (isHost) {
                 if (room.hostUuid() != null) throw new IllegalStateException("A host is already connected");
                 Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
-                if (!room.addPlayer(p)) throw new IllegalStateException("Room is full");
+                if (!room.addHost(p)) throw new IllegalStateException("Room is full");
                 room.setHostUuid(p.uuid());
                 room.touch();
                 broadcastLeaderboard(pin);
