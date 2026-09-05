@@ -56,11 +56,14 @@ Any connected client may send: RESYNC_LEADERBOARD (no fields) after detecting a 
 ## Authorization
 
 - Host commands (NEXT_QUESTION, FORCE_SUBMIT, END_GAME, EXTEND_TIMER, KICK_PLAYER) require
-  the connection to have joined with role "host" AND carry an authenticated OAuth2 session
+  the connection to have joined with role "host" AND carry an authenticated form-login
+  session
   from the upgrade request. Players can never issue them.
 - Only one host per room; a second host join is rejected.
+- The host holds a roster seat but never enters the scored board, so it never
+  appears in leaderboard broadcasts or final rankings.
 - JOIN attempts are rate limited per client address: 10 failures per minute, reset on success.
-- Rooms are capped at 500 players. EXTEND_TIMER seconds are clamped to 1..300.
+- Rooms are capped at 10000 players (`sprintjudge.room.max-players`). EXTEND_TIMER seconds are clamped to 1..300.
 
 ## Server to Client
 
@@ -70,8 +73,9 @@ Any connected client may send: RESYNC_LEADERBOARD (no fields) after detecting a 
 | QUESTION_START | full question DTO, time limit, start timestamp |
 | ROUND_RESULT | scores per player, correct answer |
 | LEADERBOARD_DELTA | seq, resync flag, exact rank upserts since last seq |
-| LEADERBOARD | legacy full rankings (game end) |
-| GAME_END | final rankings |
+| SUBMISSION_RESULT | per-player feedback: questionId, score, correct, passed/total tests |
+| GAME_REVIEW | final rankings + per-question answer key with correct rates |
+| GAME_END | legacy alias clients still accept; the server now sends GAME_REVIEW |
 | ERROR | message |
 | TIMER_UPDATE | new end timestamp, extend seconds |
 
