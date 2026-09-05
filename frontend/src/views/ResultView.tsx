@@ -14,6 +14,55 @@ import { GameReview } from "../types";
 
 type ReviewTab = "podium" | "answers" | "students" | "analysis";
 
+function letter(i: number): string {
+    return String.fromCharCode(65 + i);
+}
+
+/** Human-readable answer key: letters + option text, never raw JSON. */
+function formatAnswer(type: string, answer: unknown, options: string[] | null): string {
+    if (answer == null || typeof answer !== "object") return String(answer ?? "—");
+    const a = answer as Record<string, unknown>;
+    const opt = (i: unknown): string => {
+        const n = Number(i);
+        if (!Number.isInteger(n) || n < 0) return String(i ?? "?");
+        const text = options?.[n];
+        return text != null ? `${letter(n)} — ${text}` : letter(n);
+    };
+    switch (type) {
+        case "MCQ":
+        case "OUTPUT_PRED":
+        case "COMPLEXITY":
+            return `Correct: ${opt(a["correctIndex"])}`;
+        case "TRUE_FALSE":
+            return `Correct: ${a["correct"] === true ? "True" : a["correct"] === false ? "False" : "?"}`;
+        case "MULTIPLE_SELECT": {
+            const idx = Array.isArray(a["correctIndices"]) ? (a["correctIndices"] as unknown[]) : [];
+            return `Correct: ${idx.map(opt).join(", ") || "?"}`;
+        }
+        case "NUMERIC": {
+            const v = a["answer"];
+            const t = a["tolerance"];
+            return `Correct: ${String(v ?? "?")}${t != null && t !== "" ? ` (± ${String(t)})` : ""}`;
+        }
+        case "FILL_BLANK":
+            return `Correct: ${String(a["answer"] ?? "?")}`;
+        case "DRAG_SORT": {
+            const order = Array.isArray(a["correctOrder"]) ? (a["correctOrder"] as unknown[]) : [];
+            const parts = order.map((id, k) => {
+                const text = options?.[Number(id)];
+                return `${k + 1}. ${text ?? String(id)}`;
+            });
+            return `Correct order: ${parts.join(" · ") || "?"}`;
+        }
+        case "CLICK_BUG":
+            return `Buggy line: ${String(a["bugLine"] ?? "?")}`;
+        case "CODE_COMPLETION":
+            return `Expected:\n${String(a["expected"] ?? "?")}`;
+        default:
+            return `Correct: ${JSON.stringify(answer)}`;
+    }
+}
+
 export function ResultView() {
     const leaderboard = useGameStore((s) => s.leaderboard);
     const review = useGameStore((s) => s.review) as GameReview | null;
@@ -21,6 +70,7 @@ export function ResultView() {
     const navigate = useNavigate();
     const [tab, setTab] = useState<ReviewTab>("podium");
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+    const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
     const [namesRevealed, setNamesRevealed] = useState(false);
 
     const podium = leaderboard.slice(0, 3);
@@ -197,9 +247,18 @@ export function ResultView() {
                                 ) : (
                                     <div className="flex flex-col gap-4">
                                         {review.questions.map((q, i) => (
-                                            <div
+                                            <button
                                                 key={q.questionId}
-                                                className="border border-[var(--oq-border)] rounded-[8px] p-6"
+                                                type="button"
+                                                aria-expanded={selectedQuestion === q.questionId}
+                                                onClick={() =>
+                                                    setSelectedQuestion(
+                                                        selectedQuestion === q.questionId
+                                                            ? null
+                                                            : q.questionId,
+                                                    )
+                                                }
+                                                className="border border-[var(--oq-border)] rounded-[8px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
                                             >
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div className="flex-1">
@@ -232,11 +291,51 @@ export function ResultView() {
                                                     </div>
                                                 </div>
                                                 {q.answer != null && (
-                                                    <div className="mt-3 p-3 rounded-[6px] bg-[var(--oq-row-alt)] text-sm mono">
-                                                        Answer: {String(JSON.stringify(q.answer))}
+                                                    <div className="mt-3 p-3 rounded-[6px] bg-[var(--oq-row-alt)] text-sm mono whitespace-pre-wrap">
+                                                        {formatAnswer(
+                                                            q.questionType,
+                                                            q.answer,
+                                                            q.options ?? null,
+                                                        )}
                                                     </div>
                                                 )}
-                                            </div>
+                                                {selectedQuestion === q.questionId && (
+                                                    <div className="mt-3 border-t border-[var(--oq-border)] pt-3 flex flex-col gap-2">
+                                                        {(review.players ?? []).map((p, pi) => {
+                                                            const a = p.answers.find(
+                                                                (x) => x.questionId === q.questionId,
+                                                            );
+                                                            if (!a) return null;
+                                                            return (
+                                                                <div
+                                                                    key={p.playerUuid}
+                                                                    className="flex items-center justify-between text-sm"
+                                                                >
+                                                                    <span
+                                                                        className={
+                                                                            a.correct
+                                                                                ? "text-[var(--oq-success)]"
+                                                                                : "text-[var(--oq-danger)]"
+                                                                        }
+                                                                    >
+                                                                        {a.correct ? "✓" : "✗"}{" "}
+                                                                        {namesRevealed
+                                                                            ? p.playerName
+                                                                            : `Player ${pi + 1}`}
+                                                                    </span>
+                                                                    <span className="mono text-[var(--oq-ink-soft)]">
+                                                                        +{a.scoreEarned} ·{" "}
+                                                                        {a.attemptCount}{" "}
+                                                                        {a.attemptCount === 1
+                                                                            ? "try"
+                                                                            : "tries"}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </button>
                                         ))}
                                     </div>
                                 )}
