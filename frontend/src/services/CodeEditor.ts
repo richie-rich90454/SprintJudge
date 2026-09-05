@@ -11,6 +11,7 @@ monacoEnv.MonacoEnvironment = {
 
 export interface CodeEditorHandle {
     getValue(): string;
+    setLanguage(lang: string): void;
     destroy(): void;
 }
 
@@ -50,12 +51,19 @@ export async function createCodeEditor(
         const sub = ed.onDidChangeModelContent(() => opts.onChange(ed.getValue()));
         return {
             getValue: () => ed.getValue(),
+            setLanguage: (lang: string) => {
+                const model = ed.getModel();
+                if (model) monaco.editor.setModelLanguage(model, lang);
+            },
             destroy: () => {
                 sub.dispose();
                 ed.dispose();
             },
         };
     } catch {
+        // A partial Monaco mount may have left broken DOM behind: clear it so
+        // the fallback does not render alongside a dead editor.
+        host.replaceChildren();
         const ta = document.createElement("textarea");
         ta.className =
             "mono w-full p-3 rounded-lg border border-border bg-surface text-sm resize-y";
@@ -67,6 +75,7 @@ export async function createCodeEditor(
         host.appendChild(ta);
         return {
             getValue: () => ta.value,
+            setLanguage: () => {},
             destroy: () => {
                 ta.removeEventListener("input", handler);
                 ta.remove();
