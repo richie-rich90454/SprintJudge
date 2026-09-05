@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class NativeExecutorTest {
@@ -717,7 +718,7 @@ class NativeExecutorTest {
         NativeExecutor ex = new NativeExecutor(cache);
         ReflectionTestUtils.setField(ex, "workDirBase", tmp.toString());
         ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 10);
-        var r = ex.judge(judgeReq("c", "int x;", List.of(tc("", "")), 10));
+        var r = ex.judge(judgeReq("c", "int x;", List.of(tc("", "never-this")), 10));
         assertEquals(0, r.passed());
         assertFalse(r.allPassed());
     }
@@ -736,6 +737,39 @@ class NativeExecutorTest {
         }
         assertTrue(((Path) m.invoke(ex, tmp)).getFileName().toString().endsWith(".exe")
                 == System.getProperty("os.name", "").toLowerCase().contains("win"));
+    }
+
+    @Test
+    void maybeCachePutsOnCleanCompile(@TempDir Path tmp) throws IOException {
+        Path bin = tmp.resolve("program.exe");
+        Files.write(bin, new byte[]{9});
+        CompileArtifactCache cache = mock(CompileArtifactCache.class);
+        NativeExecutor.maybeCache(cache, "c", "int x;", tmp, null);
+        verify(cache).put(CompileArtifactCache.keyFor("c", "int x;"), bin);
+    }
+
+    @Test
+    void maybeCacheSkipsOnCompileError(@TempDir Path tmp) {
+        CompileArtifactCache cache = mock(CompileArtifactCache.class);
+        NativeExecutor.maybeCache(cache, "c", "int x;", tmp, "compilation_error");
+        verify(cache, org.mockito.Mockito.never()).put(any(), any());
+    }
+
+    @Test
+    void judgeVanishingCacheEntryRecompiles(@TempDir Path tmp) throws IOException {
+        Path ghost = tmp.resolve("ghost-bin");
+        Files.write(ghost, new byte[]{1});
+        CompileArtifactCache cache = mock(CompileArtifactCache.class);
+        when(cache.get(CompileArtifactCache.keyFor("c", "int x;")))
+                .thenAnswer(inv -> {
+                    Files.deleteIfExists(ghost);
+                    return java.util.Optional.of(ghost);
+                });
+        NativeExecutor ex = new NativeExecutor(cache);
+        ReflectionTestUtils.setField(ex, "workDirBase", tmp.toString());
+        ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 10);
+        var r = ex.judge(judgeReq("c", "int x;", List.of(tc("", "never-this")), 10));
+        assertEquals(0, r.passed());
     }
 
     @Test
