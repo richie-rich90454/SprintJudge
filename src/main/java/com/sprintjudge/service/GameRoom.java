@@ -100,6 +100,13 @@ public class GameRoom {
         return true;
     }
 
+    /** Hosts occupy a roster seat but never enter the scored board. */
+    public synchronized boolean addHost(Player p) {
+        if (players.size() >= maxPlayers) return false;
+        players.put(p.uuid(), p);
+        return true;
+    }
+
     /** Disconnect: keep the board row so standings/rankings survive the gap. */
     public synchronized void softRemove(String uuid) {
         Player p = players.get(uuid);
