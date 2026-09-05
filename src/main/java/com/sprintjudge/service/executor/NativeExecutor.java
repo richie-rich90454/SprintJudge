@@ -185,10 +185,17 @@ public class NativeExecutor implements CodeExecutor {
         }
         List<String> cmd = compileCommand(language, sourceFile, runDir);
         String err = runToCompletion(cmd, runDir, timeoutSec);
-        if (err == null) {
-            compileCache.put(key, binary(runDir));
-        }
+        maybeCache(compileCache, language, sourceCode, runDir, err);
         return err;
+    }
+
+    /** Caches a fresh binary on clean compile; unit-testable without a toolchain. */
+    static void maybeCache(CompileArtifactCache cache, String language, String sourceCode,
+                           Path runDir, String compileErr) {
+        if (compileErr != null) return;
+        String key = CompileArtifactCache.keyFor(language, sourceCode);
+        cache.put(key, runDir.resolve(
+                System.getProperty("os.name", "").toLowerCase().contains("win") ? "program.exe" : "program"));
     }
 
     private List<String> runCommand(String language, Path sourceFile, Path runDir) {
