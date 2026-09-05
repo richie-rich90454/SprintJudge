@@ -68,7 +68,9 @@ public class ImportExportService {
         rejectCollisions(bundle, replace);
         if (bundle.adminSettings() != null) {
             for (Map.Entry<String, String> e : bundle.adminSettings().entrySet()) {
-                if (e.getKey() == null || e.getKey().isBlank() || e.getValue() == null) {
+                // JSON objects cannot carry null keys, so only blank keys
+                // and null values are rejected here.
+                if (e.getKey().isBlank() || e.getValue() == null) {
                     throw new IllegalArgumentException("Invalid import bundle: setting keys must be non-blank and values non-null");
                 }
             }
