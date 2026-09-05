@@ -18,7 +18,11 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell py-3 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2.5" aria-label="SprintJudge home">
+                    <Link
+                        to="/"
+                        className="flex items-center gap-2.5"
+                        aria-label="SprintJudge home"
+                    >
                         <LogoMark size={28} />
                         <span className="font-extrabold tracking-tight">SprintJudge</span>
                     </Link>
