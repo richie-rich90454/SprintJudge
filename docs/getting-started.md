@@ -73,13 +73,13 @@ flowchart LR
 | SPRINTJUDGE_PORT | 8080 | Prod jar listen port |
 | SPRINTJUDGE_DB_PATH | next to jar / ./sprintjudge.db | SQLite file (forward slashes) |
 | SPRINTJUDGE_EXECUTOR_MODE | native dev, nsjail prod | native, wsl, or nsjail |
-| SPRINTJUDGE_CORS_ALLOWED_ORIGINS | http://localhost:5173 | Extra browser origins |
+| SPRINTJUDGE_CORS_ALLOWED_ORIGINS | `http://localhost:5173` | Extra browser origins |
 | SPRINTJUDGE_ADMIN_USERNAME | admin | Form-login username |
 | SPRINTJUDGE_ADMIN_PASSWORD | changeme | Form-login password (change it) |
 | SPRINTJUDGE_COOKIE_SECURE | false | true behind TLS nginx |
 | SPRINTJUDGE_AI_ENABLED | false | AI feedback on failed cases |
 | SPRINTJUDGE_AI_PROVIDER | openai | openai or llamacpp |
-| SPRINTJUDGE_AI_ENDPOINT | — | e.g. http://localhost:11434/v1 |
+| SPRINTJUDGE_AI_ENDPOINT | — | e.g. `http://localhost:11434/v1` |
 | SPRINTJUDGE_AI_MODEL | gpt-3.5-turbo | Model name |
 | SPRINTJUDGE_AI_API_KEY | — | Empty for local llama.cpp |
 | SPRINTJUDGE_AI_TIMEOUT_SEC | 30 | AI call budget |
