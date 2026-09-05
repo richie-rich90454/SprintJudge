@@ -54,7 +54,20 @@ public class QuizRepository {
         return quiz;
     }
 
+    /**
+     * Deletes the quiz and everything scoped to it: sessions, their
+     * submissions, and questions. The questions FK cascades in production,
+     * but explicit deletes keep behavior identical where FKs are off and
+     * prevent 500s/orphans where the sessions FK has no cascade.
+     */
     public void delete(String id) {
+        dsl.deleteFrom(Tables.SUBMISSIONS)
+            .where(Tables.SUB_SESS.in(
+                    dsl.select(Tables.SESS_ID).from(Tables.GAME_SESSIONS)
+                        .where(Tables.SESS_QUIZ_ID.eq(id))))
+            .execute();
+        dsl.deleteFrom(Tables.GAME_SESSIONS).where(Tables.SESS_QUIZ_ID.eq(id)).execute();
+        dsl.deleteFrom(Tables.QUESTIONS).where(Tables.QUESTIONS_QUIZ_ID.eq(id)).execute();
         dsl.deleteFrom(Tables.QUIZZES).where(Tables.QUIZZES_ID.eq(id)).execute();
     }
 
