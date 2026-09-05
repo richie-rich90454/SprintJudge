@@ -83,6 +83,8 @@ public class SecurityConfig {
                 .requestMatchers("/j/**", "/join", "/play", "/host", "/results",
                         "/solo", "/explore").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
+                // Ops endpoints stay login-gated (health alone is public).
+                .requestMatchers("/actuator/prometheus", "/actuator/metrics", "/actuator/info").authenticated()
                 .anyRequest().denyAll())
             .formLogin(form -> form
                 .loginPage("/admin/login")
