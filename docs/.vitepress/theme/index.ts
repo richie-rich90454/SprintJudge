@@ -67,6 +67,7 @@ function loadMermaid(): Promise<MermaidApi> {
 
 let renderSeq = 0;
 let scheduled = false;
+let fontPasses = 0;
 
 interface PendingFence {
   replaceNode: HTMLElement;
@@ -134,6 +135,34 @@ function scheduleRender() {
   }, 20);
 }
 
+/**
+ * Mermaid measures text with whatever font is loaded at render time. Rendering
+ * before Noto Sans arrives produces wrong-size boxes and clipped glyphs, so
+ * the first paint waits for the font, and one extra pass heals any swap that
+ * lands late.
+ */
+function renderWithFonts() {
+  const want = ['400 15px "Noto Sans"', '700 15px "Noto Sans"', '800 15px "Noto Sans"'];
+  const loads = async () => {
+    try {
+      await Promise.all(want.map((f) => document.fonts.load(f)));
+      await document.fonts.ready;
+    } catch {
+      /* offline: fall back to whatever is available */
+    }
+    scheduleRender();
+  };
+  void loads();
+  if (typeof document !== "undefined" && "fonts" in document) {
+    void document.fonts.ready.then(() => {
+      if (fontPasses < 1) {
+        fontPasses += 1;
+        scheduleRender();
+      }
+    });
+  }
+}
+
 export default {
   extends: DefaultTheme,
   enhanceApp() {
@@ -142,7 +171,7 @@ export default {
     const start = () => {
       const observer = new MutationObserver(scheduleRender);
       observer.observe(document.body, { childList: true, subtree: true });
-      scheduleRender();                          // initial paint
+      renderWithFonts(); // font-gated initial paint
       window.addEventListener("load", scheduleRender);
     };
 
