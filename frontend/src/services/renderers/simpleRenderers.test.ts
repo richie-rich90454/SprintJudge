@@ -61,7 +61,9 @@ describe("BaseQuestionRenderer", () => {
 
     test("non-empty language list is kept", () => {
         const r = new Probe(host(), {}, () => {}, "q1", ["python"]);
-        expect((r as unknown as { allowedLanguages: unknown }).allowedLanguages).toEqual(["python"]);
+        expect((r as unknown as { allowedLanguages: unknown }).allowedLanguages).toEqual([
+            "python",
+        ]);
     });
 
     test("emit forwards the response to onChange", () => {
@@ -253,7 +255,9 @@ describe("MultipleSelectRenderer", () => {
     test("clicking toggles options and emits sorted indices", () => {
         const div = host();
         const seen: unknown[] = [];
-        const r = new MultipleSelectRenderer(div, { options: ["a", "b", "c"] }, (v) => seen.push(v));
+        const r = new MultipleSelectRenderer(div, { options: ["a", "b", "c"] }, (v) =>
+            seen.push(v),
+        );
         r.mount();
         const btns = div.querySelectorAll("button");
         btns[2].click();
@@ -266,7 +270,11 @@ describe("MultipleSelectRenderer", () => {
 
     test("reveal highlights every correct option", () => {
         const div = host();
-        const r = new MultipleSelectRenderer(div, { options: ["a", "b", "c"], correctIndices: [0, 2] }, () => {});
+        const r = new MultipleSelectRenderer(
+            div,
+            { options: ["a", "b", "c"], correctIndices: [0, 2] },
+            () => {},
+        );
         r.mount();
         const btns = div.querySelectorAll("button");
         btns[1].click();
@@ -371,7 +379,9 @@ describe("OutputPredRenderer", () => {
     test("clicking an option emits and highlights it", () => {
         const div = host();
         const seen: unknown[] = [];
-        const r = new OutputPredRenderer(div, { code: "x", options: ["1", "2"] }, (v) => seen.push(v));
+        const r = new OutputPredRenderer(div, { code: "x", options: ["1", "2"] }, (v) =>
+            seen.push(v),
+        );
         r.mount();
         const btns = div.querySelectorAll("button");
         btns[0].click();
@@ -443,7 +453,9 @@ describe("DragSortRenderer", () => {
 
     test("lines without ids fall back to index strings", () => {
         const seen: unknown[] = [];
-        new DragSortRenderer(host(), { lines: [{ text: "a" }, { text: "b" }] }, (v) => seen.push(v)).mount();
+        new DragSortRenderer(host(), { lines: [{ text: "a" }, { text: "b" }] }, (v) =>
+            seen.push(v),
+        ).mount();
         expect(seen).toEqual([{ order: ["0", "1"] }]);
     });
 
@@ -499,7 +511,9 @@ describe("DragSortRenderer", () => {
         };
         start.dataTransfer = { setData: () => {} };
         expect(() => row.dispatchEvent(start)).not.toThrow();
-        expect(() => row.dispatchEvent(new Event("dragover", { bubbles: true, cancelable: true }))).not.toThrow();
+        expect(() =>
+            row.dispatchEvent(new Event("dragover", { bubbles: true, cancelable: true })),
+        ).not.toThrow();
     });
 
     test("missing lines render an empty list with an empty order", () => {
@@ -554,7 +568,9 @@ describe("CodeCompletionRenderer", () => {
     test("emits the skeleton on mount and edits on input", () => {
         const div = host();
         const seen: unknown[] = [];
-        const r = new CodeCompletionRenderer(div, { skeleton: "def f():\n  pass" }, (v) => seen.push(v));
+        const r = new CodeCompletionRenderer(div, { skeleton: "def f():\n  pass" }, (v) =>
+            seen.push(v),
+        );
         r.mount();
         expect(seen).toEqual([{ code: "def f():\n  pass" }]);
         const ta = div.querySelector("textarea") as HTMLTextAreaElement;
@@ -602,7 +618,16 @@ describe("ComplexityRenderer", () => {
 
 describe("renderer destroy", () => {
     test("destroy clears mounted DOM for every simple renderer", () => {
-        const cases: Array<[new (c: HTMLElement, cfg: unknown, cb: (v: unknown) => void) => BaseQuestionRenderer, unknown]> = [
+        const cases: Array<
+            [
+                new (
+                    c: HTMLElement,
+                    cfg: unknown,
+                    cb: (v: unknown) => void,
+                ) => BaseQuestionRenderer,
+                unknown,
+            ]
+        > = [
             [McqRenderer, { options: ["a"] }],
             [TrueFalseRenderer, {}],
             [MultipleSelectRenderer, { options: ["a"] }],
