@@ -49,6 +49,9 @@ export class DragSortRenderer extends BaseQuestionRenderer {
         };
         render();
         this.container.append(list);
+        // The untouched initial order is a meaningful answer: emit it so a
+        // submit or timer-expiry never sends null.
+        this.emit({ order: [...this.order] });
     }
 
     getResponse(): unknown {
