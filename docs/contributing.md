@@ -31,8 +31,10 @@ git log <base>..HEAD --name-only  # every commit lists exactly one path
 ## Verify before pushing
 
 ```bash
-mvn -o test                    # full backend suite (587 tests)
+mvn -o test                    # full backend suite (2400+ tests)
+mvn -o verify                  # suite + JaCoCo gate (100% lines + branches)
 cd frontend && npx tsc --noEmit && npm run build
+cd frontend && npm run test:unit   # vitest, 700+ tests at 100% coverage
 cd docs && npm run docs:build
 ```
 
