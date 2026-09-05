@@ -132,6 +132,7 @@ public class GameRoom {
     }
 
     public Player getPlayer(String uuid) {
+        if (uuid == null) return null;
         Player p = players.get(uuid);
         return p == null ? null : p.withScore((int) board.scoreOf(uuid));
     }
