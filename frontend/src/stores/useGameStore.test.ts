@@ -157,7 +157,10 @@ describe("useGameStore workflows", () => {
         useGameStore.getState().join("1111", "Bo");
         notify({ status: "ACTIVE", currentQuestion: { id: "q1" } } as Record<string, unknown>);
         expect(useGameStore.getState().status).toBe("ACTIVE");
-        notify({ status: "REVIEW", lastResult: { submission: { score: 80 } } } as Record<string, unknown>);
+        notify({ status: "REVIEW", lastResult: { submission: { score: 80 } } } as Record<
+            string,
+            unknown
+        >);
         expect(useGameStore.getState().status).toBe("REVIEW");
         notify({ error: "late" } as Record<string, unknown>);
         useGameStore.getState().clearError();
@@ -225,7 +228,9 @@ describe("useGameStore workflows", () => {
         s.hostCommand("NEXT_QUESTION", { questionId: "q1" });
         s.hostCommand("FORCE_SUBMIT");
         s.hostCommand("END_GAME");
-        expect(fakeManager.hostCommand).toHaveBeenNthCalledWith(1, "NEXT_QUESTION", { questionId: "q1" });
+        expect(fakeManager.hostCommand).toHaveBeenNthCalledWith(1, "NEXT_QUESTION", {
+            questionId: "q1",
+        });
         expect(fakeManager.hostCommand).toHaveBeenNthCalledWith(2, "FORCE_SUBMIT", undefined);
         expect(fakeManager.hostCommand).toHaveBeenNthCalledWith(3, "END_GAME", undefined);
     });
