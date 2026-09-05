@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Shared process-I/O helpers for every executor implementation.
@@ -64,5 +65,42 @@ public final class ExecIo {
                 try { Files.deleteIfExists(p); } catch (IOException ignored) {}
             });
         } catch (IOException ignored) {}
+    }
+
+    /** Bounded-wait outcome for a child writing to a redirected output file. */
+    public enum WaitOutcome { FINISHED, TIMEOUT, TOO_BIG }
+
+    /**
+     * Waits up to {@code timeoutSec} for exit while watching the redirected
+     * output file: a runaway writer is stopped at the cap instead of filling
+     * the disk until the timeout kill. Missing file reads as size 0.
+     */
+    public static WaitOutcome awaitBounded(Process proc, Path outputFile, long timeoutSec) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(Math.max(1, timeoutSec));
+        try {
+            while (System.nanoTime() < deadline) {
+                if (proc.waitFor(100, TimeUnit.MILLISECONDS)) return WaitOutcome.FINISHED;
+                try {
+                    if (Files.size(outputFile) > STDOUT_CAP_BYTES) return WaitOutcome.TOO_BIG;
+                } catch (IOException ignored) {
+                    // Not created yet — keep waiting.
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            killAndReap(proc);
+            return WaitOutcome.TIMEOUT;
+        }
+        return WaitOutcome.TIMEOUT;
+    }
+
+    /** Destroys a child and reaps it so handles release before directory cleanup. */
+    public static void killAndReap(Process proc) {
+        proc.destroyForcibly();
+        try {
+            proc.waitFor(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
