@@ -117,6 +117,11 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         return false;
     }
 
+    private static void evictStale() {
+        long now = System.nanoTime();
+        staged.entrySet().removeIf(e -> now - e.getValue().nanos() > STAGE_TTL_NANOS);
+    }
+
     private String lastHeader(HandshakeRequest request, String name) {
         List<String> values = request.getHeaders().get(name);
         if (values == null || values.isEmpty()) return null;
