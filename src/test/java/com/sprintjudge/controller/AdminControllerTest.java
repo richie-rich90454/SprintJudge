@@ -151,7 +151,7 @@ class AdminControllerTest {
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), name.capture(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("quiz1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         GameSession gs = controller.createGame(Map.of("quizId", "quiz1"));
         assertNotNull(gs);
         assertEquals("system@sprintjudge.local", email.getValue());
@@ -173,7 +173,7 @@ class AdminControllerTest {
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), name.capture(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("quiz1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "quiz1")));
         assertEquals("a@b.c", email.getValue());
         assertEquals("Al", name.getValue());
@@ -193,7 +193,7 @@ class AdminControllerTest {
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), name.capture(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("quiz1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "quiz1")));
         assertEquals("system@sprintjudge.local", email.getValue());
         assertEquals("System", name.getValue());
@@ -213,7 +213,7 @@ class AdminControllerTest {
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), name.capture(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("quiz1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "quiz1")));
         assertEquals("system@sprintjudge.local", email.getValue());
         assertEquals("System", name.getValue());
@@ -230,7 +230,7 @@ class AdminControllerTest {
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         when(userRepository.upsertByEmail(email.capture(), name.capture(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("quiz1"), eq("host"), any()))
-                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", 0, null, null, null, null));
+                .thenReturn(new GameSession("gs", "quiz1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null));
         assertNotNull(controller.createGame(Map.of("quizId", "quiz1")));
         assertEquals("system@sprintjudge.local", email.getValue());
         assertEquals("System", name.getValue());
@@ -839,7 +839,7 @@ class AdminControllerTest {
     }
 
     private GameSession mxGameSession() {
-        return new GameSession("gs", "q1", "123", "host", "LOBBY", 0, null, null, null, null);
+        return new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null);
     }
 
     private void mxStubGame(com.sprintjudge.service.GameRoom.GameMode mode) {
