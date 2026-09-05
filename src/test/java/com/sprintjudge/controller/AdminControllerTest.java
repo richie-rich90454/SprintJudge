@@ -547,7 +547,7 @@ class AdminControllerTest {
     }
 
     private static String mxConfig(String type) {
-        return switch (type) {
+        return switch (type == null ? "" : type) {
             case "TRUE_FALSE" -> "{\"correct\":true}";
             case "MULTIPLE_SELECT" -> "{\"options\":[\"a\",\"b\"],\"correctIndices\":[0]}";
             case "NUMERIC" -> "{\"answer\":1}";
