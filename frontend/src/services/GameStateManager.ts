@@ -237,13 +237,8 @@ export class GameStateManager {
                 if (this.state.currentQuestion) {
                     // Accumulate onto the live total: each update carries only
                     // its own extension, and QUESTION_START resets the base.
-                    const total =
-                        useTimerStore.getState().totalSec + Number(m.extendSec ?? 0);
-                    pushTimer(
-                        this.state.currentQuestion.id,
-                        total,
-                        m.newEndEpochMs as number,
-                    );
+                    const total = useTimerStore.getState().totalSec + Number(m.extendSec ?? 0);
+                    pushTimer(this.state.currentQuestion.id, total, m.newEndEpochMs as number);
                 }
                 break;
             case "ERROR":
@@ -260,7 +255,8 @@ export class GameStateManager {
     }
 
     /** Strict seq application with automatic resync on gap — never approximate. */
-    private applyDelta(delta: LeaderboardDelta) {        if (this.lastSeq !== null && delta.seq <= this.lastSeq) return; // duplicate/old
+    private applyDelta(delta: LeaderboardDelta) {
+        if (this.lastSeq !== null && delta.seq <= this.lastSeq) return; // duplicate/old
         if (this.lastSeq !== null && delta.seq > this.lastSeq + 1) {
             this.requestLeaderboardResync(); // gap
             return;
