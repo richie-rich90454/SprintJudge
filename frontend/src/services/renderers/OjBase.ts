@@ -57,6 +57,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
             select.value = this.language;
             select.addEventListener("change", () => {
                 this.language = select.value;
+                // Select values are DOM-influenceable, so the miss fallback stays.
                 const monacoLang =
                     LANGUAGES.find((l) => l.id === this.language)?.monaco ?? "plaintext";
                 this.editor?.setLanguage(monacoLang);
@@ -88,7 +89,8 @@ export abstract class OjBase extends BaseQuestionRenderer {
         this.editorHost.style.minHeight = "260px";
         this.container.append(this.editorHost);
 
-        const monacoLang = LANGUAGES.find((l) => l.id === this.language)?.monaco ?? "plaintext";
+        // Invariant: this.language was normalized to a known id above.
+        const monacoLang = LANGUAGES.find((l) => l.id === this.language)!.monaco;
         void createCodeEditor(this.editorHost, {
             value: start,
             language: monacoLang,
