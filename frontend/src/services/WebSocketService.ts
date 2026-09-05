@@ -1,9 +1,11 @@
-import { Subject, Observable } from "rxjs";
+import { BehaviorSubject, Subject, Observable } from "rxjs";
 
 export interface WsMessage {
     type: string;
     [key: string]: unknown;
 }
+
+export type SocketStatus = "open" | "closed" | "failed";
 
 /**
  * Thin wrapper around the browser WebSocket with an RxJS subject for inbound
@@ -13,7 +15,7 @@ export class WebSocketService {
     private static _instance: WebSocketService | null = null;
     private socket: WebSocket | null = null;
     private readonly messages$ = new Subject<WsMessage>();
-    private readonly status$ = new Subject<"open" | "closed">();
+    private readonly status$ = new BehaviorSubject<SocketStatus>("closed");
     // Messages sent while the handshake is still in flight; dropped silently
     // otherwise, which killed the very first JOIN of every session.
     private pending: WsMessage[] = [];
@@ -46,13 +48,20 @@ export class WebSocketService {
         const socket = new WebSocket(url);
         this.socket = socket;
         socket.onopen = () => {
+            if (this.socket !== socket) {
+                socket.close();
+                return; // superseded by a newer connection
+            }
             this._retryCount = 0;
+            // Signal open FIRST so the auto-JOIN precedes any flushed backlog:
+            // queued pre-drop SUBMITs must never run ahead of the rejoin.
+            this.status$.next("open");
             const queued = this.pending;
             this.pending = [];
             for (const msg of queued) this.send(msg);
-            this.status$.next("open");
         };
         socket.onmessage = (ev) => {
+            if (this.socket !== socket) return; // stale socket's mail is dead
             try {
                 this.messages$.next(JSON.parse(ev.data) as WsMessage);
             } catch {
@@ -60,6 +69,7 @@ export class WebSocketService {
             }
         };
         socket.onclose = () => {
+            if (this.socket !== socket) return; // superseded; owner handles state
             // Keep the queue across unintended drops so a JOIN sent during a
             // failed first handshake still flushes on reconnect. Only an
             // intentional disconnect discards queued messages.
@@ -72,7 +82,10 @@ export class WebSocketService {
     }
 
     private _scheduleReconnect(): void {
-        if (this._retryCount >= this._maxRetries) return;
+        if (this._retryCount >= this._maxRetries) {
+            this.status$.next("failed");
+            return;
+        }
         const delay = Math.min(1000 * 2 ** this._retryCount, 30_000);
         this._retryCount++;
         this._reconnectTimer = setTimeout(() => {
@@ -101,7 +114,7 @@ export class WebSocketService {
         return this.messages$.asObservable();
     }
 
-    onStatus(): Observable<"open" | "closed"> {
+    onStatus(): Observable<SocketStatus> {
         return this.status$.asObservable();
     }
 
