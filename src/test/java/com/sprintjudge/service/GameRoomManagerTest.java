@@ -81,7 +81,7 @@ class GameRoomManagerTest {
     }
 
     private GameSession session(String pin) {
-        return new GameSession("s1", "qz", pin, "host", "LOBBY", 0, null, null, null, Instant.now());
+        return new GameSession("s1", "qz", pin, "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now());
     }
 
     private Question mcq(String id) {
@@ -138,7 +138,7 @@ class GameRoomManagerTest {
 
     @Test
     void joinToEndedGameThrows() {
-        GameSession ended = new GameSession("s1", "qz", "123456", "host", "ENDED", 0, null, null, null, Instant.now());
+        GameSession ended = new GameSession("s1", "qz", "123456", "host", "ENDED", "STANDARD", 0, null, null, null, Instant.now());
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(ended));
         assertThrows(IllegalStateException.class,
                 () -> manager().join("123456", "Alice", "sess-1", "player", null));
@@ -448,9 +448,9 @@ class GameRoomManagerTest {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new com.sprintjudge.domain.models.Quiz("qz", "T", "", null, Instant.now(), false)));
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        inv.getArgument(1), "LOBBY", 0, null, null, null, Instant.now()));
+                        inv.getArgument(1), "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
 
         GameSession created = manager().createRoom("qz", "host-1");
 
@@ -536,7 +536,7 @@ class GameRoomManagerTest {
     @Test
     void joinRejectsEndedRoom() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(
-                new GameSession("s1", "qz", "123456", "host", "ENDED", 0, null, null, null, Instant.now())));
+                new GameSession("s1", "qz", "123456", "host", "ENDED", "STANDARD", 0, null, null, null, Instant.now())));
         assertThrows(IllegalStateException.class,
                 () -> manager().join("123456", "Alice", "sess", "player", null));
     }
@@ -852,9 +852,9 @@ class GameRoomManagerTest {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new Quiz("qz", "T", "", null, Instant.now(), false)));
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameRoomManager mgr = manager();
         GameSession created = mgr.createRoom("qz", "host");
         mgr.sendFullLeaderboard(created.pinCode(), "sess");
@@ -932,9 +932,9 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin(anyString()))
                 .thenReturn(Optional.of(session("123456")))   // collide -> retry
                 .thenReturn(Optional.empty());                // free -> exit
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
 
         GameSession created = manager().createRoom("qz", "host");
 
@@ -1228,9 +1228,9 @@ class GameRoomManagerTest {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new Quiz("qz", "T", "", null, Instant.now(), false)));
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
 
         GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.PRACTICE);
 
@@ -1305,9 +1305,9 @@ class GameRoomManagerTest {
         when(quizRepository.findById("qz")).thenReturn(Optional.of(
                 new Quiz("qz", "T", "", null, Instant.now(), false)));
         lenient().when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null)))
+        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", 0, null, null, null, Instant.now()));
+                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
 
         GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.EXAM);
 
