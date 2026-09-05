@@ -1,6 +1,8 @@
 # Getting Started
 
-SprintJudge runs as a Spring Boot backend (port `8080`) and a Vite/React frontend (port `5173`).
+SprintJudge runs as a Spring Boot backend and a Vite/React frontend. In dev the
+backend listens on `:8080` and the UI on `:5173`; the production fat jar listens
+on `$SPRINTJUDGE_PORT` (default `:8080` — the repo `.env` ships `3000`).
 
 ## Pick your setup path
 
@@ -69,21 +71,23 @@ SQLite database automatically (only when the bank is empty).
 
 ## Admin authentication
 
-Admins authenticate via Microsoft Entra ID OAuth2. Provide credentials either as OS
-environment variables or in a `.env` file (see `.env.example`):
+Admins sign in with a username and password via form login at `/admin/login`
+(session cookie, same-origin). Set the credentials as OS environment variables
+or in a `.env` file (see `.env.example`):
 
 ```dotenv
-SPRINTJUDGE_MS_CLIENT_ID=...
-SPRINTJUDGE_MS_CLIENT_SECRET=...
-SPRINTJUDGE_MS_TENANT_ID=common
+SPRINTJUDGE_ADMIN_USERNAME=admin
+SPRINTJUDGE_ADMIN_PASSWORD=change-me-please
 ```
 
-The loader checks `<jar-folder>/.env` first, then `./env/.env`, then `./.env`.
-OS environment variables always win over `.env`.
+OS environment variables always win over `.env`. (OAuth2/Entra ID support exists
+in the codebase but is unwired in the MVP chain.)
 
 ## First run
 
 1. Sign in as admin at `/admin/login`.
 2. Create a quiz, add questions via the 4-step wizard.
 3. Click **Host** to generate a 6-digit PIN.
-4. Players join at the join screen with the PIN and a nickname.
+4. Players join with the PIN and a nickname — either at the join screen or
+   directly via the invite link `/j/<PIN>` (the same URL the host's QR code
+   encodes). No account needed.
