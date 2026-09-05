@@ -202,3 +202,112 @@ describe("useStaggerIn", () => {
         expect(motionMock.killFor).toHaveBeenCalled();
     });
 });
+
+describe("useVirtualWindow edges", () => {
+    test("zero total renders an empty window", () => {
+        const { host, root } = render(React.createElement(WindowProbe, { total: 0, rowHeight: 20 }));
+        expect(captured).toEqual({ start: 0, end: 0 });
+        cleanup(host, root);
+    });
+
+    test("zero overscan narrows the window to the bare viewport", () => {
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20, overscan: 0, viewportH: 460 }),
+        );
+        expect(captured).toEqual({ start: 0, end: 23 });
+        cleanup(host, root);
+    });
+
+    test("scroll down then back up returns the start to zero", () => {
+        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        scrollInner(host, 400);
+        expect(captured.start).toBe(14);
+        scrollInner(host, 0);
+        expect(captured).toEqual({ start: 0, end: 35 });
+        cleanup(host, root);
+    });
+
+    test("three scroll stops walk the window forward", () => {
+        const { host, root } = render(React.createElement(WindowProbe, { total: 200, rowHeight: 20 }));
+        const starts: number[] = [];
+        for (const top of [200, 600, 1200]) {
+            scrollInner(host, top);
+            starts.push(captured.start);
+        }
+        expect(starts).toEqual([4, 24, 54]);
+        cleanup(host, root);
+    });
+
+    test("shrinking the total clamps the end mid-life", () => {
+        const { host, root } = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        act(() => {
+            root.render(React.createElement(WindowProbe, { total: 10, rowHeight: 20 }));
+        });
+        expect(captured).toEqual({ start: 0, end: 10 });
+        cleanup(host, root);
+    });
+
+    test("zero viewport height shows only the overscan rows", () => {
+        const { host, root } = render(
+            React.createElement(WindowProbe, { total: 100, rowHeight: 20, overscan: 6, viewportH: 0 }),
+        );
+        expect(captured).toEqual({ start: 0, end: 12 });
+        cleanup(host, root);
+    });
+
+    test("scrolling past the bottom clamps the end at the total", () => {
+        const { host, root } = render(React.createElement(WindowProbe, { total: 30, rowHeight: 20 }));
+        scrollInner(host, 50_000);
+        expect(captured.end).toBe(30);
+        expect(captured.start).toBeGreaterThanOrEqual(0);
+        cleanup(host, root);
+    });
+
+    test("remount after scrolling starts back at zero", () => {
+        const first = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        scrollInner(first.host, 800);
+        expect(captured.start).toBeGreaterThan(0);
+        cleanup(first.host, first.root);
+        const second = render(React.createElement(WindowProbe, { total: 100, rowHeight: 20 }));
+        expect(captured).toEqual({ start: 0, end: 35 });
+        cleanup(second.host, second.root);
+    });
+});
+
+describe("useMotion edges", () => {
+    const PRESETS = ["card", "page", "modal", "bar", "pin", "podium", "ticker"] as const;
+
+    test("every preset enters with its own name", () => {
+        for (const preset of PRESETS) {
+            motionMock.enter.mockClear();
+            const { host, root } = render(React.createElement(EnterProbe, { preset, deps: [] }));
+            expect(motionMock.enter).toHaveBeenCalledWith(host.firstChild, preset);
+            cleanup(host, root);
+        }
+    });
+
+    test("identical deps across rerenders run the entrance once", () => {
+        const { host, root } = render(React.createElement(EnterProbe, { preset: "card", deps: ["x"] }));
+        act(() => {
+            root.render(React.createElement(EnterProbe, { preset: "card", deps: ["x"] }));
+        });
+        expect(motionMock.enter).toHaveBeenCalledTimes(1);
+        cleanup(host, root);
+    });
+
+    test("zero offset passes straight through to staggerIn", () => {
+        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".item", deps: [], offset: 0 }));
+        expect(motionMock.staggerIn).toHaveBeenCalledWith(host.firstChild, ".item", 0);
+        cleanup(host, root);
+    });
+
+    test("deps change re-runs the stagger and kills the old tweens", () => {
+        const { host, root } = render(React.createElement(StaggerProbe, { selector: ".a", deps: ["a"] }));
+        act(() => {
+            root.render(React.createElement(StaggerProbe, { selector: ".a", deps: ["b"] }));
+        });
+        expect(motionMock.staggerIn).toHaveBeenCalledTimes(2);
+        expect(motionMock.killFor).toHaveBeenCalled();
+        cleanup(host, root);
+    });
+});
