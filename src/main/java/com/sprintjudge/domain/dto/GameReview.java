@@ -26,7 +26,7 @@ public record GameReview(
             int totalAttempts,
             int correctCount,
             double correctRate,
-            double avgTimeSec
+            double avgAttempts
     ) {}
 
     public record PlayerReview(
