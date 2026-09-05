@@ -75,6 +75,24 @@ class QuizRepositoryTest {
     }
 
     @Test
+    void deletePurgesSessionsSubmissionsAndQuestions() {
+        Quiz q = repo.create(new Quiz("qp", "T", null, null, Instant.now(), false));
+        var sessions = new GameSessionRepository(dsl);
+        var questions = new QuestionRepository(dsl);
+        var submissions = new SubmissionRepository(dsl);
+        var s = sessions.create(q.id(), "host", "123321", null);
+        questions.save(new com.sprintjudge.domain.models.Question("qq", q.id(), "T", null,
+                "MCQ", null, 30, 100, "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, Instant.now()));
+        submissions.save(new com.sprintjudge.domain.models.Submission(null, s.id(), "qq",
+                "Ann", "uuid-1", "{}", 10, true, "", 1, Instant.now()));
+        repo.delete(q.id());
+        assertTrue(repo.findById(q.id()).isEmpty());
+        assertTrue(sessions.findByPin("123321").isEmpty());
+        assertTrue(questions.findById("qq").isEmpty());
+        assertTrue(submissions.findBySession(s.id()).isEmpty());
+    }
+
+    @Test
     void toQuizTemplateNullBranch() {
         dsl.insertInto(Tables.QUIZZES)
                 .columns(Tables.QUIZZES_ID, Tables.QUIZZES_TITLE, Tables.QUIZZES_CREATED_AT, Tables.QUIZZES_TEMPLATE)
