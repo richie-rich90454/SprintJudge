@@ -348,7 +348,7 @@ class GameSessionRepositoryTest {
     }
 
     @Test
-    void createWithBlankModeFallsBackToStandard() {
+    void createWithNullModeFallsBackToStandard() {
         GameSession s = repo.create("quiz1", "host1", "900022", null, null);
         assertEquals("STANDARD", s.gameMode());
     }
