@@ -22,6 +22,27 @@ Question rendering is an abstract base plus 12 concrete renderers.
 One file per commit. Use `feat(scope): description` or `fix(scope): description`.
 No `any` in TypeScript. No raw SQL. Flat UI only.
 
+Verify a commit series with:
+
+```bash
+git log <base>..HEAD --name-only  # every commit lists exactly one path
+```
+
+## Verify before pushing
+
+```bash
+mvn -o test                    # full backend suite (587 tests)
+cd frontend && npx tsc --noEmit && npm run build
+cd docs && npm run docs:build
+```
+
+Mermaid diagram rules (rendered client-side, must never overflow):
+
+- Node labels stay under ~20 characters; use `<br/>` for a second line.
+- Edge labels are single short verbs, or no label at all.
+- Prefer TB/LR with at most ~6 nodes per rank.
+- Sequence participants get short names; notes stay two lines max.
+
 ## UI lockdown (non-negotiable)
 
 - Light mode only — no dark selectors, no theme toggle.
