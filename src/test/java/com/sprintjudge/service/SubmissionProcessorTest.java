@@ -44,8 +44,10 @@ class SubmissionProcessorTest {
         Question q = mock(Question.class);
         when(q.questionType()).thenReturn("OJ_FULL");
         when(q.config()).thenReturn(config);
-        when(q.pointsBase()).thenReturn(100);
+        lenient().when(q.pointsBase()).thenReturn(100);
         when(q.timeLimitSec()).thenReturn(10);
+        lenient().when(q.title()).thenReturn("T");
+        lenient().when(q.description()).thenReturn("D");
         return q;
     }
 
@@ -202,5 +204,225 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         verify(writeBuffer).offer(any(Submission.class)); // 50 > 10 so it overwrites
         assertEquals(50, received[0]);
+    }
+
+    @Test
+    void executorThrowTriggersRejectedWithZero() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenThrow(new RuntimeException("judge crash"));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertEquals(0, received[0]);
+        verify(writeBuffer, never()).offer(any());
+        assertEquals(2, slot.availablePermits());
+    }
+
+    @Test
+    void aiFeedbackAttachedWhenEnabledAndFailing() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 2, false, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(20);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        when(aiGradingService.isEnabled()).thenReturn(true);
+        when(aiGradingService.grade(any(), any(), any(), any(), anyBoolean(), anyInt(), anyInt()))
+                .thenReturn(new AiGradingService.AiGradeResult(true, "fix the loop", 15, "ok"));
+        String[] feedback = {null};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> feedback[0] = ai;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 3L, handler).get());
+        assertEquals("fix the loop", feedback[0]);
+        verify(writeBuffer).offer(any(Submission.class));
+    }
+
+    @Test
+    void aiUnavailableYieldsNullFeedback() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 1, false, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(5);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        when(aiGradingService.isEnabled()).thenReturn(true);
+        when(aiGradingService.grade(any(), any(), any(), any(), anyBoolean(), anyInt(), anyInt()))
+                .thenReturn(AiGradingService.AiGradeResult.unavailable());
+        String[] feedback = {"sentinel"};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> feedback[0] = ai;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertNull(feedback[0]);
+    }
+
+    @Test
+    void aiThrowIsSwallowedAndStillAccepts() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 1, false, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(7);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        when(aiGradingService.isEnabled()).thenReturn(true);
+        when(aiGradingService.grade(any(), any(), any(), any(), anyBoolean(), anyInt(), anyInt()))
+                .thenThrow(new RuntimeException("ai down"));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertEquals(7, received[0]);
+    }
+
+    @Test
+    void aiSkippedWhenDisabled() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 1, false, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(11);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        when(aiGradingService.isEnabled()).thenReturn(false);
+        String[] feedback = {"sentinel"};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> feedback[0] = ai;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertNull(feedback[0]);
+        verify(aiGradingService, never()).grade(any(), any(), any(), any(), anyBoolean(), anyInt(), anyInt());
+    }
+
+    @Test
+    void aiSkippedWhenAllTestsPass() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(2, 2, true, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(100);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        String[] feedback = {"sentinel"};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> feedback[0] = ai;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertNull(feedback[0]);
+        verify(aiGradingService, never()).grade(any(), any(), any(), any(), anyBoolean(), anyInt(), anyInt());
+    }
+
+    @Test
+    void equalBestScoreDoesNotOverwrite() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(40);
+        Submission best = mock(Submission.class);
+        when(best.scoreEarned()).thenReturn(40);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        verify(writeBuffer, never()).offer(any());
+        assertEquals(40, received[0]);
+    }
+
+    @Test
+    void hiddenFlagAndMemoryParsedIntoJudgeRequest() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion(
+                "{\"testCases\":[{\"input\":\"a\",\"expectedOutput\":\"b\",\"isHidden\":true},{\"input\":\"c\",\"expectedOutput\":\"d\"}],\"memoryLimitMb\":512}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(2, 2, true, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(100);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
+        verify(executor).judge(cap.capture());
+        assertEquals(2, cap.getValue().testCases().size());
+        assertTrue(cap.getValue().testCases().get(0).hidden());
+        assertFalse(cap.getValue().testCases().get(1).hidden());
+        assertEquals(512, cap.getValue().memoryLimitMb());
+        assertEquals(100, received[0]);
+    }
+
+    @Test
+    void memoryDefaultsAndTimeoutFloorApplied() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question tiny = mock(Question.class);
+        when(tiny.questionType()).thenReturn("OJ_FULL");
+        when(tiny.config()).thenReturn("{}");
+        when(tiny.pointsBase()).thenReturn(100);
+        when(tiny.timeLimitSec()).thenReturn(1);
+        when(questionRepository.findById("q")).thenReturn(Optional.of(tiny));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(90);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
+        verify(executor).judge(cap.capture());
+        assertEquals(256, cap.getValue().memoryLimitMb());
+        assertEquals(5, cap.getValue().timeoutSec());
+    }
+
+    @Test
+    void sourceAtExactLimitIsAccepted() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
+        when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
+                .thenReturn(60);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(65536), 1, Map.of(), 0L, handler).get());
+        assertEquals(60, received[0]);
+        verify(executor).judge(any(JudgeRequest.class));
+    }
+
+    @Test
+    void sourceOneOverLimitIsRejected() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = mock(Question.class);
+        when(q.questionType()).thenReturn("OJ_FULL");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        int[] received = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "x".repeat(65537), 1, Map.of(), 0L, handler).get());
+        assertEquals(0, received[0]);
+        verify(executor, never()).judge(any());
+    }
+
+    @Test
+    void zeroTotalTestsScoresZeroButStillNotifies() throws Exception {
+        Semaphore slot = new Semaphore(2);
+        SubmissionProcessor p = processor(slot);
+        Question q = codingQuestion("{\"testCases\":[]}");
+        when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+        when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 0, false, List.of()));
+        when(scoringEngine.scoreCoding(0, 0, 100, false, 0L, 10L, 1, Map.of())).thenReturn(0);
+        when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+        int[] received = {-1};
+        int[] totals = {-1};
+        CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> { received[0] = s; totals[0] = total; };
+        assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
+        assertEquals(0, received[0]);
+        assertEquals(0, totals[0]);
     }
 }
