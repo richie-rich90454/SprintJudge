@@ -24,9 +24,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -91,9 +93,42 @@ class AdminControllerTest {
 
     @Test
     void updateQuestion() {
-        when(questionRepository.save(any())).thenReturn(new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null));
         Question in = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(in));
+        when(questionRepository.save(any())).thenReturn(new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null));
         assertNotNull(controller.updateQuestion("qid", in));
+    }
+
+    @Test
+    void updateQuestionKeepsStoredQuizId() {
+        Question stored = new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        when(questionRepository.findById("qid")).thenReturn(Optional.of(stored));
+        when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Question body = new Question("qid", "evil-quiz", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        assertEquals("q1", controller.updateQuestion("qid", body).quizId());
+    }
+
+    @Test
+    void updateMissingQuestionIs404() {
+        when(questionRepository.findById("nope")).thenReturn(Optional.empty());
+        Question in = new Question("nope", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.updateQuestion("nope", in));
+    }
+
+    @Test
+    void addQuestionWithBadTypeIs400() {
+        Question in = new Question(null, "q1", "Q", null, "NOPE", null, 30, 10, "{}", 0, null);
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.addQuestion("q1", in));
+    }
+
+    @Test
+    void createDuplicateQuizIs409() {
+        when(quizRepository.findById("q1"))
+                .thenReturn(Optional.of(new Quiz("q1", "T", null, null, null, false)));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> controller.createQuiz(new Quiz("q1", "T", null, null, null, false)));
     }
 
     @Test
