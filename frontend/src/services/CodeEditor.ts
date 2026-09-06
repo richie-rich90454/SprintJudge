@@ -32,12 +32,12 @@ export async function createCodeEditor(
     opts: CodeEditorOptions,
 ): Promise<CodeEditorHandle> {
     try {
-        // Slim API entry (not the full editor.main): skips the bundled
-        // quick-access/reference-search extras we never invoke.
+        // Slim API entry plus the complete editor feature set — but NOT the
+        // fat editor.main entry, which would also bundle ~100 unused grammars
+        // plus the ts/css/html/json language services.
         const monaco = await import("monaco-editor/esm/vs/editor/editor.api");
-        // Register only the judge languages (cpp covers C too). Importing the
-        // full entry would also bundle ~100 unused grammars plus the
-        // ts/css/html/json language services.
+        await import("monaco-editor/esm/vs/editor/edcore.main");
+        // Register only the judge languages (cpp covers C too).
         await Promise.all([
             import("monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution"),
             import("monaco-editor/esm/vs/basic-languages/java/java.contribution"),
