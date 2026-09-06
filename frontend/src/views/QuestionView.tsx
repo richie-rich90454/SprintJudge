@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Navigate } from "@tanstack/react-router";
+import { Link, Navigate } from "@tanstack/react-router";
 import { useGameStore } from "../stores/useGameStore";
 import { useTimerStore } from "../stores/useTimerStore";
 import { motionReduced, useUIStore } from "../stores/useUIStore";
@@ -21,6 +21,7 @@ export function QuestionView() {
     const gameMode = useGameStore((s) => s.gameMode);
     const roomMode = useGameStore((s) => s.room?.gameMode);
     const joined = useGameStore((s) => s.playerUuid !== null);
+    const hasPin = useGameStore((s) => s.pin !== null);
     const submit = useGameStore((s) => s.submit);
     const wsError = useGameStore((s) => s.error);
     const lastResult = useGameStore((s) => s.lastResult);
@@ -109,7 +110,9 @@ export function QuestionView() {
                         )}
                         <p className="text-[var(--oq-ink-soft)] mt-2">
                             {q
-                                ? "The host is preparing the next round."
+                                ? roomMode === "PRACTICE" || gameMode === "PRACTICE"
+                                    ? "Next question coming up."
+                                    : "The host is preparing the next round."
                                 : "No question was active. The host is preparing the next round."}
                         </p>
                     </div>
@@ -119,6 +122,31 @@ export function QuestionView() {
     }
 
     if (!q || end === null) {
+        // Pin-less arrival (refresh wiped the session): infinite
+        // "connecting" helps nobody — point back to an entry point.
+        if (!joined && !hasPin) {
+            return (
+                <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
+                    <div className="text-center w-full max-w-sm">
+                        <p className="label-caps mb-2">No game</p>
+                        <p className="text-[var(--oq-ink-soft)] mb-4">
+                            You haven&apos;t joined a game yet.
+                        </p>
+                        <p className="text-sm font-bold">
+                            <Link to="/join" className="underline underline-offset-4">
+                                Join a game
+                            </Link>
+                            <span aria-hidden="true" className="mx-3 opacity-60">
+                                |
+                            </span>
+                            <Link to="/practice" className="underline underline-offset-4">
+                                Practice solo
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            );
+        }
         return (
             <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
                 <div className="text-center w-full max-w-sm">
