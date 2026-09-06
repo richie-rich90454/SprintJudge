@@ -44,13 +44,18 @@ describe("requireAdmin", () => {
         await expect(requireAdmin()).rejects.toBeInstanceOf(Response);
     });
 
-    test("lets the dashboard show its own error on 500", async () => {
+    test("bounces to the login page on 500", async () => {
         getSettings.mockRejectedValue(authError(500));
-        await expect(requireAdmin()).resolves.toBeUndefined();
+        await expect(requireAdmin()).rejects.toBeInstanceOf(Response);
     });
 
-    test("lets the dashboard show its own error when the backend is down", async () => {
+    test("bounces to the login page when the backend is down", async () => {
         getSettings.mockRejectedValue(new Error("network down"));
-        await expect(requireAdmin()).resolves.toBeUndefined();
+        const err = (await requireAdmin().then(
+            () => null,
+            (e: unknown) => e,
+        )) as Response | null;
+        expect(err).toBeInstanceOf(Response);
+        expect((err as unknown as { options?: { to?: string } })?.options?.to).toBe("/admin/login");
     });
 });
