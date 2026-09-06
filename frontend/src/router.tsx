@@ -42,6 +42,12 @@ const soloRoute = createRoute({
     component: SoloView,
 });
 
+const practiceRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/practice",
+    component: lazyRouteComponent(() => import("./views/PracticeView"), "PracticeView"),
+});
+
 const exploreRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/explore",
@@ -96,6 +102,7 @@ const routeTree = rootRoute.addChildren([
     joinPinRoute,
     joinRoute,
     soloRoute,
+    practiceRoute,
     exploreRoute,
     playRoute,
     hostRoute,
