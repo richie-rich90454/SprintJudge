@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.nio.file.Path;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,7 +46,7 @@ class SecurityPermitMatrixTest {
 
     @Test
     void spaRoutesServeShellLoggedOut() throws Exception {
-        for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/explore"}) {
+        for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/practice", "/explore"}) {
             mvc.perform(get(path))
                     .andExpect(status().isOk())
                     .andExpect(forwardedUrl("/index.html"));
@@ -58,10 +59,17 @@ class SecurityPermitMatrixTest {
     }
 
     @Test
-    void adminApiRedirectsAnonymousToLogin() throws Exception {
-        mvc.perform(get("/api/admin/quizzes"))
-                .andExpect(status().isFound())
-                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/admin/login")));
+    void practicePostIsReachableLoggedOut() throws Exception {
+        // Empty bank: 404 proves an anonymous caller reaches the handler
+        // (not a 403/denyAll) and gets a machine-readable status.
+        mvc.perform(post("/api/public/practice")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void adminApiReturns401Anonymous() throws Exception {
+        // Machine-readable 401 (not the form-login 302): XHR must not follow
+        // a redirect to HTML and mistake it for an authenticated session.
+        mvc.perform(get("/api/admin/quizzes")).andExpect(status().isUnauthorized());
     }
 
     @Test
