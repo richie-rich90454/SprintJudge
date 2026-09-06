@@ -179,8 +179,10 @@ class PracticeSoloFlowTest {
 
     private static String field(String json, String key) {
         Matcher m = Pattern.compile("\"" + key + "\":\"([^\"]+)\"").matcher(json);
-        assertTrue(m.find(), "missing " + key + " in " + json);
-        return m.group(1);
+        if (m.find()) return m.group(1);
+        Matcher n = Pattern.compile("\"" + key + "\":([0-9]+)").matcher(json);
+        assertTrue(n.find(), "missing " + key + " in " + json);
+        return n.group(1);
     }
 
     @Test
@@ -219,17 +221,22 @@ class PracticeSoloFlowTest {
             ws.sendText("{\"type\":\"JOIN\",\"pin\":\"" + pinB + "\",\"name\":\"Solo\",\"role\":\"player\"}",
                     true);
             // Impatient double-Start: two rooms, two seats, one socket. Streams
-            // interleave (each Q1 precedes its own JOINED), so count shapes.
-            int qStarts = 0;
+            // interleave and catch-ups duplicate Q1s, so count distinct rounds
+            // (by round-start instant) and distinct seats.
+            int qRounds = 0;
+            java.util.Set<String> rounds = new java.util.HashSet<>();
             java.util.Set<String> uuids = new java.util.HashSet<>();
             long deadline = System.currentTimeMillis() + 15_000;
-            while (System.currentTimeMillis() < deadline && (qStarts < 2 || uuids.size() < 2)) {
+            while (System.currentTimeMillis() < deadline && (qRounds < 2 || uuids.size() < 2)) {
                 String msg = inbox.next("double join", deadline);
                 if (msg == null) break;
-                if (msg.contains("QUESTION_START") && msg.contains("q1-flow-qz-2")) qStarts++;
+                if (msg.contains("QUESTION_START") && msg.contains("q1-flow-qz-2")) {
+                    rounds.add(field(msg, "startedAtEpochMs"));
+                    qRounds = rounds.size();
+                }
                 if (msg.contains("\"JOINED\"")) uuids.add(field(msg, "uuid"));
             }
-            assertEquals(2, qStarts, "both rooms must stream Q1. seen=" + inbox.seen);
+            assertEquals(2, qRounds, "both rooms must stream Q1. seen=" + inbox.seen);
             assertEquals(2, uuids.size(), "both joins must ack distinct seats. seen=" + inbox.seen);
         } finally {
             ws.abort();
@@ -268,6 +275,43 @@ class PracticeSoloFlowTest {
             assertEquals(uuid, field(rejoined, "uuid"), "reconnect must reclaim the same seat");
         } finally {
             ws2.abort();
+        }
+    }
+
+    @Test
+    void soloJourneyRunsToResultsWithoutHost() throws Exception {
+        quizzes.create(new Quiz("flow-full", "Flow Full", null, null, Instant.now(), true));
+        questions.save(new Question("q1-flow-full", "flow-full", "Q1", "D", "MCQ", null, 30, 100,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, Instant.now()));
+        questions.save(new Question("q2-flow-full", "flow-full", "Q2", "D", "MCQ", null, 30, 100,
+                "{\"options\":[\"a\",\"b\"],\"correctIndex\":1}", 1, Instant.now()));
+        String pin = practicePin("flow-full");
+        Inbox inbox = new Inbox();
+        WebSocket ws = openSocket(inbox);
+        try {
+            ws.sendText("{\"type\":\"JOIN\",\"pin\":\"" + pin + "\",\"name\":\"Solo\",\"role\":\"player\"}",
+                    true);
+            String q1 = inbox.await("Q1", "QUESTION_START", "q1-flow-full");
+            assertNotNull(q1, "Q1 never arrived. seen=" + inbox.seen);
+            String joined = inbox.await("join", "\"JOINED\"");
+            String uuid = field(joined, "uuid");
+
+            ws.sendText("{\"type\":\"SUBMIT\",\"questionId\":\"q1-flow-full\",\"response\":"
+                            + "{\"selectedIndex\":0},\"language\":\"python\"}",
+                    true);
+            String feedback = inbox.await("feedback", "SUBMISSION_RESULT", "q1-flow-full");
+            assertNotNull(feedback, "submit feedback never arrived. seen=" + inbox.seen);
+            // Review then auto-advance on the real 2s timer: no host involved.
+            String q2 = inbox.await("Q2", "QUESTION_START", "q2-flow-full");
+            assertNotNull(q2, "practice never advanced to Q2. seen=" + inbox.seen);
+
+            ws.sendText("{\"type\":\"SUBMIT\",\"questionId\":\"q2-flow-full\",\"response\":"
+                            + "{\"selectedIndex\":1},\"language\":\"python\"}",
+                    true);
+            String end = inbox.await("end", "GAME_REVIEW");
+            assertNotNull(end, "game never ended after the last question. seen=" + inbox.seen);
+        } finally {
+            ws.abort();
         }
     }
 }
