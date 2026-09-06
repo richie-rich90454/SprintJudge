@@ -142,13 +142,19 @@ export class GameStateManager {
     private dispatch(m: WsMessage) {
         switch (m.type) {
             case "JOINED":
+                // Reconnect re-JOINs the SAME game (uuid carried over): keep the
+                // live question — wiping it strands the player on standby with
+                // no re-QUESTION_START coming. A fresh join resets everything.
                 this.patch({
                     playerUuid: m.uuid as string,
                     rejoinToken: (m.rejoinToken as string) ?? null,
                     room: m.room as unknown as RoomState,
                     status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
                     error: null,
-                    currentQuestion: null,
+                    currentQuestion:
+                        this.state.playerUuid !== null && this.state.playerUuid === m.uuid
+                            ? this.state.currentQuestion
+                            : null,
                     leaderboard: [],
                     lastResult: null,
                     review: null,
