@@ -83,7 +83,7 @@ public class SecurityConfig {
                 // Public SPA deep links (mirrors SpaWebConfig forward + router.tsx):
                 // join QR codes point at /j/<pin> on this origin.
                 .requestMatchers("/j/**", "/join", "/play", "/host", "/results",
-                        "/solo", "/explore").permitAll()
+                        "/solo", "/practice", "/explore").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").authenticated()
                 // Ops endpoints stay login-gated (health alone is public).
                 .requestMatchers("/actuator/prometheus", "/actuator/metrics", "/actuator/info").authenticated()
@@ -95,7 +95,23 @@ public class SecurityConfig {
                 .permitAll())
             .logout(logout -> logout
                 .logoutUrl("/admin/logout")
-                .logoutSuccessUrl("/"));
+                .logoutSuccessUrl("/"))
+            // API callers get machine-readable 401, not the form-login 302
+            // to an HTML page: without this, XHR follows the redirect, the
+            // SPA guard sees a 200, and anonymous users land on a dead
+            // dashboard instead of bouncing to /admin/login.
+            // API callers get machine-readable 401, not the form-login 302
+            // to an HTML page: without this, XHR follows the redirect, the
+            // SPA guard sees a 200, and anonymous users land on a dead
+            // dashboard instead of bouncing to /admin/login.
+            .exceptionHandling(e -> e.authenticationEntryPoint((request, response, authException) -> {
+                if (request.getRequestURI().startsWith("/api/")) {
+                    response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                } else {
+                    new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint(
+                            "/admin/login").commence(request, response, authException);
+                }
+            }));
 
         return http.build();
     }
