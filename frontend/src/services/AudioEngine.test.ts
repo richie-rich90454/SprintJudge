@@ -246,12 +246,23 @@ describe("AudioEngine music", () => {
 
 describe("AudioEngine mute and resume", () => {
     test("setMuted drives the destination mute flag", () => {
+        audio.init();
         audio.setMuted(true);
         expect(audio.isMuted()).toBe(true);
         expect(Tone.getDestination().mute).toBe(true);
         audio.setMuted(false);
         expect(audio.isMuted()).toBe(false);
         expect(Tone.getDestination().mute).toBe(false);
+    });
+
+    test("pre-boot mute applies at init without touching tone early", () => {
+        Tone.getDestination().mute = false;
+        audio.setMuted(true);
+        expect(audio.isMuted()).toBe(true);
+        expect(Tone.getDestination().mute).toBe(false);
+        audio.init();
+        expect(Tone.getDestination().mute).toBe(true);
+        audio.setMuted(false);
     });
 
     test("resume starts the transport and tone", async () => {
