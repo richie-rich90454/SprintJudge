@@ -56,18 +56,32 @@ describe("AdminApiService setup", () => {
 });
 
 describe("AdminApiService endpoints", () => {
-    test("listQuizzes GETs the public quiz list", async () => {
+    test("listQuizzes GETs the admin quiz list", async () => {
         const svc = new AdminApiService();
         client.get.mockResolvedValue(ok([{ id: "q" }]));
         await expect(svc.listQuizzes()).resolves.toEqual([{ id: "q" }]);
-        expect(client.get).toHaveBeenCalledWith("/public/quizzes");
+        expect(client.get).toHaveBeenCalledWith("/admin/quizzes");
+    });
+
+    test("listBanks GETs the public bank headers", async () => {
+        const svc = new AdminApiService();
+        client.get.mockResolvedValue(ok([{ id: "b", title: "T", description: null }]));
+        await expect(svc.listBanks()).resolves.toEqual([{ id: "b", title: "T", description: null }]);
+        expect(client.get).toHaveBeenCalledWith("/public/banks");
     });
 
     test("startPractice POSTs the practice launcher", async () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ pinCode: "123456" }));
         await expect(svc.startPractice()).resolves.toEqual({ pinCode: "123456" });
-        expect(client.post).toHaveBeenCalledWith("/public/practice");
+        expect(client.post).toHaveBeenCalledWith("/public/practice", {});
+    });
+
+    test("startPractice passes the chosen bank", async () => {
+        const svc = new AdminApiService();
+        client.post.mockResolvedValue(ok({ pinCode: "654321" }));
+        await expect(svc.startPractice("bank-1")).resolves.toEqual({ pinCode: "654321" });
+        expect(client.post).toHaveBeenCalledWith("/public/practice", { quizId: "bank-1" });
     });
 
     test("getQuestions GETs the quiz question list", async () => {
@@ -231,7 +245,7 @@ describe("AdminApiService error matrix", () => {
         const svc = new AdminApiService();
         client.get.mockRejectedValue(http(401));
         await expect(svc.listQuizzes()).rejects.toThrow("401");
-        expect(client.get).toHaveBeenCalledWith("/public/quizzes");
+        expect(client.get).toHaveBeenCalledWith("/admin/quizzes");
     });
 
     test("listQuizzes network failure propagates", async () => {
