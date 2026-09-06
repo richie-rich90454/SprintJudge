@@ -239,17 +239,53 @@ public class GameWebSocket {
 
     @OnClose
     public void onClose(Session session) {
-        sessions.unregister(session.getId());
-        String pin = pinOf(session);
-        String uuid = (String) session.getUserProperties().get(UUID_KEY);
-        if (pin != null && uuid != null) roomManager.leave(pin, uuid);
+        // Abrupt drops (tab closed, network lost) can leave the session
+        // facade throwing: cleanup must never die before roomManager.leave,
+        // or the seat leaks and rejoins see a phantom occupant.
+        String id = idOf(session);
+        if (id != null) {
+            try {
+                sessions.unregister(id);
+            } catch (RuntimeException e) {
+                org.slf4j.LoggerFactory.getLogger(GameWebSocket.class)
+                        .debug("WS unregister failed for {}", id, e);
+            }
+        }
+        String pin = propOf(session, PIN_KEY);
+        String uuid = propOf(session, UUID_KEY);
+        if (pin != null && uuid != null) {
+            try {
+                roomManager.leave(pin, uuid);
+            } catch (RuntimeException e) {
+                org.slf4j.LoggerFactory.getLogger(GameWebSocket.class)
+                        .debug("WS leave failed for room {}", pin, e);
+            }
+        }
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
-        org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).warn("WebSocket error on session {}", session.getId(), error);
+        org.slf4j.LoggerFactory.getLogger(GameWebSocket.class)
+                .warn("WebSocket error on session {}", idOf(session), error);
         // Some containers don't call onClose after onError — ensure cleanup.
         onClose(session);
+    }
+
+    private static String idOf(Session session) {
+        try {
+            return session.getId();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static String propOf(Session session, String key) {
+        try {
+            Object value = session.getUserProperties().get(key);
+            return value instanceof String s ? s : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private String pinOf(Session session) {
