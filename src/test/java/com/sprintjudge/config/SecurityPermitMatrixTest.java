@@ -55,6 +55,15 @@ class SecurityPermitMatrixTest {
     }
 
     @Test
+    void indexShellIsFreshEveryLoad() throws Exception {
+        // The shell must never be cached: a cached index.html boots the
+        // previous deployment's hashed JS after an upgrade.
+        mvc.perform(get("/index.html"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
+    }
+
+    @Test
     void publicApiServesLoggedOut() throws Exception {
         mvc.perform(get("/api/public/quizzes")).andExpect(status().isOk());
         mvc.perform(get("/api/public/banks")).andExpect(status().isOk());
