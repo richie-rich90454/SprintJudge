@@ -48,6 +48,14 @@ export class AdminApiService {
         return this.client.get<QuizDto[]>("/public/quizzes").then((r) => r.data);
     }
 
+    /**
+     * One-click solo practice: the server spins up a PRACTICE-mode room on
+     * the practice set. No admin session involved.
+     */
+    startPractice() {
+        return this.client.post<{ pinCode: string }>("/public/practice").then((r) => r.data);
+    }
+
     getQuestions(quizId: string) {
         return this.client
             .get<QuestionPayload[]>(`/admin/quizzes/${quizId}/questions`)
