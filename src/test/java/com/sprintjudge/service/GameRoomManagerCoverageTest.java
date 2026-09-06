@@ -290,6 +290,9 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456,
                 new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.PRACTICE));
+        when(questionRepository.findByQuiz("qz")).thenReturn(java.util.List.of(
+                new com.sprintjudge.domain.models.Question("q1", "qz", "T", "D", "MCQ", null, 30, 100,
+                        "{\"correctIndex\":0}", 0, null)));
         mgr.join("123456", "A", "sa", "player", null);
         GameRoom room = roomOf(mgr);
         room.setStatus("ACTIVE");
