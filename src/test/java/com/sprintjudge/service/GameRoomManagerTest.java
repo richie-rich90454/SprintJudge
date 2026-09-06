@@ -148,6 +148,14 @@ class GameRoomManagerTest {
         mgr.join("123456", "Solo", "sess-1", "player", null);
         assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
         assertEquals("q1", liveRoom(mgr, "123456").currentQuestionId());
+        // The client renders off the broadcast payload: prove Q1 (untimed
+        // marker -1) actually goes out on join, not just internal state.
+        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+        QuestionStart start = (QuestionStart) msg.getAllValues().stream()
+                .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
+        assertEquals("q1", start.question().id());
+        assertEquals(-1, start.timeLimitSec());
     }
 
     @Test
