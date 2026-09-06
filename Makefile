@@ -117,9 +117,13 @@ check-env: ## Audit the toolchain.
 test: ## Full backend test suite.
 	@$(LOAD_ENV); $(MVNW) test
 
+.PHONY: verify
+verify: ## Full gates: backend tests + 100% coverage (needs fresh SPA: run make build first).
+	@$(LOAD_ENV); $(MVNW) verify
+
 .PHONY: test-frontend
-test-frontend: ## Frontend typecheck.
-	cd $(FRONTEND) && $(NPX) tsc --noEmit
+test-frontend: ## Frontend typecheck + unit tests with 100% coverage.
+	cd $(FRONTEND) && $(NPX) tsc --noEmit && $(NPM) run test:unit
 
 .PHONY: test-e2e
 test-e2e: ## Playwright specs (needs make dev-backend running).
