@@ -20,6 +20,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -247,5 +248,19 @@ class GameWebSocketTeamBattleTest {
         props.put("playerUuid", "u1");
         assertDoesNotThrow(() -> ws().onError(session, new RuntimeException("reset")));
         verify(roomManager).leave("123456", "u1");
+    }
+
+    @Test
+    void joinSendsCatchUpAfterJoined() {
+        when(rateLimiter.tryJoin(any())).thenReturn(true);
+        var player = new Player("uuid-1", "Solo", 0, "sess", true, "tok-1");
+        when(roomManager.join(eq("123456"), eq("Solo"), eq("sess"), eq("player"), any()))
+                .thenReturn(player);
+        when(roomManager.getRoomState("123456")).thenReturn(
+                new com.sprintjudge.domain.dto.RoomState("ROOM_STATE", "LOBBY", 0, null,
+                        List.of(), "PRACTICE"));
+        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Solo\"}");
+        assertTrue(lastMessage().contains("JOINED"));
+        verify(roomManager).sendCurrentQuestion("123456", "sess");
     }
 }
