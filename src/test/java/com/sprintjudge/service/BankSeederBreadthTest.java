@@ -1,9 +1,9 @@
 package com.sprintjudge.service;
 
 import com.sprintjudge.TestDb;
+import com.sprintjudge.repository.AdminSettingsRepository;
 import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
-import com.sprintjudge.repository.AdminSettingsRepository;
 import com.sprintjudge.util.Json;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
@@ -28,6 +28,9 @@ class BankSeederBreadthTest {
 
     @Mock
     QuizRepository quizRepository;
+
+    @Mock
+    QuestionRepository questionRepository;
 
     @Mock
     ImportExportService importExportService;
@@ -83,13 +86,15 @@ class BankSeederBreadthTest {
     }
 
     @Test
-    void emptyTestBundleLeavesBankUntouchedWithoutThrowing() throws Exception {
+    void realBundleSeedsFullyWithoutThrowing() throws Exception {
         DSLContext dsl = TestDb.inMemory();
         QuizRepository realQuizzes = new QuizRepository(dsl);
         ImportExportService realImport = new ImportExportService(
                 realQuizzes, new QuestionRepository(dsl), new AdminSettingsRepository(dsl));
-        BankSeeder realSeeder = new BankSeeder(realQuizzes, realImport);
+        BankSeeder realSeeder = new BankSeeder(realQuizzes, new QuestionRepository(dsl), realImport);
         assertDoesNotThrow(() -> realSeeder.run(null));
-        assertEquals(0, realQuizzes.count());
+        // Fixture holds 3 banks: proves chunk wiring end to end (a single
+        // capped import would reject an over-cap bundle instead).
+        assertEquals(3, realQuizzes.count());
     }
 }
