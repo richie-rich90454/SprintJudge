@@ -176,6 +176,9 @@ public class GameWebSocket {
             session.getUserProperties().put(ROLE_KEY, role.toLowerCase());
             RoomState state = roomManager.getRoomState(pin);
             send(session, new JoinedMessage("JOINED", player.uuid(), player.token(), state));
+            // Late join into a live round (refresh, second device): resend the
+            // current question or the newcomer waits on standby forever.
+            roomManager.sendCurrentQuestion(pin, session.getId());
         } catch (IllegalArgumentException | IllegalStateException e) {
             rateLimiter.recordFailure(ip);
             send(session, new ErrorMessage("ERROR", e.getMessage()));
