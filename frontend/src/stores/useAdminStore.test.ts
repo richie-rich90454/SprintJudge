@@ -205,14 +205,12 @@ describe("useAdminStore wizard workflows", () => {
 
     test("twelve-type sweep keeps statement fields and scopes languages per type", () => {
         useAdminStore.getState().openWizard("quiz-1");
-        useAdminStore
-            .getState()
-            .setDraft({
-                title: "Keep me",
-                description: "Keep too",
-                timeLimitSec: 45,
-                pointsBase: 250,
-            });
+        useAdminStore.getState().setDraft({
+            title: "Keep me",
+            description: "Keep too",
+            timeLimitSec: 45,
+            pointsBase: 250,
+        });
         for (const t of TWELVE) {
             useAdminStore.getState().setType(t);
             const s = useAdminStore.getState();
@@ -251,13 +249,11 @@ describe("useAdminStore wizard workflows", () => {
 
     test("type switch resets leaked config but preserves the statement", () => {
         useAdminStore.getState().openWizard("quiz-1");
-        useAdminStore
-            .getState()
-            .setDraft({
-                title: "T",
-                description: "D",
-                config: { options: ["a", "b"], correctIndex: 0 },
-            });
+        useAdminStore.getState().setDraft({
+            title: "T",
+            description: "D",
+            config: { options: ["a", "b"], correctIndex: 0 },
+        });
         useAdminStore.getState().setType("NUMERIC");
         const d = useAdminStore.getState().draft;
         expect(d.title).toBe("T");
