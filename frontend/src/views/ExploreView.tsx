@@ -11,8 +11,8 @@ import { adminApi } from "../services/AdminApiService";
 export function ExploreView() {
     const [query, setQuery] = useState("");
     const { data, isPending, isError, refetch } = useQuery({
-        queryKey: ["public-quizzes"],
-        queryFn: () => adminApi.listQuizzes(),
+        queryKey: ["banks"],
+        queryFn: () => adminApi.listBanks(),
     });
 
     const needle = query.trim().toLowerCase();
@@ -32,8 +32,8 @@ export function ExploreView() {
                         Browse quizzes
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        A peek at what is available. To play anything you still need a game PIN from
-                        your host.
+                        Drill any bank solo at your own pace, or join a live game with a PIN
+                        from your host.
                     </p>
                 </div>
                 <div className="max-w-md">
@@ -95,6 +95,12 @@ export function ExploreView() {
                                         </p>
                                     )}
                                     <div className="flex flex-wrap gap-2 mt-3">
+                                        <Link
+                                            to="/practice"
+                                            className="btn btn-kahoot btn-sm font-bold"
+                                        >
+                                            Practice solo
+                                        </Link>
                                         <Link
                                             to="/join"
                                             className="btn btn-secondary btn-sm font-bold"
