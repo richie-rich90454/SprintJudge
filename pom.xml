@@ -127,6 +127,14 @@
                                     </not>
                                 </condition>
                                 <fail message="frontend/dist missing - run: cd frontend &amp;&amp; npm run build" if="dist.missing"/>
+                                <!-- Stale-bundle guard: serving last build's UI while the
+                                     backend is new (or vice versa) produces phantom "still
+                                     broken" reports. dist/ is gitignored, so src newer than
+                                     the bundle always means a rebuild was skipped. -->
+                                <uptodate property="dist.fresh" targetfile="${project.basedir}/frontend/dist/index.html">
+                                    <srcfiles dir="${project.basedir}/frontend/src" includes="**/*"/>
+                                </uptodate>
+                                <fail message="frontend/dist is stale - run: cd frontend &amp;&amp; npm run build" unless="dist.fresh"/>
                                 <copy todir="${project.build.outputDirectory}/static" preservelastmodified="true">
                                     <fileset dir="${project.basedir}/frontend/dist" includes="**/*"/>
                                 </copy>
