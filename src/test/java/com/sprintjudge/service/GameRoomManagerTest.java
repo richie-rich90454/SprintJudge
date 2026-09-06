@@ -170,6 +170,180 @@ class GameRoomManagerTest {
         assertEquals(0, liveRoom(mgr, "123456").currentQuestionIndex());
     }
 
+    private Player joinPracticeSolo(GameRoomManager mgr, String name, String sess) {
+        // NOTE: no sessionRepository stub — createRoomWithMode seeds the
+        // registry directly, so join never hits the session lookup.
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        lenient().when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        lenient().when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
+                .thenReturn(900);
+        return mgr.join("123456", name, sess, "player", null);
+    }
+
+    @Test
+    void practiceSubmitClosesRoundAndSchedulesAdvance() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        Player p = joinPracticeSolo(mgr, "Solo", "sess-1");
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+
+        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+
+        assertEquals("REVIEW", liveRoom(mgr, "123456").status());
+        verify(roundTimer).schedule(eq(123456), anyLong(), any());
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("sess-1"), sent.capture());
+        assertTrue(sent.getAllValues().stream().anyMatch(m -> m instanceof SubmissionResult));
+    }
+
+    @Test
+    void practiceSecondSubmitIsLockedAfterAdvance() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        Player p = joinPracticeSolo(mgr, "Solo", "sess-1");
+        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+
+        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).send(eq("sess-1"), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .filter(m -> m instanceof com.sprintjudge.domain.dto.ErrorMessage)
+                .map(m -> (com.sprintjudge.domain.dto.ErrorMessage) m)
+                .anyMatch(e -> e.message().contains("locked")));
+    }
+
+    @Test
+    void standardSubmitDoesNotAdvance() {
+        GameRoomManager mgr = manager();
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
+                .thenReturn(900);
+        Player p = mgr.join("123456", "Solo", "sess-1", "player", null);
+        mgr.startQuestion("123456");
+        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        // Only startQuestion's own per-question timer: no review transition.
+        verify(roundTimer, times(1)).schedule(anyInt(), anyLong(), any());
+    }
+
+    @Test
+    void practiceCodingSubmitAdvancesOnAccept() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(oj));
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        Player p = mgr.join("123456", "Cody", "sess-c", "player", null);
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+                .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
+
+        mgr.submit("123456", "oj1", p.uuid(), "python",
+                Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
+        ArgumentCaptor<com.sprintjudge.service.CodingOutcomeConsumer> cap =
+                ArgumentCaptor.forClass(com.sprintjudge.service.CodingOutcomeConsumer.class);
+        verify(submissionProcessor).processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), cap.capture());
+
+        cap.getValue().accept(p.uuid(), 100, true, 1, 1, null);
+        assertEquals("REVIEW", liveRoom(mgr, "123456").status());
+        verify(roundTimer).schedule(eq(123456), anyLong(), any());
+    }
+
+    @Test
+    void practiceCodingBusyRejectKeepsRoundOpen() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(oj));
+        when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+        Player p = mgr.join("123456", "Cody", "sess-c", "player", null);
+        when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+                .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
+
+        mgr.submit("123456", "oj1", p.uuid(), "python",
+                Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
+
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws, atLeastOnce()).send(eq("sess-c"), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .filter(m -> m instanceof com.sprintjudge.domain.dto.ErrorMessage)
+                .map(m -> (com.sprintjudge.domain.dto.ErrorMessage) m)
+                .anyMatch(e -> e.message().contains("busy")));
+    }
+
+    @Test
+    void catchUpSendsLiveQuestionToLateJoiner() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+
+        mgr.sendCurrentQuestion("123456", "late-sess");
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("late-sess"), sent.capture());
+        assertTrue(sent.getValue() instanceof QuestionStart s && s.question().id().equals("q1"));
+    }
+
+    @Test
+    void catchUpSilentWhenNothingLive() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+
+        mgr.sendCurrentQuestion("123456", "late-sess");
+        mgr.sendCurrentQuestion("999999", "late-sess");
+
+        verify(ws, never()).send(eq("late-sess"), any());
+    }
+
+    @Test
+    void catchUpSilentPastLastQuestion() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        mgr.startQuestion("123456");
+        liveRoom(mgr, "123456").setCurrentQuestionIndex(7);
+
+        mgr.sendCurrentQuestion("123456", "late-sess");
+
+        verify(ws, never()).send(eq("late-sess"), any());
+    }
+
+    @Test
+    void catchUpSilentWhenBankEmptiedMidRound() {
+        GameRoomManager mgr = manager();
+        seedRoom(mgr);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+        liveRoom(mgr, "123456").setStatus("ACTIVE");
+
+        mgr.sendCurrentQuestion("123456", "late-sess");
+
+        verify(ws, never()).send(eq("late-sess"), any());
+    }
+
+    @Test
+    void catchUpPracticeIsUntimed() {
+        GameRoomManager mgr = manager();
+        createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        joinPracticeSolo(mgr, "Solo", "sess-1");
+
+        mgr.sendCurrentQuestion("123456", "late-sess");
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).send(eq("late-sess"), sent.capture());
+        assertTrue(sent.getValue() instanceof QuestionStart s && s.timeLimitSec() == -1);
+    }
+
     @Test
     void joinRecreatesRoomWhenEvictedFromRegistry() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
