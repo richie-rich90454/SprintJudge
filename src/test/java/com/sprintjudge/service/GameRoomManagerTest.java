@@ -82,6 +82,21 @@ class GameRoomManagerTest {
         return new GameSession("s1", "qz", pin, "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now());
     }
 
+    private GameSession practiceSession(String pin) {
+        return new GameSession("s1", "qz", pin, "host", "LOBBY", "PRACTICE", 0, null, null, null, Instant.now());
+    }
+
+    private GameRoom liveRoom(GameRoomManager mgr, String pin) {
+        try {
+            var f = GameRoomManager.class.getDeclaredField("registry");
+            f.setAccessible(true);
+            RoomRegistry reg = (RoomRegistry) f.get(mgr);
+            return reg.get(Integer.parseInt(pin));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Question mcq(String id) {
         return new Question(id, "qz", "T", "D", "MCQ", null, 30, 100,
                 Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
@@ -123,6 +138,28 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         Player p = manager().join("123456", "<script>x</script>", "sess", "player", null);
         assertTrue(p.name().matches("[A-Za-z0-9 _\\-]*"));
+    }
+
+    @Test
+    void practiceFirstJoinAutoStartsFirstQuestion() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(practiceSession("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "Solo", "sess-1", "player", null);
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        assertEquals("q1", liveRoom(mgr, "123456").currentQuestionId());
+    }
+
+    @Test
+    void practiceLaterJoinDoesNotRestartRound() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(practiceSession("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "Solo", "sess-1", "player", null);
+        mgr.join("123456", "Late", "sess-2", "player", null);
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        assertEquals("q1", liveRoom(mgr, "123456").currentQuestionId());
+        assertEquals(0, liveRoom(mgr, "123456").currentQuestionIndex());
     }
 
     @Test
@@ -716,6 +753,7 @@ class GameRoomManagerTest {
     void practiceSelectionSubmitKeepsLiveBoard() {
         GameRoomManager mgr = manager();
         createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
@@ -1272,6 +1310,7 @@ class GameRoomManagerTest {
     @Test
     void practiceSubmitSendsImmediateSubmissionResult() {
         GameRoomManager mgr = manager();
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(900);
