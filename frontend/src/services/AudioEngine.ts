@@ -136,7 +136,17 @@ class AudioEngine {
     }
 
     play(name: SfxName) {
-        if (!this.started) this.init();
+        // A sound must never break navigation: callers fire play() right
+        // before route changes, where a throwing engine would strand the user.
+        try {
+            if (!this.started) this.init();
+            this.playNow(name);
+        } catch {
+            /* silent while the engine is unavailable */
+        }
+    }
+
+    private playNow(name: SfxName) {
         switch (name) {
             case "correct":
                 this.arpeggio([72, 76, 79, 84], 0.06);
