@@ -346,6 +346,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.SubmissionReceived(
                 pin, questionId, playerUuid, correct));
         broadcastScoreChanged(room);
+        // Solo practice has no host to advance the round: each submit closes
+        // it, and the scheduled auto-advance takes it from there. Host-led
+        // modes stay put until the host (or the timer) moves them on.
+        if (room.gameMode() == GameRoom.GameMode.PRACTICE) {
+            transitionToReview(pin);
+        }
     }
 
     private void submitCoding(GameRoom room, Question q, String playerUuid, String language, JsonNode response) {
@@ -383,6 +389,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.SubmissionReceived(
                         pin, questionId, uuid, allPassed));
                 broadcastScoreChanged(room);
+                // Solo practice has no host: advance once the judged result is
+                // in (never on busy-reject — the attempt was refunded, the
+                // round must stay open for the retry).
+                if (room.gameMode() == GameRoom.GameMode.PRACTICE) {
+                    transitionToReview(pin);
+                }
             }
 
             @Override
@@ -895,6 +907,27 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     private void broadcastRoomState(String pin) {
         ws.broadcast(playerSessionIds(pin), getRoomState(pin));
+    }
+
+    /**
+     * Catch-up for joins into a live round (refresh mid-round, second
+     * device): the current QUESTION_START, so the newcomer is not stranded
+     * on standby with no re-send coming. Silent when nothing is live.
+     */
+    public void sendCurrentQuestion(String pin, String sessionId) {
+        GameRoom room = registry.get(Integer.parseInt(pin));
+        if (room == null || !"ACTIVE".equals(room.status())) return;
+        List<Question> questions = questionRepository.findByQuiz(room.quizId());
+        if (questions.isEmpty() || room.currentQuestionIndex() >= questions.size()) return;
+        Question q = questions.get(room.currentQuestionIndex());
+        long now = Instant.now().toEpochMilli();
+        // Reuse the live round's clock (untimed marker for practice) so the
+        // late joiner sees exactly what everyone else sees.
+        int timeLimitSec = room.gameMode() == GameRoom.GameMode.PRACTICE
+                ? -1
+                : (int) Math.max(0, (room.currentQuestionEndEpochMs() - now) / 1000);
+        ws.send(sessionId, new QuestionStart("QUESTION_START", toDto(q), timeLimitSec,
+                room.currentQuestionStartEpochMs(), now));
     }
 
     private void broadcastToRoom(String pin, Object message) {
