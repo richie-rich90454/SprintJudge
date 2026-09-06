@@ -171,7 +171,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                     room.gameMode() == GameRoom.GameMode.PRACTICE && "LOBBY".equals(room.status());
             broadcastLeaderboard(pin);
             eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, joined.uuid()));
-            if (autostart) startQuestion(pin);
+            if (autostart) {
+                log.info("Practice room {} auto-starting Q1 for first join", pin);
+                startQuestion(pin);
+            }
             return joined;
         }
     }
