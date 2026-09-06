@@ -13,6 +13,7 @@ import java.nio.file.Path;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,9 +62,11 @@ class SecurityPermitMatrixTest {
 
     @Test
     void practicePostIsReachableLoggedOut() throws Exception {
-        // Empty bank: 404 proves an anonymous caller reaches the handler
-        // (not a 403/denyAll) and gets a machine-readable status.
-        mvc.perform(post("/api/public/practice")).andExpect(status().isNotFound());
+        // Seeded fixture bank: 200 proves an anonymous caller reaches the
+        // handler (not a 403/denyAll) and gets a live practice PIN.
+        mvc.perform(post("/api/public/practice"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pinCode").isNotEmpty());
     }
 
     @Test
