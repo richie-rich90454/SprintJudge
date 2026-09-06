@@ -142,22 +142,18 @@ export class GameStateManager {
     private dispatch(m: WsMessage) {
         switch (m.type) {
             case "JOINED":
-                // Reconnect re-JOINs the SAME game (uuid carried over): keep the
-                // live question — wiping it strands the player on standby with
-                // no re-QUESTION_START coming. A fresh join resets everything.
+                // Never clear live game data here. join() already reset for a
+                // new game — and autostart rooms broadcast Q1 BEFORE this ack
+                // is sent, so clearing would wipe a rendered question with no
+                // re-send coming (flash-then-standby). Stale data from a
+                // previous game cannot survive: join() nulled it first.
                 this.patch({
                     playerUuid: m.uuid as string,
                     rejoinToken: (m.rejoinToken as string) ?? null,
                     room: m.room as unknown as RoomState,
                     status: (m.room as unknown as RoomState)?.status ?? "LOBBY",
                     error: null,
-                    currentQuestion:
-                        this.state.playerUuid !== null && this.state.playerUuid === m.uuid
-                            ? this.state.currentQuestion
-                            : null,
                     leaderboard: [],
-                    lastResult: null,
-                    review: null,
                 });
                 // Baseline for the delta protocol; server answers with a full batch.
                 this.requestLeaderboardResync();
