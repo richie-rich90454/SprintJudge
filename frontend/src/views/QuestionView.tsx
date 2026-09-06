@@ -19,6 +19,8 @@ export function QuestionView() {
     const q = useGameStore((s) => s.currentQuestion);
     const status = useGameStore((s) => s.status);
     const gameMode = useGameStore((s) => s.gameMode);
+    const roomMode = useGameStore((s) => s.room?.gameMode);
+    const joined = useGameStore((s) => s.playerUuid !== null);
     const submit = useGameStore((s) => s.submit);
     const wsError = useGameStore((s) => s.error);
     const lastResult = useGameStore((s) => s.lastResult);
@@ -130,7 +132,11 @@ export function QuestionView() {
                         aria-hidden="true"
                     />
                     <p className="text-[var(--oq-ink-soft)]">
-                        Waiting for the host to start the next question.
+                        {!joined
+                            ? "Connecting to the game…"
+                            : roomMode === "PRACTICE" || gameMode === "PRACTICE"
+                              ? "Preparing your first question…"
+                              : "Waiting for the host to start the next question."}
                     </p>
                     {wsError && (
                         <p role="alert" className="text-[var(--oq-danger)] text-sm mt-3">
