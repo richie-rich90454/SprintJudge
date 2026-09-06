@@ -18,10 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -195,5 +197,55 @@ class GameWebSocketTeamBattleTest {
     void joinTeamPlayerObjectAvailable() {
         var p = new Player("uuid-9", "Bob", 0, "sess", true);
         org.junit.jupiter.api.Assertions.assertEquals("uuid-9", p.uuid());
+    }
+
+    @Test
+    void closeLeavesRoom() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "u1");
+        ws().onClose(session);
+        verify(sessions).unregister("sess");
+        verify(roomManager).leave("123456", "u1");
+    }
+
+    @Test
+    void closeWithoutSeatSkipsLeave() {
+        ws().onClose(session);
+        verify(sessions).unregister("sess");
+        verify(roomManager, never()).leave(anyString(), anyString());
+    }
+
+    @Test
+    void closeWithDeadSessionSkipsCleanup() {
+        when(session.getId()).thenThrow(new IllegalStateException("closed"));
+        when(session.getUserProperties()).thenThrow(new IllegalStateException("closed"));
+        assertDoesNotThrow(() -> ws().onClose(session));
+        verify(sessions, never()).unregister(anyString());
+        verify(roomManager, never()).leave(anyString(), anyString());
+    }
+
+    @Test
+    void closeSurvivesUnregisterFailure() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "u1");
+        doThrow(new RuntimeException("gone")).when(sessions).unregister("sess");
+        assertDoesNotThrow(() -> ws().onClose(session));
+        verify(roomManager).leave("123456", "u1");
+    }
+
+    @Test
+    void closeSurvivesLeaveFailure() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "u1");
+        doThrow(new RuntimeException("db down")).when(roomManager).leave("123456", "u1");
+        assertDoesNotThrow(() -> ws().onClose(session));
+    }
+
+    @Test
+    void errorDelegatesToClose() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "u1");
+        assertDoesNotThrow(() -> ws().onError(session, new RuntimeException("reset")));
+        verify(roomManager).leave("123456", "u1");
     }
 }
