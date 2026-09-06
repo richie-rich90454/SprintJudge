@@ -56,6 +56,7 @@ class SecurityPermitMatrixTest {
     @Test
     void publicApiServesLoggedOut() throws Exception {
         mvc.perform(get("/api/public/quizzes")).andExpect(status().isOk());
+        mvc.perform(get("/api/public/banks")).andExpect(status().isOk());
     }
 
     @Test
