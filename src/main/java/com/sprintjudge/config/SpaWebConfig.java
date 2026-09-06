@@ -24,8 +24,10 @@ public class SpaWebConfig implements WebMvcConfigurer {
         // The shell references hashed assets, but index.html itself must never
         // be cached: otherwise browsers keep booting the previous deployment's
         // JS after an upgrade and report already-fixed bugs as still present.
+        // (Location is the static ROOT: pointing at the file itself makes
+        // Spring treat it as a directory and every forward 404s.)
         registry.addResourceHandler("/index.html")
-                .addResourceLocations("classpath:/static/index.html")
+                .addResourceLocations("classpath:/static/")
                 .setCacheControl(CacheControl.noStore());
     }
 }
