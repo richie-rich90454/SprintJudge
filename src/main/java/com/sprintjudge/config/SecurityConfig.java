@@ -70,7 +70,7 @@ public class SecurityConfig {
                 .httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true).preload(true).maxAgeInSeconds(31_536_000))
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
-                    "default-src 'self'; script-src 'self' 'unsafe-inline' data:; "
+                    "default-src 'self'; script-src 'self' 'unsafe-inline' data: blob:; "
                   + "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
                   + "worker-src 'self' blob:; connect-src 'self' ws: wss: blob:; "
                   + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
