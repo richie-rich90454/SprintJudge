@@ -203,6 +203,41 @@ describe("GameStateManager JOINED", () => {
         expect(s.status).toBe("LOBBY");
     });
 
+    function startQ1() {
+        msg({
+            type: "QUESTION_START",
+            question: {
+                id: "q1",
+                type: "MCQ",
+                title: "T",
+                description: "",
+                timeLimitSec: 30,
+                pointsBase: 100,
+                languagesAllowed: null,
+                config: {},
+            },
+            timeLimitSec: 30,
+            startedAtEpochMs: 10_000,
+        });
+    }
+
+    test("reconnect re-JOIN preserves the live question", () => {
+        joined("u1");
+        startQ1();
+        expect(gameStateManager.state.currentQuestion?.id).toBe("q1");
+        joined("u1");
+        expect(gameStateManager.state.currentQuestion?.id).toBe("q1");
+        expect(gameStateManager.state.status).toBe("LOBBY");
+    });
+
+    test("JOINED with a new uuid resets the live question", () => {
+        joined("u1");
+        startQ1();
+        joined("u2");
+        expect(gameStateManager.state.playerUuid).toBe("u2");
+        expect(gameStateManager.state.currentQuestion).toBeNull();
+    });
+
     test("JOINED tolerates localStorage failures when clearing drafts", () => {
         vi.spyOn(window.localStorage, "key").mockImplementation(() => {
             throw new Error("denied");
