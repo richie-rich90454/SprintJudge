@@ -352,6 +352,13 @@ describe("AudioEngine SFX sequences", () => {
         expect(audio.isMuted()).toBe(false);
     });
 
+    test("a dead engine never breaks play() callers", () => {
+        vi.spyOn(audio, "init").mockImplementation(() => {
+            throw new Error("no webaudio");
+        });
+        for (const name of ALL) expect(() => audio.play(name)).not.toThrow();
+    });
+
     test("full fanfare sequence drives exact synth call totals", () => {
         audio.init();
         for (const name of ALL) audio.play(name);
