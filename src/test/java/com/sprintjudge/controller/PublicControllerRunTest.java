@@ -31,6 +31,13 @@ class PublicControllerRunTest {
         return (Map<String, long[]>) f.get(controller);
     }
 
+    @SuppressWarnings("unchecked")
+    private Map<String, long[]> practiceWindowMap() throws Exception {
+        Field f = PublicController.class.getDeclaredField("practiceWindow");
+        f.setAccessible(true);
+        return (Map<String, long[]>) f.get(controller);
+    }
+
     private RunRequest req(String lang, String src) {
         return new RunRequest(lang, src, "", 5);
     }
@@ -86,14 +93,20 @@ class PublicControllerRunTest {
     void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
         Map<String, long[]> windows = runWindowMap();
         windows.clear();
+        Map<String, long[]> practice = practiceWindowMap();
+        practice.clear();
         long now = System.currentTimeMillis();
         windows.put("stale-ip", new long[]{now - 130_000, 5});
         windows.put("fresh-ip", new long[]{now, 3});
+        practice.put("stale-pr", new long[]{now - 130_000, 2});
+        practice.put("fresh-pr", new long[]{now, 1});
 
         controller.evictStaleRateLimits();
 
         assertFalse(windows.containsKey("stale-ip"));
         assertTrue(windows.containsKey("fresh-ip"));
+        assertFalse(practice.containsKey("stale-pr"));
+        assertTrue(practice.containsKey("fresh-pr"));
     }
 
     @Test
