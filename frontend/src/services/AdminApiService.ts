@@ -9,6 +9,12 @@ export interface QuizDto {
     template?: boolean;
 }
 
+export interface BankDto {
+    id: string;
+    title: string;
+    description: string | null;
+}
+
 export interface QuestionPayload {
     id?: string;
     quizId: string;
@@ -44,16 +50,27 @@ export class AdminApiService {
         });
     }
 
+    /**
+     * Full quiz list for the admin dashboard. Must hit the admin endpoint:
+     * the public one is PIN-scoped and returns [] without a live PIN.
+     */
     listQuizzes() {
-        return this.client.get<QuizDto[]>("/public/quizzes").then((r) => r.data);
+        return this.client.get<QuizDto[]>("/admin/quizzes").then((r) => r.data);
+    }
+
+    /** Public answer-free bank headers for the library and practice picker. */
+    listBanks() {
+        return this.client.get<BankDto[]>("/public/banks").then((r) => r.data);
     }
 
     /**
      * One-click solo practice: the server spins up a PRACTICE-mode room on
-     * the practice set. No admin session involved.
+     * the chosen bank (or the default practice set). No admin session involved.
      */
-    startPractice() {
-        return this.client.post<{ pinCode: string }>("/public/practice").then((r) => r.data);
+    startPractice(quizId?: string) {
+        return this.client
+            .post<{ pinCode: string }>("/public/practice", quizId ? { quizId } : {})
+            .then((r) => r.data);
     }
 
     getQuestions(quizId: string) {
