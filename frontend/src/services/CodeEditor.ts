@@ -32,7 +32,18 @@ export async function createCodeEditor(
     opts: CodeEditorOptions,
 ): Promise<CodeEditorHandle> {
     try {
-        const monaco = await import("monaco-editor");
+        // Slim API entry (not the full editor.main): skips the bundled
+        // quick-access/reference-search extras we never invoke.
+        const monaco = await import("monaco-editor/esm/vs/editor/editor.api");
+        // Register only the judge languages (cpp covers C too). Importing the
+        // full entry would also bundle ~100 unused grammars plus the
+        // ts/css/html/json language services.
+        await Promise.all([
+            import("monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution"),
+            import("monaco-editor/esm/vs/basic-languages/java/java.contribution"),
+            import("monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"),
+            import("monaco-editor/esm/vs/basic-languages/python/python.contribution"),
+        ]);
         const ed = monaco.editor.create(host, {
             value: opts.value,
             language: opts.language,
