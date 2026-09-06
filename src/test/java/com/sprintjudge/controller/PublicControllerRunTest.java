@@ -22,6 +22,9 @@ class PublicControllerRunTest {
 
     @Mock CodeExecutor executor;
     @Mock HttpServletRequest http;
+    @Mock com.sprintjudge.repository.UserRepository userRepository;
+    @Mock com.sprintjudge.service.GameRoomManager roomManager;
+    @Mock com.sprintjudge.repository.QuestionRepository questionRepository;
     @InjectMocks PublicController controller;
 
     @SuppressWarnings("unchecked")
