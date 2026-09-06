@@ -63,6 +63,13 @@ describe("AdminApiService endpoints", () => {
         expect(client.get).toHaveBeenCalledWith("/public/quizzes");
     });
 
+    test("startPractice POSTs the practice launcher", async () => {
+        const svc = new AdminApiService();
+        client.post.mockResolvedValue(ok({ pinCode: "123456" }));
+        await expect(svc.startPractice()).resolves.toEqual({ pinCode: "123456" });
+        expect(client.post).toHaveBeenCalledWith("/public/practice");
+    });
+
     test("getQuestions GETs the quiz question list", async () => {
         const svc = new AdminApiService();
         client.get.mockResolvedValue(ok([{ id: "a" }]));
