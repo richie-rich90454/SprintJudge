@@ -1,6 +1,7 @@
 package com.sprintjudge.service.executor;
 
 import com.sprintjudge.service.executor.AbstractScriptExecutorTest.StubExecutor;
+import com.sprintjudge.util.ExecIo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -12,6 +13,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 class AbstractScriptExecutorRunTest {
 
@@ -144,6 +147,21 @@ class AbstractScriptExecutorRunTest {
         String justOver = "x".repeat(com.sprintjudge.util.ExecIo.STDOUT_CAP_BYTES + 4096);
         var r = ex.run(runReq("node", "x", justOver, 30));
         assertEquals("stdout_exceeded_1MB", r.status());
+    }
+
+    @Test
+    void runNullCappedFileIsStdoutExceeded(@TempDir Path tmp) {
+        // Deterministic pin for the FINISHED-but-unreadable race: the over-cap
+        // tests above hit either branch depending on poll timing.
+        StubExecutor ex = executor(tmp, tmp);
+        ex.force(List.of("cmd", "/c", "echo hi"));
+        try (var mocked = org.mockito.Mockito.mockStatic(ExecIo.class)) {
+            mocked.when(() -> ExecIo.awaitBounded(any(), any(), anyLong()))
+                    .thenCallRealMethod();
+            mocked.when(() -> ExecIo.readCappedFile(any(Path.class))).thenReturn(null);
+            mocked.when(() -> ExecIo.deleteTree(any(Path.class))).thenCallRealMethod();
+            assertEquals("stdout_exceeded_1MB", ex.run(runReq("node", "x", "", 10)).status());
+        }
     }
 
     @Test
