@@ -159,13 +159,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 }
             }
             if (room.isFull()) throw new IllegalStateException("Room is full");
-            Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
+            Player joined = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
             // isFull above holds under synchronized(room), so the add cannot fail.
-            room.addPlayer(p);
+            room.addPlayer(joined);
             room.touch();
+            // Solo practice has no host to press start: kick off Q1 when the
+            // first player joins a fresh PRACTICE room. The LOBBY check (same
+            // atomic flip startQuestion uses) keeps later joins from
+            // re-firing the round.
+            boolean autostart =
+                    room.gameMode() == GameRoom.GameMode.PRACTICE && "LOBBY".equals(room.status());
             broadcastLeaderboard(pin);
-            eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
-            return p;
+            eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, joined.uuid()));
+            if (autostart) startQuestion(pin);
+            return joined;
         }
     }
 
