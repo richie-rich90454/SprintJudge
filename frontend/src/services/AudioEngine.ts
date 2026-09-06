@@ -48,6 +48,7 @@ class AudioEngine {
     init() {
         if (this.started) return;
         this.started = true;
+        Tone.getDestination().mute = this.muted;
         Tone.getTransport().bpm.value = 132;
 
         this.musicGain = new Tone.Gain(0.18).toDestination();
@@ -89,7 +90,9 @@ class AudioEngine {
 
     setMuted(m: boolean) {
         this.muted = m;
-        Tone.getDestination().mute = m;
+        // Touching Tone creates the AudioContext: only after a user gesture
+        // has started the engine, never from a mount-time preference sync.
+        if (this.started) Tone.getDestination().mute = m;
     }
     isMuted() {
         return this.muted;
