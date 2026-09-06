@@ -65,8 +65,12 @@ class SecurityPermitMatrixTest {
 
     @Test
     void publicApiServesLoggedOut() throws Exception {
-        mvc.perform(get("/api/public/quizzes")).andExpect(status().isOk());
         mvc.perform(get("/api/public/banks")).andExpect(status().isOk());
+        // Audio worklets load from blob: or Tone.js fails closed in console.
+        mvc.perform(get("/api/public/quizzes"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Security-Policy",
+                        org.hamcrest.Matchers.containsString("blob:")));
     }
 
     @Test
