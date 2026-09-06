@@ -22,12 +22,12 @@ export function SoloView() {
                     <JoinForm heading="Enter your practice PIN" />
                 </Card>
                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                    Ask your teacher for the practice PIN, or launch one from{" "}
+                    Or skip the PIN —{" "}
                     <Link
-                        to="/admin"
+                        to="/practice"
                         className="font-bold text-[var(--oq-accent-dark)] underline underline-offset-4"
                     >
-                        /admin
+                        start a practice set
                     </Link>
                     .
                 </p>
