@@ -28,7 +28,7 @@ export function LandingView() {
                         <JoinForm heading="Join a live game" submitClassName="btn-kahoot" />
                     </Card>
                     <p className="text-center text-sm font-bold text-[var(--oq-ink-soft)]">
-                        <Link to="/solo" className="underline underline-offset-4">
+                        <Link to="/practice" className="underline underline-offset-4">
                             Practice solo
                         </Link>
                         <span aria-hidden="true" className="mx-3 opacity-60">
