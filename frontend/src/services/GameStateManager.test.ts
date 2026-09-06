@@ -230,12 +230,24 @@ describe("GameStateManager JOINED", () => {
         expect(gameStateManager.state.status).toBe("LOBBY");
     });
 
-    test("JOINED with a new uuid resets the live question", () => {
+    test("JOINED never clears a live question, even for a new seat", () => {
+        // Autostart rooms broadcast Q1 BEFORE the JOINED ack: the question
+        // on screen is current, wiping it would strand the player.
         joined("u1");
         startQ1();
         joined("u2");
         expect(gameStateManager.state.playerUuid).toBe("u2");
-        expect(gameStateManager.state.currentQuestion).toBeNull();
+        expect(gameStateManager.state.currentQuestion?.id).toBe("q1");
+    });
+
+    test("a fresh join still starts from a clean slate", () => {
+        joined("u1");
+        startQ1();
+        gameStateManager.join("9999", "Fresh");
+        const s = gameStateManager.state;
+        expect(s.pin).toBe("9999");
+        expect(s.playerUuid).toBeNull();
+        expect(s.currentQuestion).toBeNull();
     });
 
     test("JOINED tolerates localStorage failures when clearing drafts", () => {
