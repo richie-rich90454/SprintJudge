@@ -3,6 +3,7 @@ package com.sprintjudge.controller;
 import com.sprintjudge.domain.models.Quiz;
 import com.sprintjudge.domain.models.User;
 import com.sprintjudge.repository.GameSessionRepository;
+import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
 import com.sprintjudge.repository.UserRepository;
 import com.sprintjudge.service.GameRoom;
@@ -19,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -38,6 +40,7 @@ public class PublicController {
     private final CodeExecutor executor;
     private final UserRepository userRepository;
     private final GameRoomManager roomManager;
+    private final QuestionRepository questionRepository;
 
     /** Fixed-window per-IP rate limit for the live runner (abuse guard). */
     private final ConcurrentHashMap<String, long[]> runWindow = new ConcurrentHashMap<>();
@@ -49,12 +52,13 @@ public class PublicController {
 
     public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,
                               CodeExecutor executor, UserRepository userRepository,
-                              GameRoomManager roomManager) {
+                              GameRoomManager roomManager, QuestionRepository questionRepository) {
         this.quizRepository = quizRepository;
         this.sessionRepository = sessionRepository;
         this.executor = executor;
         this.userRepository = userRepository;
         this.roomManager = roomManager;
+        this.questionRepository = questionRepository;
     }
 
     /** Shared fixed-window limiter; true when the caller is over budget. */
@@ -85,6 +89,19 @@ public class PublicController {
     }
 
     /**
+     * Public question-bank headers for the library and the practice picker.
+     * Answer-free by construction: correct answers live in question configs,
+     * which are never exposed here — only id/title/description cross the wire.
+     */
+    @GetMapping("/banks")
+    public List<BankDto> banks() {
+        return quizRepository.findAll().stream()
+                .map(q -> new BankDto(q.id(), q.title(), q.description()))
+                .toList();
+    }
+    public record BankDto(String id, String title, String description) {}
+
+    /**
      * Live code execution for the interactive console. Compiles + runs with the
      * supplied stdin and returns combined output. Rate-limited per IP.
      */
@@ -99,24 +116,33 @@ public class PublicController {
     }
 
     /**
-     * One-click solo practice. Spins up a PRACTICE-mode room on the practice
-     * set (first template quiz, else first quiz) with a server-side practice
-     * host — no admin session involved, so players never touch /admin.
+     * One-click solo practice. Spins up a PRACTICE-mode room on the chosen
+     * bank (or the practice set: first template quiz, else first quiz) with
+     * a server-side practice host — no admin session involved, so players
+     * never touch /admin. The first join auto-starts Q1; empty banks 404.
      */
     @PostMapping("/practice")
-    public com.sprintjudge.domain.models.GameSession practice(HttpServletRequest http) {
+    public com.sprintjudge.domain.models.GameSession practice(
+            @RequestBody(required = false) Map<String, String> body, HttpServletRequest http) {
         if (overLimit(practiceWindow, http.getRemoteAddr(), PRACTICE_LIMIT_PER_MIN)) {
             log.warn("Practice rate limit exceeded for IP: {}", http.getRemoteAddr());
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
         }
-        List<Quiz> quizzes = quizRepository.findAll();
-        Quiz quiz = quizzes.stream().filter(q -> q.template()).findFirst()
-                .or(() -> quizzes.stream().findFirst())
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND, "no practice set yet"));
+        String quizId = body != null ? body.getOrDefault("quizId", "").trim() : "";
+        if (quizId.isEmpty()) {
+            List<Quiz> quizzes = quizRepository.findAll();
+            quizId = quizzes.stream().filter(q -> q.template()).findFirst()
+                    .or(() -> quizzes.stream().findFirst())
+                    .map(Quiz::id).orElse("");
+        }
+        if (quizId.isEmpty() || quizRepository.findById(quizId).isEmpty()
+                || questionRepository.findByQuiz(quizId).isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND, "no practice set yet");
+        }
         User host = userRepository.upsertByEmail("practice@sprintjudge.local", "Practice", null);
-        return roomManager.createRoom(quiz.id(), host.id(), GameRoom.GameMode.PRACTICE);
+        return roomManager.createRoom(quizId, host.id(), GameRoom.GameMode.PRACTICE);
     }
 
     @Scheduled(fixedRate = 60_000)
