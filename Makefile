@@ -167,8 +167,9 @@ check-trademarks: ## Fail on branded program names outside the policy docs.
 
 .PHONY: check-ai-firewall
 check-ai-firewall: ## Fail when generation scripts read outside blueprints.
-	@! grep -rInE 'src/main/resources/bank|seed/|/docs/' tools/gen || (echo "AI FIREWALL CHECK FAILED"; exit 1)
+	@! grep -rInE 'readFileSync.*bank|readFileSync.*seed|readFileSync.*docs|fetch\(|axios|node-fetch' tools/gen || (echo "AI FIREWALL CHECK FAILED"; exit 1)
 	@test -f tools/gen/firewall.js || (echo "firewall script missing"; exit 1)
+	@grep -q 'ALLOWED_READ_ROOT' tools/gen/firewall.js || (echo "firewall allowlist missing"; exit 1)
 	@echo "ai firewall: clean"
 
 .PHONY: check-blueprints
