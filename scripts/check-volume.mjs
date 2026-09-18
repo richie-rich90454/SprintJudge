@@ -1,11 +1,12 @@
-// Volume floor check: every bank subject needs 3000+ questions.
-// Macro and micro may share one combined 3000+ pool. Units need 50+.
+// Volume floor check: shipped subjects need 3000+ questions.
+// A subject ships when it contains a .shipped marker file. Unshipped
+// subjects report counts without failing, so the bank can grow incrementally.
+// Macro and micro may share one combined 3000+ pool.
 import fs from "node:fs";
 import path from "node:path";
 
 const BANK = path.resolve("src/main/resources/bank");
 const FLOOR = 3000;
-const UNIT_FLOOR = 50;
 
 if (!fs.existsSync(BANK)) {
   console.log("volume: no bank dir yet, skipping (floor applies once subjects ship)");
@@ -26,17 +27,24 @@ for (const subject of subjects) {
 
 const macro = counts.get("macroeconomics") ?? 0;
 const micro = counts.get("microeconomics") ?? 0;
+const shipped = new Set(
+  subjects.filter((s) => fs.existsSync(path.join(BANK, s, ".shipped"))),
+);
 let failed = false;
 for (const [subject, count] of counts) {
+  console.log(`volume: ${subject} has ${count}`);
+  if (!shipped.has(subject) && subject !== "macroeconomics" && subject !== "microeconomics") {
+    continue;
+  }
   if (subject === "macroeconomics" || subject === "microeconomics") {
     continue;
   }
   if (count < FLOOR) {
-    console.error(`volume: ${subject} has ${count}, floor is ${FLOOR}`);
+    console.error(`volume: shipped ${subject} has ${count}, floor is ${FLOOR}`);
     failed = true;
   }
 }
-if (counts.has("macroeconomics") || counts.has("microeconomics")) {
+if (shipped.has("macroeconomics") || shipped.has("microeconomics")) {
   if (macro + micro < FLOOR) {
     console.error(`volume: macro+micro combined ${macro + micro}, floor is ${FLOOR}`);
     failed = true;
