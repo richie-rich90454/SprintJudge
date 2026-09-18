@@ -156,3 +156,31 @@ format: ## Run the frontend formatter.
 .PHONY: clean
 clean: ## Remove build outputs (target/, frontend/dist/).
 	rm -rf target $(FRONTEND)/dist
+
+##@ Legal and bank checks
+
+.PHONY: check-trademarks
+check-trademarks: ## Fail on branded program names outside the policy docs.
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude=package-lock.json -e '\bAdvanced Placement\b' -e '\bPre-AP\b' -e 'AP Central' -e 'AP Vertical Teams' -e 'SpringBoard' -e 'PSAT' -e 'NMSQT' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude=package-lock.json -e '\bAP\b' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v '\.env' | grep -v 'Makefile' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@echo "trademarks: clean"
+
+.PHONY: check-ai-firewall
+check-ai-firewall: ## Fail when generation scripts read outside blueprints.
+	@! grep -rInE 'src/main/resources/bank|seed/|/docs/' tools/gen || (echo "AI FIREWALL CHECK FAILED"; exit 1)
+	@test -f tools/gen/firewall.js || (echo "firewall script missing"; exit 1)
+	@echo "ai firewall: clean"
+
+.PHONY: check-blueprints
+check-blueprints: ## Every blueprint carries first-principles attestation.
+	@test -d blueprints || (echo "no blueprints dir"; exit 1)
+	@missing=$$(grep -rL 'attestedFromFirstPrinciples: true' blueprints || true); \
+	if [ -n "$$missing" ]; then echo "BLUEPRINT ATTESTATION FAILED:"; echo "$$missing"; exit 1; fi
+	@echo "blueprints: attested"
+
+.PHONY: check-volume
+check-volume: ## Every bank subject meets the per-course floor.
+	@node scripts/check-volume.mjs
+
+.PHONY: check-legal
+check-legal: check-trademarks check-ai-firewall check-blueprints ## Run all legal checks.
