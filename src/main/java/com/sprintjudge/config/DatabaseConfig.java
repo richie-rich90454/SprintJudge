@@ -31,6 +31,7 @@ public class DatabaseConfig {
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setUrl("jdbc:sqlite:" + dbFile + "?journal_mode=WAL&busy_timeout=5000&foreign_keys=ON");
         SqlScriptRunner.runClasspath(ds, "db/migration/V1__init.sql");
+        SqlScriptRunner.runClasspath(ds, "db/migration/V2__room_events.sql");
         // Databases created before game_mode existed gain it idempotently.
         SqlScriptRunner.ensureColumn(ds, "game_sessions", "game_mode", "TEXT DEFAULT 'STANDARD'");
         return ds;
