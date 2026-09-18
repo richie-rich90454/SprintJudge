@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
   title: SprintJudge Bank API (additive)
-  version: 1.1.0
+  version: 1.2.0
 paths:
-  /api/bank/search:
+  /api/admin/bank/search:
     get:
       summary: Search the structured bank by subject, unit, scope, and format.
       parameters:
@@ -13,7 +13,7 @@ paths:
         - { name: format, in: query, schema: { type: string } }
       responses:
         '200': { description: answer-free headers only }
-  /api/bank/question/{id}:
+  /api/admin/bank/question/{id}:
     get:
       summary: Fetch one answer-free question header for teachers.
       parameters:
@@ -21,27 +21,25 @@ paths:
       responses:
         '200': { description: single question header }
         '404': { description: unknown id }
-  /api/bank/coverage/{subject}:
+  /api/admin/bank/coverage/{subject}:
     get:
       summary: Format and scope coverage per unit.
       parameters:
         - { name: subject, in: path, required: true, schema: { type: string } }
       responses:
         '200': { description: coverage report }
-  /api/bank/volume/{subject}:
+  /api/admin/bank/volume:
     get:
-      summary: Volume per subject and per unit against the floor.
-      parameters:
-        - { name: subject, in: path, required: true, schema: { type: string } }
+      summary: Question totals per subject.
       responses:
         '200': { description: volume report }
-  /api/scoring/breakdown/{playerId}/{roomId}:
+  /api/public/scoring/signal:
     get:
-      summary: Explainable per-student scoring breakdown.
+      summary: Plain-language speed-accuracy signal plus tier for inputs.
+      parameters:
+        - { name: medianSeconds, in: query, required: true, schema: { type: number } }
+        - { name: questionMedian, in: query, required: true, schema: { type: number } }
+        - { name: accuracy, in: query, required: true, schema: { type: number } }
+        - { name: sjs, in: query, schema: { type: number } }
       responses:
-        '200': { description: dimension scores plus weights }
-  /api/scoring/class/{roomId}:
-    get:
-      summary: Class-level accuracy, timing, and signal distribution.
-      responses:
-        '200': { description: class aggregates }
+        '200': { description: signal code, plain-language copy, and tier }
