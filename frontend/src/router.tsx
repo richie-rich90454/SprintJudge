@@ -97,6 +97,13 @@ const adminLoginRoute = createRoute({
     component: AdminLoginView,
 });
 
+const bankRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/admin/bank",
+    beforeLoad: requireAdmin,
+    component: lazyRouteComponent(() => import("./views/BankBrowser"), "BankBrowser"),
+});
+
 const routeTree = rootRoute.addChildren([
     indexRoute,
     joinPinRoute,
@@ -110,6 +117,7 @@ const routeTree = rootRoute.addChildren([
     adminRoute,
     adminDashboardAliasRoute,
     adminLoginRoute,
+    bankRoute,
 ]);
 
 export const router = createRouter({
