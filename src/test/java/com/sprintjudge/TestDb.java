@@ -26,6 +26,8 @@ public final class TestDb {
         Connection conn = ds.getConnection();
         ScriptUtils.executeSqlScript(conn,
                 new EncodedResource(new ClassPathResource("db/migration/V1__init.sql"), StandardCharsets.UTF_8));
+        ScriptUtils.executeSqlScript(conn,
+                new EncodedResource(new ClassPathResource("db/migration/V2__room_events.sql"), StandardCharsets.UTF_8));
         DSLContext dsl = DSL.using(conn, SQLDialect.SQLITE);
         // Single shared connection: relax FK enforcement so each repository can be
         // exercised in isolation without manufacturing unrelated parent rows.
