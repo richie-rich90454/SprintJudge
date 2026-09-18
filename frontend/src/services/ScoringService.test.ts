@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { isCoding } from "./ScoringService";
+import { isCoding, speedAccuracySignal, tierForScore } from "./ScoringService";
 
 afterEach(() => {
     vi.restoreAllMocks();
@@ -104,5 +104,24 @@ describe("isCoding boundaries", () => {
     test("OJ prefix alone is not coding", () => {
         expect(isCoding("OJ" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
         expect(isCoding("OJ_" as unknown as Parameters<typeof isCoding>[0])).toBe(false);
+    });
+});
+
+describe("speedAccuracySignal", () => {
+    test("covers all four quadrants", () => {
+        expect(speedAccuracySignal(10, 20, 0.9)).toBe("FLUENT");
+        expect(speedAccuracySignal(10, 20, 0.4)).toBe("GUESSING");
+        expect(speedAccuracySignal(30, 20, 0.8)).toBe("CAREFUL");
+        expect(speedAccuracySignal(30, 20, 0.4)).toBe("STRUGGLING");
+    });
+});
+
+describe("tierForScore", () => {
+    test("covers every band", () => {
+        expect(tierForScore(90)).toBe("Gold");
+        expect(tierForScore(75)).toBe("Silver");
+        expect(tierForScore(60)).toBe("Bronze");
+        expect(tierForScore(45)).toBe("Rising");
+        expect(tierForScore(10)).toBe("Practicing");
     });
 });
