@@ -7,6 +7,8 @@ package com.sprintjudge.domain.event;
 public sealed interface RoomEffect permits RoomEffect.Broadcast, RoomEffect.Persist,
         RoomEffect.Schedule, RoomEffect.Award {
 
+    String roomId();
+
     record Broadcast(String roomId, String type, String payloadJson) implements RoomEffect {
     }
 
