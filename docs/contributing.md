@@ -22,6 +22,25 @@ Question rendering is an abstract base plus 12 concrete renderers.
 One file per commit. Use `feat(scope): description` or `fix(scope): description`.
 No `any` in TypeScript. No raw SQL. Flat UI only.
 
+## Legal safety — hard rules
+
+- No branded program names in any file, commit message, branch, issue, or comment.
+- No copied, paraphrased, or adapted exam questions. Author from first principles.
+- No reproduced framework text. Scope lists guide; expression is never copied.
+- No released questions from any source. Past release does not remove copyright.
+- Every stimulus is original, public domain, or compatibly licensed with the
+  license recorded in `provenance.stimulusLicense`.
+- No model training on protected testing-program content. Generation reads
+  only `blueprints/**` and writes only `drafts/**`.
+- Blueprints carry `attestedFromFirstPrinciples: true`. Assisted questions
+  need a named human reviewer attestation before entering the bank.
+
+Pull request checkboxes (all required):
+
+- [ ] no branded names, no copied questions, no protected content
+- [ ] assisted content comes from an isolated blueprint with reviewer attestation
+- [ ] every stimulus license is recorded in `provenance.stimulusLicense`
+
 Verify a commit series with:
 
 ```bash
