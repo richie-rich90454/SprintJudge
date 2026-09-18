@@ -68,8 +68,17 @@ public class RoomExportService {
 
     private List<Submission> ordered(String sessionId) {
         List<Submission> rows = new ArrayList<>(submissions.findBySession(sessionId));
-        rows.sort(Comparator.comparing(Submission::questionId).thenComparing(Submission::playerUuid));
+        rows.sort(Comparator.comparing(RoomExportService::sortQuestion)
+                .thenComparing(RoomExportService::sortPlayer));
         return rows;
+    }
+
+    private static String sortQuestion(Submission submission) {
+        return submission.questionId() == null ? "" : submission.questionId();
+    }
+
+    private static String sortPlayer(Submission submission) {
+        return submission.playerUuid() == null ? "" : submission.playerUuid();
     }
 
     private static String escape(String value) {
