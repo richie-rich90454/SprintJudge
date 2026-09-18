@@ -183,5 +183,9 @@ check-blueprints: ## Every blueprint carries first-principles attestation.
 check-volume: ## Every bank subject meets the per-course floor.
 	@node scripts/check-volume.mjs
 
+.PHONY: check-bank
+check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
+	@node scripts/check-bank.mjs
+
 .PHONY: check-legal
-check-legal: check-trademarks check-ai-firewall check-blueprints ## Run all legal checks.
+check-legal: check-trademarks check-ai-firewall check-blueprints check-bank ## Run all legal checks.
