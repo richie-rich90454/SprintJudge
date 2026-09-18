@@ -115,6 +115,16 @@ One logical change per commit; messages follow `feat(scope): description` /
 `fix(scope): description`. Strict OOP on both sides of the wire, no raw SQL, no `any`
 in TypeScript, flat UI only.
 
+## Legal notice
+
+This project is not affiliated with, endorsed by, or sponsored by any
+external testing program. Official course frameworks may serve as
+reference documents for scope and accuracy; no copyrighted materials
+are reproduced. Every question is authored from first principles,
+reviewed by a human, and attested as original. No model used here is
+trained on protected testing-program content. See `docs/no-ap-branding.md`,
+`docs/subject-rename-map.md`, and `docs/legal-safety.md`.
+
 ## License
 
 Released under the [GNU GPL v3](LICENSE).
