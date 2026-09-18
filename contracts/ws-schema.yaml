@@ -1,0 +1,49 @@
+protocolVersion: 2
+description: SprintJudge room wire protocol, additive to the existing socket contract.
+
+clientToServer:
+  HELLO:
+    required: [protocolVersion, clientVersion]
+    optional: [lastSeq]
+  JOIN:
+    required: [pin, nickname]
+    optional: [role, rejoinToken]
+  RESUME:
+    required: [roomId, playerId, rejoinToken, lastSeq]
+  SUBMIT:
+    required: [questionId, payload, idempotencyKey]
+    optional: [confidence]
+  CHANGE:
+    required: [questionId, payload, idempotencyKey]
+  REACTION:
+    required: [emoji]
+  RAISE_HAND: {}
+  LOWER_HAND: {}
+  QA_ASK:
+    required: [text]
+  PING:
+    required: [ts]
+
+serverToClient:
+  HELLO_ACK:
+    required: [serverVersion, minClientVersion, features]
+  JOINED:
+    description: only full snapshot; client applies later events by seq
+    required: [snapshot]
+  RESUME_ACK:
+    required: [snapshot, missedEvents]
+  RESUME_FAILED:
+    required: [code, hint]
+  EVENT:
+    required: [type, seq, ts, roomId, actorId, payload]
+  ERROR:
+    required: [code, message, hint, retryable]
+  PONG:
+    required: [ts]
+  SERVER_SHUTTING_DOWN:
+    required: [reason, resumeWindow]
+
+ordering:
+  snapshotFirst: true
+  dropDuplicates: seq <= lastAppliedSeq
+  idempotency: every client event carries idempotencyKey, server dedupes
