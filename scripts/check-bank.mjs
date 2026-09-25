@@ -57,9 +57,19 @@ function checkQuestion(file, q, index) {
   if (typeof q.format !== "string" || q.format.length === 0) err(file, id, "missing format");
   if (typeof q.stem !== "string" || q.stem.trim().length < 20) err(file, id, "stem too short or missing");
   if (typeof q.explanation !== "string" || q.explanation.trim().length < 20) err(file, id, "explanation too short");
+  // Quality floor: an explanation must teach, not restate the answer.
+  if (typeof q.explanation === "string" && q.explanation.trim().length < 60) {
+    err(file, id, "explanation under 60 chars: must teach the why, not restate the answer");
+  }
   if (typeof q.hint !== "string" || q.hint.trim().length === 0) err(file, id, "missing hint");
   const NEEDS_OPTIONS = new Set(["STIMULUS_MCQ", "CONCEPT_MCQ", "MULTI_SELECT", "ORDERING", "BUG_SPOTTING", "CODE_COMPLETION", "CODE_TRACING", "DIAGRAM", "IMAGE_INTERPRETATION"]);
+  const CODE_FORMATS = new Set(["CODE_TRACING", "BUG_SPOTTING", "CODE_COMPLETION", "JUDGED_PROBLEM", "FILE_DATASET"]);
   const options = Array.isArray(q.options) ? q.options : [];
+  // Quality floor: a code item without code in it is not a code item.
+  if (CODE_FORMATS.has(q.format) && options.length > 0) {
+    const looksLikeCode = /[;{}()]|=>|\bint\b|\bvoid\b|\bString\b|\bfor\b|\bif\b|\bnew\b|\breturn\b/.test(q.stem);
+    if (!looksLikeCode) err(file, id, `${q.format} stem carries no code`);
+  }
   if (NEEDS_OPTIONS.has(q.format) && options.length < 2) err(file, id, "need 2+ options");
   else if (options.length > 0) {
     const seen = new Set();
@@ -74,13 +84,31 @@ function checkQuestion(file, q, index) {
     const correct = new Set();
     if (q.answer && typeof q.answer.correctId === "string") correct.add(q.answer.correctId);
     if (q.answer && Array.isArray(q.answer.correctIds)) for (const c of q.answer.correctIds) correct.add(c);
-    for (const opt of q.options) {
+    for (const opt of options) {
       if (!correct.has(opt.id) && opt.misconception.trim().length === 0 && correct.size > 0) {
         err(file, id, `distractor ${opt.id} needs a named misconception`);
+      }
+      // Quality floor: "wrong" or "confuses order" is not a named misconception.
+      if (!correct.has(opt.id) && correct.size > 0 && opt.misconception.trim().length < 12) {
+        err(file, id, `distractor ${opt.id} misconception under 12 chars: name the specific wrong belief`);
       }
     }
     if (correct.size > 0) {
       for (const c of correct) if (!seen.has(c)) err(file, id, `answer ${c} not among options`);
+    }
+    // Quality floor: options must be grammatically parallel in length, so no
+    // giveaway short/long option. Median-relative, lenient enough for numerals.
+    if (options.length >= 3) {
+      const lengths = options.map((o) => o.text.trim().length).sort((a, b) => a - b);
+      const mid = lengths[Math.floor(lengths.length / 2)];
+      if (mid > 0) {
+        for (const o of options) {
+          const ratio = o.text.trim().length / mid;
+          if (ratio < 0.3 || ratio > 3.5) {
+            err(file, id, `option ${o.id} length is ${ratio.toFixed(1)}x the median: options must be parallel`);
+          }
+        }
+      }
     }
   }
   if (typeof q.difficulty !== "number" || q.difficulty < 0 || q.difficulty > 1) err(file, id, "difficulty must be 0..1");
