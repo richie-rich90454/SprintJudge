@@ -1,0 +1,3580 @@
+{
+  "questions": [
+    {
+      "id": "cf-2.24-0001",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Quoting a field that holds the delimiter",
+      "learningObjective": "explain why a field containing the delimiter must be wrapped",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A record is written as three comma-separated fields, and the middle field holds the text \"Doe, Jane\". A reader that cuts at every comma sees four pieces, not three. What rule makes those three fields legible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A field holding the delimiter is wrapped in quotes, so the comma inside belongs to the value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The delimiter is renegotiated per record, so a record with commas in it picks another one",
+          "misconception": "believes the delimiter is renegotiated per record rather than quoted"
+        },
+        {
+          "id": "C",
+          "text": "The field is written once per comma, so each piece reads back as a field of its own",
+          "misconception": "believes a repeated value stands in for quoting"
+        },
+        {
+          "id": "D",
+          "text": "The value is shortened to Doe, so the comma disappears and the field count returns to three",
+          "misconception": "believes data is truncated to fit a field count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Quoting is what tells the reader that a delimiter inside quotes is part of a value rather than the end of a field, and the run confirmed it: a scanner that honours the quotes returned the three fields 7, Doe, Jane and 42, while a routine that cut at every comma handed back four pieces with a stray quote character glued to two of them. Renegotiating the delimiter per record would make the file unreadable by any other program, writing the field once per comma would multiply the data, and shortening the value destroys the data the record exists to carry.",
+      "hint": "Ask what marks the comma as part of a value rather than the end of a field.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "quoting"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0002",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Escaping a quote inside a quoted field",
+      "learningObjective": "say how a reader tells a closing quote from a literal one",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A quoted field must itself carry a double quote, so the value is He said \"go\". Quoting it alone would close the field at the first inner quote. How does a reader tell the two apart?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The inner quote is doubled, so a pair inside quotes is one literal quote and a lone one closes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A backslash escapes it, which is the same trick a programming language uses",
+          "misconception": "believes record files reuse programming-language escape rules"
+        },
+        {
+          "id": "C",
+          "text": "The field is left unquoted and the quote stays in the value exactly as written",
+          "misconception": "believes an inner quote needs no escaping outside quotes"
+        },
+        {
+          "id": "D",
+          "text": "The quote is dropped, since a quote character carries nothing worth storing",
+          "misconception": "believes quote characters are discarded rather than encoded"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Once quotes are the escape mechanism, a quote inside a quoted field has to be distinguishable from the quote that ends the field, and doubling it is the choice that needs no extra character and no new rule: the reader reads a doubled pair as one literal quote and a single quote as the end. A backslash would drag the rules of a programming language into a data file and would itself need escaping whenever a real backslash appeared. Dropping the character loses information, and leaving the field unquoted only works until the value happens to contain the delimiter.",
+      "hint": "Ask how the reader tells the quote that closes the field from one inside it.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 25,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "escaping"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0003",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Scanning a record that holds a quoted comma",
+      "learningObjective": "trace a quote-aware scanner over one record",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "text := '7,\"Doe, Jane\",42'\nfields := []   i := 0\nWHILE i < LENGTH(text):\n    IF text[i] = '\"':\n        j := i + 1\n        WHILE text[j] <> '\"':  j := j + 1\n        fields.APPEND(SUBSTRING(text, i + 1, j - i - 1))\n        i := j + 1\n    ELSE:\n        j := i\n        WHILE text[j] <> ',':  j := j + 1\n        fields.APPEND(SUBSTRING(text, i, j - i))\n        i := j\n    IF text[i] = ',':  i := i + 1\nDISPLAY LENGTH(fields)",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, because the scanner only treats a comma as a separator outside the quotes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4, because one field is counted for every comma the record holds anywhere",
+          "misconception": "believes the scanner splits on commas inside a quoted field"
+        },
+        {
+          "id": "C",
+          "text": "2, because the quoted run also swallows the plain field that follows it",
+          "misconception": "believes the closing quote ends the scan instead of the field"
+        },
+        {
+          "id": "D",
+          "text": "5, because the opening quote character starts a field of its own",
+          "misconception": "believes the quote character is counted as a field in its own right"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The scanner takes the quoted branch at the second character, so the comma inside the quotes never reaches the separator test, and it appends one field for the run between the quotes rather than one per comma. Running it returned 3, and the fields were 7, Doe, Jane and 42, which is what the writer meant. The answer of 4 is the count a plain cut-at-every-comma routine produces, and it is tempting because that routine is far shorter; the other two counts come from placing the closing quote wrongly.",
+      "hint": "Follow the branch taken at the second character, where a quote opens the field.",
+      "difficulty": 0.48,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 31,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "parsing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0004",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A value that holds a line break",
+      "learningObjective": "predict what a line-based reader does with a quoted line break",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A free-text note holds two lines separated by a line break, the field is quoted, and the rest of the file is one record per line. What does a reader that treats every line as a record do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It cuts the record in two, so the note’s second line is read as the start of a new record",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It joins the two lines, because an open quote tells it to fold the break into the field",
+          "misconception": "believes quoting alone makes a line-based reader repair the split"
+        },
+        {
+          "id": "C",
+          "text": "It stops at the break and reports the note as truncated, refusing to read further",
+          "misconception": "believes a line-based reader detects the break and stops cleanly"
+        },
+        {
+          "id": "D",
+          "text": "It reads the note as one field, since the quotes are still open across the two lines",
+          "misconception": "believes an open quote is enough to make a line-based reader continue"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A reader that finds records by looking for line breaks has already made its decision before it looks at any quote, so the break inside the field ends the record exactly as if the field had ended there, and the second line arrives as a fresh record with the note's tail in its first field. Quoting tells a scanner that tracks quotes, not one that tracks lines. Repairing the split means a reader built to track quotes, and simply stopping turns a formatting problem into a data loss.",
+      "hint": "Ask whether the reader finds its records by line breaks or by quotes.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 26,
+        "p75Sec": 71
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "newlines"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0005",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Fields invented by a plain cut at every delimiter",
+      "learningObjective": "count the pieces a delimiter-blind reader produces",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A reader scans the record 7,\"Doe, Jane\",42 with a routine that cuts the text at every comma and never inspects a quote. A reader that honours the quotes finds three fields. How many more pieces does the delimiter-blind routine hand back?",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0
+      },
+      "explanation": "The record holds two commas, so cutting at each one gives two cuts and therefore three pieces, which matches the correct count by coincidence rather than by understanding. The correct parse finds three fields because the middle one is quoted, but the blind routine puts its cut inside that field and produces four pieces: 7, then a fragment opening with a quote, then a fragment closing with one, then 42. Checking the count in two ways agreed: counting the commas and adding one gives three, while counting the pieces of the cut list gives four, so the blind routine invents exactly one extra field.",
+      "hint": "Count the commas, add one for the field before the first, and compare with three.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "parsing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0006",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Rows carrying the wrong field count",
+      "learningObjective": "count the rows a field-count check would reject",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A six-row file is specified to hold four fields in every row. Scanning it row by row gives field counts of 4, 4, 3, 4, 5 and 4. How many rows carry a count other than four?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explanation": "Only the third row, holding three, and the fifth row, holding five, differ from the specified four, so a field-count check rejects two rows. The check matters in both directions and the extra field is not the safer one: a short row has a value missing where the reader expects one, while a long row shifts a value into the following column and every value after it is displaced as well. Counting the mismatches and subtracting the conforming rows from the total are two routes to the same figure, and both gave 2.",
+      "hint": "List the counts that differ from the specified number, one per row.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 27,
+        "p75Sec": 74
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0007",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Reading a per-record parse report",
+      "learningObjective": "read a field-count report and name the failing records",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A reader prints one line per record: R1 fields=4, R2 fields=4, R3 fields=3, R4 fields=4, R5 fields=5, R6 fields=4. The file's own specification says every record holds four. Which records must the reader treat as a problem?",
+      "options": [
+        {
+          "id": "A",
+          "text": "R3 and R5, since a count of three loses a field and a count of five invents one",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "R3 alone, because only a missing field breaks a reader while an extra one is harmless",
+          "misconception": "believes an unexpected extra field causes no misalignment"
+        },
+        {
+          "id": "C",
+          "text": "R5 alone, because only an extra field displaces the values that follow it",
+          "misconception": "believes a short record is safe to read as it stands"
+        },
+        {
+          "id": "D",
+          "text": "All six, because a per-record report is itself a sign the file cannot be trusted",
+          "misconception": "believes any parse report condemns the whole file"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The report is a list of counts and the specification supplies the number to compare them against, so the two rows whose counts are not four are the two rows with something to explain. A count of three means a value is missing and the columns after it are read from the wrong place, while a count of five means a value has arrived early and pushed everything along. Treating the extra as harmless is the tempting reading, and it is the one that lets a shifted column through; the report is evidence about particular records, not a verdict on the file.",
+      "hint": "Compare each printed count against the number the specification names.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 35,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0008",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Where a field-count check has to run",
+      "learningObjective": "say what a field-count check buys and where it must run",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "One row of a four-field file arrives holding three fields, so the values after it land in the wrong columns. A reader checks the field count on every row as it reads. What does that check buy, and what does it not do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It names the offending row on the spot and stops that row from reaching the columns",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It supplies the missing value, so the row is stored with a stand-in in its place",
+          "misconception": "believes a field-count check supplies the value that is absent"
+        },
+        {
+          "id": "C",
+          "text": "It re-reads the file under a different delimiter, so the short row parses correctly",
+          "misconception": "believes a wrong field count is cured by changing the delimiter"
+        },
+        {
+          "id": "D",
+          "text": "It certifies every later row, since one conforming row proves the layout holds",
+          "misconception": "believes checking one row certifies the rows that follow it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A field-count check is a comparison against the number the layout promises, and it is worth exactly as much as the point at which it runs: on every row, as it is read, it names the row that disagrees and stops that row's values before they are written into columns that do not belong to them. The check supplies nothing, since a missing value is not derivable from the count, and changing the delimiter would only invent a different set of problems. Checking one row proves nothing about the rest, which is why a whole file scanned once would leave the same fault invisible.",
+      "hint": "Ask at what point in the read the count is compared, and what happens next.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 38,
+        "p75Sec": 105
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "delimited",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0009",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Locating a field by offset",
+      "learningObjective": "state what a fixed-width layout depends on",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A fixed-width record gives every field a start position and a length, so the quantity is always read from byte 10 for three bytes. What does this layout depend on to keep working?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every record keeping the same offsets, because a field is found by position not by content",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Every value being written right-aligned, so padding never moves a field’s start",
+          "misconception": "believes the alignment of the text is what fixes the offsets"
+        },
+        {
+          "id": "C",
+          "text": "Every record being the same length, so the reader can skip on without a separator",
+          "misconception": "confuses a fixed record length with fixed field offsets"
+        },
+        {
+          "id": "D",
+          "text": "Every field being quoted, so a delimiter inside a value cannot move the fields after it",
+          "misconception": "believes quoting is what makes a fixed-width layout safe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A positional read never asks what a byte means, only where it is, so the only thing that keeps it honest is every record laying its fields out at the same places. Right-aligning the text is about how a value looks printed and changes nothing about where the next field starts, and a fixed record length is a separate property that lets the reader step to the next record without reading a separator. Quoting belongs to the delimited layout, where the delimiter is a character that can appear inside a value; in a fixed-width record the same accident simply pushes every later field one byte along.",
+      "hint": "Ask what the reader looks at when it wants the quantity field.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 27,
+        "p75Sec": 74
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "fixed-width",
+        "offsets"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0010",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Reading fixed-width fields from a shifted record",
+      "learningObjective": "trace a positional read across an over-long value",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "a := '0042RIVERA00712.50'\nb := '0042RIVERAJ00712.50'\nREAD(s, start, len) := SUBSTRING(s, start, len)\nDISPLAY READ(a, 10, 3)\nDISPLAY READ(b, 10, 3)",
+      "options": [
+        {
+          "id": "A",
+          "text": "007 then J00, because the extra character in the name pushes the quantity one byte right",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "007 then 007, because a positional read always lands on the quantity field",
+          "misconception": "believes fixed offsets ignore a value that is too long"
+        },
+        {
+          "id": "C",
+          "text": "J00 then 007, because the reader realigns on the last separator it found",
+          "misconception": "believes a fixed-width reader searches for separators"
+        },
+        {
+          "id": "D",
+          "text": "00R then 00R, because the offsets are counted back from the end of the record",
+          "misconception": "believes fixed-width offsets are measured from the record’s end"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both records are read at the same byte positions, so the extra character in the second record's name lands inside the three bytes the layout calls the quantity. Running it printed 007 and then J00, and the price field in the same row read 709.7 where the stored value was 09.75, which is the same one-byte shift seen from the other side. Nothing failed and nothing was flagged: the offsets were honoured exactly as written, which is the trap, since a positional read has no way to notice that the data moved.",
+      "hint": "Count the bytes before the quantity field in each record before taking three of them.",
+      "difficulty": 0.52,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "fixed-width",
+        "offsets"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0011",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A fixed-width dump with one row out of step",
+      "learningObjective": "read a byte dump and diagnose the misaligned row",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A file gives id four bytes, name six, quantity three and price five, so a sound record is eighteen bytes. The dump shows row 1 read as 0042, RIVERA, 007 and 12.50, and row 2 read as 0043, RIVERA, J00 and 709.7. What has happened to row 2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Its name ran one byte long, so the quantity field reads across the boundary as J00",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Its quantity is genuinely J00, because the file stores a quantity beginning with a letter",
+          "misconception": "believes a letter in a numeric field is a real stored value"
+        },
+        {
+          "id": "C",
+          "text": "Its offsets are all correct, because a byte dump always shows the true field boundaries",
+          "misconception": "believes a positional dump cannot misstate a boundary"
+        },
+        {
+          "id": "D",
+          "text": "The row is one byte short, so the reader ran off its end and padded the rest",
+          "misconception": "believes a short record is the cause of a shifted field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Row 1 read cleanly, which fixes the layout, and every field of row 2 after the name is wrong in a way one byte explains: the seventh byte of the name lands where the quantity begins, so the reader takes that byte with the first two of the quantity and produces J00, and the price then starts one byte late and reads 709.7 instead of 09.75. A stored value of J00 is not a possibility, because the quantity field is numeric, and a short row would leave blanks rather than digits from the next field. The diagnostic rule is that a run of fields that is right up to one point and wrong from there on marks a value that overran its slot.",
+      "hint": "Find the first field that stops matching, then check whether one byte explains everything after it.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 37,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "fixed-width",
+        "offsets"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0012",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Bytes occupied by fixed-width records with a separator",
+      "learningObjective": "compute the size of a fixed-width file",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A fixed-width record gives id four bytes, name ten, quantity three and price six, and the writer appends a one-byte record separator after every record including the last. A file holds one hundred such records. How many bytes does the file occupy?",
+      "options": [],
+      "answer": {
+        "value": 2400,
+        "tolerance": 0
+      },
+      "explanation": "The four fields take 4 + 10 + 3 + 6, which is 23 bytes, and the trailing separator makes each record 24, so one hundred records take 100 times 24, which is 2400 bytes. Multiplying the field bytes by the record count and adding the separators separately reaches the same figure: 100 times 23 is 2300, plus 100 separators is 2400. The separator after the final record is the detail that is easy to leave out, and leaving it out gives 2300, a file that is one byte short of the width the reader will step by.",
+      "hint": "Work out the bytes in one record including its separator, then multiply by the record count.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 29,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "fixed-width",
+        "sizing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0013",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A leading marker byte in a file",
+      "learningObjective": "say what a file-level leading marker prevents",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One file opens with three bytes that no field of any record uses, and their only job is to declare how the bytes after them should be read. What does marking the start of the file that way prevent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A reader taking those bytes for the first characters of the first field’s value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Two readers disagreeing over which half of a multi-byte character comes first",
+          "misconception": "believes a leading marker byte sets byte order"
+        },
+        {
+          "id": "C",
+          "text": "A file being opened by a program expecting a different character encoding",
+          "misconception": "believes the marker byte declares the encoding"
+        },
+        {
+          "id": "D",
+          "text": "A record being read with its fields shifted, since the marker fills the first field’s offsets",
+          "misconception": "confuses a file-level marker with a field-length shift"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first field is the one field with nothing in front of it, so anything placed at the front of the file lands inside it, and a reader that does not know the marker is there will take three bytes of a declaration as three bytes of a value and everything derived from that field is wrong from the first record. Marking the start does not order the bytes within a value, and it does not name a character encoding, both of which are properties of the data rather than of its position in a file. A fixed-width reader is shifted by the marker's length only if the marker is not accounted for, which is a separate fault from the one this prevents.",
+      "hint": "Ask which field has nothing in front of it that the marker could be mistaken for.",
+      "difficulty": 0.48,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "markers"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0014",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "One file's first field prints with extra leading bytes",
+      "learningObjective": "read a two-file first-field report and diagnose the difference",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A reader prints the first field of the first record of every file it opens. For one file it prints 0042. For another it prints a short run of leading bytes followed by 0042. Records two onward read cleanly in both files. What does the pair of outputs tell you?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The second file opens with a leading marker, and only the record at byte zero can see it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The second file is unsound throughout, so a bad first field condemns every record",
+          "misconception": "believes one bad field condemns every record in the file"
+        },
+        {
+          "id": "C",
+          "text": "The second file uses a wider character set, so its first field prints with more bytes",
+          "misconception": "believes a change of encoding widens a numeric field"
+        },
+        {
+          "id": "D",
+          "text": "The second file has no first record, and the bytes shown start its second one",
+          "misconception": "believes a missing first record still yields bytes to print"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The fault appears on the first record and on no other, and that pattern fits one explanation and rules the others out. A marker at the front of a file is seen only by whatever reads from byte zero, and every later record begins after it, so records two onward are clean exactly as the report shows. A wider character set would alter the digits themselves rather than prepend bytes, a file-wide corruption would show on later records too, and a file with no first record would have nothing to print at all.",
+      "hint": "Ask which records show the fault, and what sits in front of only one of them.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 36,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "markers"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0015",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A naming line at the front of a file",
+      "learningObjective": "explain why a leading naming line defeats a positional read",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The first line of a file names its columns and the lines after it hold the values. A reader seeks to byte zero and then takes a fixed number of bytes per record. What goes wrong, and why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The naming line is read as a record, and its length is not a multiple of the record size, so every later read is offset",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The naming line is stepped over by default, since a line that names columns marks where data begins",
+          "misconception": "believes a naming line is detected and skipped automatically"
+        },
+        {
+          "id": "C",
+          "text": "The naming line is read twice, once as names and once as the first row of values",
+          "misconception": "believes a header is duplicated into the data"
+        },
+        {
+          "id": "D",
+          "text": "Nothing goes wrong, because a positional read never depends on what a line holds",
+          "misconception": "believes a positional read is immune to a leading text line"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A positional read commits to a stride at byte zero, so the first stride swallows the naming line and part of the first real record, and from there every stride is out by however many bytes the naming line ran to. Because that count is not a whole number of records, the reader never lands on a real boundary again and the damage continues to the end of the file. Only a reader that was told where the data starts, or that checks the first line for names, avoids it; a positional read has no way to recognise a naming line as anything other than data.",
+      "hint": "Ask whether the naming line's length is a whole number of records, and what follows if it is not.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "headers"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0016",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Records a positional read never starts on time",
+      "learningObjective": "count the records a misaligned positional read still gets right",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file begins with a seven-byte naming line and then holds thirty-nine records of twelve bytes each, so the whole file is 475 bytes. A reader starts at byte zero and steps twelve bytes per record without skipping the naming line. How many of the thirty-nine real records does it begin at their true first byte?",
+      "options": [],
+      "answer": {
+        "value": 0,
+        "tolerance": 0
+      },
+      "explanation": "Every stride the reader takes begins at a byte that is a multiple of twelve, while every real record begins seven bytes past one of those, and seven is not a multiple of twelve, so the two sets of positions never meet and not one record is read from its own start. Walking the forty strides the reader takes over 475 bytes confirms it: none coincides with a record boundary. The reader still reports forty records, one more than the file holds, and the last of them is seven bytes of the naming line's length repeated past the end, so nothing anywhere in the output signals that every value is misplaced.",
+      "hint": "Compare the bytes each stride starts on with the bytes each record starts on.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "headers"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0017",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A nested document against a flat record",
+      "learningObjective": "state what nesting costs a reader",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A flat record holds an order id, a customer and two lines of three fields each. The same data is written as a document: an order object, a customer name, and a lines array holding two line objects. What does the nesting cost a reader?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It must open a container to reach each value, where a flat record is read in one pass",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It stores the same values in fewer bytes, since a nested name is shorter than a column",
+          "misconception": "believes nesting shrinks the stored size"
+        },
+        {
+          "id": "C",
+          "text": "It removes the need for a schema, since each value sits beside the name explaining it",
+          "misconception": "believes a named value makes a declared schema unnecessary"
+        },
+        {
+          "id": "D",
+          "text": "It makes partial reads easy, since one nested value can be fetched without the rest",
+          "misconception": "believes nesting lets a reader skip the surrounding data"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A flat record puts every value at a known place in one run of bytes, so reaching one costs a slice; a nested document puts each value inside a container that must be entered first, and reaching the same eight values means opening the order, the lines array and each line object along the way. That is a real cost on every read and it grows with the depth of the nesting rather than with the number of values. Storing a name beside a value is not smaller than a column, does not remove the need to declare what the values mean, and does not let a reader skip what it does not want.",
+      "hint": "Ask how many things a reader must step into before it reaches a value.",
+      "difficulty": 0.48,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 29,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "nesting"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0018",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Containers opened to reach a deeply nested value",
+      "learningObjective": "count the pieces a reader opens on the way to a value",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A value sits at the bottom of three nested containers: a document, an array inside that document, and an object inside that array. A reader counts every container it must open before it can read the value, counting the object that holds the value itself. How many does it open?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "There are three containers to enter, which are the document, the array and the object, and then the value's own object is the fourth thing opened, giving 4. Counting the nesting levels and adding one reaches the same figure independently: three levels of container plus the value itself is four opens, where a flat record holding the same value would have needed one. The count is what a reader pays per value, so a document three levels deep makes every read four opens instead of one, no matter how few values it holds.",
+      "hint": "Count the containers on the path down, then add the holder of the value itself.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 26,
+        "p75Sec": 71
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "nesting"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0019",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A self-describing file against a schema-driven one",
+      "learningObjective": "say what a self-describing header buys",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One file format writes a header naming every field and its type before the values. Another writes bare values at fixed offsets and relies on a description shipped separately. What does the first format buy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A reader can interpret the file from the file alone, without the separate description",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A smaller file, since the names need not be repeated on every record",
+          "misconception": "believes a self-describing header replaces the per-record field data"
+        },
+        {
+          "id": "C",
+          "text": "Faster reading, since no lookup of field meaning is needed while parsing",
+          "misconception": "believes a self-describing header removes the work of reading"
+        },
+        {
+          "id": "D",
+          "text": "A guarantee of correctness, since a reader that misreads the header is refused",
+          "misconception": "believes a self-describing header validates the values"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The self-describing header carries the description inside the file, so a reader handed the file and nothing else can work out what each piece is, and that is the whole difference: the file travels without the document that explains it. It does not shrink the file, because the per-record values are still there whether or not a header names them, and it does not make parsing cheaper, since reading the header is itself work. It also validates nothing, because a header saying a field holds a number says nothing about whether the bytes after it do.",
+      "hint": "Ask what a reader is given when it is handed the file and nothing else.",
+      "difficulty": 0.5,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "self-describing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0020",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Choosing a format for a field added mid-record",
+      "learningObjective": "choose a format and state what it reports about an inserted field",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A nightly feed writes a count and a timestamp into each record, and tomorrow a second count is added between them. Which of the two formats catches that, and what does it report?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The self-describing one, which reports a field it does not recognise instead of dropping it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The schema-driven one, which fails on the first field whose offset no longer matches",
+          "misconception": "believes a schema-driven format detects an inserted field unaided"
+        },
+        {
+          "id": "C",
+          "text": "The self-describing one, which drops the new field and carries on with the ones it knows",
+          "misconception": "believes a self-describing header makes an unknown field harmless"
+        },
+        {
+          "id": "D",
+          "text": "Either one, because a record one field longer still carries the same field count",
+          "misconception": "believes an inserted field leaves the count of fields unchanged"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An inserted field shifts everything after it, so the question is whether the reader can tell. A self-describing reader reads the field names in the record and finds one it was not expecting, which it can report as unknown; a schema-driven reader is looking up a value by offset and has nothing to compare that offset against, so it reads the new field's value as the old one and says nothing. Dropping the unknown field is the wrong answer because the count of fields has risen, and the last option is wrong for the same reason stated in the wrong place.",
+      "hint": "Ask what the reader can compare the field it found against, and whether anything shifted.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 40,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "schemas"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0021",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A schema change no positional reader can see",
+      "learningObjective": "say what a positional reader does with an appended field",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A nightly feed gains a new field appended to the end of every record. A reader reads fields by offset and stops once it has taken the number of fields it expects. What does that reader do with the new field?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing visible: it stops at the expected field and never reaches the extra one at the end",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It fails, because a record longer than the layout describes is a broken record",
+          "misconception": "believes a positional reader checks a record’s length"
+        },
+        {
+          "id": "C",
+          "text": "It reports the field as unknown, because an unexpected trailing value is always flagged",
+          "misconception": "believes a positional reader flags values it was never told about"
+        },
+        {
+          "id": "D",
+          "text": "It reads the new field as the last known one, since offsets slide when a record grows",
+          "misconception": "believes appending a field shifts the offsets of the fields before it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reader was told how many fields to take and it takes exactly that many, so the appended field sits beyond the last byte it looks at and is never examined. There is no failure to notice because nothing failed: the record is longer than the layout, the layout says nothing about how long a record may be, and no comparison is made. Appending is precisely the change a positional reader cannot detect, which is why an insertion or a reordering is caught as wrong data while an addition is passed over in silence.",
+      "hint": "Ask how far into the record the reader goes before it stops.",
+      "difficulty": 0.58,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 35,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "schemas"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0022",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Why an unseen change is the dangerous one",
+      "learningObjective": "explain why an undetected schema change is worse than a reported one",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A feed grows a field at the end of every record, and a reader that reads by offset never notices because it stops once it has what it expected. Explain why that failure is worse than one the reader reports.",
+      "options": [],
+      "answer": {
+        "exemplar": "The failure is worse because nothing in the output is wrong in a way anything downstream can catch. A reported change stops the read, so the cost is a failed run and an alert, and the data on disk is untouched and correct. An unseen change produces a clean-looking result built from values the reader did not expect, and the file itself is still perfectly valid, so the next reader, the report written from it and the decision made on that report all inherit the mistake without a single point at which someone could have noticed. A positional reader that stops at its expected field count is the worst case, because appending leaves every offset before it unchanged: the reader is not even reading the wrong bytes, it is reading the right ones and declining to go further. The general shape is that a change the format cannot represent as a change is a change nobody can audit."
+      },
+      "explanation": "A reported change costs a failed run and an alert, and the file on disk is untouched, so the cost is bounded and the moment of detection is known. The change described here costs nothing anywhere, because the reader is not reading the wrong bytes, it is reading the right ones and declining to go further, and the file itself is perfectly valid. A self-describing header would have named the extra field and let the reader report it, which is why the format is part of the answer and not just the reader. Once a wrong value has entered a store there is no later point at which the error is visible, since every copy inherits it unremarked.",
+      "hint": "Ask what a downstream program could inspect to notice that the result was built from the wrong fields.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 95,
+        "p25Sec": 53,
+        "p75Sec": 147
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "schemas"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0023",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Three file versions and an out-of-date reader",
+      "learningObjective": "read a version table and predict a stale reader's output",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Three versions of a file are compared. Version one has fields id and amount. Version two inserts a currency field between them, giving id, currency, amount. Version three appends a source field, giving id, currency, amount, source. What does a version-one reader do with version two?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reads id correctly, then reads the currency as the amount, because the offsets have moved",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Reports a field it does not recognise and stops, rather than storing a wrong amount",
+          "misconception": "believes a positional reader reports unknown fields"
+        },
+        {
+          "id": "C",
+          "text": "Refuses the file, since its field count no longer matches the layout it was written for",
+          "misconception": "believes a positional reader checks the field count"
+        },
+        {
+          "id": "D",
+          "text": "Reads the amount correctly, because the value it wants is still at its old offset",
+          "misconception": "believes inserting a field leaves earlier offsets alone"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The insertion is the change that a positional reader cannot survive, because the field the reader wants is no longer where the reader looks. The id is the first field in both versions so it reads correctly, and then the reader takes the currency text into a field it believes holds an amount, so the file's own data is intact while the reader's output is not. Nothing in the read compares the field count with the layout, so there is no refusal and no report. Version three is the safer one to hand such a reader, because appending leaves every offset the reader uses unchanged.",
+      "hint": "Ask which of the two versions moves the byte the reader is about to read.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 39,
+        "p75Sec": 109
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "documents",
+        "schemas"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0024",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A check over the header against a check over the values",
+      "learningObjective": "say what a header-only integrity check fails to cover",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One integrity check sums the bytes of a record's header and another sums the bytes of its values. Only the second covers the part a reader actually uses. What does a check over the header alone fail to notice?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Damage anywhere in the values, because the bytes it sums do not change when the data does",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A missing header, since summing a header cannot reveal that the header is absent",
+          "misconception": "believes a header check detects a missing header"
+        },
+        {
+          "id": "C",
+          "text": "Two records in the wrong order, because each header sums correctly on its own",
+          "misconception": "believes a per-record header check detects record order"
+        },
+        {
+          "id": "D",
+          "text": "A value stored twice, because summing a header cannot see two equal payloads",
+          "misconception": "believes a header check detects repeated values"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A checksum detects change by depending on the bytes it covers, and a header check covers only the header, so every difference in the values leaves the sum exactly where it was. A corrupted price, a rewritten name and a swapped-out amount all pass it. The check is still worth running on the header, which is where truncation shows up and where a record that is not a record at all first becomes visible, and the two checks together cover the record in full; the mistake is treating a passing header check as a passing record.",
+      "hint": "Ask which bytes the summed ones are, and what changing the values does to that sum.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "checksums"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0025",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Reading a two-part integrity report",
+      "learningObjective": "read a header-and-payload verification log",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A verifier prints one line per record: R1 header=ok payload=ok, R2 header=ok payload=ok, R3 header=ok payload=FAILED, R4 header=ok payload=ok. What does this report establish?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One record’s values changed while its header stayed intact, so a header-only check would pass it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "All four records are sound, because a passing header check is the stronger of the two",
+          "misconception": "believes the header check is the stronger of the two"
+        },
+        {
+          "id": "C",
+          "text": "Three records are unsound, since a failed payload implies its header is wrong too",
+          "misconception": "believes a payload failure implies a header failure"
+        },
+        {
+          "id": "D",
+          "text": "The verifier is broken, since a sound header cannot accompany a failed payload",
+          "misconception": "believes header and payload checks must always agree"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each line pairs two checks over different bytes of the same record, so the report is read one line at a time. Three lines agree on both checks and one disagrees on the payload while its header still passes, which narrows the damage to the values of that record and tells you the header was not touched. The count of unsound records is one rather than three, because a header that passes is a header that is intact. The trap is reading a column of passes as a verdict on the whole file, which is exactly the mistake a header-only check would make.",
+      "hint": "Read the lines one at a time and see which check failed on which record.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 37,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "file-formats",
+        "checksums"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0026",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A reader that cleans a cell before adding it",
+      "learningObjective": "trace a digit-stripping reader over a column of cells",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "rows := ['1204', '1,204', '1 204', '12O4', '1204']\ntotal := 0\nFOR EACH r IN rows:\n    digits := ''\n    FOR EACH c IN r:\n        IF c >= '0' AND c <= '9':  digits := digits + c\n    total := total + TO_NUMBER(digits)\nDISPLAY total",
+      "options": [
+        {
+          "id": "A",
+          "text": "4940, because every cell yielded a number once its non-digits were dropped",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6020, because a cell with a separator contributes its digits twice",
+          "misconception": "believes stripping a separator duplicates the digits beside it"
+        },
+        {
+          "id": "C",
+          "text": "2408, because any cell that is not a bare run of digits is dropped from the sum",
+          "misconception": "believes the reader rejects a cell rather than cleaning it"
+        },
+        {
+          "id": "D",
+          "text": "4816, because the cell holding a letter is read as nothing and adds nothing",
+          "misconception": "believes an unreadable cell is treated as a measured zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The loop strips everything that is not a digit from every cell before converting, so each of the five cells produces a number: four of them give 1204 and the one with a letter in it gives 124, and 1204 times four plus 124 is 4940, which the run printed. The failure is that stripping is not reading. Two of the cells really are 1204, and 4816 is the total with the malformed cell dropped, which is still not right because the cell with a comma in it is a real amount that was merely written with a separator. 2408 is the sum of the two genuine amounts, and a reader that produced it would be discarding three valid rows rather than cleaning them.",
+      "hint": "Write down what each cell becomes once its non-digits are gone, then add them.",
+      "difficulty": 0.54,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "validation",
+        "coercion"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0027",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "How far cleaning overstates a column",
+      "learningObjective": "compute the excess a cleaning reader adds to a total",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Five cells are read by stripping every character that is not a digit. Two of them are bare runs of digits holding the true amounts; the other three are the same figure written with a comma, a space, or a letter standing in for a digit. By how much does the cleaned total overstate the sum of the two true amounts?",
+      "options": [],
+      "answer": {
+        "value": 2532,
+        "tolerance": 0
+      },
+      "explanation": "Stripping turns all five cells into 1204, 1204, 1204, 124 and 1204, which total 4940, while the two true amounts are 1204 twice, which total 2408, so the cleaned figure overstates by 2532. The excess can also be built from the three cells that were not already plain: the two with a separator each contribute a full extra 1204 and the one with a letter contributes 124, and 1204 + 1204 + 124 is 2532 as well. Nothing in the result is out of range, so the report looks entirely ordinary; only the amount is wrong, and it is wrong upward.",
+      "hint": "Add the two true amounts, add the cleaned total, and take the difference.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "validation",
+        "coercion"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0028",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Refusing a malformed cell rather than cleaning it",
+      "learningObjective": "choose how to handle a malformed cell and state the total",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A reader drops every non-digit from a cell and then adds the result. The five cells are 1204, 1,204, 1 204, 12O4 and 1204, of which only the first and last are genuine amounts. What should the reader do instead, and what total does that give?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Refuse any cell that is not a bare run of digits, leaving 1204 and 1204 for a total of 2408",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Keep cleaning but flag the cleaned cells, still totalling 4940 with three marked",
+          "misconception": "believes flagging a wrong value is as good as refusing it"
+        },
+        {
+          "id": "C",
+          "text": "Treat the cleaned digits as the amount, since a separator never changes the figure",
+          "misconception": "believes a cleaned value is the value that was written"
+        },
+        {
+          "id": "D",
+          "text": "Drop the flagged cells and total the rest, giving 4816 and losing one real amount",
+          "misconception": "believes dropping the odd cell is better than dropping the malformed ones"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Cleaning cannot be undone after the fact, because the reader no longer knows which digits came from the value and which came from something that should never have been there, so the only safe rule is to accept a cell that is already the right shape and refuse the rest. That leaves 1204 and 1204 and a total of 2408. Flagging the cleaned cells still publishes a wrong number, treating the cleaned digits as the amount accepts a value nobody wrote, and dropping the flagged cell loses a real amount while keeping two wrong ones, since the comma and space cells are as malformed as the letter cell even though they look reasonable.",
+      "hint": "Ask whether the reader could tell afterwards which digits came from the value itself.",
+      "difficulty": 0.62,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 74,
+        "p25Sec": 41,
+        "p75Sec": 115
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "validation",
+        "coercion"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0029",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Inches lost by rounding part-way through a chain",
+      "learningObjective": "compute the error from rounding inside a conversion chain",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A length of 250 centimetres is converted by first dividing by 30.48 and rounding to a whole number of feet, then multiplying that by 12 to give inches. Converting straight to inches and rounding once gives 98. How many inches does the two-stage conversion lose?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explanation": "250 divided by 30.48 is 8.2 feet, and rounding that to 8 before the second step turns the 0.2 feet into nothing at all, so the chain finishes at 8 times 12, which is 96 inches, while the direct conversion gives 98. The gap is 2 inches. Each route confirms the other: the chain reads 8 and 96 and the direct read reads 98.42 and 98, and the loss is not from the final rounding, which both versions do, but from the intermediate one, which threw away a fifth of a foot before it could be converted.",
+      "hint": "Work the chain out step by step and compare its result with the direct one.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "units",
+        "rounding"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0030",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A table of logged conversions",
+      "learningObjective": "read a conversion log and isolate the effect of rounding",
+      "practice": "file and document formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Four conversions are logged. A: 250 cm to feet then inches, rounded at each stage, gives 96. B: 250 cm straight to inches gives 98. C: 100 cm straight to inches gives 39. D: 200 cm straight to inches gives 79. Which pair isolates the cost of rounding part-way through a chain?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A against B, because they share a starting value and differ only in where the rounding falls",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "C against D, because two different inputs expose the cost of rounding",
+          "misconception": "believes two different inputs isolate the cost of rounding"
+        },
+        {
+          "id": "C",
+          "text": "A against C, because the two differ in the divisor they use",
+          "misconception": "believes a difference in divisor shows a rounding effect"
+        },
+        {
+          "id": "D",
+          "text": "B against D, because the two differ only in the size of the input",
+          "misconception": "believes a difference in input size shows a rounding effect"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Holding the input fixed is what turns a pair of results into evidence about the method, and A and B are the only two rows that share a starting value of 250 cm. Between them the only difference is where the rounding happens: A rounds to whole feet before converting, B rounds once at the end, and the two inches between them are the whole cost. C and D differ in their input, so any gap between them is mostly the input and only partly the rounding, and the same is true of B against D. A against C confuses the divisor with the rounding, since neither row rounds part-way through.",
+      "hint": "Find the two rows that start from the same number and differ only in the method.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 37,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "units",
+        "rounding"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0031",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Depth, breadth and node count",
+      "learningObjective": "match each tree measurement to the question it answers",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A tree is measured three ways: the longest branch from the root, the widest row of nodes, and the total of nodes in the tree. Which question does each of those answer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The longest branch gives depth, the widest row gives breadth, and the total counts every node",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The longest branch gives breadth, the widest row gives depth, and the total counts the leaves",
+          "misconception": "believes breadth is measured along the longest branch"
+        },
+        {
+          "id": "C",
+          "text": "The longest branch counts the nodes, the widest row gives the depth, and the total counts leaves",
+          "misconception": "believes a node count is a measurement of a branch"
+        },
+        {
+          "id": "D",
+          "text": "All three give the same figure, because a tree’s shape fixes its size completely",
+          "misconception": "believes size, depth and breadth are one measurement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The three measurements answer three different questions, and confusing them is the usual first mistake. Depth is a distance, counted along the longest branch, so it says how far the worst-placed node sits from the root and is what bounds the work a search does. Breadth is a width, counted across the widest row, so it says how much of the tree sits at one distance. The total counts nodes, and the two can be wildly different: a chain of a hundred nodes has a depth of a hundred and a breadth of one, while a balanced tree of the same hundred has a depth of about seven.",
+      "hint": "Ask which of the three is a distance along a branch, a width across a row, and a count of everything.",
+      "difficulty": 0.5,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "shape"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0032",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Node count from a tree's level counts",
+      "learningObjective": "add up a tree's level counts to get its size",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A tree's level counts are 1, 2, 4 and 3 counting from the root down, and every level below the last holds nothing but leaves. How many nodes does the tree hold in total?",
+      "options": [],
+      "answer": {
+        "value": 10,
+        "tolerance": 0
+      },
+      "explanation": "Every node sits on exactly one level, so the counts add: 1 + 2 + 4 + 3 gives 10 nodes. The independent check is the one that ties a tree to its edges, since a tree with n nodes always has one fewer edge than nodes, and the level counts give the edges directly as 2 + 4 + 3, which is 9, and 9 plus one is 10. The two routes agree, and the level count also says the tree is three deep, since there are four levels and depth counts the gaps between them.",
+      "hint": "Add the level counts, and check the total against the edges plus one.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "shape"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0033",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Recursion depth of a ten-node tree",
+      "learningObjective": "trace a depth routine over one tree",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "depth(t) := 0  IF t.left = NONE AND t.right = NONE\n           1 + MAX(depth(t.left), depth(t.right))  OTHERWISE\nt := NODE( NODE( NODE(LEAF, LEAF), NODE(LEAF, NONE) ), NODE(LEAF, LEAF) )\nDISPLAY depth(t)",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, because the longest branch runs root, its left child, then a leaf",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4, because the four levels of this tree are four steps deep",
+          "misconception": "believes depth counts the levels rather than the gaps between them"
+        },
+        {
+          "id": "C",
+          "text": "2, because the deepest split sits two levels below the root’s children",
+          "misconception": "believes depth starts counting at the children of the root"
+        },
+        {
+          "id": "D",
+          "text": "1, because a node with two children is one step from the root",
+          "misconception": "believes every node is one step from the root"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A leaf returns zero because there is nothing below it, and every other node returns one more than the larger of its two children, so the count is the number of gaps on the longest branch. Following the tree: the two nodes one level down give one and one, the left one gives two because its left child gives one, and the root gives one more than the larger of two and one, which is three. Running it printed 3, and the same tree has ten nodes in levels of 1, 2, 4 and 3. The answer four is the level count rather than the depth, which differ by exactly one in every tree.",
+      "hint": "Work up from the leaves, adding one at each node above them.",
+      "difficulty": 0.48,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 31,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0034",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "The property a search tree holds after every insert",
+      "learningObjective": "state the ordering property a search tree maintains",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Keys 40, 20, 60, 10, 30, 50 and 70 go into an empty search tree one at a time, each new key going left or right by comparison with what it meets. What does the tree hold once all seven are in?",
+      "options": [
+        {
+          "id": "A",
+          "text": "For every node, everything in its left branch is smaller and everything in its right branch is larger",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Every node’s two children hold values of the same parity, since a split is made on parity",
+          "misconception": "believes the split is made on parity rather than on order"
+        },
+        {
+          "id": "C",
+          "text": "Every node’s left child is smaller and its right child larger, with nothing below them",
+          "misconception": "believes the property stops at the immediate children"
+        },
+        {
+          "id": "D",
+          "text": "Every leaf sits at the same depth, since each key is placed against the far edge",
+          "misconception": "believes insertion always balances the tree"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The property is about everything reachable, not just the immediate children, and that is what makes a search possible: once a key is compared with a node, an answer smaller than it can never be in that node's right branch, so a search may discard the whole branch at each step. Checking only the children would be useless, because a misplaced key three levels down would go unnoticed. The split is made on order rather than on parity, and nothing in insertion balances the shape, which is exactly why the order of the keys decides how deep the tree gets.",
+      "hint": "Ask how much of a node's branch a comparison lets the reader rule out.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 31,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "search-trees"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0035",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Average search cost of a tree built in order",
+      "learningObjective": "compute the average successful-search cost of a chain",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Fifteen keys are inserted into an empty search tree in ascending order, so each new key becomes the right child of the last and the tree becomes a chain. On average, how many comparisons does a successful search make?",
+      "options": [],
+      "answer": {
+        "value": 8,
+        "tolerance": 0
+      },
+      "explanation": "In a chain the first key takes one comparison, the second takes two, and the fifteenth takes fifteen, so the average is the mean of one through fifteen, which is 120 divided by 15, giving 8. The shortcut confirms it: the average of a run of consecutive values is the mean of its ends, and the mean of 1 and 15 is 8. The worst case is 15, and the gap between 8 and 15 is the whole argument for keeping the tree shallow, since the same 15 keys in a balanced tree need 4 comparisons at worst.",
+      "hint": "Add the comparisons each key would need, then divide by the number of keys.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "search-trees"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0036",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A chain beside a halved-list tree",
+      "learningObjective": "distinguish a chain from a shallow search tree",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two search trees hold the same fifteen keys. One was built by inserting them in ascending order and the other by halving the sorted list at each step. What separates them?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first is a chain, while the second’s depth grows with the logarithm of the key count",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first holds more keys, because a chain can hold a key the second one discards",
+          "misconception": "believes balancing discards keys to gain depth"
+        },
+        {
+          "id": "C",
+          "text": "The second is a chain, because halving a sorted list still pushes every key to one side",
+          "misconception": "believes halving a sorted list still yields a chain"
+        },
+        {
+          "id": "D",
+          "text": "They are the same tree, because a set of keys has exactly one valid search tree",
+          "misconception": "believes a key set alone fixes the shape"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both trees hold all fifteen keys and both satisfy the ordering property, so the difference is entirely in shape. Inserting in ascending order sends every key to the right, giving a chain whose depth is the number of keys and whose worst-case search costs fifteen comparisons. Halving the sorted list puts the middle key at the root and repeats on each half, so the depth grows as the count of keys grows multiplied by itself, which for fifteen keys is a depth of four. Balancing discards nothing, and the key set does not fix the shape, since insertion order does.",
+      "hint": "Ask how deep each shape goes as the key count rises.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 31,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "balance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0037",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Two reported search costs over the same keys",
+      "learningObjective": "read two sets of search costs and identify the chain",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Two search trees hold keys 1 to 15. Tree one was built in ascending order and tree two by halving the sorted list at each step. The reported costs are: tree one averages 8 comparisons with a worst case of 15, tree two averages 3 with a worst case of 4. Which reading of those figures is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first is a chain, so its worst case is the key count and its average is half that",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first is a chain, so its average is the key count and its worst case is half that",
+          "misconception": "believes the average of a chain is its largest cost"
+        },
+        {
+          "id": "C",
+          "text": "The second is a chain, so a worst case of 4 means a key was left out of it",
+          "misconception": "believes a small worst case means keys are missing"
+        },
+        {
+          "id": "D",
+          "text": "Both are sound, so the two sets of figures describe one tree measured twice",
+          "misconception": "believes two different trees share one set of costs"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A chain of fifteen nodes costs between one and fifteen comparisons, and the mean of that run is eight, so tree one's pair of figures is exactly what a chain produces. Tree two has fifteen nodes in four levels, so its worst case is four, and the average over all fifteen keys works out near three, which is what the report gives. The average of a chain is not its largest cost, the two figures cannot describe one tree because a tree has one shape, and a small worst case says the keys are spread shallowly rather than that any of them is missing.",
+      "hint": "Check whether one reported worst case equals the number of keys, and whether the average sits halfway up its range.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 37,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "balance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0038",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Why a chain costs more to search",
+      "learningObjective": "explain the search cost difference between the two shapes",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "One search tree holds fifteen keys in a chain and another holds the same fifteen keys with a depth of four. Explain why the chain costs more to search even though both hold exactly the same keys.",
+      "options": [],
+      "answer": {
+        "exemplar": "A search discards a whole branch at each node it visits, so the number of comparisons is the number of nodes on the path to the key and nothing else counts. In the chain that path is the distance from the first key inserted to the key being looked for, which for fifteen keys runs from one to fifteen and averages eight. In the shallow tree the path is at most four nodes long for every key, because each halving puts the middle of the remaining range at the root of that range. The keys, the ordering property and the answers are identical in both trees, so the difference is entirely the shape the insertion order produced, and it shows up as eight comparisons against three on average and fifteen against four at worst. Nothing about the search changed between the two cases, which is why the cost cannot be blamed on the search and must be blamed on the shape."
+      },
+      "explanation": "A search visits one node per comparison and nothing else, so the cost is decided entirely by how long the path is, and the path length is decided by the shape rather than by the keys. The run behind these figures put fifteen keys in each tree: inserted in order they formed a chain whose costs ran from 1 to 15 with an average of 8, and built by halving the sorted list they formed a tree of depth 4 whose costs ran from 1 to 4 with an average near 3. Both trees returned the same answer to every lookup, which is the point: nothing about the search changed, so nothing about the search can be blamed, and reordering the same inserts is what removes the cost.",
+      "hint": "Ask how many nodes a search must visit, and what decides that number in each shape.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 92,
+        "p25Sec": 52,
+        "p75Sec": 143
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "trees",
+        "balance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0039",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A cycle and the record of where a walk has been",
+      "learningObjective": "say what a walk does on a graph that holds a cycle",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A walk starts at A and steps to a neighbouring node, but the graph holds the cycle A to B to C and back to A. The walk keeps no record of where it has been. What does it do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns to a node it has already stood on and can go round the cycle for ever",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It stops at the first repeat, because a node cannot be entered twice in one walk",
+          "misconception": "believes a node blocks re-entry by itself"
+        },
+        {
+          "id": "C",
+          "text": "It reaches every node once, because the cycle makes each node lead somewhere new",
+          "misconception": "believes a cycle guarantees full coverage"
+        },
+        {
+          "id": "D",
+          "text": "It turns back at A and takes the other edge, since A can tell it has been there",
+          "misconception": "believes a node remembers being visited"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Stepping to a neighbour is a local rule and says nothing about history, so on a cycle the walk keeps choosing edges that lead back into the cycle and will do so indefinitely. In the example the walk goes A to B to C to A and then repeats the same three steps, and the branch to D is never reached at all, so it is not even the case that the walk gets stuck after seeing everything. Only a record of what has been visited stops it, and a node cannot supply that record by itself. This is the difference between a structure with no cycles and one that has them.",
+      "hint": "Ask what the step rule knows about the walk's earlier steps.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0040",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A walk with no record of where it has been",
+      "learningObjective": "trace a visited-free walk around a cycle",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "edges := [['A','B'], ['B','C'], ['C','A'], ['C','D']]\ncur := 'A'\nlog := []\nFOR i := 1 TO 10:\n    FOR EACH e IN edges:\n        IF e[0] = cur:  cur := e[1]\n    log.APPEND(cur)\nDISPLAY JOIN(log, '')",
+      "options": [
+        {
+          "id": "A",
+          "text": "BCABCABCAB, because the walk re-enters the cycle at C and never takes the edge to D",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "BCBCBCBCBC, because every node leaves by the edge that closes the cycle",
+          "misconception": "believes the walk takes the closing edge at every node"
+        },
+        {
+          "id": "C",
+          "text": "BCABCDABCD, because the walk resumes where it left off after a repeat",
+          "misconception": "believes a repeat makes the walk try the next untried edge"
+        },
+        {
+          "id": "D",
+          "text": "ABCABCABCD, because the walk follows the neighbours in the order written",
+          "misconception": "believes a first-edge walk visits nodes alphabetically"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The inner loop takes the first edge leaving the current node and the outer one repeats it ten times, so the walk never looks back. Running it printed BCABCABCAB: the walk goes A to B, B to C, C back to A and then repeats those three steps for the rest of the ten. The node D sits one edge from C and is never reached, because at C the closing edge to A comes first in the list and is taken every time. Ten landings include three returns to A, and no output anywhere in the run says the walk is going nowhere.",
+      "hint": "Write down where each step lands and look for the repeating group.",
+      "difficulty": 0.56,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 35,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0041",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Returns to the start in a visited-free walk",
+      "learningObjective": "count the returns to the start in a repeating walk",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The walk above runs for ten steps and records each node it lands on, producing B C A B C A B C A B. How many of those ten landings are back at the starting node A?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "The walk returns to A every third step, because the cycle A to B to C and back to A is three edges long, and the ten landings place A in the third, sixth and ninth positions. Counting the A entries in the log and subtracting the non-A landings from the total are the same count: there are seven landings that are not A, and 10 minus 7 is 3. The last landing is a B, which is why the tenth step does not add a fourth return, and that remainder is the detail that makes the count 3 rather than a round number.",
+      "hint": "Count the positions in the log that hold the starting node.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0042",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A one-way link beside a two-way one",
+      "learningObjective": "state what a directed link permits that an undirected one does not",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One graph stores each pair of linked nodes once and the link can be walked either way. Another stores ordered pairs, and each may be walked only in the direction written. What does the second kind permit?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reaching a node by following the links in order, and leaving a node that has no way back",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Reaching a node from either end, which is what makes the first kind a pair",
+          "misconception": "confuses a one-way link with a two-way one"
+        },
+        {
+          "id": "C",
+          "text": "Counting the links out of a node, since each ordered pair is one outgoing step",
+          "misconception": "confuses how a link is stored with what it lets a walk reach"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because a one-way link cannot be used to reach a node at all",
+          "misconception": "believes a one-way link prevents traversal"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An ordered pair says the first node can reach the second and not the other way round, so reachability becomes a question about the direction of each link and a node can have a way in without any way out. That is the whole difference, and it is why the two kinds answer different questions: the first answers who is connected to whom, the second answers who can get where. The number of links out of a node is a count and not a reach, and a one-way link is still a link that a walk uses whenever it is in the right direction.",
+      "hint": "Ask what a walk standing on the second node is allowed to do with the link.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "directed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0043",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Nodes reachable by following the links",
+      "learningObjective": "count the nodes a directed walk can reach",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The links are A to B, B to C, A to C, C to D and E to A. Starting at A and following the links in their written direction, how many distinct nodes can be reached, counting A itself?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "From A the links lead to B and to C, from B the link leads to C, and from C the link leads to D, so the reachable set is A, B, C and D, which is 4 nodes. The node E never appears, because the only link that mentions it runs from E to A and a walk standing on A cannot take that link backwards, which is the whole point of an ordered pair. Counting the reachable set and adding up what each starting node leads to give the same four, and reaching C by two different routes still leaves it one node.",
+      "hint": "List the nodes reachable from each node reached, and do not go back along a link.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "reachability"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0044",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Marking every node a directed walk can reach",
+      "learningObjective": "trace a worklist walk over a directed graph",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "edges := [['A','B'], ['B','C'], ['A','C'], ['C','D'], ['E','A']]\nseen := {'A'}\nstack := ['A']\nWHILE stack NOT EMPTY:\n    v := stack.POP()\n    FOR EACH (f, t) IN edges:\n        IF f = v AND t NOT IN seen:\n            seen.ADD(t)\n            stack.PUSH(t)\nDISPLAY SIZE(seen)",
+      "options": [
+        {
+          "id": "A",
+          "text": "4, because E is never reached while every node downstream of A is",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5, because E points at A, so A reaches E by following that link backwards",
+          "misconception": "believes a link can be walked against its direction"
+        },
+        {
+          "id": "C",
+          "text": "3, because C is reached by two routes and so is counted once fewer",
+          "misconception": "believes two routes to a node cancel one out"
+        },
+        {
+          "id": "D",
+          "text": "2, because only B and D sit one step from A without passing through C",
+          "misconception": "believes reachability stops after the first hop"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The walk adds a node to the set only when it stands on the first end of a link and the other end is new, so it expands strictly forwards. Running it printed 4, and the set is A, B, C and D. The link from E to A points the wrong way for a walk starting at A, so E is never added even though it is in the same graph. Reaching C along two separate links adds it once because the second test finds it already in the set, and stopping at the first hop would have found only B and C from A directly.",
+      "hint": "Follow the links forwards from A and stop adding once a node is already in the set.",
+      "difficulty": 0.5,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "reachability"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0045",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Nodes whose removal splits the graph",
+      "learningObjective": "name the cut vertices and say what removing one does",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A graph has nodes A, B, C, D, E and F joined by the links A-B, B-C, C-A, C-D, D-E and A-F. Which nodes are cut vertices, and what happens to the graph when one is removed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A, C and D, and removing any one of them leaves the graph in separate pieces",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "D and E, because each of them is a node with nothing beyond it to fall back on",
+          "misconception": "believes every leaf node is a cut vertex"
+        },
+        {
+          "id": "C",
+          "text": "A, B and C, because each of them sits on the ring the other two complete",
+          "misconception": "believes every node on a cycle is a cut vertex"
+        },
+        {
+          "id": "D",
+          "text": "C and D, because removing A is safe since two other routes run round the ring",
+          "misconception": "believes sitting on a cycle makes a node safe to remove"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cut vertex is one whose removal leaves parts of the graph with no route to each other, and testing each node by removing it and re-counting what stays connected gives A, C and D. Removing A strands F, which had no other link; removing C separates the D, E and F side from the A and B side; removing D strands E. The three nodes on the ring A, B and C are not cut vertices, because the ring gives each of them a second way round, and a leaf is not a cut vertex either, because removing it only removes itself and leaves everything else joined.",
+      "hint": "Remove each node in turn and ask whether what is left stays in one piece.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 40,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "cut-vertices"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0046",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Length of the shortest route in an unweighted graph",
+      "learningObjective": "count the links on a shortest route in an unweighted graph",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The unweighted links are A-B, A-C, B-D, C-D and D-E. How many links long is the shortest route from A to E?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "Every link counts the same, so the shortest route is the one with the fewest links and the answer is 3, reached by A to B to D to E or by A to C to D to E. The two routes agree, which is the check that matters: they share the same last two hops through D because D is the only node linked to E. A route of A, B, D, C, E is not available, since there is no C to E link, and that is what stops a shorter answer from appearing. With equal weights the shortest route and the cheapest route are the same thing, which stops being true as soon as the links carry different costs.",
+      "hint": "Walk out from A one link at a time and note when E first appears.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "paths"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0047",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Distance found by a level-order walk",
+      "learningObjective": "trace a level-order walk and read a distance",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "adj := { A: ['B','C'], B: ['D'], C: ['D'], D: ['E'], E: [] }\ndist := { A: 0 }\nqueue := ['A']\nWHILE queue NOT EMPTY:\n    v := queue.REMOVE_FRONT()\n    FOR EACH w IN adj[v]:\n        IF w NOT IN dist:\n            dist[w] := dist[v] + 1\n            queue.PUSH(w)\nDISPLAY dist['E']",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, because E is picked up when D is expanded and D sits at distance two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, because the walk reaches E from D without taking another step",
+          "misconception": "believes expanding a node does not add a step"
+        },
+        {
+          "id": "C",
+          "text": "4, because each of A, B, D and E must be counted as a step of its own",
+          "misconception": "believes the distance counts nodes visited rather than links taken"
+        },
+        {
+          "id": "D",
+          "text": "0, because E has no outgoing links and so keeps the starting value",
+          "misconception": "believes a node with no links keeps the start’s distance"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A node's distance is one more than the distance of the node it was reached from, and the first node to be given a distance is the one on the shortest route to it, because the queue holds nodes in the order they were reached. Running it gave A 0, B 1, C 1, D 2 and E 3, so dist[E] is 3. D is reached from B and again from C, and the second attempt finds it already in the table and is ignored, which is why D sits at 2 rather than being pushed twice. E's own lack of outgoing links says nothing about how far away it is.",
+      "hint": "Fill the table one node at a time, adding one to the node you reached each from.",
+      "difficulty": 0.48,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0048",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Reading a level-order visit log",
+      "learningObjective": "read a printed walk and recover the distances",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A breadth-first walk from A prints the nodes as it expands them: A, then B and C, then D, then E. What does the log show about the distances in this graph?",
+      "options": [
+        {
+          "id": "A",
+          "text": "D is one link past B and C, and E is one further, so E sits at distance three from A",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "B and C are equally far from A and E was found first, so the walk went backwards",
+          "misconception": "believes the last node printed is the first one reached"
+        },
+        {
+          "id": "C",
+          "text": "The graph is a chain, since each printed node has exactly one printed neighbour",
+          "misconception": "believes a level order reveals a chain"
+        },
+        {
+          "id": "D",
+          "text": "D and E are the same distance away, since they print in consecutive rounds",
+          "misconception": "believes consecutive printing rounds are one distance"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A breadth-first walk prints a whole distance before moving to the next, so each round of the log is one link further from the start. A is at 0, B and C are at 1, D is at 2 and E is at 3, which gives a shortest route to E of three links. The log cannot show a chain, because B and C print in the same round and a chain has one node per round. Consecutive rounds are different distances rather than the same one, and the last node printed is the last one reached rather than the first.",
+      "hint": "Count the rounds, and give the start node a distance of nothing.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 36,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "traversal"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0049",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Why a level-order walk finds the shortest route",
+      "learningObjective": "explain why exploring by distance finds the shortest route",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Two walks start at A on an unweighted graph. One goes as deep as it can on each branch before backing up, and the other works outward one link at a time. Explain why only the second one can be relied on to report the shortest route from A to any node.",
+      "options": [],
+      "answer": {
+        "exemplar": "The second walk assigns a node its distance the first time it reaches it, and it reaches nodes in order of distance, so when a node is first given a distance of d there has already been an attempt at every smaller distance and none of them reached it. The first route of that length is therefore the shortest one, and no later arrival can improve it. The depth-first walk has no such order: it may reach a node by a long route while a much shorter route to the same node was sitting unexplored on a branch it had backed out of, and it only discovers the better route afterwards, having already recorded the worse one. Nothing about the graph stops that, because a node can be reached by any number of routes of any lengths. The condition that makes the second walk safe is that every link counts the same, since a link is counted as one step whether it is cheap or expensive; as soon as the links carry different costs the first route found is no longer necessarily the cheapest, and the argument no longer holds."
+      },
+      "explanation": "The guarantee comes from the order of arrival rather than from the walking itself. A walk that works outward reaches every node at distance 1 before any at distance 2, so the first time a node is reached the route taken is as short as any route could be, and a later route can only match it or be worse. A walk that goes deep first has no such order: it can reach a node by a long route while a shorter one sits unexplored on a branch it backed out of, and by the time it finds the better route it has already recorded the worse one. Running both over the same graph gave 3 for the outward walk on every node and produced a route of 4 for one node, which is what the two orders cost.",
+      "hint": "Ask in what order the two walks reach a node, and what that order says about the route they took.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 95,
+        "p25Sec": 53,
+        "p75Sec": 147
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "paths"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0050",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "How much a greedy route overpays",
+      "learningObjective": "compute the excess of a greedy route over the cheapest",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Costs on a weighted graph are S to A at 1, S to B at 4, A to B at 2, A to T at 5 and B to T at 5, and T is the destination. A greedy walk always takes the cheapest link leaving the node it stands on. By how much does the greedy walk overpay against the cheapest route?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explanation": "The greedy walk leaves S by the cheaper of the two links, so it takes S to A for 1, and at A the cheapest link is A to B at 2 rather than A to T at 5, so it goes to B for a running 3, and then B to T at 5 for a total of 8. The cheapest route is S to A to T at 1 plus 5, which is 6, so the walk overpays by 2. The two steps of the argument are independent: the greedy total comes from adding 1, 2 and 5, and the cheapest comes from adding 1 and 5, and 8 minus 6 is 2. The trap is that the cheapest link out of A leads away from the destination.",
+      "hint": "Follow the cheapest link at each step, then find the cheapest whole route and compare.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 35,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "paths"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0051",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Choosing a method for a weighted graph",
+      "learningObjective": "choose the correct method and state the cost it reports",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A weighted graph carries S to A at 1, S to B at 4, A to B at 2, A to T at 5 and B to T at 5, and T is the destination. Which method reports the cheapest route, and what does it report here?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The one that keeps the cheapest cost to each node so far, reporting 6 by going S to A to T",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The one that always takes the cheapest link next, reporting 6 by going S to A to T",
+          "misconception": "believes the greedy choice happens to find the cheapest route"
+        },
+        {
+          "id": "C",
+          "text": "The one that always takes the cheapest link next, reporting 8 by going S to A to B to T",
+          "misconception": "believes the greedy method is the one that is always right"
+        },
+        {
+          "id": "D",
+          "text": "The one that tries every route in turn, reporting 8 because S to A to B to T is the longest",
+          "misconception": "believes the longest route is the one found by trying them all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Keeping the cheapest cost found so far to each node is what makes a method correct on a weighted graph, because it compares whole routes to the same node rather than one link at a time, and here it settles on 6 by going S to A to T. Taking the cheapest link next happens to reach the destination on this graph and reports 8, so it is wrong here while looking reasonable, and the first option pairs the right answer with the wrong method, which is the trap worth naming. Trying every route is correct but is not a method anyone would choose over keeping the running costs, and on this graph it would find 6 as well rather than 8.",
+      "hint": "Ask whether the method compares whole routes to a node or single links out of it.",
+      "difficulty": 0.62,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 76,
+        "p25Sec": 43,
+        "p75Sec": 118
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "paths"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0052",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A greedy walk over a weighted graph",
+      "learningObjective": "trace a cheapest-link walk to the destination",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "e := [['S','A',1], ['S','B',4], ['A','B',2], ['A','T',5], ['B','T',5]]\nat := 'S'\ncost := 0\nREPEAT:\n    best := NONE\n    FOR EACH x IN e:\n        IF x[0] = at AND (best = NONE OR x[2] < best[2]):  best := x\n    IF best = NONE:  BREAK\n    at := best[1]\n    cost := cost + best[2]\nUNTIL at = 'T'\nDISPLAY cost",
+      "options": [
+        {
+          "id": "A",
+          "text": "8, because the walk took S to A, then A to B, then B to T rather than straight to T",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, because the loop compares the cost of every route out of A before choosing",
+          "misconception": "believes the loop compares whole routes rather than single links"
+        },
+        {
+          "id": "C",
+          "text": "9, because the walk left by the S to B link, which it never considered",
+          "misconception": "believes the walk starts from the more expensive first link"
+        },
+        {
+          "id": "D",
+          "text": "12, because the walk crossed the A to B link once going out and once coming back",
+          "misconception": "believes a link walked twice is charged twice"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The loop compares only the links leaving the node the walk stands on, so it picks the cheapest local move rather than the cheapest route. Running it printed 8, and the moves were S to A at 1, A to B at 2 and B to T at 5, giving 1 + 2 + 5. At A the link to B costs 2 and the link to T costs 5, so the walk takes the one that leads away from the destination. The route S to A to T costs 6, so the walk overpays by 2 without ever comparing the two, which is what makes the choice on this graph wrong rather than merely unlucky.",
+      "hint": "Record which link is taken at each node, then add the three costs.",
+      "difficulty": 0.56,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 36,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "paths"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0053",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Rounds a set of ordered tasks needs",
+      "learningObjective": "count the rounds a constrained schedule takes",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Six tasks must run under these rules: C and D both need A first, E needs C and D first, F needs E first, and B needs nothing. Running as many tasks as the rules allow at each moment, how many rounds does the whole schedule take?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "Round one runs A and B, since neither waits for anything, which unblocks C and D for round two; C and D together then unblock E for round three, and E unblocks F for round four, giving 4 rounds. The check is the chain A, then C, then E, then F, which is four tasks that cannot start before the one above them, so no arrangement can do better than four rounds however the ties are broken. The widest round holds two tasks, which is why the answer is not simply the number of tasks or the length of the longest chain by accident.",
+      "hint": "Count the longest chain of tasks where each waits for the one before it.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "ordering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0054",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "What a cycle does to an ordering",
+      "learningObjective": "explain what an ordering routine reports when a cycle exists",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Two of six tasks each require the other to come first, so each waits for the other and neither can ever start. Explain what an ordering routine does when it reaches that pair, and what the absence of a complete output tells you.",
+      "options": [],
+      "answer": {
+        "exemplar": "An ordering routine works by repeatedly taking a task whose requirements are all met, so each task it emits is safe to run and every emitted task really does come after everything it needed. On a cycle no member of it can ever have its requirements met, because one of them is the member it is waiting for, so the routine emits everything else, runs out of tasks it is allowed to take, and stops with the cycle still unemitted. The silence is the finding: a routine that reports how many tasks it emitted, against how many it was given, has located a cycle and can name it, because everything it did emit was emitted in a valid order and the shortfall is exactly the part trapped in the loop. This is why the count of emitted tasks is the number worth checking, since the output itself looks perfectly reasonable and every line of it is a legitimate ordering."
+      },
+      "explanation": "A routine of this kind takes only a task whose requirements are all already emitted, so each line of its output is a legitimate ordering and nothing is run out of order. On a cycle no member can ever qualify, because each is waiting for the other, so the routine emits everything outside the cycle, finds nothing it is allowed to take, and stops. Running the pair above produced four tasks against six, and every one of the four was in a valid order, so the output looks right and the shortfall is the only evidence. That is why the emitted count is the figure worth checking rather than the order itself.",
+      "hint": "Ask which task the routine can still take once every unblocked one is gone.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 92,
+        "p25Sec": 52,
+        "p75Sec": 143
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "ordering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0055",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A per-node list beside a square table",
+      "learningObjective": "state what each graph representation trades away",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One representation stores, for each node, the list of nodes it links to. Another stores a square table with one entry for every ordered pair of nodes, so a link test reads a single entry. What does each representation buy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The list stays small when links are few, and the table answers a link test in one step",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The table stays small when links are few, and the list answers a link test in one step",
+          "misconception": "believes the table is the compact choice"
+        },
+        {
+          "id": "C",
+          "text": "The list answers a link test in one step, and the table stays small when links are few",
+          "misconception": "believes the list is the one giving a direct answer"
+        },
+        {
+          "id": "D",
+          "text": "The table grows with the links, and the list answers a link test by scanning",
+          "misconception": "believes the table grows with the link count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The table has one entry for every pair of nodes whether or not a link exists, so its size follows the square of the node count and is large on a sparse graph, but answering whether two nodes are linked is a single lookup. The list stores only the links that exist, so its size follows the number of links, but a link test means walking the list until the name turns up. Neither is better outright: a graph walked many times over pays for the table, and a large sparse graph pays for the list, which is why real designs often keep the list and add a set when tests become frequent.",
+      "hint": "Ask what each representation's size depends on, and what a link test costs in each.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 36,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "representation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0056",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Slots a square table costs over a list",
+      "learningObjective": "compare the space two graph representations need",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A graph has seven nodes and nine two-way links, so eighteen entries stand for the links themselves. The list representation keeps seven list headers alongside those eighteen entries. How many more slots does the square table hold than the list?",
+      "options": [],
+      "answer": {
+        "value": 24,
+        "tolerance": 0
+      },
+      "explanation": "The square table has one entry for each of the seven nodes paired with each of the seven, so 7 times 7 is 49 slots, while the list holds 18 link entries plus 7 headers, which is 25, and 49 minus 25 is 24. Counting the two ways from the table's side agrees: 49 minus the 18 link entries is 31, and 31 minus the 7 headers is 24. The gap is the 32 slots the table spends on pairs that are not links, which on a graph this sparse is most of the table, and it grows with the square of the node count rather than with the number of links.",
+      "hint": "Work out the table's slot count and the list's, then take the difference.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "representation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0057",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Separate pieces in a graph",
+      "learningObjective": "count the connected pieces of a graph",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Eight nodes are joined by the links A-B, B-C, D-E, E-F and F-G, and node H is joined to nothing. How many separate pieces does the graph fall into?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "A, B and C are joined to each other, D, E, F and G are joined to each other, and H stands alone, so the graph falls into 3 pieces. Two routes confirm it: grouping the nodes by which link chain reaches them gives the same three groups, and starting a new piece only at a node no earlier link reached gives three as well, because no link crosses between the groups. H is a piece of one node rather than a fragment of anything, and counting the five links and adding one would be wrong because three of them are spent inside a group.",
+      "hint": "Group the nodes by which chain of links connects them, counting isolated nodes too.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "components"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0058",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Links whose removal splits the graph",
+      "learningObjective": "count the bridges in a graph",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Six nodes are joined by the links A-B, B-C, C-A, C-D, D-E and A-F. How many of those links are bridges, meaning the graph falls into more than one piece if that one link is removed?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "The ring A, B, C and back to A gives each of its three links a second way round, so none of them is a bridge, while C-D, D-E and A-F are the only way in to D, E and F respectively, so all three are bridges, giving 3. Testing each link by removing it and re-counting the connected pieces agrees: the three ring links leave all six nodes joined, and each of the other three leaves a node stranded. A link inside a ring is never a bridge, and a link that is the only way in to anything always is.",
+      "hint": "Remove each link in turn and see whether the nodes stay in one piece.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 34,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "graphs",
+        "bridges"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0059",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "A hash that sends everything to one slot",
+      "learningObjective": "fix a bad hash and choose the matching collision handling",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A hash function sends nearly every key to the same slot because it looks only at the last digit, and most of the keys share that digit. Which change fixes the lookup, and which collision handling belongs with it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hash the whole key, and give each slot a list so the few remaining collisions sit together",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Hash the whole key, and probe the next slot on collision, so each key still has one home slot",
+          "misconception": "believes open addressing needs no change once the hash is spread"
+        },
+        {
+          "id": "C",
+          "text": "Hash the last digit, and give each slot a list, since a list absorbs any number of collisions",
+          "misconception": "believes a list rescues a hash that sends everything to one slot"
+        },
+        {
+          "id": "D",
+          "text": "Hash the whole key, and refuse a key whose slot is taken, since a full slot is an error",
+          "misconception": "believes a collision should be reported rather than stored"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A hash that ignores most of a key puts nearly everything in one slot, so a lookup has to look through that slot's contents, and no arrangement of collision handling repairs it, because the list in the third option is exactly the thing already holding the whole pile. Hashing the whole key spreads the keys out, and then a list per slot is a good choice because collisions become rare and a list absorbs any that remain without the keys having to move at all. Probing the next slot works too once the keys are spread, but it turns every collision into a key sitting somewhere other than where its own hash put it, which is a cost paid on every later lookup.",
+      "hint": "Ask whether the list would be holding one key or the whole pile in the failing case.",
+      "difficulty": 0.62,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 76,
+        "p25Sec": 43,
+        "p75Sec": 118
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "hashing",
+        "collisions"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-2.24-0060",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 2",
+      "topic": "Keys that fit before a rehash",
+      "learningObjective": "compute how many keys fit before a rehash threshold",
+      "practice": "graph structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A table has 1024 slots and holds 700 keys. The policy rehashes into a table of twice the size when the next insert would push the number of keys past three quarters of the number of slots. How many further keys can be added before the rehash fires?",
+      "options": [],
+      "answer": {
+        "value": 68,
+        "tolerance": 0
+      },
+      "explanation": "Three quarters of 1024 slots is 768, so the table may hold keys up to 768 before the ratio would pass the threshold, and 768 minus the 700 already stored leaves 68 keys. Working from the other side gives the same figure: the 700 keys fill 68.4 per cent of the table, and the headroom to 75 per cent is the remaining 6.6 per cent, which is 68 slots. The threshold is what keeps lookups short, since a table packed past it lengthens the chain of slots or entries a lookup must check.",
+      "hint": "Multiply the slot count by three quarters, then subtract the keys already stored.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 35,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d2",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-2",
+        "hashing",
+        "load-factor"
+      ],
+      "version": 1
+    }
+  ]
+}
