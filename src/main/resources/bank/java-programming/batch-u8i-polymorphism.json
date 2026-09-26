@@ -1,0 +1,3825 @@
+{
+  "questions": [
+    {
+      "id": "jp-8.21-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A supertype-typed array that really holds a subtype array",
+      "learningObjective": "predict the run-time store check an array performs on its own type",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An array is typed as Object[] by the reference but created as a subtype array.\n```java\npublic class P2101 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static String put(Object[] a, Object v) {\n        try { a[0] = v; return \"yes\"; } catch (ArrayStoreException e) { return \"no\"; }\n    }\n    public static void main(String[] args) {\n        Object[] slots = new Dog[2];\n        System.out.println(put(slots, new Dog()) + \":\" + put(slots, \"text\"));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "yes:no - the reference is Object[], so both writes compile, but the array is a Dog[] and rejects the text.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "no:no - the array is a Dog[], so the compiler refuses even the Dog it was created for.",
+          "misconception": "believes a narrowed array rejects a matching element"
+        },
+        {
+          "id": "C",
+          "text": "yes:yes - every store is checked against Object[] because that is the declared type.",
+          "misconception": "believes the store check uses the reference's declared type"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - an Object[] reference may not be pointed at a Dog[] array.",
+          "misconception": "believes array widening does not exist"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that arrays are covariant in their reference types, so a Dog[] may be held in an Object[] and the compiler widens the element type of the store check to Object, which is why both writes are accepted; at run time every array also checks that each value fits the array's own type, and the text does not. The answer C is the tempting one because the declared type is what the compiler looks at, and it is genuinely true that the compiler checked against Object; the failure is that a second check happens later against Dog. Widening a reference is free, but the storage underneath keeps its own narrower type.",
+      "hint": "Two checks: one at compile time against the reference, one at run time against the array.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "covariance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The declared return type of a method that builds a subtype array",
+      "learningObjective": "separate what a caller's declared type permits from what the array accepts",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A factory method is declared with a supertype array type but builds a subtype array.\n```java\npublic class P2102 {\n    static class Animal { String name() { return \"animal\"; } }\n    static class Dog extends Animal { String name() { return \"dog\"; } }\n    static Animal[] make() { return new Dog[1]; }\n    public static void main(String[] args) {\n        Animal[] a = make();\n        a[0] = new Dog();\n        System.out.println(a.length + \":\" + a[0].name());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1:dog - the declared type governs what compiles, while the element dispatches on its own class.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1:animal - the array's declared element type chooses which name() body runs.",
+          "misconception": "believes the array type selects the element's implementation"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a method may not return a Dog[] through an Animal[] declaration.",
+          "misconception": "believes arrays are not covariant in return position"
+        },
+        {
+          "id": "D",
+          "text": "0:dog - the length is read from the static type, which knows nothing about the array built.",
+          "misconception": "believes length comes from the declared array type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the return type is the type the caller sees, so the local variable is typed Animal[] and the assignment of a Dog is checked against Animal, which succeeds, and length is a property of the actual array rather than of its declared type, giving 1. The name() call then dispatches on the object stored, which is a Dog, so the override runs. Option C is the answer that seems certain, since arrays are the classic source of surprise, but covariance is exactly the feature that makes the returned subtype array acceptable through the wider declared type.",
+      "hint": "The declared type is a promise to the caller; the object behind it is unchanged.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "covariance",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Testing an array against its element type",
+      "learningObjective": "state that an array of a subtype passes a supertype test but not an element test",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subtype array is tested against the supertype array and against its element type.\n```java\npublic class P2103 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        Object o = new Dog[2];\n        System.out.println((o instanceof Animal[]) + \":\" + (o instanceof Dog));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:false - a Dog[] is an Animal[] by covariance, but the array itself is not a Dog.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true:true - the array holds Dogs, so it is an instance of Dog as well as of Animal[].",
+          "misconception": "believes an array is an instance of its element type"
+        },
+        {
+          "id": "C",
+          "text": "false:false - a subtype array is not related to its supertype array at all.",
+          "misconception": "believes arrays do not participate in the subtype relation"
+        },
+        {
+          "id": "D",
+          "text": "false:true - the supertype test fails while the element test succeeds, which is the usual pattern.",
+          "misconception": "believes the tests answer opposite questions"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the type of an array expression is the array type itself and not the element type, so new Dog[2] has type Dog[] and a Dog[] is a subtype of Animal[], which is why the first test passes. It is unrelated to Dog, so the second test fails, and that asymmetry is the reason a method handed an array cannot assume anything about the elements beyond the array's own element type. The answer true:true is the most common wrong reading, since holding Dogs and being a Dog feel like the same statement, and only one of them is about the array.",
+      "hint": "An array is an object of the array type, never of the element type.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "instanceof"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Storing an unrelated type into a supertype-typed array",
+      "learningObjective": "explain why the element assignment is rejected before the program runs",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The program does not compile, and the compiler prints a diagnostic.\n```java\npublic class P2104 {\n    static class Animal { }\n    static class Rock { }\n    public static void main(String[] args) {\n        Animal[] pets = new Animal[1];\n        pets[0] = new Rock();\n    }\n}\n```\nWhich statement explains the compiler's complaint?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Compile error: \"incompatible types: Rock cannot be converted to Animal\" - the store is checked at compile time.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error: \"incompatible types: Animal[] cannot be converted to Rock[]\" - the store is checked as an array write.",
+          "misconception": "believes the error names the array types rather than the element"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and throws ArrayStoreException when main runs, because array writes are checked late.",
+          "misconception": "believes a foreign element store is only a run-time failure"
+        },
+        {
+          "id": "D",
+          "text": "Compile error: \"Rock is not abstract and cannot be instantiated\" - the class fails the abstract test.",
+          "misconception": "believes an unrelated class is rejected for being concrete"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the element type of the array is part of the array's static type, so writing a Rock into an Animal[] is an assignment the compiler can reject outright, and the message names the two types that failed to line up. The run-time ArrayStoreException only appears when the compiler was told a wider story than the truth, as when a Dog[] travels inside an Object[]; here it was told the exact element type, so it never gets that far. Option C is the tempting answer because array stores are famous for failing late, and that fame comes from a different situation.",
+      "hint": "Ask what element type the array's static type promises.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "compile-errors"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The run-time type of a widened array reference",
+      "learningObjective": "predict what a type test reports for a reference declared as the supertype array",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A variable is declared as the supertype array and the array itself is narrower.\n```java\npublic class P2105 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        Animal[] a = new Dog[3];\n        a[0] = new Dog();\n        System.out.println(a.length + \":\" + (a instanceof Dog[]) + \":\" + (a instanceof Object[]));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3:true:true - the reference is widened, the object is not, so both type tests see a Dog array.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3:false:true - the declared type decides the narrower test, so it fails.",
+          "misconception": "believes the declared type drives the run-time test"
+        },
+        {
+          "id": "C",
+          "text": "1:false:false - the length comes from the supertype declaration rather than the array.",
+          "misconception": "believes a widened array reports the supertype's length"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a variable declared Animal[] may not be tested against Dog[].",
+          "misconception": "believes a narrowing test is illegal in instanceof"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a reference conversion changes only what the compiler is told, while the object behind the reference keeps its own type, so length is 3 from the actual array and both tests succeed: a Dog[] really is a Dog[] and also an Object[]. A narrowing test to a subtype array type is legal precisely because the two array types are related, which is what makes the instanceof form compile. The answer 3:false:true is the tempting one, treating the declared type as if it were the object's type, which is the opposite of how a virtual call behaves.",
+      "hint": "Widening a reference does not change the object it points at.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "instanceof",
+        "covariance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A helper that stores the wrong element type into a caller's array",
+      "learningObjective": "repair a helper that compiles against a widened parameter but fails on the real array",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A helper takes the supertype array type, so the compiler cannot see the mistake it makes.\n```java\npublic class P2106 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static class Cat extends Animal { }\n    static void fill(Animal[] a) {\n        a[0] = new Cat();  // <fix>\n    }\n    public static void main(String[] args) {\n        Dog[] dogs = { new Dog() };\n        String r;\n        try { fill(dogs); r = \"done\"; } catch (ArrayStoreException e) { r = \"store\"; }\n        System.out.println(r + \":\" + dogs[0].getClass().getSimpleName());\n    }\n}\n```\nThe program should print done:Dog. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "a[0] = new Dog();  stores an element the caller's array can actually hold.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a[0] = new Cat();  compiles cleanly and still fails when the caller's array is a Dog array.",
+          "misconception": "believes a clean compile means the store will succeed"
+        },
+        {
+          "id": "C",
+          "text": "a[0] = (Animal) new Cat();  widens the value, which the run-time check then accepts.",
+          "misconception": "believes casting the value satisfies the array's element check"
+        },
+        {
+          "id": "D",
+          "text": "Animal[] copy = a; copy[0] = new Cat();  copies the reference first, so the store bypasses the check.",
+          "misconception": "believes copying the array reference changes the run-time check"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the run-time store check looks at the array object's own component type and not at the reference the helper was handed, so a parameter typed Animal[] lets any subtype compile while a Dog[] still refuses a Cat. Option C is the instructive wrong answer, because an upcast changes the static type of the value without changing the object, and the array check asks what the object actually is. Option D fails the same way for the same reason, since copying a reference copies the object it designates rather than a new array.",
+      "hint": "The check follows the object, not the reference you were given.",
+      "difficulty": 0.64,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "covariance",
+        "array-store"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A catch clause for a supertype of the thrown type",
+      "learningObjective": "predict which catch clause handles a thrown subtype",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A throw is followed by two catch clauses, one of them wider.\n```java\npublic class P2107 {\n    public static void main(String[] args) {\n        try { throw new IllegalArgumentException(\"bad\"); }\n        catch (RuntimeException e) { System.out.println(\"runtime:\" + e.getMessage()); }\n        catch (Exception e) { System.out.println(\"checked\"); }\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "runtime:bad - the thrown value is a RuntimeException subtype, so the first matching clause handles it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "checked - a clause for Exception outranks one for RuntimeException in specificity order.",
+          "misconception": "believes the widest clause is preferred"
+        },
+        {
+          "id": "C",
+          "text": "runtime:bad then checked - every matching clause runs, in source order, like a finally chain.",
+          "misconception": "believes all matching catch clauses run"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a catch clause must name the exact type that is thrown.",
+          "misconception": "believes catch clauses require an exact type match"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a catch clause is selected by assignability, not by equality, so an IllegalArgumentException satisfies a clause declared for RuntimeException, and the first such clause in source order is the one that runs while the later clause is simply never reached. Exactly one clause handles the throw, which is why the two prints cannot both appear. The exception hierarchy is an ordinary subtype hierarchy, so the same reasoning as overriding applies: a wider declared type accepts more values.",
+      "hint": "Clauses are tried in order, and the first one the value fits wins.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A catch clause for a checked type the body cannot throw",
+      "learningObjective": "repair a catch clause that names an exception the try block cannot raise",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A clause names a checked exception although the body of the try cannot throw it.\n```java\npublic class P2108 {\n    public static void main(String[] args) {\n        try { System.out.println(\"body\"); }\n        catch (java.io.IOException e) { System.out.println(\"io\"); }  // <fix>\n    }\n}\n```\nThe program should print body. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "catch (RuntimeException e) { System.out.println(\"io\"); }  an unchecked type needs no declaration from the body.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "catch (java.io.IOException e) { System.out.println(\"io\"); }  keeps the checked type, which the body cannot raise.",
+          "misconception": "believes a checked clause is legal without a matching throw"
+        },
+        {
+          "id": "C",
+          "text": "catch (java.sql.SQLException e) { System.out.println(\"sql\"); }  names a different checked type the body cannot raise either.",
+          "misconception": "believes any checked clause is legal beside a printing call"
+        },
+        {
+          "id": "D",
+          "text": "catch (java.lang.InterruptedException e) { System.out.println(\"t\"); }  swaps in a third checked type, and none of them fits the body.",
+          "misconception": "believes changing the checked type fixes reachability"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler demands a justification for a catch clause naming a checked type, and the justification works in either direction: the body must be able to throw that type or a subclass of it, or something it is a superclass of, which is why catching Exception or Throwable is always allowed while catching IOException or SQLException from a body that only prints is a compile error. Unchecked types are exempt entirely because they may arise anywhere. That asymmetry is the price of forcing checked exceptions to be declared or caught, and it is the reason the keyed clause is the unchecked one.",
+      "hint": "Checked types must be justified by the body; unchecked types need no justification.",
+      "difficulty": 0.54,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "checked-exceptions"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A multi-catch clause over two unrelated types",
+      "learningObjective": "predict the static type of a multi-catch variable and where it can be used",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One clause names two unrelated types and the handler reports the value it caught.\n```java\npublic class P2109 {\n    public static void main(String[] args) {\n        try { throw new IllegalArgumentException(\"a\"); }\n        catch (IllegalStateException | IllegalArgumentException e) {\n            System.out.println(e.getClass().getSimpleName() + \":\" + e.getMessage());\n        }\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "IllegalArgumentException:a - the variable is typed as the common supertype, yet the value keeps its own class.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "RuntimeException:a - the variable's declared type decides which class getClass() reports.",
+          "misconception": "believes the declared type of the variable changes the runtime class"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - two alternatives in a multi-catch must share a common supertype.",
+          "misconception": "believes unrelated alternatives are rejected"
+        },
+        {
+          "id": "D",
+          "text": "IllegalStateException:a - the first alternative listed is the one that is used.",
+          "misconception": "believes the first listed alternative fixes the variable's type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a multi-catch parameter is declared with the closest common supertype of the alternatives, which here is RuntimeException, and a wider declaration is exactly why a method only RuntimeException declares is callable on it; getClass() still reports the object, so the caught value names itself as IllegalArgumentException. Unrelated alternatives are perfectly legal, and what the language forbids is listing a type together with one of its own supertypes, since one of them would be dead weight.",
+      "hint": "The variable gets the common supertype; the object keeps its own class.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "multi-catch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A finally block beside an early return",
+      "learningObjective": "predict that finally runs on the way out of a return",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A method returns from inside its try block and records what the finally block did.\n```java\npublic class P2110 {\n    static StringBuilder log = new StringBuilder();\n    static int f() {\n        try { return 1; } finally { log.append(\"fin\"); }\n    }\n    public static void main(String[] args) {\n        System.out.println(f() + \":\" + log);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1:fin - the pending return is completed only after the finally block has run.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "fin:1 - the finally block runs first, so its text is produced before the returned value.",
+          "misconception": "believes finally runs before the return expression is evaluated"
+        },
+        {
+          "id": "C",
+          "text": "1: - a return inside try skips the finally block entirely, so the log stays empty.",
+          "misconception": "believes an early return bypasses finally"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a finally block may not be combined with a return in the same try.",
+          "misconception": "believes return and finally cannot coexist"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a return does not leave the method immediately: the return expression is evaluated, its value is saved, and only then does the finally block run, so the append happens before the value is handed back and the log is already fin when main reads it. That is precisely why finally is the right place for cleanup that must happen on every path out of the method, including an early return. Option C is the tempting one because a return looks like an abrupt exit, and forgetting that the abrupt exit is still routed through finally is a very common surprise.",
+      "hint": "The returned value is saved first, then finally runs, then the method returns.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "finally"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Catching an unchecked type the body cannot throw",
+      "learningObjective": "state why an unchecked catch clause compiles without a matching throw",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A clause names an unchecked exception that the try body has no way of raising.\n```java\npublic class P2111 {\n    public static void main(String[] args) {\n        try { System.out.println(\"body\"); }\n        catch (IllegalStateException e) { System.out.println(\"never\"); }\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "body - an unchecked type may be caught anywhere, so the clause is legal and simply never entered.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - the body cannot throw IllegalStateException, so the clause is unreachable.",
+          "misconception": "believes an unchecked clause also needs a matching throw"
+        },
+        {
+          "id": "C",
+          "text": "never - the compiler proves the clause is unreachable and keeps its handler anyway.",
+          "misconception": "believes an unreachable clause still runs its handler"
+        },
+        {
+          "id": "D",
+          "text": "body:never - the body prints and the handler prints, since a clause runs after the body.",
+          "misconception": "believes a catch handler always runs after the body"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that unchecked exceptions may be thrown from anywhere, including code the compiler cannot see, so a catch clause for one needs no support from the try body and this program prints body and stops. That is the whole asymmetry behind the checked and unchecked split: checked types are the ones a programmer promises to handle, and the compiler enforces the promise, while unchecked types are assumed to be programming errors that any code may be prepared to see. Option B applies the checked rule to an unchecked type, which is the single most common surprise in exception handling.",
+      "hint": "Ask whether the named type is checked or unchecked before asking about the body.",
+      "difficulty": 0.36,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "unchecked-exceptions"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An override that narrows a throws clause",
+      "learningObjective": "trace a loop that must handle the exception only the base declaration allows",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A base method declares a checked exception and one override declares none.\n```java\npublic class P2112 {\n    static class Base { void act() throws java.io.IOException { } }\n    static class Sub extends Base { void act() { } }\n    public static void main(String[] args) {\n        Base[] ops = { new Sub(), new Base() };\n        String r = \"\";\n        for (Base op : ops) {\n            try { op.act(); r += \"ok\"; } catch (java.io.IOException e) { r += \"io\"; }\n        }\n        System.out.println(r);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "okokio - the loop's try must cover the declared type, so the base element throws and is caught.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "okok - once an override drops the throws clause, every element behaves as though it cannot throw.",
+          "misconception": "believes one override narrows the whole array"
+        },
+        {
+          "id": "C",
+          "text": "ioio - the catch is entered first because the base element is inspected before the override.",
+          "misconception": "believes the declared exception type changes what is thrown"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - an override may not remove a throws clause from the method it replaces.",
+          "misconception": "believes a throws clause must be repeated exactly"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override may narrow a throws clause, removing declared checked exceptions, but never add one, so the Sub element cannot throw while the Base element still can and the caller's try block is mandatory because the loop's static type is Base. That gives ok for the first element and io for the second. Option D reverses the rule that actually exists: narrowing is permitted precisely so a subclass can promise less, and it is adding a checked exception that the compiler rejects.",
+      "hint": "Narrowing a throws clause is legal; the caller's obligation comes from the base type.",
+      "difficulty": 0.62,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "override",
+        "throws-clause"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Ordering of catch clauses from narrow to wide",
+      "learningObjective": "explain why a supertype clause placed after a subtype clause is dead code",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method catches IllegalArgumentException and then catches RuntimeException in that order. Which statement about the second clause is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is unreachable for unchecked types, because any such value is already handled by the first clause.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is a compile error, because two clauses may not both name unchecked exception types.",
+          "misconception": "believes two unchecked clauses are always rejected"
+        },
+        {
+          "id": "C",
+          "text": "It runs for every unchecked throw, because the first clause only matches its exact type.",
+          "misconception": "believes a catch clause matches its exact type only"
+        },
+        {
+          "id": "D",
+          "text": "It runs whenever the first clause rethrows, since a rethrow looks for the next clause.",
+          "misconception": "believes a rethrow continues down the clause list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that clauses are examined in order and the first one whose type the thrown value is assignable to wins, so every IllegalArgumentException is taken by the first clause and the wider RuntimeException clause can only ever see the values the first did not match, which for unchecked types is a set the compiler can reason about statically. Writing it in that order is legal and simply leaves dead code, whereas the reverse order for checked types is a compile error, which is the asymmetry worth remembering. Option C is the misconception underneath most of these items, that a clause demands an exact type.",
+      "hint": "Clauses are tried in order and assignability decides, not equality.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "exceptions",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A type test against a null reference",
+      "learningObjective": "state that instanceof reports false for null instead of throwing",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A type test is performed on a reference that holds null.\n```java\npublic class P2114 {\n    static class Animal { }\n    public static void main(String[] args) {\n        Animal a = null;\n        System.out.println((a instanceof Animal) + \":\" + (a == null));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "false:true - the operator is defined to answer false for a null reference, so no guard is needed.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true:true - a null reference is an instance of every type, since it holds no object at all.",
+          "misconception": "believes null satisfies every type test"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a type test may not be applied to a reference that may be null.",
+          "misconception": "believes instanceof rejects a nullable reference"
+        },
+        {
+          "id": "D",
+          "text": "NullPointerException - the operator must dereference the reference before answering.",
+          "misconception": "believes instanceof dereferences its operand"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the instanceof operator is specified to yield false when its operand is null, so no separate null check is needed before a type test, and the equality test still reports that the reference is null. That is exactly what makes a type test safe to write at the top of a method that receives a reference from outside. Option D is the tempting one because a cast and a method call both dereference, and the intuition that every operator that looks at an object must have an object is strong even though the language carves out this one case.",
+      "hint": "The language special-cases null for the type test.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "instanceof",
+        "null"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Scope of a pattern binding under a negated test",
+      "learningObjective": "predict where a binding introduced by a pattern test is in scope",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A pattern test is negated and the binding is used in the other branch.\n```java\npublic class P2115 {\n    static class Animal { }\n    static class Dog extends Animal { String name() { return \"dog\"; } }\n    public static void main(String[] args) {\n        Object o = new Dog();\n        if (!(o instanceof Dog d)) { System.out.println(\"no\"); }\n        else { System.out.println(d.name()); }\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "dog - the binding belongs to the branch where the test succeeded, which is the else here.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a binding is only in scope in the branch where the test was written.",
+          "misconception": "believes a binding cannot cross into the else branch"
+        },
+        {
+          "id": "C",
+          "text": "no - the negated test means the test failed, so the first branch runs.",
+          "misconception": "believes a negated pattern test evaluates to false for a match"
+        },
+        {
+          "id": "D",
+          "text": "dog:no - both branches run, so both texts are printed in order.",
+          "misconception": "believes both arms of an if else run"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the language follows the flow, so a binding introduced by a pattern test is in scope exactly where the test is known to have succeeded: in the then branch for a positive test and in the else branch for a negated one, which is why d is usable there. The test does succeed, because the value is a Dog, so the else branch runs and the override returns dog. Option C is the trap in the middle of this item, since negation moves the success case rather than turning the test into a failure.",
+      "hint": "Ask where the test is known to have held, not where it was written.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pattern-matching",
+        "scoping"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A cast that assumes a subtype the value does not have",
+      "learningObjective": "replace an unchecked downcast with a test that cannot fail",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A helper casts whatever it receives to one particular subtype.\n```java\npublic class P2117 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static class Cat extends Animal { }\n    static String kind(Object o) {\n        Dog d = (Dog) o; return d.getClass().getSimpleName();  // <fix>\n    }\n    public static void main(String[] args) {\n        try { System.out.println(kind(new Cat())); }\n        catch (ClassCastException e) { System.out.println(\"cast\"); }\n    }\n}\n```\nThe program should print Cat. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "return o.getClass().getSimpleName();  asks the value what it is instead of assuming a subtype.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Dog d = (Dog) o; return d.getClass().getSimpleName();  keeps the cast, which is what made the call fail.",
+          "misconception": "believes the cast succeeds for any subtype of Animal"
+        },
+        {
+          "id": "C",
+          "text": "if (o instanceof Dog d) { return d.getClass().getSimpleName(); } return \"other\";  tests first, so a Cat takes the other path.",
+          "misconception": "believes a guarded cast still reports the value's own class"
+        },
+        {
+          "id": "D",
+          "text": "if (o instanceof Cat) { return \"cat\"; } return \"cat\";  assumes the caller always sends a Cat.",
+          "misconception": "believes the helper may hard-code the one type it expects"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a downcast is checked by the compiler and then by the virtual machine, so casting a Cat to Dog compiles because the types are related and then fails at run time, which is what the handler was written to catch. The safe form asks the value for its own class instead of insisting on a subtype, so nothing can fail. Option C is the instructive near miss, because it does guard the cast and still answers the question wrongly, and it shows why a guard that then discards the actual type solves nothing.",
+      "hint": "Ask what you actually want to know about the value, not what you assume it is.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "casting",
+        "downcast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A type test that uses a wildcard",
+      "learningObjective": "recognise which generic type forms are legal on the right of instanceof",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list is tested against a wildcard form and against the raw type.\n```java\npublic class P2118 {\n    public static void main(String[] args) {\n        Object o = new java.util.ArrayList<String>();\n        System.out.println((o instanceof java.util.List<?>) + \":\" + (o instanceof java.util.List));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:true - a wildcard is legal in a type test, and so is the raw form of the same interface.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a parameterized type may not be used on the right of instanceof.",
+          "misconception": "believes type arguments are banned in a type test"
+        },
+        {
+          "id": "C",
+          "text": "true:false - the raw form fails because raw types match nothing at run time.",
+          "misconception": "believes a raw type test never matches"
+        },
+        {
+          "id": "D",
+          "text": "false:false - a generic object is not an instance of the interface it implements.",
+          "misconception": "believes parameterization breaks the implements relationship"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a type test may name an unbounded wildcard, which matches any parameterization of the interface, and may name the raw type, which erases the type arguments and asks only about the interface itself; what it may not name is a parameterized type such as List<String>, because the value carries no reified type information to check. Both tests therefore succeed, which is the pattern to remember when a generic value must be filtered at run time: ask about the raw interface, and let a cast carry the element type. Option B is the tempting one, since the ban on parameterized types is real, just not where people expect it.",
+      "hint": "Type arguments are erased, so only the raw shape can be tested.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "instanceof"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Calling a subtype method through a bounded type parameter",
+      "learningObjective": "explain why a bounded type variable exposes only its bound",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A bounded type variable is used to call a method its bound does not declare.\n```java\npublic class P2119 {\n    static class Animal { }\n    static class Dog extends Animal { String sound() { return \"woof\"; } }\n    static <T extends Animal> String call(T t) { return t.sound(); }\n    public static void main(String[] args) { System.out.println(call(new Dog())); }\n}\n```\nThe program does not compile, and the compiler names a symbol it cannot find. Which statement explains that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Compile error: \"cannot find symbol\" - a type variable exposes only its bound, and the bound has no sound method.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error: \"incompatible types\" - the argument Dog cannot be converted to the type variable T.",
+          "misconception": "believes a bounded type variable rejects its own bound's subtypes"
+        },
+        {
+          "id": "C",
+          "text": "It compiles, because the compiler infers T as Dog from the argument at the call site.",
+          "misconception": "believes the compiler reifies the type argument inside the method"
+        },
+        {
+          "id": "D",
+          "text": "Compile error: \"method sound() is private\" - the method is package-visible and the caller is elsewhere.",
+          "misconception": "believes a package-visible method is private to a nested class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a type variable is a stand-in for any type within its bound and no more, so inside the method T is known only to be an Animal and sound() is not part of that promise; the compiler reports that it cannot find the symbol. The erasure behind this is that a type variable has no reified type at run time, so the body must be written against the bound or the programmer must cast. Option C describes the inference that does happen, at the call site, and confusing that with what is visible inside the body is the mistake this item is built on.",
+      "hint": "Inside the method, T is exactly as much as its bound and nothing more.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "type-parameters"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An inherited equals collapsing two subtype keys",
+      "learningObjective": "predict what a subtype key does to a map keyed by the supertype",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The base class defines equality by id, so a subclass key is equal to a base key.\n```java\npublic class P2120 {\n    static class Animal {\n        private final int id;\n        Animal(int id) { this.id = id; }\n        public boolean equals(Object o) { return o instanceof Animal && ((Animal) o).id == id; }\n        public int hashCode() { return id; }\n    }\n    static class Dog extends Animal { Dog(int id) { super(id); } }\n    public static void main(String[] args) {\n        java.util.Map<Animal, String> m = new java.util.HashMap<>();\n        m.put(new Dog(1), \"rex\");\n        m.put(new Animal(1), \"generic\");\n        System.out.println(m.size() + \":\" + m.get(new Dog(1)));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1:generic - the second key equals the first, so the value is replaced and no new entry appears.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2:rex - a subclass instance is never equal to a superclass instance of the same id.",
+          "misconception": "believes equality refuses to cross the subtype boundary"
+        },
+        {
+          "id": "C",
+          "text": "1:rex - the first key wins, because a map keeps the key that was inserted first.",
+          "misconception": "believes the original key object is preserved over its value"
+        },
+        {
+          "id": "D",
+          "text": "2:null - the second put fails, so a new key with no matching value is created.",
+          "misconception": "believes a duplicate put creates an entry with a null value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a hash-based collection treats two keys as the same slot when they are equal according to the key type's own equals, and the subclass inherits that equals unchanged, so a Dog with id 1 and an Animal with id 1 are one key as far as the map is concerned. The second put therefore replaces the value and keeps the first key object, which is why the lookup returns generic. Option B is the trap, because the instinct that a subtype should never be equal to its supertype is sound for most designs and quietly wrong whenever the base equals uses instanceof.",
+      "hint": "Ask what the key type's equals says about a Dog compared with an Animal.",
+      "difficulty": 0.62,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals",
+        "collections",
+        "subtypes"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A field that participates in equals and then changes",
+      "learningObjective": "predict the result of mutating a field used by a hash-based collection's key",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A key is added to a set and then one of its fields is reassigned.\n```java\npublic class P2121 {\n    static class Box {\n        String label;\n        Box(String l) { label = l; }\n        public boolean equals(Object o) { return o instanceof Box && label.equals(((Box) o).label); }\n        public int hashCode() { return label.hashCode(); }\n    }\n    public static void main(String[] args) {\n        java.util.Set<Box> set = new java.util.HashSet<>();\n        Box b = new Box(\"a\");\n        set.add(b);\n        b.label = \"b\";\n        System.out.println(set.contains(new Box(\"b\")) + \":\" + set.size());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "false:1 - the stored key is filed under the hash of its old field, so the lookup misses it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true:1 - the set compares keys with equals, so the new field value is what matters.",
+          "misconception": "believes equality alone decides set membership"
+        },
+        {
+          "id": "C",
+          "text": "true:2 - the changed key is treated as a new entry, so both are found and stored.",
+          "misconception": "believes mutating a key adds a second entry"
+        },
+        {
+          "id": "D",
+          "text": "false:0 - the set notices the key was mutated and drops it entirely.",
+          "misconception": "believes a collection removes entries whose keys change"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a hash-based collection first files a key by its hash code and only then compares with equals among the keys that share the hash, so changing the field moves where the stored object would be found without moving the object itself. The set still holds one element, filed under the hash of a, so a probe for b does not even reach the comparison and the result is false with a size of 1. Option B is the tempting one because equals really is consulted eventually, and the whole point of the item is that the hash is consulted first.",
+      "hint": "Two stages: the hash decides the bucket, equals decides within it.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals",
+        "hashCode",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A subclass that adds a field under an inherited equals",
+      "learningObjective": "predict that an inherited equality ignores fields the subclass adds",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A base class declares equals and hashCode, and a subclass adds a field of its own. Which statement about the subclass is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It inherits both members unchanged, so the added field takes no part in equality at all.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The program stops compiling, because a subclass may not inherit an equals it does not declare.",
+          "misconception": "believes equals must be redeclared in every subclass"
+        },
+        {
+          "id": "C",
+          "text": "The added field joins the comparison, because equality is re-evaluated for each concrete class.",
+          "misconception": "believes an inherited equals automatically includes new fields"
+        },
+        {
+          "id": "D",
+          "text": "Only hashCode changes, since it is inherited separately from equals and may be specialized.",
+          "misconception": "believes hashCode is re-derived per subclass automatically"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that equals and hashCode are ordinary inherited members, so a subclass that adds a field inherits the base implementations unchanged and the new field is invisible to them, which means two instances differing only in that field are still equal. Nothing about subclassing triggers a re-derivation. The answer that sounds responsible, checking that the subclass agrees with its base about equality, is exactly the concern, and the cure is deliberate rather than automatic: the subclass must override both members and include its own field in each.",
+      "hint": "Inherited means unchanged, and no compiler notices the new field.",
+      "difficulty": 0.36,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals",
+        "inheritance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An equals overload that is not an override",
+      "learningObjective": "predict that a narrow equals parameter leaves Object's version in force",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class declares equals with a narrower parameter type and is used as a set member.\n```java\npublic class P2123 {\n    static class Money {\n        final int cents;\n        Money(int c) { cents = c; }\n        public boolean equals(Money other) { return other != null && other.cents == cents; }\n    }\n    public static void main(String[] args) {\n        java.util.Set<Object> s = new java.util.HashSet<>();\n        s.add(new Money(5));\n        System.out.println(s.contains(new Money(5)));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "false - the collection calls equals(Object), which is still the identity version from Object.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true - the compiler rewrites the narrow equals call to the widest one it can find.",
+          "misconception": "believes the compiler bridges a narrow equals to the override"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - an equals with a parameter other than Object may not be declared.",
+          "misconception": "believes the signature of equals is fixed by the language"
+        },
+        {
+          "id": "D",
+          "text": "false:0 - the probe fails and the set therefore discards the element it held.",
+          "misconception": "believes a failed lookup removes the stored element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override must match the whole signature, so equals(Money) is a new method rather than an override and Object's equals(Object), which compares identity, is what the collection calls; two distinct Money values are therefore not equal and the probe fails. Nothing rewrites the call, and the compiler raises no complaint because the method is perfectly legal, it simply does not participate in the contract. Option C is the misconception that makes this bug survive in real code, since writing the convenient narrow overload feels like overriding the contract rather than quietly stepping around it.",
+      "hint": "Compare the parameter list with the one Object declares.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals",
+        "overloading",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A hashCode that uses a field equals ignores",
+      "learningObjective": "repair a hash code that separates objects equals considers equal",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "Two keys that equals calls equal are given different hash codes.\n```java\npublic class P2124 {\n    static class Key {\n        final String a;\n        final int b;\n        Key(String a, int b) { this.a = a; this.b = b; }\n        public boolean equals(Object o) { return o instanceof Key && ((Key) o).a.equals(a); }\n        public int hashCode() {\n            return a.hashCode() + b;  // <fix>\n        }\n    }\n    public static void main(String[] args) {\n        java.util.Map<Key, String> m = new java.util.HashMap<>();\n        m.put(new Key(\"x\", 1), \"one\");\n        m.put(new Key(\"x\", 2), \"two\");\n        System.out.println(m.size() + \":\" + m.get(new Key(\"x\", 2)));\n    }\n}\n```\nThe program should print 1:two, because the two keys are equal. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "return a.hashCode();  uses only the field equals compares, so equal keys share a bucket.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "return a.hashCode() + b;  keeps both fields, which separates keys that equals had merged.",
+          "misconception": "believes a richer hash code is harmless for equal objects"
+        },
+        {
+          "id": "C",
+          "text": "return b;  hashes the numeric field alone, so the two keys land in different buckets.",
+          "misconception": "believes any deterministic hash is consistent enough"
+        },
+        {
+          "id": "D",
+          "text": "return a.hashCode() * 31 + b;  mixes the fields properly, yet still keeps the extra field.",
+          "misconception": "believes mixing the fields fixes the contract"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that equal objects must have equal hash codes, so a hash built only from the fields equals compares is the one consistent choice, and the two keys then collide in the same bucket where the second put replaces the first value, giving one entry. The marked line is a bug precisely because it adds a field equality ignores, and the collection quietly stores two entries that its own equals says are the same. Option D is the most tempting wrong answer, since a mixing formula looks more professional, but no amount of spreading the bits repairs a contract that mixes in a field equality ignores.",
+      "hint": "The hash may use any field equals uses, and no field equals ignores.",
+      "difficulty": 0.62,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "hashCode",
+        "equals",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Turning an object into text through concatenation",
+      "learningObjective": "predict how concatenation and valueOf treat an object and a null reference",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One value is a real object with a toString, the other is a null reference.\n```java\npublic class P2125 {\n    static class Item { public String toString() { return \"item\"; } }\n    public static void main(String[] args) {\n        Item i = new Item();\n        Object nothing = null;\n        System.out.println((\"\" + i) + \":\" + String.valueOf(nothing));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "item:null - concatenation calls toString on a real object, and a null reference becomes the text null.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "null:null - both operands are null from the compiler's point of view, since i is only typed as Item.",
+          "misconception": "believes a local reference is null until it is used"
+        },
+        {
+          "id": "C",
+          "text": "item:null:null - the toString of the object is called once for each operand of the concatenation.",
+          "misconception": "believes concatenation repeats the conversion per operand"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - String.valueOf may not be called with a reference that may be null.",
+          "misconception": "believes valueOf rejects a null argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that string conversion of a reference calls toString when there is an object, and produces the four letters null when there is not, without ever attempting the call, which is why valueOf on a null reference is safe where an explicit toString would throw. The object here is real and its toString returns item, so the two halves read item and null. Option D is the misconception that null handling must be checked by hand in every case, and the language does provide the guard in exactly this one place.",
+      "hint": "Ask whether there is an object to call toString on.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "toString",
+        "string-conversion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Overload selection for a character array",
+      "learningObjective": "predict which valueOf overload a character array selects",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A character array and an array of strings are reported in one line.\n```java\npublic class P2126 {\n    public static void main(String[] args) {\n        char[] letters = { 'a', 'b', 'c' };\n        String[] words = { \"a\", \"b\" };\n        System.out.println(String.valueOf(letters) + \":\" + words.length);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "abc:2 - the argument is a char[], so the char[] overload builds text from the characters.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[C@1b6d3586:2 - every array converts through Object, so the identity text is used.",
+          "misconception": "believes all arrays convert by their identity"
+        },
+        {
+          "id": "C",
+          "text": "abc:2 - the strings in the second array are joined, because valueOf flattens any array.",
+          "misconception": "believes valueOf flattens object arrays into text"
+        },
+        {
+          "id": "D",
+          "text": "abc:abc - the length is reported as the joined text of the second array instead of a count.",
+          "misconception": "believes length is converted to text by the same overload"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that overload resolution picks the most specific applicable signature at compile time, and String.valueOf has both a char[] overload and an Object overload, so the character array takes the specific one and becomes the text abc while an array of strings would fall through to Object and print its identity. This is the same static-type rule that decides which method a call reaches, and it is worth noticing that the convenience here is exactly the danger: a char[] prints nicely and a String[] does not, with no difference in the elements to explain it. Option B is the answer that assumes arrays have no special handling at all.",
+      "hint": "The declared argument type chooses the overload, not the contents.",
+      "difficulty": 0.52,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overloading",
+        "arrays",
+        "string-conversion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A helper that formats an array of primitives",
+      "learningObjective": "compare an explicit formatter with the inherited identity text",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An array is printed through a utility method and through its own toString.\n```java\npublic class P2127 {\n    public static void main(String[] args) {\n        int[] nums = { 1, 2, 3 };\n        System.out.println(java.util.Arrays.toString(nums) + \":\" + nums.toString().startsWith(\"[I@\"));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 2, 3]:true - the utility builds a readable list while the inherited method keeps the identity form.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[I@1b6d3586:true - the utility delegates to toString, so both halves print the identity text.",
+          "misconception": "believes a formatting utility reuses the inherited method"
+        },
+        {
+          "id": "C",
+          "text": "[1, 2, 3]:false - an array of primitives overrides toString, so no at-sign appears.",
+          "misconception": "believes an array provides its own toString"
+        },
+        {
+          "id": "D",
+          "text": "123:true - the utility concatenates the elements without separators or brackets.",
+          "misconception": "believes array formatting joins the values with nothing between them"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an array does not override toString, so it inherits Object's version and prints its class name with an at-sign and a hash, while Arrays.toString is a utility that walks the elements and builds a readable list. The utility exists precisely because the inherited method is unhelpful for arrays, which is a special case worth remembering since every other object in a program usually has a toString worth printing. Option C is the natural wrong assumption, that a type the compiler treats specially must also have a sensible text form, and the two halves of the output are there to show both behaviours at once.",
+      "hint": "Ask whether the array type itself declares a toString.",
+      "difficulty": 0.48,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "toString"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Printing a list of mixed subtype elements",
+      "learningObjective": "trace the toString each element supplies inside a collection's own text",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds one subclass instance and one base instance, and is printed directly.\n```java\npublic class P2128 {\n    static class Animal { public String toString() { return \"A\"; } }\n    static class Dog extends Animal { public String toString() { return \"D\"; } }\n    public static void main(String[] args) {\n        java.util.List<Animal> xs = new java.util.ArrayList<>();\n        xs.add(new Dog());\n        xs.add(new Animal());\n        System.out.println(xs);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[D, A] - the list asks each element for its own text, so the override decides the first entry.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[A, A] - the list's declared element type chooses the text, so both entries look alike.",
+          "misconception": "believes the collection's element type selects the method body"
+        },
+        {
+          "id": "C",
+          "text": "[A, D] - a subclass's text is printed after the base entry because of declaration order.",
+          "misconception": "believes the text order follows the class declarations"
+        },
+        {
+          "id": "D",
+          "text": "D - only the first element is printed, since a collection's own toString shows one item.",
+          "misconception": "believes a collection's toString prints a single element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a list's toString walks the elements in order and appends each element's own text between the separators, so every element is converted by a virtual call on the object and the Dog's override produces D. The declared element type of the list affects what may be added, not which body runs when the text is built. Option B is the misconception that recurs throughout this unit, reading a declared type as if it controlled behaviour, and it is worth pairing with the array items, where the same intuition fails for a different reason.",
+      "hint": "Each element converts itself; the list only supplies the brackets and separator.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "toString",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Choosing a valueOf overload with casts",
+      "learningObjective": "predict how a cast disambiguates between overloads",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same null argument is cast twice so that a different reference overload applies each time.\n```java\npublic class P2129 {\n    public static void main(String[] args) {\n        System.out.println(String.valueOf((Object) null) + \":\" + String.valueOf((String) null));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "null:null - each cast fixes which overload applies, and both convert a null reference to the text null.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a null literal is ambiguous between the valueOf overloads without a target type.",
+          "misconception": "believes a null literal matches no overload at all"
+        },
+        {
+          "id": "C",
+          "text": "null:null:null - the compiler reports every applicable overload in the message it prints.",
+          "misconception": "believes overload resolution is a report rather than a choice"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - String.valueOf has no overload that accepts a null reference at all.",
+          "misconception": "believes valueOf rejects a null argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a cast changes the static type of an expression and therefore changes which overloads are applicable, so casting to Object selects the reference overload and casting to String selects the String overload, and each of those is specified to turn a null reference into the four letters null rather than to throw. Without a cast the call would indeed be ambiguous, because null fits every reference overload equally well, which is exactly why the cast is the tool for choosing. Option B states that ambiguity accurately but attaches it to the wrong code, since the casts are present here.",
+      "hint": "A cast selects the overload; a bare null would not.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overloading",
+        "null",
+        "casting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reading through an upper-bounded wildcard",
+      "learningObjective": "state what an extends wildcard promises and where it may be used",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A variable is declared with an upper-bounded wildcard and only reads from it.\n```java\npublic class P2130 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        java.util.List<? extends Animal> pets = new java.util.ArrayList<Dog>();\n        System.out.println(pets.isEmpty() + \":\" + (pets.size() == 0));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:true - the wildcard promises an element type of Animal or narrower, and queries are allowed.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a wildcard may not appear on the left of an assignment.",
+          "misconception": "believes a wildcard type cannot be declared"
+        },
+        {
+          "id": "C",
+          "text": "false:false - a List of Dog reports the query methods in terms of Dog, not Animal.",
+          "misconception": "believes the wildcard hides the concrete element type everywhere"
+        },
+        {
+          "id": "D",
+          "text": "null:null - querying a wildcard list has no defined result, since the element type is unknown.",
+          "misconception": "believes an unknown element type makes queries undefined"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an upper-bounded wildcard promises only that the element type is Animal or something narrower, which is enough to answer questions about the collection and to read elements out as Animal, and both of those calls work here on an empty list. What the promise deliberately withholds is the ability to add, since a Dog could not be stored into a list whose elements are only known to be Cats. That asymmetry is the point of the wildcard: it makes a method accept any list of a suitable type while refusing to pretend it knows the concrete element type.",
+      "hint": "Ask what the wildcard guarantees, then which operations that supports.",
+      "difficulty": 0.38,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "wildcards"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A parameter typed too narrowly for the caller's list",
+      "learningObjective": "choose a parameter type that accepts a list of a wider element type and still allows adding",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A producer is handed a list of a wider element type than its parameter declares.\n```java\npublic class P2131 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static void addDog(java.util.List<Animal> pets) {  // <fix>\n        pets.add(new Dog());\n    }\n    public static void main(String[] args) {\n        java.util.List<Object> all = new java.util.ArrayList<>();\n        addDog(all);\n        System.out.println(all.size());\n    }\n}\n```\nThe program should print 1. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static void addDog(java.util.List<? super Dog> pets) {  accepts the list and still allows the add.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "static void addDog(java.util.List<Animal> pets) {  keeps the element type, which the caller's List<Object> cannot satisfy.",
+          "misconception": "believes List<Object> can be passed where List<Animal> is required"
+        },
+        {
+          "id": "C",
+          "text": "static void addDog(java.util.List<?> pets) {  accepts anything but forbids adding a Dog to it.",
+          "misconception": "believes an unbounded wildcard still permits adding"
+        },
+        {
+          "id": "D",
+          "text": "static void addDog(java.util.List<Dog> pets) {  narrows to the type being added, which the caller's list cannot supply.",
+          "misconception": "believes naming the added type is the general solution"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that List<Object> is not a List<Animal>, since the type arguments are invariant, so a producer that must accept an arbitrary list of supertypes declares a lower-bounded wildcard, which promises that everything of the element type can be stored and therefore allows the add. Object satisfies super Dog, so the call compiles and the list ends with one element. Option C looks like the flexible choice and is the one that most often appears in real code by mistake, because an unbounded wildcard accepts the widest range of arguments while making the method unable to do anything with them.",
+      "hint": "The producer needs a super bound; the consumer needs an extends bound.",
+      "difficulty": 0.64,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "wildcards",
+        "variance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0031",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Filling a super-bounded list from a producer method",
+      "learningObjective": "choose the statement a producer may use against a super-bounded list",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A producer is handed a list whose element type is Animal or wider and must add one dog.\n```java\npublic class P2132 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static void addDog(java.util.List<? super Dog> out) {\n        ____\n    }\n    public static void main(String[] args) {\n        java.util.List<Animal> pets = new java.util.ArrayList<>();\n        addDog(pets);\n        System.out.println(pets.size());\n    }\n}\n```\nChoose the statement that fills the blank so the program should print 1.",
+      "options": [
+        {
+          "id": "A",
+          "text": "out.add(new Dog());  a lower bound accepts exactly the type named in the super bound.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "out.add(new Animal());  a supertype is fine, since the list may hold anything wider than Dog.",
+          "misconception": "believes a super-bounded list accepts any supertype value"
+        },
+        {
+          "id": "C",
+          "text": "out.clear();  the parameter is usable, but this leaves the caller's list empty.",
+          "misconception": "believes any list method satisfies the requirement"
+        },
+        {
+          "id": "D",
+          "text": "out.add((Object) new Dog());  widens the value so the call is accepted by any element type.",
+          "misconception": "believes widening the value satisfies a super bound"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lower-bounded wildcard promises the list's element type is a supertype of Dog, which is exactly the promise needed to store a Dog, so the add is accepted and the caller's list ends with one element. Option B is the interesting wrong answer, because Animal really is a supertype of Dog and one of the possible instantiations would accept it, but the compiler must also allow the case where the bound is exactly Dog, and that case rejects an Animal, so only the named type is safe. Option D fails for the same reason one level up: casting to Object changes the value's static type without making it assignable to Dog.",
+      "hint": "A super bound is safe for the type it names and nothing above it.",
+      "difficulty": 0.62,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "wildcards"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0032",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reading out of a super-bounded list",
+      "learningObjective": "state what type an element read from a super-bounded list has",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list is declared with a lower bound, filled, and then read back.\n```java\npublic class P2133 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        java.util.List<? super Dog> out = new java.util.ArrayList<Animal>();\n        out.add(new Dog());\n        Object first = out.get(0);\n        System.out.println((first instanceof Dog) + \":\" + (out.get(0) == null));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:false - the add is allowed and the element really is a Dog, though its static type is Object.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a super-bounded list may not be read at all, only written.",
+          "misconception": "believes a super bound makes the list unreadable"
+        },
+        {
+          "id": "C",
+          "text": "false:false - the add stores an Animal, since the declared element type is the supertype.",
+          "misconception": "believes the wildcard converts the value it stores"
+        },
+        {
+          "id": "D",
+          "text": "true:true - a lower-bounded list returns null from get, because no element type is known.",
+          "misconception": "believes an unknown element type makes get return null"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lower bound is the mirror image of an upper one: adding is allowed for the type named, and reading gives back the erased common supertype, which here is Object, so the value must be tested or cast before anything subtype-specific is attempted. The add stored a real Dog and the test finds it, while the null check on the same element is false. Option B is the misconception that the two bounds simply disable one half of the list, and in fact a wildcard of either kind leaves every read available, just at a wider static type.",
+      "hint": "Super bounds are for writing, and the read type is the common supertype.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "wildcards",
+        "variance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0033",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Inference at the call site against a base-typed reference",
+      "learningObjective": "predict that inference follows the static type while dispatch follows the object",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A generic method receives a base-typed reference to a subclass object.\n```java\npublic class P2134 {\n    static class Animal { String speak() { return \"generic\"; } }\n    static class Dog extends Animal { String speak() { return \"woof\"; } }\n    static String label(Object o) { return o.getClass().getSimpleName(); }\n    static <T> String call(T t, Animal a) { return label(t) + \":\" + a.speak(); }\n    public static void main(String[] args) {\n        Animal a = new Dog();\n        System.out.println(call(a, a));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dog:woof - the type argument is inferred as Animal while the runtime class and the call still say Dog.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Animal:generic - the inferred type argument fixes both the class name and the method body.",
+          "misconception": "believes inference changes what the object reports"
+        },
+        {
+          "id": "C",
+          "text": "Dog:generic - the runtime class is Dog but the inferred type argument selects the base body.",
+          "misconception": "believes the static type of the receiver picks the override"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a base-typed reference may not be passed as a type argument.",
+          "misconception": "believes a type argument must be a concrete class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that inference takes the static type of the argument, so T is bound to Animal and the body sees an Animal, while the object the reference designates is still a Dog, so getClass() reports Dog and the virtual call reaches the override. The two halves of the output are the item in one line: the type argument is a compile-time promise about what the body may assume, and the runtime type is what the object says about itself. Option C is the trap that mixes the two, and it is the reason a generic method can be given a base-typed reference and still behave correctly.",
+      "hint": "Two different questions: what the compiler inferred, and what the object is.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "inference",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0034",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Counting elements in a list that may hold supertypes",
+      "learningObjective": "repair a loop that assumes every element of a super-bounded list is the subtype",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A counter walks a list whose element type may be wider than the subtype it cares about.\n```java\npublic class P2135 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static int countDogs(java.util.List<? super Dog> pets) {\n        int n = 0;\n        for (Object o : pets) { if ((Dog) o != null) { n++; } }  // <fix>\n        return n;\n    }\n    public static void main(String[] args) {\n        java.util.List<Animal> pets = new java.util.ArrayList<>();\n        pets.add(new Dog());\n        pets.add(new Animal());\n        System.out.println(countDogs(pets));\n    }\n}\n```\nThe program should print 1. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "for (Object o : pets) { if (o instanceof Dog) { n++; } }  tests each element before counting it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "for (Object o : pets) { if ((Dog) o != null) { n++; } }  casts each element, which fails on a plain Animal.",
+          "misconception": "believes a super-bounded list holds only the named subtype"
+        },
+        {
+          "id": "C",
+          "text": "for (Object o : pets) { n++; }  counts every element, which is two rather than one.",
+          "misconception": "believes the counter should include all wider elements"
+        },
+        {
+          "id": "D",
+          "text": "for (Object o : pets) { if (o instanceof Animal) { n++; } }  tests a type every element satisfies.",
+          "misconception": "believes the supertype test narrows the count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a super-bounded list is only guaranteed to hold Dog or something wider, so a body that uses each element as a Dog must test it first, and exactly one of the two elements here passes. The marked line is a bug because the cast is applied to every element and the plain Animal cannot be cast to Dog, so the program throws rather than counting. Option D is the subtler wrong answer, since the test is safe but it is the wrong test: it asks whether the element is an Animal, which both of them are, and so counts the wrong thing.",
+      "hint": "The bound promises no more than a supertype, so test before casting.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "wildcards",
+        "casting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0035",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Chaining two comparators over records",
+      "learningObjective": "trace a comparator chain that falls back to a second key",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list of records is sorted by one component and then by another.\n```java\npublic class P2136 {\n    record P(String name, int age) { }\n    public static void main(String[] args) {\n        java.util.List<P> ps = new java.util.ArrayList<>(java.util.List.of(new P(\"b\", 30), new P(\"a\", 20)));\n        ps.sort(java.util.Comparator.comparing(P::name).thenComparing(P::age));\n        System.out.println(ps);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[P[name=a, age=20], P[name=b, age=30]] - the names differ, so the second key is never consulted.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[P[name=a, age=20], P[name=b, age=30]] after sorting by age first, because thenComparing overrides the first key.",
+          "misconception": "believes the second key replaces the first"
+        },
+        {
+          "id": "C",
+          "text": "[P[name=b, age=30], P[name=a, age=20]] - method references carry the natural order of the record itself.",
+          "misconception": "believes a method reference ignores the component named"
+        },
+        {
+          "id": "D",
+          "text": "[P[name=a, age=20], P[name=b, age=30]] only if the list is a TreeSet, since a List cannot be sorted this way.",
+          "misconception": "believes only sorted collections accept a comparator chain"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that thenComparing supplies a tie-breaker that is consulted only when the first comparison returns zero, so with two distinct names the ages never matter and the records come out in name order. The same list instance is what a sorted set would hold, which is why option D is wrong about the container and right about the result. Option C is the misconception worth naming, that a method reference on a record somehow implies the record's own natural order rather than the single component written in the call.",
+      "hint": "A chained comparator is a tie-breaker, not a replacement.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "comparators",
+        "records"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0036",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A comparator chain that consults the natural order",
+      "learningObjective": "trace a chain whose tie-breaker is a class's own compareTo",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class defines its own ordering and the sort uses it as the tie-breaker.\n```java\npublic class P2137 {\n    static class Ver {\n        final int n; final String tag;\n        Ver(int n, String tag) { this.n = n; this.tag = tag; }\n        public int compareTo(Ver o) { return Integer.compare(n, o.n); }\n        public String toString() { return tag + n; }\n    }\n    public static void main(String[] args) {\n        java.util.List<Ver> vs = new java.util.ArrayList<>(java.util.List.of(new Ver(2, \"b\"), new Ver(1, \"a\")));\n        vs.sort(java.util.Comparator.comparing((Ver v) -> v.tag).thenComparing(Ver::compareTo));\n        System.out.println(vs);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[a1, b2] - the tags are already in order, so the natural-order tie-breaker adds nothing.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[b2, a1] - the tie-breaker overrules the primary key whenever it disagrees.",
+          "misconception": "believes the tie-breaker is consulted first"
+        },
+        {
+          "id": "C",
+          "text": "[a1, b2] because a Ver is sorted by its number, since compareTo is the class's own order.",
+          "misconception": "believes a class's compareTo overrides an explicit comparator"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - thenComparing needs a key extractor rather than a two-argument method.",
+          "misconception": "believes a comparator chain cannot reuse a comparison method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an explicit comparator is what a sort uses, and a chained comparator adds a second stage consulted only on a tie, so the tags a and b decide the order immediately and the class's own compareTo never runs. A class's natural order is the default, not an override, which is the distinction option C collapses. Option B is the misconception that comes from reading thenComparing as a redefinition rather than a fallback, and it is the same rule that governs any ordered result.",
+      "hint": "Ask which stage of the chain actually decided this ordering.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "comparators",
+        "natural-ordering"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0037",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sorted set compared with a hash set",
+      "learningObjective": "predict that a sorted set merges by comparison rather than by equals",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same two records are added to a hash-based set and to a sorted set.\n```java\npublic class P2138 {\n    record K(String id, int tag) { }\n    public static void main(String[] args) {\n        K a = new K(\"x\", 1);\n        K b = new K(\"x\", 2);\n        java.util.Set<K> hs = new java.util.HashSet<>();\n        hs.add(a); hs.add(b);\n        java.util.TreeSet<K> ts = new java.util.TreeSet<>(java.util.Comparator.comparing(K::id));\n        ts.add(a); ts.add(b);\n        System.out.println(hs.size() + \":\" + ts.size());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2:1 - the hash set keeps records that are unequal, while the comparator calls both the same.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1:1 - both collections agree because the comparator ignores only a field.",
+          "misconception": "believes a field-blind comparator still uses equals"
+        },
+        {
+          "id": "C",
+          "text": "2:2 - a sorted set only reorders, so it never merges two records.",
+          "misconception": "believes ordering a collection has no effect on membership"
+        },
+        {
+          "id": "D",
+          "text": "1:2 - the roles are reversed, since the sorted set compares and the hash set hashes.",
+          "misconception": "believes hashing merges records that differ in a field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a sorted set decides membership with its comparator while a hash-based set decides it with equals and hashCode, and here the records are unequal because their tags differ while the comparator sees only the id and calls them the same, so the second add to the sorted set is rejected as a duplicate. This divergence is the practical reason a comparator that disagrees with equals is a design smell rather than a style preference: the same two values behave differently depending on which collection holds them. Option C mistakes the sorted set's job, which is not merely to present elements in order.",
+      "hint": "Ask what each collection consults when deciding two elements are the same.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "comparators",
+        "sets"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0038",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A record that supplies its own natural order",
+      "learningObjective": "state that a record does not implement Comparable unless it declares it",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A record declares its own comparison and the list is sorted with a null comparator.\n```java\npublic class P2139 {\n    record P(String name, int age) implements Comparable<P> {\n        public int compareTo(P o) { return name.compareTo(o.name); }\n    }\n    public static void main(String[] args) {\n        java.util.List<P> ps = new java.util.ArrayList<>(java.util.List.of(new P(\"b\", 30), new P(\"a\", 20)));\n        ps.sort(null);\n        System.out.println(ps);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[P[name=a, age=20], P[name=b, age=30]] - a record is not Comparable on its own, and here the body orders by name.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[P[name=b, age=30], P[name=a, age=20]] - a null comparator leaves the list untouched, so insertion order stands.",
+          "misconception": "believes a null comparator performs no sort"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a record may not declare a compareTo method of its own.",
+          "misconception": "believes a record cannot declare methods"
+        },
+        {
+          "id": "D",
+          "text": "[P[name=a, age=20], P[name=b, age=30]] after ordering by the age, since numbers are compared first.",
+          "misconception": "believes a record's order runs from its numeric components"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a record supplies accessors, equality and a text form, but it does not implement Comparable for you, so the implements clause and the compareTo body here are what make a null comparator legal and make it order by name. Passing null as the comparator asks for exactly that natural order, and the ages never come into it. Option D is the interesting wrong answer, because a record does compare all its components for equality, and it is natural to assume the same positional comparison happens for ordering; only the body written here decides.",
+      "hint": "Ask which type actually declares the comparison the sort will use.",
+      "difficulty": 0.38,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "records",
+        "natural-ordering",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0039",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sorted set whose comparator ignores a component",
+      "learningObjective": "predict that a comparator-driven lookup matches on the compared key alone",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A sorted set is built with a comparator that looks at one component only.\n```java\npublic class P2140 {\n    record P(String name, int age) { }\n    public static void main(String[] args) {\n        P a = new P(\"b\", 20);\n        P b = new P(\"a\", 30);\n        java.util.Set<P> hs = new java.util.HashSet<>();\n        hs.add(a); hs.add(b);\n        java.util.TreeSet<P> ts = new java.util.TreeSet<>(java.util.Comparator.comparing(P::name));\n        ts.add(a); ts.add(b);\n        System.out.println(hs.size() + \":\" + ts.size() + \":\" + ts.contains(new P(\"b\", 99)));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2:2:true - the probe succeeds because the comparator sees only the name and the age is ignored.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2:2:false - contains uses equals, so a different age means the probe value is not present.",
+          "misconception": "believes a sorted set looks up with equals"
+        },
+        {
+          "id": "C",
+          "text": "1:1:true - both collections merge the two records, since a name identifies a person.",
+          "misconception": "believes a name alone makes the records equal"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a TreeSet may not be built with a comparator that ignores a component.",
+          "misconception": "believes the compiler checks a comparator against equals"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a sorted set answers every question, including contains, with its comparator, so the probe value with age 99 is considered a match for the stored record with age 20 because the names are equal and the comparator never looks at the age. The hash-based set, which asks equals, keeps the two records apart, so the sizes differ. Option B is the misconception that membership always means equality in the full sense, and it is the reason a field-blind comparator is worth avoiding when the ignored field is data rather than an implementation detail.",
+      "hint": "Two collections, two definitions of the same question.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "comparators",
+        "sets"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0040",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Choosing an implementation at run time",
+      "learningObjective": "trace a variable whose behaviour is decided by a condition at run time",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An interface-typed variable is given one of two anonymous implementations at run time.\n```java\npublic class P2141 {\n    interface Op { int apply(int a); }\n    public static void main(String[] args) {\n        boolean fast = true;\n        Op op = fast ? new Op() { public int apply(int a) { return a + 1; } }\n                     : new Op() { public int apply(int a) { return a * 2; } };\n        System.out.println(op.apply(5));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "6 - the chosen branch is an object of its own anonymous class, so its body supplies the answer.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10 - the conditional is evaluated twice, so both bodies contribute to the result.",
+          "misconception": "believes a conditional runs both of its branches"
+        },
+        {
+          "id": "C",
+          "text": "5 - the variable's declared interface type supplies a default body for the call.",
+          "misconception": "believes an interface provides a default implementation here"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - an anonymous class may not be created inside a conditional expression.",
+          "misconception": "believes anonymous classes cannot appear in an expression"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each anonymous class in the two branches is a distinct type with its own body, and only the branch taken produces an object, so the call dispatches to the body that was actually created and adds one to 5. This is the ordinary mechanism behind a strategy held in a variable: the decision about which behaviour to use is made once, at some point, and every later call goes through the same reference. Option B is the misconception that a conditional has side effects in both directions, and Option C mistakes an interface reference for something that supplies behaviour.",
+      "hint": "Only one branch runs, and it produces the object that receives the call.",
+      "difficulty": 0.54,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interfaces",
+        "anonymous-classes",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0041",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Bound and static method references side by side",
+      "learningObjective": "distinguish a reference that captures a receiver from one that does not",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One reference names an instance method of a new object and the other names a static method.\n```java\npublic class P2142 {\n    static class Calc {\n        int base = 10;\n        int add(int a) { return base + a; }\n        static int twice(int a) { return a * 2; }\n    }\n    public static void main(String[] args) {\n        java.util.function.IntUnaryOperator bound = new Calc()::add;\n        java.util.function.IntUnaryOperator unbound = Calc::twice;\n        System.out.println(bound.applyAsInt(5) + \":\" + unbound.applyAsInt(5));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "15:10 - the first reference carries a receiver and its field, the second needs none.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5:10 - the bound reference forgets the receiver, so only the argument reaches the method.",
+          "misconception": "believes a bound reference passes no receiver"
+        },
+        {
+          "id": "C",
+          "text": "15:5 - the static reference treats the argument as a receiver instead of a value.",
+          "misconception": "believes a static reference needs a receiver argument"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a static method may not be referenced without an instance.",
+          "misconception": "believes method references require an object"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that new Calc()::add captures the receiver together with the method, so calling it passes the receiver implicitly and the field base of 10 is there to be added, while Calc::twice names a static method that needs no receiver and receives only the argument, giving 10. The two forms are distinguished by whether a value precedes the two colons, and that is the whole difference in behaviour as well as in syntax. Option D is the misconception that a reference is always about an object, which is true of instance methods and false of static ones.",
+      "hint": "A receiver in front of the colons is part of what the reference stores.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "method-references",
+        "functional-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0042",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An unbound reference used as a function of its receiver",
+      "learningObjective": "predict that the receiver becomes the first argument of the functional method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A type name and a method name are used to build a function of one argument.\n```java\npublic class P2143 {\n    static class Box { String label() { return \"box\"; } }\n    public static void main(String[] args) {\n        java.util.function.Function<Box, String> f = Box::label;\n        System.out.println(f.apply(new Box()));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "box - the Box passed to apply becomes the receiver of the referenced method.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a reference of this form has no receiver and cannot be built.",
+          "misconception": "believes a receiver must be supplied in the reference"
+        },
+        {
+          "id": "C",
+          "text": "null - the referenced method belongs to the type, so there is no object to call it on.",
+          "misconception": "believes a type name in a reference means no object exists"
+        },
+        {
+          "id": "D",
+          "text": "Box - the text printed is the class name, since a Box has no text of its own.",
+          "misconception": "believes the printed value comes from getClass rather than label"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an unbound reference of the form Type::method builds a function whose first parameter is the receiver, which is why a single-argument functional interface matches a no-argument instance method and the value handed to apply becomes the object the method runs on. That is what makes this form a compact way to write a function over values of a type rather than a function tied to one of them. Option C is the misconception that a type name stands in for an object, and the fix is to notice that the argument of the functional interface supplies it.",
+      "hint": "The functional interface's first parameter is the receiver.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "method-references",
+        "functional-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0043",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "What a lambda expression is at run time",
+      "learningObjective": "state that a lambda is an object of its target interface and nothing else",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A lambda is stored in an interface-typed variable and then examined as an object.\n```java\npublic class P2144 {\n    interface Op { int apply(int a); }\n    public static void main(String[] args) {\n        Op twice = a -> a * 2;\n        Object o = twice;\n        System.out.println((o instanceof Op) + \":\" + (o instanceof Runnable));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:false - a lambda is an object of the single interface it was written for, and of no other type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true:true - every object also implements Runnable through the default method inheritance of Object.",
+          "misconception": "believes all objects implement common interfaces"
+        },
+        {
+          "id": "C",
+          "text": "false:false - a lambda has no run-time type, so it matches no interface at all.",
+          "misconception": "believes a lambda is not an object"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a lambda may not be widened to Object by an assignment.",
+          "misconception": "believes a lambda cannot be stored in a general reference"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda expression creates an object that implements its target functional interface and nothing else, so the type test against Op succeeds and the one against Runnable does not; widening the reference to Object is legal and loses only the ability to call apply without a cast. The compiler typically synthesises a class for the lambda, which is exactly why there is a run-time type to ask about. Option C is the intuition that a lambda is syntax rather than a value, and it is worth testing because the syntax really does look like a fragment of a method.",
+      "hint": "A lambda has a target type, and that type is what it implements.",
+      "difficulty": 0.36,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "lambdas",
+        "functional-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0044",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Capturing a local that was reassigned",
+      "learningObjective": "repair a lambda that captures a local which is not effectively final",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A local is adjusted and then captured, so the compiler rejects the capture.\n```java\npublic class P2145 {\n    interface Op { int apply(); }\n    static int make(int seed) {\n        int base = seed * 10;\n        base = base + 1;\n        Op op = () -> base;  // <fix>\n        return op.apply();\n    }\n    public static void main(String[] args) { System.out.println(make(2)); }\n}\n```\nThe program should print 21. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "final int captured = base; Op op = () -> captured;  freezes the value before capturing it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Op op = () -> base;  captures the local directly, which is what the compiler refuses here.",
+          "misconception": "believes a local may be captured after it changes"
+        },
+        {
+          "id": "C",
+          "text": "Op op = () -> seed * 10;  recomputes from the parameter, so the increment is left out.",
+          "misconception": "believes recomputing the expression reproduces the captured value"
+        },
+        {
+          "id": "D",
+          "text": "Op op = () -> base + 1;  applies the adjustment again inside the lambda body.",
+          "misconception": "believes the captured value was the pre-adjustment one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a local may be captured only if it is effectively final, meaning never assigned after its initialisation, and base is assigned twice, so the capture must go through a new variable that is not. Copying the adjusted value into a final local and capturing that gives 21, which is the number the code computes. Option C is the tempting shortcut because it uses the parameter instead and compiles, but the parameter is 2 and the expression gives 20, silently dropping the increment the caller was meant to pay.",
+      "hint": "A captured local must never change; copy it into one that does not.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "lambdas",
+        "capturing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0045",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Walking a hierarchy through reflection",
+      "learningObjective": "count the classes in a hierarchy by following getSuperclass",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A loop counts the classes in a three-level chain and names the parent.\n```java\npublic class P2146 {\n    static class A { }\n    static class B extends A { }\n    static class C extends B { }\n    public static void main(String[] args) {\n        int depth = 0;\n        for (Class<?> c = C.class; c != null; c = c.getSuperclass()) { depth++; }\n        System.out.println(depth + \":\" + C.class.getSuperclass().getSimpleName());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4:B - the chain runs C, B, A and Object, and the parent of C is B.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3:B - the loop stops at A, so Object is never counted as part of the chain.",
+          "misconception": "believes the root of a class hierarchy is null rather than Object"
+        },
+        {
+          "id": "C",
+          "text": "4:A - getSuperclass reports the topmost class of the hierarchy rather than the parent.",
+          "misconception": "believes getSuperclass walks to the root"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a Class value may not be used in a loop update expression.",
+          "misconception": "believes a Class value cannot be assigned to a variable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that getSuperclass returns the direct parent and returns null once the chain reaches Object and is asked again, so a loop that keeps going counts all four classes here and stops at the null. The second half of the output is a single step of the same walk, which reports B because that is C's direct parent rather than the root of the hierarchy. Option B is the misconception that the loop is at fault for stopping, when in fact the null is the documented end of the chain and Object is a real class that any class hierarchy includes.",
+      "hint": "Ask whether the end of the chain is null or the root class.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "reflection",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0046",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The reflective form of the is-a test",
+      "learningObjective": "predict what isAssignableFrom reports for a class and a subclass instance",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class is asked whether it accepts the type of an object, twice.\n```java\npublic class P2147 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        Object o = new Dog();\n        System.out.println(Animal.class.isAssignableFrom(o.getClass()) + \":\" + Dog.class.isAssignableFrom(o.getClass()));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:true - a Dog is assignable to both its own type and the type it extends.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true:false - a class accepts its supertypes but never its own exact type.",
+          "misconception": "believes a class is not assignable to itself"
+        },
+        {
+          "id": "C",
+          "text": "false:false - the reflective test compares the two types by identity, not by subtyping.",
+          "misconception": "believes isAssignableFrom is an identity comparison"
+        },
+        {
+          "id": "D",
+          "text": "false:true - the arguments are supplied in the opposite order to the method's name.",
+          "misconception": "believes the receiver class is the one being tested"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the receiver of isAssignableFrom is the supertype side of the question, so asking whether Animal accepts Dog is true and asking whether Dog accepts Dog is also true because a type is assignable to itself. That is the whole meaning of the is-a relation expressed reflectively, and it is the same answer the compiler would give for an ordinary assignment. Option D is the trap in the naming, since the two classes are written in the order supertype then subtype, and reading the call as though the first argument were the subject is an easy slip.",
+      "hint": "The class you call the method on is the one doing the accepting.",
+      "difficulty": 0.34,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "reflection",
+        "subtypes"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0047",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One array holding two levels of the hierarchy",
+      "learningObjective": "count the elements of a base-typed array that pass a subtype test",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An array declared as the supertype holds one of each class in the hierarchy.\n```java\npublic class P2148 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    public static void main(String[] args) {\n        Animal[] zoo = { new Dog(), new Animal() };\n        int dogs = 0;\n        for (Animal a : zoo) { if (a instanceof Dog) { dogs++; } }\n        System.out.println(dogs);\n    }\n}\n```\nWhich number does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 - a Dog is an Animal as well as a Dog, so the test accepts it and rejects the plain one.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0 - a type test fails whenever the declared type of the element is the supertype.",
+          "misconception": "believes a test fails if the reference is declared as a supertype"
+        },
+        {
+          "id": "C",
+          "text": "2 - the array's declared element type makes every element pass a test for one of its subtypes.",
+          "misconception": "believes the array's declared type decides the test"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a Dog may not be placed in an array of Animal.",
+          "misconception": "believes widening into an array is not allowed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subtype instance is an instance of every type above it, so the first element passes the Dog test and the second does not, which gives 1. The declared type of the loop variable matters only for what the compiler lets the body call, and after the test the binding is a Dog, so the counter is incremented for exactly one element. Option B is the misconception that a wide reference hides the object's real type, and it is the same confusion that makes people expect a field read to dispatch the way a method call does.",
+      "hint": "Ask what the object is, not what the variable was declared as.",
+      "difficulty": 0.34,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "arrays",
+        "instanceof",
+        "subtypes"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0048",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A base-typed parameter that reaches a subtype-only method",
+      "learningObjective": "trace a guard that makes a subtype-only call available inside a base-typed method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A method receives the base type and uses a pattern test to reach extra behaviour.\n```java\npublic class P2149 {\n    static class Animal { String describe() { return \"animal\"; } }\n    static class Dog extends Animal {\n        String describe() { return \"dog\"; }\n        String fetch() { return \"ball\"; }\n    }\n    static String report(Animal a) {\n        if (a instanceof Dog d) { return d.describe() + \":\" + d.fetch(); }\n        return a.describe();\n    }\n    public static void main(String[] args) { System.out.println(report(new Dog())); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "dog:ball - the test narrows the reference, and both calls then reach the Dog implementation.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "animal:animal - a base-typed parameter keeps the base body for every call it makes.",
+          "misconception": "believes the parameter's type controls which body runs"
+        },
+        {
+          "id": "C",
+          "text": "dog:animal - describe dispatches to the override but fetch is taken from the base type.",
+          "misconception": "believes a narrowed reference only helps the first call"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - fetch is not declared in the parameter's type, so the call is rejected.",
+          "misconception": "believes a type test does not make subtype members available"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the pattern test narrows the reference for the rest of the branch, so inside it the parameter is a Dog and both the overridden describe and the Dog-only fetch are callable, giving dog and ball. Outside the branch the reference is still an Animal, which is why the fallback call is legal where fetch would not be. Option D is the misconception that a base-typed variable is permanently limited to the base's members, and this narrowing is the standard way to write code that has to cope with a subtype it was not promised.",
+      "hint": "Ask what the reference is called inside the branch and outside it.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pattern-matching",
+        "narrowing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0049",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An exact class test used where a subtype test was meant",
+      "learningObjective": "repair a membership test that compares class objects instead of testing the type",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A three-level hierarchy is tested for membership by comparing class objects.\n```java\npublic class P2150 {\n    static class Animal { }\n    static class Dog extends Animal { }\n    static class Puppy extends Dog { }\n    static boolean isDog(Animal a) { return a.getClass() == Dog.class; }  // <fix>\n    public static void main(String[] args) {\n        System.out.println(isDog(new Dog()) + \":\" + isDog(new Puppy()));\n    }\n}\n```\nThe program should print true:true. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static boolean isDog(Animal a) { return a instanceof Dog; }  tests membership, so a Puppy also passes.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "static boolean isDog(Animal a) { return a.getClass() == Dog.class; }  keeps the class comparison, which excludes subclasses.",
+          "misconception": "believes a class comparison includes every subclass"
+        },
+        {
+          "id": "C",
+          "text": "static boolean isDog(Animal a) { return a.getClass() == Animal.class; }  compares against the base class instead.",
+          "misconception": "believes the base class identifies every animal as a dog"
+        },
+        {
+          "id": "D",
+          "text": "static boolean isDog(Animal a) { return a.getClass().getSuperclass() == Dog.class; }  walks one level up before comparing.",
+          "misconception": "believes membership is a property of the parent class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that class objects compare by identity, so getClass() == Dog.class is true only for a Dog and never for a Puppy, whereas instanceof tests the is-a relation and accepts the whole subtree, giving true for both. The marked line is a bug precisely because the two look interchangeable and only one of them means the sentence a reader hears. Option D is worth noticing as well: comparing the parent class would pass the Puppy and fail the Dog, which is the mirror image of the same confusion about what a class value identifies.",
+      "hint": "Ask whether the test should include the subclasses of the type it names.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "instanceof",
+        "reflection",
+        "subtypes"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0050",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A visitor that dispatches twice per element",
+      "learningObjective": "trace a design where the element and the visitor both choose a method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Each item hands itself to a visitor, and the visitor has one method per item type.\n```java\npublic class P2151 {\n    interface Item { String accept(Visitor v); }\n    interface Visitor { String visit(Book b); String visit(CD c); }\n    static class Book implements Item { public String accept(Visitor v) { return v.visit(this); } }\n    static class CD implements Item { public String accept(Visitor v) { return v.visit(this); } }\n    static class Printer implements Visitor {\n        public String visit(Book b) { return \"book\"; }\n        public String visit(CD c) { return \"cd\"; }\n    }\n    public static void main(String[] args) {\n        Item[] items = { new Book(), new CD() };\n        StringBuilder out = new StringBuilder();\n        for (Item i : items) { out.append(i.accept(new Printer())); }\n        System.out.println(out);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "bookcd - each element picks accept from its own class, then the visitor picks by argument type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "bookbook - the visitor instance is shared, so every element reaches the same method.",
+          "misconception": "believes a visitor's method choice depends on the visitor's state"
+        },
+        {
+          "id": "C",
+          "text": "cdcd - the accept call is resolved against the array's declared element type, which is Item.",
+          "misconception": "believes the declared interface type picks the accept body"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - an interface may not declare a method that takes another interface as a parameter.",
+          "misconception": "believes interfaces cannot reference one another"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each element class supplies its own accept, so the first call already selects Book's body, and that body passes this along, which lets the visitor choose between its two visit methods by the argument's type; two dispatches in sequence is what makes a new operation possible without changing the item classes. The answer that one dispatch would be enough is the misconception behind the whole design, since a single virtual call can only choose on the receiver. Option C is the ordinary single-dispatch intuition applied to the first call, and the program is built so that intuition has to be extended.",
+      "hint": "Two calls, each choosing a body from a different receiver.",
+      "difficulty": 0.7,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dispatch",
+        "visitor",
+        "interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0051",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A chain of type tests over a hierarchy of three levels",
+      "learningObjective": "compute the result of a chain of subtype tests over an array",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One array holds a subtype, a second subtype and a base instance, and each is planned for.\n```java\npublic class P2152 {\n    static class Animal { String name() { return \"animal\"; } }\n    static class Dog extends Animal { String name() { return \"dog\"; } String fetch() { return \"ball\"; } }\n    static class Cat extends Animal { String name() { return \"cat\"; } }\n    static String plan(Animal a) {\n        if (a instanceof Dog d) { return d.name() + \":\" + d.fetch(); }\n        if (a instanceof Cat c) { return c.name() + \":nap\"; }\n        return a.name() + \":none\";\n    }\n    public static void main(String[] args) {\n        Animal[] zoo = { new Dog(), new Cat(), new Animal() };\n        StringBuilder out = new StringBuilder();\n        for (Animal a : zoo) { out.append(plan(a)).append(\"|\"); }\n        System.out.println(out);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "dog:ball|cat:nap|animal:none| - each element takes the first branch its own type satisfies.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "animal:none|animal:none|animal:none| - a base-typed element never satisfies a subtype test.",
+          "misconception": "believes a base-typed reference cannot pass a subtype test"
+        },
+        {
+          "id": "C",
+          "text": "dog:ball|cat:nap|dog:ball| - the third element falls back to the first branch's result.",
+          "misconception": "believes an unmatched element reuses the previous match"
+        },
+        {
+          "id": "D",
+          "text": "dog:ball|cat:nap|animal:none| without the trailing bar, since the loop skips the last append.",
+          "misconception": "believes a loop appends once fewer time than it iterates"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each test is evaluated against the object and the first satisfied branch is taken, so the dog uses its own name and the extra method, the cat takes the second branch, and the plain animal falls through to the final return, with a bar appended after every element including the last. Option B is the recurring misconception about base-typed references, and the whole array exists to make it visible: the variable is typed Animal in every iteration while the tests still tell the three values apart.",
+      "hint": "Work element by element and note the first branch each one satisfies.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pattern-matching",
+        "subtypes",
+        "loops"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0052",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about dispatching on two different types",
+      "learningObjective": "judge which statements describe what a second dispatch adds",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A call to item.accept(visitor) ends up in the visit method matching the item's type, even though the variable holding the item is typed as the Item interface. A cheat sheet lists four claims about that. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The call reaches the accept implementation belonging to the item's own runtime class.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A second call is needed, because one virtual call can consult only its own receiver's type.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "One dispatch suffices, because the compiler merges the receiver's type with the argument's type.",
+          "misconception": "believes the compiler combines both types into a single choice"
+        },
+        {
+          "id": "D",
+          "text": "The visitor matches on the argument's static type and refuses anything it cannot match exactly.",
+          "misconception": "believes the visitor resolves against the static type"
+        },
+        {
+          "id": "E",
+          "text": "The item class stores the name of the visit method to call, so it selects the operation for itself.",
+          "misconception": "believes the item class picks the visit method by name"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B"
+        ]
+      },
+      "explanation": "The rule is that a virtual call chooses a body from the runtime type of its own receiver, so the first call reaches the item's accept and the second call, whose receiver is the visitor, is what chooses between the visit methods by the argument's type; two receivers are involved because two types have to be consulted. The three wrong claims each try to collapse that into a single decision: the compiler merging the two types, the visitor matching statically rather than dynamically, or the item class naming a method for itself, none of which is how a run-time choice between two objects is made. That is the whole reason the pattern exists rather than adding a method to every item class.",
+      "hint": "Ask which receiver each of the two calls consults.",
+      "difficulty": 0.42,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dispatch",
+        "visitor",
+        "concepts"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0053",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sealed expression tree evaluated in two modes",
+      "learningObjective": "compute two different reductions of the same sealed hierarchy",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A recursive evaluator walks a sealed tree and a mode parameter decides what to count.\n```java\npublic class P2154 {\n    sealed interface Expr permits Num, Add { }\n    record Num(int v) implements Expr { }\n    record Add(Expr l, Expr r) implements Expr { }\n    static int eval(Expr e, String mode) {\n        return switch (e) {\n            case Num n -> mode.equals(\"size\") ? 1 : n.v();\n            case Add a -> eval(a.l(), mode) + eval(a.r(), mode);\n        };\n    }\n    public static void main(String[] args) {\n        Expr e = new Add(new Num(2), new Add(new Num(3), new Num(4)));\n        System.out.println(eval(e, \"size\") + \":\" + eval(e, \"sum\"));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3:9 - the size mode counts the three leaves while the other mode adds their values.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9:3 - the mode string selects which of the two numbers is printed first.",
+          "misconception": "believes the mode swaps the values rather than the strategy"
+        },
+        {
+          "id": "C",
+          "text": "2:9 - a size reduction counts the top-level Add nodes, of which there is one.",
+          "misconception": "believes size counts the internal nodes"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a switch over a sealed type may not call itself recursively in a case body.",
+          "misconception": "believes a case body may not contain a recursive call"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a case body may compute anything, including a recursive call, and the mode parameter is the second dimension of variation, so the size run reaches each leaf and returns 1 three times for 3 while the sum run returns the leaf values and adds them to 9. The permits clause means the switch needs no default, so both modes are handled by the same two cases. Option C is a reasonable-looking alternative definition of size, and it is exactly the kind of ambiguity that a parameter spelled as a string rather than a type leaves open.",
+      "hint": "Count the leaves for one run and add their values for the other.",
+      "difficulty": 0.68,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "recursion",
+        "pattern-matching"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0054",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Behaviour stored in a map and chosen by key",
+      "learningObjective": "trace a routing table that maps keys to interface implementations",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A map holds one lambda per key and a loop dispatches through whatever it finds.\n```java\npublic class P2155 {\n    interface Handler { String handle(String msg); }\n    public static void main(String[] args) {\n        java.util.Map<String, Handler> routes = new java.util.HashMap<>();\n        routes.put(\"a\", m -> \"A:\" + m);\n        routes.put(\"b\", m -> \"B:\" + m);\n        StringBuilder out = new StringBuilder();\n        for (String k : new String[] { \"a\", \"b\" }) { out.append(routes.get(k).handle(k)); }\n        System.out.println(out);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A:aB:b - the key selects the implementation, and each one prefixes the key it was given.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A:aA:a - a map stores one value per type, so both lookups reach the first lambda.",
+          "misconception": "believes a map keeps one value regardless of the key"
+        },
+        {
+          "id": "C",
+          "text": "a:b - the lambda parameter shadows the key, so the prefix never appears.",
+          "misconception": "believes the parameter replaces the text it was passed"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a lambda may not be stored as a map value for an interface type.",
+          "misconception": "believes lambdas cannot be fields or collection values"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a collection of interface-typed values is an ordinary use of polymorphism, so the lookup returns a reference to whichever implementation the key holds and the call dispatches to that body's code, which prefixes the message with its own letter. Nothing about storing the behaviour in a map changes how the call is resolved. Option B is the misconception that a map ignores its keys, and it is worth testing because the pattern looks like configuration while behaving exactly like a field holding an object.",
+      "hint": "Ask which value each lookup finds and what that value's body returns.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "collections",
+        "lambdas",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0055",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "What an interface-typed reference may call",
+      "learningObjective": "state that the reference's type, not the object's, decides the callable members",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An implementation adds a method of its own and is stored in an interface-typed variable.\n```java\npublic class P2156 {\n    interface Op { int apply(int a); }\n    static class Doubler implements Op {\n        public int apply(int a) { return a * 2; }\n        int extra() { return 9; }\n    }\n    public static void main(String[] args) {\n        Op op = new Doubler();\n        System.out.println(op.apply(3));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "6 - apply is declared in the interface, so the call is legal and the implementation supplies the body.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9 - the reference is an interface, so it calls the implementation's own extra method instead.",
+          "misconception": "believes an interface reference reaches every method of the object"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - extra is not in the interface, so no method of Doubler may be called here.",
+          "misconception": "believes an interface reference cannot call the method it declares"
+        },
+        {
+          "id": "D",
+          "text": "null - an interface-typed reference holds no object, so the call has no receiver.",
+          "misconception": "believes an interface reference is not an object reference"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler checks a call against the declared type of the reference, so only apply is available here and the implementation's own extra method would need a cast or a differently typed variable, while the body that runs is still the implementation's. The declared type limits what can be said and never what will happen, which is the distinction the interface exists to draw. Option B is the misconception that runs the whole unit backwards, from the object outward rather than from the reference inward.",
+      "hint": "The reference's type is the compiler's view; the object supplies the behaviour.",
+      "difficulty": 0.36,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interfaces",
+        "static-types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0056",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A captured field read when the lambda runs",
+      "learningObjective": "predict that a lambda reads a captured field at call time",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A method hands back a lambda that reads a field, and the field changes first.\n```java\npublic class P2157 {\n    interface Op { int apply(); }\n    static class Counter {\n        int n = 5;\n        Op get() { return () -> n; }\n    }\n    public static void main(String[] args) {\n        Counter c = new Counter();\n        c.n = 7;\n        System.out.println(c.get().apply());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "7 - the lambda captures the object rather than a copy of the field, so it reads the new value.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 - a lambda copies the values it uses, so the field is frozen when it is created.",
+          "misconception": "believes a capture copies the current value"
+        },
+        {
+          "id": "C",
+          "text": "null - a field of a captured object cannot be read after the creating method returns.",
+          "misconception": "believes a captured object's state expires with the method"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a field may not be read from inside a lambda body in another class.",
+          "misconception": "believes a lambda cannot read its creator's fields"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda captures a reference to the enclosing instance, not a snapshot of its state, so the field read happens when apply runs and finds the value that was assigned most recently, which is 7. Contrast this with a local variable, which must be effectively final precisely because a capture of a changing local would be ambiguous, whereas a field's value is expected to change and the lambda simply observes it. Option B is the misconception that a capture is a copy, and it is a reasonable one to hold after learning that locals are frozen.",
+      "hint": "Ask whether the lambda holds the object or a copy of one field.",
+      "difficulty": 0.52,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "lambdas",
+        "capturing",
+        "fields"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0057",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A call on a parameter inside a base method",
+      "learningObjective": "predict that a call on an argument dispatches on the argument's runtime type",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A base class hands a base-typed reference back to a method that calls a virtual method on it.\n```java\npublic class P2158 {\n    static class Animal { String speak() { return \"generic\"; } }\n    static class Dog extends Animal { String speak() { return \"woof\"; } }\n    static class A { String go(Animal a) { return a.speak(); } }\n    public static void main(String[] args) { System.out.println(new A().go(new Dog())); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "woof - the call is made on the argument, so dispatch follows the argument's runtime type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "generic - a parameter is declared as the base type, so the base body is chosen.",
+          "misconception": "believes a parameter's declared type selects the body"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a base class may not call an overridable method on a parameter.",
+          "misconception": "believes calling an overridable method on a parameter is illegal"
+        },
+        {
+          "id": "D",
+          "text": "woof:generic - the call runs once for the argument and once for the enclosing object.",
+          "misconception": "believes the enclosing object is also asked"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a call on a reference dispatches on the runtime type of whatever that reference designates, and here the reference is the parameter, which holds a Dog, so the override runs. This is the deliberate contrast with the previous item, where the call had no receiver to examine beyond the class the body was written in. A base class is therefore free to pass a reference along and let the subtype decide, which is the mechanism behind most designs that keep the base ignorant of its subclasses.",
+      "hint": "Identify the receiver of the call before deciding anything.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dispatch",
+        "parameters",
+        "override"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0058",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A class constant that hides an interface constant",
+      "learningObjective": "repair a field that shadows an interface constant without changing it",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A class that implements an interface declares a field with the interface constant's name.\n```java\npublic class P2159 {\n    interface Config { int LIMIT = 5; }\n    static class Impl implements Config {\n        static int LIMIT = 9;  // <fix>\n    }\n    public static void main(String[] args) { System.out.println(Config.LIMIT + \":\" + Impl.LIMIT); }\n}\n```\nThe program should print 5:5. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static int LIMIT = Config.LIMIT;  copies the constant, so both names report the same value.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "static int LIMIT = 9;  keeps a class constant of its own, which hides the interface one.",
+          "misconception": "believes a class field changes the interface constant it shares a name with"
+        },
+        {
+          "id": "C",
+          "text": "static int LIMIT = Config.LIMIT + 1;  derives from the interface constant but adds to it.",
+          "misconception": "believes a derived copy still counts as the same constant"
+        },
+        {
+          "id": "D",
+          "text": "int LIMIT = 9;  makes it an instance field, which the interface constant no longer collides with.",
+          "misconception": "believes an instance field can satisfy an interface constant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an interface field is public, static and final, and a field declared in a class with the same name hides it for that class's own code while the interface's value is unchanged, so the two names can report different numbers. The marked line is a bug for that reason, and copying the interface constant restores a single reported value. Option D fails for a different reason worth noticing: the class does not need to declare anything at all, since it already inherits the constant, and adding an instance field of that name is both unnecessary and illegal to read from a static context.",
+      "hint": "A field of the same name hides the inherited one; it does not replace it.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interfaces",
+        "constants",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0059",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Overload selection for an unbounded type variable",
+      "learningObjective": "predict that an unbounded type variable resolves an overload through Object",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A generic method forwards its type variable to an overloaded method.\n```java\npublic class P2160 {\n    static class A { String f(Object o) { return \"obj\"; } String f(String s) { return \"str\"; } }\n    static <T> String pick(T t, A a) { return a.f(t); }\n    public static void main(String[] args) {\n        A a = new A();\n        System.out.println(pick(\"x\", a) + \":\" + pick((Object) \"x\", a));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "obj:obj - an unbounded type variable promises only Object, so both calls resolve to that overload.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "str:obj - each call infers its own type argument, so the first reaches the String overload.",
+          "misconception": "believes inference refines the body of an already-chosen call"
+        },
+        {
+          "id": "C",
+          "text": "str:str - both arguments are strings at run time, so the same overload is chosen twice.",
+          "misconception": "believes overload selection consults the runtime type"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a type variable may not be passed where an overload set is available.",
+          "misconception": "believes the compiler cannot resolve an overloaded call on a type variable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that inside the method body the only thing known about an unbounded type variable is that it is some Object, and overload resolution has to be done once for the body rather than once per call, so the Object overload is the only signature the compiler can justify. Inference does happen at each call site, but it cannot retroactively give the body a more precise type, which is why the first call still prints obj even though a String was passed. Option B describes what most programmers expect and is the specific surprise this item exists to record.",
+      "hint": "Ask what the body knows about its own type variable, not what the caller passed.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "overloading",
+        "inference"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.21-0060",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A wildcard argument selecting a different overload",
+      "learningObjective": "predict that the argument's static type decides between two applicable overloads",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One reader declares two overloads and the argument is widened in the second call.\n```java\npublic class P2161 {\n    static class Reader {\n        String read(java.util.List<? extends Number> xs) { return \"wide\"; }\n        String read(java.util.ArrayList<Integer> xs) { return \"int\"; }\n    }\n    public static void main(String[] args) {\n        java.util.ArrayList<Integer> xs = new java.util.ArrayList<>();\n        Reader r = new Reader();\n        System.out.println(r.read(xs) + \":\" + r.read((java.util.List<? extends Number>) xs));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "int:wide - the first argument matches the narrower overload and the cast forces the wider one.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "wide:wide - a wildcard in one signature makes the other signature inapplicable.",
+          "misconception": "believes a wildcard overload rules out the specific one"
+        },
+        {
+          "id": "C",
+          "text": "int:int - the cast changes only the compiler's view, not which overload applies.",
+          "misconception": "believes a cast does not affect overload selection"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a wildcard argument is not applicable to the wider overload.",
+          "misconception": "believes a wildcard cannot be passed to a matching wildcard parameter"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that overload resolution picks the most specific applicable signature using the argument's static type, so a List<Integer> argument matches both signatures and the List<Integer> one is more specific, while the cast makes the argument a List of unknown numbers that only the wildcard signature accepts. Nothing about the object changes between the two calls, only what the compiler is told, which is the same rule that governs every overload in the language. Option C is the misconception that a cast is merely informational, and it is the cast that does the work here.",
+      "hint": "Compare the static type of each argument with the two signatures.",
+      "difficulty": 0.64,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "generics",
+        "overloading",
+        "wildcards"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
