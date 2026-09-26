@@ -1,0 +1,4330 @@
+{
+  "questions": [
+    {
+      "id": "jp-9.20-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Output order before the call",
+      "learningObjective": "trace print statements that run before the recursive call",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A museum turnstile counts down and prints the gate number as it goes. What does the program print when turnstile(3) is called? Answers omit the trailing space.\n```java\nstatic void turnstile(int n) {\n    if (n == 0) return;\n    System.out.print(n + \" \");\n    turnstile(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 2 1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 2 3",
+          "misconception": "believes the print statement runs after the recursive call returns"
+        },
+        {
+          "id": "C",
+          "text": "0 1 2 3",
+          "misconception": "believes the base case also prints the argument it was handed"
+        },
+        {
+          "id": "D",
+          "text": "2 3",
+          "misconception": "believes the guard fires one step early so the first call never prints"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each frame prints before it hands control to the level below, so the numbers appear while the stack is still growing. Only the deepest call returns, and at that point every frame that could still print has already printed, so the chain unrolls in silence. That is why a statement placed above the recursive call reads the arguments from largest to smallest, with no need to unroll anything.",
+      "hint": "Ask whether the print runs on the way down or on the way back up.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "output-order",
+        "tracing"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0002"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Output order after the call",
+      "learningObjective": "trace print statements that run after the recursive call",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same turnstile idea, except the print now sits below the recursive call. What does the program print when turnstile(3) is called? Answers omit the trailing space.\n```java\nstatic void turnstile(int n) {\n    if (n == 0) return;\n    turnstile(n - 1);\n    System.out.print(n + \" \");\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 2 3",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3 2 1",
+          "misconception": "believes the print runs before the call is made, not after it returns"
+        },
+        {
+          "id": "C",
+          "text": "0 1 2 3",
+          "misconception": "believes the base case also prints the zero it was handed"
+        },
+        {
+          "id": "D",
+          "text": "2 3",
+          "misconception": "believes the stopping test is the value one, so the top level never prints"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The descent happens first and prints nothing, so the program stays silent until the base case is reached. Unwinding begins there, and the pending print statements fire from the deepest frame upward, which is why the smallest argument appears first. Nothing in the body can print before the call returns, so the order of the arguments is inverted relative to the version that prints on the way down.",
+      "hint": "Ask which frame gets control back first after the chain ends.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "output-order",
+        "tracing"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0001"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Work before and after the call",
+      "learningObjective": "combine pre-call and post-call work in one printed order",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A tide gauge prints the level on the way down and the negated level on the way back. What does the program print when gauge(2) is called?\n```java\nstatic void gauge(int n) {\n    if (n == 0) return;\n    System.out.print(n + \" \");\n    gauge(n - 1);\n    System.out.print(-n + \" \");\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 1 -1 -2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 1 -2 -1",
+          "misconception": "believes the returning half of the body also reports outermost first"
+        },
+        {
+          "id": "C",
+          "text": "1 2 -2 -1",
+          "misconception": "believes both halves of the body wait until the deepest call returns"
+        },
+        {
+          "id": "D",
+          "text": "2 1 1 2",
+          "misconception": "believes the negation changes the argument instead of the printed value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first half of the body prints on the way down, so it produces the levels in descending order. The second half can only run after the level below has returned, and the frame closest to the base case is the first one to regain control, so the smallest level is negated and printed first. Reading the two halves as one descending list and one ascending list is the trap: the returning half is ordered by how quickly frames unroll, not by the size of the argument.",
+      "hint": "Split the body in two and treat each half separately.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "output-order",
+        "unwinding"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0002"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0001"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Call-tree shape with two recursive calls",
+      "learningObjective": "read the printed order of a call tree that forks in the body",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A surveyor labels a patch and then visits both of its halves at every level. What does the program print when branch(3) is called?\n```java\nstatic void branch(int n) {\n    if (n == 0) return;\n    System.out.print(n + \" \");\n    branch(n - 1);\n    branch(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 2 1 1 2 1 1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 1 2 1 1 2 3",
+          "misconception": "believes the label is written only after both halves have been walked"
+        },
+        {
+          "id": "C",
+          "text": "3 2 1 1 2 2 1 1",
+          "misconception": "believes each half ends by writing its own label a second time"
+        },
+        {
+          "id": "D",
+          "text": "3 2 1 1 2 1 1 3",
+          "misconception": "believes the top label is written again on the way back"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A body with two recursive calls forks, so the tree at depth three holds fifteen calls rather than three. The label is written before the fork, so each of the seven calls that gets past the guard writes its own argument, and the eight calls that land on the guard return in silence without writing anything. Each label therefore appears twice except the one at the top, and the order follows the rule of finishing a whole half of the tree before starting the other.",
+      "hint": "Count the calls that get past the guard before you count the output.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "call-tree",
+        "tracing"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Accumulator seeding",
+      "learningObjective": "predict the return value of a sum carried in an accumulator",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A donation total is carried in a parameter instead of being added up on the way back. What does the call climb(4, 1) return?\n```java\nstatic int climb(int n, int acc) {\n    if (n == 0) return acc;\n    return climb(n - 1, acc + n);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "11",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10",
+          "misconception": "believes the seed is only padding and the run always starts at zero"
+        },
+        {
+          "id": "C",
+          "text": "15",
+          "misconception": "believes the chain still reaches five because the stop is at zero"
+        },
+        {
+          "id": "D",
+          "text": "5",
+          "misconception": "believes the accumulator only changes on the last step before the stop"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The accumulator is the running total, and it is already one when the first call begins, so every argument the chain folds in is added on top of that starting value. The descent visits four, three, two and one, then stops and hands back the accumulator, which now holds one plus all four of them. Treating the seed as decorative is the trap: it is not a stand-in but the value the entire chain accumulates onto, so changing it changes the answer by exactly its own amount.",
+      "hint": "Write down the accumulator after each call, not just the argument.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "sum"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0006"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Accumulator with multiplication",
+      "learningObjective": "distinguish a product accumulator from a sum accumulator",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A packaging line folds its step sizes into a running product instead of a running total. What does the call product(5, 1) return?\n```java\nstatic int product(int n, int acc) {\n    if (n == 0) return acc;\n    return product(n - 1, acc * n);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "120",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "15",
+          "misconception": "believes the accumulator adds the levels together rather than multiplying"
+        },
+        {
+          "id": "C",
+          "text": "720",
+          "misconception": "believes the chain still reaches six because the stop is at zero"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "believes the accumulator starts at zero and can never leave it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Multiplication by a product accumulator folds five, four, three, two and one into a value that starts at one, and a run that starts at one is the neutral element for this operation. The neutral element differs from the one a sum needs, which is why the same accumulator shape is safe for a sum and silently wrong for a product. A seed of zero would look like a real total but would erase the answer on the very first step.",
+      "hint": "Ask which value leaves a running product unchanged when it multiplies it.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "product"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Accumulator holding a running minimum",
+      "learningObjective": "seed a minimum accumulator so the extreme value survives",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A survey keeps the shortest measurement seen so far in a parameter. What does smallest(new int[]{7, 3, 9, 2}, 0, Integer.MAX_VALUE) return?\n```java\nstatic int smallest(int[] a, int i, int best) {\n    if (i == a.length) return best;\n    return smallest(a, i + 1, Math.min(best, a[i]));\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "7",
+          "misconception": "believes the accumulator is set by the first element and never compared again"
+        },
+        {
+          "id": "C",
+          "text": "9",
+          "misconception": "believes the helper keeps the largest measurement and reports that"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "believes the seed value passes straight through and is what comes back"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each level folds the current measurement into the running best by taking the smaller of the two, so the value that survives is the smallest over the whole prefix that has been scanned. The seed has to be something no measurement can beat, which is why the largest possible value is used here; a seed taken from the data would be fine too but a seed of zero would cap every positive measurement at zero. The final level returns the accumulator unchanged because the index has reached the length.",
+      "hint": "Ask what the seed must be for the running best to stay honest.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "minimum"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0008"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Accumulator holding a running maximum",
+      "learningObjective": "choose a seed that survives an all-negative input",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A depth log keeps the deepest reading seen so far in a parameter. What does largest(new int[]{-4, -9, -2}, 0, Integer.MIN_VALUE) return?\n```java\nstatic int largest(int[] a, int i, int best) {\n    if (i == a.length) return best;\n    return largest(a, i + 1, Math.max(best, a[i]));\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "-2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0",
+          "misconception": "believes a seed of zero is harmless because zero is neutral for maximum"
+        },
+        {
+          "id": "C",
+          "text": "-4",
+          "misconception": "believes the first element is reported directly instead of being compared"
+        },
+        {
+          "id": "D",
+          "text": "-9",
+          "misconception": "believes the accumulator keeps the smallest reading and returns that"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The running maximum has to start below every reading it might meet, and a seed of zero is above all three of these, so every comparison would keep the zero and the answer would be a number that is not in the array. Using the smallest possible value instead lets the readings displace the seed one at a time, and the last one to be greater than everything before it is the one that survives. Zero is a safe seed for a sum of nonnegative values, which is why it is such a common wrong choice here.",
+      "hint": "Ask whether any of the readings could ever beat a seed of zero.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "maximum"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0007"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0007"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Reversal by post-call concatenation",
+      "learningObjective": "reverse a string by appending the first character after the recursive call",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A label printer turns a short code around. What does the call flip(\"cat\") return?\n```java\nstatic String flip(String s) {\n    if (s.length() <= 1) return s;\n    return flip(s.substring(1)) + s.charAt(0);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "tac",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "cat",
+          "misconception": "believes the first character is placed in front so the order never changes"
+        },
+        {
+          "id": "C",
+          "text": "act",
+          "misconception": "believes each level swaps the leading pair exactly once"
+        },
+        {
+          "id": "D",
+          "text": "tca",
+          "misconception": "believes the first character is moved to the end only at the top level"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each level recurses on everything except the first character, so the call below it has already reversed the tail of the string, and this level then puts the character it held in front of that reversed tail. The last character of the input is the first one the deepest call sees, so it lands leftmost and the original first character lands rightmost. Writing the character in front of the recursive call instead would rebuild the input in its original order, which is the mistake this shape invites.",
+      "hint": "Ask which character the deepest call is handed and where it ends up.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "reversal",
+        "strings"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Reversal by accumulator direction",
+      "learningObjective": "reverse a string by prepending each character to an accumulator",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same label printer rewritten with an accumulator. What does the call flip(\"quilt\", \"\") return?\n```java\nstatic String flip(String s, String acc) {\n    if (s.isEmpty()) return acc;\n    return flip(s.substring(1), s.charAt(0) + acc);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "tliuq",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "quilt",
+          "misconception": "believes the new character is appended behind the accumulator"
+        },
+        {
+          "id": "C",
+          "text": "tliu",
+          "misconception": "believes the last character is consumed and never recorded anywhere"
+        },
+        {
+          "id": "D",
+          "text": "tiluq",
+          "misconception": "believes the final two characters keep their original relative order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The accumulator travels from level to level, and each level puts its own character in front of what the deeper levels have gathered, so the character read last ends up leftmost. Reading the input left to right therefore deposits the characters in reverse order, and the base case simply hands back the finished text. The same code with the two operands of the plus sign swapped produces the input unchanged, because then the character is deposited behind everything gathered so far.",
+      "hint": "Ask which character ends up leftmost in the finished string.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "reversal"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0009"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Digit building with an accumulator",
+      "learningObjective": "collect the digits of a number by prepending each peeled digit",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A serial number is rebuilt one digit at a time from the right. What does the call digits(9087, \"\") return?\n```java\nstatic String digits(int n, String acc) {\n    if (n < 10) return \"\" + n + acc;\n    return digits(n / 10, (char) ('0' + n % 10) + acc);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "9087",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9780",
+          "misconception": "believes the peeled digit is appended behind the accumulator"
+        },
+        {
+          "id": "C",
+          "text": "7890",
+          "misconception": "believes the digits are gathered in one left-to-right pass"
+        },
+        {
+          "id": "D",
+          "text": "8709",
+          "misconception": "believes the two most significant digits swap places"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Peeling with division by ten always produces digits right to left, so the accumulator is prepended to on every level: the sevens digit lands first, then the eights digit in front of it, then the zero, and the base case puts the leading nine in front of all of them. The prepending is what undoes the peeling, and the base case has to place its own digit in front of the collected tail rather than just returning it. Appending instead of prepending produces a visibly wrong order, which is the quickest way to catch the mistake.",
+      "hint": "Write the accumulator after each level and watch which end grows.",
+      "difficulty": 0.58,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "digits",
+        "accumulator"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0012"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Building digits into a mutable buffer",
+      "learningObjective": "use a StringBuilder so each level appends one digit",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A display buffer is filled after the recursive call returns. What does the program print?\n```java\nStringBuilder out = new StringBuilder();\nwrite(4087, out);\nSystem.out.println(out);\n\nstatic void write(int n, StringBuilder out) {\n    if (n == 0) return;\n    write(n / 10, out);\n    out.append(n % 10);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "4087",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "7804",
+          "misconception": "believes the append runs before the recursive call"
+        },
+        {
+          "id": "C",
+          "text": "0874",
+          "misconception": "believes the base case runs once more and appends a leading zero"
+        },
+        {
+          "id": "D",
+          "text": "4780",
+          "misconception": "believes the digits are appended on the way down in reading order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "One buffer is shared by every level, and the recursion empties the number down to a single digit before any append happens, so the appends then run from the least significant digit upward. Because each level appends only after its call returns, the digits land in the original left-to-right order without any of them being copied. Moving the append above the call would write the same characters in the opposite order, which is the single most common defect in this shape.",
+      "hint": "Ask which level reaches the buffer first and which digit it holds.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "string-builder",
+        "digits"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0011"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0011"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Recursion over a two-dimensional grid",
+      "learningObjective": "trace the visit order of a grid fill that marks cells as it goes",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A reservoir map marks and reports every open cell it can reach from the top left. What does the program print?\n```java\nint[][] g = { {0, 0, 1}, {0, 0, 0}, {1, 0, 0} };\nflood(g, 0, 0, 0);\n\nstatic void flood(int[][] g, int r, int c, int fill) {\n    if (r < 0 || c < 0 || r >= g.length || c >= g[0].length) return;\n    if (g[r][c] != fill) return;\n    g[r][c] = -1;\n    System.out.print(\"(\" + r + \",\" + c + \")\");\n    flood(g, r + 1, c, fill);\n    flood(g, r - 1, c, fill);\n    flood(g, r, c + 1, fill);\n    flood(g, r, c - 1, fill);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "(0,0)(1,0)(1,1)(2,1)(2,2)(1,2)(0,1)",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "(0,0)(0,1)(1,0)(1,1)(1,2)(2,1)(2,2)",
+          "misconception": "believes the open cells are swept in reading order across the grid"
+        },
+        {
+          "id": "C",
+          "text": "(0,0)(1,0)(1,1)(2,1)(2,2)(1,2)(0,1)(0,2)",
+          "misconception": "believes the wall cell is also marked and reported"
+        },
+        {
+          "id": "D",
+          "text": "(0,0)(1,0)(1,1)(2,1)(2,2)(1,2)(0,2)(0,1)",
+          "misconception": "believes the upward branch is explored before the sideways branches"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The order is decided by the order of the four calls, not by the shape of the grid: the fill marks a cell, reports it, and only then descends, so each branch is finished before the next one begins. Downward comes first, and that branch alone reaches the bottom half of the map before the upward branch runs out of cells. Seven of the nine cells hold the target value, and the two walls are rejected by the guard, so exactly seven pairs are printed and the last cell printed is the one the upward branch reaches last.",
+      "hint": "Follow the order of the four recursive calls, not the layout of the grid.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "tracing"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0014"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Branch order inside a grid walk",
+      "learningObjective": "show how the order of two recursive calls changes the visit order",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A courier walks open cells to the right first and then downward, marking each one as it goes. What does the program print?\n```java\nint[][] g = { {0, 0, 0}, {0, 1, 0}, {0, 0, 0} };\nwalk(g, 0, 0);\n\nstatic void walk(int[][] g, int r, int c) {\n    if (r < 0 || c < 0 || r >= g.length || c >= g[0].length) return;\n    if (g[r][c] != 0) return;\n    g[r][c] = 1;\n    System.out.print(r + \"\" + c + \" \");\n    walk(g, r, c + 1);\n    walk(g, r + 1, c);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "00 01 02 12 22 10 20 21",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "00 10 20 21 22 01 02 12",
+          "misconception": "believes the downward call is made before the sideways call"
+        },
+        {
+          "id": "C",
+          "text": "00 01 02 12 22 21 20 10",
+          "misconception": "believes the grid is unwound so the later columns are reported last"
+        },
+        {
+          "id": "D",
+          "text": "00 10 20 01 21 02 12 22",
+          "misconception": "believes the open cells are reached in column order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The whole right-hand row is finished before the first downward step, so the top row appears contiguously and only then does the walk start dropping. The eight open cells are all reached because the wall simply blocks one route and the other route around it is still open, and the middle cell of the middle row is the only one that is skipped. Swapping the two calls would produce a completely different list, which shows that the printed order is a property of the body and not of the data.",
+      "hint": "Ask whether the top row is finished before the walk ever drops a row.",
+      "difficulty": 0.55,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "output-order"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Row-by-row traversal with two indices",
+      "learningObjective": "print a grid row by row using a column index that wraps",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A table dump separates each finished row with a bar. What does the program print?\n```java\nint[][] g = { {1, 2, 3}, {4, 5, 6} };\nrows(g, 0, 0);\n\nstatic void rows(int[][] g, int r, int c) {\n    if (r >= g.length) return;\n    if (c < g[0].length) { System.out.print(g[r][c] + \" \"); rows(g, r, c + 1); }\n    else { System.out.print(\"|\"); rows(g, r + 1, 0); }\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 2 3 |4 5 6 |",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 5 6 |1 2 3 |",
+          "misconception": "believes the row boundary is detected before the cells are printed"
+        },
+        {
+          "id": "C",
+          "text": "1 4 2 5 3 6 |",
+          "misconception": "believes only one index moves so the table is read down a column"
+        },
+        {
+          "id": "D",
+          "text": "1 2 3 4 5 6 |",
+          "misconception": "believes the column index wraps to the next row without a separator"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The column index is what decides whether the body prints a cell or finishes a row, so the first call of a row prints nothing at all and instead spends its time advancing the column until the guard flips. That is why the bar for the first row appears before the second row starts rather than after it, and why one extra bar is printed for the last row before the row index runs off the end. The two indices have to move together for the values to come out in reading order.",
+      "hint": "Ask when the column guard is true for the first time in each row.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "indices"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Recursion over a linked structure",
+      "learningObjective": "trace a linked chain that reports after collecting the rest",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A batch of readings hangs off a linked chain 4 to 1 to 7 to 3. What does the program print, ignoring the returned total?\n```java\nstatic int total(Node p) {\n    if (p == null) return 0;\n    int sub = total(p.next);\n    System.out.print(p.v + \" \");\n    return p.v + sub;\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 7 1 4",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 1 7 3",
+          "misconception": "believes the report runs before the next node is visited"
+        },
+        {
+          "id": "C",
+          "text": "3 7 1 4 0",
+          "misconception": "believes the empty case also reports a stand-in value"
+        },
+        {
+          "id": "D",
+          "text": "4 3 1 7",
+          "misconception": "believes the nodes are unwound two links at a time"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The report sits below the call that walks to the next node, so the chain is followed all the way to the empty case before anything is printed. From there the frames unroll, and each one reports the value it holds, which is the reverse of the order the nodes were linked in. The returned total comes out correct for the same reason, because each level adds its own value to a subtotal that already covers everything after it.",
+      "hint": "Ask whether the report can happen before the whole chain has been walked.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "linked-list",
+        "output-order"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0017"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Reporting a linked chain in reverse",
+      "learningObjective": "print a linked chain back to front by recursing before printing",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A stack of parcels is dumped from the top down a linked chain 2 to 9 to 5 to 6 to 1. What does the program print?\n```java\nstatic void back(Node p) {\n    if (p == null) return;\n    back(p.next);\n    System.out.print(p.v + \" \");\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 6 5 9 2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 9 5 6 1",
+          "misconception": "believes the report happens before the call to the next node"
+        },
+        {
+          "id": "C",
+          "text": "1 6 5 9",
+          "misconception": "believes the head node is never reported because only tails report"
+        },
+        {
+          "id": "D",
+          "text": "2 1 6 5 9",
+          "misconception": "believes the head reports last but the rest unwind out of order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Nothing can be reported until the call to the next node has returned, so the empty case is reached first and the reports then run from the tail node back toward the head. The head frame is the last one to regain control, which is why its value ends up at the end of the output rather than the beginning. This is the simplest way to reverse a linked structure without an accumulator or a second collection.",
+      "hint": "Ask which node is held by the frame that returns last.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "linked-list",
+        "reversal"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0016"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0016"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Counting nodes that pass a test",
+      "learningObjective": "count qualifying nodes by combining a local result with a recursive call",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A quality check tallies the readings above three on the chain 4 to 1 to 7 to 3. What does the call countBig(head) return?\n```java\nstatic int countBig(Node p) {\n    if (p == null) return 0;\n    return (p.v > 3 ? 1 : 0) + countBig(p.next);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3",
+          "misconception": "believes every value except the empty marker counts toward the total"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "believes the chain stops at the first value that fails the test"
+        },
+        {
+          "id": "D",
+          "text": "4",
+          "misconception": "believes the test is applied to the node value plus the running count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Every node has to be reached, because the whole chain is walked before any total is final, and each node contributes one or zero depending only on its own value. Four and seven clear the threshold while one and three do not, so the total is the number of nodes plus one, not the number of nodes. The test is applied to the current node, never to the subtotal that is still being built, which is what keeps the result independent of the order the nodes are visited in.",
+      "hint": "Ask what each node contributes to the total, and to what value the test is applied.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "linked-list",
+        "counting"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0016"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0016"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A visited marker on a cyclic structure",
+      "learningObjective": "stop a walk that can reach a node it has already stood on",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three nodes are linked 1 to 2 to 3, and node three points back at node two. What does the call tour(head) return when each node carries a seen flag that starts false?\n```java\nstatic int tour(Node p) {\n    if (p == null) return 0;\n    if (p.seen) return 0;\n    p.seen = true;\n    return 1 + tour(p.next);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "3",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4",
+          "misconception": "believes every link is counted even when it leads back to a visited node"
+        },
+        {
+          "id": "C",
+          "text": "0",
+          "misconception": "believes the backward link makes the whole walk give up immediately"
+        },
+        {
+          "id": "D",
+          "text": "2",
+          "misconception": "believes the first node is skipped because nothing points back at it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The walk counts the nodes it stands on rather than the links it follows, so a node that is entered a second time is recognised by its flag and contributes nothing. One, two and three are each marked once, and the second arrival at two returns immediately, so the total is the number of distinct nodes rather than the number of steps. Without the flag the same walk would keep descending through the same three nodes and the stack would grow until it overflowed.",
+      "hint": "Ask what happens the second time the walk arrives at the middle node.",
+      "difficulty": 0.55,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "visited-set",
+        "linked-list"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0050"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0016"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Boolean recursion that short-circuits",
+      "learningObjective": "count the comparisons a boolean search stops at once it succeeds",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A locker check reports whether any stored value is even. How many times does the line that tests for an even value run when hasEven(new int[]{1, 3, 6, 2}, 0) is called?\n```java\nstatic boolean hasEven(int[] a, int i) {\n    if (i == a.length) return false;\n    if (a[i] % 2 == 0) return true;\n    return hasEven(a, i + 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 times",
+          "misconception": "believes the exhausted call still runs the body before returning false"
+        },
+        {
+          "id": "C",
+          "text": "1 time",
+          "misconception": "believes the array is scanned from the far end toward the front"
+        },
+        {
+          "id": "D",
+          "text": "5 times",
+          "misconception": "believes the method keeps descending after it has already answered"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Returning true skips the recursive call in that frame, so no deeper frame is ever created and the elements after the match are never compared. The guard that ends the array is only reached when the search has not found anything, which is why a successful search costs the position of the match and not the length of the array. The count of three matches the fact that the match sits at index two, with the first two elements having failed the test.",
+      "hint": "Ask how many frames exist once the answer is already known.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "boolean",
+        "short-circuit"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0021"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Boolean recursion that gives up early",
+      "learningObjective": "count the comparisons a boolean search stops at once it fails",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A manifest check reports whether every entry is above the floor. How many times does the line that tests for a negative entry run when allPositive(new int[]{2, -1, 5, 7}, 0) is called?\n```java\nstatic boolean allPositive(int[] a, int i) {\n    if (i == a.length) return true;\n    if (a[i] < 0) return false;\n    return allPositive(a, i + 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 times",
+          "misconception": "believes every entry must be inspected before the method can answer"
+        },
+        {
+          "id": "C",
+          "text": "3 times",
+          "misconception": "believes the index starts one place past the front of the array"
+        },
+        {
+          "id": "D",
+          "text": "1 time",
+          "misconception": "believes the first entry ends the check including the test itself"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A single offending entry is enough to answer false, so the frame that finds one returns without making the call below it and the remaining entries are never examined. The negative entry sits at index one, so the test runs on the first entry, fails to find a negative, and then runs again on the second and gives up. The guard for the end of the array still exists and would still run if the search reached it, which is why a clean array costs a test per entry while a dirty one costs less.",
+      "hint": "Ask which entry settles the answer and where it sits.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "boolean",
+        "short-circuit"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0020"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Counting a mutual recursion",
+      "learningObjective": "count the entries of a two-method hand-off chain",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Parity is split across two methods that hand the argument back and forth. How many times is one of the two bodies entered when isEven(5) is called?\n```java\nstatic boolean isEven(int n) {\n    if (n == 0) return true;\n    return isOdd(n - 1);\n}\nstatic boolean isOdd(int n) {\n    if (n == 0) return false;\n    return isEven(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "6 times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 times",
+          "misconception": "believes the call that reaches the stop does not count as an entry"
+        },
+        {
+          "id": "C",
+          "text": "11 times",
+          "misconception": "believes each method walks a full copy of the descent on its own"
+        },
+        {
+          "id": "D",
+          "text": "7 times",
+          "misconception": "believes the starting call is made twice, once from each method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The argument is reduced by one on every hand-off, so the chain passes through six values before it reaches the stop, and each of those values costs one entry. The two methods share the chain rather than running one after the other, so the count is the length of the chain and not twice its length. What makes the pair work is that both partners reduce the argument and both stop on the same value, so the chain cannot slip past the stop.",
+      "hint": "List the argument as it changes at each hand-off.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "mutual",
+        "call-count"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0023"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Printed order under mutual recursion",
+      "learningObjective": "trace a label that changes with each hand-off between two methods",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two methods label a countdown and hand the smaller argument to each other. What does the program print when down(3) is called?\n```java\nstatic void down(int n) {\n    if (n <= 0) return;\n    System.out.print(\"d\" + n + \" \");\n    up(n - 1);\n}\nstatic void up(int n) {\n    if (n <= 0) return;\n    System.out.print(\"u\" + n + \" \");\n    down(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "d3 u2 d1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "d3 u2 d1 u0",
+          "misconception": "believes the stop is the value zero, so zero also prints a label"
+        },
+        {
+          "id": "C",
+          "text": "u3 d2 u1",
+          "misconception": "believes the first method to be called is the one that prints the letter u"
+        },
+        {
+          "id": "D",
+          "text": "d3 d2 d1",
+          "misconception": "believes the hand-off between the two methods leaves the label unchanged"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each method prints its own letter and then hands off, so the letters alternate for as long as the argument is still positive. The guard is written so that a value of zero or less prints nothing, which is why the last label belongs to the argument one and the chain ends quietly. The label belongs to the method that is entered, not to the method that started the run, so the very first letter is the one the caller named.",
+      "hint": "Ask which letter belongs to the method that is entered at each step.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "mutual",
+        "output-order"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0022"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Work in the head position",
+      "learningObjective": "trace a method that reports only after the subtotal exists",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A ladder total is reported as each level unrolls. What does the program print when total(4) is called?\n```java\nstatic int total(int n) {\n    if (n == 0) return 0;\n    int sub = total(n - 1);\n    System.out.print(n + \" \");\n    return n + sub;\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 2 3 4",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 3 2 1",
+          "misconception": "believes the report sits in the position before the recursive call"
+        },
+        {
+          "id": "C",
+          "text": "1 2 3 4 0",
+          "misconception": "believes the stop also reports before it hands back the value zero"
+        },
+        {
+          "id": "D",
+          "text": "1 3 2 4",
+          "misconception": "believes the return statement runs between two reports"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The subtotal is captured into a local before anything is reported, which is only possible because the report is placed after the call and the call has already returned by then. From there the reports run outward, so the smallest argument speaks first and the largest speaks last. The value returned is correct for the same reason, since each level adds its own argument to a subtotal that already covers everything below it.",
+      "hint": "Ask which statement can only run after the local has been filled in.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "head-position",
+        "output-order"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0025"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Frames live in both call positions",
+      "learningObjective": "measure the peak number of live frames for a head and a tail shape",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two shapes compute the same total, and a driver resets the counters and reports the peak depth after each run. What two values does the driver print?\n```java\nstatic int depth = 0;\nstatic int peak = 0;\n\nstatic int head(int n) {\n    if (n == 0) return 0;\n    depth++;\n    if (depth > peak) peak = depth;\n    int r = n + head(n - 1);\n    depth--;\n    return r;\n}\n\nstatic int tail(int n, int acc) {\n    if (n == 0) return acc;\n    depth++;\n    if (depth > peak) peak = depth;\n    int r = tail(n - 1, acc + n);\n    depth--;\n    return r;\n}\n\n// driver: peak = 0; depth = 0; head(5);  System.out.println(peak);\n//         peak = 0; depth = 0; tail(5, 0); System.out.println(peak);\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 then 5",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 then 1",
+          "misconception": "believes a tail call reuses the caller's frame so the depth never grows"
+        },
+        {
+          "id": "C",
+          "text": "6 then 6",
+          "misconception": "believes the stopping frame is also counted as a live frame"
+        },
+        {
+          "id": "D",
+          "text": "5 then 4",
+          "misconception": "believes the accumulator shape skips the last step before the stop"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Neither shape escapes the fact that a frame is held from the moment its call is made until the call it made returns, and the language makes no promise that a call in the tail position reuses the frame of its caller. Both bodies therefore reach a depth of one more than the number of non-stopping levels, and the stopping frame never increments the counter because it returns first. The two shapes are equal on this runtime by language rules rather than by accident of the code, so a program cannot rely on the difference.",
+      "hint": "Ask when a frame is allowed to be released, not whether the call is last.",
+      "difficulty": 0.66,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 58,
+        "p75Sec": 88
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "stack-depth",
+        "tail-call"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0024"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0024"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A loop inside a recursive body",
+      "learningObjective": "predict output when a bounded loop sits in a recursive body",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A frame printer draws a shrinking frame at each level and then descends. What does the program print when frame(3) is called?\n```java\nstatic void frame(int n) {\n    if (n == 0) return;\n    for (int i = 1; i <= n; i++) System.out.print(i);\n    System.out.print(\"|\");\n    frame(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "123|12|1|",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1|12|123|",
+          "misconception": "believes the loop grows as the argument shrinks"
+        },
+        {
+          "id": "C",
+          "text": "1234|123|",
+          "misconception": "believes the stop is the value one, so the last level still runs"
+        },
+        {
+          "id": "D",
+          "text": "123|12|",
+          "misconception": "believes the stopping frame still draws before it returns"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The loop is bounded by the argument, so each level draws exactly as many digits as its own argument and then a bar to close the frame. Because the loop and the bar both sit above the recursive call, the frames are drawn from the largest argument down to the smallest and never revisited on the way back. The smallest frame is drawn at the argument one, and the call to zero returns before drawing anything, so the last thing printed is that bar.",
+      "hint": "Ask how many digits the loop runs at the smallest argument that still draws.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "loops",
+        "tracing"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0001"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0001"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A missing stopping rule",
+      "learningObjective": "recognise the failure produced by a body with no base case",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A chute printer was supposed to stop at zero but the guard was lost in a merge. What happens when down(3) is called?\n```java\nstatic void down(int n) {\n    System.out.print(n + \" \");\n    down(n - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "The call stack overflows and a StackOverflowError is thrown",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The method loops forever printing negative numbers without any error",
+          "misconception": "believes a missing base case becomes an endless loop instead of a growing stack"
+        },
+        {
+          "id": "C",
+          "text": "A NullPointerException is thrown once the argument passes below zero",
+          "misconception": "believes an int that keeps shrinking eventually becomes a null reference"
+        },
+        {
+          "id": "D",
+          "text": "A StackOverflowError is thrown on the first call before anything is printed",
+          "misconception": "believes the failure is detected before the body has run even once"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Without a guard there is no argument value at which the body declines to call itself, so each call pushes another frame onto the stack and the argument simply keeps falling. The stack has a fixed size set when the thread was created, and asking for more frames than that is answered with an error rather than with an endless loop, because the program is not stuck but out of space. The numbers do print for a long while first, since the failure only happens once the allowance has been used up on the way down.",
+      "hint": "Ask whether there is any argument for which the body stops calling itself.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "base-case",
+        "overflow"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0039"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A step that moves away from the stop",
+      "learningObjective": "spot a recursive argument that grows instead of shrinking",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A step counter was meant to walk down to zero but the arrow was reversed in one place. What happens when climb(1) is called?\n```java\nstatic int climb(int n) {\n    if (n <= 0) return 0;\n    return 1 + climb(n + 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "The argument never reaches the guard, so the stack overflows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The method returns 1 because the guard fires on the very first call",
+          "misconception": "believes a base case always fires no matter which way the argument moves"
+        },
+        {
+          "id": "C",
+          "text": "The method returns 0 because the argument begins above the guard value",
+          "misconception": "believes the guard tests the sign and positive values pass straight through"
+        },
+        {
+          "id": "D",
+          "text": "The method alternates upwards and downwards and settles on a finite answer",
+          "misconception": "believes there is a hidden second call that reverses the direction"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The guard is a legitimate stopping rule, but the step moves away from it, so the chain sails past zero, then past ten, and keeps going with nothing left to stop it. Termination comes from a measure that strictly shrinks until it matches the stopping value, and here that measure grows, which is the classic way to write a recursion that cannot finish. The result is the same overflow as having no guard at all, and the argument grows large enough to wrap around before the stack runs out.",
+      "hint": "Ask whether the argument gets closer to the guard value or further from it.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "base-case",
+        "overflow"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0027"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A product accumulator seeded with zero",
+      "learningObjective": "diagnose an accumulator whose seed destroys the result",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A packaging count used to multiply its step sizes and now always reports nothing packaged. What does the call fact(5, 0) return, and what is the defect?\n```java\nstatic int fact(int n, int acc) {\n    if (n == 0) return acc;\n    return fact(n - 1, acc * n);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns 0 for every input, because the seed is the first factor",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 120 for every input, because each level replaces the accumulator",
+          "misconception": "believes the accumulator is overwritten rather than folded into"
+        },
+        {
+          "id": "C",
+          "text": "It returns 1 for every input, because the last step multiplies by zero",
+          "misconception": "believes the stopping case forces the result to one whatever the seed was"
+        },
+        {
+          "id": "D",
+          "text": "It returns 5 for every input, because only the first factor survives",
+          "misconception": "believes the recursive step multiplies the argument and discards the accumulator"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A product accumulator has to start at the identity value for multiplication, which is one, and a seed of zero makes every subsequent product zero with no way back. The shape of the code is otherwise correct, which is what makes this defect quiet: it never throws and it never recurses wrongly, it simply reports a value that looks plausible. The same seed is harmless in an additive accumulator, so the habit of reaching for zero carries over and quietly breaks the multiplicative one.",
+      "hint": "Ask what value leaves a running product unchanged.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "bug"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0006"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0006"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "An accumulator joined on the wrong side",
+      "learningObjective": "diagnose an accumulator that rebuilds the input instead of reversing it",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A crate label was supposed to be turned around. What does the call flip(\"quilt\", \"\") return, and what is the defect?\n```java\nstatic String flip(String s, String acc) {\n    if (s.isEmpty()) return acc;\n    return flip(s.substring(1), acc + s.charAt(0));\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns the input unchanged, because each character is appended behind",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It reverses the string, because the accumulator is placed in front",
+          "misconception": "believes the plus sign always keeps the accumulator on the left"
+        },
+        {
+          "id": "C",
+          "text": "It returns the reversed string with its first character missing",
+          "misconception": "believes the leading character is consumed and never reappears"
+        },
+        {
+          "id": "D",
+          "text": "It fails with a bounds error once the string has been emptied",
+          "misconception": "believes the stopping case still slices the empty string"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The characters are read left to right and each one is placed behind everything gathered so far, so the accumulator ends up holding them in the order they were read. The string is therefore rebuilt rather than reversed, and the method looks like it is working because it does produce a string of the right length. Only the side of the join decides the direction, which is why swapping the two operands is the whole fix.",
+      "hint": "Ask which side of the join the newly read character lands on.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "bug"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0031",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A grid guard that ignores negative indices",
+      "learningObjective": "diagnose a bounds guard that only tests the upper end",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A flood guard was shortened to save a line and the walk now dies on its second step. What happens when slide(g, 0, 0) is called on int[][] g = { {0, 0, 0}, {0, 1, 0} }?\n```java\nstatic void slide(int[][] g, int r, int c) {\n    if (r >= g.length || c >= g[0].length) return;\n    if (g[r][c] == 1) return;\n    g[r][c] = 1;\n    System.out.print(r + \"\" + c + \" \");\n    slide(g, r - 1, c);\n    slide(g, r, c - 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "An ArrayIndexOutOfBoundsException, because the guard ignores negative indices",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A StackOverflowError, because the grid keeps offering cells that are still open",
+          "misconception": "believes an unchecked index turns the walk into unbounded recursion"
+        },
+        {
+          "id": "C",
+          "text": "No output at all, because the guard rejects row zero before any cell is read",
+          "misconception": "believes a zero index fails a greater-than test and ends the walk"
+        },
+        {
+          "id": "D",
+          "text": "The same cell is reported over and over with no end to the walk",
+          "misconception": "believes the marking step repeats because nothing halts the walk"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The walk steps backwards and leftwards, so it very quickly asks for a row or column below zero, and an array can only be indexed from zero upward. The guard as written only catches the upper end, so the negative index reaches the read and the runtime refuses it. The failure is immediate rather than gradual, which distinguishes it from the endless recursion a missing stop would produce, and it happens after the first cell has already been reported.",
+      "hint": "Ask what happens to the row index after the first call steps upwards.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "bounds"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0032",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A boolean branch that returns the wrong value",
+      "learningObjective": "choose the branch value that makes a flag report the truth",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A manifest check is supposed to report whether an array holds no negative entries, but it says yes to everything. Which single line replaces the second return so the method becomes correct?\n```java\nstatic boolean noNegatives(int[] a, int i) {\n    if (i == a.length) return true;\n    if (a[i] < 0) return true;\n    return noNegatives(a, i + 1);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "if (a[i] < 0) return false;",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "if (a[i] < 0) return noNegatives(a, i + 1);",
+          "misconception": "believes the branch should keep scanning after a negative is found"
+        },
+        {
+          "id": "C",
+          "text": "if (a[i] < 0) return a.length > i;",
+          "misconception": "believes the answer should be a count rather than a flag"
+        },
+        {
+          "id": "D",
+          "text": "if (a[i] < 0) return a[i] > 0;",
+          "misconception": "believes a negative number still reports true when compared with zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A single negative entry is exactly the thing the method is looking for, so the branch that finds one has to report false and stop. Returning true there makes the answer agree with the flag's meaning only when the array is clean, which is why the method looks correct on tidy data and wrong on real data. Keeping the scan going instead would only pay off for a question about how many negatives there are, and returning a comparison would change the method's declared type of answer.",
+      "hint": "Ask what the flag is meant to say when the offending entry is found.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "boolean",
+        "bug"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0021"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0021"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0033",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A buffer filled in the wrong direction",
+      "learningObjective": "diagnose appends placed before the recursive call",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A serial display shows its digits in the wrong order. What does the builder hold after write(4087, out) runs, and what is the defect?\n```java\nstatic void write(int n, StringBuilder out) {\n    if (n == 0) return;\n    out.append(n % 10);\n    write(n / 10, out);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "It holds 7804, because each digit is appended before the smaller number is walked",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It holds 4087, because the append belongs below the recursive call",
+          "misconception": "believes appending on the way back preserves the original digit order"
+        },
+        {
+          "id": "C",
+          "text": "It holds 0478, because the stopping case pads the number to its starting width",
+          "misconception": "believes recursion pads the output to the length the input had"
+        },
+        {
+          "id": "D",
+          "text": "It holds 8407, because each level appends the whole number it was given",
+          "misconception": "believes the value is appended rather than only its last digit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Peeling with division by ten hands back the least significant digit first, so appending on the way down writes the digits from the right of the number to the left. Every level writes before it descends, which means the buffer is filled in the reverse of the order the reader expects. Moving the append below the call makes the digits land in reading order without changing anything else in the method.",
+      "hint": "Ask which digit each level holds at the moment it appends.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "string-builder",
+        "bug"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0012"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0012"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0034",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "A subproblem that is too small",
+      "learningObjective": "diagnose a split that no longer covers the whole input",
+      "practice": "code reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A counter was meant to return the number of entries in a list of length n but now returns too many. What does count(8) return, and what is the defect?\n```java\nstatic int count(int n) {\n    if (n <= 1) return 1;\n    return 1 + count(n / 2) + count(n / 2);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns 15 for an input of 8, because it counts a branching tree of splits",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 8 for an input of 8, because the two halves still cover the list",
+          "misconception": "believes halving visits every remaining entry exactly once"
+        },
+        {
+          "id": "C",
+          "text": "It returns 4 for an input of 8, because the argument shrinks to one quickly",
+          "misconception": "believes the number of calls equals the number of halvings performed"
+        },
+        {
+          "id": "D",
+          "text": "It returns 0 for an input of 8, because the guard fires on the very first call",
+          "misconception": "believes a guard of one or less always matches on entry"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The body assumes it is splitting a list in two, so the two recursive calls each have to be given a share of the entries and the two shares plus the current one have to add up to the original length. Halving a single count gives the same smaller problem twice, so the pieces overlap and the total is much larger than the input it is supposed to describe. Each level therefore contributes one more call than the entry it stands for, and the doubling compounds at every level above.",
+      "hint": "Ask whether the two subproblems together cover the original input.",
+      "difficulty": 0.58,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 76
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "call-count",
+        "bug"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0037"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0035",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Step counts for a halving recurrence",
+      "learningObjective": "count the entries of a recursion that halves its argument",
+      "practice": "call counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A search halves the number it is looking in and pays one unit of work per level. How many times is the body entered when steps(1000) is called?\n```java\nstatic int steps(int n) {\n    if (n <= 1) return 0;\n    return steps(n / 2) + 1;\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "10 entries",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1000 entries",
+          "misconception": "believes integer division still makes one call per unit of the argument"
+        },
+        {
+          "id": "C",
+          "text": "9 entries",
+          "misconception": "believes the stopping case is never entered because the argument starts above one"
+        },
+        {
+          "id": "D",
+          "text": "512 entries",
+          "misconception": "believes every halving is pursued all the way down to one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The chain of arguments is one thousand, five hundred, two hundred fifty, one hundred twenty five, sixty two, thirty one, fifteen, seven, three and one, and the run stops at one, so there are ten entries in all. The number of halvings needed to bring a value of this size down to one is what the cost tracks, not the size of the value itself, which is why a search that halves pays a cost that grows far more slowly than the input. The unit added at each level is the constant work of that level, not a whole element of the data.",
+      "hint": "List the argument as it changes until the guard is met.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "step-count",
+        "halving"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0057"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0036",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Step counts for a splitting recurrence",
+      "learningObjective": "count the entries of a recursion that splits its argument in two",
+      "practice": "call counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A divide-and-conquer step splits the range into two halves and pays one unit at every entry. How many times is the body entered when work(8) is called?\n```java\nstatic int work(int n) {\n    if (n <= 1) return 0;\n    return work(n / 2) + work(n - n / 2) + 1;\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "15 entries",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 entries",
+          "misconception": "believes the split visits each unit once and nothing else is charged"
+        },
+        {
+          "id": "C",
+          "text": "7 entries",
+          "misconception": "believes the two halves each cost one entry and the merge costs none"
+        },
+        {
+          "id": "D",
+          "text": "16 entries",
+          "misconception": "believes every level of the tree adds one more entry than the level above"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The tree of calls has one entry at the top, two at the next level, four at the one after that and eight at the bottom, and a full set of levels always sums to one less than twice the number of leaves. With eight leaves that gives fifteen entries, which is more than the eight units being processed because each unit is charged again at every level above it. The one added at each level is the constant work of combining the two results, not a whole unit of the input.",
+      "hint": "Count the entries at each level of the tree and add them up.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "step-count",
+        "splitting"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0035"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0037",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Step counts for a doubling recurrence",
+      "learningObjective": "count the entries of a body that makes two identical calls",
+      "practice": "call counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A survey body walks the same smaller problem twice at every level and does nothing else. How many times is the body entered when cost(5) is called?\n```java\nstatic int cost(int n) {\n    if (n == 0) return 0;\n    cost(n - 1);\n    cost(n - 1);\n    return 1;\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "63 entries",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10 entries",
+          "misconception": "believes the two calls share a subtree so the count grows steadily"
+        },
+        {
+          "id": "C",
+          "text": "32 entries",
+          "misconception": "believes each level adds one entry rather than doubling the level below"
+        },
+        {
+          "id": "D",
+          "text": "5 entries",
+          "misconception": "believes the argument counts the entries, one for each unit of n"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Two identical calls per level mean the number of entries at depth d is two to the d, and a full tree of that shape holds one less than twice its number of leaves. The leaves sit at depth five, so there are thirty two of them and sixty three entries in the whole tree, which is why the cost of this shape grows with the depth far faster than the depth itself. The count is driven by how many calls the body makes, not by how much work each call does.",
+      "hint": "Count the entries at depth zero and double for each level above it.",
+      "difficulty": 0.55,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "step-count",
+        "call-tree"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0036"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0038",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Counting the joins in a concatenation reversal",
+      "learningObjective": "count how many times a string join runs during a reversal",
+      "practice": "call counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A six-letter word is reversed with a shape that joins text at every level. How many times does the join run when flip(\"puzzle\") is called?\n```java\nstatic String flip(String s) {\n    if (s.length() <= 1) return s;\n    return flip(s.substring(1)) + s.charAt(0);\n}\n```",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 time",
+          "misconception": "believes a modern runtime rewrites string building into one mutable buffer"
+        },
+        {
+          "id": "C",
+          "text": "6 times",
+          "misconception": "believes the stopping case performs one join before handing back the text"
+        },
+        {
+          "id": "D",
+          "text": "2 times",
+          "misconception": "believes each level halves the joining that is left to do"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The join sits in the body of a method that recurses on everything but the first character, so it runs on every level except the one that stops, which is one fewer than the length of the input. A six-letter word therefore joins five times, and each join copies the text the level below produced together with the one character this level held. The cost of the shape comes from how many characters those joins copy, not from how many joins there are.",
+      "hint": "Ask on how many levels the body past the guard actually runs.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "strings",
+        "cost"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0040"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0009"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0039",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What grows during deep recursion",
+      "learningObjective": "explain why a deep recursion fails where a loop does not",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A recursive descent through a very long table produces no output at all and the process dies before any row is examined. Explain what is exhausted, and why a loop over the same table succeeds.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each live call holds a frame until the call it made returns, and a loop needs only one",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Each call reserves a new object on the heap, and a loop reserves nothing at all",
+          "misconception": "believes recursion consumes the heap rather than the call stack"
+        },
+        {
+          "id": "C",
+          "text": "Each call raises the stack allowance, so a deep recursion needs a larger table",
+          "misconception": "believes the code that recurses is what sets the stack limit"
+        },
+        {
+          "id": "D",
+          "text": "Each call copies the whole table, so the working set doubles at every level",
+          "misconception": "believes a recursive step duplicates its input by default"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A call holds a frame from the moment it is made until the call it made returns, and that frame carries the parameters, the place to come back to and any local still needed afterwards. A descent many levels deep therefore wants many frames at the same moment, while the thread's stack allowance is a fixed size chosen when the thread was created and is not something the code can raise. A loop needs none of that because the work of one iteration finishes before the next begins, so the same table that overruns the stack is read comfortably by a loop.",
+      "hint": "Ask what a call reserves and when it is allowed to give it back.",
+      "difficulty": 0.58,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "stack-depth",
+        "overflow"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0027"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0040",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "The cost of repeated concatenation",
+      "learningObjective": "explain why joining strings repeatedly costs more than appending",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A recursive reversal written with joins and one written with a shared buffer produce the same text. Explain why the first shape costs far more as the input grows.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A join never edits what it is given, so each level builds a longer piece of text",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A join copies the whole prefix each time, so the characters written grow as it goes",
+          "misconception": "believes the cost comes from copying the front of the finished result"
+        },
+        {
+          "id": "C",
+          "text": "A join re-encodes the text, so characters are converted back and forth from bytes",
+          "misconception": "believes string building is slow because of character encoding"
+        },
+        {
+          "id": "D",
+          "text": "A join takes a lock, so callers of the same method slow each other down",
+          "misconception": "believes string building is slow because of synchronisation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Text objects are immutable, so a join cannot change either piece it is given and instead allocates a new one holding both. At every level of a reversal the piece already reversed is longer than the one below it, so the total number of characters written over the whole run grows with the square of the length rather than with the length. One shared buffer is a different object: it can be extended in place, so each level writes only its own character and the total writing stays proportional to the length.",
+      "hint": "Ask how many characters each join has to copy.",
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 74
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "strings",
+        "cost"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0038"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0038"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0041",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why a head call keeps its frame",
+      "learningObjective": "explain why a value still needed after a call forces the frame to wait",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Two methods add up the same values. One writes n plus the result of the recursive call and the other carries a running total through a parameter. Explain why both still hold a frame at every level of the current runtime.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A frame is kept until the call it made returns, and neither shape returns before that",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first shape is a head call and the second is a tail call, so only the first needs one",
+          "misconception": "believes a tail call frees the frame in any language"
+        },
+        {
+          "id": "C",
+          "text": "The running total grows too large to hold in a frame, so it spills to the heap",
+          "misconception": "believes a large value forces an allocation off the stack"
+        },
+        {
+          "id": "D",
+          "text": "The second shape keeps two values per level, so it needs twice the stack of the first",
+          "misconception": "believes an extra parameter means extra stack space at every level"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A frame has to survive the call it made, because the work done afterwards depends on what that call produced, and the place to store that dependence is the frame itself. Writing the argument plus the recursive result is in the head position, so the addition still has to happen and the frame cannot go. Carrying the total in a parameter puts the call in the tail position, which is the shape a loop would use, but the language offers no guarantee that such a frame is reused, so the runtime still reserves one per level.",
+      "hint": "Ask whether anything is still needed once the call returns.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 54,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "head-position",
+        "stack-depth"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0025"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0025"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0042",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why a marker is what makes a walk finish",
+      "learningObjective": "explain the role of the visited marker in terminating a walk",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A walk over a structure that contains a backward link never finishes on its own. Describe the shape of the call tree it produces, and state what one extra piece of state changes about it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The same node is entered over and over, and a marker makes the repeat a terminal case",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The walk ends at the empty link, and a marker only changes the value that is printed",
+          "misconception": "believes the walk is naturally finite and the marker is cosmetic"
+        },
+        {
+          "id": "C",
+          "text": "The walk reaches the empty link, and a marker stops the array being read past its end",
+          "misconception": "believes the danger is an index range rather than an endless walk"
+        },
+        {
+          "id": "D",
+          "text": "The walk visits each node once, and a marker makes the first visit happen twice",
+          "misconception": "believes the walk is already finite and the marker adds a visit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A backward link means a node the walk has already stood on can be reached again, so the descent never arrives at the link that ends the chain and every repeat pushes another frame until the stack is exhausted. Recording on the node that it has been stood on turns the second arrival into a case that returns immediately, which is what gives the tree a finite number of nodes. The rest of the body is unchanged, so the shape of the walk is the same and only its extent is bounded.",
+      "hint": "Ask what a backward link does to the length of the call path.",
+      "difficulty": 0.58,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 76
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "visited-set",
+        "termination"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0019"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0019"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0043",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What a mutual recursion needs in order to stop",
+      "learningObjective": "state the condition that lets two methods hand off to each other safely",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Two methods that call each other to decide whether a count is even can be written so that no call ever returns. Explain what such a pair needs beyond having a return statement somewhere in it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every hand-off must shrink the argument, and both partners must stop on one value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One partner needs a return statement while the other needs only a stopping value",
+          "misconception": "believes only half of the pair has to carry a stopping rule"
+        },
+        {
+          "id": "C",
+          "text": "The two partners must stop on different values so neither can copy the other",
+          "misconception": "believes the partners have to disagree about where the chain ends"
+        },
+        {
+          "id": "D",
+          "text": "A shared counter is needed so the hand-offs can be limited to a fixed number",
+          "misconception": "believes termination depends on counting the calls rather than on the argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Termination comes from a measure that strictly shrinks on every hand-off until it reaches a value where the method answers instead of calling again. With the argument reduced by one each time and both partners stopping on the same value, the chain has a fixed length that depends only on the input. If either partner moves the argument in the other direction, or if the two partners stop on different values, the chain can sail past the stopping value without ever matching it and the frames accumulate until the stack is gone.",
+      "hint": "Ask what happens to the argument on every hand-off.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 54,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "mutual",
+        "termination"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0022"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0022"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0044",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What the accumulator side decides",
+      "learningObjective": "explain how the join order of an accumulator controls the result order",
+      "practice": "explanation writing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A reversal that carries an accumulator can be written two ways that differ only in the order of a join. Explain what that order controls, and why the two versions are not interchangeable.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It controls which character ends up in front, so only one of the two reverses",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It controls how much memory the accumulator needs, so both versions still reverse",
+          "misconception": "believes the join order is about the size of the accumulator"
+        },
+        {
+          "id": "C",
+          "text": "It controls nothing, because the length of the input decides the final order",
+          "misconception": "believes the result order is a property of the input rather than the code"
+        },
+        {
+          "id": "D",
+          "text": "It controls only the running time, because the text produced is always the same",
+          "misconception": "believes the join order changes how long the work takes but not the result"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The accumulator is handed from one frame to the next, so a character placed in front of it ends up in front of every character deposited later. Reading the input from left to right visits the first character first and the last character last, so depositing in front during the descent produces the reversed text, while depositing behind rebuilds the original order. Nothing else in the two versions differs, which is what makes the choice easy to get wrong and easy to test by running both.",
+      "hint": "Ask which character ends up leftmost in the finished text.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "reversal"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0010"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0045",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Reading a call tree before running it",
+      "learningObjective": "infer growth from the shape of a call tree without executing it",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method body makes two recursive calls, and both sit below its only print. What does the shape of the call tree tell you before you run anything?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The tree forks at every level, so the number of frames grows far faster than the depth",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The tree forks at every level, so only the last two calls are still live at the end",
+          "misconception": "believes only the deepest pair of calls survives on the stack"
+        },
+        {
+          "id": "C",
+          "text": "The tree is a single chain, because the second call waits for the first to return",
+          "misconception": "believes two calls in one body form a sequence rather than a fork"
+        },
+        {
+          "id": "D",
+          "text": "The tree holds one node per level, because the number of calls in a body is irrelevant",
+          "misconception": "believes the call count in a body does not change the tree shape"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A body that makes two recursive calls produces a node with two children at every level, so the number of nodes at depth d is two to the d and the total is a geometric sum that outruns the depth quickly. That is why the printed order of such a method is neither ascending nor descending and has to be read off the tree rather than guessed from the argument. Rewriting the body with a single call turns the same shape into a cheap chain, so the fork is a property of the body and not of the data.",
+      "hint": "Count the nodes at depth one and then at depth two.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "call-tree",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0004"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0046",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What an accumulator buys over combining results",
+      "learningObjective": "explain why a threaded value is easier to reason about than a built result",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two methods return the same total. One adds up the answers its recursive calls produce and the other threads a value through a parameter. Why is the second shape usually easier to trace?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One value is enough to describe the state, so there is no half-built result per level",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The second shape makes one call instead of two, so it does less work overall",
+          "misconception": "believes an accumulator removes a recursive call"
+        },
+        {
+          "id": "C",
+          "text": "The second shape needs no stopping case because the accumulator ends the chain",
+          "misconception": "believes a parameter can take the place of a stopping rule"
+        },
+        {
+          "id": "D",
+          "text": "The second shape is shorter to write, and shorter code always runs faster",
+          "misconception": "believes the character count predicts the number of frames"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A total assembled from returned values has to keep every partial result alive until the level above can add its own piece, so the shape of the answer is spread across all the frames at once. An accumulator holds the answer so far in the parameter that every level receives, which lets the state at any point in the recursion be written down as a single number. The price is one extra parameter and an argument that the caller has to supply, and the caller has to supply the right one.",
+      "hint": "Ask what a partly built answer looks like when it lives in a returned value.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "accumulator",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0005"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0047",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why a grid walk needs two numbers",
+      "learningObjective": "identify what the second grid index carries that one cannot",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A recursive walk over a two-dimensional map is handed a row and a column rather than a single number. What does the second number give the method that one cannot?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It names the cell the method is standing on, so both borders can be tested",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It gives the method a running count of the cells it has already stood on",
+          "misconception": "believes the second number is a tally rather than a position"
+        },
+        {
+          "id": "C",
+          "text": "It lets the method drop the bounds check because the caller promised safety",
+          "misconception": "believes an extra parameter removes the need for a guard"
+        },
+        {
+          "id": "D",
+          "text": "It gives the method a place to keep the value it is about to return",
+          "misconception": "believes a parameter is used as an output slot"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cell is named by a row and a column together, and the walk has to be able to say which one it is on before it can decide whether to mark it, report it or move. With a row in hand the method can test the top and bottom borders, and with a column it can test the left and right ones, so a single guard covers all four sides. One number can express a position along a line but not a position on a map, which is why the recursion carries two.",
+      "hint": "Ask what a cell is named by.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 32,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0048"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0048",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why one index cannot end a grid walk",
+      "learningObjective": "explain the limit a single index places on a two-dimensional walk",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A walk moves right and down across a map and has to stop when it runs out of room. Why can a single index not be the only thing the method carries?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One number cannot tell the end of a row apart from the end of the whole map",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One number moves too slowly across a two-dimensional map to finish in time",
+          "misconception": "believes the size of the step is what limits a walk"
+        },
+        {
+          "id": "C",
+          "text": "One number cannot be compared against the length of a row by any guard",
+          "misconception": "believes a guard can only be written against two objects"
+        },
+        {
+          "id": "D",
+          "text": "One number cannot be advanced inside a recursive call without losing it",
+          "misconception": "believes recursion stops a counter from being changed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With one number the method knows when it has run past some length but not which length it ran past, so it cannot distinguish finishing a row from finishing the map, and the two cases need different behaviour. Two numbers make both boundaries visible in the same guard, which is why map recursion always carries a row and a column even when it only ever moves in two directions. The two values also have to be passed together, since one alone describes a place on a line rather than a place on a map.",
+      "hint": "Ask what the single number stops being able to say.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0047"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0047"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0049",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Choosing a builder over repeated joins",
+      "learningObjective": "identify the change that removes the repeated copying in a recursive build",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A long piece of text is assembled by a recursive method that joins pieces on the way back. Which change is the one that actually removes the repeated copying?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Carry one mutable buffer through the calls and write into it instead of joining",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Join only the shortest neighbouring pieces so each join copies the least text",
+          "misconception": "believes splitting the input reduces what each join has to copy"
+        },
+        {
+          "id": "C",
+          "text": "Keep the finished result in a static field so later joins can reuse it",
+          "misconception": "believes caching one result helps every input that comes along"
+        },
+        {
+          "id": "D",
+          "text": "Hold the pieces aside and join them once the recursion has finished returning",
+          "misconception": "believes postponing the join removes the copying it causes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The cost is not in the joining operation itself but in how many characters have to be written, and joining two pieces of text writes both of them into something new each time. One mutable buffer can be extended in place, so each level writes only its own piece and the total writing stays proportional to the length of the result. The other three changes leave the joining in place and therefore leave the copying in place, which is why they feel like improvements without being one.",
+      "hint": "Ask how many characters are written at each level.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "string-builder",
+        "cost"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0040"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0040"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0050",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "The smallest state that stops a repeated walk",
+      "learningObjective": "identify the minimum extra state that makes a recursive walk terminate",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A structure can point back to a node that the walk has already stood on. What is the smallest extra state that makes the walk finish and report the right count?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A flag on each node recording whether the walk has already stood on it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A tally of how many distinct nodes the walk has visited so far",
+          "misconception": "believes the number of visits is the thing that has to be recorded"
+        },
+        {
+          "id": "C",
+          "text": "A copy of the whole structure made once before the walk begins",
+          "misconception": "believes working on a copy stops the original being re-entered"
+        },
+        {
+          "id": "D",
+          "text": "A second starting point at the far end of the same structure",
+          "misconception": "believes starting from the other end avoids meeting a node twice"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A chain of calls only ends when it reaches a node that declines to call again, and a node that has been stood on before has to be one of those. Storing that fact on the node is the smallest change that works, because the second arrival can return immediately and the descent stops at the edge of the reachable set. A tally would report the same number but would not stop anything, and the other two options leave the node reachable a second time, so the call tree is still unbounded.",
+      "hint": "Ask what has to be true for a node to be entered a second time.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "visited-set",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0042"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0019"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0051",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What an early return saves",
+      "learningObjective": "describe the effect of returning early from a recursive search",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A recursive search answers as soon as it finds what it was looking for rather than reading the rest of the array. What does that early return change about the work done?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It cuts the descent short, so the entries after the match are never examined",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It changes the answer, so a match is reported even when the array holds none",
+          "misconception": "believes stopping early means the answer can no longer be trusted"
+        },
+        {
+          "id": "C",
+          "text": "It replaces the stopping case, so the call at the end of the array never happens",
+          "misconception": "believes the early return also removes the boundary check"
+        },
+        {
+          "id": "D",
+          "text": "It flattens the chain, so the whole search runs inside a single frame",
+          "misconception": "believes an early return releases the frames already on the stack"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Returning from the frame that found the match means the call inside that frame is never made, so the frames below it are never created and the entries they would have examined are never touched. The frames above it still have to unwind, because each of them is waiting for a result to combine with, and the boundary check is still there for the case where nothing was found. The number of comparisons is therefore the position of the match rather than the length of the array, which is the whole point of asking a cheap question first.",
+      "hint": "Ask which frames are never created after the early return.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "short-circuit",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0020"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0052",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What makes a call a head call",
+      "learningObjective": "define head position in terms of what happens to the returned value",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a recursive method, what exactly does it mean for a call to sit in the head position?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The result of the call is still needed afterwards, so it is combined with something",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The method prints its argument before it makes the recursive call",
+          "misconception": "believes head position is about output order rather than combining work"
+        },
+        {
+          "id": "C",
+          "text": "The method owns neither an accumulator nor a stopping case of its own",
+          "misconception": "believes head position means there is no stopping rule"
+        },
+        {
+          "id": "D",
+          "text": "The method calls itself exactly once from the first line of its body",
+          "misconception": "believes head position is about where in the body the call sits"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A call is in the head position when the enclosing method still has to do something with what comes back, such as adding a piece of the answer, comparing it against a value it already holds, or handing it to a builder. It is in the tail position when the call is the last thing the method does and its result leaves as the method's own result. That single distinction decides whether a frame has to survive the call, and the stack cost of a recursion follows directly from it.",
+      "hint": "Ask whether anything is still done with the value the call returns.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "head-position",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0041"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0053",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why the tail position is loop-shaped",
+      "learningObjective": "relate the tail position to the state a loop keeps in place",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method's only action is to call itself with a smaller argument and hand that call's result straight back. Why is that the shape that maps most directly onto a loop?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing is done with the result afterwards, so no frame has to hold a value to add",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It always runs faster than a loop because no arithmetic is left to do",
+          "misconception": "believes a tail-shaped recursion outruns a loop on raw speed"
+        },
+        {
+          "id": "C",
+          "text": "It uses less memory because the smaller argument replaces the saved frame",
+          "misconception": "believes the argument value overwrites the frame that was waiting"
+        },
+        {
+          "id": "D",
+          "text": "It cannot be written as a loop at all, so the two are different in kind",
+          "misconception": "believes recursion and iteration are not interchangeable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A loop carries its state in variables it updates in place, and nothing has to survive from one iteration to the next because the work of an iteration is finished before the next begins. A call in the tail position is the same idea written in call form, since the value the level below produces is exactly the value this level returns. The shape is called loop-shaped for that reason, even though the runtime still reserves a frame per level unless it is given a reason not to, which is why the stack cost of a deep tail-shaped recursion can still surprise people.",
+      "hint": "Ask whether anything is left to do once the call returns.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "tail-call",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0025"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0052"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0054",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why a loop survives what a recursion does not",
+      "learningObjective": "compare the space a loop and a recursion need over the same input",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method recurses once per entry of a very long list and dies partway through, while an ordinary loop over the same list finishes comfortably. What difference matters here?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every level holds a frame waiting for a call, and the loop reuses one set of variables",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Each level allocates a new object for its entry and the loop allocates nothing",
+          "misconception": "believes heap objects rather than frames are what run out"
+        },
+        {
+          "id": "C",
+          "text": "Each level copies the whole list while the loop reads the entries in place",
+          "misconception": "believes recursion duplicates its input by default"
+        },
+        {
+          "id": "D",
+          "text": "The recursion is slower because it cannot use the machine's own arithmetic",
+          "misconception": "believes the cost of recursion is a loss of machine-level speed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "At any one moment a recursion holds a frame for every level that is still waiting, so a descent as long as the list wants a frame per entry, while a loop holds one set of variables because an iteration finishes before the next begins. The allowance for those frames is a fixed size set when the thread is created, so a sufficiently long list exhausts it no matter how much time is available. Choosing between the two forms is therefore partly a question of how deep the recursion would have to go, not only of how it reads.",
+      "hint": "Ask how many waiting frames the loop needs at any moment.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "stack-depth",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0039"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0055",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Where combining work has to sit",
+      "learningObjective": "place the work that transforms a result on the correct side of the call",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method builds a total and then has to double it before returning. Where does the doubling have to sit for the recursion to work at all?",
+      "options": [
+        {
+          "id": "A",
+          "text": "After the recursive call returns, because the value to be doubled does not exist yet",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Before the recursive call, because the running total is known on entry",
+          "misconception": "believes the total is already complete when the method is entered"
+        },
+        {
+          "id": "C",
+          "text": "Inside the stopping case, because that is where values are produced",
+          "misconception": "believes only the stopping case ever produces a value"
+        },
+        {
+          "id": "D",
+          "text": "In the call to itself, because a larger argument is what doubles the result",
+          "misconception": "believes passing a bigger argument doubles the answer"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The total only exists once the levels below have returned their results, so the doubling has to happen on the way back where that value is in hand. Doing it on the way down would transform a number that has not been computed yet, and the same operation would be applied at every level rather than once at the end. This is the practical content of head position: work that combines results cannot be moved to the descent without changing what the method computes.",
+      "hint": "Ask when the value to be transformed first exists.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "head-position",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0024"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0052"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0056",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "How a grid walk records a visit",
+      "learningObjective": "state the purpose of the store a grid walk makes before it recurses",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A grid walk stores a different value into a cell before it makes any recursive call. What is that store actually for?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It makes a second arrival at the same cell fall through to the stopping branch",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It records how many times the walk has stepped on that cell",
+          "misconception": "believes the stored value is a tally of visits"
+        },
+        {
+          "id": "C",
+          "text": "It keeps the original cell value so the walk can compare against it later",
+          "misconception": "believes the original value is saved and reused"
+        },
+        {
+          "id": "D",
+          "text": "It frees the cell so the walk can hand it to the level below",
+          "misconception": "believes the store releases memory for the recursion"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cell can be reached again from a neighbour, and without some record of that the walk would keep descending through the same cells forever. The store is cheap precisely because the guard that decides whether to recurse is the same test the store invalidates, so the second arrival fails the test and returns instead of forking again. Overwriting is one way to do it and a separate collection of coordinates is another, but the store has to be checked by the guard or it changes nothing.",
+      "hint": "Ask what the guard would do on a second arrival if the store were absent.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "grid",
+        "visited-set"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0013"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0057",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Reading a step-count recurrence",
+      "learningObjective": "interpret the added unit in a step-count recurrence",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A step-count method halves its argument and adds one to whatever the recursive call returns. What does that added one stand for at each level?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The constant work the level does once, on top of what the level below costs",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One whole element of the input that is processed and then discarded",
+          "misconception": "believes the added unit is a whole unit of the data"
+        },
+        {
+          "id": "C",
+          "text": "One frame that the level keeps alive while the call below returns",
+          "misconception": "believes the added unit is stack space rather than work"
+        },
+        {
+          "id": "D",
+          "text": "One more level of the tree that a repeated split would have produced",
+          "misconception": "believes the method forks and the added unit is a branch"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A recurrence of the form a smaller cost plus a constant describes a level that pays a fixed price and then waits for the level below, so each added unit is that price paid once per level. Because the argument is halved at every step, the number of levels is the number of halvings rather than the size of the input, which is why such a method stays cheap on data that is enormous. Reading the added unit as a data element, a frame, or a branch each describes a different method than the one that was written.",
+      "hint": "Ask what the level does that is not part of the call.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "step-count",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0035"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0035"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0058",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Return value against printed output",
+      "learningObjective": "distinguish when a printed order is produced from when a value is assembled",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A recursive method both returns a value and prints as it runs. Why is the printed sequence a separate question from the value that comes back?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Printing happens in call order while the value is assembled on the way back",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Printing also happens on the way back because printing is a statement",
+          "misconception": "believes every statement in a body runs after the call returns"
+        },
+        {
+          "id": "C",
+          "text": "The value cannot be observed because a method with a side effect returns nothing",
+          "misconception": "believes a method that prints is unable to return anything"
+        },
+        {
+          "id": "D",
+          "text": "Printing happens first because a return statement is always the final line",
+          "misconception": "believes the last line of a body runs before the rest of it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two effects happen at different moments, and which moment depends on where the statement sits relative to the recursive call. A statement above the call runs while the stack is still growing, and a statement below it runs after the level below has returned, so one method can print in the order the calls were made and still return an answer built in the opposite direction. That is why a value can come out correct while the printed sequence is not what a reader expects, and why tracing the two separately is the reliable approach.",
+      "hint": "Ask which statements sit above the recursive call and which sit below it.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "output-order",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0024"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0059",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "What a marker changes and what it leaves",
+      "learningObjective": "separate the effect of a visited marker on extent from its effect on shape",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Adding a visited marker to a walk changes how much work it does. What does it change, and what does it leave exactly as it was?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It bounds the calls by the reachable nodes and leaves the forked body untouched",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It turns the walk into a single chain so each node is reached once",
+          "misconception": "believes the marker replaces the branching with a line"
+        },
+        {
+          "id": "C",
+          "text": "It removes the need for the end-of-structure case in the body",
+          "misconception": "believes the marker replaces the end of the structure"
+        },
+        {
+          "id": "D",
+          "text": "It cuts the depth of the walk to the length of the shortest route",
+          "misconception": "believes the marker shortens the deepest path"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The marker only turns a second arrival into a case that returns, so the calls it saves are the repeats and the calls it keeps are one per reachable node. The body still forks in the same places and the longest path through the structure is still as long as it was, so a walk that has to stand on every reachable node pays for all of them. The end-of-structure case is untouched as well, since a reachable chain can still end without a backward link, and removing it would break that case.",
+      "hint": "Ask what the body does differently on the second arrival.",
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "visited-set",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0042"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0050"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-9.20-0060",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 9",
+      "topic": "Why a stopping case still returns a value",
+      "learningObjective": "explain the value a base case owes to the level above it",
+      "practice": "concept review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A stopping case sits at the head of every chain, exactly where the combining work sits. Why does it still have to hand a value back?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The level above combines whatever comes back, so the stopping case owes it a value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A method that returns a value is not allowed to reach the end without one",
+          "misconception": "believes the requirement is about the shape of the method rather than its caller"
+        },
+        {
+          "id": "C",
+          "text": "The stopping case also has to print the value that it returns",
+          "misconception": "believes returning a value also reports it"
+        },
+        {
+          "id": "D",
+          "text": "The stopping case has to hand the argument back to the value the caller passed",
+          "misconception": "believes the stopping case returns an argument rather than a result"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The chain does not end with the stopping case as far as its caller is concerned, because the caller is about to add its own piece to whatever arrives. A stopping case that returned nothing would leave the level above with nothing to combine, so it has to supply the value that the combination treats as the identity, which is zero for a sum and one for a product. Choosing that value wrongly is a quiet failure, since the recursion still terminates and still returns a plausible number.",
+      "hint": "Ask what the level above does with whatever the stopping case returns.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "recursion",
+        "base-case",
+        "concept"
+      ],
+      "relatedQuestionIds": [
+        "jp-9.20-0029"
+      ],
+      "prerequisiteQuestionIds": [
+        "jp-9.20-0029"
+      ],
+      "version": 1
+    }
+  ]
+}
