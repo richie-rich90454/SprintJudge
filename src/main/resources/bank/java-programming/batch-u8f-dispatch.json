@@ -1,0 +1,1995 @@
+{
+  "questions": [
+    {
+      "id": "jp-8.7-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The most derived override wins",
+      "learningObjective": "trace a three-level chain and find the override that a base-typed reference reaches",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A reporting stack of three classes all answers the same question, and a caller holds only the topmost type:\nclass A { String who() { return \"A\"; } }\nclass B extends A { String who() { return \"B\"; } }\nclass C extends B { String who() { return \"C\"; } }\nA ref = new C();\nSystem.out.println(ref.who());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "C, because the most derived override in the chain is the one that runs.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, because the reference was declared with the type A.",
+          "misconception": "believes the declared reference type picks the method body"
+        },
+        {
+          "id": "C",
+          "text": "B, because the reference is an A and the nearest override is one step up.",
+          "misconception": "believes the override nearest to the reference type is the one chosen"
+        },
+        {
+          "id": "D",
+          "text": "ABC, because every override in the chain contributes a line.",
+          "misconception": "believes each override in the chain adds itself to the answer"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The compiler emits a virtual call and the JVM resolves it against the class of the object actually stored, which is C, and C is the most derived class in the chain, so C's body is the one that runs. The reference type is the tempting source of the answer, because that is the only type visible on the source line, but it is checked at compile time to confirm that the method is accessible and is not consulted at run time to pick a body; the intermediate override in B is never reached because C replaces it.",
+      "hint": "Ask which class the stored object actually is, not what the variable is declared.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 21,
+        "p75Sec": 37
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A gap in the override chain",
+      "learningObjective": "trace dispatch when the most derived class does not override but an ancestor does",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The bottom class of a three-level chain adds nothing of its own:\nclass A { String who() { return \"A\"; } }\nclass B extends A { String who() { return \"B\"; } }\nclass C extends B { }\nA ref = new C();\nSystem.out.println(ref.who());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B, because B is the most derived class that supplies an override.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, because C declares no method and so the top class is used.",
+          "misconception": "believes a class that declares nothing falls back to the chain's top"
+        },
+        {
+          "id": "C",
+          "text": "C, because the runtime class is named in the printed result.",
+          "misconception": "believes the runtime class name becomes the answer by default"
+        },
+        {
+          "id": "D",
+          "text": "Nothing prints, because C inherits no method of its own.",
+          "misconception": "believes a subclass without a body inherits nothing at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Dispatch looks for the most derived override in the whole chain, so when C contributes nothing the search continues up and settles on B's body, which is the override that actually overrides A. Falling back to A is the tempting answer, because A is the class named on the reference and is the one whose method the compiler checked, but an inherited method is looked up from the object's class upward, and the first override found on that walk is B's, not A's.",
+      "hint": "Walk up from the runtime class and stop at the first override you meet.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 26,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A method only the superclass declares",
+      "learningObjective": "state that a method with no override anywhere is inherited unchanged",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass adds fields but declares no methods at all, and a caller holds a base-typed reference to it. Which statement about calling the base class's describe() method is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The superclass's body runs, inherited unchanged by the subclass instance.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "No body runs, because the subclass declares no method of that name.",
+          "misconception": "believes a method is only callable when the subclass declares it"
+        },
+        {
+          "id": "C",
+          "text": "A stub body runs, because every class needs its own copy of the method.",
+          "misconception": "believes each class must supply its own copy of an inherited method"
+        },
+        {
+          "id": "D",
+          "text": "The call is rejected at compile time because the reference type is the base.",
+          "misconception": "believes a base-typed reference cannot call a base method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A subclass inherits every accessible instance method of its superclass, so a method that the subclass never overrides is reached on the superclass's own body; the base-typed reference is satisfied because the declared type has the method, and the runtime type has no version of its own to displace it. The compile-time-rejection belief is tempting, because narrow references are the usual source of trouble in inheritance, but a base reference is the widest case available and the method being called is the base's own.",
+      "hint": "Inheritance means the subclass already has the method unless it replaces it.",
+      "difficulty": 0.28,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 26
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An overridden helper called from the superclass",
+      "learningObjective": "trace dispatch at a helper call site inside a superclass method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A superclass builds a label by calling a helper, and the subclass supplies a different helper:\nclass P { String label() { return \"[\" + mark() + \"]\"; } String mark() { return \"P\"; } }\nclass Q extends P { String mark() { return \"Q\"; } }\nP ref = new Q();\nSystem.out.println(ref.label());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[Q], because the helper call inside the superclass body also dispatches.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[P], because code inside a superclass body always runs its own version.",
+          "misconception": "believes a method body is pinned to the class that wrote it"
+        },
+        {
+          "id": "C",
+          "text": "[Q][P], because both helpers run and both results are printed.",
+          "misconception": "believes calling the superclass helper also runs the subclass helper"
+        },
+        {
+          "id": "D",
+          "text": "[], because mark() returns nothing when called from the parent body.",
+          "misconception": "believes the helper yields no result when reached indirectly"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The call to mark() inside label() has this as its receiver, and this is the Q instance, so the same virtual lookup that chose Q's label body also chooses Q's mark body, giving [Q]. The pinned-body belief is tempting, because label() was written inside P and its own body is the one that runs, but only the entry point is fixed by the call site; every method invoked without an explicit super or this qualifier is a fresh dispatch against the runtime type.",
+      "hint": "Decide the receiver of the inner call, not the class that wrote the outer body.",
+      "difficulty": 0.56,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 31,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A final method blocks the override",
+      "learningObjective": "state that a final method cannot be overridden and identify the compile error it causes",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A developer tries to replace a locked-down tag in a subclass and the compiler refuses the class:\nclass R { final String tag() { return \"R\"; } }\nclass S extends R { @Override String tag() { return \"S\"; } }\npublic class Main { public static void main(String[] args) { System.out.println(new S().tag()); } }\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile because a final method cannot be overridden.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints R, because the final version wins at run time.",
+          "misconception": "believes a final override is accepted and settled at run time"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints S, because the subclass declaration replaces the parent.",
+          "misconception": "believes a same-signature method always replaces the parent one"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints RS, because both tag bodies contribute their text.",
+          "misconception": "believes an override is added to the inherited behaviour"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The final keyword closes the method to overriding at the language level, so the subclass declaration is rejected during compilation and the program never runs; the compiler's message names the overridden method as final. Expecting the parent's body to win at run time is the tempting reading, because dynamic dispatch then does favour the parent's final version, but final does not work by winning a race, it works by making the subclass declaration illegal in the first place.",
+      "hint": "Final is a compile-time restriction, not a run-time contest.",
+      "difficulty": 0.45,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overriding-rules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An override that delegates upward",
+      "learningObjective": "trace a counter that both adds its own contribution and the superclass contribution",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass override asks its parent for a starting number and then adds its own:\nclass C1 { int total() { return 1; } }\nclass C2 extends C1 { int total() { return super.total() + 10; } }\nC1 ref = new C2();\nSystem.out.println(ref.total());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "11, because the super call contributes 1 and the override adds 10.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10, because the super call's value is discarded by the addition.",
+          "misconception": "believes a super call is made only for its side effects"
+        },
+        {
+          "id": "C",
+          "text": "1, because the base-typed reference selects the base class's body.",
+          "misconception": "believes the reference type overrides the runtime class here"
+        },
+        {
+          "id": "D",
+          "text": "0, because the super call resets the counter before the addition runs.",
+          "misconception": "believes a super call zeroes the accumulator for its caller"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The call is dispatched to C2's body, and that body evaluates super.total() as a direct non-virtual call to C1's version, which returns 1, then adds 10 to produce 11. Expecting the parent's value to be discarded is the tempting reading, because super is often pictured as a bare delegation, but here the returned number is the entire left-hand operand of the addition, so both contributions reach the result and the override is a sum rather than a replacement.",
+      "hint": "Work out what the super call returns before the addition happens.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 22,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Calling through a null base reference",
+      "learningObjective": "predict the failure of an instance call on a base-typed reference holding null",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A dispatcher declares a variable, leaves it unset, and calls through it anyway:\nclass A { String who() { return \"A\"; } }\nclass B extends A { String who() { return \"B\"; } }\nA ref = null;\ntry {\n    System.out.println(ref.who());\n} catch (RuntimeException e) {\n    System.out.println(e.getClass().getSimpleName());\n}\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "NullPointerException, because there is no object to dispatch on.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, because a null reference still names the declared base type.",
+          "misconception": "believes null carries the declared type for dispatch purposes"
+        },
+        {
+          "id": "C",
+          "text": "B, because the most derived override is selected before the value is read.",
+          "misconception": "believes override selection happens before the reference is read"
+        },
+        {
+          "id": "D",
+          "text": "0, because a null reference falls back to the default return value.",
+          "misconception": "believes a null receiver yields the type's default result"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Dispatch needs a real receiver: the call first has to read the value out of ref, and since that value is null there is no object whose class could be consulted, so a NullPointerException is raised before any body is chosen. Believing the declared type still names a body is the tempting step, because the compiler accepted the call using the declared type alone, but that check is purely about accessibility and the run-time lookup has nothing to work with when the reference is null.",
+      "hint": "The runtime lookup happens after the receiver value is read.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 19,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An anonymous subclass behind a base reference",
+      "learningObjective": "trace dispatch when the runtime class is an anonymous subclass",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A caller overrides one method on the spot and then hides the result in a base-typed variable:\nclass D { String greet() { return \"hi\"; } }\nD ref = new D() {\n    String greet() { return \"anon\"; }\n};\nSystem.out.println(ref.greet());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "anon, because the anonymous class is the object's runtime type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "hi, because the variable is declared with the base type D.",
+          "misconception": "believes the base type wins once the object is stored"
+        },
+        {
+          "id": "C",
+          "text": "hi, because an anonymous body is only visible inside its own block.",
+          "misconception": "believes an anonymous override is scoped to the block that declares it"
+        },
+        {
+          "id": "D",
+          "text": "Nothing prints, because D cannot be instantiated anonymously.",
+          "misconception": "believes a class cannot be extended at a declaration site"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An anonymous class expression still creates a real class, and that generated class overrides greet, so it is the runtime type of the stored object and its body is the one chosen. The declared-type belief is the tempting one, because D is the only type written on the variable line and the anonymous block looks like a local flourish, but storing the object in a base-typed variable narrows the static view without changing what the object is, and the object is an anonymous subclass of D.",
+      "hint": "The expression on the right of new creates a class, not just an object.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A package-private method is not inherited across packages",
+      "learningObjective": "explain why a same-signature method in another package does not override a package-private parent method",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A parent class in package one declares tag() with no access modifier, and a child class in package two declares a public tag() with the same signature:\npackage one;\npublic class Base2 { String tag() { return \"one\"; } }\npackage two;\npublic class Child2 extends one.Base2 { public String tag() { return \"two\"; } }\nAnd in package one, Main does:\nBase2 ref = new two.Child2();\nSystem.out.println(ref.tag());\nWhat does this program print, and why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "one, because a package-private method is not inherited across packages.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "two, because the child's method has the same name and a wider access.",
+          "misconception": "believes a same-signature public method always overrides a parent one"
+        },
+        {
+          "id": "C",
+          "text": "two, because the child is a subclass and subclasses inherit downwards.",
+          "misconception": "believes inheritance flows from the subclass back into the parent"
+        },
+        {
+          "id": "D",
+          "text": "onetwo, because both bodies run and their texts are concatenated.",
+          "misconception": "believes a same-signature pair runs both bodies in turn"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A method with no access modifier belongs to its own package and is not inherited by a subclass in a different package, so Child2's public tag() is a new method rather than an override, and the inherited lookup through a Base2 reference stops at Base2's own package-private body. Widening the access modifier is the tempting belief, because public really is wider than package-private, but the override relation is decided by inheritance first, and nothing was inherited for the child's declaration to override.",
+      "hint": "Ask whether the parent's method is even visible to a subclass in another package.",
+      "difficulty": 0.7,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 44,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overriding-rules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A total summed along an override chain",
+      "learningObjective": "compute the value of an override that accumulates every ancestor's contribution",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Three classes form a chain in which each override adds its own number to whatever the parent returns: class N1 has int score() returning 1, class N2 extends N1 returning super.score() + 2, and class N3 extends N2 returning super.score() + 4. A call to score() is made through a reference declared as N1 that holds a new N3(). What integer is produced? Respond with the integer only.",
+      "options": [],
+      "answer": {
+        "value": 7
+      },
+      "explanation": "The call reaches N3's body, which asks N2 for its value, which in turn asks N1 and adds its own 2, so the total is 1 + 2 + 4 = 7 once all three bodies have contributed. Reporting 4 is the tempting answer, because that is the number the most derived body adds by itself, but each super call returns the fully accumulated sum of everything below it rather than a bare constant, so the chain's contributions pile up instead of replacing one another.",
+      "hint": "Each super call returns everything accumulated so far, not just its own class's part.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 22,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reading a field in a super call's arguments",
+      "learningObjective": "state that a super constructor's arguments cannot read the object's own instance state",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass constructor tries to hand its own field to its parent and the compiler refuses the class:\nclass P1 { P1(int w) { System.out.println(\"P1:\" + w); } }\nclass P2 extends P1 {\n    int width = 4;\n    P2() { super(width); }\n}\npublic class Main { public static void main(String[] args) { new P2(); } }\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile because the field cannot be read before super runs.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints P1:4, because the field initializer runs first.",
+          "misconception": "believes instance initializers run before the super constructor"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints P1:0, because the field still holds its default.",
+          "misconception": "believes a readable field would still hold its default value"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile because a super call must be the first line.",
+          "misconception": "believes a super call is illegal anywhere but the first statement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "When the super constructor is invoked the subclass part of the object does not exist yet, so its instance field may not be named in the argument list, and the compiler reports that the field cannot be referenced before the supertype constructor has been called. The first-line belief is the tempting one, because the usual classroom picture of a super call is a mandatory opening statement, but a plain statement may precede it and this failure has nothing to do with position: it is the name width in the argument list that is forbidden.",
+      "hint": "Check what the argument expression names, not where the statement sits.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 35,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "What may surround an explicit constructor call",
+      "learningObjective": "distinguish the statements allowed before a super or this call from the expressions forbidden inside it",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass constructor begins with a plain statement and only then calls its parent. Which statement about that arrangement is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Legal, as long as the call's arguments avoid this object's fields.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Illegal, because a super call must be the first statement of a body.",
+          "misconception": "believes a super call must always open the constructor body"
+        },
+        {
+          "id": "C",
+          "text": "Legal, and the arguments may freely read the subclass's own fields.",
+          "misconception": "believes the argument list may read instance fields freely"
+        },
+        {
+          "id": "D",
+          "text": "Illegal, because a constructor may contain at most one statement.",
+          "misconception": "believes a constructor body is limited to a single statement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A super invocation does not have to open the constructor body, so a print or an assignment placed before it compiles and runs first, which is exactly why the superclass's own output appears after it; the restriction that does apply is on the arguments, which may not name the subclass's instance fields or use this, because the subclass half of the object does not exist yet. The mandatory-first-line belief is the tempting and extremely widespread one, but the real rule is narrower: position is free, self-reference is not.",
+      "hint": "Separate where the call may sit from what its arguments may name.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 33,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "No no-argument constructor to inherit implicitly",
+      "learningObjective": "identify the compile error when a subclass constructor omits super and no no-argument parent constructor exists",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A parent class offers only a one-argument constructor, and a subclass declares a constructor with no call:\nclass U1 { U1(int v) { System.out.println(v); } }\nclass U2 extends U1 { U2() { } }\npublic class Main { public static void main(String[] args) { new U2(); } }\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile because no no-argument parent constructor exists.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints 0, using the parent's default values.",
+          "misconception": "believes an omitted super call passes default arguments"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and runs, skipping the parent constructor entirely.",
+          "misconception": "believes the parent constructor is skipped when none is named"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile because a subclass may not declare a constructor.",
+          "misconception": "believes a subclass is forbidden from declaring constructors"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A constructor that names no parent call receives an implicit super() with no arguments, and because U1 declares only U1(int) there is nothing for that implicit call to bind to, so the compiler reports that the constructor cannot be applied to the given types. Default arguments are the tempting expectation, because an omitted call looks like an empty argument list and U1's parameter is an int rather than an object, so no default value can be invented for it.",
+      "hint": "Work out what the omitted call passes and whether the parent accepts it.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A computed argument to the super constructor",
+      "learningObjective": "order the evaluation of a super call's arguments against the parent and child constructor bodies",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass constructor passes a computed value to its parent:\nclass V1 { V1(int v) { System.out.println(\"V1:\" + v); } }\nclass V2 extends V1 {\n    V2() { super(2 * 3 + 1); System.out.println(\"V2\"); }\n}\npublic class Main { public static void main(String[] args) { new V2(); } }\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "V1:7 and then V2, because the argument is evaluated before the parent body.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "V2 and then V1:7, because the child body runs before the parent body.",
+          "misconception": "believes the subclass constructor body runs before the parent's"
+        },
+        {
+          "id": "C",
+          "text": "V1:1 and then V2, because only the last term of the expression is used.",
+          "misconception": "believes only the final operand of the argument expression is passed"
+        },
+        {
+          "id": "D",
+          "text": "V1:0 and then V2, because the parent sees a default argument value.",
+          "misconception": "believes a computed argument arrives as its type's default"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The argument expression 2 * 3 + 1 is evaluated at the call site first, yielding 7, and only then does the parent's constructor body run and print V1:7, after which control returns to the subclass body and prints V2. Running the subclass first is the tempting order, because the subclass is the class being instantiated in the source line, but the parent's body is what establishes the object's state and always completes first.",
+      "hint": "Evaluate the argument before either constructor body runs.",
+      "difficulty": 0.44,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Delegating to another constructor of the same class",
+      "learningObjective": "trace an instance initialiser across a this delegation to a sibling constructor",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class gives itself an instance field and routes one constructor through another:\nclass W1 { W1(int v) { System.out.println(\"W1:\" + v); } }\nclass W2 extends W1 {\n    int tag = 1;\n    W2() { this(9); System.out.println(\"W2 tag=\" + tag); }\n    W2(int v) { super(v); System.out.println(\"W2(\" + v + \")\"); }\n}\npublic class Main { public static void main(String[] args) { new W2(); } }\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "W1:9, then W2(9), then W2 tag=1, because the field initializes once.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "W2 tag=1, then W1:9, then W2(9), because the caller runs first.",
+          "misconception": "believes the delegating constructor's body runs before the delegate"
+        },
+        {
+          "id": "C",
+          "text": "W1:9, then W2(9), then W2 tag=0, because the field never initializes.",
+          "misconception": "believes a this delegation skips the instance initializer"
+        },
+        {
+          "id": "D",
+          "text": "W1:9, W2(9), W2 tag=1 twice, because each constructor initializes fields.",
+          "misconception": "believes both constructors run the instance initializer block"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The call to this(9) transfers control to the sibling constructor, which calls super(9) so the parent prints W1:9, then prints W2(9), and only when that returns does the original constructor resume and print W2 tag=1; the field initializer tag = 1 is compiled into the one constructor that does not delegate, so it runs exactly once. A tag of 0 is the tempting result, because the delegating constructor's own body executes after the delegate finishes, but the initializer was already inserted into the delegate right after its super call, so the field is set before either body reaches its print.",
+      "hint": "Only the constructor that skips the this call carries the initializer.",
+      "difficulty": 0.68,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 42,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Class preparation precedes object construction",
+      "learningObjective": "order a static field initializer against the constructor bodies of the same class",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class computes a static field through a helper and also announces each object it builds:\nclass X1 {\n    static int counter = bump();\n    static int bump() { System.out.println(\"class loaded\"); return 1; }\n    X1() { System.out.println(\"X1 made\"); }\n}\npublic class Main { public static void main(String[] args) { new X1(); } }\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "class loaded and then X1 made, because class preparation comes first.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "X1 made and then class loaded, because the constructor runs first.",
+          "misconception": "believes an object is built before its class is prepared"
+        },
+        {
+          "id": "C",
+          "text": "X1 made only, because a static initializer is skipped at run time.",
+          "misconception": "believes a static initializer is not executed at all"
+        },
+        {
+          "id": "D",
+          "text": "X1 made twice, because the static field is computed for every object.",
+          "misconception": "believes a static initializer runs once per constructed object"
+        },
+        {
+          "id": "E",
+          "text": "Nothing prints, because a static helper may not print to the console.",
+          "misconception": "believes a static method is barred from producing output"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The static field's initializer is part of preparing the class, and that preparation happens when the class is first used, which is before any instance of it can exist, so bump runs and prints class loaded before the constructor body prints X1 made. Expecting one print per constructed object is the tempting view, because the field looks like ordinary instance data, but static members belong to the class rather than to any object, so the initializer runs once for the class and not once per instance.",
+      "hint": "Static initializers belong to the class, not to an object.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "construction-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One parent body call per constructed object",
+      "learningObjective": "count how often a superclass constructor body runs across a chain and several constructions",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A chain of three classes has a constructor body in each that prints its own name: class Y1 prints Y1, class Y2 extends Y1 prints Y2, and class Y3 extends Y2 prints Y3. The program then constructs two Y3 objects in succession. How many times does the Y1 constructor body execute? Respond with the integer only.",
+      "options": [],
+      "answer": {
+        "value": 2
+      },
+      "explanation": "Every constructed object runs the whole chain of constructor bodies once, so each of the two Y3 objects runs Y1's body exactly once and the total is 2; a constructor in a superclass is invoked once per object, never once per subclass level or once per subclass. Six is the tempting count, because three constructor bodies times two objects gives six print lines in total, but that total is spread evenly as two of each name, and the question asks only about the topmost body.",
+      "hint": "Count objects constructed, not the number of levels in the chain.",
+      "difficulty": 0.3,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 16,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "construction-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Supplying the missing super call",
+      "learningObjective": "write the super invocation that forwards constructor arguments to the parent",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A subclass constructor is missing the statement that hands its two arguments to the parent:\nclass Z1 { Z1(int w, int h) { System.out.println(w + \"x\" + h); } }\nclass Z2 extends Z1 {\n    Z2(int w, int h) {\n        ______;\n        System.out.println(\"square? \" + (w == h));\n    }\n}\npublic class Main { public static void main(String[] args) { new Z2(3, 5); } }\nWhich statement fills the blank so that the program prints 3x5 and then square? false?",
+      "options": [
+        {
+          "id": "A",
+          "text": "super(w, h);",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "this(w, h);",
+          "misconception": "believes the same class's constructor can be delegated to instead"
+        },
+        {
+          "id": "C",
+          "text": "Z1(w, h);",
+          "misconception": "believes a parent constructor is called like a method"
+        },
+        {
+          "id": "D",
+          "text": "super(w * h);",
+          "misconception": "believes the parent takes the area rather than both sides"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A constructor that needs its parent initialised names it with an explicit super call whose arguments are matched to the parent's parameter list, and forwarding w and h unchanged is what lets the parent print 3x5 before the subclass body prints square? false. Treating the parent as a method to invoke is the tempting reading, because super.w() and super.h() are ordinary calls, but a constructor is not a method and has no return value, so it can only be reached through the special invocation syntax.",
+      "hint": "Match the parent's parameter list, one argument per parameter.",
+      "difficulty": 0.38,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 20,
+        "p75Sec": 35
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A same-named subclass constructor is not an override",
+      "learningObjective": "state that constructors are neither inherited nor overridden and both bodies still run",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A parent and a child each declare a constructor taking a String. Which statement about them is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They are separate constructors, and the child's call still runs the parent.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The child's constructor overrides the parent's and the parent never runs.",
+          "misconception": "believes a same-signature constructor replaces the parent's"
+        },
+        {
+          "id": "C",
+          "text": "Only the child's constructor exists, because constructors are inherited.",
+          "misconception": "believes a subclass inherits and drops the parent's constructor"
+        },
+        {
+          "id": "D",
+          "text": "The two form an override pair, so calls are resolved by runtime type.",
+          "misconception": "believes constructors take part in dynamic dispatch"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Constructors are not members that a subclass inherits or overrides, so the child's one-String constructor is an entirely new method-like member and the child still has to reach the parent through an explicit super call, which is why both bodies run. Dynamic dispatch is the tempting idea, because the same name and signature look like an override, but a constructor is invoked by new rather than by a call on an existing object, so there is no receiver for dispatch to consult and nothing to override.",
+      "hint": "Ask how a constructor is reached: by new, or by a call on an object.",
+      "difficulty": 0.32,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about constructor invocation and ordering",
+      "learningObjective": "judge several claims about super calls, this calls, and initializers",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A training group posts five claims about how subclass construction works in Java. Which of the claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A constructor body may contain at most one explicit super or this call.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A this call transfers control to a sibling constructor of the same class.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "An omitted super call becomes a super call with no arguments.",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A super call is illegal anywhere but the first statement of a body.",
+          "misconception": "believes a super call must open the constructor body"
+        },
+        {
+          "id": "E",
+          "text": "A subclass constructor may name its own instance field as a super argument.",
+          "misconception": "believes a super call may read the object's own instance fields"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      "explanation": "A constructor may contain one explicit constructor invocation and no more, since a second super call is reported as redundant and a this call plus a super call is likewise rejected, a this call really does transfer control to a sibling constructor of the same class, and an omitted super call is filled in as a no-argument super call. The two false claims are the deep-seated ones: a plain statement may certainly precede the invocation, and the arguments may not name the subclass's instance fields because that part of the object does not exist yet.",
+      "hint": "Count the constructor calls, then check the arguments for self-reference.",
+      "difficulty": 0.66,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 40,
+        "p75Sec": 66
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chains"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Shared state points to an abstract class",
+      "learningObjective": "choose an abstract class when a shared base must own fields and a constructor",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A fleet of delivery vans must all share one stored depot name and one announcement routine that reads it, while a feature is still to be supplied per van type. Which type declaration fits that design?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An abstract class holding the depot field and the announcement body.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An interface holding the depot field and the announcement body.",
+          "misconception": "believes an interface can carry per-object instance state"
+        },
+        {
+          "id": "C",
+          "text": "An interface with a public static final String for the depot name.",
+          "misconception": "believes an interface constant can hold per-van state"
+        },
+        {
+          "id": "D",
+          "text": "A concrete class with all methods left empty for vans to override.",
+          "misconception": "believes empty method bodies make a suitable shared base"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The announcement routine has to read a stored depot name that belongs to a particular van, and only a class can declare an instance field and a constructor, so the shared state and the routine that uses it belong in an abstract class whose per-type feature stays abstract. Declaring the field in an interface is the tempting choice, because interfaces are the usual home for shared contracts, but an interface field is implicitly public static final and therefore one value shared by every implementer rather than one value per van.",
+      "hint": "Ask whether the shared data differs from object to object.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 22,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A capability across unrelated hierarchies points to an interface",
+      "learningObjective": "choose an interface when unrelated types share a capability but no state",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A parcel service must be able to hand any sender, a printing report, and a weather feed the same single operation, and these three types have nothing else in common. Which declaration fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An interface declaring that one operation, implemented by all three types.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An abstract base class that all three types must extend.",
+          "misconception": "believes unrelated types can share a base class instead"
+        },
+        {
+          "id": "C",
+          "text": "A concrete utility class with three static methods of the same name.",
+          "misconception": "believes a shared contract requires static utility methods"
+        },
+        {
+          "id": "D",
+          "text": "An abstract class whose subclasses must also share a common field.",
+          "misconception": "believes a shared capability always brings shared state with it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An interface describes what a type can do without saying what it is, which is exactly the situation of a sender, a report, and a weather feed sharing one operation while belonging to unrelated hierarchies; a class could only reach them by forcing all three into one inheritance tree. The abstract-base option is the tempting one, because an abstract class is the standard home for shared behaviour, but a base class implies an is-a relationship and carries state, and nothing about being able to hand a parcel is an is-a claim.",
+      "hint": "Ask whether the three types would all sensibly be called a kind of one thing.",
+      "difficulty": 0.38,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A constructor-enforced invariant points to an abstract class",
+      "learningObjective": "choose an abstract class when every subclass must pass its state through a validating constructor",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Every shape in a drawing tool must be built with a positive width, and the check must not be repeatable in each subclass. Which declaration enforces that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An abstract class whose constructor rejects a non-positive width.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An interface with a constant that subclasses compare their width against.",
+          "misconception": "believes an interface constant can enforce a constructor check"
+        },
+        {
+          "id": "C",
+          "text": "A concrete base class whose setter validates the width after construction.",
+          "misconception": "believes validation after construction replaces validation during it"
+        },
+        {
+          "id": "D",
+          "text": "An interface with a default method that validates the width it is given.",
+          "misconception": "believes an interface constructor can reject an argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An invariant that must hold for every instance is best enforced in the one place every instance passes through, and a superclass constructor is that place, so the check lives in the abstract class's constructor and each subclass forwards its width to it. A default method on an interface is the tempting answer, because it does run automatically, but interfaces declare no constructors at all, so there is no construction-time hook to reject the value; a setter-based check only fires if the caller remembers to use the setter.",
+      "hint": "Ask at what moment the rule must hold, and who can intercept that moment.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One superclass alongside several capabilities",
+      "learningObjective": "explain why a class that needs both a base and capabilities reaches for several interfaces",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A report class must keep extending its existing base class for shared file handling and must also be printable, closeable, and loggable. Which arrangement is available in Java?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One extends clause for the base and one implements clause listing three interfaces.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Four extends clauses, one for the base and one for each capability.",
+          "misconception": "believes Java allows one superclass plus several superclasses"
+        },
+        {
+          "id": "C",
+          "text": "One extends clause for the base, with the capabilities as abstract methods of it.",
+          "misconception": "believes extra capabilities can be added to an existing base class"
+        },
+        {
+          "id": "D",
+          "text": "Only the base may be extended, and the capabilities must be static helpers.",
+          "misconception": "believes a subclass cannot add capabilities at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Java permits exactly one superclass per class but an open-ended implements list, which is precisely the asymmetry that lets this report keep its inherited file handling and still be printable, closeable, and loggable. Stacking extends clauses is the tempting arrangement, because superclass and interface both express a type's obligations and read similarly in a class header, but only one class can be inherited, and a capability that is not inherited state belongs in an interface instead.",
+      "hint": "Count how many classes a single class may inherit directly.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 20,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A protected helper points to an abstract class",
+      "learningObjective": "choose an abstract class when a helper must be reachable only from within one hierarchy",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A document hierarchy needs a shared helper that subclasses may call but no code outside the hierarchy may use. Which declaration can offer that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An abstract class declaring the helper with the protected modifier.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An interface declaring the helper with the protected modifier.",
+          "misconception": "believes an interface method may be declared protected"
+        },
+        {
+          "id": "C",
+          "text": "An interface declaring the helper as public so subclasses can reach it.",
+          "misconception": "believes a public interface method excludes outside callers"
+        },
+        {
+          "id": "D",
+          "text": "A concrete class declaring the helper as private with a public wrapper.",
+          "misconception": "believes a private helper plus a public wrapper is equivalent"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The access requirement is the deciding constraint: a helper that subclasses in one hierarchy may call but unrelated code may not needs protected, and protected is a member modifier a class can use while an interface method may only be public or private. Making it public on an interface is the tempting route, because public certainly lets subclasses reach it, but it also makes it public to every caller everywhere, which is exactly the access the design is trying to prevent.",
+      "hint": "Check which access modifiers an interface member is allowed to use.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 43
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A shared method reading a base-declared field",
+      "learningObjective": "trace a concrete base method that reads a field the base itself declares",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An abstract base declares the field and the shared calculation, and a subclass supplies only the rate:\nabstract class Meter {\n    protected int units;\n    abstract int rate();\n    int bill() { return units * rate(); }\n}\nclass Flat extends Meter { int rate() { return 2; } }\nMeter m = new Flat();\nm.units = 5;\nSystem.out.println(m.bill());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10, because the base's concrete method runs and reads its own field.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0, because the base's concrete method has no subclass body to run.",
+          "misconception": "believes a concrete base method is skipped for a subclass"
+        },
+        {
+          "id": "C",
+          "text": "5, because bill() returns the field and ignores the abstract rate.",
+          "misconception": "believes the shared method skips the varying step entirely"
+        },
+        {
+          "id": "D",
+          "text": "Nothing prints, because an abstract class cannot declare a field.",
+          "misconception": "believes an abstract class may not declare instance fields"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reference is typed as Meter, so the concrete bill() that Meter declares is the body reached, and inside that body the field units and the call to rate() are both resolved against the Flat object, giving 5 * 2 = 10. Expecting no body to run is the tempting thought, because bill() appears inside an abstract class, but abstract applies to the whole class not to each of its methods, and a concrete method in an abstract class is a perfectly normal shared implementation.",
+      "hint": "Abstract marks the class, not every method inside it.",
+      "difficulty": 0.52,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A behaviour-free marker points to an interface",
+      "learningObjective": "choose an empty interface when a type only needs to be tagged for later use",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A test framework needs to recognise which classes should be collected for a report, and it will decide what to do with them later by casting. Which declaration carries that tag?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An interface with no methods, which the chosen classes implement.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An abstract class with no methods, which the chosen classes extend.",
+          "misconception": "believes a behaviour-free tag needs an abstract class"
+        },
+        {
+          "id": "C",
+          "text": "A concrete class with no fields, which the chosen classes extend.",
+          "misconception": "believes an empty concrete class is a suitable tag"
+        },
+        {
+          "id": "D",
+          "text": "An interface with one method the chosen classes already have by some other name.",
+          "misconception": "believes a marker must require a method to work"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "What the framework needs is only a type it can test for and cast to, and an interface with an empty body supplies exactly that without forcing the tagged classes into one inheritance tree, which matters because they are otherwise unrelated. An abstract class is the tempting answer, because abstract is the keyword people reach for when a base has nothing to do, but abstract still means a superclass, so adopting the tag would cost each class its own freedom to extend something else.",
+      "hint": "Ask what the framework does with the tag: test for it, or inherit from it.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 23,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Implementation work fanned out by an abstract class",
+      "learningObjective": "count the concrete bodies an abstract class requires across its subclasses",
+      "practice": "counting implementations",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An abstract base declares three abstract methods, and four subclasses each supply a concrete body for all three of them. Across all four subclasses together, how many concrete method bodies must be written for those three methods? Respond with the integer only.",
+      "options": [],
+      "answer": {
+        "value": 12
+      },
+      "explanation": "An abstract method is a promise rather than a body, so each of the four subclasses writes its own three implementations and the total is 4 * 3 = 12 concrete bodies across the design. Three is the tempting count, because the base declares three methods and the shape looks like a single shared contract, but the declarations are not implementations, and nothing in the language lets four subclasses share one body unless the base supplies a concrete default they may inherit.",
+      "hint": "Multiply the number of declared abstract methods by the number of subclasses.",
+      "difficulty": 0.44,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Declaring an abstract base and its abstract step",
+      "learningObjective": "complete an abstract class declaration with a constructor and an abstract method",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A ticket hierarchy shares a fee calculation and leaves the per-ticket fee to each ticket type:\n______ {\n    abstract int fee();\n}\nclass Standard extends Ticket { int fee() { return 10; } }\npublic class Main { public static void main(String[] args) { Ticket t = new Standard(); System.out.println(t.fee()); } }\nWhich header completes the declaration so that the program compiles and prints 10?",
+      "options": [
+        {
+          "id": "A",
+          "text": "abstract class Ticket",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "interface Ticket",
+          "misconception": "believes an interface may hold the abstract fee method here"
+        },
+        {
+          "id": "C",
+          "text": "class Ticket",
+          "misconception": "believes a plain class may declare an abstract method"
+        },
+        {
+          "id": "D",
+          "text": "abstract class Standard",
+          "misconception": "believes the header must name the subclass instead"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The header must be abstract class Ticket, because a class is what Standard extends and because a class is the construct that may declare an abstract method awaiting a subclass body. Naming the subclass is the tempting slip, since Standard is the concrete class in the file, but a subclass cannot extend itself and the abstract declaration has to sit on the type being extended.",
+      "hint": "Check which name the extends clause refers to.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.7-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Keeping a base from being instantiated",
+      "learningObjective": "compare how an abstract class and a concrete class prevent direct construction",
+      "practice": "design reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A base type exists only to be extended, and no code may build it directly. Which arrangement keeps that guarantee with the least code?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Declare the base abstract, because abstractness alone blocks direct construction.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Declare the base concrete and give it a constructor with a private modifier.",
+          "misconception": "believes an abstract class needs a private constructor as well"
+        },
+        {
+          "id": "C",
+          "text": "Declare the base abstract and also give it a private constructor.",
+          "misconception": "believes abstractness does not block direct construction"
+        },
+        {
+          "id": "D",
+          "text": "Declare the base abstract and add a runtime guard that throws in its body.",
+          "misconception": "believes an abstract constructor must throw to be safe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A type marked abstract cannot be the target of a new expression at all, so declaring the base abstract already blocks direct construction and needs nothing else; a private constructor is the technique for a base that must remain concrete, which is the case a design reaches only when the class has no abstract steps to offer. Adding a private constructor to an abstract class is the tempting belt-and-braces move, but it is redundant, and the throw-in-the-body version would be dead code because no call can ever get that far.",
+      "hint": "Ask whether the language already forbids new on this type.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 26,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-jp-x4",
+        "reviewer": "bank-review-jp-x4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "type-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
