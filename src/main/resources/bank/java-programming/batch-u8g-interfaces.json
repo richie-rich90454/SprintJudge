@@ -1,0 +1,2069 @@
+{
+  "questions": [
+    {
+      "id": "jp-8.8-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One method for two identical requirements",
+      "learningObjective": "supply the single method that satisfies two interfaces declaring the same signature",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "Two interfaces ask for the same method and a class implements both:\ninterface Named {\n    String name();\n}\ninterface Countable {\n    String name();\n}\npublic class Thing implements Named, Countable {\n    ____________\n}\nWhich single member belongs in the class so that new Thing().name() returns \"thing\"?",
+      "options": [
+        {
+          "id": "A",
+          "text": "public String name() { return \"thing\"; }  one method of that signature serves both interfaces.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "public String count() { return \"thing\"; }  any public method satisfies a declared interface method.",
+          "misconception": "believes a method of any name implements an interface requirement"
+        },
+        {
+          "id": "C",
+          "text": "public int name() { return 1; }  the return type does not have to agree with the declaration.",
+          "misconception": "believes the return type may differ when implementing an interface"
+        },
+        {
+          "id": "D",
+          "text": "public String name();  an abstract declaration is enough inside a concrete class.",
+          "misconception": "believes restating the method without a body implements it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an interface requirement is met by a public instance method with exactly that name, parameter list and return type, so one String name() covers both Named and Countable because their declarations are identical. Naming the method count() is tempting because the interface is called Countable, but the compiler matches on the declared signature rather than on anything the interface is named, and a method of the right name with the wrong return type does not count either, since String and int are unrelated types and no conversion bridges them.",
+      "hint": "The two interfaces declare the same signature, so one implementation can serve both.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A superclass method that serves the interface",
+      "learningObjective": "predict that an inherited public method can implement an interface requirement",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class implements an interface without redeclaring anything, because its superclass already has a matching public method:\ninterface Pet {\n    String speak();\n}\nclass Animal {\n    public String speak() {\n        return \"generic\";\n    }\n}\nclass Dog extends Animal implements Pet {\n}\nPet p = new Dog();\nSystem.out.println(p.speak());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"generic\": the inherited public method is the implementation of Pet.speak, so nothing is restated.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The compiler rejects it, because only a method written in the class body can implement an interface.",
+          "misconception": "believes an inherited method can never implement an interface method"
+        },
+        {
+          "id": "C",
+          "text": "\"generic\" only if Dog is declared abstract, otherwise the call through the interface fails.",
+          "misconception": "believes the class must be abstract to inherit an implementation"
+        },
+        {
+          "id": "D",
+          "text": "null, because the interface declares speak and so it hides the superclass's version.",
+          "misconception": "believes an interface declaration hides an inherited superclass method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a class is concrete when it has no abstract requirements left, and an inherited public method with the right signature satisfies the interface just as a declared one would, so the call dispatches to Animal.speak and prints generic. Believing an inherited method does not count is tempting because the code inside Dog is empty and looks unfinished, but the implements clause is a promise about the whole type, and the promise is kept by whatever public method the type already has. Had Animal's method been package-private, the compiler would have refused, because the interface demands public.",
+      "hint": "Ask which public method of the type, from anywhere in its ancestry, matches.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An ambiguous overload for a class that implements both",
+      "learningObjective": "predict that an argument satisfying two unrelated interfaces makes an overload call ambiguous",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A class implements two unrelated interfaces and an overload pair is called with an instance of it:\ninterface Left {\n}\ninterface Right {\n}\nclass Both implements Left, Right {\n}\nstatic void handle(Left x) {\n    System.out.println(\"left\");\n}\nstatic void handle(Right x) {\n    System.out.println(\"right\");\n}\nhandle(new Both());\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects the call with \"reference to handle is ambiguous\", since neither overload is more specific.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints \"left\", because the first applicable overload is the one that is chosen.",
+          "misconception": "believes overload resolution takes the first applicable method"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints \"right\", because the overload declared last is the one that is chosen.",
+          "misconception": "believes overload resolution takes the most recently declared method"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints \"left\" and then \"right\", since every matching overload is called.",
+          "misconception": "believes an ambiguous call fans out to all matching overloads"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that overload resolution picks the most specific applicable method, and an argument that is both a Left and a Right matches both overloads equally well, so the compiler reports the call as ambiguous instead of guessing. Expecting the first declaration to win is tempting because the argument does fit handle(Left), but specificity is decided by the types rather than by their order in the file, and Left is not a supertype of Right, so a caller has to disambiguate explicitly, for example by casting or by calling a method that takes both parameters.",
+      "hint": "Neither parameter type is a supertype of the other, so neither overload is more specific.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Two constants with one simple name",
+      "learningObjective": "predict that a constant inherited from two interfaces must be qualified at the use site",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "Two interfaces declare a constant of the same name with different values and a class implements both:\ninterface Left {\n    int SIZE = 1;\n}\ninterface Right {\n    int SIZE = 2;\n}\npublic class Both implements Left, Right {\n    int show() {\n        return SIZE;\n    }\n}\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it with \"reference to SIZE is ambiguous\", because the name arrives from two interfaces.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and returns 1, because the interface listed first donates its constant.",
+          "misconception": "believes the first interface in the list supplies the constant"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and returns 2, because the interface listed last donates its constant.",
+          "misconception": "believes the last interface in the list supplies the constant"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and returns 3, because a class gets a constant of its own from two interfaces.",
+          "misconception": "believes the class receives a merged constant from both interfaces"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a simple name inherited from more than one interface is ambiguous at the point of use, so javac reports reference to SIZE is ambiguous and the fix is to say which one is meant with Left.SIZE or Right.SIZE. Expecting list order to decide is tempting because the compiler does prefer a class's own field over an inherited one, but that preference is about hiding rather than about a tie, and nothing here declares a field, so the two inherited constants stand in equal competition until the source names one of them.",
+      "hint": "Nothing in the class hides either constant, so the simple name has two sources.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 34,
+        "p75Sec": 56
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Two interface references, two objects",
+      "learningObjective": "trace calls made through two different interface references of the same class",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One class implements two interfaces and each is used through its own reference:\ninterface Flyable {\n    String move();\n}\ninterface Chargeable {\n    String charge();\n}\nclass Drone implements Flyable, Chargeable {\n    public String move() {\n        return \"hover\";\n    }\n    public String charge() {\n        return \"full\";\n    }\n}\nFlyable f = new Drone();\nChargeable ch = new Drone();\nSystem.out.println(f.move() + \" \" + ch.charge());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"hover full\": each reference names the method its own interface declares, on its own object.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"hover hover\", because a Flyable reference falls back to the other interface's method.",
+          "misconception": "believes a reference may call any method of the object it holds"
+        },
+        {
+          "id": "C",
+          "text": "\"full full\", because both references name one Drone and so share one behaviour.",
+          "misconception": "believes one object can only be viewed through a single interface"
+        },
+        {
+          "id": "D",
+          "text": "It throws ClassCastException on the second line, because a Drone is not a Chargeable.",
+          "misconception": "believes a class cannot be viewed through both of its own interfaces"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the static type of the reference decides which members may be called, so f.move() is legal and runs Drone.move while ch.charge() is legal and runs Drone.charge, giving hover full. Expecting both calls to fall back to the same behaviour is tempting because the two references happen to hold objects of the same class, but a reference is a promise about a set of members rather than about the object behind it, and that is also why a Drone can be passed anywhere a Flyable is wanted without any cast at all.",
+      "hint": "Look at the declared type of each variable, not at the class behind it.",
+      "difficulty": 0.32,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 20,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Same name, different signatures",
+      "learningObjective": "count the methods a class needs when two interfaces declare the same name differently",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One interface declares void log() and an unrelated interface declares void log(String detail). A single class implements both. How many methods must that class declare to satisfy the two requirements?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Two methods, log() and log(String), because a signature includes the parameter list as well as the name.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One method, log(), because the interface with the longer parameter list is the more specific one.",
+          "misconception": "believes a longer parameter list makes one requirement subsume the other"
+        },
+        {
+          "id": "C",
+          "text": "One method, log(String), because an implementation may drop parameters a caller never passes.",
+          "misconception": "believes an implementation may ignore part of a declared parameter list"
+        },
+        {
+          "id": "D",
+          "text": "Two methods, but only if the two interfaces are implemented by different classes.",
+          "misconception": "believes the number of methods depends on which classes implement the interfaces"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that two methods are the same only when the name, the parameter types and the return type all match, so log() and log(String) are different requirements and a class implementing both has to supply both, overloading rather than choosing one. Treating the longer parameter list as more specific is tempting because overloading does allow one name to serve several shapes, but overloading means supplying several methods, not one method that covers them, and a method with no parameters can never stand in for a method that demands a String.",
+      "hint": "Compare the full signatures rather than just the method names.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A same-named method with the wrong return type",
+      "learningObjective": "predict that a matching name with a different return type does not implement an interface method",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A class tries to satisfy an interface by declaring a method of the same name but a different type:\ninterface Report {\n    String describe();\n}\npublic class Doc implements Report {\n    int describe() {\n        return 1;\n    }\n}\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it: Doc is not abstract and does not override describe() in Report, so the class is incomplete.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints 1, because a method that shares the name is taken as the implementation.",
+          "misconception": "believes a matching name is enough to implement an interface method"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints body, because the interface supplies a describe() of its own.",
+          "misconception": "believes an interface method with a return type comes with a body"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints nothing, because the return types disagree so no value can be sent.",
+          "misconception": "believes mismatched return types make the call print an empty line"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an interface method names a signature, and a signature includes the return type, so int describe() is a different method from String describe() and Doc is still missing the one it promised, which is why the compiler calls the class abstract-incomplete. Believing the name is enough is tempting because the two declarations sit on adjacent lines and read like the same method, but an implementation must return exactly what the contract promises, and a method that returns int cannot be used where a String is required because the two types share no common conversion.",
+      "hint": "Ask whether the whole signature agrees, not just the method's name.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A default method built on the abstract one",
+      "learningObjective": "trace a default method that calls the implementing class's version of the abstract method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An interface pairs an abstract method with a default method that is written in terms of it:\ninterface Greet {\n    String who();\n    default String greet() {\n        return \"hi \" + who();\n    }\n}\nclass Host implements Greet {\n    public String who() {\n        return \"Ana\";\n    }\n}\nGreet g = new Host();\nSystem.out.println(g.greet());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"hi Ana\": the default body calls who(), which dispatches to the class's implementation.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"hi null\", because the default body runs without any state from the implementing class.",
+          "misconception": "believes a default method sees nothing of the implementing class"
+        },
+        {
+          "id": "C",
+          "text": "\"Ana\", because implementing the abstract method replaces the default method's own body.",
+          "misconception": "believes the class's method replaces the inherited default"
+        },
+        {
+          "id": "D",
+          "text": "It throws AbstractMethodError, because a default may not call an abstract method.",
+          "misconception": "believes a default method cannot call an abstract method of its own interface"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a default method supplies a body but the call it makes to who() is an ordinary virtual call, so it dispatches to the implementing class and returns Ana, giving hi Ana. Expecting the default to replace or ignore the class's contribution is tempting because the class only wrote one of the two methods, but a default is inherited rather than overridden, so both bodies are in play and the default's body is the one that runs. A default may freely call the interface's own abstract methods, since every implementer is obliged to supply them.",
+      "hint": "The default's body is inherited; the call inside it is dispatched normally.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about a class that implements two interfaces",
+      "learningObjective": "judge which statements hold when one class implements two interfaces",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A cheat sheet lists four claims about a class that implements two interfaces. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A single public method can satisfy two interfaces that declare the same signature.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A public method inherited from a superclass can satisfy an interface requirement.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "A method of the same name but a different return type satisfies the interface method.",
+          "misconception": "believes a matching name is enough to implement a requirement"
+        },
+        {
+          "id": "D",
+          "text": "One method of either signature satisfies an overloaded pair of interface methods.",
+          "misconception": "believes one method can cover two overloads at once"
+        },
+        {
+          "id": "E",
+          "text": "A constant inherited from two interfaces is used directly without qualifying it.",
+          "misconception": "believes an ambiguous inherited constant may be used unqualified"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B"
+        ]
+      },
+      "explanation": "The rule is that a requirement is met by a public instance method whose whole signature matches, and because a class has one method per signature, one method can serve two interfaces that ask for the same thing and an inherited public method counts just as much as a declared one. The tempting shortcuts are all about relaxing the match: a shared name with a different return type is a different method, an overloaded pair needs two methods rather than one flexible one, and a constant that arrives from two unrelated interfaces has no single meaning until the source is named at the use site.",
+      "hint": "For each claim, ask whether one method with one signature could serve both roles.",
+      "difficulty": 0.38,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 25,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "What a reference type lets you call",
+      "learningObjective": "apply that a reference's declared type governs which members may be called",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A class Doc implements both Printable, which declares print(), and Saveable, which declares save(). A local variable is declared Printable p = new Doc();. Which calls on p are legal without a cast?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only p.print(), because a Printable reference exposes the members Printable declares.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both p.print() and p.save(), because the object behind p really is a Doc.",
+          "misconception": "believes the runtime type of an object widens what a reference can call"
+        },
+        {
+          "id": "C",
+          "text": "Both p.print() and p.save(), because Doc implements both interfaces at compile time.",
+          "misconception": "believes the class's interface list widens every reference to it"
+        },
+        {
+          "id": "D",
+          "text": "Neither, because a reference typed as an interface cannot reach any method at all.",
+          "misconception": "believes an interface reference exposes nothing but the class's own methods"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler checks each call against the reference's declared type, so p.print() is accepted and p.save() is not, because Saveable is not part of Printable and the two interfaces are unrelated, so reaching save() needs a Saveable reference or a cast such as ((Saveable) p).save(). Expecting the object to widen what is callable is tempting because the value really is a Doc at run time, but the check is made on the static type precisely so that a caller is not surprised, and the class's own implementation of print is reached through the interface just as well.",
+      "hint": "The compiler only knows the type written in the declaration.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 22,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "multiple-interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A diamond of default methods",
+      "learningObjective": "apply that the most specific inherited default wins in a hierarchy of interfaces",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three interfaces form a chain, the middle one redeclaring the default, and a class implements only the last:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta extends Alpha {\n    @Override\n    default String who() {\n        return \"beta\";\n    }\n}\ninterface Gamma extends Beta {\n}\nclass Leaf implements Gamma {\n}\nSystem.out.println(new Leaf().who());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"beta\": where one default extends another the more specific one wins, and Gamma adds nothing.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"alpha\": the interface at the top of the chain is the one that supplies the method.",
+          "misconception": "believes the topmost interface in a hierarchy wins a default conflict"
+        },
+        {
+          "id": "C",
+          "text": "The compiler rejects Leaf, because Alpha and Gamma both supply a who() to it.",
+          "misconception": "believes an inherited default conflicts with the interface that redeclared it"
+        },
+        {
+          "id": "D",
+          "text": "\"gamma\", because the interface a class implements directly supplies the method itself.",
+          "misconception": "believes the directly implemented interface contributes a default of its own"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that Beta's who() overrides the one it inherits from Alpha, so Beta is the most specific declaration in the chain and its body is the one Leaf inherits, while Gamma only extends Beta without restating anything. Reading the top of the chain as the winner is tempting because Alpha is where the method was written first, but override rules run from the most specific type downwards, and there is no conflict at all here, since a redeclaration in a subinterface replaces the inherited default rather than competing with it as an unrelated default would.",
+      "hint": "Work out which declaration overrides which along the extends chain.",
+      "difficulty": 0.62,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The same chain with no redeclaration",
+      "learningObjective": "trace a default that is inherited unchanged by a subinterface",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subinterface adds nothing, so the only default in the picture is the one at the top:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta extends Alpha {\n}\nclass Leaf implements Beta {\n}\nSystem.out.println(new Leaf().who());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"alpha\": Beta restates nothing, so the single default is inherited from Alpha unchanged.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"beta\", because every subinterface supplies a default of its own for the same method.",
+          "misconception": "believes a subinterface always donates a default implementation"
+        },
+        {
+          "id": "C",
+          "text": "It throws AbstractMethodError, because who() has no body inside the class that implements it.",
+          "misconception": "believes a default must be restated in the subinterface to exist"
+        },
+        {
+          "id": "D",
+          "text": "The compiler rejects Leaf, because Leaf implements Beta without redeclaring who().",
+          "misconception": "believes a class must restate every inherited default method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subinterface inherits every member of the interface it extends, so a default with a body is inherited as it stands and Beta's silence means Alpha's body is the one Leaf ends up with, printing alpha. Expecting a subinterface to supply its own default is tempting because the subinterface is the more specific type and the most specific usually wins, but there is nothing more specific to win here since Beta never declared who(), and an inherited default is exactly as real as a declared one, which is why Leaf compiles with an empty body.",
+      "hint": "Inheritance carries the whole member along, body included.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 25,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reaching a superclass from a default method",
+      "learningObjective": "predict that super cannot be used inside an interface default method",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A default method tries to consult a superclass method through super:\ninterface Alpha {\n    default String who() {\n        return super.toString().isEmpty() ? \"alpha\" : \"alpha\";\n    }\n}\nclass Leaf implements Alpha {\n}\nSystem.out.println(new Leaf().who());\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it with \"cannot find symbol, symbol: variable super\", because an interface names no superclass.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and calls Object's toString, because every default implicitly extends Object.",
+          "misconception": "believes an interface has a superclass that super can reach"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints \"alpha\", because super is simply ignored inside an interface body.",
+          "misconception": "believes super is silently discarded in interface code"
+        },
+        {
+          "id": "D",
+          "text": "It compiles but throws NullPointerException, because there is no instance to run it on.",
+          "misconception": "believes calling a default through an interface has no receiver"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an interface declares members but has no superclass of its own, so super has nothing to name and javac reports cannot find symbol for the variable super. Believing Object is reachable is tempting because every class ultimately extends Object and toString exists on every object, but a default method belongs to the interface rather than to a class in a hierarchy, so the way to reach shared code is a static helper in the same interface or a plain call to a method the interface itself declares. Ignoring the call silently is not how the compiler treats a name it cannot resolve.",
+      "hint": "Ask what superclass the interface Alpha actually has to name.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Naming both defaults from the class",
+      "learningObjective": "supply the qualified form that lets a class call each conflicting default",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A class implements two unrelated interfaces that both supply a default who(), and the class wants the text of both:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta {\n    default String who() {\n        return \"beta\";\n    }\n}\npublic class Leaf implements Alpha, Beta {\n    public String who() {\n        ____________\n    }\n}\nSystem.out.println(new Leaf().who());\nWhich single line belongs in the blank so that the program prints alpha/beta?",
+      "options": [
+        {
+          "id": "A",
+          "text": "return Alpha.super.who() + \"/\" + Beta.super.who();  a class may name either default that way.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "return super.who() + \"/\" + super.who();  super in a class names the nearest superclass default.",
+          "misconception": "believes a class reaches an interface default through super"
+        },
+        {
+          "id": "C",
+          "text": "return this.who() + \"/\" + this.who();  the class's own override serves as both defaults.",
+          "misconception": "believes the override can call itself to reach each interface's default"
+        },
+        {
+          "id": "D",
+          "text": "return Alpha.who() + \"/\" + Beta.who();  a default is invoked on the interface type itself.",
+          "misconception": "believes an interface default is called on the interface name alone"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that when a class inherits two unrelated defaults it must override the method, and inside that override the qualified form InterfaceName.super.who() names one of the specific defaults, so both can be combined into alpha/beta. Calling super.who() is tempting because that is the familiar way to reach a superclass version from a class body, but the two versions here live in interfaces rather than in a superclass, and this.who() would simply call the method being written, which is the infinite kind of shortcut that never produces either default's text.",
+      "hint": "The conflict is resolved in the class body, where each default can be named.",
+      "difficulty": 0.52,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An abstract declaration beside a default",
+      "learningObjective": "apply that an abstract declaration overrides an inherited default instead of conflicting",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "One interface supplies a default and an unrelated interface asks for the same method as an abstract declaration:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta {\n    String who();\n}\nclass Leaf implements Alpha, Beta {\n}\nSystem.out.println(new Leaf().who());\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects Leaf: it is not abstract and does not override who() in Beta, so the default does not apply.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The compiler rejects Leaf, because Alpha's default and Beta's declaration of who() conflict.",
+          "misconception": "believes a default and an abstract declaration of one method conflict"
+        },
+        {
+          "id": "C",
+          "text": "It prints \"alpha\", because the default from Alpha is used when nothing is implemented.",
+          "misconception": "believes a default survives beside an abstract declaration of the same method"
+        },
+        {
+          "id": "D",
+          "text": "It prints \"beta\", because Beta is listed last and so supplies the method instead.",
+          "misconception": "believes list order decides between a default and an abstract declaration"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subinterface or a class declaration of the same method replaces an inherited default, and Beta's abstract String who() does exactly that, so the default from Alpha is overridden rather than competing with it and Leaf is left with an unimplemented requirement. Believing the two clash is tempting because the familiar default conflict is two bodies, but here one side has no body at all, so there is nothing to choose between and the abstract declaration simply wins, leaving the class obliged to supply the method itself.",
+      "hint": "Ask which side of the pair has a body; only two bodies can conflict.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Combining both defaults in one body",
+      "learningObjective": "trace an override that joins the two conflicting defaults into one result",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class resolves a default conflict by asking each interface for its own version and joining the results:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta {\n    default String who() {\n        return \"beta\";\n    }\n}\nclass Leaf implements Alpha, Beta {\n    public String who() {\n        return Alpha.super.who() + \"+\" + Beta.super.who();\n    }\n}\nSystem.out.println(new Leaf().who());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"alpha+beta\": the override names each interface's default explicitly and joins the two strings.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"alphabeta\", because the two defaults can only be joined with string addition.",
+          "misconception": "believes the two default results may only be concatenated with a plus"
+        },
+        {
+          "id": "C",
+          "text": "\"beta\", because the last qualified call in the body overrides the first one.",
+          "misconception": "believes the last qualified default call in a body wins"
+        },
+        {
+          "id": "D",
+          "text": "It throws AbstractMethodError, because a default may not be called explicitly at all.",
+          "misconception": "believes naming an interface default in a class body is not allowed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that both qualified calls are ordinary static-in-spirit references to specific inherited bodies, so the override runs both and concatenates alpha, the separator, and beta into alpha+beta. Reading the last call as winning is tempting because a method with one name and one body is usually the single authority, but the two qualified names are different bodies being composed deliberately, and this is the usual way to keep both behaviours when resolving a conflict rather than discarding one of them.",
+      "hint": "Each qualified call runs a different inherited body, so both results appear.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Listing a parent and its child interface",
+      "learningObjective": "predict that naming a parent and its subinterface together is not a default conflict",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class names both a parent interface and the subinterface that redeclares its default:\ninterface Alpha {\n    default String who() {\n        return \"alpha\";\n    }\n}\ninterface Beta extends Alpha {\n    @Override\n    default String who() {\n        return \"beta\";\n    }\n}\nclass Leaf implements Alpha, Beta {\n}\nSystem.out.println(new Leaf().who());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"beta\": naming both interfaces is not a conflict, because Beta is the more specific of the two.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The compiler rejects Leaf, because Alpha and Beta both appear in the implements list.",
+          "misconception": "believes listing a parent and its child together is a conflict"
+        },
+        {
+          "id": "C",
+          "text": "\"alpha\": a directly listed interface always outranks the more specific subinterface.",
+          "misconception": "believes a directly listed interface wins over a more specific one"
+        },
+        {
+          "id": "D",
+          "text": "\"beta\" only because of the @Override annotation, which is what selects the body.",
+          "misconception": "believes the annotation decides which default is inherited"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a conflict needs two unrelated defaults, and Beta is not unrelated to Alpha because it extends it, so the pair is resolved by specificity and Beta's body is the one Leaf inherits, printing beta. Believing the implements list itself creates a conflict is tempting because the class names two interfaces, but a class may name as many interfaces as it likes including a parent and its child, and the annotation plays no part in the decision either, since it is checked by the compiler and does not change which body runs.",
+      "hint": "Ask whether the two interfaces are related by extends or completely unrelated.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Making a subinterface demand its own tag",
+      "learningObjective": "supply the declaration that turns an inherited default back into a requirement",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A subinterface must stop inheriting a parent's default and force every implementer to write its own value instead:\ninterface Loggable {\n    default String tag() {\n        return \"log\";\n    }\n}\ninterface Strict extends Loggable {\n    ____________\n}\nWhich single line belongs in the blank so that a class implementing Strict without writing tag() fails to compile?",
+      "options": [
+        {
+          "id": "A",
+          "text": "@Override String tag();  restating the method with no body makes the requirement abstract again.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "default String tag() { return \"strict\"; }  a subinterface may restate a default with a body of its own.",
+          "misconception": "believes a subinterface can keep a default body and still force implementations"
+        },
+        {
+          "id": "C",
+          "text": "String tag() { return \"strict\"; }  a subinterface may write a body without using the keyword.",
+          "misconception": "believes a body written without a keyword is treated as abstract"
+        },
+        {
+          "id": "D",
+          "text": "@Override default String tag() { return \"strict\"; }  the annotation is what makes it abstract.",
+          "misconception": "believes the annotation on a default declaration makes it abstract"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subinterface may redeclare an inherited member, and a redeclaration with no body is abstract, so writing @Override String tag(); replaces the parent's default with a requirement and every implementer must supply it, which the compiler then reports as Impl is not abstract and does not override tag() in Strict. Writing another default is tempting because the subinterface already has a default to work from, but that would leave implementers with a body again and nothing would be forced, and the annotation is only a check on the declaration rather than something that changes what the declaration means.",
+      "hint": "To force implementations, redeclare the method with no body at all.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A default that calls the other interface's default",
+      "learningObjective": "predict that a call inside a default to a name supplied twice is ambiguous",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "One default calls a helper that a second, unrelated interface also supplies as a default:\ninterface Alpha {\n    default String help() {\n        return \"a\";\n    }\n    default String tag() {\n        return help();\n    }\n}\ninterface Beta {\n    default String help() {\n        return \"b\";\n    }\n}\nclass Leaf implements Alpha, Beta {\n}\nSystem.out.println(new Leaf().tag());\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects Leaf: it inherits unrelated defaults for help() from Alpha and Beta, so the call is ambiguous.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints \"a\", because a default body always resolves help() inside the interface that declares it.",
+          "misconception": "believes a default body binds to its own interface's method"
+        },
+        {
+          "id": "C",
+          "text": "It prints \"b\", because the interface listed last donates the help() that Alpha's default calls.",
+          "misconception": "believes list order resolves a call made inside a default"
+        },
+        {
+          "id": "D",
+          "text": "It prints \"null\", because a call that cannot be resolved inside a default returns null.",
+          "misconception": "believes an unresolved call inside a default produces null"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler resolves the simple name help() at the point of the class, and there it arrives from two unrelated interfaces with two different bodies, so it reports that Alpha and Beta are incompatible and the class inherits unrelated defaults. Believing a default body stays inside its own interface is tempting because the call is written between Alpha's braces, but the inherited members of the class are what the name refers to, and list order settles nothing here, unlike the case where one default overrides another through an extends chain.",
+      "hint": "Resolve the name help() as the implementing class would see it.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about default methods",
+      "learningObjective": "judge which statements hold for inherited default methods",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A reference lists four claims about default methods. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A method written in the class takes precedence over any default it inherits.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Two unrelated interfaces with the same default name force the class to override it.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Where one default extends another, the more specific default is the one that runs.",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A default may be called on the interface name, as in Alpha.who(), with no instance.",
+          "misconception": "believes a default is a static method that needs no instance"
+        },
+        {
+          "id": "E",
+          "text": "A subinterface has to redeclare a default before an implementing class can inherit it.",
+          "misconception": "believes a default must be restated in the subinterface before use"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      "explanation": "The rule is that a class's own method always wins over an inherited default, that two unrelated defaults of one name leave the class with a conflict it has to resolve, and that where one default extends another the more specific declaration overrides, so all three of those hold. Believing a default is static is tempting because a static interface method is called on the interface name, but a default is an instance method and the compiler rejects Alpha.who() as a non-static method referenced from a static context. The last claim is false as well, since a subinterface inherits a default whole and an empty implementing class compiles and runs it.",
+      "hint": "Decide each claim by asking whether a class may run the method without an object.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "default-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The narrowest useful parameter type",
+      "learningObjective": "choose a one-method interface as the parameter type of a read-only client",
+      "practice": "code design",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A report class reads one record by id and does nothing else. A store offers read, write, delete and count. Which parameter type belongs on the report's method?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A one-method interface declaring only read(int), so the report can be handed any reader and cannot write.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The four-method store interface, so every store passed in must offer all four operations.",
+          "misconception": "believes the parameter type must list every method the implementation has"
+        },
+        {
+          "id": "C",
+          "text": "Object, so the report can accept any store at all without having to name it.",
+          "misconception": "believes Object is the narrowest type that keeps the call legal"
+        },
+        {
+          "id": "D",
+          "text": "The concrete store class, so the report reads straight from that one implementation.",
+          "misconception": "believes naming the concrete class is the way to keep a parameter narrow"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a parameter should be typed as narrowly as the code that uses it, and this report only calls read, so a one-method interface states exactly that and makes write and delete unreachable from the report, which is also what lets a different kind of store be supplied later. Taking the fat store interface is tempting because it names the real object being passed, but it forces every future store to offer four operations for the sake of one, and using Object would compile only by giving up the ability to call read at all without a cast.",
+      "hint": "Name the operations the report actually calls, and nothing else.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A mutator behind a read-only type",
+      "learningObjective": "predict that a method missing from the reference's type cannot be called at all",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A class offers a read-only interface and a wider mutating class, and a caller tries to write through the narrow reference:\ninterface ReadonlyBox {\n    int size();\n}\nclass Box implements ReadonlyBox {\n    private int cells;\n    Box(int cells) {\n        this.cells = cells;\n    }\n    public int size() {\n        return cells;\n    }\n    public void setSize(int cells) {\n        this.cells = cells;\n    }\n}\nReadonlyBox b = new Box(3);\nb.setSize(5);\nSystem.out.println(b.size());\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it: cannot find symbol, method setSize(int), because ReadonlyBox declares only size().",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints 5, because the object behind the reference really is a Box.",
+          "misconception": "believes the runtime class's methods are reachable through a narrow reference"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints 3, because a read-only type drops writes instead of failing.",
+          "misconception": "believes a write through a read-only type is silently ignored"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and throws IllegalAccessException, because setSize is not part of the interface.",
+          "misconception": "believes a method missing from an interface fails at run time instead"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a method may only be called if the reference's declared type declares it, and ReadonlyBox declares just size(), so javac reports cannot find symbol for setSize(int) and the program never reaches its print. Believing the call works is tempting because the value really is a Box and Box does have that method, but the narrow type is exactly what prevents the write, and that prevention is the design working: the compiler has caught a mutation that the interface promised could not happen, rather than discovering it later at run time.",
+      "hint": "The declared type of b is the whole story the compiler has to go on.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A read through the read-only type",
+      "learningObjective": "trace a read that the narrow interface does allow",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A box is created and then read through the interface that declares only size():\ninterface ReadonlyBox {\n    int size();\n}\nclass Box implements ReadonlyBox {\n    private int cells;\n    Box(int cells) {\n        this.cells = cells;\n    }\n    public int size() {\n        return cells;\n    }\n    public void setSize(int cells) {\n        this.cells = cells;\n    }\n}\nReadonlyBox b = new Box(3);\nSystem.out.println(b.size());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3: size() is declared by the interface, so the call is legal and the implementation returns 3.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0: a read through an interface returns the interface's own default rather than the value.",
+          "misconception": "believes a read through an interface yields a default instead of the value"
+        },
+        {
+          "id": "C",
+          "text": "It throws AbstractMethodError, because Box's size() is not inherited from the interface.",
+          "misconception": "believes a method that supplies a requirement is not really the implementation"
+        },
+        {
+          "id": "D",
+          "text": "It throws NullPointerException, because the interface type cannot hold a class instance.",
+          "misconception": "believes an interface reference may not refer to an implementing object"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a call through an interface runs the implementing class's method, so b.size() is legal because ReadonlyBox declares it and it dispatches to Box.size, returning the 3 the constructor stored. Expecting a default is tempting because an interface declaration carries no state of its own, but the object behind the reference holds that state and the interface is only a way of naming the operations, so the value comes from the instance and the narrow type costs nothing for a read it allows.",
+      "hint": "The interface names the operation; the object supplies the value.",
+      "difficulty": 0.38,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A lambda for a one-method interface",
+      "learningObjective": "supply a lambda that supplies the single abstract method of an interface",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "An interface declares a single operation and a variable is given a lambda that must square its argument:\ninterface Op {\n    int apply(int x);\n}\nOp sq = ____________;\nSystem.out.println(sq.apply(3));\nWhich expression belongs in the blank so that the program prints 9?",
+      "options": [
+        {
+          "id": "A",
+          "text": "x -> x * x  a lambda body may be a single expression whose value becomes the result.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "x -> { x * x; }  a block body may end with an expression statement instead of a return.",
+          "misconception": "believes a block lambda may end with a bare expression statement"
+        },
+        {
+          "id": "C",
+          "text": "x * x  the parameter list may be left out when the interface has a single method.",
+          "misconception": "believes a lambda may omit its parameter list"
+        },
+        {
+          "id": "D",
+          "text": "apply(x -> x * x)  the method being implemented has to be named inside the expression.",
+          "misconception": "believes a lambda must name the method it implements"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda for a one-method interface is written as the parameters, an arrow, and a body, and a body that is a single expression is taken as the return value, so x -> x * x supplies apply and prints 9. Ending a block with a bare expression statement is tempting because it looks like the same work written out, but a block body that produces no value is not compatible with an int-returning method, and the arrow form needs no method name because the interface's single method is the only possible target.",
+      "hint": "The interface's only method is the target, so it never has to be named.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An interface with two abstract methods",
+      "learningObjective": "predict that a lambda cannot target an interface with two abstract methods",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "An interface declares two operations and a lambda is offered for it:\ninterface Calc {\n    int add(int a);\n    int twice(int a);\n}\nCalc c = a -> a + 1;\nSystem.out.println(c.add(4));\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it: Calc is not a functional interface, multiple non-overriding abstract methods found.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints 5, because a lambda only has to match the first abstract method it finds.",
+          "misconception": "believes a lambda implements the first abstract method in the interface"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints 5, because add and twice share a name and so are one method.",
+          "misconception": "believes two methods with the same name count as one abstract method"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints 4, because the lambda is bound to twice, which is declared last.",
+          "misconception": "believes the last abstract method declared is the one a lambda supplies"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda can only implement an interface with exactly one abstract method, and Calc has two that do not override each other, so javac reports that Calc is not a functional interface and offers no choice to make. Binding the first or the last method is tempting because the two declarations look like variants of one idea and the lambda does have an int parameter, but there is nothing in the syntax to say which method it is meant to be, and an expression body supplies a single body, which is why the interface has to name just one thing to be implemented.",
+      "hint": "Count the abstract methods before writing anything in lambda form.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A lambda passed to a narrow parameter",
+      "learningObjective": "trace a call that supplies its one-method interface as a lambda",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A method takes a one-operation interface and the caller supplies a lambda instead of a named class:\ninterface Doubler {\n    int twice(int x);\n}\nstatic void show(Doubler d) {\n    System.out.println(d.twice(4));\n}\nshow(x -> x + 1);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5: the parameter type names the single method, and the lambda body supplies it for 4.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8: a lambda named twice is understood to double whatever it is given.",
+          "misconception": "believes the method's name is applied as the operation on the argument"
+        },
+        {
+          "id": "C",
+          "text": "4: the lambda's parameter shadows the argument, so the printed value is the parameter itself.",
+          "misconception": "believes the lambda's own parameter is what reaches the print"
+        },
+        {
+          "id": "D",
+          "text": "It throws AbstractMethodError, because no class implements the interface in this program.",
+          "misconception": "believes a functional interface needs a named implementing class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the parameter's declared type says which single method has to be supplied, so d.twice(4) calls the lambda's body with 4 and prints 4 + 1 = 5. Reading the method name as the operation is tempting because twice sounds like multiplication, but a name like that is only a label and the body decides, which is exactly the flexibility that makes a one-method interface a good parameter type. No implementing class is needed, because the lambda is itself the implementation for that one call.",
+      "hint": "The interface names the operation; the lambda body performs it.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A default method using the value a lambda supplies",
+      "learningObjective": "trace a default method that builds its result from a lambda's contribution",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An interface keeps the shared greeting and asks each caller for a name:\ninterface Greeter {\n    String name();\n    default String greet() {\n        return \"hi \" + name();\n    }\n}\nGreeter g = () -> \"Ana\";\nSystem.out.println(g.greet());\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"hi Ana\": the default builds the greeting around the value the lambda supplies for name().",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"hi null\", because a lambda cannot supply the abstract method a default relies on.",
+          "misconception": "believes a lambda leaves the interface's abstract method unimplemented"
+        },
+        {
+          "id": "C",
+          "text": "\"Ana\", because the lambda's body replaces the inherited default method's own body.",
+          "misconception": "believes the lambda body replaces the default method"
+        },
+        {
+          "id": "D",
+          "text": "It throws AbstractMethodError, because greet() is inherited rather than declared by the class.",
+          "misconception": "believes an inherited default is never properly implemented"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda supplies every abstract method of the target interface, so name() returns Ana while the inherited default greet() wraps it, giving hi Ana. Believing the lambda leaves name() unimplemented is tempting because the arrow body was aimed at the single abstract method and the default is not written anywhere, but the default already has a body and needs nothing from the caller, and the two work together, which is what lets an interface own the shared wording while each call site owns only the name.",
+      "hint": "The lambda and the default each supply one piece of the result.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about narrow interfaces",
+      "learningObjective": "judge which statements describe the effect of typing a reference narrowly",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "One interface Sizer declares int size() and another, Growable, extends it and adds void grow(int). A review lists four claims about typing references narrowly. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A reference typed as Sizer can be used wherever the code only calls size().",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A reference typed as Sizer can be used to call grow(int) on the object it holds.",
+          "misconception": "believes a narrow reference can still call the wider interface's methods"
+        },
+        {
+          "id": "C",
+          "text": "A parameter typed as an interface declaring only read(int) accepts a wider store instance.",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A parameter typed as the widest interface is the narrowest useful type for a read-only client.",
+          "misconception": "believes the widest interface is the narrowest parameter type"
+        },
+        {
+          "id": "E",
+          "text": "A class that implements an interface exposes all of its methods to every reference to it.",
+          "misconception": "believes implementing an interface exposes every method to every reference"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "C"
+        ]
+      },
+      "explanation": "The rule is that a reference is usable wherever the operations it names cover what the code does, so a Sizer-typed reference serves read-only code and a Reader-typed parameter accepts anything that declares read, which is what makes a narrow type a promise about behaviour rather than about a class. Believing the narrow reference can still reach grow is tempting because the object behind it does have that method, but the reference does not declare it, and choosing the widest interface as the narrowest type inverts the whole point, since it would oblige every future store to offer operations the client never calls.",
+      "hint": "For each claim, ask whether the declared type covers the call being made.",
+      "difficulty": 0.4,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Adding an operation to a published interface",
+      "learningObjective": "choose a default body so existing implementers keep compiling after a change",
+      "practice": "code design",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An interface Paid is already implemented by a class Free that was written and compiled last week. A new operation is being added to the interface, and the team wants the existing class to keep working. Which declaration achieves that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "default boolean paid() { return true; }  the existing class inherits the new behaviour and still compiles.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "boolean paid();  the new operation is abstract, so every existing implementer must add it.",
+          "misconception": "believes an abstract declaration is the only way to extend an interface"
+        },
+        {
+          "id": "C",
+          "text": "static boolean paid() { return true; }  implementers can call it without inheriting anything new.",
+          "misconception": "believes a static interface method is inherited by the implementing classes"
+        },
+        {
+          "id": "D",
+          "text": "Leave the interface alone and document the new operation, so no implementer has to change.",
+          "misconception": "believes documenting a new operation replaces declaring it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a default body gives the new operation an implementation every existing implementer inherits, so Free keeps compiling and the new behaviour is available immediately, which is the whole reason defaults exist. Declaring it abstract is tempting because that is the shape of a plain interface method, but it converts an addition into a breaking change that every implementer must answer, and a static method is worse still because it belongs to the interface rather than to the objects, so instances of Free would not have it at all.",
+      "hint": "Ask which form of declaration adds a behaviour without adding a requirement.",
+      "difficulty": 0.34,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.8-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A client that only knows the narrow type",
+      "learningObjective": "trace a helper that compares two implementations through the interface alone",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A helper picks the higher-ranked of two objects and neither the helper nor the variables name the class behind them:\ninterface Ranked {\n    int rank();\n}\nclass Task implements Ranked {\n    private final String name;\n    private final int rank;\n    Task(String name, int rank) {\n        this.name = name;\n        this.rank = rank;\n    }\n    public int rank() {\n        return rank;\n    }\n    public String toString() {\n        return name + \":\" + rank;\n    }\n}\nstatic Ranked best(Ranked a, Ranked b) {\n    return a.rank() >= b.rank() ? a : b;\n}\nRanked t1 = new Task(\"write\", 3);\nRanked t2 = new Task(\"test\", 8);\nSystem.out.println(best(t1, t2));\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"test:8\": best compares through the Ranked reference and 8 is the larger of the two ranks.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"write:3\", because the ternary hands back the first argument whenever its test holds.",
+          "misconception": "believes a condition that holds always selects the first operand"
+        },
+        {
+          "id": "C",
+          "text": "It throws ClassCastException, because two Task objects cannot be compared with each other.",
+          "misconception": "believes comparing two implementations of one interface needs a cast"
+        },
+        {
+          "id": "D",
+          "text": "\"test:8\" only if both tasks are held in an array rather than as Ranked references.",
+          "misconception": "believes narrow references cannot be used to compare two objects"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a helper needs only the one operation it uses, so best asks each argument for rank() through the Ranked reference, finds 3 and 8, and returns the task with the larger value, whose toString gives test:8. Expecting the first argument because its test held is tempting when a >= is written, but a condition that holds selects the first operand only when that operand is the intended one, and here 8 >= 3 is true so the second task is returned, which is what makes the higher rank win. No cast is involved because Ranked is the only type the helper knows about.",
+      "hint": "Work out the value of 8 >= 3 and which operand that selects.",
+      "difficulty": 0.66,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
