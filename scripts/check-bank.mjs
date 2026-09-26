@@ -45,7 +45,7 @@ function err(file, id, msg) {
 function checkQuestion(file, q, index) {
   const id = q.id ?? `index-${index}`;
   const tag = `${file}#${id}`;
-  if (typeof q.id !== "string" || !/^[a-z0-9]+-[0-9]+\.[0-9]+-[0-9]{4}$/.test(q.id)) err(file, id, "bad id shape");
+  if (typeof q.id !== "string" || !/^[a-z0-9]+-[0-9]+\.[0-9]+-(?!0000)[0-9]{4}$/.test(q.id)) err(file, id, "bad id shape");
   if (ids.has(q.id)) err(file, id, "duplicate id");
   else ids.add(q.id);
   if (!SUBJECTS.has(q.subject)) err(file, id, "unknown subject");
@@ -98,7 +98,7 @@ function checkQuestion(file, q, index) {
     }
     // Quality floor: options must be grammatically parallel in length, so no
     // giveaway short/long option. Median-relative, lenient enough for numerals.
-    if (options.length >= 3) {
+    if (options.length >= 3 && options.every((o) => typeof o.text === "string")) {
       const lengths = options.map((o) => o.text.trim().length).sort((a, b) => a - b);
       const mid = lengths[Math.floor(lengths.length / 2)];
       if (mid > 0) {
@@ -128,7 +128,7 @@ function checkQuestion(file, q, index) {
   for (const re of BRAND) if (re.test(text)) err(file, id, "branded program name in content");
   if (AP_WORD.test(text)) err(file, id, "standalone branded initialism in content");
   if (/(lorem ipsum|todo|fixme|placeholder|question \d+ about)/i.test(text)) err(file, id, "placeholder text");
-  const key = normStem(q.stem);
+  const key = normStem(typeof q.stem === "string" ? q.stem : `__badstem__${q.id ?? index}`);
   if (stems.has(key)) err(file, id, `duplicate stem of ${stems.get(key)}`);
   else stems.set(key, tag);
   const words = key.split(" ");
