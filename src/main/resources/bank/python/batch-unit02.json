@@ -1,0 +1,3900 @@
+{
+  "questions": [
+    {
+      "id": "py-2.1-0001",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Raise And Handler",
+      "learningObjective": "trace the order in which a guarded body, its handler, and its cleanup run",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The guarded body prints one line and then raises a fault that a matching handler catches. What does this program print?\n\ntry:\n    print(\"start\")\n    raise ValueError(\"bad\")\nexcept ValueError as err:\n    print(\"caught\", type(err).__name__)\nfinally:\n    print(\"done\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "start, then the caught name, then done",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "done, then start, then the caught name",
+          "misconception": "believes the cleanup block runs before the guarded body begins"
+        },
+        {
+          "id": "C",
+          "text": "start, then done, then the caught name",
+          "misconception": "believes the cleanup block preempts the handler when both are present"
+        },
+        {
+          "id": "D",
+          "text": "the caught name, then start, then done",
+          "misconception": "believes the handler intercepts the first line before the body runs"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The guarded body runs until it raises, printing its first line on the way, and the matching handler then takes over and prints the fault's name, and the cleanup block runs last on the way out no matter which of those two happened. The tempting answers reorder the parts, and the ordering is worth memorising because it is what lets cleanup be trusted: the cleanup block is guaranteed to run after the handler has done its work, never before it.",
+      "hint": "Follow the three parts in the order the interpreter reaches them: body, handler, cleanup.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0002",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What A Handler Intercepts",
+      "learningObjective": "state the scope of a handler clause attached to a guarded block",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A handler clause is attached to one guarded block. Which statement about the faults it intercepts is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the faults from that guarded body whose type the clause names",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "every fault raised anywhere in the program, including later code",
+          "misconception": "believes a handler is global once written anywhere in the module"
+        },
+        {
+          "id": "C",
+          "text": "only the faults that body raises on purpose with a raise",
+          "misconception": "believes faults raised implicitly by the language are not interceptable"
+        },
+        {
+          "id": "D",
+          "text": "the fault, but only after it has already stopped the whole program",
+          "misconception": "believes a handler runs once the program has already been terminated"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A handler is scoped to the body it is attached to and only claims faults whose type matches what it names, so a fault of a different type passes straight through to whatever is outside. The tempting answer that makes handlers global confuses them with a top-level recovery point, and the answer that restricts them to deliberate raises ignores the language's own faults, which are the ones a handler is usually written for.",
+      "hint": "Ask which faults a handler claims and how far its reach extends.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0003",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Handler Of The Wrong Type",
+      "learningObjective": "trace two handlers and determine which one claims the raised fault",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two handlers are attached and each names a different type. What does this program print?\n\ntry:\n    print(1 / 0)\nexcept ValueError:\n    print(\"value\")\nexcept ZeroDivisionError:\n    print(\"zero\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "it prints zero",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it prints value",
+          "misconception": "believes the first handler written is the one that always claims a fault"
+        },
+        {
+          "id": "C",
+          "text": "it prints both labels",
+          "misconception": "believes every handler runs in turn and each prints its own label"
+        },
+        {
+          "id": "D",
+          "text": "it prints nothing at all",
+          "misconception": "believes a fault must match a handler's name character for character"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The body divides by zero, which raises the division fault, and the handlers are examined in the order written until one names a matching type, so the first is skipped and the second prints its label. The tempting answer that takes the first handler confuses the written order with the matching order, and the answer that prints both lines would require a fault to be claimed twice, which cannot happen since the claiming handler ends the search.",
+      "hint": "Walk the handlers in written order and stop at the first whose type matches the fault.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 29
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0004",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Handler Matching A Subclass",
+      "learningObjective": "trace a fault of a custom type caught by a handler for an unrelated named type",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The raised fault belongs to a class derived from the base exception type, and two handlers name unrelated types. What does this program print?\n\nclass AppError(Exception):\n    pass\n\ntry:\n    raise AppError(\"boom\")\nexcept ValueError:\n    print(\"value\")\nexcept AppError:\n    print(\"app\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "it prints app",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it prints value",
+          "misconception": "believes the first handler claims every fault regardless of type"
+        },
+        {
+          "id": "C",
+          "text": "it prints nothing at all",
+          "misconception": "believes a handler only matches when the names are identical"
+        },
+        {
+          "id": "D",
+          "text": "it prints the class name",
+          "misconception": "believes raising a custom class prints its name without a handler"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A derived class is caught by a handler for its base class, so the base exception handler would also have claimed this fault, and here the handler for the custom class claims it directly. The tempting answer that requires an exact name match misses the property that makes a hierarchy of faults worth building, since it is exactly the matching that lets a caller handle a whole family of related faults with one clause.",
+      "hint": "Ask whether a handler for a base class also claims a fault of a derived class.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0005",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Named Type Versus Bare Handler",
+      "learningObjective": "state what naming the fault type preserves that a bare handler discards",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A guarded body can fail in more than one way. What does naming the type in the handler preserve that a bare handler would discard?",
+      "options": [
+        {
+          "id": "A",
+          "text": "an unrelated fault of another type is left to propagate outward",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the matching fault is found sooner, so the handler runs more quickly",
+          "misconception": "believes the benefit is speed of matching rather than what is left unmatched"
+        },
+        {
+          "id": "C",
+          "text": "only a named type can be caught at all, since a bare clause is void",
+          "misconception": "believes a bare handler is syntactically inert and catches nothing"
+        },
+        {
+          "id": "D",
+          "text": "the guarded body is prevented from raising a fault of its own",
+          "misconception": "believes naming the type suppresses further raises in the body"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Naming the type turns the handler into a claim on one family of faults, so anything else raised in that body continues outward to a caller who may be able to do something about it, and a bare handler swallows that too and reports it as if it were the problem it expected. The tempting answer about speed is a real but minor benefit, while the important one is that a hidden fault is a fault nobody can fix, since the program continues from a state its author never anticipated.",
+      "hint": "Ask where a fault of a type the handler does not name ends up.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0006",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Bare Handler Swallows A Miss",
+      "learningObjective": "trace a bare handler that converts a fault into a quiet fallback value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The handler clause names no type at all, and the body fails on the second call. What does this program print?\n\ndef load(name):\n    try:\n        return {\"a\": 1}[name]\n    except:\n        return None\nprint(load(\"a\"), load(\"z\"))",
+      "options": [
+        {
+          "id": "A",
+          "text": "it prints 1 then None",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it prints 1 then a fault",
+          "misconception": "believes a bare handler still lets an unrelated fault propagate outward"
+        },
+        {
+          "id": "C",
+          "text": "it prints 1 then 0",
+          "misconception": "believes a swallowed fault produces the type's zero value rather than the stated one"
+        },
+        {
+          "id": "D",
+          "text": "it prints None twice",
+          "misconception": "believes a bare handler intercepts even a body that completed successfully"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first call finds its key and returns the stored value without any fault, and the second raises a key fault which the bare handler converts into the stated fallback, so the two results are the stored value and the absent marker. The tempting answer that lets the fault escape treats a bare clause as if it named a type, and the answer claiming a numeric zero invents a fallback that was never written, which is the second way a bare handler misleads by replacing one unstated thing with another.",
+      "hint": "Ask what the fallback expression returns, and whether the first call raises at all.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 31
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0007",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What A Bare Handler Hides",
+      "learningObjective": "explain the cost of a handler clause that names no type",
+      "practice": "written explanation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A function wraps its whole body in a bare handler and returns a fallback value from it. Explain what such a clause hides, and why that makes the resulting program harder to repair than one that stopped.",
+      "options": [],
+      "answer": {
+        "exemplar": "A bare handler claims every fault, not just the one the author had in mind, so a genuine bug such as a misspelled name, a wrong type, or a failed lookup is all reported to the caller as the same tidy fallback. The program then keeps running from a state its author never anticipated, and because the fallback looks like ordinary data, nothing downstream can tell it apart from a real result. A handler that names the type it expects instead lets every other fault propagate to a caller who may be able to do something about it, and it makes the code that survives a fault the code that was actually tested. The bare form is defensible only at a boundary where no further recovery is possible, and even there the fallback should be logged rather than returned silently."
+      },
+      "explanation": "A bare handler claims every fault, so unrelated bugs are reported to the caller as the fallback value and the program continues from an unanticipated state, which means the failure is both hidden and made harder to find rather than easier. Naming the type confines the claim and lets anything else propagate to a caller with more context. The tempting defence is that a bare handler is shorter, and it is, but the cost is that the reported symptom no longer corresponds to the real cause, so a fault that would have taken minutes to fix now survives as a wrong number.",
+      "hint": "Ask what a caller can conclude from the fallback value alone.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 48,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0008",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Else Block On A Try",
+      "learningObjective": "trace which of the two attached blocks runs when the body completes without a fault",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The guarded body completes without raising anything. What does this program print?\n\nlog = []\ntry:\n    x = 5\nexcept ValueError:\n    log.append(\"except\")\nelse:\n    log.append(\"else\")\nprint(log)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the list holding only else",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the list holding only except",
+          "misconception": "believes the handler clause is entered whenever a body finishes"
+        },
+        {
+          "id": "C",
+          "text": "the list holding both entries in written order",
+          "misconception": "believes both attached blocks run on every path out of the body"
+        },
+        {
+          "id": "D",
+          "text": "the list holding nothing at all",
+          "misconception": "believes both blocks are skipped because no fault was raised"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The else block on a guarded statement runs only when the body completed without raising, which is exactly this case, while the handler clause is skipped because it exists solely to claim a fault. The tempting answer that enters the handler treats it as a continuation of the body rather than as a claim, and the answer that runs both would make the pair report the same situation twice, leaving no way to tell a clean run from a handled one.",
+      "hint": "The two attached blocks cover opposite outcomes; decide which one this run took.",
+      "difficulty": 0.42,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0009",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Cleanup Block On A Clean Path",
+      "learningObjective": "trace a cleanup block that runs after an ordinary body completes",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "No fault is raised and no handler is attached, but a cleanup block is present. What does this program print?\n\nout = []\ntry:\n    out.append(\"body\")\nfinally:\n    out.append(\"finally\")\nprint(out)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the list holding body then finally",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the list holding finally only",
+          "misconception": "believes entering a guarded block skips its body when a cleanup block is attached"
+        },
+        {
+          "id": "C",
+          "text": "the list holding finally then body",
+          "misconception": "believes a cleanup block runs before the body it is attached to"
+        },
+        {
+          "id": "D",
+          "text": "the list holding body only",
+          "misconception": "believes a cleanup block is skipped when no fault occurs"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cleanup block runs on every path out of the guarded body, and a body that completes without raising is still a path, so the body appends first and the cleanup appends second. The tempting answer that skips the cleanup when nothing went wrong is the misconception that makes cleanup blocks untrustworthy, and it is worth stating plainly: they run precisely so that the release step cannot be skipped on the boring path, which is the path that happens most often.",
+      "hint": "A cleanup block is not a handler, so it does not need a fault to be triggered.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "cleanup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0010",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What Cleanup Guarantees",
+      "learningObjective": "state the condition under which a cleanup block executes",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A cleanup block is attached to a guarded body that may fail. Under which condition does the cleanup body run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "on every path out of the body, whether a fault occurred or not",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "only when the body completed without raising a fault of any kind",
+          "misconception": "believes cleanup is only reached on the path where nothing failed"
+        },
+        {
+          "id": "C",
+          "text": "before the body starts, so it can veto the attempt entirely",
+          "misconception": "believes cleanup is a pre-check that runs ahead of the guarded work"
+        },
+        {
+          "id": "D",
+          "text": "only after a handler has already dealt with a raised fault",
+          "misconception": "believes cleanup is unreachable when there is no handler clause"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cleanup block runs however the guarded body is left, whether it finished normally, returned early, or was interrupted by a fault, and that universality is the whole reason to reach for it instead of writing the release step at the end of the body. The tempting answer that ties it to the clean path removes the guarantee that matters, and the answer that requires a handler clause is simply false, since the block attaches to the guarded body and needs no clause beside it.",
+      "hint": "Ask which of the body's possible exits the block is attached to.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "cleanup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0011",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Raise Inside Cleanup",
+      "learningObjective": "explain why a fault raised in a cleanup block displaces the one already in flight",
+      "practice": "written explanation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A guarded body raises one fault and its attached cleanup block raises a different one. Explain which fault the caller ends up seeing, and why.",
+      "options": [],
+      "answer": {
+        "exemplar": "The cleanup block is the last thing that runs on the way out of the guarded body, so a fault raised inside it happens while the original fault is still travelling outward. A new fault raised at that point replaces the one in flight rather than joining it, because there is only one slot for the pending fault, and the caller therefore sees the fault from the cleanup block and never learns that the body failed first. That is why a cleanup block should release resources and nothing else: any computation or validation placed there can destroy the diagnosis of whatever actually went wrong. The usual repair is to make the cleanup step incapable of raising, by catching inside it and reporting separately, so the original fault survives to reach a caller who can act on it."
+      },
+      "explanation": "A new fault raised while another is still propagating displaces the one in flight, so the caller sees the cleanup fault and the original cause is lost, which is exactly backwards from what a cleanup block is for. The block should release resources and do nothing that can fail. The tempting arrangement puts a final check or a report inside the block because it runs on every path, and that is precisely why it destroys the diagnosis: the message a reader finally sees describes the last thing that happened rather than the thing that mattered.",
+      "hint": "Ask which of the two faults is still travelling outward when the second one is raised.",
+      "difficulty": 0.56,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "cleanup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0012",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Custom Exception Result",
+      "learningObjective": "pair the printed result of a caught custom fault with the reason it takes that form",
+      "practice": "two-stage reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A custom fault is raised with a short word as its argument and then caught. Which pair names what this program prints and why?\n\nclass ShortInput(Exception):\n    pass\n\ndef need(word):\n    if len(word) < 3:\n        raise ShortInput(word)\n    return word.upper()\n\ntry:\n    need(\"ab\")\nexcept ShortInput as err:\n    print(type(err).__name__, str(err))",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints ShortInput ab, because the class carries the word given to it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints ab ShortInput, because the text comes before the class name",
+          "misconception": "believes the call prints the message argument before the type name"
+        },
+        {
+          "id": "C",
+          "text": "It prints ShortInput ShortInput, because the message defaults to the class name",
+          "misconception": "believes the printed text falls back to the class name when an argument is passed"
+        },
+        {
+          "id": "D",
+          "text": "It prints ab, because a custom class discards the value it was given",
+          "misconception": "believes a custom fault class cannot carry a value through the raise"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The raise passes the offending word as the fault's argument, so converting the caught fault to text gives that word back, and asking for the type's name gives the class name, and the program prints the name first because that is the order it wrote. The tempting answer that drops the class name assumes a custom class refuses to carry a value, which would leave it no better than a bare raise, and the answer that duplicates the name confuses the type's name with its default message.",
+      "hint": "Decide which call gives the class name and which gives the argument back as text.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 29,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "custom"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0013",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Defining A Custom Exception",
+      "learningObjective": "state what a program must write to raise a fault of its own kind",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program needs a fault that callers can recognise and handle on its own. Which of these produces one?",
+      "options": [
+        {
+          "id": "A",
+          "text": "a class derived from the base fault type, raised with a raise statement",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a class derived from the base value type, raised with a return",
+          "misconception": "believes a custom fault is an ordinary value handed back to the caller"
+        },
+        {
+          "id": "C",
+          "text": "a plain function that prints a message where a fault is needed",
+          "misconception": "believes printing a message and stopping is equivalent to raising a fault"
+        },
+        {
+          "id": "D",
+          "text": "a string constant handed to the guarded body, which reports it as a fault",
+          "misconception": "believes passing text into the guarded body is what raises a fault"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A custom fault is a class derived from the base fault type, so it participates in the same handling rules as every other fault and can be claimed by a handler naming either it or its base, and a raise statement is what puts an instance of that class in flight. The tempting answers each replace the mechanism with something that cannot be caught selectively, and the last one is worth singling out because passing a string to a body looks like it might signal a problem while the body has no idea what it was handed.",
+      "hint": "Ask what a handler naming your fault would need to match against.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 31
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "custom"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0014",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Assertion That Fires",
+      "learningObjective": "trace a failed assertion and report the message it was given",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An assertion inside a function fails for the value passed, and the fault is caught. What does this program print?\n\ndef check(n):\n    assert n > 0, \"n must be positive\"\n    return n\n\ntry:\n    check(-1)\nexcept AssertionError as err:\n    print(err)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the message the assertion was given",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the value that failed the assertion, printed on its own",
+          "misconception": "believes an assertion reports the offending value by default"
+        },
+        {
+          "id": "C",
+          "text": "the name of the fault type rather than the message",
+          "misconception": "believes converting the caught fault to text yields its class name"
+        },
+        {
+          "id": "D",
+          "text": "the returned value from the function after the fault",
+          "misconception": "believes the return on the following line still runs after a failed check"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A failed assertion raises the assertion fault carrying the message written after the comma, and converting that fault to text yields the message rather than the class name. The tempting answer that expects the offending value is right about the general shape of a fault but wrong here, because an assertion reports what it was told to report and nothing more, which is why a useful assertion message names what was expected rather than repeating the condition.",
+      "hint": "Ask which part of the assertion statement is preserved when the check fails.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "assertions",
+        "faults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0015",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Running With Assertions Off",
+      "learningObjective": "state what happens to a check written as an assertion when the interpreter is run in optimised mode",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program validates its input with an assertion, and the same program is later run with assertions disabled for speed. What becomes of that validation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "it is skipped entirely, so an invalid argument passes through unnoticed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it still runs but reports a different kind of fault than usual",
+          "misconception": "believes the check survives with a changed fault type instead of vanishing"
+        },
+        {
+          "id": "C",
+          "text": "it is skipped but the message is still written to the output",
+          "misconception": "believes the message is produced even though the check never ran"
+        },
+        {
+          "id": "D",
+          "text": "it runs twice, once for each side of the condition it guards",
+          "misconception": "believes disabling the option duplicates the check rather than removing it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Disabling assertions removes the check from the compiled program entirely, so the condition is never evaluated and an argument that should have been rejected proceeds into the body. The tempting answers all suppose the check survives in some reduced form, and that supposition is the trap: an assertion documents an invariant for the developer, not a rule for the program, so anything the program must enforce on untrusted input has to be an ordinary conditional that raises a real fault.",
+      "hint": "Ask whether the condition is still evaluated at all when the option is set.",
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 18,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "assertions",
+        "optimised-mode"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0016",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Counts From A Caught Failure",
+      "learningObjective": "compute the length and total of a list built while a fault is being caught",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Three strings are converted in turn, and a value of minus one is recorded for the one that fails. The length of the result is multiplied by one hundred and added to the total. What number is printed?\n\nattempts = []\nfor text in [\"7\", \"x\", \"9\"]:\n    try:\n        attempts.append(int(text))\n    except ValueError:\n        attempts.append(-1)\nprint(len(attempts) * 100 + sum(attempts))",
+      "options": [],
+      "answer": {
+        "value": 315,
+        "tolerance": 0
+      },
+      "explanation": "The two convertible strings contribute seven and nine while the third contributes minus one, so the result holds three values totalling fifteen, and the program prints the length and the total side by side, giving three and fifteen. The tempting result omits the failed entry so the length is two, or leaves the gap unfilled so the addition raises instead of producing a number, and both mistakes miss that the handler supplies a value precisely so the loop can carry on.",
+      "hint": "Count the entries including the one the handler appended, then add all of them.",
+      "difficulty": 0.36,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0017",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Context Manager Clean Path",
+      "learningObjective": "trace a generator-based context manager through a block that does not fail",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A generator function is decorated into a context manager and the block completes without failing. What does this program print?\n\nimport contextlib\n\n@contextlib.contextmanager\ndef tracked(name):\n    print(\"open\", name)\n    yield name\n    print(\"close\", name)\n\nwith tracked(\"a.txt\") as handle:\n    print(\"body\", handle)",
+      "options": [
+        {
+          "id": "A",
+          "text": "open, the body line, then close, in that order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "open, then close, then the body line, in that order",
+          "misconception": "believes the release half runs before the body it surrounds"
+        },
+        {
+          "id": "C",
+          "text": "the body line only, because the decorator discards the prints",
+          "misconception": "believes decorating a generator function stops its body from running"
+        },
+        {
+          "id": "D",
+          "text": "open and close, with the body line replaced by the handle",
+          "misconception": "believes the block's print is overridden by the name bound to the handle"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The decorator turns the generator into a context manager, which runs the body up to its first yield when the block is entered and resumes after the yield once the block ends, so the open line and the body line and the close line come out in that order. The tempting answer that puts the release first mistakes the generator's shape for a plain function's, and the answer claiming the prints vanished is a useful reminder that a generator's body does not run until something pulls from it.",
+      "hint": "The first yield marks the boundary between the entry half and the release half.",
+      "difficulty": 0.46,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "context-managers",
+        "resources"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0018",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Context Manager That Suppresses",
+      "learningObjective": "trace a context manager whose exit reports a true value and hides a fault from the block",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The block raises a fault, and the context manager's exit reports a true value. What does this program print?\n\nclass Res:\n    def __enter__(self):\n        print(\"enter\")\n        return self\n    def __exit__(self, kind, value, trace):\n        print(\"exit\")\n        return True\n\nwith Res() as handle:\n    print(\"body\")\n    raise ValueError(\"boom\")\nprint(\"after\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "enter, the body line, exit, then after",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "enter, the body line, exit, then the program stops",
+          "misconception": "believes a fault from the block always escapes regardless of the exit result"
+        },
+        {
+          "id": "C",
+          "text": "enter, the body line, then the program stops before exit",
+          "misconception": "believes the exit is skipped when the block fails"
+        },
+        {
+          "id": "D",
+          "text": "enter, the body line, after, then exit",
+          "misconception": "believes the code following the block runs before the release half"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The exit half always runs when the block ends, and it printed its line, and because it reported a true value the fault was marked as handled so the statement after the block ran as well. The tempting answer that stops the program misses what a true result from the exit half means, and it is worth treating that as a deliberate signal rather than a convenience, since it is the one place where a context manager can quietly erase a failure and leave the program running on a state nobody checked.",
+      "hint": "Ask what the exit half reported, and what a true result there changes.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 25,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "context-managers",
+        "faults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0019",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What A With Block Guarantees",
+      "learningObjective": "state the condition under which a context manager's exit half runs",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A resource is held for the duration of a with block. Which statement about the release half is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "it runs when the block ends, whether or not a fault occurred inside",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it runs only when the block ends without a fault occurring inside",
+          "misconception": "believes the release half is skipped on the failing path"
+        },
+        {
+          "id": "C",
+          "text": "the entry half runs again at the end, handing the handle back",
+          "misconception": "believes the context manager re-enters rather than exiting"
+        },
+        {
+          "id": "D",
+          "text": "it runs before the block body, so failures are caught early",
+          "misconception": "believes the release half precedes the work it protects"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The release half runs whenever the block is left, by the ordinary route, by an early return, or because something failed inside, and that is what makes a with block the right way to hold anything that must be given back. The tempting answer that ties it to the clean path is the misconception behind a great deal of manual cleanup code, since the failing path is exactly the one where a forgotten release leaks the resource and the program carries on regardless.",
+      "hint": "Ask what happens to the resource when the block ends because of a fault.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 31
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "context-managers",
+        "resources"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0020",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Reading A File Line By Line",
+      "learningObjective": "trace a loop over a file handle that numbers and trims each line",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called notes.txt already holds exactly these three lines, the last ending with a newline: alpha, beta, gamma. What does this program print?\n\nwith open(\"notes.txt\") as fh:\n    for number, line in enumerate(fh, start=1):\n        print(number, line.rstrip(\"\\n\"))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the three lines numbered from one with no trailing newlines",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the three lines numbered from one with a blank line after each",
+          "misconception": "believes trimming the newline leaves a blank line in the output"
+        },
+        {
+          "id": "C",
+          "text": "two lines numbered from one, because the final newline ends the file",
+          "misconception": "believes a trailing newline creates a fourth empty line that is skipped"
+        },
+        {
+          "id": "D",
+          "text": "the three lines numbered from zero with no trailing newlines",
+          "misconception": "believes the numbering starts at zero despite the explicit start value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A file handle yields one line at a time including its terminating newline, and a final newline ends the last line rather than starting a new one, so the loop body runs exactly three times and the numbering starts at one because that is what the call requests. The tempting answer about a fourth line is a reasonable worry, since other languages do treat a trailing newline that way, and the answer about starting at zero ignores the explicit value in the call.",
+      "hint": "Decide whether a file's final newline produces an extra empty line.",
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "iteration"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0021",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Characters In A File",
+      "learningObjective": "compute the character count of a small text file read in one piece",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file called notes.txt already holds exactly three lines of five characters each, spelling alpha, gamma, and delta, with every line closed by a newline character. How many characters does one read of the whole file return?\n\nwith open(\"notes.txt\") as fh:\n    print(len(fh.read()))",
+      "options": [],
+      "answer": {
+        "value": 18,
+        "tolerance": 0
+      },
+      "explanation": "Three lines of five characters contribute fifteen, and the three newline characters that close them contribute three more, so a single read returns eighteen characters. The tempting count of fifteen forgets that reading a file in one piece returns the terminators as ordinary characters, which is the same reason a line obtained from a loop over the handle keeps its trailing newline until something strips it.",
+      "hint": "Count the characters in the lines and add one for each newline between and after them.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "characters"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0022",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Readlines With A Trailing Newline",
+      "learningObjective": "trace a bulk line read where the final line is newline terminated",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called notes.txt already holds exactly one line, one, a newline, then two, and a closing newline. What does this program print?\n\nwith open(\"notes.txt\") as fh:\n    print(repr(fh.readlines()))",
+      "options": [
+        {
+          "id": "A",
+          "text": "two entries, each keeping its own newline",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "three entries, the last of which is empty",
+          "misconception": "believes a closing newline starts an extra empty line"
+        },
+        {
+          "id": "C",
+          "text": "two entries, the last of which has no newline",
+          "misconception": "believes a final newline is discarded from the last entry"
+        },
+        {
+          "id": "D",
+          "text": "one entry holding both lines and both newlines",
+          "misconception": "believes a bulk read returns a single combined string"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A bulk read returns one entry per line and each entry keeps the newline that ends it, so a file whose last line is properly terminated gives two entries and both keep their terminator. The tempting answer with a third empty entry treats the closing newline as starting a new line, which is how a file with no content after its last terminator is described but not how this read reports it, and the answer that strips the final newline is the other common assumption, which the language does not make on your behalf.",
+      "hint": "Decide whether the read adds an entry for the newline that ends the last line.",
+      "difficulty": 0.44,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "newlines"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0023",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Readlines Without A Trailing Newline",
+      "learningObjective": "trace a bulk line read where the last line has no terminator",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same two lines are written but the file now ends without a closing newline. What does this program print?\n\nwith open(\"notes.txt\") as fh:\n    print(repr(fh.readlines()))",
+      "options": [
+        {
+          "id": "A",
+          "text": "two entries, the second without a newline",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "two entries, each keeping its own newline",
+          "misconception": "believes a newline is supplied for the last line when one is missing"
+        },
+        {
+          "id": "C",
+          "text": "one entry holding both lines and the newline between",
+          "misconception": "believes a missing final newline merges the last two lines together"
+        },
+        {
+          "id": "D",
+          "text": "two entries, the first without a newline",
+          "misconception": "believes the terminator is stripped from the first line instead of the last"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The read reports exactly the terminators the file holds, so the first entry keeps its newline and the second has none because the file simply ends there. The tempting answer that supplies a newline would mean the read was inventing a character, and the answer that merges the two lines is a different failure: it would require the newline between them to be missing, which it is not.",
+      "hint": "A read reports what is there, so ask which terminators the file actually contains.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 24,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "newlines"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0024",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Two Newline Behaviours",
+      "learningObjective": "state how line iteration handles terminators and a file's final newline",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program reads a text file line by line. Which statement about the terminators is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "each line keeps its own terminator, and a final one ends the last line",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "each line drops its terminator, and a final one adds an empty line",
+          "misconception": "believes the terminator is removed for you and a final one yields a blank"
+        },
+        {
+          "id": "C",
+          "text": "every terminator is dropped, and the last line gains one back",
+          "misconception": "believes the last line is given a terminator the file does not have"
+        },
+        {
+          "id": "D",
+          "text": "terminators stay on the last line only, and earlier ones are dropped",
+          "misconception": "believes only the final line keeps its newline character"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Iterating a file yields each line with the newline that ends it, and a newline at the very end of the file closes the last line rather than opening an empty one, so a well-formed file yields exactly one entry per line. The tempting answer that removes the terminator for you is a habit carried over from languages that strip it, and it is why trimming is such a common first line after reading, and the answer that adds a blank entry is what a file that genuinely ends with a blank line would produce.",
+      "hint": "Ask whether a final newline is a terminator or the start of a new line.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "newlines"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0025",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Write Then Read With An Encoding",
+      "learningObjective": "trace a round trip through a file where both sides state the same encoding",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Text with one accented character is written and read back with the same encoding named on both sides. What does this program print?\n\nwith open(\"note.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(\"café\")\nwith open(\"note.txt\", encoding=\"utf-8\") as fh:\n    text = fh.read()\nprint(len(text), text == \"café\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "the character count then true for the comparison",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the byte count then true for the comparison",
+          "misconception": "believes reading text returns bytes rather than characters"
+        },
+        {
+          "id": "C",
+          "text": "the byte count then false for the comparison",
+          "misconception": "believes the accent round trips differently because the byte count differs"
+        },
+        {
+          "id": "D",
+          "text": "the character count then false for the comparison",
+          "misconception": "believes the accented character is rewritten in a different form on the way out"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A read in text mode decodes bytes back into characters, so the accented character counts once and the four characters compare equal to what was written. The tempting answer that counts bytes belongs to the mode that refuses to decode, and the answer claiming the comparison fails has no mechanism behind it, since the same encoding on both sides is precisely the condition that makes the round trip lossless.",
+      "hint": "Ask whether this read decodes bytes into characters or hands back bytes.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "encoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0026",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Declared Encodings Disagree",
+      "learningObjective": "pair the failure of a mismatched encoding pair with the reason it fails",
+      "practice": "two-stage reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "The text is written with one encoding and read back with another. Which pair names what this program prints and why?\n\nwith open(\"note.txt\", \"w\", encoding=\"latin-1\") as fh:\n    fh.write(\"café\")\ntry:\n    with open(\"note.txt\", encoding=\"utf-8\") as fh:\n        print(len(fh.read()))\nexcept UnicodeDecodeError as err:\n    print(type(err).__name__)",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints the decode fault, because one byte held a character alone",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints the length four, because the reader counts bytes not characters",
+          "misconception": "believes the read returns raw bytes and so cannot fail to decode"
+        },
+        {
+          "id": "C",
+          "text": "It prints the length three, because the accented byte is dropped as padding",
+          "misconception": "believes an undecodable byte is silently discarded from the text"
+        },
+        {
+          "id": "D",
+          "text": "It prints the text cafe, because the reader skips the byte it cannot match",
+          "misconception": "believes the unreadable byte is dropped and the rest of the text survives"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The accented character occupies a single byte in the narrower encoding, but in the wider one that byte introduces a two-byte character, and there is no second byte to complete it, so the decoder reports a fault instead of returning text. The tempting answers all suppose the reader degrades gracefully, and none of them do: a decode fault is raised precisely so that a program cannot silently accept text that is not what it claims to be, which is the whole reason to name an encoding on both sides.",
+      "hint": "Ask whether the byte that follows the accented character can start a valid two-byte character.",
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "encoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0027",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Why Both Sides Name An Encoding",
+      "learningObjective": "state what goes wrong when the writing and reading encodings disagree",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A text file is written by one program and read by another. What must hold for the text to come back correctly?",
+      "options": [
+        {
+          "id": "A",
+          "text": "both sides must name the same encoding, or the bytes decode differently",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "only the writing side needs it, since the reader inherits what is in use",
+          "misconception": "believes the reading side picks up the encoding from the writing side"
+        },
+        {
+          "id": "C",
+          "text": "only the reading side needs it, since the writer keeps no record of it",
+          "misconception": "believes the writing side records the encoding in the file itself"
+        },
+        {
+          "id": "D",
+          "text": "neither needs it, since the interpreter always detects it from the bytes",
+          "misconception": "believes the encoding can be worked out reliably from the file contents"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A file is a sequence of bytes with no self-describing header, so the same bytes decode into different characters under different encodings, and both programs have to agree for the text to survive the trip. The tempting answer that only the reader needs it assumes the writer leaves a note in the file, and it does not, which is also why a file written on one machine and read on another can fail in ways that look like corruption rather than a configuration mistake.",
+      "hint": "Ask whether a file's bytes record which encoding produced them.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 29
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "encoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0028",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Bytes Versus Characters",
+      "learningObjective": "compute the byte length of text containing one multi-byte character",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Four characters including one accented letter are written and then read back in the mode that refuses to decode. How many bytes are read?\n\nwith open(\"note.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(\"café\")\nwith open(\"note.txt\", \"rb\") as fh:\n    data = fh.read()\nprint(len(data))",
+      "options": [],
+      "answer": {
+        "value": 5,
+        "tolerance": 0
+      },
+      "explanation": "The three plain letters take one byte each and the accented letter takes two, so the file holds five bytes even though the text is four characters long. The tempting count of four carries the text-mode figure over to the byte mode, and the two numbers only coincide when every character happens to fit in one byte, which is exactly the assumption that breaks the first time accented or non-Latin text appears in a file.",
+      "hint": "Count one byte per plain character and more for the accented one.",
+      "difficulty": 0.36,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 31,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "encoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0029",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Appending To A Log",
+      "learningObjective": "pair the line count after an append with the mode behaviour that produced it",
+      "practice": "two-stage reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A file called log.txt already holds one line reading first. A second line is written and the file is read back. Which pair names what is printed and why?\n\nwith open(\"log.txt\", \"a\") as fh:\n    fh.write(\"second\\n\")\nwith open(\"log.txt\") as fh:\n    print(len(fh.readlines()))",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 2, because the append mode starts past the last line",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 1, because the append mode clears the file before writing",
+          "misconception": "believes appending still truncates the file before it adds anything"
+        },
+        {
+          "id": "C",
+          "text": "It prints 2, because the write mode kept the first line and added the new one",
+          "misconception": "gets the count right but misattributes it to a mode that truncates"
+        },
+        {
+          "id": "D",
+          "text": "It prints 1, because the read mode drops lines it did not write itself",
+          "misconception": "believes reading only reports lines written during this run"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Appending places the cursor at the end of the existing content rather than at the start, so the earlier line survives and the new one is added, giving two lines in the read. The tempting answer that counts one is right about the number and wrong about the cause, and getting this backwards is expensive in practice: a log writer that accidentally uses the truncating mode erases the very history it exists to keep, and nothing in the output says so.",
+      "hint": "Decide where each mode puts the cursor before the first character is written.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "files",
+        "append"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0030",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Top Level Code On Import",
+      "learningObjective": "trace how many times a module's top level runs when it is imported twice",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A module called report.py prints a line at its top level and then defines a list. It is imported twice. What does this program print?\n\nimport report\nimport report\nprint(len(report.ROWS))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the module's line once, then the size of its list",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the module's line twice, then the size of its list",
+          "misconception": "believes every import statement re-runs the module's top level"
+        },
+        {
+          "id": "C",
+          "text": "the module's line twice and no size, because the second import shadows it",
+          "misconception": "believes a repeated import replaces the module and discards its attributes"
+        },
+        {
+          "id": "D",
+          "text": "the module's line once and no size, because the list is private",
+          "misconception": "believes names defined in a module cannot be read by the importing code"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first import runs the module's top level and registers the result, and the second import finds it already registered and hands back the same module object without running anything again, which is why the printed line appears once and the list is still readable. The tempting answer that runs it twice is the one to guard against, because a top-level print or a top-level read of a file becomes a side effect that fires at an unexpected moment and, in a program that imports a module from several places, appears to happen at random.",
+      "hint": "Ask whether the second import finds the module already registered in the table of loaded modules.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "imports"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0031",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Joining A Path",
+      "learningObjective": "trace a path join against a manual concatenation with a separator",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The base directory already ends in a separator, and both results are printed. What does this program print?\n\nimport os\nbase = \"data/\"\nprint(os.path.join(base, \"row.csv\"), base + \"/\" + \"row.csv\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "the same clean path twice, with no doubled separator",
+          "misconception": "believes the manual form also notices that the base ends in a separator"
+        },
+        {
+          "id": "B",
+          "text": "the clean path then one with a doubled separator",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "one with a doubled separator then the clean path",
+          "misconception": "believes the join is the manual form and the manual form is the join"
+        },
+        {
+          "id": "D",
+          "text": "one with a doubled separator in both results",
+          "misconception": "believes the join also appends a separator to a base that ends in one"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A join knows what a separator looks like and so produces one separator between the two parts even when the base already ends in one, while manual concatenation blindly inserts another, which is why the second result has a doubled separator. The tempting answer that both are clean forgets that the manual form cannot inspect what it was given, and a doubled separator is usually harmless on a real system, which is exactly what makes it a quiet bug that survives review and then breaks on a stricter platform.",
+      "hint": "Ask whether the manual form can see that the base already ends in a separator.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "paths",
+        "modules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0032",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Why Joining Beats Concatenating",
+      "learningObjective": "state the advantage of a path join over manual separator insertion",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two parts of a path are combined. What does the path join do that manual concatenation with a separator does not?",
+      "options": [
+        {
+          "id": "A",
+          "text": "it knows the separator, so a base already ending in one is not doubled",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "it produces shorter text, which matters near a length limit",
+          "misconception": "believes the benefit is the character count of the resulting path"
+        },
+        {
+          "id": "C",
+          "text": "it confirms the second part exists on disk before building the text",
+          "misconception": "believes joining a path also checks that the target is present"
+        },
+        {
+          "id": "D",
+          "text": "it converts both parts to a native form the system reads",
+          "misconception": "believes the join performs a conversion of the two parts it is given"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A join is aware of the separator character and produces exactly one between the parts, so it behaves the same whether or not the base already ends in one, whereas manual insertion produces a doubled separator in one of those cases. The tempting answers describe side effects the join does not have, and the length argument is a red herring, because a doubled separator costs a single character and is typically accepted, which is exactly why the mistake is easy to introduce and hard to notice.",
+      "hint": "Ask what the join knows about the first part that the manual form cannot inspect.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "paths",
+        "modules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0033",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Path That Does Not Exist",
+      "learningObjective": "trace an existence check and a read attempt against a path that is absent",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Neither the folder nor the file in this path is present, and the fault is caught. What does this program print?\n\nimport os\npath = \"missing/row.csv\"\nprint(os.path.exists(path))\ntry:\n    open(path).close()\nexcept FileNotFoundError as err:\n    print(type(err).__name__)",
+      "options": [
+        {
+          "id": "A",
+          "text": "False, then the name of the missing-file fault",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "False, then the name of the missing-folder fault",
+          "misconception": "believes an absent parent folder is reported as its own separate fault"
+        },
+        {
+          "id": "C",
+          "text": "True, then the name of the missing-file fault",
+          "misconception": "believes the existence check consults something other than the filesystem"
+        },
+        {
+          "id": "D",
+          "text": "False, then the absent marker instead of a fault",
+          "misconception": "believes opening an absent path quietly yields the absent marker"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The existence check consults the filesystem and reports false, and then opening the path raises the fault that names a missing file, which the handler prints. The tempting answer naming a missing folder confuses the two conditions, but a path whose parent directory is absent and a path whose file is absent produce the same fault to the program, and that indistinguishability is worth knowing, since a handler cannot tell from the fault alone which half of the path is missing.",
+      "hint": "Ask what the existence check reports, and then what opening an absent path raises.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 18,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "paths",
+        "faults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0034",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What A Missing Path Raises",
+      "learningObjective": "state what a read of an absent path produces and whether a handler can intercept it",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program opens a path that is not present on disk. What happens, and can a handler intercept it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "a fault naming the missing file, and a handler can claim it by type",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a fault naming the missing folder, and a handler can claim it by type",
+          "misconception": "believes the fault distinguishes an absent folder from an absent file"
+        },
+        {
+          "id": "C",
+          "text": "the absent marker, because a read of a missing path quietly gives nothing",
+          "misconception": "believes a failed read returns the absent marker rather than raising"
+        },
+        {
+          "id": "D",
+          "text": "an empty result, because a read of a missing path quietly gives nothing",
+          "misconception": "believes a failed read produces an empty container rather than raising"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Opening a path that is not present raises a fault whose type names a missing file, and because it is a normal fault a handler can claim it by that type, which is what makes a program able to say something useful about a missing input. The tempting answers that expect a quiet result are the dangerous ones, because code written on that assumption will read an absent file and conclude it was empty, and the difference between absent and empty is often the entire question being asked.",
+      "hint": "Ask whether a failed read is a fault or a value, and what that decides.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "paths",
+        "faults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0035",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Two Decoders",
+      "learningObjective": "trace both decoders over equivalent input and report the types they produce",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called data.json holds one object with the key k set to 2. The same object is also decoded from text. What does this program print?\n\nimport json\nwith open(\"data.json\") as fh:\n    from_file = json.load(fh)\nfrom_text = json.loads('{\"k\": 2}')\nprint(type(from_file).__name__, from_file[\"k\"], from_text[\"k\"])",
+      "options": [
+        {
+          "id": "A",
+          "text": "dict, then the value from each source",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "str, then the value from each source",
+          "misconception": "believes the file decoder returns the raw text rather than a decoded value"
+        },
+        {
+          "id": "C",
+          "text": "dict, then the raw text of the file",
+          "misconception": "believes the text decoder returns the text it was given"
+        },
+        {
+          "id": "D",
+          "text": "str, then the raw text of the file",
+          "misconception": "believes neither decoder produces a value at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both decoders produce a value rather than text, and an object in the serialised form decodes to a mapping, so the type name is the same on both paths and each yields two for the key. The tempting answer that returns text confuses the decoder with the raw input, and the distinction matters because a program that treats the result as text cannot index it at all, which is a very common first error when moving from a file to an in-memory string.",
+      "hint": "Ask what each call produces, and whether that is the text it was given.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 18,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "decoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0036",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What Each Decoder Returns",
+      "learningObjective": "state the input and the output of each of the two decoding calls",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two decoding calls are available for the same serialised format. Which statement describes them correctly?",
+      "options": [
+        {
+          "id": "A",
+          "text": "one takes text and returns a value, the other takes a handle and returns a value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "one takes a handle and returns text, the other takes text and returns a handle",
+          "misconception": "believes both calls trade a handle for text rather than decoding either"
+        },
+        {
+          "id": "C",
+          "text": "one returns text always, and the other returns a value always",
+          "misconception": "believes exactly one of the two calls performs a decode at all"
+        },
+        {
+          "id": "D",
+          "text": "both take a handle, and one of them reads the whole file first",
+          "misconception": "believes the text form can also be given a file handle"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both calls decode and both return a value, and the only difference is where the serialised text comes from, one from a string you already have and the other from a file handle that is read for you. The tempting answer that swaps the inputs and outputs describes a pair of encoder calls, and the answer that has one of them returning text is worth watching for, because a decoder that handed back its input would be a no-op and the two names would be pointless.",
+      "hint": "Ask where each call gets the serialised text from.",
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 16,
+        "p75Sec": 29
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "decoding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0037",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Round Trip Through Serialised Form",
+      "learningObjective": "trace the types on both sides of a round trip through a serialised form",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An object holding a fixed run of two numbers is encoded and then decoded again, and both types are printed. What does this program print?\n\nimport json\noriginal = {\"point\": (1, 2)}\nrestored = json.loads(json.dumps(original))\nprint(type(original[\"point\"]).__name__, type(restored[\"point\"]).__name__)",
+      "options": [
+        {
+          "id": "A",
+          "text": "tuple then list",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "tuple then tuple",
+          "misconception": "believes the round trip restores the exact runtime type of every value"
+        },
+        {
+          "id": "C",
+          "text": "list then tuple",
+          "misconception": "believes the decoded side is the one that changes type"
+        },
+        {
+          "id": "D",
+          "text": "list then list",
+          "misconception": "believes the original fixed run is converted before it is ever encoded"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The serialised form has no way to record that a run of numbers was fixed rather than growable, so the run comes back as the growable sequence and only the sequence of values survives, not the distinction between the two container types. The tempting answer that expects the exact type back assumes the round trip is lossless in a way it is not, and that is worth internalising for any program that depends on the difference, such as one using a fixed run as a dictionary key.",
+      "hint": "Ask whether the serialised text records which of the two sequence types was used.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0038",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Why A Fixed Run Does Not Survive",
+      "learningObjective": "explain the information a serialised form cannot carry about sequence types",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A fixed run of values survives a round trip through the serialised form but comes back as a growable run. Why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the serialised form has no way to mark a run of values as fixed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the serialised form stores fixed runs as text so they return as text",
+          "misconception": "believes a fixed run is encoded differently from a growable one"
+        },
+        {
+          "id": "C",
+          "text": "the conversion is deliberate, so that every round trip is lossless",
+          "misconception": "believes losing the type is what makes a round trip safe"
+        },
+        {
+          "id": "D",
+          "text": "a fixed run is dropped entirely because it cannot be represented",
+          "misconception": "believes the values are lost rather than their type distinction"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A serialised object is written as text that describes values, and the text describes a run of numbers without recording whether the container was fixed or growable, so the decoder must choose one and the growable choice is what it makes. The tempting answer that claims the conversion is deliberate to preserve safety misreads the trade: the format preserves the values, which is what most programs need, and the type distinction is the part it does not carry.",
+      "hint": "Ask what the serialised text actually says about the container holding the numbers.",
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 18,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0039",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Missing Key On A Decoded Object",
+      "learningObjective": "trace a safe lookup and a subscript against the same absent key",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A decoded object holds only the key name, and two lookups for a different key are made. What does this program print?\n\nimport json\nrecord = json.loads('{\"name\": \"ann\"}')\nprint(record.get(\"age\", 0))\ntry:\n    print(record[\"age\"])\nexcept KeyError:\n    print(\"absent\")",
+      "options": [
+        {
+          "id": "A",
+          "text": "the fallback, then the word for a missing key",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the fallback twice, because both lookups fall back",
+          "misconception": "believes the subscript form also supplies the fallback that was given"
+        },
+        {
+          "id": "C",
+          "text": "the absent marker, then the word for a missing key",
+          "misconception": "believes a supplied fallback of zero is replaced by the absent marker"
+        },
+        {
+          "id": "D",
+          "text": "the fallback, then the absent marker as a value",
+          "misconception": "believes the caught fault converts to the absent marker rather than being reported"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The method call finds no such key and hands back the fallback it was given, while the subscript has no fallback to hand back and raises, so the handler reports the miss and the two lines are quite different in kind. The tempting answer that gives the fallback twice is the confusion that matters most in practice, because the two lookups look interchangeable at a glance and only one of them is safe when a key is genuinely optional.",
+      "hint": "Ask which of the two lookups can produce a value for a key that is not there.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 18,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "lookup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0040",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Field That Changes Type",
+      "learningObjective": "trace a coercion applied to a field that is text in one record and a number in another",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called rows.json holds a list of two records whose score field is text in the first and a number in the second. What does this program print?\n\nimport json\nwith open(\"rows.json\") as fh:\n    rows = json.load(fh)\ntotal = 0\nfor row in rows:\n    total += int(row[\"score\"])\nprint(total, type(rows[0][\"score\"]).__name__, type(rows[1][\"score\"]).__name__)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the total, then str and int for the two field types",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the total, then int and str for the two field types",
+          "misconception": "believes the first record's field is the numeric one"
+        },
+        {
+          "id": "C",
+          "text": "the two values joined as text, then str and int",
+          "misconception": "believes the addition concatenates because one field is text"
+        },
+        {
+          "id": "D",
+          "text": "the total, then str and str for the two field types",
+          "misconception": "believes a number in the source form still decodes to text"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A number in the serialised form decodes to a number and a quoted value decodes to text, so the two fields really do arrive in different types, and converting each before adding is what lets the total come out as a number rather than a fault or a concatenation. The tempting answer that reverses the two types is a reading error, but the important lesson is the one the item exists for: decoded data carries the types the file declared, so any field that might arrive either way has to be normalised before it is used.",
+      "hint": "Ask what each declared value decodes to, before the conversion is applied.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0041",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Coercing A Mixed Field",
+      "learningObjective": "pair the total produced by normalising a field with the reason for the coercion",
+      "practice": "two-stage reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A file called rows.json holds two records whose score field is quoted text in the first and a bare number in the second. Which pair names what this program prints and why?\n\nimport json\nwith open(\"rows.json\") as fh:\n    rows = json.load(fh)\ntotal = 0\nfor row in rows:\n    total += int(row[\"score\"])\nprint(total)",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 179, because each field is converted before it is added",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 179, because the two fields are joined as text and then read",
+          "misconception": "believes adding one text field to a number produces the total as text"
+        },
+        {
+          "id": "C",
+          "text": "It prints 88, because the numeric record is skipped when text appears",
+          "misconception": "believes a mixed field causes the numeric record to be dropped"
+        },
+        {
+          "id": "D",
+          "text": "It prints 91, because the text record is skipped when a number appears",
+          "misconception": "believes a mixed field causes the quoted record to be dropped"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The conversion turns the quoted value into eighty-eight and leaves the bare number as ninety-one, so the two can be added as numbers and the total is one hundred and seventy-nine. The tempting answer that describes a text join would not give a number at all, since adding a string to anything raises, and the two answers that drop a record describe a filtering behaviour this code does not perform, because the conversion accepts both forms and neither record is discarded.",
+      "hint": "Ask what the conversion does to a quoted value and to a bare number.",
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 29,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0042",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Row With Too Many Columns",
+      "learningObjective": "trace a plain comma-separated reader over a file whose rows differ in width",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called rows.csv holds a two-name header, a two-value row, and a three-value row. What does this program print?\n\nimport csv\nwith open(\"rows.csv\", newline=\"\") as fh:\n    for row in csv.reader(fh):\n        print(len(row), row)",
+      "options": [
+        {
+          "id": "A",
+          "text": "each row's field count, then that row as a list",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "each row padded to the widest row before being printed",
+          "misconception": "believes the reader pads every row out to the widest one it has seen"
+        },
+        {
+          "id": "C",
+          "text": "a fault naming the row whose width does not match",
+          "misconception": "believes the reader refuses a row that is not the same width as the header"
+        },
+        {
+          "id": "D",
+          "text": "the extra value moved onto the end of the previous row",
+          "misconception": "believes the reader reflows surplus values into the row before it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reader splits each line and hands it over as a list, reporting three fields for the first line, two for the second, and three for the third, without complaint and without padding, because a plain reader has no idea what the widths are supposed to be. The tempting answer that raises a fault describes the checking that has to be added by hand, and that is exactly the point: validating the width is the reader's job, and a program that assumes every row matches the header will quietly index past the end of a short row.",
+      "hint": "Ask what a plain reader knows about how wide the rows are meant to be.",
+      "difficulty": 0.44,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "rows"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0043",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Short Row Through A Mapping Reader",
+      "learningObjective": "trace a header-keyed reader over a row that is missing a column",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A file called rows.csv holds a two-name header and two rows, the second of which supplies only one value. What does this program print?\n\nimport csv\nwith open(\"rows.csv\", newline=\"\") as fh:\n    for row in csv.DictReader(fh):\n        print(row[\"a\"], repr(row[\"b\"]))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the value then the quoted value, then the value then the marker",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the value then the quoted value on both rows of output",
+          "misconception": "believes a short row repeats the previous row's missing value"
+        },
+        {
+          "id": "C",
+          "text": "a fault naming the missing name, stopping the program",
+          "misconception": "believes indexing a header key that the row never supplied raises"
+        },
+        {
+          "id": "D",
+          "text": "the value then an empty string on both rows of output",
+          "misconception": "believes a missing column reads as empty text rather than the marker"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reader keys each row by the header, so a column the row never supplied reads back as the absent marker rather than raising, which is what lets the second row be printed at all. The tempting answer that raises is the behaviour of a plain mapping, where indexing a missing key is an error, and the answer expecting an empty string confuses this with a text field that is present and happens to be blank, which is a different case entirely.",
+      "hint": "Ask what the reader does for a column the row supplied no value for.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 24,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "rows"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0044",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Missing Column Reads As A Marker",
+      "learningObjective": "state what a header-keyed reader produces for a column a row did not supply",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A header-keyed reader is used on a file whose rows do not all supply every column. What does a row yield for a column it left out?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the absent marker, rather than a raised fault of any kind",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "an empty string, rather than the absent marker",
+          "misconception": "believes a missing column is indistinguishable from a blank field"
+        },
+        {
+          "id": "C",
+          "text": "the previous row's value for that same column",
+          "misconception": "believes the reader carries values forward from the row above"
+        },
+        {
+          "id": "D",
+          "text": "nothing at all, because the whole row is discarded",
+          "misconception": "believes a short row is dropped instead of being reported short"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A header-keyed reader fills every column the header names, and a column the row supplied nothing for reads back as the absent marker, so a short row is still delivered and its gap is visible rather than silently filled. The tempting answer expecting an empty string would make a genuinely blank field and an absent field impossible to tell apart, and the one expecting the previous row's value invents a carry-forward rule the reader does not have.",
+      "hint": "Ask whether a missing column can be told apart from one that is present and blank.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "rows"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0045",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Counting Fields Across Rows",
+      "learningObjective": "compute the total field count across rows of differing widths",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file called rows.csv holds a two-field header, a two-field row, and a three-field row. How many fields do all of its rows hold between them?\n\nimport csv\nwith open(\"rows.csv\", newline=\"\") as fh:\n    print(sum(len(row) for row in csv.reader(fh)))",
+      "options": [],
+      "answer": {
+        "value": 7,
+        "tolerance": 0
+      },
+      "explanation": "The three rows contribute two, two, and three fields, which sum to seven, and the header row is included because the reader treats the first line as data like any other. The tempting answer of six drops the header, and that mistake is easy to make because a reader that treats the first line as a header is the more common choice for real files, but the plain reader has no notion of a header and counts every line it is given.",
+      "hint": "Count the fields on every line the plain reader returns, including the first.",
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 31,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "rows"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0046",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Summing A Filtered Column",
+      "learningObjective": "compute a filtered total from a named column of a small table",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file called rows.csv holds four records with a numeric score column reading 10, 7, 4, and 9. What is the total of the scores that are strictly above 8?\n\nimport csv\nwith open(\"rows.csv\", newline=\"\") as fh:\n    total = 0\n    for row in csv.DictReader(fh):\n        if int(row[\"score\"]) > 8:\n            total += int(row[\"score\"])\nprint(total)",
+      "options": [],
+      "answer": {
+        "value": 19,
+        "tolerance": 0
+      },
+      "explanation": "Only ten and nine clear the threshold, and they sum to nineteen, while seven and four are left out. The tempting answer of sixteen takes the two scores at or below the threshold, which is what a comparison written the other way round would collect, and the answer of thirty is the whole column, so the comparison is doing real work here and not merely passing everything through.",
+      "hint": "Collect only the scores that clear the threshold, then add just those.",
+      "difficulty": 0.42,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "filtering"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0047",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Distinct Values In A Column",
+      "learningObjective": "compute the number of distinct values found in one column of a table",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file called rows.csv holds four records whose team column reads red, blue, red, and green. How many distinct teams do those records mention?\n\nimport csv\nwith open(\"rows.csv\", newline=\"\") as fh:\n    teams = {row[\"team\"] for row in csv.DictReader(fh)}\nprint(len(teams))",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "The repeated value collapses on the way into the set, leaving three distinct teams out of the four records. The tempting answer of four counts records rather than values, and the difference is the whole reason for collecting into a set rather than a list, since a list keeps both copies of a repeated value and would report four where the question asked how many different teams there are.",
+      "hint": "Collect the column into a set, then ask how many values survived the duplicates.",
+      "difficulty": 0.36,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 31,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "sets"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0048",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Summing A Mixed Json Field",
+      "learningObjective": "compute a total from a field that arrives as text in some records and as a number in others",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file called scores.json holds three records whose score field is quoted in the first and third and a bare number in the second, reading 8, 12, and 5. What total is printed?\n\nimport json\nwith open(\"scores.json\") as fh:\n    rows = json.load(fh)\nprint(sum(int(row[\"score\"]) for row in rows))",
+      "options": [],
+      "answer": {
+        "value": 25,
+        "tolerance": 0
+      },
+      "explanation": "Each field is converted before it is added, so the three values contribute eight, twelve, and five for a total of twenty-five. The tempting answer that adds nothing would require the conversion to fail on the quoted values, and it does not, since converting a quoted number is exactly what the call is for; without it the addition itself would raise, because a text value cannot be added to a number.",
+      "hint": "Convert every field first, then add, and check what would happen without the conversion.",
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0049",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Two Import Forms",
+      "learningObjective": "trace a module import alongside an import of one name from that module",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One import brings in the whole module and another brings in a single name from it. What does this program print?\n\nimport math\nfrom math import sqrt\nprint(math.floor(2.7), sqrt(9))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the rounded value, then the square root as a decimal",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the rounded value, then the square root as a whole number",
+          "misconception": "believes the whole-number division applies inside the square root"
+        },
+        {
+          "id": "C",
+          "text": "the square root as a decimal, then the rounded value",
+          "misconception": "believes the two imports shadow each other and the last one wins"
+        },
+        {
+          "id": "D",
+          "text": "a fault, because two names from one module cannot be brought in",
+          "misconception": "believes a module may be imported only once per file"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Rounding down a value gives an integer, and the square root of a whole number whose root is exact still comes back as a floating-point value, so the two differ in type as well as in magnitude. The tempting answer that reports a whole number assumes the integer conversion applies to the second call, and the answer claiming a fault is worth knowing is false, because both forms may be used in the same file and the names they bind are simply different.",
+      "hint": "Ask what type the square-root call returns for an exact whole-number root.",
+      "difficulty": 0.36,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "imports"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0050",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "What Each Import Form Binds",
+      "learningObjective": "state the name each of the two import forms introduces",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two import forms are used in the same file. Which statement correctly describes the name each one introduces?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the first binds the module itself, the second binds one name from it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the first binds one name from the module, the second binds the module",
+          "misconception": "believes the two forms introduce their names in the opposite order"
+        },
+        {
+          "id": "C",
+          "text": "both bind the module, and the second merely shortens it",
+          "misconception": "believes the name form is only a spelling convenience for the module"
+        },
+        {
+          "id": "D",
+          "text": "the first binds every public name, the second binds only the private ones",
+          "misconception": "believes the name form selects names by visibility rather than by name"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Importing a module introduces the module under its own name, so its members are reached through that name, while importing a name from a module introduces only that name and leaves the module itself unbound. The tempting answer that treats the second form as a convenience misses a real consequence: with only the name bound, the module cannot be reached to reach any other member, so a later need for a second member forces a second import.",
+      "hint": "Ask whether the module itself is reachable after each of the two forms.",
+      "difficulty": 0.38,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 31
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "imports"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0051",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Name That Shadows A Builtin",
+      "learningObjective": "trace a call to a name that has been rebound to a non-callable value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A standard library name is rebound to a whole number and then called as if it were a function. What does this program print?\n\nsum = 10\ntry:\n    print(sum([1, 2]))\nexcept TypeError as err:\n    print(type(err).__name__)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the name of the type fault",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the sum of the list, because the original meaning still applies",
+          "misconception": "believes a rebound name keeps the behaviour of what it shadowed"
+        },
+        {
+          "id": "C",
+          "text": "a fault naming an undefined name, rather than a type fault",
+          "misconception": "believes shadowing removes the name so the call cannot be resolved"
+        },
+        {
+          "id": "D",
+          "text": "a fault naming an unknown attribute on the whole number",
+          "misconception": "believes the call is looked up as a member of the value that was bound"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Once the name holds a whole number, calling it is an attempt to call something that is not callable, and that is reported as a type fault, which the handler prints. The tempting answer that still produces the sum assumes the original meaning survives the rebinding, and the answer expecting an unknown name is worth distinguishing, because shadowing does not remove a name, it replaces what the name points at, so the call resolves and then fails on what it found.",
+      "hint": "Ask whether the name still resolves, and what it now resolves to.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 37
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "shadowing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0052",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Shadowing Breaks A Later Call",
+      "learningObjective": "analyze a rebinding that makes a later call on the same name fail",
+      "practice": "error analysis on a shadowed name",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student rebinds a standard library name to a list and then calls it, expecting the library behaviour. What does this program actually print?\n\nsum = [1, 2, 3]\ntry:\n    total = sum([4, 5])\nexcept TypeError as err:\n    print(type(err).__name__)\nprint(sum)",
+      "options": [
+        {
+          "id": "A",
+          "text": "the type fault, then the list still holding three values",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the sum of the two lists, then the list still holding three values",
+          "misconception": "believes the rebound name still adds the values it was given"
+        },
+        {
+          "id": "C",
+          "text": "the type fault, then the list holding the two values just passed in",
+          "misconception": "believes calling the rebound name appends to it rather than failing"
+        },
+        {
+          "id": "D",
+          "text": "a fault naming an undefined name, then the list of three values",
+          "misconception": "believes rebinding a standard library name deletes it entirely"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The name still resolves, but it now resolves to a list, and calling a list is a type fault, so the handler prints the fault's name and the list is printed afterwards unchanged. The tempting answer that still adds the values treats the rebinding as a temporary preference rather than a replacement, and the answer expecting a missing name is the one to rule out first, since a rebound name is still a name.",
+      "hint": "Ask whether the name resolves, and separately whether what it resolves to can be called.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 24,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "shadowing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0053",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Import Side Effect Counted Once",
+      "learningObjective": "compute how many times a module's top level runs across repeated imports",
+      "practice": "numeric computation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A module called counter.py sets a count to zero and then adds one at its top level. The module is imported twice. What count does the program print?\n\nimport counter\nimport counter\nprint(counter.COUNT)",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0
+      },
+      "explanation": "The first import runs the module's top level and takes the count to one, and the second import finds the module already registered and hands back the same module object without running anything, so the printed count is one. The tempting answer of two assumes every import statement re-runs the body, and that assumption is what makes a top-level statement dangerous, because it means a module can quietly do work at a moment the importing program never chose.",
+      "hint": "Ask whether the second import finds the module already registered.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "modules",
+        "imports"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0054",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Bare Handler Hides A Real Fault",
+      "learningObjective": "analyze a bare handler that reports a value fault as an ordinary zero",
+      "practice": "error analysis on a bare handler",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student wraps a conversion in a bare handler that returns zero, and reads the zero as a meaningful result. What does this program actually print?\n\ndef parse(text):\n    try:\n        return int(text)\n    except:\n        return 0\nprint(parse(\"12\"), parse(\"abc\"))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the parsed value, then the handler's zero",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the parsed value, then the text that could not be read",
+          "misconception": "believes the fallback is the input rather than the stated value"
+        },
+        {
+          "id": "C",
+          "text": "two zeros, because the handler claims the first call too",
+          "misconception": "believes a bare handler intercepts a body that completed successfully"
+        },
+        {
+          "id": "D",
+          "text": "the parsed value, then a fault that escapes the handler",
+          "misconception": "believes a bare handler still lets some faults propagate outward"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first call converts cleanly and returns twelve, and the second raises a value fault which the bare handler turns into a zero, so the caller cannot tell a genuine zero from a failure to read anything. The tempting answers all assume the handler is more informative than it is, and that is the real cost here: a number that means nothing has been given the same shape as a number that means something, so the error will surface much later and somewhere else entirely.",
+      "hint": "Ask what the fallback value tells a caller about why it appeared.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 24,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0055",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "An Assertion Used As Validation",
+      "learningObjective": "analyze a rule written as an assertion and judge what happens to it when assertions are off",
+      "practice": "error analysis on an assertion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student writes a rule as an assertion inside a withdrawal function. The call below succeeds. Which pair names the result and what becomes of the rule in optimised mode?\n\ndef withdraw(balance, amount):\n    assert amount <= balance, \"refused\"\n    return balance - amount\ntry:\n    print(withdraw(10, 4))\nexcept AssertionError as err:\n    print(err)",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 6, and the rule vanishes when assertions are off",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 6, and the rule reports a value fault when assertions are off",
+          "misconception": "believes the rule survives in a weaker form rather than disappearing"
+        },
+        {
+          "id": "C",
+          "text": "It prints the refusal message, since the amount exceeds the balance",
+          "misconception": "reads the subtraction as happening before the comparison that checks it"
+        },
+        {
+          "id": "D",
+          "text": "It prints 6, and the rule still raises even with assertions turned off",
+          "misconception": "believes the option changes which fault is reported rather than removing the check"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Four is at most ten, so the assertion holds and the function returns the remaining six, and in optimised mode the check is not evaluated at all, so a withdrawal larger than the balance would proceed unchecked. The tempting answers suppose the rule degrades rather than disappears, and that supposition is what makes an assertion the wrong tool for validating input: it documents an invariant for whoever is reading the code, while anything the program must enforce needs an ordinary conditional that raises a real fault.",
+      "hint": "Decide whether the condition is still evaluated at all when the option is set.",
+      "difficulty": 0.5,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 29,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "assertions",
+        "validation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0056",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "The Else Block After A Handler",
+      "learningObjective": "analyze a loop that relies on the else block running only on the clean path",
+      "practice": "error analysis on an else block",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student believes the else block attached to a guarded statement also runs after a handler deals with a fault. What does this program actually print?\n\nlog = []\nfor text in [\"3\", \"x\", \"5\"]:\n    try:\n        log.append(int(text))\n    except ValueError:\n        log.append(-1)\n    else:\n        log.append(0)\nprint(log)",
+      "options": [
+        {
+          "id": "A",
+          "text": "[3, 0, -1, 5, 0]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[3, -1, 5, 0]",
+          "misconception": "believes an attached else block is skipped on every pass, clean or not"
+        },
+        {
+          "id": "C",
+          "text": "[3, 0, -1, 0, 5, 0]",
+          "misconception": "believes the else block runs even after a handler has claimed the fault"
+        },
+        {
+          "id": "D",
+          "text": "[3, 0, -1, 5]",
+          "misconception": "believes the last clean pass adds the converted value but skips the zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each of the two clean passes appends its converted value and then a zero, while the failing pass appends the marker and no zero, so the list holds three, zero, marker, five, and zero. The tempting answer that records a zero after the failure is exactly the belief the item is about, and it is easy to form because the two attached blocks look like two halves of one step, when in fact they cover opposite outcomes and a handler sends the program down the branch that skips the else block entirely.",
+      "hint": "Decide which of the two attached blocks a handled fault routes into.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 27,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "handlers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0057",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Short Row Read As Text",
+      "learningObjective": "analyze a report that assumes every record supplied every column",
+      "practice": "error analysis on a short record",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student reads a table and assumes every record supplied a score, and the last record supplies none. What does this program actually print?\n\nimport csv\nwith open(\"marks.csv\", newline=\"\") as fh:\n    for row in csv.DictReader(fh):\n        print(row[\"name\"], repr(row[\"score\"]))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the first record as a quoted value, then the second with a marker",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the first record as a quoted value, then the second with an empty string",
+          "misconception": "believes a column the row never supplied reads as blank text"
+        },
+        {
+          "id": "C",
+          "text": "the first record, then a fault naming the missing column",
+          "misconception": "believes reading a header key the row omitted raises a fault"
+        },
+        {
+          "id": "D",
+          "text": "the first record, then the second repeating the record above it",
+          "misconception": "believes the reader carries a value forward from the previous record"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reader fills every column the header names, so the second record's score reads back as the absent marker and the print succeeds, showing the difference between a value that was supplied and one that was not. The tempting answers each invent a filler, and the marker is the one that is actually useful, because it is distinguishable from a genuinely blank field and from a score of zero, so a report built on it can decide for itself what a missing score should mean.",
+      "hint": "Ask what a header-keyed reader supplies for a column a record left out.",
+      "difficulty": 0.48,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 27,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "csv",
+        "rows"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0058",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A Missing Key Stops A Decoded Record",
+      "learningObjective": "analyze a subscript lookup on a decoded record whose key is absent",
+      "practice": "error analysis on a decoded record",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A decoded record holds only one key, and a student swaps the safe lookup for the subscript form. What does this program actually print?\n\nimport json\nrecord = json.loads('{\"id\": 7}')\ntry:\n    print(record[\"name\"])\nexcept KeyError as err:\n    print(type(err).__name__, str(err))",
+      "options": [
+        {
+          "id": "A",
+          "text": "the fault's name and the key it was about",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a fallback value and the key it was about",
+          "misconception": "believes the subscript supplies the fallback the method call would have"
+        },
+        {
+          "id": "C",
+          "text": "the absent marker and the key it was about",
+          "misconception": "believes the subscript returns the absent marker for an unknown key"
+        },
+        {
+          "id": "D",
+          "text": "a different fault's name and the key it was about",
+          "misconception": "believes an unknown key on a decoded record reports a position fault"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The decoded record holds only the key id, so the subscript raises a key fault and the handler prints the fault's name followed by the offending key, which is what converting the fault to text produces. The tempting answer that expects a fallback is the confusion that matters, because the rewrite looks like a tidier spelling of the same call while actually removing the only thing that made it safe, and the traceback will now point at this line rather than at the place where the record was built.",
+      "hint": "Ask whether the subscript form can produce a value for a key that was never decoded.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "json",
+        "lookup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0059",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "A With Block On The Failing Path",
+      "learningObjective": "explain what a context manager does when the block it guards fails",
+      "practice": "written explanation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A with block holds a resource and the code inside it fails partway through. Explain what the interpreter does with the block on that path, and what the block's own result then decides.",
+      "options": [],
+      "answer": {
+        "exemplar": "The interpreter leaves the block, and the release half runs on the way out whether the block ended normally, returned early, or failed, so the resource is given back on the failing path just as on the clean one. That is the guarantee the construct exists to provide, and it is why manual cleanup written after the risky statements is unreliable: the failing path is exactly the one most likely to be skipped. The release half then receives the kind of the fault along with the fault itself, and what it returns decides the rest. Reporting a false value marks the fault as handled, so the code after the block runs as though nothing had happened, while reporting nothing lets the fault continue outward to whoever is prepared for it."
+      },
+      "explanation": "A context manager's release half runs on every path out of the block, including the one where something inside failed, and it is handed the kind of fault so that it can decide what happens next. Returning a true value from it marks the fault as handled and lets execution continue after the block, while returning nothing lets the fault propagate. The tempting assumption is that a with block is only tidier syntax, and the two behaviours above are why it is not, since the suppression case in particular can quietly leave a program running on a state nothing checked.",
+      "hint": "Ask what the release half is given, and what a true result from it changes.",
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "context-managers",
+        "faults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "py-2.1-0060",
+      "subject": "PYTHON",
+      "unit": "Unit 2",
+      "topic": "Else Versus Cleanup",
+      "learningObjective": "explain how the else block differs from the cleanup block on a guarded statement",
+      "practice": "written explanation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A guarded statement can carry both an else block and a cleanup block. Explain which one covers which outcome, and why choosing the wrong one silently changes what runs when something fails.",
+      "options": [],
+      "answer": {
+        "exemplar": "The else block runs when the guarded body completed without raising, and the cleanup block runs however the body is left, including when it fails. They are not two spellings of the same idea: one reports the successful case, the other guarantees a release step. Putting ordinary work in the cleanup block means it is skipped on the failing path, which is usually the opposite of what was intended, and putting the release step in the else block means it is skipped precisely when the resource is most likely to be abandoned. A third trap compounds both: if the cleanup block raises, the new fault displaces the one already travelling outward, so a release step written there can destroy the diagnosis of whatever actually went wrong."
+      },
+      "explanation": "The else block belongs to the successful completion of the body and the cleanup block belongs to every way out of it, so the choice between them is a choice about which outcomes the code should run on. Work placed in the cleanup block is skipped when something fails, and a release placed in the else block is skipped when it is most needed. The tempting belief is that the two are interchangeable because both sit beside the body, and the practical cost is a resource that leaks on the failing path or a step that never runs at all.",
+      "hint": "Ask which of the two blocks still runs when the body raises a fault.",
+      "difficulty": 0.56,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "author": "bank-team-py",
+        "reviewer": "bank-review-py",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-2",
+        "exceptions",
+        "cleanup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
