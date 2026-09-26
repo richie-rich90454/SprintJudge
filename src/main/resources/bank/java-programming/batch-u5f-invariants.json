@@ -1,0 +1,2101 @@
+{
+  "questions": [
+    {
+      "id": "jp-5.6-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Maintaining a Class Invariant",
+      "learningObjective": "state that an invariant constrains every observable state, not only the state the constructor leaves",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A booth class states one invariant: at most one of leftOpen and rightOpen is true, and the constructor starts with both false. A client then calls openLeft() and later openRight(). What does the invariant oblige the class to do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep the rule true after every public call, so the second call cannot open the other side",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Hold the rule only right after the constructor runs, then let mutators change the fields",
+          "misconception": "an invariant is a construction-time promise only"
+        },
+        {
+          "id": "C",
+          "text": "Let either mutator set its flag, because a field is private and clients cannot see it",
+          "misconception": "private fields make any stored combination legal"
+        },
+        {
+          "id": "D",
+          "text": "Let the accessor hide the second flag so the pair never looks illegal to a reader",
+          "misconception": "reporting a safe value repairs the stored state"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An invariant is a claim about the object that must hold whenever control sits outside the object's own code, so every mutator has to end with the rule true. The tempting belief is that establishing the rule once in the constructor is enough, but openRight() can be called at any later moment and only that later call can restore the rule. A private field and a polite accessor change what a reader sees, not what the object stores.",
+      "hint": "Ask how many separate moments in an object's life a client can observe.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "explain why a guard written after the field write leaves a half-updated object behind",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A method raises a stored count and only then checks the ceiling, throwing when the new count is too high. Why does the order of those two steps matter?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The field is already updated when the throw happens, so the object keeps the illegal value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The check runs on an argument the method has already overwritten by raising the count",
+          "misconception": "an argument is changed by assigning through this"
+        },
+        {
+          "id": "C",
+          "text": "A throw inside a method always rolls back every field the method touched",
+          "misconception": "exceptions undo earlier statements in the same method"
+        },
+        {
+          "id": "D",
+          "text": "The ceiling only matters for reads, so raising the count first is harmless",
+          "misconception": "a rule about stored values stops mattering once written"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Nothing in Java undoes a completed assignment when a later statement throws, so writing first and checking second leaves the object holding the very value the check refused. The tempting answer claims exceptions roll work back, which is true of a database transaction and false of an ordinary object. Validating first keeps the object either fully old or fully new, with no half-updated state to reason about.",
+      "hint": "Ask which of the two steps has already changed the field when the throw escapes.",
+      "difficulty": 0.58,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "decide which argument a constructor must check because no legal object exists before it returns",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ladder class must never exist with a rung count below one, and the class exposes setRungs(int). Which value has the constructor no choice about?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The rungs argument, because an object with zero rungs would break the rule from birth",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Neither value, because the setter is the only place a rule about rungs belongs",
+          "misconception": "a later setter can repair a constructor that shipped a broken object"
+        },
+        {
+          "id": "C",
+          "text": "The field's default of zero, because a constructor only assigns what it is given",
+          "misconception": "a default value can be left in place and still be legal"
+        },
+        {
+          "id": "D",
+          "text": "Both values, because every constructor must re-check whatever the setter checks",
+          "misconception": "a constructor must duplicate every mutator guard"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A client can hold a reference to a freshly constructed ladder and read it without ever calling the setter, so any value the constructor lets through becomes an observable illegal state. The tempting belief is that the setter is the natural home for the rule, but a setter only protects calls that pass through it. A constructor that refuses an illegal argument is the only way to guarantee there is no pre-repair object to leak.",
+      "hint": "Ask what a client can read before it has called any mutator.",
+      "difficulty": 0.62,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "invariants"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "describe what two names for one object share when a write goes through either name",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A client writes Ledger a = new Ledger(); Ledger b = a; and then calls b.deposit(40). What does the second name refer to, and what can a later a.balance() report?",
+      "options": [
+        {
+          "id": "A",
+          "text": "b names the same object a names, so the deposit shows up in the balance a reports",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "b names a second object holding a copy, so a's own balance stays at zero",
+          "misconception": "assigning a reference builds a duplicate object"
+        },
+        {
+          "id": "C",
+          "text": "b names a second object, but both objects share one balance field between them",
+          "misconception": "a copy can still share the original's storage"
+        },
+        {
+          "id": "D",
+          "text": "b names nothing usable, because only the first name may hold an object reference",
+          "misconception": "only the variable that ran new can be used later"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The second statement copies the reference value, so a and b are two names for one Ledger and the deposit changes the one balance both names reach. The tempting answer invents a second object, on the belief that assignment duplicates whatever it is given, but a reference stores an address and copying an address does not copy the house it points at. Nothing in the class changed; only the number of names pointing at it grew.",
+      "hint": "Ask how many Ledger objects exist after the second statement runs.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "references"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "state what a reference identity test reports for two names that point at one object",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two locals are written as Slot first = new Slot(3); Slot second = first; and a client asks whether first == second. Which reading of that test is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It reports true, because the test asks whether both names reach the same object",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It reports false, because two different variables can never compare equal",
+          "misconception": "two variables always count as two different objects"
+        },
+        {
+          "id": "C",
+          "text": "It reports true, because both variables were assigned the same numeric value",
+          "misconception": "equal field values make references compare equal"
+        },
+        {
+          "id": "D",
+          "text": "It reports false, because the test compares the fields rather than the references",
+          "misconception": "== on objects compares their stored fields"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The test compares the two reference values, and both hold the same address, so it reports true and confirms that one object is reachable by two names. The tempting wrong reading treats the two variables as two objects, but a variable is a name, not a thing, and naming the same object twice does not build a second one. This is why an identity test is the right tool for spotting a shared object and the wrong tool for judging two equal values.",
+      "hint": "Count the objects, then ask what the test compares.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "identity",
+        "references"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Scope of an Invariant",
+      "learningObjective": "identify what an invariant does not constrain about which legal states may exist",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A purse class states one invariant: the stored balance is never negative. A client withdraws 30 while the balance is 100. Must the class refuse that call?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, because 100 minus 30 stays non-negative and the rule permits that balance",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, because a mutator is supposed to reject any call a client ever makes",
+          "misconception": "a guard is expected to reject every argument"
+        },
+        {
+          "id": "C",
+          "text": "No, because the rule only describes the balance the constructor was given",
+          "misconception": "an invariant describes construction state only"
+        },
+        {
+          "id": "D",
+          "text": "Yes, because a balance may only ever be changed by a deposit call",
+          "misconception": "a rule about stored values fixes the set of allowed calls"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule excludes negative balances, not particular calls, and 70 is a legal balance, so the withdrawal may proceed. The tempting wrong answer reads an invariant as a list of forbidden operations rather than a filter on states, and a class that refused every affordable withdrawal would be rejecting states the rule explicitly allows. Stating an invariant precisely is what tells a reader which rejections are required and which would be invented.",
+      "hint": "Compare the balance after the call with the balance the rule forbids.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "preconditions"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "trace a write made through one of two names for one object",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this cell: class Cell { int n; Cell(int n){ this.n = n; } void add(int d){ n = n + d; } int get(){ return n; } } Cell a = new Cell(5); Cell b = a; b.add(3); System.out.print(a.get()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5",
+          "misconception": "the assignment made a second cell, so a still holds 5"
+        },
+        {
+          "id": "C",
+          "text": "3",
+          "misconception": "get returns the amount that was added"
+        },
+        {
+          "id": "D",
+          "text": "2",
+          "misconception": "add subtracts the amount from the stored value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The assignment copies only the reference, so a and b name the one Cell, the add of 3 lands in the single field, and a.get() reads back 5 plus 3. The tempting answer is 5, on the belief that a second name means a second object with its own private copy of the number, but there is no second object and therefore no second number. Aliasing is why a field written through one reference is immediately visible through every other reference to it.",
+      "hint": "Count the Cell objects that exist after the assignment.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "references"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "trace the half-assigned state a rejecting constructor leaves reachable",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this slot: class Slot { static Slot last; int id; int cap; Slot(int id, int cap){ this.id = id; last = this; if (cap <= 0) { throw new IllegalArgumentException(\"bad cap\"); } this.cap = cap; } } Slot.last = null; try { new Slot(7, -3); System.out.print(\"id=0 cap=0\"); } catch (IllegalArgumentException e) { System.out.print(\"id=\" + Slot.last.id + \" cap=\" + Slot.last.cap); } What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "id=7 cap=0",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "id=0 cap=0",
+          "misconception": "a failed construction leaves every field at its default"
+        },
+        {
+          "id": "C",
+          "text": "id=7 cap=-3",
+          "misconception": "the rejected capacity still reaches the field"
+        },
+        {
+          "id": "D",
+          "text": "id=0 cap=-3",
+          "misconception": "only the assigned field survives and the argument does too"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first assignment stores 7 and the second statement parks the object in the static field, so when the guard throws the catch block can still reach the object and read an id of 7 with cap left at its default of 0. The tempting answer is id=0 cap=0, on the belief that a failed construction wipes the object clean, but throwing does not roll back a completed assignment. The lesson is that a constructor which publishes this before it finishes makes a half-built object observable.",
+      "hint": "Decide which fields were assigned before the throw was raised.",
+      "difficulty": 0.66,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "validation-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "trace the partial state left when a two-field mutator rejects its second argument",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this pair: class Pair { int a; int b; void set(int a, int b){ this.a = a; if (b <= 0) { return; } this.b = b; } String toString(){ return a + \":\" + b; } } Pair p = new Pair(); p.set(4, 5); p.set(9, 0); System.out.print(p); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "9:5",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4:5",
+          "misconception": "a rejected call leaves the whole previous state in place"
+        },
+        {
+          "id": "C",
+          "text": "9:0",
+          "misconception": "the guard blocks the pair but still stores the first value"
+        },
+        {
+          "id": "D",
+          "text": "4:0",
+          "misconception": "neither field of a rejected call is allowed to change"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first statement of set stores 9 into a before the guard runs, so when b of 0 causes the early return the object holds the new a and the old b, which prints 9:5. The tempting answer is 4:5, treating rejection as a transaction that discards the whole call, but the method has no rollback step and the write already happened. Validating both arguments before either assignment is what would have made the rejected call leave both fields alone.",
+      "hint": "Count the assignments that finish before the guard is reached.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "trace the count that survives a throw raised after the increment",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this counter: class Counter { int n = 0; void bump(int limit){ n = n + 1; if (n > limit) { throw new IllegalStateException(\"full\"); } } int get(){ return n; } } Counter c = new Counter(); try { c.bump(3); c.bump(3); c.bump(3); c.bump(3); System.out.print(\"count \" + c.get()); } catch (IllegalStateException e) { System.out.print(\"threw with n=\" + c.get()); } What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "threw with n=4",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "threw with n=3",
+          "misconception": "the refused increment is undone by the throw"
+        },
+        {
+          "id": "C",
+          "text": "count 3",
+          "misconception": "the loop of calls stops before the offending one"
+        },
+        {
+          "id": "D",
+          "text": "count 4",
+          "misconception": "a thrown check still lets the method report its field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each bump raises n first, so three calls take the count to 3 and the fourth pushes it to 4 before the guard notices and throws, leaving the field at 4 for the catch block to read. The tempting answer is threw with n=3, which assumes the throw undoes the increment that preceded it, but an exception aborts the remaining statements and never revisits the completed one. The object is left holding a value its own method just declared illegal.",
+      "hint": "Decide whether n is raised before or after the limit is tested.",
+      "difficulty": 0.64,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "trace the default value an instance method sees when a constructor calls it too early",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this meter: class Meter { int total; int seen; Meter(){ seen = read(); total = 40; } int read(){ return total; } int getSeen(){ return seen; } int getTotal(){ return total; } } Meter m = new Meter(); System.out.print(m.getSeen() + \"/\" + m.getTotal()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0/40",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "40/40",
+          "misconception": "the constructor assigns every field before it reads one"
+        },
+        {
+          "id": "C",
+          "text": "40/0",
+          "misconception": "the early read parks the later assignment in the wrong field"
+        },
+        {
+          "id": "D",
+          "text": "0/0",
+          "misconception": "the constructor body never runs because the read failed first"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The constructor calls read before the assignment to total, so read returns the int default of 0 and that zero is parked in seen, after which total becomes 40. The tempting answer is 40/40, on the belief that a method called from a constructor somehow sees the finished object, but the call happens at that exact point in the statement order. An instance method must never be called before the fields it reads have been assigned.",
+      "hint": "Look at which of the two constructor statements runs first.",
+      "difficulty": 0.68,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "field-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "trace the value a field initializer contributes to a constructor body that adds to it",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this cart: class Cart { int total = 10; int items; Cart(int items){ this.items = items; total = total + items; } int getTotal(){ return total; } } Cart c = new Cart(4); System.out.print(c.getTotal()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "14",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4",
+          "misconception": "the constructor body starts from zero and ignores the initializer"
+        },
+        {
+          "id": "C",
+          "text": "10",
+          "misconception": "the initializer overwrites whatever the constructor adds"
+        },
+        {
+          "id": "D",
+          "text": "24",
+          "misconception": "the constructor multiplies the initializer by the item count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The field initializer runs before the constructor body, so total starts at 10 and the body adds the 4 it was handed, giving 14. The tempting answer is 4, on the belief that the constructor body starts from a blank field, but the initializer already wrote 10 before the first constructor statement. Reading and adding to an initialized field is a common and correct pattern; assuming the field is still zero is what produces the wrong total.",
+      "hint": "Decide whether the initializer or the constructor body reaches the field first.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "field-order",
+        "constructors"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "trace a delegating constructor whose later assignment escapes the target's guard",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this route: class Route { int stops; Route(int stops){ if (stops < 0) { throw new IllegalArgumentException(\"negative\"); } this.stops = stops; } Route(int stops, boolean express){ this(stops); this.stops = stops * 2; } int get(){ return stops; } } System.out.print(new Route(6, true).get()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "12",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6",
+          "misconception": "the delegated guard owns the field and the later write is ignored"
+        },
+        {
+          "id": "C",
+          "text": "0",
+          "misconception": "delegation runs the target body and then discards its stored value"
+        },
+        {
+          "id": "D",
+          "text": "3",
+          "misconception": "the doubling applies to the argument before the guard sees it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The delegated call runs the guard on 6 and stores 6, then the delegating constructor overwrites the field with 6 doubled to 12, and the accessor reports the second value. The tempting answer is 6, on the belief that the guard owns the field, but the guard is a check inside the target constructor and nothing prevents the delegating body from writing again. Delegation guarantees the target's setup runs once, not that its result is the final state.",
+      "hint": "Ask which statement runs after the delegated constructor returns.",
+      "difficulty": 0.7,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 56
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "delegation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "trace a write made inside a method through the object passed as a parameter",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this dial, where a helper raises whatever object it is handed:\nclass Dial { int v; Dial(int v){ this.v = v; } int get(){ return v; } static void raise(Dial target, int by){ target.v = target.v + by; } } Dial d = new Dial(10); Dial alias = d; Dial.raise(d, 5); System.out.print(d.get() + \"/\" + alias.get());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "15/15",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10/10",
+          "misconception": "a parameter is a private copy the method cannot write through"
+        },
+        {
+          "id": "C",
+          "text": "15/10",
+          "misconception": "the write reaches only the parameter's view of the object"
+        },
+        {
+          "id": "D",
+          "text": "10/15",
+          "misconception": "the second name holds a separate object the write misses"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The parameter target holds the same reference the caller's d holds, so the addition writes into the one field and both names read 15. The tempting answer is 10/10, on the belief that parameters are private copies, but only the reference value is copied and the object behind it is shared. This is the same aliasing fact as a direct field write, seen through a method boundary, and it is why an object handed to a helper can be changed by that helper.",
+      "hint": "Ask how many Dial objects exist after the call to raise returns.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "parameters"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "trace a mutation the caller makes through a reference its own method returned",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this shop: class Tray { int n; Tray(int n){ this.n = n; } int get(){ return n; } } class Shop { Tray best = new Tray(0); Tray top(Tray t){ if (t.get() >= best.get()) { best = t; } return best; } } Tray client = new Tray(7); Tray got = new Shop().top(client); got.n = 99; System.out.print(client.get()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "99",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "7",
+          "misconception": "returning an object hands the caller a private snapshot"
+        },
+        {
+          "id": "C",
+          "text": "0",
+          "misconception": "the shop's own tray is what the accessor keeps reporting"
+        },
+        {
+          "id": "D",
+          "text": "1",
+          "misconception": "the assignment writes into the reference itself"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "top stores the client's own Tray in best and returns that reference, so got and client name the same object and the write of 99 lands in the field the client's accessor reads. The tempting answer is 7, on the belief that returning an object produces a copy, but a return value is just another reference and the two locals now share one object. When a method hands back an object it was given, the caller has quietly regained write access to its own state.",
+      "hint": "Ask which object best points at once top has compared the two trays.",
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 34,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "return-values"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "trace a desynchronization when a mutator replaces one of two fields that shared an object",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this cache: class Doc { int rev; Doc(int rev){ this.rev = rev; } int get(){ return rev; } } class Cache { Doc head; Doc tail; Cache(Doc only){ head = only; tail = only; } void advanceTail(Doc d){ tail = d; } String show(){ return head.get() + \"/\" + tail.get(); } } Doc start = new Doc(5); Cache c = new Cache(start); c.advanceTail(new Doc(8)); System.out.print(c.show()); What is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5/8",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8/8",
+          "misconception": "reassigning the tail field also moves the head field"
+        },
+        {
+          "id": "C",
+          "text": "5/5",
+          "misconception": "both fields keep reporting the object the constructor gave them"
+        },
+        {
+          "id": "D",
+          "text": "8/5",
+          "misconception": "the new document replaces the first field instead of the second"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The constructor deliberately pointed both fields at one Doc, then advanceTail wrote a different object into tail alone, so head still reports 5 and tail reports 8. The tempting answer is 8/8, on the belief that the two fields are somehow bound to each other, but each field holds its own reference and only one of them was assigned. Aliasing inside an object is a relationship the constructor built, and any mutator that breaks it must rebuild it deliberately.",
+      "hint": "Ask how many of the two fields the mutator actually assigns.",
+      "difficulty": 0.72,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "invariants"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "compute the level left after a run of calls in which one is refused",
+      "practice": "numeric trace",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Trace this tank: class Tank { int level; Tank(int level){ if (level < 0) { level = 0; } this.level = level; } void fill(int amount){ if (level + amount > 100) { return; } level = level + amount; } int get(){ return level; } } Tank t = new Tank(70); t.fill(20); t.fill(15); t.fill(9); System.out.print(t.get()); What value is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "99",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "100",
+          "misconception": "the refused call fills the tank right up to the ceiling"
+        },
+        {
+          "id": "C",
+          "text": "105",
+          "misconception": "the guard tests the level after adding and so allows the overflow"
+        },
+        {
+          "id": "D",
+          "text": "90",
+          "misconception": "the refused call also rolls back the accepted one before it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The constructor stores 70, the fill of 20 is accepted to reach 90, the fill of 15 would make 105 and is refused so the level stays 90, and the fill of 9 is accepted to reach 99. The tempting answer is 100, on the belief that a refused fill still tops the tank off, but the guard returns before any assignment and the level is untouched. A refused call is a no-op, which is exactly why later calls in the same sequence still apply normally.",
+      "hint": "Run the three calls in order and note which one the guard stops.",
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "supply the guard clause that must run before the field is written",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A stock class must refuse a negative quantity and keep the value it already holds. class Stock { int qty; void set(int q){ ____ } int get(){ return qty; } } Stock s = new Stock(); s.set(5); s.set(-2); System.out.print(s.get()); Which fragment fills the blank so the program prints 5?",
+      "options": [
+        {
+          "id": "A",
+          "text": "if (q < 0) { return; } qty = q;",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "qty = q; if (q < 0) { return; }",
+          "misconception": "checking after the write still protects the stored value"
+        },
+        {
+          "id": "C",
+          "text": "if (q < 0) { return; } qty = q * 2;",
+          "misconception": "a stored quantity is meant to be doubled on the way in"
+        },
+        {
+          "id": "D",
+          "text": "if (q <= 0) { qty = 0; return; } qty = q;",
+          "misconception": "refusing a negative argument means overwriting the field with zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The guard returns before the assignment when the argument is negative, so the refused call leaves qty at 5 and the accessor prints 5. The tempting fragment writes first and checks second, which stores -2 and then discovers the problem, leaving the field holding the value the guard was meant to reject. Refusing an argument and correcting an argument are different designs, and only the early return matches the promise that the stored value is untouched.",
+      "hint": "Put the test ahead of the only statement that changes the field.",
+      "difficulty": 0.55,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "code-completion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "diagnose a copy method that hands back the receiver instead of a second object",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A crate class promises a caller an object of its own. A client builds one box, asks it for a copy, writes 9 into the copy, and finds the original reporting 9 as well:\nclass Box { int v; Box(int v){ this.v = v; } int get(){ return v; } Box copyOf(){ return this; } } Box a = new Box(4); Box b = a.copyOf(); b.v = 9; System.out.print(a.get());\nThe program prints 9. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the method returns this, so the caller receives a second name for one object",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the method returns a copy, so the caller edits an object of its very own",
+          "misconception": "a method named for copying always produces a new object"
+        },
+        {
+          "id": "C",
+          "text": "the method needs a parameter to know which of the two boxes to copy",
+          "misconception": "a copy method cannot identify its own receiver without an argument"
+        },
+        {
+          "id": "D",
+          "text": "the method must be declared static to build a separate instance",
+          "misconception": "only a static method can construct a second object"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Returning this hands back the receiver's own reference, so b and a name one Box and the write of 9 is a write to the original. The tempting answer credits the method with making a copy, but nothing in return this constructs an object, and a name that promises a copy while returning the original is a trap for every caller. A real copy method must build a new object and copy the field into it.",
+      "hint": "Ask how many Box objects exist after copyOf returns.",
+      "difficulty": 0.62,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "diagnose a second state-changing path that applies none of the class's guards",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A vault class refuses a short code while one is being built, yet a client ends up reporting 7:\nclass Vault { private int code; Vault(int code){ if (code < 1000) { throw new IllegalArgumentException(\"short\"); } this.code = code; } void importCode(int code){ this.code = code; } int getCode(){ return code; } } Vault v = new Vault(1234); v.importCode(7); System.out.print(v.getCode());\nThe program prints 7. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "importCode assigns the field without the guard the constructor applies",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "importCode must run a constructor again to revalidate the code it stores",
+          "misconception": "only a constructor is able to check a rule about a value"
+        },
+        {
+          "id": "C",
+          "text": "the constructor's guard is redundant once a mutator like importCode exists",
+          "misconception": "adding a second writer makes the first check unnecessary"
+        },
+        {
+          "id": "D",
+          "text": "the field must be final if the guard is to hold for the object's whole life",
+          "misconception": "a rule survives later writes only when the field is final"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The constructor's guard protects one entrance to the field, and importCode is a second entrance that applies no rule at all, so the class now accepts a three digit code it once rejected. The tempting answer excuses the second writer, but a rule about a field is a property of the field and must be enforced by every method that changes it. Any class that can change its own state has to route every such change through the same check.",
+      "hint": "Count the methods in the class that can write the code field.",
+      "difficulty": 0.66,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 38,
+        "p75Sec": 56
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "validation-order",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "diagnose a static registry that keeps a reference to an object whose construction failed",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A node class adds itself to a shared list before it tests its argument:\nclass Node { static java.util.ArrayList<Node> LIVE = new java.util.ArrayList<Node>(); int v; Node(int v){ this.v = v; LIVE.add(this); if (v < 0) { throw new IllegalArgumentException(\"negative\"); } } } Node.LIVE.clear(); try { new Node(5); new Node(-1); } catch (IllegalArgumentException e) { } System.out.print(Node.LIVE.size());\nThe program prints 2. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the constructor registers the object before it validates, so the failed one stays reachable",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the constructor validates first, so the object it refuses is never registered",
+          "misconception": "a registry entry disappears when the constructor throws"
+        },
+        {
+          "id": "C",
+          "text": "the list itself refuses any object whose stored value happens to be negative",
+          "misconception": "a plain ArrayList enforces a rule about field values"
+        },
+        {
+          "id": "D",
+          "text": "the constructor must empty the list whenever it is about to raise an error",
+          "misconception": "throwing from a constructor should clear everything it collected"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The add happens before the test, so both objects including the rejected one are in the list, which is why the size prints 2. The tempting answer believes a throw withdraws the registration, but the list is ordinary state and nothing removed the entry, so the object that never finished constructing stays reachable forever. A constructor that publishes this into shared state must do its validation first, or undo the publication itself.",
+      "hint": "Ask which of the two constructor statements runs before the test.",
+      "difficulty": 0.72,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 44,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "escaping-this"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "diagnose a reference test that reports false for an equal but separate object",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A key class offers an identity test, and a client uses it on two separately built keys:\nclass Key { String code; Key(String code){ this.code = code; } boolean sameAs(Key other){ return this == other; } String get(){ return code; } } Key held = new Key(\"A1\"); Key fresh = new Key(\"A1\"); System.out.print(held.sameAs(fresh));\nThe program prints false even though both keys read A1. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the method compares references, so a distinct object with the same code reports false",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the method compares references, so only the very same instance can ever match",
+          "misconception": "an identity test is the natural way to compare key codes"
+        },
+        {
+          "id": "C",
+          "text": "the method needs a null check on other before it compares anything at all",
+          "misconception": "a reference comparison must be preceded by a null test"
+        },
+        {
+          "id": "D",
+          "text": "the method should compare the code field with equals to test code identity",
+          "misconception": "equals is the wrong tool for comparing two stored codes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two constructions allocate two different Key objects, so the reference test finds two addresses and prints false even though both codes read A1. The tempting answer treats the reference test as a code comparison, but this == other asks whether one object is reachable by two names, which is a different question from whether two objects carry the same code. Choosing the wrong test here produces a false negative on data that plainly matches.",
+      "hint": "Ask how many Key objects the two constructions create.",
+      "difficulty": 0.68,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "identity",
+        "equals"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "diagnose a constructor that establishes only half of a rule spanning two fields",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A pair class promises that a plus b is always 100, yet a client trips the check on a brand new object:\nclass Pair { int a; int b; Pair(int a){ this.a = a; } void check(){ if (a + b != 100) { throw new IllegalStateException(\"sum\"); } } int getB(){ return b; } } Pair p = new Pair(40); try { p.check(); System.out.print(\"valid\"); } catch (IllegalStateException e) { System.out.print(\"sum is \" + (40 + p.getB())); }\nThe program prints sum is 40. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "the constructor sets only a, so b keeps its default and the sum rule fails at once",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "the constructor must call check itself to prove the sum rule before returning",
+          "misconception": "a rule spanning fields is proved by calling the checker"
+        },
+        {
+          "id": "C",
+          "text": "check should ignore b until the class grows a second field to store it",
+          "misconception": "a check may skip a field the object already has"
+        },
+        {
+          "id": "D",
+          "text": "both fields must be final if their sum is to stay at one hundred",
+          "misconception": "a two field rule holds only when the fields cannot change"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The constructor assigns a to 40 and never touches b, so b keeps its int default of zero and the sum is 40 rather than 100, which is why check throws on a freshly built object. The tempting answer makes the checker responsible for repairing the state, but a check can only report a violation, not prevent one. When a rule spans two fields, construction has to establish both of them or the object is born illegal.",
+      "hint": "Ask what value b has in an object that has just been constructed.",
+      "difficulty": 0.7,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 42,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "invariants"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "diagnose a mutator that enforces the cross-field rule while its twin does not",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A range class promises that lo is never above hi, yet a client ends up with a range that runs backwards:\nclass Span { int lo; int hi; void setLo(int lo){ this.lo = lo; if (hi < lo) { hi = lo; } } void setHi(int hi){ this.hi = hi; } int show(){ return lo * 100 + hi; } } Span s = new Span(); s.setLo(2); s.setHi(9); s.setHi(1); System.out.print(s.show());\nThe program prints 201, a range whose low end sits above its high end. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "setHi assigns without the repair setLo performs, so lo can end up above hi",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "setLo assigns without the repair setHi performs, so hi can end up below lo",
+          "misconception": "the mutator that lacks the repair is the lower bound setter"
+        },
+        {
+          "id": "C",
+          "text": "both mutators repair the range, so the pair rule holds after any sequence of calls",
+          "misconception": "one repairing mutator makes the pair rule hold for both"
+        },
+        {
+          "id": "D",
+          "text": "the range rule belongs in the accessor, not in either of the two mutators",
+          "misconception": "a rule about stored fields is enforced by reading them"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "setLo raises hi whenever hi would fall below the new lo, but setHi does no such repair, so the last call leaves lo at 2 with hi at 1 and show packs that into 201. The tempting answer blames setLo, which is the mutator that does maintain the rule, and the belief that one careful mutator protects the pair is exactly what the trace disproves. A rule spanning two fields has to be re-established by every method that changes either of them.",
+      "hint": "Compare the body of setLo with the body of setHi.",
+      "difficulty": 0.75,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 46,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "mutators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Validating Before State Change",
+      "learningObjective": "write the mutator that keeps a dependent field in step with the field it is derived from",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A card keeps the rule that rest never exceeds the total it is counted against. class Card { int total; int rest; int used; Card(int total, int used){ this.total = total; this.used = used; this.rest = total - used; } void setUsed(int used){ this.used = used; ____ } String show(){ return used + \"/\" + rest; } } Card c = new Card(10, 4); c.setUsed(7); System.out.print(c.show()); Which fragment fills the blank so the program prints 7/3?",
+      "options": [
+        {
+          "id": "A",
+          "text": "rest = total - used;",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "used = total - used;",
+          "misconception": "the derived field is the one whose value gets recomputed"
+        },
+        {
+          "id": "C",
+          "text": "rest = rest - used;",
+          "misconception": "the derived field is decremented by the new count"
+        },
+        {
+          "id": "D",
+          "text": "total = used + rest;",
+          "misconception": "the total is rebuilt from the count and the old remainder"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Recomputing rest as total minus the count that was just stored puts the two fields back in step, so rest becomes 3 and show prints 7/3. The tempting fragment B rebuilds used instead, which leaves rest stale at 6 and prints 3/6, and D moves the total while rest keeps the old remainder and prints 7/6. Whenever one field is derived from another, the mutator that changes the source has to refresh the derived one inside the same call.",
+      "hint": "Decide which of the two fields is computed from the other.",
+      "difficulty": 0.68,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 40,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "code-completion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "judge which statements about two references to one object are true",
+      "practice": "multi select",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A client holds one Guard object in a local named g, copies that reference into a second local named h, and later passes g to helper methods. Which statements about that code are true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "After h = g, both names reach one object, so a write through h shows up when g is read",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A method handed the object as a parameter can change the state the caller observes",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "After h = g, Java allocates a second object whose values then evolve apart",
+          "misconception": "assigning a reference builds a duplicate of the object"
+        },
+        {
+          "id": "D",
+          "text": "Two objects built from equal constructor arguments stay separate, so a write to one spares the other",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "Because arguments are copied, a method can never change the object its caller passed in",
+          "misconception": "copying an argument copies the object behind it"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "D"
+        ]
+      },
+      "explanation": "A reference value is an address, so copying it adds a name without adding an object, which is why A and B both hold. C is the belief that assignment duplicates the referent, and E confuses copying the reference with copying the object, which is the same error seen from the other side. D is the useful contrast: two separate constructions make two objects, so equal arguments do not create sharing.",
+      "hint": "For each statement, count the objects that exist afterwards.",
+      "difficulty": 0.72,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 44,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "references"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Maintaining a Class Invariant",
+      "learningObjective": "evaluate which single change makes a capacity class keep its headroom rule true",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ring class is class Ring { int size; int cap; Ring(int cap){ this.cap = cap; } boolean push(int item){ if (size == cap) { return false; } cap = cap - 1; size = size + 1; return true; } int free(){ return cap; } }. With Ring q = new Ring(2); the calls q.push(1) and q.push(2) print truefalse1, so the ring refuses the second item. Which single change repairs it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Leave cap alone in push and test size against it, so free keeps reporting headroom",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Add a second field for the room left and keep shrinking cap inside push",
+          "misconception": "the shortage is a missing field rather than a shrinking one"
+        },
+        {
+          "id": "C",
+          "text": "Return false from push whenever cap drops below one, whatever size has reached",
+          "misconception": "a capacity value is itself the fullness test"
+        },
+        {
+          "id": "D",
+          "text": "Let size grow only on odd passes, so the two counters keep some parity",
+          "misconception": "two counters must be advanced in step to stay consistent"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "cap is doing two incompatible jobs, storing the size the ring was built with and reporting how much room is left, and shrinking it in push collapses the two so the very first push makes the ring look full. The tempting answers treat the symptom, a second counter or a parity rule, as the disease, but any fix that keeps shrinking cap leaves free() and the fullness test describing different quantities. One field should mean one thing, and the fullness test should compare size to an unchanging cap.",
+      "hint": "List every job cap is doing and decide which two conflict.",
+      "difficulty": 0.8,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 52,
+        "p75Sec": 76
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "field-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "judge which members belong in a class that guarantees a rule across two fields",
+      "practice": "multi select",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A window class stores lo and hi and promises that lo is never above hi. Which members belong in such a class?",
+      "options": [
+        {
+          "id": "A",
+          "text": "a constructor that refuses any pair whose lo is above its hi",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a setLo that lifts hi to lo whenever hi would fall below it",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "a getHi that returns lo whenever hi is smaller, so no reader sees a bad pair",
+          "misconception": "a safe report is the same thing as a safe stored state"
+        },
+        {
+          "id": "D",
+          "text": "a setHi that refuses any hi below the lo the object already holds",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "a getLo that returns hi when lo is larger, so callers never observe the bad order",
+          "misconception": "swapping the value in the report repairs the two fields"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "D"
+        ]
+      },
+      "explanation": "A, B and D all act on the stored fields, so each one leaves lo at or below hi for any call a client can make. C and E are the tempting pair: they make the printed or returned value look legal while the object keeps an illegal pair, which is exactly the kind of class that looks fine in a test and corrupts data later. Guaranteeing an invariant means every path that writes state has to end with the rule true, not merely every path that reports it.",
+      "hint": "Ask of each member whether it changes the fields or only the report.",
+      "difficulty": 0.78,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 50,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "invariants",
+        "class-design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Choosing Constructor Work",
+      "learningObjective": "judge which changes stop a constructor from publishing a half built object",
+      "practice": "multi select",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A constructor can hand its own reference to other code before it finishes. Which changes keep a half built object from escaping?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Validate every argument before this is registered anywhere at all",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Delay adding this to shared collections until the last constructor statement",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Wrap the assignments in a try block so a thrown exception cannot leave the constructor",
+          "misconception": "catching an exception inside makes the partial object unreachable"
+        },
+        {
+          "id": "D",
+          "text": "Keep the setup in private helpers that touch only this object's own fields",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "Give the class a finalize method that removes the object from any registry it joined",
+          "misconception": "finalize can undo a registration made during a failed build"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "D"
+        ]
+      },
+      "explanation": "A, B and D all shrink the window in which another object can hold this, so a throw inside the constructor leaves nothing behind. C is the tempting one, but catching the exception inside changes who handles the failure, not whether the partial object was already published. E is worse, because a finalizer may never run and cannot undo a registration made by a constructor that failed, so the object stays reachable for the life of the program.",
+      "hint": "Ask of each change whether it prevents the publication or merely reacts to it.",
+      "difficulty": 0.85,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 56,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "constructors",
+        "escaping-this"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-5.6-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 5",
+      "topic": "Aliasing Between Two References",
+      "learningObjective": "diagnose a mutator that leaves a reference the client kept pointing at a detached object",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A cell holds a tag, and a client keeps a reference to the tag it read before asking for a different one:\nclass Tag { String code; Tag(String code){ this.code = code; } String get(){ return code; } } class Cell { Tag label; Cell(Tag label){ this.label = label; } Tag get(){ return label; } void relabel(Tag next){ label = next; } } Cell c = new Cell(new Tag(\"a\")); Tag held = c.get(); c.relabel(new Tag(\"b\")); System.out.print(held.get() + \"/\" + c.get().get());\nThe program prints a/b. What is the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "relabel swaps in a new object, so the reference the client kept is now detached",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "relabel writes through the old object, so the client's reference still sees the change",
+          "misconception": "reassigning a field also updates the objects clients already hold"
+        },
+        {
+          "id": "C",
+          "text": "relabel cannot change which object the field holds, since fields are final here",
+          "misconception": "a field is final unless it is written in a constructor"
+        },
+        {
+          "id": "D",
+          "text": "the client must run a constructor again before its old reference can be reused",
+          "misconception": "a detached reference must be revived by rebuilding the object"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "relabel assigns a different Tag to the field, so the cell now points at the new object while the client's held reference still names the old one, and the two report different codes. The tempting answer assumes the write reached through to the object the client kept, but assigning a field changes which object the field names and touches nothing inside either Tag. Any later change the client wants must go back through the cell, because its own reference now describes an object the cell has forgotten.",
+      "hint": "Ask how many Tag objects exist and which one the field names after the call.",
+      "difficulty": 0.74,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 44,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-x3",
+        "reviewer": "bank-review-jp-x3",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-5",
+        "aliasing",
+        "references"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
