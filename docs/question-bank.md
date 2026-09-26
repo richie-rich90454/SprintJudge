@@ -28,6 +28,25 @@ response-time baseline, provenance, tags, relations, and version.
 - Reading load fits the subject; free of bias and idioms.
 - Reviewer differs from author. Originality and license are 5/5 gates.
 
+## Verification convention
+
+Every numeric answer, code trace, and pseudocode trace is **executed,
+not reasoned about**. Scratch space lives **inside this working
+directory** at `executor/tmp/verify-<team>/`, which is already
+gitignored, and is deleted when the batch is finished. Do not use
+`%TEMP%`, `/tmp`, or any path outside the repository: builds and CI
+routinely run with a locked-down or read-only external temp directory,
+and a verification step that depends on one blocks the whole pipeline.
+
+| Batch type | How to verify |
+|---|---|
+| Java Programming | write the snippet to `executor/tmp/verify-<team>/`, run `javac` + `java`, compare stdout to the keyed option |
+| Computing Foundations | run the pseudocode with `node` from the same directory and compare the printed value |
+| Math, science, economics | recompute with a second independent method, and back-substitute where possible |
+
+If a claim cannot be executed (for example a conservation argument),
+recompute it by a different route and show both routes agree.
+
 ## Machine-enforced quality floors
 
 `make check-bank` rejects a record when any of these fail, so a weak
