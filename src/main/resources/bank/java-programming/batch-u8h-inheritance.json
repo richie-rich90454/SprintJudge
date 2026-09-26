@@ -1,0 +1,3809 @@
+{
+  "questions": [
+    {
+      "id": "jp-8.20-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A redeclared field hides rather than shares",
+      "learningObjective": "predict that a subclass redeclaration creates a second, separate field",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass declares a field whose name the superclass already uses.\n```java\npublic class P2001 {\n    static class Base {\n        int value = 1;\n        int read() { return value; }\n    }\n    static class Sub extends Base {\n        int value = 2;\n        int readSub() { return value; }\n    }\n    public static void main(String[] args) {\n        Sub s = new Sub();\n        System.out.println(s.read() + s.readSub());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 - the inherited read() returns the base value 1 and readSub() returns the subclass value 2.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 - both methods read one slot, so the subclass initializer overwrote the base field.",
+          "misconception": "believes a redeclared field shares a single slot with the base"
+        },
+        {
+          "id": "C",
+          "text": "2 - the subclass field replaces the base field, so every read in the hierarchy sees 2.",
+          "misconception": "believes a redeclared field shadows the base field everywhere"
+        },
+        {
+          "id": "D",
+          "text": "0 - a redeclared field skips initialization, so both reads fall back to the default value.",
+          "misconception": "believes hiding suppresses the subclass field initializer"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a field declared in a subclass under a name the superclass already uses hides the base field instead of sharing its storage, so the object holds two independent slots and each slot is initialized by the class that declares it. read() was written inside Base, so the name value there resolves to Base.value, which is 1, while readSub() was written inside Sub and resolves to Sub.value, which is 2. The tempting reading treats the redeclaration as an assignment that overwrites the base slot, and that is exactly what makes the answer look like 1 or 2: a declaration with an initializer runs once per object for its own class, and neither slot ever overwrites the other.",
+      "hint": "Ask which class body each method was written in; the name resolves there.",
+      "difficulty": 0.35,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An override that reuses the base field through super",
+      "learningObjective": "trace a super call to a base method that reads the base field",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An override adds the base implementation's result to its own field.\n```java\npublic class P2002 {\n    static class Base {\n        int size = 3;\n        int measure() { return size; }\n    }\n    static class Sub extends Base {\n        int size = 5;\n        int measure() { return super.measure() + size; }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Sub().measure());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 - super.measure() runs the base body and returns 3, and the addition uses the subclass field 5.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 - super.measure() dispatches back to the override, so only the subclass field is added once.",
+          "misconception": "believes a super call re-enters dynamic dispatch"
+        },
+        {
+          "id": "C",
+          "text": "3 - the bare name size inside the override still refers to the base field of the same name.",
+          "misconception": "believes a name in an override always means the base field"
+        },
+        {
+          "id": "D",
+          "text": "10 - super.measure() reads the subclass field 5 and the addition reads that same field again.",
+          "misconception": "believes a base method body sees the subclass field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that super.m() invokes the superclass implementation directly, with no dynamic lookup, and that a field name inside a method body resolves to the field of the class that body was written in. So super.measure() runs Base.measure, whose size is the base field worth 3, while the size in Sub.measure is the subclass field worth 5, giving 3 + 5 = 8. The answer 5 is the tempting one because a super call looks like an ordinary call and ordinary calls dispatch; the whole purpose of the qualified form is to opt out of that dispatch, so the base body runs exactly as written and reads its own field.",
+      "hint": "super.measure() picks the implementation, and each body reads its own field.",
+      "difficulty": 0.42,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "super"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A subclass initializer that covers what the super constructor set",
+      "learningObjective": "repair a subclass field that hides the value the superclass constructor assigned",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A base class takes its initial value from a constructor, but the subclass declares a field of the same name.\n```java\npublic class P2003 {\n    static class Base {\n        int count;\n        Base(int start) { count = start; }\n    }\n    static class Sub extends Base {\n        int count = 100;  // <fix>\n        Sub() { super(7); }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Sub().count);\n    }\n}\n```\nThe program should print 7, the value handed to the superclass constructor. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "int count = super.count;  copies the base slot after the superclass constructor has filled it in.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int count = 100;  keeps the subclass slot, so the hidden value shadows what the base stored.",
+          "misconception": "believes a subclass field initializer wins over the super constructor"
+        },
+        {
+          "id": "C",
+          "text": "int count = super.count + 100;  reads the base slot but then offsets it by the subclass constant.",
+          "misconception": "believes the base value must be adjusted after it is copied"
+        },
+        {
+          "id": "D",
+          "text": "count = super.count;  assigns the slot without declaring it, which is not a field initializer.",
+          "misconception": "believes a field initializer may omit the type and name"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subclass field initializer runs after the superclass constructor completes, so by the time it executes the base slot already holds 7 and reading super.count yields 7. The original line is a bug because the declaration creates a second slot that the base constructor never touches, and the initializer then fills that second slot with 100, which is what the call in main reads. Copying with super.count is what preserves the value the superclass was given; the arithmetic variant is tempting because it also mentions the base slot, but it answers a question nobody asked, and the untyped variant is not a declaration at all.",
+      "hint": "Order decides this: the superclass constructor finishes before the subclass initializer.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "field-hiding",
+        "initialization-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Repeatedly adding the base field from inside a super call",
+      "learningObjective": "compute a value that mixes a loop over the base field with the subclass field",
+      "practice": "numeric trace",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The override delegates the loop to the base implementation and then adds its own field.\n```java\npublic class P2004 {\n    static class Tank {\n        int level = 1;\n        int drain(int times) {\n            int total = level;\n            for (int i = 0; i < times; i++) { total += level; }\n            return total;\n        }\n    }\n    static class Bottle extends Tank {\n        int level = 4;\n        int drain(int times) { return super.drain(times) + level; }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Bottle().drain(3));\n    }\n}\n```\nWhich number does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 - the base loop adds its own level four times to reach 4, and the override adds 4.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "16 - the base body reads the subclass field 4 and adds it four times to reach 16.",
+          "misconception": "believes a base method body picks up the subclass field"
+        },
+        {
+          "id": "C",
+          "text": "7 - the loop runs three times from zero and the override's own field is never added.",
+          "misconception": "believes the initial read of level is not part of the total"
+        },
+        {
+          "id": "D",
+          "text": "9 - the loop starts from the subclass field 5 and then adds its own 4 exactly once.",
+          "misconception": "believes the loop initialises total from the subclass field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a super call runs the base body against the base class's own fields, so inside Tank.drain the name level is 1 on every one of the four reads: the initial assignment to total and the three loop additions, giving 4. The override then adds its own field, 4, for a total of 8. The answer 16 is the trap that makes this item worth the trouble: it assumes the base body somehow sees the subclass field, but field names are resolved lexically by the class that contains them, so the number of times the loop runs matters and the value it adds does not follow the object.",
+      "hint": "Count the reads of level inside the base body: one before the loop, one per pass.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "field-hiding",
+        "loops"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about a field redeclared in a subclass",
+      "learningObjective": "judge which statements hold when a field name appears in both classes",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A subclass declares a field whose name the superclass already declares. A cheat sheet lists four claims about that situation. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A subclass may declare a field whose name matches one in its superclass.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A method inherited from the superclass reads the superclass field, not the new one.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The subclass field replaces the superclass field for every method in the hierarchy.",
+          "misconception": "believes one redeclaration retargets every existing read"
+        },
+        {
+          "id": "D",
+          "text": "Inside a superclass method, the bare name reaches the subclass field at run time.",
+          "misconception": "believes field access inside a method dispatches dynamically"
+        },
+        {
+          "id": "E",
+          "text": "The two fields of one name share a single storage slot on each object.",
+          "misconception": "believes a redeclaration aliases rather than allocates"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B"
+        ]
+      },
+      "explanation": "The rule is that field hiding allocates a second slot and leaves name resolution lexical, so the declaration is legal, the inherited method keeps reading the base slot, and no read anywhere changes target because of the subclass. Each wrong claim is a different way of collapsing the two slots into one: C assumes the subclass declaration retroactively redirects existing code, D assumes field reads behave like method calls and dispatch on the runtime type, and E assumes a redeclaration is an alias for the same storage. None of that is how a name declared in a class body is bound.",
+      "hint": "Ask separately whether the declaration is legal and which body each read was written in.",
+      "difficulty": 0.38,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reaching a grandparent method with one super call",
+      "learningObjective": "explain that super binds to the direct parent and lookup continues upward",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Three classes form a chain and the middle one adds nothing.\n```java\npublic class P2005 {\n    static class Top { String who() { return \"A\"; } }\n    static class Middle extends Top { }\n    static class Bottom extends Middle {\n        String call() { return super.who(); }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Bottom().call());\n    }\n}\n```\nBottom is two levels below the class that declares who. What does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A - super names the direct parent, and lookup walks on when that class declares no override.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "B - the call stops at Middle, because a super call can never reach past its direct parent.",
+          "misconception": "believes super always stops at the immediate superclass"
+        },
+        {
+          "id": "C",
+          "text": "null - a two-level super call has no matching declaration to bind to, so nothing is returned.",
+          "misconception": "believes a grandparent method cannot be reached by name"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - super may qualify a field or a constructor call, but never a method call.",
+          "misconception": "believes super cannot be used to qualify a method call"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that super.m() starts the method lookup at the direct superclass and then continues up the chain exactly as an unqualified call would, so the only thing the qualifier removes is the subclass. Middle declares nothing, so the search passes straight through it and Top.who runs, printing A. The answer B is the tempting one because super reads like it names one specific class and a class with no such method ought to fail; in fact super is a starting point for the search rather than a hard boundary, which is also why Bottom can reach a grandparent's method without any way to write super.super.",
+      "hint": "super skips the subclass, then ordinary lookup rules take over.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "super",
+        "method-lookup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An instance method written where a static one is needed",
+      "learningObjective": "repair a subclass member that tries to override a static superclass method",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass tries to provide its own version of a static superclass method.\n```java\npublic class P2007 {\n    static class A { static String kind() { return \"one\"; } }\n    static class B extends A {\n        String kind() { return \"one\"; }  // <fix>\n    }\n    public static void main(String[] args) {\n        System.out.println(B.kind());\n    }\n}\n```\nThe program should print one. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static String kind() { return \"one\"; }  a static method is hidden, not overridden, so static is required.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "String kind() { return \"one\"; }  an instance method of the same name is an override of the static method.",
+          "misconception": "believes an instance method can override a static superclass method"
+        },
+        {
+          "id": "C",
+          "text": "static String kind() { return \"two\"; }  keeps the static form but changes the value the call produces.",
+          "misconception": "believes the required output can be met by renaming the value"
+        },
+        {
+          "id": "D",
+          "text": "public String kind() { return \"one\"; }  adding an access modifier makes the instance method a valid override.",
+          "misconception": "believes widening access changes static into overridable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a static method is hidden rather than overridden, so the subclass member must also be static and the call is bound at compile time by the type it is written against. The marked line fails to compile because an instance method cannot override a static one: the compiler reports that the overriding method is static, which is the mirror image of the usual complaint. Option C keeps the declaration legal, which is why it is the most attractive wrong answer, but a hidden method can return anything, and the call still has to print one.",
+      "hint": "Static methods are hidden, so the replacement has to be static too.",
+      "difficulty": 0.45,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "static-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Accumulating through two super calls in a three-class chain",
+      "learningObjective": "compute a value where each class in a chain adds its own contribution",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Every class in the chain adds a contribution and passes the running total upward.\n```java\npublic class P2008 {\n    static class A { int step() { return 1; } }\n    static class B extends A { int step() { return super.step() + 10; } }\n    static class C extends B { int step() { return super.step() + 100; } }\n    public static void main(String[] args) {\n        A ref = new C();\n        System.out.println(ref.step());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "111 - C adds 100 to the result B produced, and B added 10 to the result A produced.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "101 - a super call inside C jumps straight to the root, so B's contribution is skipped.",
+          "misconception": "believes super skips to the topmost declaring class"
+        },
+        {
+          "id": "C",
+          "text": "11 - the super call inside C resolves against Object, so only A and B contribute.",
+          "misconception": "believes the second super call finds no superclass method"
+        },
+        {
+          "id": "D",
+          "text": "100 - the chain stops at the most derived class, which never calls its parent at all.",
+          "misconception": "believes the most derived override replaces the whole chain"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each super call runs exactly the next implementation up, so the most derived override is the entry point and the chain unwinds from there: C.step asks B.step, which asks A.step, and the return values accumulate as 1, then 11, then 111. Answer 101 is the tempting one because the reference is typed as A and people expect super to respect that, but the reference type only chooses the entry point for dynamic dispatch, and every qualified call inside a body moves exactly one step up regardless of how the object was referenced.",
+      "hint": "Write the call chain from the most derived class downwards.",
+      "difficulty": 0.62,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "super",
+        "override-chain"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A middle override that drops the base contribution",
+      "learningObjective": "detect a super call that was never written and repair the chain",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "Each class in a three-level chain is meant to contribute a bonus on top of the ones above it.\n```java\npublic class P2009 {\n    static class A { int bonus() { return 1; } }\n    static class B extends A {\n        int bonus() { return 2; }  // <fix>\n    }\n    static class C extends B { int bonus() { return super.bonus() + 10; } }\n    public static void main(String[] args) {\n        A ref = new C();\n        System.out.println(ref.bonus());\n    }\n}\n```\nWith the base bonus of 1, the middle bonus of 2 and the last bonus of 10, the program should print 13. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "int bonus() { return 2 + super.bonus(); }  adds the middle bonus on top of the base contribution.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int bonus() { return 2; }  keeps the middle bonus but never asks the base class for its own.",
+          "misconception": "believes a middle override replaces the base contribution"
+        },
+        {
+          "id": "C",
+          "text": "int bonus() { return super.bonus() * 2; }  scales the base bonus instead of adding the middle bonus.",
+          "misconception": "believes multiplying the base bonus keeps the middle contribution"
+        },
+        {
+          "id": "D",
+          "text": "int bonus() { return 2 + this.bonus(); }  reaches the middle bonus through the object reference instead of super.",
+          "misconception": "believes a self-call climbs to the superclass"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override shadows rather than merges, so unless it asks for the superclass version with a qualified call, everything above it in the chain is skipped. The marked line returns a constant 2, which makes the total 12 instead of 13 and quietly discards the base bonus; the correct body computes its own contribution plus super.bonus(). Option C is the sneaky distractor because it does call the parent, but doubling is not the same as adding a fixed middle bonus, and option D calls the same method on this, which is infinite recursion rather than an upward call.",
+      "hint": "The middle class must add its own bonus to whatever the class above returns.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "super",
+        "override-chain"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An override of toString that reuses the base text",
+      "learningObjective": "trace an override that appends its own text to the superclass result",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass extends the text its superclass produces.\n```java\npublic class P2010 {\n    static class Item { public String toString() { return \"Item\"; } }\n    static class Special extends Item {\n        public String toString() { return super.toString() + \"+Special\"; }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Special());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Item+Special - the qualified call returns the base text and the override appends its own.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Special - the base version is skipped, so only the subclass text survives the call.",
+          "misconception": "believes an override replaces rather than wraps the base text"
+        },
+        {
+          "id": "C",
+          "text": "+Special - the base version returns an empty string that is then extended.",
+          "misconception": "believes an unoverridden toString returns nothing"
+        },
+        {
+          "id": "D",
+          "text": "Item - printing the object calls the superclass version because the subclass one is private.",
+          "misconception": "believes a public override is skipped while printing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that super.toString() runs the superclass body directly, so it returns the literal Item, and the subclass body concatenates its own suffix onto that result, giving Item+Special. The answer Special is the tempting one because a subclass override is usually described as replacing the inherited behaviour, and here it does replace it, just with a body that deliberately delegates first. That is the whole point of the qualified call: the override is in charge of the final text and has to ask for the base text if it wants to keep it.",
+      "hint": "The override builds its text from two pieces: the base text and its own.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "toString"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "getClass inside an inherited method",
+      "learningObjective": "state that getClass reports the runtime class from any inherited method",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A base class reports the class of the object it is running on.\n```java\npublic class P2011 {\n    static class A { String who() { return getClass().getSimpleName(); } }\n    static class B extends A { }\n    public static void main(String[] args) {\n        System.out.println(new B().who());\n    }\n}\n```\nB adds nothing of its own. What does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - getClass describes the actual object, so the inherited method reports the subclass.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - the method was written in A, so it reports the class that declared it.",
+          "misconception": "believes an inherited method reports its declaring class"
+        },
+        {
+          "id": "C",
+          "text": "java.lang.Object - getClass climbs to the top of the hierarchy and reports the root.",
+          "misconception": "believes getClass walks up to the root class"
+        },
+        {
+          "id": "D",
+          "text": "null - a method that was not redeclared has no class of its own to report.",
+          "misconception": "believes an inherited method has no runtime class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that getClass is a method on Object that is final, so no subclass can change what it reports and it always describes the actual object rather than the class that happens to contain the running code. Because the object really is a B, the inherited who method returns B even though the code doing the asking sits in A. This is the mirror image of a field read, where the declaring class wins, and the contrast is the reason the item is worth doing: fields are resolved by the class you can see in the source, while getClass is resolved by the object you are actually on.",
+      "hint": "One of these two is decided by the object, the other by the source.",
+      "difficulty": 0.3,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "getClass"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A qualified getClass call still reports the runtime class",
+      "learningObjective": "explain why super.getClass is not a way to ask for the superclass",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass asks a superclass-level question about its own type.\n```java\npublic class P2012 {\n    static class A { String who() { return \"A\"; } }\n    static class B extends A {\n        String who() { return super.getClass().getSimpleName(); }\n    }\n    public static void main(String[] args) {\n        System.out.println(new B().who());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - getClass is final in Object, so qualifying it cannot restrict it to the parent type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - a qualified call runs against the superclass, so getClass reports the parent type.",
+          "misconception": "believes super changes what getClass reports"
+        },
+        {
+          "id": "C",
+          "text": "Object - the qualifier skips both classes and lands on the root of the hierarchy.",
+          "misconception": "believes qualifying a call collapses the hierarchy"
+        },
+        {
+          "id": "D",
+          "text": "null - getClass has no receiver once the call is qualified, so it yields nothing.",
+          "misconception": "believes a qualified getClass has no object to inspect"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that getClass is declared final in Object, which means no override exists anywhere in any hierarchy, and a qualified call cannot change the receiver of a method that is inherited unchanged. The qualifier here only controls which declaration of who is entered, and who is a subclass method, so the getClass inside it still runs on the B instance and returns B. The tempting answer A comes from reading super as a filter on everything in the body rather than as a filter on the method being called, and that reading is worth testing because it is exactly how field access behaves and not how calls behave.",
+      "hint": "Decide which method the qualifier picks, then ask what that method can see.",
+      "difficulty": 0.48,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "getClass",
+        "super"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Walking the hierarchy with getSuperclass",
+      "learningObjective": "combine getClass and getSuperclass to describe a hierarchy position",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An inherited method names both its own type and the type above it.\n```java\npublic class P2013 {\n    static class A {\n        String report() {\n            return getClass().getSimpleName() + \":\" + getClass().getSuperclass().getSimpleName();\n        }\n    }\n    static class B extends A { }\n    public static void main(String[] args) {\n        System.out.println(new B().report());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B:A - the runtime class is B and its superclass is the class that declared report.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A:A - the report method lives in A, so both halves describe the declaring class.",
+          "misconception": "believes the declaring class drives the whole report"
+        },
+        {
+          "id": "C",
+          "text": "B:B - getSuperclass walks up to Object but the simple name comes back as B.",
+          "misconception": "believes getSuperclass returns the same class as getClass"
+        },
+        {
+          "id": "D",
+          "text": "B:P2013 - the superclass of a nested class is the class that encloses it.",
+          "misconception": "believes the enclosing class is the superclass in the hierarchy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that getClass returns the runtime class and getSuperclass returns its direct parent, so the two calls describe two different positions in the same chain: the object is a B, and B's direct parent is A, the class that happens to declare report. Option D is the trap that costs the most time, because a nested class does sit inside P2013 and it is easy to assume that nesting is a kind of inheritance; it is not, since a nested type is scoped by the outer class rather than extending it.",
+      "hint": "Two calls, two positions: where the object is, and what it directly extends.",
+      "difficulty": 0.55,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "getClass",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The inherited Object toString form",
+      "learningObjective": "predict the predictable parts of the default toString text",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class that extends nothing in particular never overrides toString.\n```java\npublic class P2014 {\n    static class Plain { }\n    public static void main(String[] args) {\n        String s = new Plain().toString();\n        System.out.println(s.startsWith(\"P2014$Plain@\") + \":\" + (s.indexOf('@') > 0));\n    }\n}\n```\nThe program checks two properties of that text. What does it print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true:true - the default text is the class name, an at-sign and a hash, so both checks hold.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false:false - an inherited toString returns null because Object has nothing to report.",
+          "misconception": "believes the default toString returns null"
+        },
+        {
+          "id": "C",
+          "text": "true:false - the class name is present but the separator is a dash rather than an at-sign.",
+          "misconception": "believes the default separator is a dash or colon"
+        },
+        {
+          "id": "D",
+          "text": "false:true - an at-sign appears in the text but the class name is not part of it.",
+          "misconception": "believes the default text omits the class name"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that Object.toString builds its text from the runtime class name, a dollar sign for a nested class, an at-sign and an unsigned hexadecimal identity hash, so the prefix and the at-sign are fixed even though the digits after it are not. That is why the program can assert two stable properties without depending on the hash. The tempting wrong answers all come from treating toString as optional decoration: it is inherited like any other method, and a class that adds no override simply gets Object's version, which is why the class name does appear.",
+      "hint": "Only the hash digits vary between runs; the class name and separator do not.",
+      "difficulty": 0.44,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "toString"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An override inherited by a grandchild",
+      "learningObjective": "predict that a grandchild inherits the nearest implementation above it",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A three-class chain where the last class is empty.\n```java\npublic class P2015 {\n    static class A { String tag() { return \"A\"; } }\n    static class B extends A { String tag() { return \"B\"; } }\n    static class C extends B { }\n    public static void main(String[] args) {\n        System.out.println(new C().tag());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - C declares no version, so the nearest implementation above it is the one that runs.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - an inherited override is looked past, so the root implementation is chosen instead.",
+          "misconception": "believes the topmost implementation wins for a grandchild"
+        },
+        {
+          "id": "C",
+          "text": "C - a class that declares nothing reports itself, using its own name as the answer.",
+          "misconception": "believes a silent class substitutes its own name as the result"
+        },
+        {
+          "id": "D",
+          "text": "AB - both inherited versions run, and their texts are concatenated by the call.",
+          "misconception": "believes every implementation in the chain contributes output"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override replaces the version below it for the whole subtree, so B's tag is the most derived implementation available to a C object and A's body never runs. C adding nothing is not a request for the root: it simply inherits whatever its parent offers, which is the override. The answer A is the tempting one because the class is genuinely three levels down and intuition counts declarations rather than overrides; the value that survives is the one declared closest to the object in the chain.",
+      "hint": "Look for the nearest implementation above the object, not the highest one.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "override-chain"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An enum that implements an interface",
+      "learningObjective": "state that an enum may add interfaces but never a superclass",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An enum type adds a capability interface to the class it already extends.\n```java\npublic class P2016 {\n    interface Labeled { String label(); }\n    enum Color implements Labeled {\n        RED, GREEN;\n        public String label() { return toString().toLowerCase(); }\n    }\n    public static void main(String[] args) {\n        System.out.println(Color.RED.label() + Color.GREEN.label());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "redgreen - each constant is its own object, so label() runs once per constant reference.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - an enum is a final type, and a final type may not implement an interface.",
+          "misconception": "believes a final type cannot implement an interface"
+        },
+        {
+          "id": "C",
+          "text": "red - the first constant runs label() and the second reuses the same one-shot result.",
+          "misconception": "believes an enum method executes only for the first constant"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - implements must come before the constant list in an enum declaration.",
+          "misconception": "believes implements has to precede the constants"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an enum declaration always implies an extends of java.lang.Enum and may not name any other superclass, while implements is still available, so a capability interface is a legal addition. Because each constant is a distinct object, label() is an ordinary instance method that runs again for each constant it is called on, producing red and then green. The answer that treats the enum as a single object is the tempting one: a common early design is one static field holding a shared value, and forgetting that constants are separate instances of the enum class leads straight to it.",
+      "hint": "Constants are objects of the enum type, so a method call runs per constant.",
+      "difficulty": 0.32,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The superclass every enum already has",
+      "learningObjective": "name the implicit superclass that makes an enum hierarchy impossible",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program inspects where a constant sits in its hierarchy.\n```java\npublic class P2017 {\n    enum Planet { EARTH }\n    public static void main(String[] args) {\n        Planet p = Planet.EARTH;\n        System.out.println(p.getClass().getSuperclass().getSimpleName());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Enum - every enum implicitly extends java.lang.Enum, which supplies name() and ordinal().",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Object - an enum extends Object directly, exactly like any other class declaration.",
+          "misconception": "believes an enum has no implicit superclass of its own"
+        },
+        {
+          "id": "C",
+          "text": "Planet - the constant's own enum type counts as its superclass in this query.",
+          "misconception": "believes getSuperclass returns the enum type itself"
+        },
+        {
+          "id": "D",
+          "text": "Enum<E> - the simple name of a parameterised superclass keeps its type argument.",
+          "misconception": "believes getSimpleName keeps the type argument of a generic type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler writes an implicit extends java.lang.Enum<E> into every enum declaration, which is where the final name(), ordinal() and compareTo come from and why an enum can never extend a class of your own. The answer Object is the tempting one because the source says nothing about a superclass, and a class with no extends clause normally means Object; for an enum that inference is switched off because the superclass is mandatory and fixed. The single-argument type is also what keeps the constants comparable to one another without a shared comparable interface.",
+      "hint": "An enum declaration is shorthand for a class declaration that names a superclass.",
+      "difficulty": 0.3,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Compiler-supplied members of an enum",
+      "learningObjective": "trace values(), name() and ordinal() as generated members of the enum superclass",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A program asks an enum three questions about one of its constants.\n```java\npublic class P2018 {\n    enum Color { RED, GREEN, BLUE }\n    public static void main(String[] args) {\n        Color c = Color.values()[1];\n        System.out.println(c.name() + \" \" + c.ordinal() + \" \" + Color.values().length);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "GREEN 1 3 - values() lists the constants in declaration order and ordinal() counts from zero.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "GREEN 2 3 - ordinal() is one-based, so the second constant reports the position 2.",
+          "misconception": "believes ordinal starts counting at one"
+        },
+        {
+          "id": "C",
+          "text": "GREEN 1 2 - values() returns the constants minus the one that was looked up.",
+          "misconception": "believes values() drops the constant that was selected"
+        },
+        {
+          "id": "D",
+          "text": "RED 1 3 - index 1 of values() names the first constant because the order is reversed.",
+          "misconception": "believes values() lists the constants in reverse order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the compiler generates a values() method returning a fresh array of the constants in declaration order, plus a name() that returns the declared spelling and an ordinal() that gives the zero-based position, all inherited from Enum. Index 1 is therefore GREEN, its ordinal is 1, and the array holds all three constants. The one-based reading of ordinal is the classic slip, and it survives because a switch over an enum is written with case labels that look like names rather than numbers, which quietly teaches the impression that positions start at one.",
+      "hint": "The array index and the ordinal are the same number, and both count from zero.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "generated-members"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An enum operation with a body per constant",
+      "learningObjective": "trace an abstract enum operation implemented separately by each constant",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One operation is declared abstract and each constant supplies its own body.\n```java\npublic class P2019 {\n    enum Op {\n        ADD { int apply(int a, int b) { return a + b; } },\n        MUL { int apply(int a, int b) { return a * b; } };\n        abstract int apply(int a, int b);\n    }\n    public static void main(String[] args) {\n        System.out.println(Op.ADD.apply(2, 3) + \":\" + Op.MUL.apply(2, 3));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5:6 - the abstract declaration is the contract and each constant body is its own implementation.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5:5 - the last constant body wins for the whole enum because the declaration is shared.",
+          "misconception": "believes one constant body implements the operation for all constants"
+        },
+        {
+          "id": "C",
+          "text": "6:5 - the constant bodies are attached to the constants before the ones declared earlier.",
+          "misconception": "believes constant bodies are matched in reverse order"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - an enum may not declare an abstract method that its constants implement.",
+          "misconception": "believes constant bodies cannot satisfy an abstract declaration"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an enum may declare an abstract method as its type-level contract, and each constant with a body forms an anonymous subclass that supplies the implementation, so every constant carries a different version of the same signature. ADD therefore adds and MUL multiplies, giving 5 and 6 from the same two arguments. The answer 5:5 is the tempting one because the declaration appears once and looks shared, but the bodies are compiled into separate subclasses, one per constant, which is what makes a family of operations a natural fit for a single enum type.",
+      "hint": "Each constant with a body is really its own anonymous subclass of the enum.",
+      "difficulty": 0.52,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "abstract-method"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Mutable state on enum constants",
+      "learningObjective": "diagnose per-constant instance state where one shared counter is wanted",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A counter on an enum is meant to be shared by every constant, because the constants are created once at class initialisation.\n```java\npublic class P2020 {\n    enum Counter {\n        UP, DOWN;\n        int moves = 0;  // <fix>\n        void step() { moves++; }\n    }\n    public static void main(String[] args) {\n        Counter.UP.step();\n        Counter.DOWN.step();\n        System.out.println(Counter.UP.moves);\n    }\n}\n```\nThe program should print 2, one count for both steps. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static int moves = 0;  one slot on the enum type, shared by every constant object.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int moves = 0;  keeps one slot per constant, so UP and DOWN each count only their own step.",
+          "misconception": "believes enum constants are the same object as their type"
+        },
+        {
+          "id": "C",
+          "text": "static int moves = 2;  shares one slot but starts the shared count at the wrong value.",
+          "misconception": "believes a shared counter has to be seeded to the expected answer"
+        },
+        {
+          "id": "D",
+          "text": "int moves = 2;  gives each constant a starting value, so UP reaches three after its step.",
+          "misconception": "believes per-constant state can be made to look shared by seeding it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an enum constant is one object created once, so an instance field gives each constant its own private copy and a static field gives the type one shared slot. The marked line is a bug because UP and DOWN each hold their own moves value, so after one step each the first constant reports 1 rather than the total of 2. Option B is the line that is already there and it is exactly the wrong shape; the trap is that constants look like class-level constants, so it is natural to assume a field declared among them is shared too.",
+      "hint": "Ask whether the field lives on the type or on each of the constant objects.",
+      "difficulty": 0.55,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "static-field"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Enum constants dispatched through an interface",
+      "learningObjective": "trace interface dispatch across a list of enum constants with per-constant bodies",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A loop holds interface references, and each constant body supplies its own arithmetic.\n```java\npublic class P2021 {\n    interface Op { int apply(int a); }\n    enum Unary implements Op {\n        DOUBLE { public int apply(int a) { return a * 2; } },\n        NEGATE { public int apply(int a) { return -a; } };\n        public abstract int apply(int a);\n    }\n    public static void main(String[] args) {\n        Op[] ops = { Unary.DOUBLE, Unary.NEGATE };\n        int total = 0;\n        for (Op op : ops) { total = total + op.apply(3); }\n        System.out.println(total);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 - the first call gives 6, and the second call subtracts 3 from that running total.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9 - the loop keeps calling the first body, because the array holds the enum type not the constants.",
+          "misconception": "believes an array of enum constants is typed as the enum class"
+        },
+        {
+          "id": "C",
+          "text": "6 - the second element contributes zero, since a negative result is dropped by the addition.",
+          "misconception": "believes a negative contribution cancels to nothing"
+        },
+        {
+          "id": "D",
+          "text": "-3 - only the final element is applied, because the earlier running total is discarded.",
+          "misconception": "believes each loop pass replaces the accumulated total"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the array is declared as Op[], so each element is an interface reference and the call dispatches to the body belonging to the constant actually stored there, which means the two iterations run different code. The total starts at 0, becomes 6 after DOUBLE, and becomes 6 - 3 = 3 after NEGATE, because the loop adds each result to the running total rather than replacing it. The answer 9 is the tempting one because both constants look interchangeable in the source, and an enum read as a single switch-like type invites the belief that the shared abstract declaration chooses the behaviour.",
+      "hint": "The array holds interface references, so each element brings its own body.",
+      "difficulty": 0.58,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Access modifiers on an enum constructor",
+      "learningObjective": "repair an enum constructor that carries a modifier the language forbids",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "An enum constructor is written with an access modifier the compiler refuses.\n```java\npublic class P2022 {\n    enum Level { LOW, HIGH;\n        public Level() { }  // <fix>\n        int weight() { return ordinal() + 1; }\n    }\n    public static void main(String[] args) {\n        System.out.println(Level.HIGH.weight());\n    }\n}\n```\nThe program should print 2. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Level() { }  drops the modifier, since an enum constructor is private by definition.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "public Level() { }  keeps the modifier but exposes a constructor the language keeps hidden.",
+          "misconception": "believes an enum constructor can be made public"
+        },
+        {
+          "id": "C",
+          "text": "Level(int w) { }  adds a parameter so the constants could pass a value to the constructor.",
+          "misconception": "believes enum constants pass arguments to a constructor"
+        },
+        {
+          "id": "D",
+          "text": "protected Level() { }  narrows visibility, which the language permits on any constructor.",
+          "misconception": "believes protected visibility is accepted on an enum constructor"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an enum constructor is implicitly private, and writing any access modifier other than private is a compile-time error, so the safest legal form is the bare declaration with no modifier and no parameters, because the constants themselves are created before any caller could exist. Option D is the most seductive wrong answer since narrowing visibility sounds harmless, but the compiler reports that the modifier is not allowed here rather than accepting it. The parameterised form in option C fails for the same reason, since a constant list has no argument list to pass.",
+      "hint": "The visibility is implied, so naming it is the problem.",
+      "difficulty": 0.57,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "access-modifiers"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Switching over a closed set of constants",
+      "learningObjective": "explain why a default arm is unreachable for a complete enum",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A switch handles both constants and also carries a default arm.\n```java\npublic class P2023 {\n    enum Suit { HEART, SPADE }\n    static int score(Suit s) {\n        switch (s) {\n            case HEART: return 1;\n            case SPADE: return 2;\n            default: return 0;\n        }\n    }\n    public static void main(String[] args) {\n        System.out.println(score(Suit.SPADE));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 - every constant has its own arm, so the matching case returns before the default is reached.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0 - a default arm is evaluated first whenever a switch contains one at all.",
+          "misconception": "believes a default arm runs before the constant arms"
+        },
+        {
+          "id": "C",
+          "text": "1 - the arms are tested in source order, and the first one wins for every value.",
+          "misconception": "believes a switch stops at the first case label regardless of the value"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a switch over an enum may not include a default arm at all.",
+          "misconception": "believes a default arm is illegal for an enum selector"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the constant list of an enum is fixed at compile time, so a switch covering every constant is already total and the default arm is present only as unreachable insurance, which is exactly why it is legal to keep. Suit.SPADE matches its own arm and returns 2 without ever considering the default. The tempting answer is 0, which comes from treating default as a fallback that runs first or a mandatory trailing case; a default arm is only consulted when no case label matches, and here one always does.",
+      "hint": "A default arm is a fallback, not a starting point.",
+      "difficulty": 0.3,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "enum",
+        "switch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A record is final and prints itself",
+      "learningObjective": "state the two record properties a subclass would need and why it has none",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A two-component record prints its own text.\n```java\npublic class P2024 {\n    record Point(int x, int y) { }\n    public static void main(String[] args) {\n        Point p = new Point(1, 2);\n        System.out.println(p.x() + \",\" + p.y() + \",\" + p);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1,2,Point[x=1, y=2] - accessors are named after the components and the text is generated.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1,2,Point@1b6d3586 - a record keeps the default identity text from Object.",
+          "misconception": "believes a record inherits the default toString"
+        },
+        {
+          "id": "C",
+          "text": "1,2,Point(1, 2) - the generated text uses parentheses instead of a bracketed list.",
+          "misconception": "believes the generated toString uses a parenthesised form"
+        },
+        {
+          "id": "D",
+          "text": "1,2,Point[x=1, y=2] but nothing may extend it - the type is final, so it has no subclass.",
+          "misconception": "believes a record type is open to extension like a normal class"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a record is an implicitly final class whose components become private final fields, whose accessors are named after the components, and whose toString prints the record name with the component values in a bracketed list. So the accessors give 1 and 2 and the generated text is Point[x=1, y=2]. The identity form in option B is the tempting answer because a record looks like a shortcut for writing a class by hand, and a hand-written class would inherit Object.toString; the compiler instead supplies the whole set of members, and the finality is what makes the equality of the components safe to reason about.",
+      "hint": "A record is final and the compiler writes its accessors and its text form.",
+      "difficulty": 0.34,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "record",
+        "toString"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A record implementing an interface with a default",
+      "learningObjective": "trace a default interface method whose body calls a record accessor",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A default method is written once in the interface and reused by the record.\n```java\npublic class P2025 {\n    interface Named {\n        String label();\n        default String shout() { return label().toUpperCase(); }\n    }\n    record Tag(String text) implements Named {\n        public String label() { return \"#\" + text; }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Tag(\"a\").shout());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "#A - shout() calls the record's own label(), so the sharp sign is there before the case change.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - the default method works from the raw component, so the sharp sign is dropped.",
+          "misconception": "believes a default method reads the component field directly"
+        },
+        {
+          "id": "C",
+          "text": "#a - the default method runs before the record accessor, so no case change is applied.",
+          "misconception": "believes a default method bypasses the implementing accessor"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a final record may not supply an implementation for an interface method.",
+          "misconception": "believes a final type cannot implement an interface method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a default method is ordinary inherited code that calls the abstract method on the same object, so label() dispatches to the record's implementation, produces #a, and only then is the case change applied. Nothing about the record being final interferes, because finality blocks overriding rather than implementing. The answer A without the sharp sign is the tempting one because the component text a is the most visible data in the object, and it is easy to assume a default method has privileged access to the field instead of going through the accessor other code is obliged to use.",
+      "hint": "The default body calls an interface method, so the record's own body runs first.",
+      "difficulty": 0.42,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "record",
+        "interface-defaults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An extra field declared inside a record",
+      "learningObjective": "diagnose a record member that the record rules forbid",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A record tries to keep a value that is not one of its components.\n```java\npublic class P2026 {\n    record Temp(int c) {\n        int offset = 5;  // <fix>\n        int total() { return c + offset; }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Temp(3).total());\n    }\n}\n```\nThe program should print 8. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static int offset = 5;  a static field is allowed, so the accessor can add it to the component.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int offset = 5;  keeps the extra per-instance value beside the component it was written with.",
+          "misconception": "believes a record may hold instance state beyond its components"
+        },
+        {
+          "id": "C",
+          "text": "final int offset = 5;  makes the value immutable, which is what the record rules were asking for.",
+          "misconception": "believes adding final makes an extra record field legal"
+        },
+        {
+          "id": "D",
+          "text": "static int offset = 0;  shares a slot across records but starts the shared value at zero.",
+          "misconception": "believes a shared static value can be seeded to change the total"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a record may declare only static fields besides its components, because instance state is exactly the component list and nothing else, which is what makes the generated equals and hashCode trustworthy. The marked line is rejected with a diagnostic that a field declaration must be static, so option B cannot compile at all. Option C is the clever wrong answer because immutability looks like the requirement being violated, but finality is not what the rule asks for; the rule asks for no extra instance state, and a static field satisfies it while still being readable from total().",
+      "hint": "Inside a record, any field that is not a component has to be static.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "record",
+        "static-field"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Validation in a record's compact constructor",
+      "learningObjective": "trace a compact constructor that checks the component before assignment",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A compact constructor validates the value it is about to store.\n```java\npublic class P2027 {\n    record Age(int years) {\n        Age {\n            if (years < 0) { throw new IllegalArgumentException(\"negative\"); }\n        }\n        int next() { return years + 1; }\n    }\n    public static void main(String[] args) {\n        Age a = new Age(4);\n        System.out.println(a.next() + \":\" + a);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5:Age[years=4] - the check passes, the component is stored, and the text is the generated form.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5:Age@1f2e3d - the record has no generated text, so Object's identity form is used.",
+          "misconception": "believes a record inherits the default toString"
+        },
+        {
+          "id": "C",
+          "text": "4:Age[years=4] - the accessor returns the stored value without adding anything to it.",
+          "misconception": "believes the declared accessor ignores the component"
+        },
+        {
+          "id": "D",
+          "text": "5:Age[next=5] - the generated text lists the accessor results rather than the components.",
+          "misconception": "believes the generated toString prints derived accessors"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a compact constructor shares the name of the record and takes no parameter list, and its parameter names are the components themselves, so the check runs against the incoming value and the assignment to the fields happens implicitly afterwards. With 4 the check passes, next() returns 5, and the generated text reports the component as Age[years=4]. Option D is the interesting wrong answer: it looks like a reasonable guess about which values appear, but the generated text is defined in terms of the components, so adding a method called next changes nothing about what the record prints.",
+      "hint": "The compact constructor's parameters are the components, and the text lists them.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "record",
+        "constructors"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A record that satisfies a capability interface",
+      "learningObjective": "confirm a final record may still implement an interface",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A record carries a capability interface and answers it from its components.\n```java\npublic class P2028 {\n    interface Sized { int size(); }\n    record Pair(String a, String b) implements Sized {\n        public int size() { return a.length() + b.length(); }\n    }\n    public static void main(String[] args) {\n        System.out.println(new Pair(\"ab\", \"cde\").size());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 - a final record may implement an interface, and the body computes 2 plus 3 characters.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a final type may not implement an interface, so the declaration is rejected.",
+          "misconception": "believes final blocks implementing an interface"
+        },
+        {
+          "id": "C",
+          "text": "2 - size() counts the components rather than the characters inside them.",
+          "misconception": "believes size() counts the number of components"
+        },
+        {
+          "id": "D",
+          "text": "6 - both component strings are measured, but the first length is read as 3.",
+          "misconception": "believes a two-letter string has length three"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that finality forbids extension, not implementation, so a record can implement any number of interfaces as long as it supplies the members, and the body here is free to derive a value from the components. ab has length 2 and cde has length 3, so size() returns 5. The answer that counts components is the tempting one because the interface is called Sized and the record has exactly two of something, but a size measured in characters is the whole point of writing the method, and the record contributes data rather than an opinion about how to count it.",
+      "hint": "Final blocks subclassing, not interface implementation.",
+      "difficulty": 0.3,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "record",
+        "interfaces"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sealed interface with a fixed list of subtypes",
+      "learningObjective": "explain what a permits clause guarantees about the subtype set",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A sealed interface names its two implementations in a permits clause.\n```java\npublic class P2029 {\n    sealed interface Shape permits Circle, Square { }\n    record Circle(double r) implements Shape { }\n    record Square(double s) implements Shape { }\n    public static void main(String[] args) {\n        Shape[] shapes = { new Circle(1), new Square(2) };\n        int total = 0;\n        for (Shape s : shapes) { total += area(s); }\n        System.out.println(total);\n    }\n    static double area(Shape s) {\n        if (s instanceof Circle c) { return 3 * c.r() * c.r(); }\n        if (s instanceof Square q) { return q.s() * q.s(); }\n        return 0;\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "7 - the permits clause closes the subtype set, and the two pattern tests cover 3 and then 4.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3 - a record cannot be used in a pattern test, so only the first branch ever matches.",
+          "misconception": "believes instanceof patterns reject record types"
+        },
+        {
+          "id": "C",
+          "text": "4 - the loop skips the permitted subtype that is a record and keeps the plain one.",
+          "misconception": "believes permits lists types the loop must skip"
+        },
+        {
+          "id": "D",
+          "text": "0 - a sealed type offers no subtypes at run time, so the array elements are discarded.",
+          "misconception": "believes sealing prevents instances of the permitted types"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a permits clause fixes the set of direct subtypes at compile time, so the compiler knows the hierarchy is closed and a type test against it is meaningful to reason about, while the instances themselves are ordinary objects that behave normally. The circle contributes 3 times 1 squared and the square contributes 2 squared, and the compound assignment narrows each double result into the int total, giving 7. The sealed-hierarchy detail is worth noticing precisely because sealing is a compile-time promise: it buys exhaustiveness checking, not any change to what the objects do at run time.",
+      "hint": "Sealing constrains the compiler's view of the hierarchy, not the objects' behaviour.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "pattern-matching"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A non-sealed subclass reopening a hierarchy",
+      "learningObjective": "predict what a non-sealed middle class allows further subclasses to do",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The middle class of a sealed hierarchy is declared non-sealed.\n```java\npublic class P2030 {\n    static sealed class Base permits Mid { }\n    static non-sealed class Mid extends Base { }\n    static class Extra extends Mid { }\n    public static void main(String[] args) {\n        System.out.println(new Extra().getClass().getSimpleName());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Extra - a non-sealed subclass declines to close its own branch, so a further subclass is legal.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - every subclass of a sealed class must appear in the permits clause.",
+          "misconception": "believes the permits list must contain the whole subtree"
+        },
+        {
+          "id": "C",
+          "text": "Mid - the class named in permits is the one instantiated by the call to getSimpleName().",
+          "misconception": "believes the permits entry decides the runtime type"
+        },
+        {
+          "id": "D",
+          "text": "Base - an unsealed branch is resolved to the nearest sealed ancestor for reflection purposes.",
+          "misconception": "believes a non-sealed subclass reports its sealed ancestor"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each direct subclass of a sealed type must be final, sealed or non-sealed, and non-sealed is the explicit promise that this branch stays open, so a class below it needs no permits entry of its own. getClass therefore reports Extra, the type actually instantiated. The answer B is the tempting one because the permits list looks like a whitelist for the entire hierarchy, and the answer D mistakes reflection for dispatch: getClass reports the real runtime type, which is neither the permitted middle class nor the sealed root.",
+      "hint": "A non-sealed class says its own branch is still open.",
+      "difficulty": 0.52,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "hierarchy"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0031",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sealed interface with two permitted record implementations",
+      "learningObjective": "trace a call through a sealed interface to the record that implements it",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A sealed interface declares its operation and names both implementations.\n```java\npublic class P2031 {\n    sealed interface Event permits Start, Stop { String describe(); }\n    record Start(String id) implements Event {\n        public String describe() { return \"start:\" + id; }\n    }\n    record Stop(String id) implements Event {\n        public String describe() { return \"stop:\" + id; }\n    }\n    public static void main(String[] args) {\n        Event e = new Stop(\"b\");\n        System.out.println(e.describe());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "stop:b - the variable holds a Stop, so the record's own describe() body is the one that runs.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Event - a sealed interface supplies a default describe(), so the record's version is never used.",
+          "misconception": "believes sealing implies a default implementation"
+        },
+        {
+          "id": "C",
+          "text": "start:b - permits lists Start first, so the first permitted record handles every call.",
+          "misconception": "believes the permits order chooses the implementation"
+        },
+        {
+          "id": "D",
+          "text": "Stop[b] - the record's generated text is printed instead of the declared describe() result.",
+          "misconception": "believes printing an interface reference always uses toString"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a method called through an interface reference dispatches to the implementation of the object actually stored there, and a record that implements the interface may supply that implementation in its own body, so describe() runs Stop's version and builds stop plus the id. Sealing contributes only the compile-time promise about which subtypes exist; it changes nothing about dispatch. The answer that prints the record's own text is the tempting one because a record does have a generated toString, but printing the variable calls the static type's method name, and describe is not toString.",
+      "hint": "The reference type names the method; the stored object supplies the body.",
+      "difficulty": 0.44,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "records",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0032",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A subclass missing from a permits clause",
+      "learningObjective": "repair a sealed declaration that omits one of its own subclasses",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A sealed base type names only one of the two classes that extend it.\n```java\npublic class P2032 {\n    sealed static class Base permits A { }  // <fix>\n    static final class A extends Base { }\n    static final class B extends Base { }\n    public static void main(String[] args) {\n        System.out.println(new B().getClass().getSimpleName());\n    }\n}\n```\nThe program should print B. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "sealed static class Base permits A, B { }  lists both direct subclasses, which is what sealing requires.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "sealed static class Base permits B { }  lists only the class the program instantiates, dropping the other.",
+          "misconception": "believes permits lists the subtypes that are actually used"
+        },
+        {
+          "id": "C",
+          "text": "static class Base permits A, B { }  keeps the list but drops the sealed modifier from the declaration.",
+          "misconception": "believes a permits clause works without the sealed keyword"
+        },
+        {
+          "id": "D",
+          "text": "sealed static class Base permits A, B, String { }  adds String so a final class may also be permitted.",
+          "misconception": "believes a final library class can be listed as a subtype"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that every direct subclass of a sealed type must appear in its permits clause and must itself be final, sealed or non-sealed, so the compiler rejects B with a diagnostic saying the class is not allowed to extend a sealed class because it is not listed. Option C is the trap worth pausing on, because permits without sealed looks like a smaller change than editing the list, and the compiler there reports that the sealed, non-sealed or final modifier is expected. Option D fails because a final type such as String can never be a subclass, permitted or not.",
+      "hint": "Every direct subclass has to be named, and the keyword has to stay.",
+      "difficulty": 0.56,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "permits"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0033",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An exhaustive switch over a sealed hierarchy",
+      "learningObjective": "compute a total with a pattern switch that needs no default arm",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A switch over a sealed interface has one case per permitted record and no default.\n```java\npublic class P2033 {\n    sealed interface Node permits Leaf, Branch { }\n    record Leaf(int v) implements Node { }\n    record Branch(Node l, Node r) implements Node { }\n    static int sum(Node n) {\n        return switch (n) {\n            case Leaf l -> l.v();\n            case Branch b -> sum(b.l()) + sum(b.r());\n        };\n    }\n    public static void main(String[] args) {\n        System.out.println(sum(new Branch(new Leaf(2), new Branch(new Leaf(3), new Leaf(4)))));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "9 - the branch cases add their two subtrees, so 2 plus 3 plus 4 reaches the top.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a switch expression must always carry a default arm to be exhaustive.",
+          "misconception": "believes exhaustiveness always requires a default arm"
+        },
+        {
+          "id": "C",
+          "text": "5 - only the outer branch is counted, and the nested leaves are skipped entirely.",
+          "misconception": "believes a case arm does not recurse into its subtrees"
+        },
+        {
+          "id": "D",
+          "text": "0 - with no default arm there is no arm to match, so the expression yields the int default.",
+          "misconception": "believes a switch expression falls back to zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a pattern switch over a sealed type is checked against the permits list, so when every permitted subtype has a case the compiler treats the switch as exhaustive and no default is required, which is the main reason to seal a hierarchy in the first place. The recursion then does ordinary work: the outer branch sums 2 and the inner branch's 3 plus 4, giving 9. The answer that a default is mandatory is the tempting one because a switch over a general reference type does need one, and carrying that habit into a sealed selector is exactly the mistake sealing is designed to prevent.",
+      "hint": "The compiler knows the full set of subtypes, so it can prove coverage.",
+      "difficulty": 0.66,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "pattern-matching",
+        "switch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0034",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Records as the permitted subtypes of a sealed interface",
+      "learningObjective": "recognise a records-and-sealed design and the narrowing it enables",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A sealed result type has one record per outcome and the caller narrows with a test.\n```java\npublic class P2034 {\n    sealed interface Result permits Ok, Bad { }\n    record Ok(int value) implements Result { }\n    record Bad(String why) implements Result { }\n    static int score(Result r) { return r instanceof Ok o ? o.value() : -1; }\n    public static void main(String[] args) {\n        System.out.println(score(new Ok(7)));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "7 - the test binds the value of the Ok record, and a record may be a permitted subtype.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "-1 - a type test against a sealed interface always fails, since the interface has no fields.",
+          "misconception": "believes a sealed interface cannot be tested at run time"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a record is final, so it is not allowed to be listed in a permits clause.",
+          "misconception": "believes final types cannot be permitted subtypes"
+        },
+        {
+          "id": "D",
+          "text": "0 - the conditional operator yields zero because the binding variable is never assigned.",
+          "misconception": "believes a pattern binding starts out unassigned"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that records and sealed interfaces are designed for each other: a record is already final and carries no mutable state, which is exactly what the compiler wants from a permitted subtype, so the declaration is legal and the pattern test binds the component of the matching record. The object is an Ok holding 7, so the true branch of the conditional reads o.value() and prints 7. Option C is the answer that costs the most time, because finality usually sounds like a restriction, and here it is the reason the type qualifies for the permits list rather than a bar against appearing in it.",
+      "hint": "Final is what a permitted subtype is normally expected to be.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "records",
+        "pattern-matching"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0035",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A sealed abstract base dispatching to final subclasses",
+      "learningObjective": "compute a running value through a sealed hierarchy of final subclasses",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A loop runs an abstract operation over a list of sealed subclasses.\n```java\npublic class P2035 {\n    static abstract sealed class Op permits Add, Mul { abstract int apply(int a); }\n    static final class Add extends Op { int apply(int a) { return a + 1; } }\n    static final class Mul extends Op { int apply(int a) { return a * 2; } }\n    public static void main(String[] args) {\n        Op[] ops = { new Add(), new Mul(), new Add() };\n        int v = 1;\n        for (Op op : ops) { v = op.apply(v); }\n        System.out.println(v);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 - the chain runs 1, then 2, then 4, then 5, once per element in list order.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 - the loop dispatches once, because the abstract base has no implementation to run.",
+          "misconception": "believes an abstract declaration is called only once"
+        },
+        {
+          "id": "C",
+          "text": "8 - the list is applied in reverse order, so the additions happen after the doubling.",
+          "misconception": "believes a sealed hierarchy reverses the iteration order"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a final subclass may not appear in an array of its sealed base type.",
+          "misconception": "believes final subclasses cannot be held in a base array"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an array of the base type holds references to whatever the elements really are, and each call dispatches to that element's own body, so the three elements apply their operations in list order: 1 plus 1, then 2 times 2, then 4 plus 1, leaving 5. The sealed and final modifiers here are about who may extend the hierarchy, not about how the loop behaves, and a final subclass is a perfectly good element of a base-typed array. The answer 2 is the tempting one because the abstract class appears to own no code, yet every element supplies it.",
+      "hint": "Track the running value element by element in list order.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "sealed-types",
+        "dispatch",
+        "loops"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0036",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Widening access in an override",
+      "learningObjective": "state that an override may widen access but not narrow it",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass redeclares a protected method with wider access.\n```java\npublic class P2036 {\n    static class A { protected String show() { return \"A\"; } }\n    static class B extends A { public String show() { return \"B\"; } }\n    public static void main(String[] args) {\n        A ref = new B();\n        System.out.println(ref.show());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - widening access is legal in an override, and the more visible version is what callers get.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - an override must repeat the access modifier of the method it replaces.",
+          "misconception": "believes an override must keep identical access"
+        },
+        {
+          "id": "C",
+          "text": "A - the call is made through a protected member, so the base version is chosen.",
+          "misconception": "believes the base access level picks the implementation"
+        },
+        {
+          "id": "D",
+          "text": "public B - the value is printed with an access keyword attached to the result text.",
+          "misconception": "believes a modifier becomes part of the returned string"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override may widen access, so protected can be redeclared public, and the rule exists because widening cannot break any existing caller: everyone who could reach the protected method can still reach a public one. The reference here is typed as A, yet the call still runs B's body and prints B, since access modifiers restrict who may call a method and never select which body runs. The answer claiming a compile error is the tempting one because override is usually taught as a signature-for-signature copy, but the access level is the one part that is allowed to move, and only upwards.",
+      "hint": "Think about which callers could break if the access level changed.",
+      "difficulty": 0.42,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "override"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0037",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Narrowing access in an override",
+      "learningObjective": "repair an override that makes a public method less visible",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "An override of a public method is written with narrower access than the original.\n```java\npublic class P2037 {\n    static class A { public String show() { return \"A\"; } }\n    static class B extends A {\n        protected String show() { return \"B\"; }  // <fix>\n    }\n    public static void main(String[] args) {\n        A ref = new B();\n        System.out.println(ref.show());\n    }\n}\n```\nThe program should print B. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "public String show() { return \"B\"; }  keeps or widens access and prints the subclass value.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "protected String show() { return \"B\"; }  hides the method from callers outside the package.",
+          "misconception": "believes an override may reduce a public method's visibility"
+        },
+        {
+          "id": "C",
+          "text": "String show() { return \"B\"; }  drops the modifier and lets the package default apply instead.",
+          "misconception": "believes omitting a modifier widens rather than narrows"
+        },
+        {
+          "id": "D",
+          "text": "public String show() { return \"A\"; }  keeps the access legal but returns the base text instead.",
+          "misconception": "believes the access fix can change the value as well"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an override may not be less visible than the method it replaces, and the reason is a guarantee about existing code: a caller holding a reference of type A and calling show() would suddenly lose access, so the compiler rejects the narrowing outright. Option C is the option that looks like a harmless middle ground, but omitting a modifier in a class body means package-private, which is narrower than public and therefore equally illegal here. Option D compiles and prints A, which is legal but answers a different question than the one asked.",
+      "hint": "An override can only become more visible, never less.",
+      "difficulty": 0.48,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "override"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0038",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Reading an inherited protected field three ways",
+      "learningObjective": "compare an inherited method, this and super as routes to one protected field",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One protected field is read from a base method, from this and from super.\n```java\npublic class P2038 {\n    static class A { protected int count = 2; int base() { return count; } }\n    static class B extends A {\n        int mine() { return this.count + 1; }\n        int parent() { return super.count + 1; }\n    }\n    public static void main(String[] args) {\n        B b = new B();\n        System.out.println(b.base() + \":\" + b.mine() + \":\" + b.parent());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2:3:3 - all three reads reach the one protected field, since B never redeclares it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2:2:2 - a protected field is not inherited, so only the base method can see a value.",
+          "misconception": "believes protected state is not inherited"
+        },
+        {
+          "id": "C",
+          "text": "2:3:2 - super.count reaches the subclass slot while this.count reaches the base slot.",
+          "misconception": "believes super and this name the same field in reverse"
+        },
+        {
+          "id": "D",
+          "text": "0:1:1 - a field read through this or super skips the base initializer and stays at the default.",
+          "misconception": "believes qualifying a field read skips the initializer"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a protected field is inherited, so there is only one slot here and the qualifier merely chooses which declaration of the name applies, not which storage. The base method reads the inherited field as 2, and both this.count and super.count name that same slot because B never shadows it, giving 2:3:3. The answer 0:1:1 is the trap that treats super as a separate copy, and it is worth testing because the identical situation with a redeclared field really does produce different values, which makes the memory of that case actively misleading here.",
+      "hint": "One field, three ways to name it; nothing here is redeclared.",
+      "difficulty": 0.45,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0039",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Protected state reached through a base-typed reference",
+      "learningObjective": "explain the extra restriction protected access carries across packages",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Base lives in package a and declares protected int v. Sub lives in package b, extends Base, and declares int read(Base b) { return b.v; } where b is a parameter. The compiler rejects that line. Why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Outside its package a subclass may read an inherited protected member only through this or through its own type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A protected member is not inherited at all once the subclass sits in a different package.",
+          "misconception": "believes protected stops working at the package boundary"
+        },
+        {
+          "id": "C",
+          "text": "The field has to be redeclared in the subclass before any code there can read a value.",
+          "misconception": "believes a protected field must be redeclared to be read"
+        },
+        {
+          "id": "D",
+          "text": "Reading through a parameter makes the access static, so no instance state may be used.",
+          "misconception": "believes access through a parameter counts as static access"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that protected access has two regimes: anything in the declaring package may use it freely, while a subclass in another package may reach it only through a reference of the subclass's own type, which is why this.v works and a parameter typed as the base class does not. The restriction keeps a subclass from using its inherited privilege to reach into private state of unrelated objects of the base type. Option B is the tempting simplification, since treating protected as if it were package-private would predict exactly this error, and the real rule is narrower than that: the member is inherited and usable, just not through somebody else's reference.",
+      "hint": "Separate the two things protected allows: subclass access, and package access.",
+      "difficulty": 0.6,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "packages"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0040",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A private method is not inherited",
+      "learningObjective": "state that a same-named private method in a subclass is new rather than an override",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Both classes declare a private method with the same name and signature.\n```java\npublic class P2039 {\n    static class A { private String tag() { return \"A\"; } String call() { return tag(); } }\n    static class B extends A { private String tag() { return \"B\"; } String callSub() { return tag(); } }\n    public static void main(String[] args) {\n        B b = new B();\n        System.out.println(b.call() + b.callSub());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AB - a private method is not inherited, so each call reaches the one written in its own class.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "BB - the private method is inherited and overridden, so both calls reach the subclass version.",
+          "misconception": "believes a private method can be overridden by a subclass"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - two methods with one signature may not exist anywhere in a hierarchy.",
+          "misconception": "believes a same signature is illegal in any hierarchy"
+        },
+        {
+          "id": "D",
+          "text": "AA - the subclass declaration is ignored because the base method already has that name.",
+          "misconception": "believes a subclass cannot declare a method that a base declares"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that private is not part of the inherited interface at all, so a subclass method of the same name is a fresh declaration with no override relationship, and the two methods coexist without conflict. The base call() can only see A's tag because that is the only tag visible inside class A, and B's callSub can only see B's tag, giving AB. The answer BB is the tempting one because the signatures match exactly and everything else about override is satisfied, but override needs the base method to be visible, which private deliberately is not.",
+      "hint": "Ask whether the base method is part of what the subclass inherits.",
+      "difficulty": 0.48,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "override"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0041",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An inherited overload the reference type cannot see",
+      "learningObjective": "predict that a call is resolved against the reference's declared type",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass adds an overload while the base class keeps the original method.\n```java\npublic class P2040 {\n    static class A { String go(int n) { return \"A-int\"; } }\n    static class B extends A { String go(String s) { return \"B-String\"; } }\n    public static void main(String[] args) {\n        A ref = new B();\n        System.out.println(ref.go(1));\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A-int - candidates come from the reference's type, so the subclass overload is not considered.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "B-String - the object is a B, so the most specific method in the runtime class is chosen.",
+          "misconception": "believes overload resolution looks at the runtime class"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - the subclass overload and the inherited one make the argument ambiguous.",
+          "misconception": "believes an added overload makes the call ambiguous"
+        },
+        {
+          "id": "D",
+          "text": "null - no method in the reference's type accepts the argument, so the call returns nothing.",
+          "misconception": "believes a failed match returns null instead of failing compilation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a method call is resolved against the static type of the reference, and only the methods visible in that type are candidates, so ref.go(1) can see A's go(int) and nothing else; B's go(String) is not an overload of the same signature but a different method with a different parameter type. Overload resolution happens before any object is involved, which is why the runtime type is irrelevant here. The answer that the most specific method in the runtime class wins is the central trap, and it is reasonable to hold because that is exactly how a single overridden method behaves.",
+      "hint": "Method lookup for a call uses the reference's type, not the object's type.",
+      "difficulty": 0.64,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "overloading",
+        "method-lookup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0042",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Private state reached through an inherited accessor",
+      "learningObjective": "state that private fields block name access but not inherited behaviour",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass reads a private field of its superclass by calling the inherited accessor.\n```java\npublic class P2041 {\n    static class A { private int v = 3; int get() { return v; } }\n    static class B extends A { int viaGetter() { return get(); } }\n    public static void main(String[] args) {\n        System.out.println(new B().viaGetter());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 - the accessor is inherited normally, and it is the only legal route to the private field.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a subclass may not call a method that reads its superclass private field.",
+          "misconception": "believes a private field poisons the inherited accessor"
+        },
+        {
+          "id": "C",
+          "text": "0 - an inherited accessor sees the field before the base initializer has run for the subclass.",
+          "misconception": "believes the base initializer has not run when the accessor is called"
+        },
+        {
+          "id": "D",
+          "text": "null - an inherited accessor returns null because the field is unreachable from this class.",
+          "misconception": "believes an inherited accessor cannot return a primitive value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that private limits name access from other classes, not the visibility of values that already flow out through a method, and get() is a package-visible member of A that B inherits, so calling it is perfectly legal and returns the field's value of 3 after the base initializer has run. The answer claiming a compile error is the tempting one because the field is private, and the useful habit is to separate the two questions: can I name the field, and can I call a method that reads it. The second question is answered by the method's own modifier, not the field's.",
+      "hint": "Two separate questions: naming the field, and calling a method that reads it.",
+      "difficulty": 0.32,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "encapsulation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0043",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Naming a superclass private field from a subclass",
+      "learningObjective": "repair a subclass that reaches for a private field by name",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass method names its superclass's private field directly.\n```java\npublic class P2042 {\n    static class A { private int v = 3; int get() { return v; } }\n    static class B extends A {\n        int read() { return v; }  // <fix>\n    }\n    public static void main(String[] args) {\n        System.out.println(new B().read());\n    }\n}\n```\nThe program should print 3. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "int read() { return get(); }  goes through the inherited accessor instead of naming the field.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int read() { return v; }  reads the field by name, which is what the field being private forbids.",
+          "misconception": "believes a subclass can name a superclass private field"
+        },
+        {
+          "id": "C",
+          "text": "int read() { return this.v; }  qualifies the name with this, which reaches the inherited copy.",
+          "misconception": "believes this.v exposes a superclass private field"
+        },
+        {
+          "id": "D",
+          "text": "int read() { return get() + 1; }  calls the accessor but adjusts the value on the way out.",
+          "misconception": "believes the accessor result needs adjusting"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a private field is not name-accessible outside the class that declares it, not even from a subclass in the same package, so the bare name and the this-qualified name both fail to compile. The legal route is the inherited accessor, which is exactly the mechanism encapsulation relies on, and it returns the same 3 that the base initializer stored. Option C is the attractive wrong answer because this.v looks like it should reach state the subclass can see, and it does for protected and package-visible fields, which is precisely the boundary private draws.",
+      "hint": "If the name is out of reach, ask which method is designed to hand the value over.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "access-modifiers",
+        "encapsulation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0044",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Claims about an override that drops synchronized",
+      "learningObjective": "judge what happens to mutual exclusion when an override is not synchronized",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A superclass method is declared synchronized and a subclass overrides the same signature without the modifier. A cheat sheet lists four claims about the result. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The override gives no mutual exclusion, because the lock is taken only by synchronized methods.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A thread inside the override can run at the same time as a thread inside the base method.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The compiler rejects the override, since a synchronized method may not be overridden loosely.",
+          "misconception": "believes the compiler enforces synchronized on overrides"
+        },
+        {
+          "id": "D",
+          "text": "The inherited synchronized modifier still applies, because modifiers travel with an overridden method.",
+          "misconception": "believes modifiers are inherited along with the method"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B"
+        ]
+      },
+      "explanation": "The rule is that a synchronized method acquires the monitor of its object for the duration of the call, and that behaviour belongs to the individual method body rather than to the signature, so an override that omits the modifier simply runs without holding the lock. The two claims that are false both assume some form of automatic protection: the compiler enforcing the modifier, or the modifier travelling down the hierarchy with the method. Neither happens, which is why an override that drops synchronized is a genuine and quiet bug rather than a rejected program.",
+      "hint": "The lock is a property of a method body, not of a signature.",
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "concurrency",
+        "override"
+      ],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0045",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A subclass that never implements the abstract operation",
+      "learningObjective": "repair a subclass left abstract and supply the missing operation",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "An abstract base declares a step and supplies the surrounding template, but the subclass is empty.\n```java\npublic class P2043 {\n    abstract static class Shape {\n        abstract String label();\n        String show() { return label().toUpperCase(); }\n    }\n    static class Circle extends Shape { }  // <fix>\n    public static void main(String[] args) {\n        System.out.println(new Circle().show());\n    }\n}\n```\nThe program should print CIRCLE. Which replacement for the marked line is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "static class Circle extends Shape { String label() { return \"circle\"; } }  implements the step, so the class is concrete.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "static class Circle extends Shape { }  inherits the abstract step, leaving the class abstract at the call.",
+          "misconception": "believes an unimplemented step is inherited as a body"
+        },
+        {
+          "id": "C",
+          "text": "static abstract class Circle extends Shape { }  stays abstract deliberately, so the call must still work.",
+          "misconception": "believes an abstract subclass can be instantiated"
+        },
+        {
+          "id": "D",
+          "text": "static class Circle extends Shape { private String label() { return \"circle\"; } }  keeps the step private to the subclass.",
+          "misconception": "believes a private method can satisfy an abstract declaration"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a class is concrete only when no abstract requirement is left unsatisfied, so Circle must supply label() before new Circle() is legal, and the base template then has something to call and upper-cases the result. The compiler's complaint about the original line is that Circle is not abstract and does not override the abstract method, which is a specific error rather than a vague one. Option C is the answer that looks like a fix, since marking the subclass abstract removes the inconsistency, but it moves the failure to the new expression instead of solving it.",
+      "hint": "The class has to be concrete at the point where it is instantiated.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes",
+        "templates"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0046",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The missing implementation of an inherited abstract step",
+      "learningObjective": "supply the one member that makes a subclass concrete",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A base class prints a fixed prefix and then asks for a name it does not supply itself.\n```java\npublic class P2044 {\n    abstract static class Base {\n        String describe() { return \"base:\" + tag(); }\n        abstract String tag();\n    }\n    static class Sub extends Base {\n        ____\n    }\n    public static void main(String[] args) {\n        System.out.println(new Sub().describe());\n    }\n}\n```\nChoose the member that fills the blank so the program should print base:S.",
+      "options": [
+        {
+          "id": "A",
+          "text": "String tag() { return \"S\"; }  an instance method matching the abstract declaration exactly.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "String tag() { return \"B\"; }  an instance method, but it returns the wrong name for the output.",
+          "misconception": "believes any instance method satisfies the abstract declaration"
+        },
+        {
+          "id": "C",
+          "text": "static String tag() { return \"S\"; }  a static method, which cannot implement an abstract instance method.",
+          "misconception": "believes a static method can implement an abstract method"
+        },
+        {
+          "id": "D",
+          "text": "String tag;  a field, which supplies state but not the method the base class calls.",
+          "misconception": "believes a field declaration satisfies an abstract method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that an abstract method is a requirement on the concrete subclass, and it is discharged by an instance method with the same name, parameter list and return type, which here produces the text base:S once describe() concatenates it. Option B is the closest wrong answer because it is the right shape with the wrong value, and it is worth noticing that a compiler would accept it: the requirement is about the signature, not about the content. Option C fails because a static method is not an implementation of an instance requirement, and option D leaves describe() calling something that does not exist as a method.",
+      "hint": "Match the abstract declaration's signature, then return the required text.",
+      "difficulty": 0.44,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes",
+        "code-completion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0047",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One template calling two hook implementations",
+      "learningObjective": "trace a base template whose step is supplied by two different subclasses",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A base class owns the brackets and the subclasses own the text inside them.\n```java\npublic class P2045 {\n    abstract static class Report {\n        String render() { return \"[\" + body() + \"]\"; }\n        abstract String body();\n    }\n    static class Small extends Report { String body() { return \"s\"; } }\n    static class Big extends Report { String body() { return \"B\"; } }\n    public static void main(String[] args) {\n        Report[] rs = { new Small(), new Big() };\n        String out = \"\";\n        for (Report r : rs) { out += r.render(); }\n        System.out.println(out);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[s][B] - the shared template runs twice, once per element, with each subclass's own body.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[B][s] - the abstract declaration decides the text, so the classes run in reverse order.",
+          "misconception": "believes the abstract base supplies the body text"
+        },
+        {
+          "id": "C",
+          "text": "[] - an abstract hook returns nothing, so only the brackets are concatenated.",
+          "misconception": "believes an unimplemented method returns an empty string"
+        },
+        {
+          "id": "D",
+          "text": "[s] - only the first subclass runs, because render() is declared once in the base class.",
+          "misconception": "believes a base method body executes only once per hierarchy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that render() is written once in the base class and calls the abstract body() without knowing which class it is on, so each element supplies its own text at the moment the shared template runs. The loop visits Small first and Big second, giving [s] then [B] and the concatenation [s][B]. The answer that only the first subclass runs is the tempting one because declaring a method once in a base class genuinely does mean one copy of the code, and it is easy to extend that to the mistaken belief that the loop body only ever executes the first implementation.",
+      "hint": "The brackets come from the base class; the text comes from the element.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes",
+        "templates",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0048",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Implementing a hook that a final base method calls",
+      "learningObjective": "choose the hook value that a fixed base method will double",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A base class fixes the shape of the calculation and leaves the starting value abstract.\n```java\npublic class P2046 {\n    abstract static class Machine {\n        final int run() { return start() * 2; }\n        abstract int start();\n    }\n    static class Pump extends Machine {\n        ____\n    }\n    public static void main(String[] args) {\n        System.out.println(new Pump().run());\n    }\n}\n```\nChoose the member that fills the blank so the program should print 10.",
+      "options": [
+        {
+          "id": "A",
+          "text": "int start() { return 5; }  returns the value that the final method doubles to reach 10.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int start() { return 2; }  returns a value, but the doubling in run() then yields 4.",
+          "misconception": "believes the abstract value is the final printed result"
+        },
+        {
+          "id": "C",
+          "text": "int start() { return 10; }  returns the target itself, so the multiplication doubles it to 20.",
+          "misconception": "believes the hook returns the value the caller prints"
+        },
+        {
+          "id": "D",
+          "text": "static int start() { return 5; }  is static, so it cannot implement the abstract instance method.",
+          "misconception": "believes a static method discharges an instance requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that run() is final and multiplies whatever the hook returns by two, so the subclass owns only the starting value and must return 5 for the printed result to be 10. Option C is the most attractive wrong answer because it returns the number named in the question, and it is exactly the confusion between the value a method supplies and the value the caller finally prints. Option D would not compile, since a static method is not an implementation of an abstract instance method.",
+      "hint": "Work backwards from the printed result through the multiplication.",
+      "difficulty": 0.4,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes",
+        "templates"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0049",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "An abstract class with nothing left abstract",
+      "learningObjective": "explain that the abstract modifier alone forbids construction",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An abstract class declares no abstract methods, yet the program does not compile.\n```java\npublic class P2047 {\n    abstract static class Marker { void hello() { System.out.println(\"hi\"); } }\n    public static void main(String[] args) { new Marker(); }\n}\n```\nWhich statement explains the compiler's complaint?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Compile error: \"Marker is abstract; cannot be instantiated\" - the modifier alone forbids new.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error: \"hello() is not abstract\" - the method must be declared abstract before use.",
+          "misconception": "believes a concrete method is what blocks construction"
+        },
+        {
+          "id": "C",
+          "text": "Compile error: \"no suitable constructor found\" - an abstract class needs an explicit constructor.",
+          "misconception": "believes an abstract class has an implicit unusable constructor"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints hi, because with no abstract methods left there is nothing to implement.",
+          "misconception": "believes an abstract class with no abstract methods is instantiable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the abstract modifier is a declaration about the type, not a summary of its method list, so a class marked abstract is never instantiated even when it has nothing left for a subclass to implement. The compiler reports exactly that: the type is abstract and cannot be instantiated. The answer D is the tempting one because the reasoning behind it is half right, since there genuinely is no abstract method, and it is the kind of half-right reasoning that makes this distinction worth an item of its own.",
+      "hint": "Abstract is a property of the type, independent of its method list.",
+      "difficulty": 0.32,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0050",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A base toString built from an abstract accessor",
+      "learningObjective": "trace formatting logic that lives in a base class over a subclass value",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One abstract number and one inherited formatter, so the text is built in the base class.\n```java\npublic class P2048 {\n    abstract static class Money {\n        abstract long cents();\n        public String toString() { return \"$\" + (cents() / 100) + \".\" + (cents() % 100); }\n    }\n    static class Bill extends Money { long cents() { return 1250; } }\n    public static void main(String[] args) { System.out.println(new Bill()); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "$12.50 - the base formatter divides and takes a remainder on the subclass value of 1250.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "$1250 - the base class has no stored value, so only the subclass number is concatenated.",
+          "misconception": "believes inherited toString ignores the abstract accessor"
+        },
+        {
+          "id": "C",
+          "text": "$12.5 - the remainder is printed without the two-digit padding the format implies.",
+          "misconception": "believes the printed remainder is always a single digit"
+        },
+        {
+          "id": "D",
+          "text": "$0.50 - integer division is applied to the wrong side, so the quotient becomes zero.",
+          "misconception": "believes the quotient and the remainder are exchanged"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that cents() is the only piece the subclass supplies, while the inherited toString owns the formatting, and 1250 divided by 100 as integers is 12 with a remainder of 50, so the text becomes $12.50. Nothing pads the remainder, so a value such as 1205 would print as $12.5, which is the honest limitation of this formatting code and the reason option C is wrong for this input. The split between a value hook and a formatting method is the usual reason to put toString in a base class at all.",
+      "hint": "Integer division gives 12 and the remainder gives 50 for 1250.",
+      "difficulty": 0.48,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-classes",
+        "toString"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0051",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A static member type reached through a subclass name",
+      "learningObjective": "recognise that a nested type is inherited like a field",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A static nested class is used through a subclass that declares nothing.\n```java\npublic class P2051 {\n    static class A { static class Box { int v = 1; } }\n    static class B extends A { }\n    public static void main(String[] args) {\n        System.out.println(new B.Box().v);\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 - a static member type is inherited, so B.Box names the very class A declared.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compile error - a nested type belongs to one class and may not be named through another.",
+          "misconception": "believes a static nested type is not inherited"
+        },
+        {
+          "id": "C",
+          "text": "0 - B has no member of its own, so the inherited Box starts with a default value.",
+          "misconception": "believes an inherited nested type is a fresh empty copy"
+        },
+        {
+          "id": "D",
+          "text": "null - the qualified name B.Box denotes a member B does not declare, so it is absent.",
+          "misconception": "believes a qualified member name must be declared locally"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a static nested type is an inheritable member, so the name B.Box resolves to the single class A declared, and the object created is an ordinary Box with v initialised to 1. Writing the subclass name in front is a convenience of inheritance, not a copy: there is still exactly one Box class, which is why the value is 1 rather than a default. The answer claiming a compile error is the tempting one because nesting looks like pure scoping, and it is a good reminder that a nested class lives inside a class without being private to it.",
+      "hint": "Members are inherited; naming them through the subclass still reaches one class.",
+      "difficulty": 0.32,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "nested-types"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0052",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A static call written inside an inherited instance method",
+      "learningObjective": "predict that a static helper call is bound where the method body lives",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A base class calls a static helper that a subclass also defines.\n```java\npublic class P2052 {\n    static class A { static int bonus() { return 1; } int total() { return 10 + bonus(); } }\n    static class B extends A { static int bonus() { return 5; } }\n    public static void main(String[] args) { System.out.println(new B().total()); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "11 - the call is bound in A, where the body was written, so the hiding version in B is unused.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "15 - the runtime class supplies the helper, so B's bonus of 5 is the one added.",
+          "misconception": "believes a static call dispatches on the runtime class"
+        },
+        {
+          "id": "C",
+          "text": "10 - a hidden static method is not callable from the base class at all, so the term vanishes.",
+          "misconception": "believes hiding makes the base method uncallable"
+        },
+        {
+          "id": "D",
+          "text": "5 - the inherited total() is replaced by the subclass's static helper of the same name.",
+          "misconception": "believes a static method overrides an inherited instance method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a static call inside a method body is resolved at compile time using the class whose source contains the body, so total() is written in A and unqualified bonus() means A.bonus, giving 10 + 1. The object happens to be a B, but static calls are precisely the case where the runtime class is irrelevant, and B.bonus hides rather than overrides, so it is simply never consulted here. The answer 15 is the single most common wrong reading in this area, because dynamic dispatch is such a strong habit that applying it to a static call feels like correctness.",
+      "hint": "Static calls are decided by where they are written, not by the object.",
+      "difficulty": 0.68,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "static-hiding",
+        "method-lookup"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0053",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "One static slot named through a subclass",
+      "learningObjective": "state that a static field belongs to the class that declares it",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A static field is written through a subclass name and read through both names.\n```java\npublic class P2053 {\n    static class A { static int count = 1; }\n    static class B extends A { }\n    public static void main(String[] args) { B.count = 9; System.out.println(A.count + \":\" + B.count); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "9:9 - both names reach the one slot that A declares, so the write is visible from either.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1:9 - each subclass keeps its own copy of an inherited static field.",
+          "misconception": "believes a static field is duplicated per subclass"
+        },
+        {
+          "id": "C",
+          "text": "9:1 - writing through B creates a new slot on B and leaves A's value untouched.",
+          "misconception": "believes a write through a subclass name creates a copy"
+        },
+        {
+          "id": "D",
+          "text": "1:1 - the write is discarded because the declaring class was never initialised.",
+          "misconception": "believes a static write needs the declaring class to be loaded first"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a static field is storage attached to the class that declares it, and inheritance only makes the name reachable from the subclass, so B.count and A.count are two names for one slot and the write of 9 is visible through both. Option C is the misconception that matters here, since writing through a subclass name feels like adding a field to the subclass, and it is exactly the situation in which a program appears to work until a second class reads the value. Instance fields behave the opposite way, which is what makes the two worth holding side by side.",
+      "hint": "Ask where the storage lives, not which name was used to reach it.",
+      "difficulty": 0.44,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "static-field",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0054",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A subclass that declares its own static field",
+      "learningObjective": "predict that a redeclared static field hides the inherited one",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The subclass declares a static field with the same name as the base one.\n```java\npublic class P2054 {\n    static class A { static int n = 1; }\n    static class B extends A { static int n = 2; }\n    public static void main(String[] args) { System.out.println(A.n + \":\" + B.n); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1:2 - B's declaration hides the inherited name, so each class reads its own slot.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2:2 - the subclass declaration overwrites the base slot, since static state is global.",
+          "misconception": "believes a static redeclaration writes the inherited slot"
+        },
+        {
+          "id": "C",
+          "text": "1:1 - a static field cannot be redeclared, so the subclass keeps using the base value.",
+          "misconception": "believes static fields may not be hidden"
+        },
+        {
+          "id": "D",
+          "text": "2:1 - the initializer order makes the subclass declaration run before the base one.",
+          "misconception": "believes a subclass initializes before its superclass"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subclass may declare a member with a name the superclass already uses, and for a static field the effect is hiding: B.n is a different slot from A.n, each initialised by its own class, so the reads give 1 and 2. Nothing overwrites anything, which is why 2:2 is the tempting answer, since the two names do look like they address the same thing. The order of class initialisation also runs the superclass first, so even the last option's reasoning about timing could not produce that result.",
+      "hint": "Redeclaring a static field creates a second slot and hides the first.",
+      "difficulty": 0.44,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "static-field",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0055",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A blank final field assigned by a constructor",
+      "learningObjective": "compute the value a definitely-assigned final field receives",
+      "practice": "numeric trace",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A class leaves a final field unassigned at the declaration and fills it in the constructor.\n```java\npublic class P2055 {\n    static class A { final int v; A() { v = 3; } int get() { return v; } }\n    public static void main(String[] args) { System.out.println(new A().get()); }\n}\n```\nWhich number does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 - the constructor assigns the blank final field once, and the accessor reads that value.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0 - a final field left blank at the declaration keeps the type's default value.",
+          "misconception": "believes a blank final field falls back to zero"
+        },
+        {
+          "id": "C",
+          "text": "Compile error - a final field must be assigned where it is declared, not in a constructor.",
+          "misconception": "believes final assignment must sit in the declaration"
+        },
+        {
+          "id": "D",
+          "text": "null - the accessor returns null because the field was never initialised in a declaration.",
+          "misconception": "believes an uninitialised field yields null for an int"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a blank final field of a primitive type must be definitely assigned exactly once before the constructor completes, and assignment inside the constructor is the normal place for that, so the accessor sees 3. The answer 0 is the tempting one because a field left blank in an ordinary class really does hold the default, and the instinct that blanks mean default is strong; final plus definite assignment is what removes the default-value escape hatch and makes the compiler insist instead.",
+      "hint": "Blank final means assigned exactly once, and the constructor is that place.",
+      "difficulty": 0.3,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "final",
+        "initialization-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0056",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A superclass constructor that fails",
+      "learningObjective": "predict that a failed superclass constructor aborts the whole construction",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The superclass constructor throws and the subclass body would have printed something.\n```java\npublic class P2056 {\n    static class A { A() { throw new IllegalStateException(\"no\"); } }\n    static class B extends A { B() { System.out.println(\"B\"); } }\n    public static void main(String[] args) {\n        try { new B(); } catch (RuntimeException e) { System.out.println(\"caught \" + e.getMessage()); }\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "caught no - construction stops in the superclass, so the subclass body never executes.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "B then caught no - the subclass body runs first, and the superclass throws afterwards.",
+          "misconception": "believes a subclass constructor runs before its superclass"
+        },
+        {
+          "id": "C",
+          "text": "caught B - the subclass prints during construction and the message becomes the caught text.",
+          "misconception": "believes the caught message comes from the subclass body"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a constructor is not allowed to throw a checked-style runtime failure.",
+          "misconception": "believes constructors may not throw exceptions"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a subclass constructor begins by running the superclass constructor, so a failure there propagates immediately and the rest of the subclass constructor, including its print, never happens. The catch then reports the message carried by the exception, giving caught no. Option B is the tempting one because the print appears in the subclass constructor and the exception appears to belong to the hierarchy as a whole; the order of construction is the whole content of the item, and the object is never finished either way.",
+      "hint": "The superclass constructor is the first thing a subclass constructor does.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructors",
+        "exceptions"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0057",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Static initialisation across a superclass and subclass",
+      "learningObjective": "predict the order of static initialiser blocks in a hierarchy",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Both classes append to a shared log from a static initialiser block.\n```java\npublic class P2057 {\n    static String log = \"\";\n    static class A { static { log += \"As\"; } }\n    static class B extends A { static { log += \"Bs\"; } }\n    public static void main(String[] args) { new B(); System.out.println(log); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AsBs - a superclass is prepared before its subclass, so the upper block appends first.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "BsAs - the subclass is touched first, so its static block runs before the superclass one.",
+          "misconception": "believes the subclass initializes before its superclass"
+        },
+        {
+          "id": "C",
+          "text": "AsBs twice - the blocks run again each time the new expression builds an object.",
+          "misconception": "believes static blocks rerun per object construction"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a static block may not append to a field of the enclosing class.",
+          "misconception": "believes a nested class cannot touch the outer static field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a class is initialised once, on first active use, and that initialising a subclass first initialises its superclass, so touching B runs A's static block and then B's, appending As and then Bs. The object created afterwards is irrelevant to the log, because static initialisation belongs to the class rather than to any instance. Option C is the trap that comes from carrying instance-initialisation intuition over, where a field initialiser genuinely does run per object; static state has no per-object copy to re-run.",
+      "hint": "Static initialisation happens once per class, superclass first.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "static-field",
+        "initialization-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0058",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Passing a constructor argument to the superclass",
+      "learningObjective": "supply the explicit super call that carries a value upward",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A subclass must hand its constructor argument to a superclass that has no no-argument constructor.\n```java\npublic class P2058 {\n    static class A {\n        final int v;\n        A(int n) { v = n; }\n    }\n    static class B extends A {\n        B(int n) {\n            ____\n        }\n    }\n    public static void main(String[] args) { System.out.println(new B(4).v * 2); }\n}\n```\nChoose the statement that fills the blank so the program should print 8.",
+      "options": [
+        {
+          "id": "A",
+          "text": "super(n);  passes the argument straight through, so the stored value is 4.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "super(n + 1);  passes a modified argument, so the stored value becomes 5 and the result 10.",
+          "misconception": "believes the super call must adjust the value it forwards"
+        },
+        {
+          "id": "C",
+          "text": "this.v = n;  assigns the inherited field directly, which is not allowed for a final field.",
+          "misconception": "believes a subclass may write an inherited final field by name"
+        },
+        {
+          "id": "D",
+          "text": "super(n * 2);  passes the doubled argument, so the printed result becomes 16.",
+          "misconception": "believes the factor belongs in the super call rather than the caller"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a superclass without a no-argument constructor forces an explicit super call as the first statement of the subclass constructor, and that call is where the subclass's parameter is handed upward, so the base field holds 4 and the caller prints 8. Option C fails on two counts, since a final field of another object cannot be assigned after construction and the name is not even accessible for that. Option D is the arithmetic-placement trap: multiplying inside the super call changes the stored value rather than the printed result.",
+      "hint": "The super call is an argument list, and the value travels straight through.",
+      "difficulty": 0.46,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructors",
+        "super"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0059",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "A method reference bound to an inherited method",
+      "learningObjective": "predict that a bound method reference keeps dynamic dispatch",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A method reference captures a reference whose static type is the superclass.\n```java\npublic class P2059 {\n    static class A { String tag() { return \"A\"; } }\n    static class B extends A { String tag() { return \"B\"; } }\n    public static void main(String[] args) {\n        A ref = new B();\n        java.util.function.Supplier<String> s = ref::tag;\n        System.out.println(s.get());\n    }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - the reference captures the object, and the call through it still dispatches to the override.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - a method reference freezes the declaring class at the point it is written.",
+          "misconception": "believes a method reference binds to the declaring class"
+        },
+        {
+          "id": "C",
+          "text": "null - a method reference to an inherited method has no implementation to call.",
+          "misconception": "believes an inherited method cannot be referenced"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a method reference may only be formed on a method declared in the reference's type.",
+          "misconception": "believes a reference must name a method declared by the static type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a bound method reference such as ref::tag stores the receiver and defers the call, so nothing is frozen at compile time beyond which method name and signature were named; when get() runs, the stored object is still a B and the override executes. The static type of ref only has to declare the method, which is why the reference is legal, exactly as an ordinary call would be. Option B is the tempting one because method references look like a compact way of naming a function, and the compactness hides the fact that the receiver travels with it.",
+      "hint": "The reference holds the object; the call is still dispatched on it.",
+      "difficulty": 0.52,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "method-references",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.20-0060",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "this captured by a lambda in an inherited method",
+      "learningObjective": "predict that a lambda in an instance method binds this to the current object",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An inherited instance method hands a bound method reference to a helper.\n```java\npublic class P2060 {\n    static class A { String tag() { return \"A\"; } }\n    static class B extends A {\n        String tag() { return \"B\"; }\n        String viaLambda() { return nameOf(this::tag); }\n    }\n    static String nameOf(java.util.function.Supplier<String> s) { return s.get(); }\n    public static void main(String[] args) { System.out.println(new B().viaLambda()); }\n}\n```\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "B - the lambda captures this, and the helper's call still reaches the override on this.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A - a lambda body resolves names against the class that declares the method, not the object.",
+          "misconception": "believes a lambda body loses track of the receiver"
+        },
+        {
+          "id": "C",
+          "text": "null - this cannot be captured outside the method body, so the supplier has no receiver.",
+          "misconception": "believes this may not leave its own method body"
+        },
+        {
+          "id": "D",
+          "text": "Compile error - a method reference on this is not allowed inside an instance method of a class.",
+          "misconception": "believes a receiver is required to form a method reference"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a lambda or method reference written inside an instance method captures this, so the supplier holds the actual B object and the call it makes is an ordinary virtual call on that object, reaching B's override. Nothing about passing the reference to a static helper changes the receiver, which is the whole point of capture. Option C is the tempting one because this looks like a local name, and the intuition that it cannot leave the method is exactly the misconception the capture rules exist to dispel.",
+      "hint": "Inside an instance method, this is captured, not copied.",
+      "difficulty": 0.5,
+      "provenance": {
+        "author": "bank-team-jp-p8",
+        "reviewer": "bank-review-jp-p8",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "inheritance",
+        "lambdas",
+        "dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
