@@ -1,0 +1,2010 @@
+{
+  "questions": [
+    {
+      "id": "jp-7.9-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Separate rows from the two-index form",
+      "learningObjective": "trace that new int[rows][cols] allocates one distinct row per slot",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A seating chart is allocated in a single statement and then one cell is filled:\nimport java.util.Arrays;\nint[][] g = new int[3][4];\ng[0][0] = 7;\nSystem.out.println((g[0] == g[1]) + \" \" + (g[0] == g[2]));\nSystem.out.println(Arrays.toString(g[1]));\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"false false\" and then \"[0, 0, 0, 0]\", because the two-index form gives every slot its own row.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"true false\" and then \"[7, 0, 0, 0]\", because the two-index form hands out one shared row.",
+          "misconception": "believes the two-index new form makes every slot point at the same row"
+        },
+        {
+          "id": "C",
+          "text": "\"false false\" and then \"[7, 0, 0, 0]\", because the rows have separate identities but shared cells.",
+          "misconception": "believes separately allocated rows still share one block of cells"
+        },
+        {
+          "id": "D",
+          "text": "It throws ArrayIndexOutOfBoundsException on the first line, because a partial fill narrows the grid.",
+          "misconception": "believes writing one cell invalidates the width the allocation promised"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that new int[3][4] allocates three separate int[4] arrays and stores one reference to each in the outer array, so g[0] == g[1] and g[0] == g[2] are both false and the untouched row 1 still holds four zeros. Believing one row is shared is tempting because the one-index form new int[n][] does leave every slot null, and it is easy to carry that picture across, but that form has to be given rows one at a time whereas the two-index form does the inner allocation itself and gives each slot its own array.",
+      "hint": "Ask what new int[3][4] puts into each of its three slots.",
+      "difficulty": 0.34,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 20,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "array-initialisation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Zero-width rows from the two-index form",
+      "learningObjective": "distinguish a row of width zero from an absent row reference",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A grid is allocated with a zero inner dimension and then measured:\nint[][] g = new int[2][0];\nint cells = 0;\nfor (int[] row : g) {\n    cells += row.length;\n}\nSystem.out.println(g.length);\nSystem.out.println(g[0] == null);\nSystem.out.println(g[0].length);\nSystem.out.println(cells);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, false, 0, then 0: two rows exist and each of them has width zero.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It throws NullPointerException on the second line, because no cells were allocated at all.",
+          "misconception": "believes a zero inner dimension leaves the row references null"
+        },
+        {
+          "id": "C",
+          "text": "0, true, 0, then 0, because a zero width means there are no rows to count either.",
+          "misconception": "believes a zero inner dimension collapses the outer dimension as well"
+        },
+        {
+          "id": "D",
+          "text": "2, false, 2, then 2, because each empty row still counts as one cell wide.",
+          "misconception": "believes a row of length zero still contributes a single cell"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the two-index form always creates the rows it promises, so new int[2][0] produces two non-null references to zero-length arrays: g.length is 2, g[0] == null is false, g[0].length is 0, and the loop adds nothing, so cells is 0. Expecting a null reference is tempting because new int[2][] does leave both slots null, and a zero reads like nothing was created, but a zero inner dimension still allocates an array object, and an array that exists with no cells is a different state from a slot that was never filled.",
+      "hint": "The two-index form creates the rows; the one-index form only reserves the slots.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "array-initialisation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Narrowing one row of a rectangular grid",
+      "learningObjective": "locate the failure caused by replacing one row of a rectangle with a shorter row",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A report builds a two-by-three grid and then overwrites the second row with a shorter one:\nint[][] g = new int[2][3];\ng[1] = new int[]{7, 8};\nfor (int r = 0; r < g.length; r++) {\n    for (int c = 0; c < g[0].length; c++) {\n        System.out.print(g[r][c] + \" \");\n    }\n}\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 0 0 0 7 8 and then throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 0 0 0 7 8 0, because the cell past the short row reads back as a zero.",
+          "misconception": "believes a cell beyond a row's length reads back as a zero value"
+        },
+        {
+          "id": "C",
+          "text": "It throws ArrayIndexOutOfBoundsException before printing anything, because the assignment shrank the grid.",
+          "misconception": "believes replacing a row invalidates the rows that were already printed"
+        },
+        {
+          "id": "D",
+          "text": "It prints 0 0 0 7 8 and then throws NullPointerException on the sixth read of the short row.",
+          "misconception": "believes replacing a row with a shorter one leaves the slot null"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the inner loop bound comes from g[0].length, which is still 3, while the replaced row 1 now has length 2, so the first five values print and the sixth read asks for g[1][2] and throws with length 2 in the message. Reading a missing cell as zero is tempting because every freshly allocated int[] starts zero-filled, but that fill describes the cells the array owns; an index past the end is an error rather than a default read, and a grid's shape is only as wide as the row the loop measured.",
+      "hint": "The bound was taken from row 0, and row 0 did not change.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "rectangular-grids"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "An initializer outside a declaration",
+      "learningObjective": "recognise that a brace initializer is only legal where a variable is declared",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A builder tries to fill a jagged grid slot with a brace initializer:\nint[][] g = new int[2][];\ng[0] = {1, 2};\nSystem.out.println(g[0].length);\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it: an array initializer may only appear in a declaration, so this is not a statement.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and prints 2, because a brace initializer is legal on the right of any assignment.",
+          "misconception": "believes a brace initializer may be used as an ordinary assignment value"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and prints 0, because a brace initializer creates a zero-filled row of unknown width.",
+          "misconception": "believes a brace initializer allocates a default-filled row"
+        },
+        {
+          "id": "D",
+          "text": "It compiles and prints 1, because the compiler keeps the first listed value and drops the rest.",
+          "misconception": "believes the compiler stores only the first element of a brace list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the shorthand array initializer exists only in a declaration or field initializer, where the compiler already knows the target type, so on the right of an assignment javac reports an illegal start of expression and a missing semicolon. Treating it as a normal value is tempting because the same brace list works so neatly in int[][] g = {{1, 2}}; on an assignment there is no declaration for the compiler to size, and the fix is to write the allocation out, g[0] = new int[]{1, 2};.",
+      "hint": "The shorthand is tied to the place where a variable is being declared.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "array-initialisation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Row type checked before the program runs",
+      "learningObjective": "predict that a row's element type is enforced by the compiler, not at run time",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A jagged grid is declared and then a row of the wrong type is stored into it:\nint[][] g = new int[2][];\ng[0] = new double[2];\nSystem.out.println(g[0].length);\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile with \"incompatible types: double[] cannot be converted to int[]\" and never starts.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and throws ArrayStoreException on that line, because the row type is checked as it runs.",
+          "misconception": "believes array element types are verified when the statement executes"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and stores the row, so g[0][0] reads 0.0, because a numeric row holds any primitive row.",
+          "misconception": "believes array types widen the way numeric types widen"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile because a row of an int[][] must come from the two-index new form.",
+          "misconception": "believes only the two-index new form may supply the rows of a grid"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that every slot of an int[][] holds an int[], and double[] is not an int[], so the compiler rejects the store with incompatible types before any code runs. Expecting a run-time check is tempting because Object[] really does defer its check: storing an int[] into a String[] declared as Object[] throws ArrayStoreException at that line, but a grid of primitives has no such escape hatch, because the compiler already knows the exact row type it must hold.",
+      "hint": "Ask what type each slot of an int[][] is declared to hold.",
+      "difficulty": 0.55,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 32,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "array-initialisation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "One initializer for two declared names",
+      "learningObjective": "apply the rule that a declaration's initializer belongs only to its last name",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A programmer declares two array variables in one statement and initialises them:\nint[] a, b = {5, 6};\nSystem.out.println(b.length);\nSystem.out.println(a.length);\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The compiler rejects it: \"variable a might not have been initialized\", because only b got the initializer.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 2 and then 0, because a local array that was never assigned reads as an empty array.",
+          "misconception": "believes a never-assigned array reference has length zero"
+        },
+        {
+          "id": "C",
+          "text": "It prints 2 and then 2, because the initializer applies to every name in the declaration.",
+          "misconception": "believes one initializer covers all the names declared beside it"
+        },
+        {
+          "id": "D",
+          "text": "It prints 2 and then throws NullPointerException on the second line of the program.",
+          "misconception": "believes an unset local array is a null reference that still compiles"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that in int[] a, b = {5, 6} the declaration introduces two variables and the initializer binds to the last one, b, so a is declared and never given a value and javac stops at a.length with variable a might not have been initialized. Expecting zero is tempting because a new int[0] really is length zero, but that is an allocated array, whereas a here is a reference the compiler can prove was never set, and a NullPointerException could only appear if the compiler let the read through.",
+      "hint": "Read the declaration as two separate declarations sharing one type.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "array-initialisation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Swapping a row through a final parameter",
+      "learningObjective": "choose the line that replaces a caller's row when the parameter is final",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A reset routine receives a grid as a final parameter and must leave the caller holding a brand-new first row of 9s, so the row object the caller had before the call is no longer referenced:\nstatic void load(final int[][] grid) {\n    ____________\n}\nWhich single line belongs in the blank?",
+      "options": [
+        {
+          "id": "A",
+          "text": "grid[0] = new int[]{9, 9};  final freezes the outer reference, not the row slots inside it.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "grid = new int[1][2];  a final parameter may still be pointed at a freshly allocated grid.",
+          "misconception": "believes final on a parameter still permits reassigning the reference"
+        },
+        {
+          "id": "C",
+          "text": "final int[] row = grid[0]; row[0] = 9;  a final local can be written through without a cast.",
+          "misconception": "believes writing one cell through a final local replaces the whole row"
+        },
+        {
+          "id": "D",
+          "text": "grid[0][0] = 9; grid[0][1] = 9;  both cells of the caller's row can be assigned in place.",
+          "misconception": "believes filling the old row's cells makes the old row object unreachable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that final blocks reassignment of the variable grid itself, but grid[0] is a mutable slot inside the array grid points at, so storing a new array there is legal and the caller sees the new row while the old row object is left unreferenced. Believing a final parameter is frozen all the way down is tempting because the compiler does reject grid = new int[1][2]; with final parameter grid may not be assigned, but that protection is about the one reference the modifier decorates and says nothing about the cells behind it.",
+      "hint": "Ask which reference the final modifier actually decorates.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Content equality is not row identity",
+      "learningObjective": "separate a row's contents from the identity of the array holding them",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A grid is written with two rows that happen to hold the same values, then one cell is edited:\nimport java.util.Arrays;\nint[][] g = {{4, 5}, {4, 5}};\nSystem.out.println(g[0] == g[1]);\nSystem.out.println(Arrays.equals(g[0], g[1]));\ng[0][0] = 1;\nSystem.out.println(g[1][0]);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "false, true, then 4: the rows hold equal values but are separate arrays, so the edit is local.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true, true, then 1: the literal stored one row twice, so both slots name that same array.",
+          "misconception": "believes listing equal values twice in a literal shares one array"
+        },
+        {
+          "id": "C",
+          "text": "false, false, then 4, because Arrays.equals compares references rather than cell values.",
+          "misconception": "believes Arrays.equals tests identity instead of contents"
+        },
+        {
+          "id": "D",
+          "text": "false, true, then 1, because rows with equal contents are aliases of the same cells.",
+          "misconception": "believes equal contents imply the two rows share their cells"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that == asks whether two references name the same array object while Arrays.equals walks the cells and compares values, so the two independently created rows are not the same array yet compare equal, and because they are separate arrays the write to g[0][0] leaves g[1][0] at 4. The tempting error is to read equal contents as shared storage, but a literal builds a fresh array for every row it lists, and equal data is a statement about values, not about which cells a row owns.",
+      "hint": "One comparison asks who the array is, the other asks what it holds.",
+      "difficulty": 0.32,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 21,
+        "p75Sec": 35
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-identity"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Row widths produced by splitting a line",
+      "learningObjective": "predict the row widths a comma split yields for lines with trailing separators",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A reader turns each line of a hand-edited file into a row and reports each row's width:\nimport java.util.Arrays;\nString[] lines = {\"7,8\", \"3,\", \",\"};\nfor (String line : lines) {\n    String[] row = line.split(\",\");\n    System.out.println(row.length + \" \" + Arrays.toString(row));\n}\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 [7, 8], then 1 [3], then 0 [], because trailing empty fields are dropped from the result.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 [7, 8], then 2 [3, ], then 2 [ ], because every separator always yields a field of its own.",
+          "misconception": "believes a trailing comma always creates one more empty field"
+        },
+        {
+          "id": "C",
+          "text": "3 [7, 8, ], then 2 [3, ], then 1 [ ], because split returns one field per separator plus one.",
+          "misconception": "believes the field count is always the separator count plus one"
+        },
+        {
+          "id": "D",
+          "text": "2 [7, 8], then 1 [3], then 1 [ ], because a line of only separators still gives one field.",
+          "misconception": "believes a line of nothing but separators yields a single empty field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the one-argument split drops empty fields that fall at the end of the result, so \"7,8\" gives two fields, \"3,\" loses its empty tail and gives one, and \",\" is nothing but empty fields so nothing survives and the row has length 0. Expecting a field per separator is tempting because the separator count looks like a field count, but the default limit throws away trailing empties, which is why a ragged row built this way can arrive shorter than the file's columns suggest, and why the limit -1 is the form that keeps them.",
+      "hint": "Trailing empty fields are removed unless the limit says otherwise.",
+      "difficulty": 0.56,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 34,
+        "p75Sec": 56
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "jagged-grids"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Reading the last field of a possibly empty row",
+      "learningObjective": "find the negative index produced by the last-field idiom on an empty row",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A report prints the final field of every row it was given, and one of the rows arrived empty:\nString[][] rows = {{\"7\", \"8\"}, {}};\nfor (int r = 0; r < rows.length; r++) {\n    System.out.println(rows[r][rows[r].length - 1]);\n}\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 8 and then throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 0.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 8 and then throws ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0.",
+          "misconception": "believes the failure is an off-by-one at the start of the loop"
+        },
+        {
+          "id": "C",
+          "text": "It prints 8 and then prints an empty line, because length minus one is read as zero for an empty row.",
+          "misconception": "believes the length arithmetic yields a usable index for an empty row"
+        },
+        {
+          "id": "D",
+          "text": "It prints 8 and then throws NullPointerException, because the empty row was never allocated.",
+          "misconception": "believes an empty brace row is a null reference"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that the last index of a row is length - 1, which for the empty row is 0 - 1 = -1, and no array has a cell at -1, so the second read throws with Index -1 out of bounds for length 0. Treating the missing field as zero or as an absent row is tempting because an empty row contributes nothing anywhere else in a traversal, but this idiom asks for a specific cell rather than counting cells, and a length check has to come before the subtraction rather than after it.",
+      "hint": "Compute the index before you decide the read is safe.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 34,
+        "p75Sec": 56
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "jagged-grids"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Keeping a trailing empty field",
+      "learningObjective": "select the split limit that preserves a field the default call discards",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A reader turns one line of a hand-edited file into a row and must keep the empty field that follows a trailing comma:\nString line = \"3,\";\nString[] row = ____________;\nSystem.out.println(row.length);\nWhich expression belongs in the blank so that the program prints 2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "line.split(\",\", -1)  a negative limit keeps the empty fields that end the result.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "line.split(\",\", 0)  a limit of zero is what preserves the trailing empty field.",
+          "misconception": "believes the limit of zero is the call that keeps trailing empties"
+        },
+        {
+          "id": "C",
+          "text": "line.split(\",\", 1)  a limit of one still returns both fields of a line this short.",
+          "misconception": "believes a limit of one splits on every comma in the line"
+        },
+        {
+          "id": "D",
+          "text": "line.split(\",\")  the one-argument form keeps a trailing empty field of its own.",
+          "misconception": "believes the one-argument split preserves a trailing empty field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that trailing empty fields are dropped unless the limit says otherwise, and only a negative limit says otherwise, so \"3,\".split(\",\", -1) returns 3 and the empty field for a length of 2 while a limit of 0 or 1 returns just 3 and the plain one-argument call does the same. Reaching for a limit of 0 is tempting because zero is the value already implied by the default behaviour, but zero is the limit that discards the tail, and the sign is the part that flips the rule and keeps the column the file actually contains.",
+      "hint": "One limit value means keep the tail and another means drop it.",
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "jagged-grids"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Two-pass width over a grid that lost its shape",
+      "learningObjective": "trace a widest-row measurement followed by a guarded column sweep",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A grid that was declared rectangular has had one row replaced by a longer one, and a reducer measures the widest row before sweeping every column:\nint[][] g = {{5, 6}, {1, 2, 3}, {9}};\nint width = 0;\nfor (int[] row : g) {\n    if (row.length > width) {\n        width = row.length;\n    }\n}\nint total = 0;\nfor (int r = 0; r < g.length; r++) {\n    for (int c = 0; c < width; c++) {\n        if (c < g[r].length) {\n            total += g[r][c];\n        }\n    }\n}\nSystem.out.println(width + \" \" + total);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"3 26\": the widest row measures 3, and the guard skips column 2 of the one-cell row on the way.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"2 26\", because the width should have been seeded from the first row instead of from zero.",
+          "misconception": "believes the widest row is found by starting the measure at row 0's width"
+        },
+        {
+          "id": "C",
+          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2, because 3 is not a bound every row shares.",
+          "misconception": "believes the widest row's width is a safe inner bound for all of the rows"
+        },
+        {
+          "id": "D",
+          "text": "\"3 32\", because the cells the guard skips are still added to the total as zero-valued cells.",
+          "misconception": "believes a skipped cell contributes a zero to the running total"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a width measured from the widest row bounds a sweep only when each row is also checked, and here the first pass settles on 3 from the middle row while the guard inside the sweep protects row 0 and row 2, whose lengths are 2 and 1, so the total is 5 + 6 + 1 + 2 + 3 + 9 = 26. Treating the widest width as a universal bound is the tempting shortcut because it removes the inner test, but this same grid proves why it cannot be removed: dropping the guard fails immediately on row 0 at column 2, since that row never grew with the middle one.",
+      "hint": "Two rows of this grid are narrower than the row that set the width.",
+      "difficulty": 0.66,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "jagged-grids"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Padding a row with copyOf",
+      "learningObjective": "predict that a longer copy pads with zeros and leaves the source alone",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A row is widened into a new array and both arrays are inspected:\nimport java.util.Arrays;\nint[] row = {1, 2, 3};\nint[] longer = Arrays.copyOf(row, 5);\nSystem.out.println(Arrays.toString(longer));\nSystem.out.println(longer == row);\nSystem.out.println(row.length);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"[1, 2, 3, 0, 0]\", then false, then 3: the wider row is a new array padded with zeros.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"[1, 2, 3, 0, 0]\", then true, then 5: the row that was passed in grew in place.",
+          "misconception": "believes copyOf extends the array it was given"
+        },
+        {
+          "id": "C",
+          "text": "It throws IllegalArgumentException, because a copy may never be longer than its source array.",
+          "misconception": "believes a copy is not allowed to be longer than the original"
+        },
+        {
+          "id": "D",
+          "text": "\"[1, 2, 3]\", then false, then 5: the requested length is ignored when the copy is made.",
+          "misconception": "believes copyOf keeps the source length whatever length is requested"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that Arrays.copyOf builds a new array of exactly the length asked for, copying the values that exist and zero-filling the rest, so the new row holds 1, 2, 3, 0, 0, it is a different object from row, and row itself is still length 3. Expecting the original to grow is tempting because the call reads like a resize, but the method name says copy: the padding belongs to the new array, which is exactly what makes this the safe way to hand a module a wider row without disturbing the caller's data.",
+      "hint": "The method's second argument is the length of the result, not of the source.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 25,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "The type of an array clone",
+      "learningObjective": "predict that clone on an array returns that array's own type",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A snapshot method returns a clone of the row it is given, and the caller edits the result:\nimport java.util.Arrays;\nstatic int[] snapshot(int[] row) {\n    return row.clone();\n}\nint[] row = {1, 2, 3};\nint[] snap = snapshot(row);\nsnap[0] = 9;\nSystem.out.println(Arrays.toString(row) + \" \" + Arrays.toString(snap));\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"[1, 2, 3] [9, 2, 3]\": an array's clone is typed as that array, and it copies the row's cells.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It fails to compile: \"incompatible types: Object cannot be converted to int[]\" at the return.",
+          "misconception": "believes clone on an array is typed Object just as Object.clone is"
+        },
+        {
+          "id": "C",
+          "text": "\"[9, 2, 3] [9, 2, 3]\", because a clone keeps a live view of the row it was taken from.",
+          "misconception": "believes a clone shares its cells with the array it was taken from"
+        },
+        {
+          "id": "D",
+          "text": "\"[1, 2, 3] [1, 2, 3]\", because clone hands back the array it was called on unchanged.",
+          "misconception": "believes clone returns the receiver rather than a copy of it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that every array type declares a clone that returns that same array type, so row.clone() can be returned straight from a method whose result is int[] with no cast, and the clone is a separate row with its own cells, which is why the edit to snap[0] leaves row[0] at 1. Expecting Object is tempting because Object.clone is declared as returning Object and every ordinary class inherits that shape, but arrays are the special case the language carves out, and assigning the result to an Object variable first is exactly what would produce the rejected conversion.",
+      "hint": "An array's clone is a covariant special case, not the inherited Object.clone.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "An edit that lands on a discarded copy",
+      "learningObjective": "locate the lost update caused by writing into a copy nobody stores back",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A routine tries to clear the first cell of the second row by chaining an assignment onto a copy:\nimport java.util.Arrays;\nint[][] g = {{1, 2}, {3, 4}};\nArrays.copyOf(g[1], 2)[0] = 0;\nSystem.out.println(Arrays.toString(g[1]));\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints \"[3, 4]\": the zero was written into a new array that nothing holds a reference to.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints \"[0, 4]\", because copyOf changes the array it was given as well as returning one.",
+          "misconception": "believes copyOf edits the source array as it copies it"
+        },
+        {
+          "id": "C",
+          "text": "It prints \"[3, 0]\", because the zero is written into the second cell of the row instead.",
+          "misconception": "believes the zero lands in the row's second cell"
+        },
+        {
+          "id": "D",
+          "text": "It throws ArrayIndexOutOfBoundsException, because indexing into a call's result is illegal.",
+          "misconception": "believes writing into the result of a method call is a compile error"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that copyOf hands back a new array, so writing into the result of the call writes into that new array, and because the value is never stored back into g the grid still points at the untouched original and prints [3, 4]. Believing the copy writes through is tempting because the copy is made from g[1] and looks attached to it, but the whole point of copying a row is to get an array that is independent, so a change to it has to be stored with g[1] = ... to be visible in the grid.",
+      "hint": "Ask who holds a reference to the array that was just written to.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A copied row of object references",
+      "learningObjective": "trace how a copied reference row separates cell assignment from cell sharing",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A row of names is copied and then one cell of the copy is replaced:\nimport java.util.Arrays;\nString[][] names = {{\"Ana\"}, {\"Ben\", \"Cid\"}};\nString[] copy = Arrays.copyOf(names[1], 2);\ncopy[0] = \"Zed\";\nSystem.out.println(names[1][0] + \" \" + (copy[1] == names[1][1]));\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"Ben true\": the copy has its own array, and the untouched cell still names the same String.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"Zed true\", because copyOf writes the new value back into the row it copied from.",
+          "misconception": "believes copyOf overwrites the source row's cells"
+        },
+        {
+          "id": "C",
+          "text": "\"Ben false\", because copying a row of references builds fresh Strings in the copy.",
+          "misconception": "believes copying a reference row creates new String objects"
+        },
+        {
+          "id": "D",
+          "text": "\"Zed false\", because a row of references is deep-copied one element at a time.",
+          "misconception": "believes copyOf deep-copies the objects a row references"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that Arrays.copyOf duplicates the row's array but copies only the references stored in it, so assigning copy[0] replaces a reference in the copy's own array and leaves names[1][0] as Ben, while the cell nobody reassigned still names the very same String, which is why copy[1] == names[1][1] is true. Believing a copy is deep is tempting because the values look like data rather than addresses, but Strings are immutable here so a deep copy would look identical, and the identity comparison is what exposes which copy actually happened.",
+      "hint": "Compare what the copy did to the array with what it did to the objects in it.",
+      "difficulty": 0.52,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Overlapping copy inside one row",
+      "learningObjective": "predict that an overlapping arraycopy stages the values before writing them back",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A row is shifted one place to the right by copying it onto itself:\nimport java.util.Arrays;\nint[] row = {1, 2, 3, 4};\nSystem.arraycopy(row, 0, row, 1, 3);\nSystem.out.println(Arrays.toString(row));\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"[1, 1, 2, 3]\", because the copy behaves as if the values were staged before being written back.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"[1, 1, 1, 1]\", because each write overwrites the value the next write wants to read.",
+          "misconception": "believes an overlapping copy shifts by repeating the first value"
+        },
+        {
+          "id": "C",
+          "text": "\"[1, 2, 3, 4]\", because copying a row onto itself cannot change any of its values.",
+          "misconception": "believes a self-copy of a row leaves the row unchanged"
+        },
+        {
+          "id": "D",
+          "text": "It throws ArrayIndexOutOfBoundsException, because the source and destination may not match.",
+          "misconception": "believes arraycopy rejects an overlapping source and destination"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that arraycopy behaves as if the source range were first copied to a temporary array and then copied into the destination, so the three values 1, 2, 3 are taken from the original row before any of them is written, landing at indexes 1, 2, 3 and giving [1, 1, 2, 3]. Expecting repeated values is tempting because a hand-written forward loop really does smear the first value across the row, giving [1, 1, 1, 1], but arraycopy is specified in terms of a staged copy, which is why it is the safe choice for overlapping ranges.",
+      "hint": "The specification describes the copy as if the values were staged first.",
+      "difficulty": 0.6,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A copied row of mutable cells",
+      "learningObjective": "explain why copying a row of builders still lets an edit reach the original",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A grid of string builders has one row copied, and the copy is then appended to:\nimport java.util.Arrays;\nStringBuilder[][] cells = {{new StringBuilder(\"a\")}, {new StringBuilder(\"b\")}};\nStringBuilder[] copy = Arrays.copyOf(cells[0], 1);\ncopy[0].append(\"!\");\nSystem.out.println(cells[0][0]);\nSystem.out.println(cells[1][0]);\nWhat does this program print, and what is wrong with it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints \"a!\" and then \"b\": the new row array holds the same builder, so appending reaches the grid.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints \"a\" and then \"b\", because copyOf rebuilds every object stored inside the row.",
+          "misconception": "believes copyOf deep-copies the objects a row references"
+        },
+        {
+          "id": "C",
+          "text": "It prints \"a! b\", because the copied builder is now shared with the other row of the grid.",
+          "misconception": "believes copying a row also shares its cells with the other rows"
+        },
+        {
+          "id": "D",
+          "text": "It throws ArrayStoreException, because a builder row cannot be stored in a builder grid.",
+          "misconception": "believes a row of builders is rejected by the grid's element type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that copyOf duplicates the row array and copies the references in it, so cells[0][0] and copy[0] are the same StringBuilder and the append lands in the original grid, while row 1 holds a different builder and is untouched at b. Believing the copy protects the data is tempting because assigning a new row array is a genuinely independent step, but independence stops at one level: a mutable cell has to be replaced with a fresh object, such as copy[0] = new StringBuilder(cells[0][0].toString());, before editing it can be private to the copy.",
+      "hint": "Ask whether the copied row holds the same builder object or a new one.",
+      "difficulty": 0.62,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 38,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A row-by-row copy of a whole grid",
+      "learningObjective": "supply the loop body that gives every copied row its own array",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A grid is duplicated row by row and the copy is then edited, so the program must print [3, 4, 5] and then [99, 4, 5]:\nimport java.util.Arrays;\nint[][] g = {{1, 2}, {3, 4, 5}};\nint[][] copy = new int[g.length][];\nfor (int r = 0; r < g.length; r++) {\n    ____________\n}\ncopy[1][0] = 99;\nSystem.out.println(Arrays.toString(g[1]));\nSystem.out.println(Arrays.toString(copy[1]));\nWhich single line belongs in the blank?",
+      "options": [
+        {
+          "id": "A",
+          "text": "copy[r] = Arrays.copyOf(g[r], g[r].length);  each slot then holds a row of its own.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "copy[r] = g[r];  the slot then points at the very row that g is already holding.",
+          "misconception": "believes naming a row in a new outer array copies that row"
+        },
+        {
+          "id": "C",
+          "text": "copy[r] = new int[g[r].length];  the slot then holds a fresh zero-filled row of that width.",
+          "misconception": "believes a new row of the right width already carries the old values"
+        },
+        {
+          "id": "D",
+          "text": "copy[r][0] = g[r][0];  the slot's first cell is filled in from the source row directly.",
+          "misconception": "believes writing a cell into a slot allocates the row for it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that copying a grid means giving every row a new array, and Arrays.copyOf(g[r], g[r].length) is the line that both sizes the new row to match and fills it with the values, so the later write to copy[1][0] leaves g[1] at [3, 4, 5] and the copy at [99, 4, 5]. Naming the row in a fresh outer array is tempting because the outer array is new, but it copies only the outer level and every slot would still point at g's own rows, and writing into copy[r][0] is not an alternative either because that slot is still null.",
+      "hint": "A new outer array copies the outer level only; each row needs its own copy.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 32,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Sorting a row without disturbing the caller",
+      "learningObjective": "choose how to sort a caller's row in place while leaving the caller's data alone",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A utility receives an int[] row out of a caller's grid and must return it in ascending order without changing the caller's grid. Arrays.sort is available. Which approach meets both requirements?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sort a copy, so call Arrays.sort on Arrays.copyOf(row, row.length) and the caller's row is untouched.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Sort the row directly, because a method that receives a reference owns the array it was given.",
+          "misconception": "believes receiving a reference transfers ownership of the array"
+        },
+        {
+          "id": "C",
+          "text": "Sort a new zero-filled array of the row's length, because zeros are the only safe values to sort.",
+          "misconception": "believes a fresh array of the right length carries the values to be sorted"
+        },
+        {
+          "id": "D",
+          "text": "Do not sort at all, because a sort is the one array operation that copies its argument first.",
+          "misconception": "believes every array operation leaves its argument unchanged"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that Arrays.sort rearranges the array it is given rather than returning a new one, so the only way to protect the caller's grid is to sort a copy, and a zero-filled new array of the right length would throw the values away rather than order them. Sorting the received row in place is tempting because the row is a local variable inside the method, but the variable is local while the array behind it belongs to whoever built the grid, and that ownership is exactly what a well-behaved utility respects.",
+      "hint": "Ask whether the sort call hands back a new array or rearranges the one it was given.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 19,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "row-copying"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Following the greedy ascent across a grid",
+      "learningObjective": "trace a walk that steps only to a strictly larger neighbour",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A climb starts at the top-left corner and only ever steps to a larger neighbour, right or down:\nint[][] g = {{1, 5, 2, 3}, {4, 6, 7, 1}, {2, 8, 9, 4}, {3, 1, 2, 10}};\nint r = 0, c = 0, steps = 0;\nwhile (true) {\n    System.out.println(r + \",\" + c);\n    int best = g[r][c];\n    int nr = r, nc = c;\n    if (c + 1 < g[r].length && g[r][c + 1] > best) {\n        best = g[r][c + 1];\n        nr = r;\n        nc = c + 1;\n    }\n    if (r + 1 < g.length && g[r + 1][c] > best) {\n        best = g[r + 1][c];\n        nr = r + 1;\n        nc = c;\n    }\n    if (nr == r && nc == c) {\n        break;\n    }\n    r = nr;\n    c = nc;\n    steps++;\n}\nSystem.out.println(\"steps \" + steps + \" last \" + g[r][c]);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0,0 then 0,1, 1,1, 2,1, 2,2 and finally \"steps 4 last 9\": the below cell beat the right one at 1,1.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0,0 then 0,1, 1,1, 1,2, 1,3 and finally \"steps 4 last 8\": the walk keeps going right along a row.",
+          "misconception": "believes the walk follows a row rightward while the next column rises"
+        },
+        {
+          "id": "C",
+          "text": "0,0 then 1,0, 1,1, 1,2, 2,2, 3,2, 3,3 and finally \"steps 6 last 10\": the climb finds the best cell.",
+          "misconception": "believes a greedy ascent always reaches the largest cell in the grid"
+        },
+        {
+          "id": "D",
+          "text": "0,0 only and then \"steps 0 last 1\", because the first cell has no larger neighbour to move to.",
+          "misconception": "believes the walk ends at the first cell it visits without checking its neighbours"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that each step takes the larger of the two rising neighbours, and at 1,1 the cell below holds 8 against 7 on the right, so the walk goes down rather than right, which is why the sequence is 0,0 then 0,1, 1,1, 2,1, 2,2 and it halts there with 4 steps and a last value of 9. Expecting the climb to reach the 10 at 3,3 is tempting because a maximum looks reachable, but the walk is greedy rather than exhaustive: it commits to the larger neighbour each time and can stop while a larger cell sits behind a smaller one, which is a different question from asking for the largest cell overall.",
+      "hint": "At each cell, compare the two candidates before deciding to move.",
+      "difficulty": 0.68,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Best on the path is not best in the grid",
+      "learningObjective": "compare the maximum reached by a greedy walk with the maximum of the whole grid",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A walk climbs from the top-left, only stepping to a larger neighbour, while a separate scan measures the whole grid, and both numbers are printed:\nint[][] g = {{1, 5, 2}, {2, 6, 3}, {100, 1, 4}};\nint r = 0, c = 0, pathMax = g[0][0];\nint globalMax = g[0][0];\nfor (int i = 0; i < g.length; i++) {\n    for (int j = 0; j < g[i].length; j++) {\n        if (g[i][j] > globalMax) {\n            globalMax = g[i][j];\n        }\n    }\n}\nwhile (true) {\n    if (g[r][c] > pathMax) {\n        pathMax = g[r][c];\n    }\n    int best = g[r][c];\n    int nr = r, nc = c;\n    if (c + 1 < g[r].length && g[r][c + 1] > best) {\n        best = g[r][c + 1];\n        nr = r;\n        nc = c + 1;\n    }\n    if (r + 1 < g.length && g[r + 1][c] > best) {\n        best = g[r + 1][c];\n        nr = r + 1;\n        nc = c;\n    }\n    if (nr == r && nc == c) {\n        break;\n    }\n    r = nr;\n    c = nc;\n}\nSystem.out.println(pathMax + \" \" + globalMax);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"6 100\": the walk stopped at 6, because the 100 hides behind a neighbour of 1.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"100 100\": a walk that always climbs to the larger neighbour must reach the largest cell.",
+          "misconception": "believes stepping to the larger neighbour always reaches the grid maximum"
+        },
+        {
+          "id": "C",
+          "text": "\"6 6\": the whole-grid scan reuses the walk's stopping value as its own maximum.",
+          "misconception": "believes the whole-grid scan is limited to the cells the walk visited"
+        },
+        {
+          "id": "D",
+          "text": "\"100 6\": the scan finds the 100 first in row-major order and the walk never improves on it.",
+          "misconception": "believes the two printed values follow the order the maxima were found in"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a walk which only steps to a larger neighbour can be trapped by a low cell in front of a high one, and here the walk reaches 6 at 1,1, where the cell below holds 1 and the cell right holds 3, so it stops even though 100 sits at 2,0, giving \"6 100\". Expecting the climb to find the tallest peak is tempting because the walk is a search for a maximum, but greedy ascent only promises a local result, and a maximum over a whole grid needs the full scan, which is the very loop sitting right beside the walk in this program.",
+      "hint": "Look at the two neighbours of the cell where the walk gave up.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A comparison that lets a tie move the walk",
+      "learningObjective": "predict how replacing > with >= changes a walk's route",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A walk is changed so that either neighbour test uses >= instead of >, and the grid has a tie on the top row:\nint[][] g = {{1, 5, 5}, {2, 0, 9}};\nint r = 0, c = 0, steps = 0;\nwhile (true) {\n    System.out.println(r + \",\" + c);\n    int best = g[r][c];\n    int nr = r, nc = c;\n    if (c + 1 < g[r].length && g[r][c + 1] >= best) {\n        best = g[r][c + 1];\n        nr = r;\n        nc = c + 1;\n    }\n    if (r + 1 < g.length && g[r + 1][c] >= best) {\n        best = g[r + 1][c];\n        nr = r + 1;\n        nc = c;\n    }\n    if (nr == r && nc == c) {\n        break;\n    }\n    r = nr;\n    c = nc;\n    steps++;\n}\nSystem.out.println(\"steps \" + steps);\nWhat does this program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0,0 then 0,1, 0,2, 1,2 and \"steps 3\": an equal neighbour counts as rising, so the walk steps onto the tied 5.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0,0 then 0,1 and \"steps 1\": >= still refuses to move, because a tie is not a rise in value.",
+          "misconception": "believes >= behaves like > when the two values are equal"
+        },
+        {
+          "id": "C",
+          "text": "0,0 then 0,1, 0,2, 1,2, 2,2 and \"steps 4\": the walk also crosses the final column of the grid.",
+          "misconception": "believes changing the comparison lets the walk leave the last row"
+        },
+        {
+          "id": "D",
+          "text": "It throws ArrayIndexOutOfBoundsException on the second step, because a tie fails the bounds test.",
+          "misconception": "believes comparing with >= makes the column bound test fail on a tie"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that >= treats an equal value as satisfying the test, so from 0,1 the tied 5 to the right now counts as a rise, the walk steps onto 0,2, and from there the 9 below is larger still, giving the route 0,0, 0,1, 0,2, 1,2 in 3 steps where the strict version stopped after one. Reading >= as harmless is tempting because the two operators look like a stylistic choice, but a walk defined as strictly rising uses that strictness to decide where it ends, and loosening it lets the walk wander across plateaus it was meant to refuse.",
+      "hint": "Compare the value at the cell to the right with the value under the walk.",
+      "difficulty": 0.6,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "The bounds test before stepping down",
+      "learningObjective": "supply the row bound that makes a downward step legal on the last row",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A step down is guarded by a row test, and the program is run with r already on the last row of a two-row grid:\nint[][] g = {{2, 3}, {5, 1}};\nint r = 1, c = 0;\nint best = g[r][c];\nint nr = r, nc = c;\nif (______________ && g[r + 1][c] > best) {\n    best = g[r + 1][c];\n    nr = r + 1;\n    nc = c;\n}\nSystem.out.println(nr + \",\" + nc + \" best \" + best);\nWhich expression belongs in the blank so that this program prints 1,0 best 5?",
+      "options": [
+        {
+          "id": "A",
+          "text": "r + 1 < g.length  the test asks whether the row below exists before that row is read.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "r + 1 <= g.length  the test includes the row just past the last index in the grid.",
+          "misconception": "believes a row bound of length itself still names a real row"
+        },
+        {
+          "id": "C",
+          "text": "r < g.length  the test asks about the current row rather than the row underneath it.",
+          "misconception": "believes the bound for row r + 1 is the bound that belongs to row r"
+        },
+        {
+          "id": "D",
+          "text": "c + 1 < g.length  the test asks whether the column below is present in the grid.",
+          "misconception": "believes the row-below test should be written with the column bound"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a row index is legal when it is smaller than the row count, so the row that is about to be read is r + 1 and its test is r + 1 < g.length, which is false here and leaves nr at 1 for the printed 1,0 best 5. Using <= is tempting because it looks like the familiar off-by-one guard, but a bound equal to the length names the row just past the end, so the guard lets the read through and the program dies with Index 2 out of bounds for length 2, and testing r instead of r + 1 fails in the same way one step too early.",
+      "hint": "The read uses r + 1, so the guard has to be about r + 1.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Turning a flat index into a cell",
+      "learningObjective": "map a row-major index onto a row and a column by division and remainder",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A path is stored as row-major indexes into a three-column grid, and the row is left blank in the report:\nint[][] g = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\nint cols = 3;\nint[] path = {0, 1, 5, 6, 8};\nfor (int p : path) {\n    System.out.println(p + \" -> \" + (____) + \",\" + (p % cols) + \" value \" + g[p / cols][p % cols]);\n}\nWhich expression belongs in the blank so that index 5 reports 1,2 with value 6?",
+      "options": [
+        {
+          "id": "A",
+          "text": "p / cols  integer division by the width counts whole rows, and the remainder is the column.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "p % cols  the remainder gives the row, and the quotient gives the column beside it.",
+          "misconception": "believes the roles of quotient and remainder are swapped"
+        },
+        {
+          "id": "C",
+          "text": "cols / p  dividing the width by the index gives the row that the index belongs to.",
+          "misconception": "believes dividing the width by the index locates the row"
+        },
+        {
+          "id": "D",
+          "text": "p - cols  subtracting one row's width from the index gives the row of the cell.",
+          "misconception": "believes the row is the index minus a single row width"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a row-major index is the row times the width plus the column, so integer division by the width recovers the row and the remainder recovers the column, which is why 5 divided by 3 gives row 1 and 5 mod 3 gives column 2, the cell holding 6. Subtracting the width is tempting because one subtraction looks like one row down, but it only works for the second row and drifts for every later one, and dividing the width by the index makes no sense at all once the index reaches the width, where it truncates to zero.",
+      "hint": "An index counts whole rows first, then columns within the row.",
+      "difficulty": 0.52,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Cells visited by a greedy ascent",
+      "learningObjective": "count the cells a strictly rising walk stands on in a larger grid",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A walk starts at the top-left of the grid below, steps to a neighbour only when that neighbour is strictly larger, and stops when neither the cell to the right nor the cell below qualifies:\nint[][] g = {\n    {1, 5, 4, 5, 8},\n    {2, 7, 9, 11, 8},\n    {6, 6, 3, 13, 10},\n    {3, 12, 12, 15, 14},\n    {2, 9, 9, 17, 20}};\nHow many cells does the walk stand on, counting the starting cell? Respond with the integer only.",
+      "options": [],
+      "answer": {
+        "value": 9
+      },
+      "explanation": "Each step must go to a strictly larger cell, so the walk climbs 1 to 5 to 7 to 9 to 11 to 13 to 15 to 17 to 20 and only then finds that neither neighbour is larger, which is 9 cells. Reading the values in order and counting every rise is tempting because the grid is written in rows and the rising values do appear in a scattered order, but the walk moves one cell at a time in a single row or column, and a value such as the 12 in the fourth row is never reached because the 13 above-left of it was chosen instead.",
+      "hint": "Track the cell you are on; each move goes right or down, never back.",
+      "difficulty": 0.72,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Best value along a listed path",
+      "learningObjective": "take the maximum of the grid cells named by a row-major path",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A path is given as row-major indexes into a four-column grid, and the largest value the path touches is reported:\nint[][] g = {\n    {4, 9, 2, 7},\n    {1, 6, 3, 8},\n    {5, 2, 9, 4},\n    {7, 1, 6, 3}};\nint cols = 4;\nint[] path = {0, 5, 10, 11, 15, 7};\nint best = g[path[0] / cols][path[0] % cols];\nfor (int p : path) {\n    if (g[p / cols][p % cols] > best) {\n        best = g[p / cols][p % cols];\n    }\n}\nSystem.out.println(best);\nWhat integer is printed? Respond with the integer only.",
+      "options": [],
+      "answer": {
+        "value": 9
+      },
+      "explanation": "The rule is that a path only contributes the cells it actually names, and this path visits 4, 6, 9, 4, 3, and 8, so the largest of those is 9 and the 9 sitting at 0,1 is not on the path at all. Taking the last index to be the peak is tempting because a path is usually walked from start to end, but the order of the indexes carries no promise about the values, and the running best only ever grows, which is why 9 stays even after the walk visits the smaller 4, 3, and 8 at the end.",
+      "hint": "Convert each index with division by the width, then keep the largest value you meet.",
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "Claims about a greedy ascent",
+      "learningObjective": "judge which statements hold for a walk that only steps to a larger cell",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "MULTI_SELECT",
+      "stimulus": null,
+      "stem": "A study group debates four claims about a walk that starts at the top-left cell and only ever steps to a strictly larger neighbour, right or down. Which claims are true? Select all that apply.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The walk can stop while a larger cell still sits somewhere else in the grid.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The value under the walk never decreases, since a step is only taken to a larger cell.",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The last cell the walk reaches always holds the largest value in the whole grid.",
+          "misconception": "believes a greedy ascent is guaranteed to reach the grid maximum"
+        },
+        {
+          "id": "D",
+          "text": "When two neighbours tie, the walk steps to whichever neighbour was tested first.",
+          "misconception": "believes a tie sends the walk to the first neighbour tested"
+        },
+        {
+          "id": "E",
+          "text": "The walk visits every cell whose value exceeds the cell before it in reading order.",
+          "misconception": "believes the ascent follows rising values in row-major order"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B"
+        ]
+      },
+      "explanation": "The rule is that a step happens only when a neighbour is strictly larger, so the values along the walk strictly increase, which proves the walk can end on a value that is not the grid's best, and also means the values never decrease. Reading the walk as a search is tempting because it does climb, but a tie gives no step at all under a strict test, so the walk halts rather than choosing a neighbour, and it never jumps ahead to a cell further along in reading order, so it misses rising values such as the 9 at 2,2 of the grid above.",
+      "hint": "Each move is justified by one comparison against the cell you are standing on.",
+      "difficulty": 0.46,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A tie ends a strict ascent",
+      "learningObjective": "derive that the last cell of a strictly rising walk holds the path's maximum",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A walk steps to a neighbour only when that neighbour holds a strictly larger value, and the cell to the right of the walk currently holds 5, exactly what the walk is standing on, while the cell below holds 2. Which statement about this walk is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The walk stops there, and the largest value it has seen is the 5 it is standing on, since a tie is no rise.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The walk steps onto the equal neighbour, so the largest value it has seen becomes that tied 5.",
+          "misconception": "believes a neighbour of equal value counts as a rise"
+        },
+        {
+          "id": "C",
+          "text": "The walk steps onto the equal neighbour and keeps going, so it visits both of the tied 5s.",
+          "misconception": "believes the walk continues past a tie by looking further ahead"
+        },
+        {
+          "id": "D",
+          "text": "The walk ignores the equal neighbour but scans the rest of its row for something larger.",
+          "misconception": "believes the walk scans a whole row rather than taking one step"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that every step strictly increases the value, so the sequence of values along the walk rises all the way to the cell where it stops, which makes that final cell the maximum of the path; with a neighbour of 5 beside a current 5 the strict test is false, so no step is taken and the walk ends on 5. Stepping onto the tie is tempting because 5 is not smaller, but strictly larger is the whole condition, and a walk that allowed equal steps could wander over a plateau forever without ever gaining height, which is why the test is written with > rather than >=.",
+      "hint": "Every accepted step raises the current value, so the last one is the highest.",
+      "difficulty": 0.34,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-7.9-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 7",
+      "topic": "A path walk that skips its first cell",
+      "learningObjective": "find the maximum reported by a path walk that never visits the starting cell",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A path is a list of cells and the routine reports the largest value along it, but the start of the path is the tallest cell:\nstatic int maxOnPath(int[][] g, int[][] path) {\n    int best = Integer.MIN_VALUE;\n    for (int i = 1; i < path.length; i++) {\n        int v = g[path[i][0]][path[i][1]];\n        if (v > best) {\n            best = v;\n        }\n    }\n    return best;\n}\nint[][] g = {{9, 1, 2}, {3, 4, 5}};\nint[][] path = {{0, 0}, {1, 0}, {1, 1}};\nSystem.out.println(maxOnPath(g, path));\nWhat is printed, and what is wrong with the routine?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 4, because the loop starts at index 1 and never looks at path[0], which held the 9.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 9, because the MIN_VALUE seed is replaced by the first cell the loop reaches.",
+          "misconception": "believes the MIN_VALUE seed is overwritten by the starting cell"
+        },
+        {
+          "id": "C",
+          "text": "It throws ArrayIndexOutOfBoundsException, because path[0] is never validated before the loop.",
+          "misconception": "believes skipping the first cell makes the path read leave the grid"
+        },
+        {
+          "id": "D",
+          "text": "It prints 0, because a running maximum reports zero when no cell exceeds the seed.",
+          "misconception": "believes a MIN_VALUE seed is reported as zero when nothing beats it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is that a maximum over a path has to consider every cell on it, and this loop begins at i = 1, so the starting cell is never read and the largest value it does see is 4, even though the path begins on 9. Trusting the seed is tempting because Integer.MIN_VALUE is the safest possible starting value, but the seed only guarantees a correct answer if the first cell is actually compared against it, and starting the loop at 1 means the 9 is not in the comparison set at all rather than being lost to a bad initial value.",
+      "hint": "Count how many of the path's cells the loop body ever reads.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-y2",
+        "reviewer": "bank-review-jp-y2",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w9",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "grid-paths"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
