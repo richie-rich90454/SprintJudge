@@ -1,0 +1,3582 @@
+{
+  "questions": [
+    {
+      "id": "cf-3.22-0001",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The precondition a halving search needs",
+      "learningObjective": "identify the order a halving search relies on and what breaks without it",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A halving search is handed the list [1, 3, 5, 7, 9, 2, 4, 6, 8] and asked for the value 8. It reads 9, discards the right half, and then keeps discarding until the range is empty. No error is raised. What has gone wrong, and why is nothing reported?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The list is not in order, so a half it discards can still hold the value it seeks",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The list holds nine values, which is an odd length no halving can divide evenly",
+          "misconception": "believes a halving search fails on any list of odd length"
+        },
+        {
+          "id": "C",
+          "text": "The value 8 sits in the last position, which a halving search never inspects at all",
+          "misconception": "believes the final position of a list is unreachable by a halving search"
+        },
+        {
+          "id": "D",
+          "text": "The values are numbers, so the search cannot compare them without a conversion first",
+          "misconception": "believes stored numbers need converting before they can be compared"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Halving discards a half on the strength of one comparison, and that step is only sound when order guarantees everything discarded is on the wrong side. Here 8 was sitting in the half thrown away after the 9 was read, and the run confirmed the search read 9, 3, 5 and 7 and then reported the value absent. Nothing is raised because the routine cannot test its own precondition without doing the work it exists to avoid, so the promise that the list arrives in order belongs to whoever calls it. An odd length is handled by rounding, and a value in the last position is reached on some path through the tree.",
+      "hint": "Ask what the rule for discarding a half depends on.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 29,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "search",
+        "preconditions"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0002",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why one absent value is not as costly as another",
+      "learningObjective": "explain what decides the comparison count of a halving search that reports absent",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "On the sorted list [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32], a halving search for 23 makes 4 comparisons and a search for 34 makes 5. Both report the value absent. What does that show about what a miss costs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The cost follows how deep the descent goes, so one absent value can be cheaper than another",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A miss always costs exactly one more comparison than a hit on the same list",
+          "misconception": "believes an absent value has one fixed surcharge over a found one"
+        },
+        {
+          "id": "C",
+          "text": "A miss always costs the most, because the search must rule out every position at once",
+          "misconception": "believes a miss must inspect every remaining position before reporting"
+        },
+        {
+          "id": "D",
+          "text": "The two searches ran identically, so the counts differ only through a counting error",
+          "misconception": "believes two searches on one list cannot genuinely differ in cost"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The comparison count is the depth of the position the descent arrives at, and whether the value is there is settled on the last step rather than along the way. Running both searches settled it: 23 read 16, 24, 20 and 22 and emptied the range, while 34 read 16, 24, 28, 30 and 32. A hit can be as cheap as one comparison, for 16, which sits at the first middle position. So a miss is not a single price, and it is not automatically the worst case either, since some hits and some misses cost the same as each other.",
+      "hint": "Ask how many comparisons separate the two searches' last readings.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 37,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "search",
+        "worst-case"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0003",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The sweep that lets a bubble sort stop early",
+      "learningObjective": "state the condition under which a bubble sort may abandon its remaining sweeps",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A bubble sort sweeps left to right comparing neighbours and exchanging them when they are out of order, and each sweep carries the largest survivor one place further right. What lets it abandon the sweeps it has not run yet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A sweep that exchanges nothing, since that sweep is proof the whole list is already in order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A sweep that finds the largest value, since finding it proves the rest is out of order",
+          "misconception": "believes the largest value found marks the end of the sorting"
+        },
+        {
+          "id": "C",
+          "text": "A sweep that makes exactly one exchange, since one exchange never settles a list",
+          "misconception": "believes a single exchange is enough evidence that a list is in order"
+        },
+        {
+          "id": "D",
+          "text": "A sweep that stops short of the last value, since that value is already where it belongs",
+          "misconception": "believes skipping the final value of a sweep is what proves the list is in order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each sweep walks the largest value it has seen to the far end, so when a sweep exchanges nothing, every neighbour pair was already in order and therefore the whole list is in order. The rule is sound because of that carry, and running it on [1, 2, 3, 4, 5, 6] gave 1 sweep and 5 comparisons, where without the rule the same list costs 5 sweeps and 15 comparisons. Finding the largest value proves nothing about the rest, and one exchange is exactly what a nearly-sorted list produces while still needing another sweep.",
+      "hint": "Ask what a sweep without an exchange tells you about the neighbour pairs.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 27,
+        "p75Sec": 71
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "early-exit"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0004",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why a selection sort has nothing to stop early on",
+      "learningObjective": "explain why a selection sort pays the same price whatever order the values arrive in",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A selection sort finds the smallest of the unsorted remainder, exchanges it into place, and repeats until one value is left. Why can it never abandon the remaining passes the way a bubble sort can?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every pass must still read the whole remainder, so it can be sure it found the smallest",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It never moves a value twice, so its exchanges are already the fewest possible",
+          "misconception": "believes few exchanges would also mean few comparisons"
+        },
+        {
+          "id": "C",
+          "text": "Its inner test compares two distant values rather than neighbours, so it cannot spot order",
+          "misconception": "believes the order test is what makes a stopping rule possible"
+        },
+        {
+          "id": "D",
+          "text": "It always finishes in a single pass, so there is never a second pass left to skip",
+          "misconception": "believes a selection sort settles a list on its first pass"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The point of a pass is to certify which value is smallest in the remainder, and a certificate needs every value in that remainder read at least once. Nothing short of reading them all can rule out a smaller value hiding further along, so the count is fixed by the number of values: 5, 4, 3, 2 and 1 for six values, giving 15 comparisons, and running it on both [6,5,4,3,2,1] and [1,2,3,4,5,6] gave 15 in each case. A pass that exchanges nothing is therefore no evidence, since the pass can find no exchange and still leave an inversion further along.",
+      "hint": "Ask what a pass would have to skip to be sure it found the smallest value.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 32,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0005",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The fewest exchanges that can put a list in order",
+      "learningObjective": "state how the fewest possible exchanges for a permutation is worked out",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Putting [3, 1, 4, 2] into order means exchanging two positions at a time. What is the smallest number of such exchanges that will do it, and what decides that number?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 exchanges, because the four values sit in one cycle of length four",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 exchange, because only the first two values are out of order",
+          "misconception": "believes a list with four misplaced values needs a single exchange"
+        },
+        {
+          "id": "C",
+          "text": "2 exchanges, because each cycle shorter than the whole list costs one exchange",
+          "misconception": "believes a single cycle of four values is broken by two exchanges"
+        },
+        {
+          "id": "D",
+          "text": "4 exchanges, because every value must travel to its own position at least once",
+          "misconception": "believes the number of misplaced values fixes the number of exchanges"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A permutation splits into cycles, and one exchange is the minimum needed to close each cycle, so the count is the number of values minus the number of cycles. Here 3, 1, 4 and 2 form a single cycle of length four, giving 4 − 1 = 3, and running the search confirmed it with a route of [3,1,4,2] to [1,3,4,2] to [1,4,3,2] to [1,2,3,4]. The list holds four out-of-order pairs, so 4 is a count of pairs rather than of exchanges: one exchange of two positions can put several pairs right at once, which is the trap in the last option.",
+      "hint": "Ask how many closed cycles the positions form.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 41,
+        "p75Sec": 109
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "permutations"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0006",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why a splitting tree stays shallow",
+      "learningObjective": "explain why halving keeps the depth of a splitting tree small",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A merging sort splits a run of values down to single values and then merges the results back together. Why does the tree of calls stay only a handful of levels deep however long the run is?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each split halves the run, so a run of 64 reaches single values after 6 levels of halving",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Each split removes one value, so a run of 64 reaches single values after 64 levels",
+          "misconception": "believes a splitting tree deepens by one per value it removes"
+        },
+        {
+          "id": "C",
+          "text": "Merges happen while the splitting is still going on, so both kinds of step share levels",
+          "misconception": "believes merging and splitting are carried out in the same levels"
+        },
+        {
+          "id": "D",
+          "text": "The tree is shallow because each split makes three smaller runs instead of two",
+          "misconception": "believes a split into three runs rather than two is what keeps it shallow"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Halving is what bounds the depth, because the size of a run after k levels is at most n over two to the k, and that drops below one at k = 6 for a run of 64. Measuring the longest path across runs of 2, 4, 8, 16, 32, 64, 100 and 1024 gave 1, 2, 3, 4, 5, 6, 7 and 10, which is the ceiling of the base-two logarithm every time. That shallow shape is the whole reason the method is fast, since the total work is the run length times a few levels rather than the run length times itself.",
+      "hint": "Ask what happens to the run size after each level.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "recursion-depth"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0007",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The input that turns a partitioning sort into a nested sweep",
+      "learningObjective": "identify the input that gives a pivot-based sort its worst partition sizes",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A quicksort partitions a run around a chosen pivot and then sorts whatever falls on each side of it. With the first value of each run taken as the pivot, which input makes the partitioning work hardest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A list already in order, because every pivot lands at one end of the run it splits",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A list in random order, because a random pivot cannot be anticipated by the scan",
+          "misconception": "believes an unpredictable pivot is what makes the partitioning expensive"
+        },
+        {
+          "id": "C",
+          "text": "A list in reverse order, because reversing swaps which end the pivot lands at",
+          "misconception": "believes reversing the order changes the size of the partition pivots give"
+        },
+        {
+          "id": "D",
+          "text": "A list holding each value twice, because duplicates cut the run into four pieces",
+          "misconception": "believes duplicate values make a partitioning sort split into extra runs"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The cost of a partition is the size of the run it splits, so a pivot that always lands at one end leaves an empty side and a run one shorter. With a first-value pivot on [1, 2, 3, 4, 5, 6, 7, 8] the run sizes were 8, 7, 6 and on down to 2, giving 28 comparisons, and on a sorted 64 values the run gave 2016, which is 64 times 63 over 2. Taking the middle value instead of the first on the same list of 8 gave 13, so the input and the pivot rule together decide the price. Randomness is not a guarantee, and duplicates make pivots tie rather than multiply the runs.",
+      "hint": "Ask where the pivot ends up when the list is already in order.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 36,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "pivot-choice"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0008",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Two ways to count pairs that sit the wrong way round",
+      "learningObjective": "explain why counting during a merge beats testing every pair",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Counting the pairs of positions where the earlier value is the larger one can be done by testing every position against every later position, or by counting them while a merging sort runs. Why is the second way cheaper?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A merge already holds both halves in order, so one comparison settles a whole block of pairs",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The merging sort inspects fewer positions overall, so its pair count is lower by default",
+          "misconception": "believes any sorting routine counts pairs more cheaply than a sweep"
+        },
+        {
+          "id": "C",
+          "text": "The merge counts only the pairs it exchanges, so an inverted pair that is never moved slips by",
+          "misconception": "believes a count that ignores unmoved pairs can still be complete"
+        },
+        {
+          "id": "D",
+          "text": "The pair test uses a slower comparison, so the same amount of work takes longer",
+          "misconception": "believes the cost difference comes from the comparison rather than the count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The merge exploits order that already exists: once both halves are in order, a value taken from the right half is known to be larger than every remaining value on the left, so one comparison settles all of those pairs at once. Measured on [5, 3, 8, 1, 9, 2, 7, 4] the pair test made 28 comparisons and the merge made 17, both arriving at 14, and on [4, 1, 3, 2] the root merge alone settled 2 of the 4, being the pairs (4,2) and (3,2). A pair that is inverted but never exchanged is still counted, so the count stays complete.",
+      "hint": "Ask what the merge already knows about the values it has not yet compared.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 38,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "inversions",
+        "divide-and-conquer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0009",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Taking one value out without sorting the rest",
+      "learningObjective": "choose between repeated selection and sorting when one ranked value is wanted",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A report needs the third smallest of eight values and nothing else. Why is repeatedly taking the smallest, discarding it, and taking the smallest again a sound choice for this job?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each pass finds the true smallest of what is left, so three passes name the three smallest",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Selection is quicker than sorting, so both routes must arrive at the same value",
+          "misconception": "believes two methods with different costs must give the same answer"
+        },
+        {
+          "id": "C",
+          "text": "Three passes read only three positions, so the untouched values cannot alter the answer",
+          "misconception": "believes a pass reads one position rather than scanning what is left"
+        },
+        {
+          "id": "D",
+          "text": "Selection puts the list in order as it goes, so the last value taken is the third smallest",
+          "misconception": "believes repeated extraction also sorts everything it passes over"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each pass certifies the smallest of what survives, so the values taken are the smallest, then the next smallest, then the third, in that order. Measured on [9, 2, 7, 4, 1, 8, 3, 6] the passes took 1, then 2, then 3 at a cost of 7, 6 and 5 comparisons, giving 18 in total, and the closed form k(n−1) − k(k−1)/2 gives the same 18. The cost climbs with k, so asking for the eighth would cost 28 against the 15 comparisons a selection sort makes, and that is where the method stops paying.",
+      "hint": "Ask what each pass is guaranteed to have found.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "selection",
+        "k-th-smallest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0010",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "One value at each end instead of a fresh sweep",
+      "learningObjective": "explain why a two-ended search beats restarting a sweep from every position",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Finding two values that add to a target in an ordered list can be done by restarting a fresh sweep from every starting position, or by keeping one value at each end and moving whichever is smaller. Why is the second way so much quicker?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each test rules out one whole end of the list, so no position is ever tested twice",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The two ends sit close together in storage, so each test there runs faster",
+          "misconception": "believes the cost difference comes from where in storage a test happens"
+        },
+        {
+          "id": "C",
+          "text": "The fresh sweep only reaches the first half, so it does far less work than it appears to",
+          "misconception": "believes a full sweep of all pairs reaches only the first half of a list"
+        },
+        {
+          "id": "D",
+          "text": "The two ends meet sooner, so the list is shortened rather than the work being skipped",
+          "misconception": "believes the two-ended rule works by cutting the list short rather than by ruling ends out"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A sum that falls short proves the smaller of the two values cannot reach the target with anything still available, because everything else is larger; a sum that overshoots proves the same for the larger value. Each test therefore retires a position permanently. Measured on [1, 2, 3, 4, 5, 6, 7, 8, 9] for a target of 13 the two-ended rule made 4 additions, giving 10, 11, 12 and 13, while a fresh sweep of all pairs made 26, since it retests one fixed value against every later value. Both need the list in order.",
+      "hint": "Ask what a sum falling short proves about the smaller of the two values.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "two-pointers",
+        "constant-factor"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0011",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Where a repeated scan stops beating a tally table",
+      "learningObjective": "locate the point at which two ways of tallying cost the same",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Tallying how often each value appears can be done by scanning the whole list once for every distinct value it holds, or by keeping a tally and looking each value up as it passes. Where do the two methods meet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "On a list of two values that are both distinct, where each method costs 4 operations",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "On a list of twenty values that are all the same, where the scan costs fewer than the tally",
+          "misconception": "believes a single distinct value makes the repeated scan the more costly route"
+        },
+        {
+          "id": "C",
+          "text": "On a list of three values with two distinct, where both methods cost 5 operations",
+          "misconception": "believes the two methods cost the same for a list of three values"
+        },
+        {
+          "id": "D",
+          "text": "They never meet, because a tally table always costs more however long the list grows",
+          "misconception": "believes a tally table can never be the cheaper of the two routes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The tally costs n plus k, being one lookup per value plus one read per distinct value, and the repeated scan costs k times n, being a whole pass per distinct value. Measured, n = 2 with k = 2 gives 4 against 4, which is the meeting point; n = 3 with k = 2 gives 5 against 6, so the tally is already ahead; n = 8 with k = 3 gives 11 against 24. The scan only wins when there is a single distinct value, as n = 20 with k = 1 giving 21 against 20, so the crossing sits very low and moves no higher.",
+      "hint": "Ask what each method costs in terms of the list length and the number of distinct values.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 40,
+        "p75Sec": 105
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "frequency-tables",
+        "crossover"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0012",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "What a sliding window holds true between steps",
+      "learningObjective": "state the invariant a sliding window keeps and the questions it cannot answer",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A sliding window keeps a running total over a fixed number of consecutive values, dropping the value that leaves and adding the one that enters. What does the window keep true as it moves, and what does it leave unanswered?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It keeps the total of the last k values true, but it says nothing about any longer span",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It keeps every span of k values true, so all the window totals are already settled",
+          "misconception": "believes a running figure certifies spans other than the current one"
+        },
+        {
+          "id": "C",
+          "text": "It keeps the largest total of k values true, so the running figure is always the best one",
+          "misconception": "believes a running total tracks the best total seen so far"
+        },
+        {
+          "id": "D",
+          "text": "It keeps the total of the whole list true, so dropping a value never changes the figure",
+          "misconception": "believes a window over k values maintains a total over all values"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The invariant is about the window in front of it and nothing else: after each step the total equals the sum of the k values currently spanned. Measured on eight values with a width of 3, the window made 8 additions and 5 subtractions across 6 windows, giving totals of 8, 7, 9, 6, 9 and 7, and a fresh sum of each window made 18 additions for the same six figures. The widest total, or a total over a longer span, needs information the window never holds, since the values it has already dropped are gone from the running figure.",
+      "hint": "Ask which values are still represented in the running figure after a step.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 35,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sliding-window",
+        "invariants"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0013",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A greedy rule that carries a proof and one that does not",
+      "learningObjective": "distinguish a greedy choice that is provably right from one that only usually is",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A scheduler must pick as many non-overlapping meetings as possible from a list of spans. Two rules are proposed: take the span that finishes earliest, or take the span that starts earliest. Which pair of statements about them is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The earliest-finish rule is provably right here, while the earliest-start rule can fall short",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both rules are provably right, since any greedy choice leaves a smaller problem behind",
+          "misconception": "believes every greedy choice inherits the proof for the greedy rule beside it"
+        },
+        {
+          "id": "C",
+          "text": "Both rules can fall short, since no greedy rule about intervals carries a proof",
+          "misconception": "believes interval scheduling admits no greedy rule that can be proved right"
+        },
+        {
+          "id": "D",
+          "text": "The earliest-start rule is provably right here, while the earliest-finish rule can fall short",
+          "misconception": "believes the earliest start is the choice an exchange argument can justify"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The earliest-finishing span can be swapped into the first slot of any best answer without disturbing the rest, because nothing it excludes can start later than it does, and that exchange is the proof. Measured on the spans [1,5], [2,3] and [4,6] it took [2,3] and [4,6], giving 2, and an exhaustive check of all eight subsets confirmed 2 is the best available. The earliest-start rule took only [1,5], giving 1, because the long early span blocks both short later ones. A proof attaches to one rule, not to greedy choosing in general.",
+      "hint": "Ask which span could be swapped into the first slot of a best answer without loss.",
+      "difficulty": 0.6,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 76,
+        "p25Sec": 44,
+        "p75Sec": 118
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "greedy",
+        "proof"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0014",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The measure that settles that a loop ends",
+      "learningObjective": "identify a measure that proves a loop must terminate",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A loop repeats while a counter holds a value below a fixed limit, and the body adds one to the counter each pass. Which statement describes a measure that shows the loop must end?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An integer that moves one way only and cannot pass the limit and then come back",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The limit on its own, since any fixed limit is enough to show a loop must end",
+          "misconception": "believes a fixed limit alone guarantees a loop terminates"
+        },
+        {
+          "id": "C",
+          "text": "The number of times the body has run, since counting the runs is the only valid measure",
+          "misconception": "believes counting the passes is what proves a loop will finish"
+        },
+        {
+          "id": "D",
+          "text": "The condition on its own, since a condition that holds is itself proof of ending",
+          "misconception": "believes a loop condition by itself establishes that a loop terminates"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A proof of termination needs a measure that starts inside the required range, changes strictly in one direction on every pass, and cannot be renewed once it has left that range. The counter qualifies: it begins below the limit, each pass adds one, and the limit never moves, so there can be at most limit minus start passes and the count of them is fixed in advance. A fixed limit on its own proves nothing, since a loop may pass the limit and go on changing; the change has to be one-way for the bound to bite, and counting the passes describes the result rather than proving it.",
+      "hint": "Ask what has to be true of the counter between one pass and the next.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 31,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "termination",
+        "loop-variant"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0015",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a one-by-one scan makes when it succeeds",
+      "learningObjective": "count the comparisons a one-by-one scan makes before a stated match",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A one-by-one scan walks [5, 12, 7, 30, 18, 42, 9, 27, 44, 15, 33, 21] from the first value, tests each against 44, and stops at the first match. How many comparisons does the scan make?",
+      "options": [],
+      "answer": {
+        "value": 9,
+        "tolerance": 0
+      },
+      "explanation": "The value 44 sits at the ninth position, so the scan tests five, twelve, seven, thirty, eighteen, forty-two, nine, twenty-seven and then forty-four, which is 9 comparisons. Running it confirmed 9, and the closed form is one comparison per position up to and including the position holding the value. The count is positions read and not positions left afterwards, so answering 8 means reading the position before the match and then stopping short of it.",
+      "hint": "Count the positions up to and including the one holding the value.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 29,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "linear-search",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0016",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a one-by-one scan makes when it fails",
+      "learningObjective": "count the comparisons a one-by-one scan makes when the value is absent",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The same one-by-one scan is asked for 41, which appears nowhere in [5, 12, 7, 30, 18, 42, 9, 27, 44, 15, 33, 21]. How many comparisons does the scan make before it gives up?",
+      "options": [],
+      "answer": {
+        "value": 12,
+        "tolerance": 0
+      },
+      "explanation": "There is nothing to stop the scan, so every value is tested and the count is 12, which the run confirmed. The closed form is one comparison per value in the list. This is the worst case for a scan and the reason putting a list in order does not on its own rescue this method, since a scan reads every value it passes whether or not the list is ordered.",
+      "hint": "Ask what the scan does when there is no match to stop it.",
+      "difficulty": 0.32,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 27,
+        "p75Sec": 71
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "linear-search",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0017",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a halving search makes when it succeeds",
+      "learningObjective": "count the comparisons a halving search makes before a stated match",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A halving search runs on [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32] and is asked for 22, comparing against the middle of whatever range is left. How many comparisons does it make?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "The run read 16, then 24, then 20, then 22, which is 4 comparisons, and it settled on 22 at the fourth step. The count matches the number of halvings a list of 16 needs, since the ceiling of the base-two logarithm of 16 is 4. The value sat at the low end of the last range, so it used every one of those steps; a value in the first middle position, such as 16, would have cost a single comparison.",
+      "hint": "Ask how many halvings a list of that length takes to reach one value.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 36,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "binary-search",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0018",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a halving search makes when it fails",
+      "learningObjective": "count the comparisons a halving search makes before reporting a value absent",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The same halving search on the same sorted list of 16 even values is asked for 34, which is not in the list. How many comparisons does it make before it reports the value absent?",
+      "options": [],
+      "answer": {
+        "value": 5,
+        "tolerance": 0
+      },
+      "explanation": "The run read 16, 24, 28, 30 and 32 and then found the range empty, which is 5 comparisons. The value 23 is also absent and costs only 4, because its descent ends one step sooner, so an absence has no single price and the two figures are not in conflict. Four is the most a miss can cost while the range is still shrinking at the last step, and 5 shows the extra step needed to empty a range that never found its value.",
+      "hint": "Count the values read before the range is found to be empty.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 38,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "binary-search",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0019",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons made on a list the halving search was never given in order",
+      "learningObjective": "count the comparisons a halving search makes on a list that breaks its precondition",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A halving search is handed [1, 3, 5, 7, 9, 2, 4, 6, 8] and asked for 8, which really is in the list. It compares against the middle of whatever range is left. How many comparisons does it make before reporting the value absent?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "The run read 9, 3, 5 and 7 and then reported the value absent, which is 4 comparisons, even though 8 was sitting in the list the whole time. The fourth reading left a range of one position holding 7, which the rule pushed past because 7 is less than 8, and the half discarded after 9 was read still held 8. No error appears because the routine cannot confirm its own precondition without doing the work it exists to avoid, so the cost figure is a perfectly ordinary 4 for a search that failed.",
+      "hint": "Count the values read before the range is found to be empty.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 41,
+        "p75Sec": 109
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "binary-search",
+        "preconditions"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0020",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a bubble sort makes on a list already in order",
+      "learningObjective": "count the comparisons a bubble sort makes on a list already in order",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A bubble sort sweeps [1, 2, 3, 4, 5, 6] left to right comparing neighbours, and abandons the rest of its sweeps the moment one sweep completes without exchanging a pair. How many comparisons does the sort make in total?",
+      "options": [],
+      "answer": {
+        "value": 5,
+        "tolerance": 0
+      },
+      "explanation": "The first sweep reads all five neighbour pairs, exchanges nothing, and the abandoning rule ends the sort there, which the run confirmed as 1 sweep and 5 comparisons. Without the rule the same list costs 5 sweeps and 15 comparisons, so the rule saved 10. The rule costs one flag per sweep, which is why an already-sorted list is the cheapest case for a bubble sort and a nearly-sorted one is nearly as cheap.",
+      "hint": "Ask how wide the first sweep is, and whether any later sweep runs at all.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "early-exit"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0021",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a bubble sort makes on a reversed list",
+      "learningObjective": "count the comparisons a bubble sort makes on a reversed list of six values",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A bubble sort runs on [6, 5, 4, 3, 2, 1], comparing neighbours in a sweep that narrows by one place each time, and stopping only after a sweep that exchanges nothing. How many comparisons does it make?",
+      "options": [],
+      "answer": {
+        "value": 15,
+        "tolerance": 0
+      },
+      "explanation": "The run gave 5 sweeps, 15 comparisons and 15 exchanges, and the count 5 plus 4 plus 3 plus 2 plus 1 is 15 for six values in any order, because the inner bound narrows the same way each sweep. The abandoning rule never fires here, since every sweep moves something, so it does no work on this input. The figure is quadratic in the number of values, which is the reason a different method is preferred for long lists.",
+      "hint": "Add the widths of the sweeps, which shrink by one place each time.",
+      "difficulty": 0.44,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 36,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0022",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Exchanges a bubble sort makes on a reversed list",
+      "learningObjective": "count the exchanges a bubble sort makes on a reversed list of six values",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "On that same [6, 5, 4, 3, 2, 1] a bubble sort exchanges a pair of neighbours whenever it finds them out of order. How many exchanges does the sort make?",
+      "options": [],
+      "answer": {
+        "value": 15,
+        "tolerance": 0
+      },
+      "explanation": "Every pair of values in this list is the wrong way round, so every one of the 15 comparisons finds a pair out of order and exchanges it, which the run confirmed as 15 exchanges over 5 sweeps. Comparisons and exchanges come out equal here, which is the trap in this item: they are different quantities that happen to agree on a fully reversed list, and they part company as soon as the list is partly in order. On [3, 1, 4, 2] the same sort made 6 comparisons and 3 exchanges.",
+      "hint": "Ask whether every pair of values in this list is the wrong way round.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 37,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "swap-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0023",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a selection sort makes whatever the order",
+      "learningObjective": "count the comparisons a selection sort makes on a list of six values",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A selection sort finds the smallest of the values from the first position onwards, exchanges it into the first position, then repeats on what remains, and stops when one value is left. How many comparisons does it make on [6, 5, 4, 3, 2, 1]?",
+      "options": [],
+      "answer": {
+        "value": 15,
+        "tolerance": 0
+      },
+      "explanation": "The run made 5 passes and 15 comparisons, and the same 15 came out of running it on the already-sorted [1, 2, 3, 4, 5, 6]. The total 5 plus 4 plus 3 plus 2 plus 1 is fixed by the number of values rather than by their order, because a pass has to read the whole remainder to certify its smallest value. That fixed price is why a selection sort has no rule that lets it stop early on data that is nearly in order.",
+      "hint": "Add the widths of the inner scans, one per pass.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "selection-sort",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0024",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Values an insertion sort moves on a reversed list",
+      "learningObjective": "count the values an insertion sort moves when the list is reversed",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An insertion sort takes each value in turn and moves it leftwards past every larger value, shifting those rightwards to make room. How many values does it shift altogether when sorting [6, 5, 4, 3, 2, 1]?",
+      "options": [],
+      "answer": {
+        "value": 15,
+        "tolerance": 0
+      },
+      "explanation": "The run shifted 15 values and made 15 comparisons, and the passes shift 0, 1, 2, 3, 4 and 5 values, which sums to 15. On the already-sorted [1, 2, 3, 4, 5, 6] the run shifted nothing while still making 5 comparisons, and on [1, 2, 3, 5, 4, 6] it shifted once. Insertion sort is therefore the one of these three that adapts to how nearly ordered the data already is, which is why it suits a list that is updated in small steps.",
+      "hint": "Add the number of values each pass has to move past.",
+      "difficulty": 0.44,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 35,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "insertion-sort",
+        "shift-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0025",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The fewest exchanges that can put a list in order",
+      "learningObjective": "count the fewest exchanges that can put a stated list in order",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Putting the four values 3, 1, 4 and 2 into order means exchanging two positions at a time and nothing else. What is the smallest number of such exchanges that will do it?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "Running the search gave 3, and a second route agrees: the positions form one cycle of length four, and the number of values minus the number of cycles is 4 minus 1, which is 3. A concrete route is [3, 1, 4, 2] to [1, 3, 4, 2] to [1, 4, 3, 2] to [1, 2, 3, 4], three exchanges in all. The list holds four out-of-order pairs, so 4 is a count of pairs, and one exchange of two positions can put several pairs right at once.",
+      "hint": "Count the closed cycles the four positions form.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 45,
+        "p75Sec": 121
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sorting",
+        "swap-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0026",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "How deep a splitting tree goes on a long run",
+      "learningObjective": "count the halvings on the longest path of a splitting tree",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A merging sort splits a run of 64 values into two halves repeatedly until each run holds a single value, then merges the results back together. How many times is a run actually halved along the longest path from the whole run down to a single value?",
+      "options": [],
+      "answer": {
+        "value": 6,
+        "tolerance": 0
+      },
+      "explanation": "The run measured 6, and the closed form agrees since 64 is 2 to the 6, so six halvings leave one value. Measured across runs of 2, 4, 8, 16, 32, 64, 100 and 1024 the longest path came out 1, 2, 3, 4, 5, 6, 7 and 10, which is the ceiling of the base-two logarithm every time and rises by one for every doubling of the run. Ten levels for 1024 values is why the work grows so slowly with size.",
+      "hint": "Ask how many times a run of 64 can be halved before it holds one value.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 37,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "merge-sort",
+        "recursion-depth"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0027",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a first-value pivot makes on a sorted list",
+      "learningObjective": "count the comparisons a quicksort makes on a sorted list with a first-value pivot",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A quicksort on [1, 2, 3, 4, 5, 6, 7, 8] takes the first value of each run as its pivot, moves that value to the end, then scans the rest of the run counting one comparison per value that is not the pivot. How many comparisons does it make?",
+      "options": [],
+      "answer": {
+        "value": 28,
+        "tolerance": 0
+      },
+      "explanation": "The run made 28 comparisons over 7 partitions, and two routes agree: the runs it split were of 8, 7, 6, 5, 4, 3 and 2, costing 7, 6, 5, 4, 3, 2 and 1, which sums to 28; equivalently the run sizes sum to 35 over 7 partitions, and 35 minus 7 is 28. On 64 sorted values the same rule gave 2016, which is 64 times 63 over 2, so the cost is quadratic rather than the logarithmic figure a balanced split would give.",
+      "hint": "Add the comparisons each run costs, given that the pivot is always the smallest.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 45,
+        "p75Sec": 121
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "quicksort",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0028",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons a middle-value pivot makes on a sorted list",
+      "learningObjective": "count the comparisons a quicksort makes on a sorted list with a middle-value pivot",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The same quicksort on the same sorted [1, 2, 3, 4, 5, 6, 7, 8] instead takes the middle value of each run as its pivot, counts one comparison per value that is not the pivot, and repeats. How many comparisons does it make?",
+      "options": [],
+      "answer": {
+        "value": 13,
+        "tolerance": 0
+      },
+      "explanation": "The run made 13 comparisons over 4 partitions, and two routes agree: the runs split were of 8, 4, 2 and 3, costing 7, 3, 1 and 2, which sums to 13; equivalently the run sizes sum to 17 over 4 partitions, and 17 minus 4 is 13. The same code with the first value as the pivot cost 28 on this identical list, so changing one line of pivot selection more than halved the work.",
+      "hint": "Add the comparisons each run costs, given that the pivot sits in the middle.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 80,
+        "p25Sec": 47,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "quicksort",
+        "pivot-choice"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0029",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tests a pair sweep makes on a list of six values",
+      "learningObjective": "count the tests a sweep of every pair of positions makes",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A routine counts the pairs of positions where the earlier value is the larger one by testing every position against every position that comes after it, over a list of six values. How many tests does it make?",
+      "options": [],
+      "answer": {
+        "value": 15,
+        "tolerance": 0
+      },
+      "explanation": "The run made 15 tests, and the closed form is n times n minus 1 over 2, which for 6 gives 15. Each position is tested against all the later positions and against none of the earlier ones, so the total is fixed whatever the values are and however many inverted pairs are found. Measured on eight values the same sweep made 28, and the growth from 15 to 28 as the list goes from 6 to 8 is the quadratic signature.",
+      "hint": "Add 5, then 4, then 3, then 2, then 1.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 33,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "inversions",
+        "pair-sweep"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0030",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairs sitting the wrong way round in a list of four values",
+      "learningObjective": "count the pairs of positions where the earlier value is the larger one",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "How many pairs of positions in [4, 1, 3, 2] have the larger value in the earlier position, counting each such pair once?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "A sweep of every pair made 6 tests and found 4, and a merging sort of the same list counted 4 as well, so two routes agree. The pairs are (4,1), (4,3), (4,2) and (3,2). Cutting the list at its middle leaves [1, 4] and [2, 3] after each side is ordered, and the root merge alone settles 2 of the 4, being (4,2) and (3,2), with the other 2 sitting inside the left half. Answering 3 would miss a pair, and 6 is the number of tests rather than the number of pairs.",
+      "hint": "List the pairs, then check the count against what a merge at the middle settles.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 37,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "inversions",
+        "pair-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0031",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Comparisons spent taking the third smallest of eight values",
+      "learningObjective": "count the comparisons a repeated-extraction method spends reaching one ranked value",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The third smallest of [9, 2, 7, 4, 1, 8, 3, 6] is wanted. A routine takes the smallest of what is left, sets it aside, and does so three times over. How many comparisons does that routine make?",
+      "options": [],
+      "answer": {
+        "value": 18,
+        "tolerance": 0
+      },
+      "explanation": "The run made 18 comparisons and took 1, then 2, then 3, so the third smallest is 3, and the closed form agrees: the three passes cost 7, 6 and 5, and k times n minus 1 less k times k minus 1 over 2 gives 21 minus 3, which is 18. Asking for the eighth value instead would cost 28, more than the 15 comparisons a selection sort makes over six values, so the method pays only while the wanted rank stays well short of the end.",
+      "hint": "Add the comparisons the three passes make, as the list they work on shrinks.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 41,
+        "p75Sec": 109
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "selection",
+        "k-th-smallest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0032",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Additions a two-ended search makes before it settles",
+      "learningObjective": "count the additions a two-ended search makes before finding a pair",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A two-ended search looks in [1, 2, 3, 4, 5, 6, 7, 8, 9] for two values that add to 13. It starts one value at each end, adds them, and moves the smaller of the two inwards. How many additions does it make before it finds the pair?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "The run made 4 additions with sums of 10, 11, 12 and 13 and settled on the values 4 and 9, which the closed reading of the sums confirms. Every sum falls short, so only the lower end moves inwards and the upper end never shifts at all. A fresh sweep testing every pair against every later pair needs 26 additions on the same list, so the two-ended rule saves the repeated retesting of one fixed value against all the others.",
+      "hint": "Add the first and last values, then keep adding and note each sum.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 38,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "two-pointers",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0033",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Operations a tally table saves over a repeated scan",
+      "learningObjective": "compute the saving a tally table makes over a repeated scan",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A list of eight values holds three distinct values. One routine scans the whole list once for every distinct value, making 24 value visits. Another keeps a tally, making one lookup per value and one read per distinct value. How many operations does the tally save?",
+      "options": [],
+      "answer": {
+        "value": 13,
+        "tolerance": 0
+      },
+      "explanation": "The tally costs 8 plus 3, which is 11 operations against the 24 visits of the scan, so the saving is 13, and both routes produced the same tallies of three, three and two. The saving is exactly the repeat visits the tally removes: the scanning routine visits each of the 3 distinct values against all 8 values, while the tally touches each value once on the way past and reads each distinct value once at the end. The saving grows with both the list length and the number of distinct values.",
+      "hint": "Add the lookup cost and the distinct-value cost, then subtract from 24.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 40,
+        "p75Sec": 105
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "frequency-tables",
+        "crossover"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0034",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Values moved when a doubling list grows over many additions",
+      "learningObjective": "count the values a doubling list moves over a long run of additions",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A list holds room for a single value at the start, and whenever that room fills it takes twice as much room and copies in the values it already holds. Adding 1024 values one at a time this way, how many values are moved in total?",
+      "options": [],
+      "answer": {
+        "value": 1023,
+        "tolerance": 0
+      },
+      "explanation": "The run made 1023 moves over 10 growths, and the closed form agrees: growth happens when the list holds 1, 2, 4, 8 and on up to 512 values, so the total is 1 plus 2 plus 4 and so on, which is 2 to the 10 minus 1, or 1023. The largest single growth moved 512 values, yet across 1024 additions the average is under one value moved per addition, and that ratio is what makes the method acceptable despite the worst case.",
+      "hint": "Add 1, 2, 4, 8 and the rest of the powers of two up to the last growth.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 80,
+        "p25Sec": 47,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "amortised-cost",
+        "growth"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0035",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing an instrumented halving search that reports absent",
+      "learningObjective": "trace a halving search and report its comparison count and verdict",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented halving search and report the comparison count and the verdict it prints.\ndata <- [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]\nlo <- 0. hi <- LENGTH(data) - 1. tests <- 0\nWHILE lo <= hi { mid <- FLOOR((lo + hi) / 2). tests <- tests + 1\n  IF data[mid] = 34 { DISPLAY tests, \"found\" }\n  IF data[mid] < 34 { lo <- mid + 1 } ELSE { hi <- mid - 1 } }\nDISPLAY tests, \"absent\"",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 comparisons and absent, because the descent ran out of range on the last value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 comparisons and absent, because the range was halved only four times over",
+          "misconception": "believes a halving search stops after a fixed number of halvings"
+        },
+        {
+          "id": "C",
+          "text": "5 comparisons and found, because 34 sits just beyond the last value in the list",
+          "misconception": "believes a value past the end of a list can still be found by halving"
+        },
+        {
+          "id": "D",
+          "text": "4 comparisons and found, because 34 is the value just past the middle position",
+          "misconception": "believes the value after the middle is reached on the fourth step of any list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run read 16, 24, 28, 30 and 32 and then found lo above hi, which is 5 comparisons and the verdict absent. The value 23 is also absent and costs only 4, so the count follows the depth of the descent and not a fixed number of halvings. The last reading of 32 is what makes this one cost 5, since 34 is above every value in the list, whereas 23 falls between two values and empties the range a step sooner.",
+      "hint": "Walk the range boundaries by hand, reading one value each time.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 96,
+        "p25Sec": 56,
+        "p75Sec": 149
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "binary-search",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0036",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a halving search on a list that breaks its precondition",
+      "learningObjective": "trace a halving search over unordered values and report what it concludes",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented halving search, which is handed a list that was never put in order, and report the comparison count and the verdict.\ndata <- [1, 3, 5, 7, 9, 2, 4, 6, 8]\nlo <- 0. hi <- LENGTH(data) - 1. tests <- 0\nWHILE lo <= hi { mid <- FLOOR((lo + hi) / 2). tests <- tests + 1\n  IF data[mid] = 8 { DISPLAY tests, \"found\" }\n  IF data[mid] < 8 { lo <- mid + 1 } ELSE { hi <- mid - 1 } }\nDISPLAY tests, \"absent\"",
+      "options": [
+        {
+          "id": "A",
+          "text": "4 comparisons and absent, though 8 was in the list among the values it cut away",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 comparisons and found, because the search reads every value on the way to the last one",
+          "misconception": "believes a halving search inspects every value in a list before reporting"
+        },
+        {
+          "id": "C",
+          "text": "9 comparisons and absent, because an unordered list makes the search read all of it",
+          "misconception": "believes an unordered list forces a halving search to read every value"
+        },
+        {
+          "id": "D",
+          "text": "1 comparison and absent, because the middle reading alone settles any question",
+          "misconception": "believes one comparison at the middle is enough to decide any search"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run read 9, 3, 5 and 7 and then reported absent, which is 4 comparisons, while 8 was sitting in the half discarded after the 9 was read. Nothing about the count is abnormal; the failure is in what the count was spent on, since a single comparison can only justify discarding half a list when the list is in order. The routine has no way to notice, so the verdict is printed in exactly the form a correct absence would take.",
+      "hint": "Write down what is discarded after each reading and check where 8 ended up.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 104,
+        "p25Sec": 60,
+        "p75Sec": 161
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "binary-search",
+        "preconditions"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0037",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a bubble sort that abandons a sweep without an exchange",
+      "learningObjective": "trace a bubble sort with a stopping rule and report its three counters",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented bubble sort and report the pass count, the comparison count and the exchange count it prints.\ndata <- [1, 2, 3, 4, 5, 6]\ntests <- 0. moves <- 0. passes <- 0\nREPEAT WHILE passes < LENGTH(data) - 1 {\n  passes <- passes + 1. moved <- false\n  FOR j FROM 0 TO LENGTH(data) - 2 - passes {\n    tests <- tests + 1\n    IF data[j] > data[j + 1] { SWAP data[j], data[j + 1]. moves <- moves + 1. moved <- true } }\n  IF moved = false { BREAK } }\nDISPLAY passes, tests, moves",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 pass, 5 comparisons and 0 exchanges, because the first sweep found nothing out of order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 passes, 15 comparisons and 0 exchanges, because a sort always runs its full pass count",
+          "misconception": "believes a stopping rule cannot shorten a bubble sort on ordered data"
+        },
+        {
+          "id": "C",
+          "text": "1 pass, 5 comparisons and 5 exchanges, because each neighbouring pair is exchanged once",
+          "misconception": "believes a sweep exchanges every neighbouring pair it reads"
+        },
+        {
+          "id": "D",
+          "text": "5 passes, 10 comparisons and 0 exchanges, because the flag ends the sort after two sweeps",
+          "misconception": "believes the stopping rule fires only once two clean sweeps have passed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first sweep reads five neighbour pairs, finds them all in order, leaves moved at false and the rule ends the sort there, which is 1 pass, 5 comparisons and 0 exchanges. The loop condition allows five passes, so it is the flag and not the loop that ends this run. Without the flag the same list costs 5 passes and 15 comparisons, so the flag is worth having at the price of one variable per sweep.",
+      "hint": "Check what the flag holds after the first sweep of five pairs.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "medianSec": 92,
+        "p25Sec": 53,
+        "p75Sec": 143
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0038",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a bubble sort on a reversed list",
+      "learningObjective": "trace a bubble sort on reversed values and report its three counters",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented bubble sort on a reversed list and report the pass count, the comparison count and the exchange count it prints.\ndata <- [6, 5, 4, 3, 2, 1]\ntests <- 0. moves <- 0. passes <- 0\nREPEAT WHILE passes < LENGTH(data) - 1 {\n  passes <- passes + 1. moved <- false\n  FOR j FROM 0 TO LENGTH(data) - 2 - passes {\n    tests <- tests + 1\n    IF data[j] > data[j + 1] { SWAP data[j], data[j + 1]. moves <- moves + 1. moved <- true } }\n  IF moved = false { BREAK } }\nDISPLAY passes, tests, moves",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 passes, 15 comparisons and 15 exchanges, because every pair here is the wrong way round",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 passes, 15 comparisons and 0 exchanges, because the narrowing bound stops values moving",
+          "misconception": "believes a narrowing inner bound leaves the values where they started"
+        },
+        {
+          "id": "C",
+          "text": "6 passes, 15 comparisons and 15 exchanges, because the last value still needs a pass",
+          "misconception": "believes every value in a list needs a pass of its own"
+        },
+        {
+          "id": "D",
+          "text": "5 passes, 20 comparisons and 15 exchanges, because the last sweep reads the full width",
+          "misconception": "believes the inner bound keeps its full width on the last pass"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run gave 5 passes, 15 comparisons and 15 exchanges, and the widths 5, 4, 3, 2 and 1 add to 15 comparisons, with every one of them finding a pair out of order. The flag never reaches false, so the loop condition is what ends the sort after the fifth pass. Comparisons and exchanges coincide at 15 only because every pair in this list is inverted; on [3, 1, 4, 2] the same code printed 6 comparisons against 3 exchanges, so the two figures are separate quantities.",
+      "hint": "Add the sweep widths and ask how many of those comparisons find a pair out of order.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 98,
+        "p25Sec": 57,
+        "p75Sec": 152
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0039",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a selection sort over six values",
+      "learningObjective": "trace a selection sort and report its pass, comparison and result figures",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented selection sort and report the pass count, the comparison count and the value it leaves at the front.\ndata <- [6, 5, 4, 3, 2, 1]\ntests <- 0. passes <- 0\nREPEAT passes + 1 < LENGTH(data) {\n  passes <- passes + 1. best <- passes\n  FOR j FROM passes + 1 TO LENGTH(data) - 1 {\n    tests <- tests + 1\n    IF data[j] < data[best] { best <- j } }\n  SWAP data[passes], data[best] }\nDISPLAY passes, tests, data[0]",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 passes, 15 comparisons and 1, because the smallest of the six reaches the front",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 passes, 10 comparisons and 1, because the first value needs no comparison at all",
+          "misconception": "believes the value already at the front of a pass is skipped in the scan"
+        },
+        {
+          "id": "C",
+          "text": "6 passes, 15 comparisons and 1, because the last value also needs a pass of its own",
+          "misconception": "believes a selection sort runs one pass for every value including the last"
+        },
+        {
+          "id": "D",
+          "text": "5 passes, 15 comparisons and 6, because the largest value stays at the front of the list",
+          "misconception": "believes a selection sort leaves the largest value at the front"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The inner scans cover 5, 4, 3, 2 and 1 values, which is 15 comparisons over 5 passes, and the smallest value 1 is exchanged to the front in the first pass. The loop condition stops the sort one pass early, because a single remaining value is already in place and needs no certificate. Running the identical code on the already-sorted [1, 2, 3, 4, 5, 6] also printed 15, which is the reason this sort has nothing to stop early on.",
+      "hint": "Add the inner scan widths, then note which value the first pass brings to the front.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 94,
+        "p25Sec": 54,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "selection-sort",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0040",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing an insertion sort on a nearly ordered list",
+      "learningObjective": "trace an insertion sort and separate its shift count from its test count",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented insertion sort and report the shift count, the test count and the value left at the last position.\ndata <- [1, 2, 3, 5, 4, 6]\ntests <- 0. shifts <- 0\nFOR i FROM 1 TO LENGTH(data) - 1 {\n  held <- data[i]. j <- i - 1\n  WHILE j >= 0 { tests <- tests + 1\n    IF data[j] <= held { BREAK }\n    data[j + 1] <- data[j]. shifts <- shifts + 1. j <- j - 1 }\n  data[j + 1] <- held }\nDISPLAY shifts, tests, data[LENGTH(data) - 1]",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 shift and 6 tests, since only the value 4 is out of place and it steps back once",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3 shifts and 6 tests, since the value 4 steps back past 5, 3 and 2 to reach its place",
+          "misconception": "believes a value one place out of order must cross three larger values"
+        },
+        {
+          "id": "C",
+          "text": "1 shift and 5 tests, since the value 4 is tested against only the value above it",
+          "misconception": "believes a pass that shifts one value makes only one test"
+        },
+        {
+          "id": "D",
+          "text": "0 shifts and 6 tests, since the list is already in order apart from one exchange",
+          "misconception": "believes six tests were made and yet nothing had to move"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Only the value 4 is out of place, and it moves back one position, so the run printed 1 shift and 6 tests. The tests still number 6 because every pass tests at least once before it can stop, which is why the two counters part company here and why the shift count is the one worth watching on nearly ordered data. On the reversed list of six the same code printed 15 shifts, and on the already-sorted list 0 shifts with 5 tests.",
+      "hint": "Count the moves separately from the tests, since a pass tests even when it moves nothing.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 96,
+        "p25Sec": 55,
+        "p75Sec": 149
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "insertion-sort",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0041",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a first-value pivot over a sorted list",
+      "learningObjective": "trace a quicksort with a first-value pivot and report its two counters",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented quicksort and report the comparison count, the partition count and the value it leaves at the front.\ndata <- [1, 2, 3, 4, 5, 6, 7, 8]\ntests <- 0. parts <- 0\nsort(lo, hi) { IF lo >= hi { RETURN }\n  parts <- parts + 1\n  SWAP data[lo], data[hi]. held <- data[hi]\n  mark <- lo\n  FOR j FROM lo TO hi - 1 { tests <- tests + 1\n    IF data[j] < held { SWAP data[mark], data[j]. mark <- mark + 1 } }\n  SWAP data[mark], data[hi]\n  sort(lo, mark - 1). sort(mark + 1, hi) }\nsort(0, LENGTH(data) - 1)\nDISPLAY tests, parts, data[0]",
+      "options": [
+        {
+          "id": "A",
+          "text": "28 comparisons and 7 partitions, since the pivot is the smallest of every run it splits",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 comparisons and 1 partition, since one sweep of the whole list settles the order",
+          "misconception": "believes a single partitioning sweep puts a list into order"
+        },
+        {
+          "id": "C",
+          "text": "28 comparisons and 8 partitions, since each of the eight values needs a partition",
+          "misconception": "believes every value in the list gets a partition of its own"
+        },
+        {
+          "id": "D",
+          "text": "7 comparisons and 7 partitions, since a run of n values is read only once",
+          "misconception": "believes a run of n values costs a single comparison to partition"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run made 28 comparisons over 7 partitions, and the widths 7, 6, 5, 4, 3, 2 and 1 add to 28, because the pivot is the smallest of its run and so always lands at the front. There are 7 partitions rather than 8 because a run of one value returns before its body runs. The same code with a middle-value pivot printed 13 comparisons over 4 partitions on this identical list, so the pivot rule and the input order together fix the cost.",
+      "hint": "Ask where the pivot lands when it is the smallest of the run, and how wide that run's scan is.",
+      "difficulty": 0.6,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 116,
+        "p25Sec": 67,
+        "p75Sec": 180
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "quicksort",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0042",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a middle-value pivot over a sorted list",
+      "learningObjective": "trace a quicksort with a middle-value pivot and report its two counters",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read the same instrumented quicksort under a different pivot rule and report the comparison count, the partition count and the value it leaves at the front.\ndata <- [1, 2, 3, 4, 5, 6, 7, 8]\ntests <- 0. parts <- 0\nsort(lo, hi) { IF lo >= hi { RETURN }\n  parts <- parts + 1\n  mid <- FLOOR((lo + hi) / 2)\n  SWAP data[mid], data[hi]. held <- data[hi]\n  mark <- lo\n  FOR j FROM lo TO hi - 1 { tests <- tests + 1\n    IF data[j] < held { SWAP data[mark], data[j]. mark <- mark + 1 } }\n  SWAP data[mark], data[hi]\n  sort(lo, mark - 1). sort(mark + 1, hi) }\nsort(0, LENGTH(data) - 1)\nDISPLAY tests, parts, data[0]",
+      "options": [
+        {
+          "id": "A",
+          "text": "13 comparisons and 4 partitions, since the middle pivot splits the run into two even halves",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "28 comparisons and 7 partitions, since the pivot rule makes no difference on ordered data",
+          "misconception": "believes the choice of pivot cannot change the cost of a partitioning sort"
+        },
+        {
+          "id": "C",
+          "text": "4 comparisons and 4 partitions, since a partition only tests the value it splits about",
+          "misconception": "believes a partition of m values needs a single comparison"
+        },
+        {
+          "id": "D",
+          "text": "13 comparisons and 7 partitions, since every value still gets a partition of its own",
+          "misconception": "believes a balanced split still produces one partition per value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run made 13 comparisons over 4 partitions, from runs of 8, 4, 2 and 3 costing 7, 3, 1 and 2, and it left 1 at the front because the sort is correct. The first-value rule on the same list cost 28 over 7 partitions, so this one extra line more than halved the work on the very data that defeats the other rule. A middle pivot on a list that is already in order is the best case for it, because the two sides come out nearly the same size.",
+      "hint": "Work out the size of the two sides the first middle pivot produces, then repeat.",
+      "difficulty": 0.6,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 118,
+        "p25Sec": 68,
+        "p75Sec": 182
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "quicksort",
+        "pivot-choice"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0043",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a two-ended search over an ordered list",
+      "learningObjective": "trace a two-ended search and report its additions and the pair it settles on",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented two-ended search and report how many additions it makes, which sums it forms and which pair it settles on.\ndata <- [1, 2, 3, 4, 5, 6, 7, 8, 9]\ntarget <- 13. lo <- 0. hi <- LENGTH(data) - 1. steps <- 0\nWHILE lo < hi { steps <- steps + 1\n  IF data[lo] + data[hi] = target { DISPLAY steps, data[lo], data[hi]. BREAK }\n  IF data[lo] + data[hi] < target { lo <- lo + 1 } ELSE { hi <- hi - 1 } }\nDISPLAY steps, \"not found\"",
+      "options": [
+        {
+          "id": "A",
+          "text": "4 additions giving 10, 11, 12 and 13, because every sum falls short until the fourth",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 addition giving 10, because the two ends already fall short of the target",
+          "misconception": "believes a sum below the target settles the question on the first try"
+        },
+        {
+          "id": "C",
+          "text": "4 additions giving 13, 12, 11 and 10, because the upper value moves inwards each time",
+          "misconception": "believes a sum below the target retires the larger of the two values"
+        },
+        {
+          "id": "D",
+          "text": "9 additions, because each value in turn is tried against the value opposite it",
+          "misconception": "believes a two-ended search still tries every value in the list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run made 4 additions with sums of 10, 11, 12 and 13, settling on the values 4 and 9, and only the lower boundary moved because every sum fell short. A sum below the target retires the smaller value, since nothing still available can lift it, and the larger value stays put. The same list searched by a fresh sweep of every pair needed 26 additions, so the two-ended rule avoids retesting one fixed value against all the others.",
+      "hint": "Add the two ends each time and note which boundary the result moves.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 94,
+        "p25Sec": 54,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "two-pointers",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0044",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a fresh sweep of every pair",
+      "learningObjective": "trace a fresh sweep over all pairs and report its test count",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented fresh sweep and report the number of tests it makes and the pair it settles on.\ndata <- [1, 2, 3, 4, 5, 6, 7, 8, 9]\ntarget <- 13. tests <- 0\nFOR i FROM 0 TO LENGTH(data) - 1 {\n  FOR j FROM i + 1 TO LENGTH(data) - 1 {\n    tests <- tests + 1\n    IF data[i] + data[j] = target { DISPLAY tests, data[i], data[j]. BREAK } } }\nDISPLAY tests, \"not found\"",
+      "options": [
+        {
+          "id": "A",
+          "text": "26 tests, settling on 4 and 9, because the sweep tries 8 pairs, then 7, then 6, then 5",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 tests, settling on 4 and 9, because each test rules out one whole end of the list",
+          "misconception": "believes a fresh sweep rules out a whole end of the list per test"
+        },
+        {
+          "id": "C",
+          "text": "36 tests, settling on 4 and 9, because every value is tried against every other value",
+          "misconception": "believes a sweep of all pairs counts ordered pairs rather than each pair once"
+        },
+        {
+          "id": "D",
+          "text": "26 tests, settling on 5 and 8, because the sweep reaches a middle pair before the end pair",
+          "misconception": "believes a sweep ordered by position meets the middle pair first"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The outer loop makes 8 tests on the first value, then 7, then 6, and finds the pair 4 and 9 on the fifth test of the fourth outer pass, giving 26 in total, which matches 8 plus 7 plus 6 plus 5. The inner loop starts one past the outer position, so each pair is tried once and never in the reverse order. The two-ended rule needs 4 additions on the same list and the same answer, which is the constant-factor gap between the two shapes.",
+      "hint": "Count the inner loop's width for the first four outer positions, then add.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 98,
+        "p25Sec": 57,
+        "p75Sec": 152
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "pair-sweep",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0045",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a sliding window across a list of eight values",
+      "learningObjective": "trace a sliding window and report its additions, subtractions and window count",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented sliding window and report the additions, the subtractions and the number of window totals it records.\ndata <- [2, 1, 5, 1, 3, 2, 4, 1]\nwidth <- 3. total <- 0. adds <- 0. subs <- 0. windows <- 0\nFOR i FROM 0 TO width - 1 { total <- total + data[i]. adds <- adds + 1 }\nwindows <- windows + 1\nFOR i FROM width TO LENGTH(data) - 1 {\n  total <- total - data[i - width]. subs <- subs + 1\n  total <- total + data[i]. adds <- adds + 1. windows <- windows + 1 }\nDISPLAY adds, subs, windows",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 additions, 5 subtractions and 6 windows, since every value enters the window once",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "18 additions, 0 subtractions and 6 windows, since each window is summed from scratch",
+          "misconception": "believes a sliding window recomputes each window total from its values"
+        },
+        {
+          "id": "C",
+          "text": "3 additions, 5 subtractions and 6 windows, since only the first window is ever built",
+          "misconception": "believes the values entering later windows need no adding"
+        },
+        {
+          "id": "D",
+          "text": "8 additions, 3 subtractions and 6 windows, since only three values ever leave the window",
+          "misconception": "believes one value leaves the window for every window recorded"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first window adds three values and each of the five later windows adds one and subtracts one, so the run printed 8 additions, 5 subtractions and 6 windows, and the six totals are 8, 7, 9, 6, 9 and 7. Summing each window from scratch needs 18 additions for those same six figures, so the window saves 10. The invariant only covers the current window, so nothing here answers which window total was the largest.",
+      "hint": "Count the first window's adds separately from one add and one subtract per later window.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 102,
+        "p25Sec": 59,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sliding-window",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0046",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a running-total table built from a list",
+      "learningObjective": "trace a running-total build and report its cost and a range answer",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented build of a running-total table and report the additions it makes, the last entry the table holds, and the range sum it prints.\ndata <- [4, 7, 2, 9, 5, 3]\ntable <- [0]. adds <- 0\nFOR EACH v IN data { table <- table + [table[LAST(table)] + v]. adds <- adds + 1 }\nDISPLAY adds, table[LAST(table)], table[3] - table[1]",
+      "options": [
+        {
+          "id": "A",
+          "text": "6 additions, a last entry of 30 and a range sum of 9, from the entries 0, 4, 11, 13, 22, 27, 30",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6 additions, a last entry of 30 and a range sum of 13, because both positions read one entry",
+          "misconception": "believes subtracting two entries of a running total returns one of them"
+        },
+        {
+          "id": "C",
+          "text": "5 additions, a last entry of 30 and a range sum of 9, because the first value needs no adding",
+          "misconception": "believes the first value of a list needs no entry in the table"
+        },
+        {
+          "id": "D",
+          "text": "6 additions, a last entry of 27 and a range sum of 9, because the last value is left out",
+          "misconception": "believes the running total stops one value short of the end of the list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run added once per value, giving 6, and the table came out as 0, 4, 11, 13, 22, 27 and 30, so its last entry is 30. The range sum is table[3] less table[1], which is 13 less 4, giving 9 and matching the values 7 and 2 at those positions. Once the table exists each range sum costs one subtraction whatever the range is, which is the whole reason for building it.",
+      "hint": "Build the table one entry at a time, then subtract the entry before the range from the entry at its end.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 100,
+        "p25Sec": 58,
+        "p75Sec": 155
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "prefix-sums",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0047",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a list that doubles its room when it fills",
+      "learningObjective": "trace a doubling list and report its moves, growths and final room",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented list that doubles its room whenever it fills, and report the moves it makes, the growths it performs and the room it ends with.\nroom <- 1. filled <- 0. moves <- 0. growths <- 0\nFOR i FROM 1 TO 8 {\n  IF filled = room { room <- room * 2. growths <- growths + 1\n    FOR j FROM 0 TO filled - 1 { moves <- moves + 1 } }\n  filled <- filled + 1 }\nDISPLAY moves, growths, room",
+      "options": [
+        {
+          "id": "A",
+          "text": "7 moves, 3 growths and a final room of 8, since growth happens at 1, 2 and 4 values held",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 moves, 3 growths and a final room of 8, since every value is moved at every growth",
+          "misconception": "believes each of the eight values is copied at each of the three growths"
+        },
+        {
+          "id": "C",
+          "text": "7 moves, 4 growths and a final room of 16, since the room doubles once per value added",
+          "misconception": "believes the room doubles on every addition rather than when it fills"
+        },
+        {
+          "id": "D",
+          "text": "3 moves, 3 growths and a final room of 8, since only the newest value is moved at a growth",
+          "misconception": "believes a growth moves just the value that arrived most recently"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Growth happens when the list is full, so the three growths copy 1, then 2, then 4 values, giving 7 moves, and the room ends at 8 after 1, 2 and 4 doubled. The eighth value needs no growth because the room was already 8, which is why the total is 7 rather than 8. Over 1024 additions the same rule made 1023 moves, so the average stays under one value moved per addition even though a single growth moved 512.",
+      "hint": "Ask at which additions the list is exactly full, and how many values it holds each time.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 104,
+        "p25Sec": 60,
+        "p75Sec": 161
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "amortised-cost",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0048",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Tracing a string built by repeated concatenation",
+      "learningObjective": "trace repeated string concatenation and count the characters copied",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this instrumented string build and report the characters it copies, the number of additions it makes and the length of the string it holds at the end.\nout <- \"\". copies <- 0. adds <- 0\nFOR i FROM 1 TO 8 { out <- out + \"x\". adds <- adds + 1\n  copies <- copies + LENGTH(out) }\nDISPLAY copies, adds, LENGTH(out)",
+      "options": [
+        {
+          "id": "A",
+          "text": "36 copied characters over 8 additions, since the last addition rewrites all 8 characters",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 copied characters over 8 additions, since each addition writes one character and nothing else",
+          "misconception": "believes repeated concatenation writes only the character being added"
+        },
+        {
+          "id": "C",
+          "text": "36 copied characters over 36 additions, since every character copied counts as one addition",
+          "misconception": "believes the number of additions is the number of characters copied"
+        },
+        {
+          "id": "D",
+          "text": "28 copied characters over 8 additions, since the first addition copies nothing at all",
+          "misconception": "believes the first addition to an empty string copies no characters"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The copied counts run 1, 2, 3 and on up to 8 across the eight additions, so the run printed 36, 8 and 8, and 8 times 9 over 2 is 36, which is the closed form. Measured at 10 characters the total is 55 and at 100 it is 5050, so the work grows with the square of the length rather than with the length. A builder that keeps a separate length and copies once at the end writes each character only once.",
+      "hint": "Add the string's length after each addition, then add those eight figures.",
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "medianSec": 96,
+        "p25Sec": 55,
+        "p75Sec": 149
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "strings",
+        "concatenation-cost"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0049",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reading a bubble sort log over three inputs",
+      "learningObjective": "read a sorting log and say which input the stopping rule shortened",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A bubble sort with a stopping rule is run on three inputs and its log records sweeps run, comparisons made and exchanges made. Input one is [1, 2, 3, 4, 5, 6], input two is [1, 2, 3, 5, 4, 6] and input three is [6, 5, 4, 3, 2, 1]. Which reading of the log is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One sweep for the first, two for the second, five for the third, with 5, 9 and 15 comparisons",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Five sweeps for each of the three, because the sweep count is fixed by the list length",
+          "misconception": "believes the stopping rule cannot shorten a bubble sort on ordered data"
+        },
+        {
+          "id": "C",
+          "text": "One sweep for the first, two for the second, three for the third, with 5, 9 and 10 comparisons",
+          "misconception": "believes a reversed list needs a third fewer comparison than it does"
+        },
+        {
+          "id": "D",
+          "text": "One sweep for the first, one for the second, five for the third, with 5, 5 and 15 comparisons",
+          "misconception": "believes a single exchange satisfies the stopping rule straight away"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run gave 1 sweep and 5 comparisons on the first input, 2 sweeps and 9 comparisons on the second, and 5 sweeps and 15 on the third, so the three rows are as stated. The second input needs its second sweep because its single exchange is not yet proof of order, and the rule is checked only after a whole sweep has passed. The third input never triggers the rule, since every one of its sweeps moves something, so it pays the full 15 comparisons.",
+      "hint": "Add the widths of the sweeps each input actually completed.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 42,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "bubble-sort",
+        "log-reading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0050",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reading an insertion sort log over three inputs",
+      "learningObjective": "read a sorting log and separate a move count from a test count",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "An insertion sort is run on three inputs and its log records values shifted and tests made. Input one is [1, 2, 3, 4, 5, 6], input two is [1, 2, 3, 5, 4, 6] and input three is [6, 5, 4, 3, 2, 1]. Which reading of the log is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0 shifted and 5 tested on the first, 1 shifted and 6 tested on the second, 15 on the third",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0 shifted and 0 tested on the first, 1 shifted and 3 tested on the second, 15 on the third",
+          "misconception": "believes a pass on an ordered list makes no tests at all"
+        },
+        {
+          "id": "C",
+          "text": "0 shifted and 5 tested on the first, 3 shifted and 6 tested on the second, 15 on the third",
+          "misconception": "believes a value one place out of order crosses three larger values"
+        },
+        {
+          "id": "D",
+          "text": "5 shifted and 5 tested on the first, 1 shifted and 6 tested on the second, 5 on the third",
+          "misconception": "believes a reversed list costs fewer shifts than an ordered one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The run printed 0 shifts with 5 tests, 1 shift with 6 tests, and 15 shifts with 15 tests for the three inputs, so the rows are as stated. The two counters answer different questions, which is why the ordered list still shows 5 tests: every pass tests at least once before it can stop. The shift count is the one that tracks how nearly ordered the data is, and it runs from 0 to 1 to 15 across these three inputs while the test count barely moves at the start.",
+      "hint": "Count the values each pass has to move past, separately from the tests each pass makes.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 42,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "insertion-sort",
+        "log-reading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0051",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reading a quicksort log over two inputs and two pivot rules",
+      "learningObjective": "match measured comparison counts to the input and pivot rule that produced them",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A quicksort is run over two lists of eight values, one already in order and one jumbled, once taking the first value as the pivot and once taking the middle value. It reports 28, 13, 15 and 22 comparisons in some order. Which assignment fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ordered list 28 with the first pivot and 13 with the middle; jumbled list 15 with the first and 22 with the middle",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Ordered list 13 with the first pivot and 28 with the middle; jumbled list 22 with the first and 15 with the middle",
+          "misconception": "believes the two pivot rules are the reverse of the pairing shown"
+        },
+        {
+          "id": "C",
+          "text": "Ordered list 28 with the first pivot and 13 with the middle; jumbled list 22 with the first and 15 with the middle",
+          "misconception": "believes the middle pivot always wins on a jumbled list"
+        },
+        {
+          "id": "D",
+          "text": "Ordered list 15 with the first pivot and 28 with the middle; jumbled list 13 with the first and 22 with the middle",
+          "misconception": "believes the order of the input has no bearing on the cost"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Running all four cases gave 28, 13, 15 and 22, and the closed form agrees: with a first-value pivot on ordered values the run widths are 7 down to 1, giving 28, while the middle pivot splits into runs of 8, 4, 2 and 3, giving 13. On the jumbled list the first pivot happened to do better at 15 than the middle pivot's 22, which is the point of the fourth option being wrong: no rule wins on every input, and only the first-value rule on ordered values is reliably catastrophic.",
+      "hint": "Ask which input makes a first-value pivot the worst possible choice.",
+      "difficulty": 0.6,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 86,
+        "p25Sec": 50,
+        "p75Sec": 134
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "quicksort",
+        "log-reading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0052",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Locating the crossover between two ways of tallying",
+      "learningObjective": "read a cost table and locate where two methods cost the same",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Two ways of tallying a list are compared by counting operations. The tally-table way costs one operation per value plus one per distinct value; the repeated-scan way costs one full pass per distinct value. Which row of the table shows the two costing the same?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The row with 2 values and 2 distinct, where 4 operations meet 4, and below that neither wins",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The row with 4 values and 1 distinct, where 5 operations meet 4, and there the scan is ahead",
+          "misconception": "believes a single distinct value makes the repeated scan the dearer route"
+        },
+        {
+          "id": "C",
+          "text": "The row with 8 values and 3 distinct, where 11 operations meet 24, and there the tally wins",
+          "misconception": "believes a row where the two costs differ is the row where they meet"
+        },
+        {
+          "id": "D",
+          "text": "The row with 20 values and 1 distinct, where 21 operations meet 20, and there the scan is ahead",
+          "misconception": "believes a 21 against 20 row shows the two methods costing the same"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two costs are n plus k and k times n, and measured rows give 4 against 4 at n = 2 with k = 2, 5 against 6 at n = 3 with k = 2, 11 against 24 at n = 8 with k = 3, and 21 against 20 at n = 20 with k = 1. Only the first row has the two equal, and it is the smallest list in the table, so the crossing sits very low. The repeated scan only wins when there is a single distinct value, and the tally's advantage then widens as the list grows.",
+      "hint": "Add the two costs for each row and look for the row where they match.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 45,
+        "p75Sec": 121
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "frequency-tables",
+        "crossover"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0053",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reading two measurements of the same search",
+      "learningObjective": "read two operation counts for the same question and say what each measures",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A list of ten values is searched for its largest value. One routine keeps a running best and reads each value once; another compares every value with every other value. The first reports 10 operations and the second reports 45. What does that pair of figures show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One pass costs one read per value, and the all-pairs figure counts the pairs in the list",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One pass costs one read per pair, so 10 reads already covers every pair of 10 values",
+          "misconception": "believes a single pass over the list tests it against itself"
+        },
+        {
+          "id": "C",
+          "text": "The all-pairs figure is larger because its comparison is heavier, not because it reads more",
+          "misconception": "believes the cost gap between two routines comes from the comparison"
+        },
+        {
+          "id": "D",
+          "text": "The two routines cost the same work, since both of them return the same largest value",
+          "misconception": "believes two routines returning one answer must cost the same"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The figures count positions read, not time to read them. A single pass reads the 10 values once, giving 10, while the all-pairs routine reads every unordered pair, and 10 times 9 over 2 is 45, which is what the run reported. The second is quadratic and the first linear, so the gap widens as the list grows: at six values the same pair of routines report 6 against 21. Returning the same answer says nothing about the work, and no comparison here is heavy enough to explain a factor of four and a half.",
+      "hint": "Ask how many unordered pairs ten values can be split into.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 38,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "running-max",
+        "log-reading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0054",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reading a merging sort log by level",
+      "learningObjective": "read a level-by-level sorting log and say what its shape reveals",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A merging sort over 8 values is logged by level: level one holds 1 run of 8 values, level two 2 runs of 4, level three 4 runs of 2 and level four 8 runs of 1, and the log then reports 7 merges. What does that pattern show about the work involved?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every value is handled once per level, so the work is a few passes rather than a nested sweep",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The number of runs doubles each level, so the deepest level carries all of the work alone",
+          "misconception": "believes the work sits entirely in the last level of the tree"
+        },
+        {
+          "id": "C",
+          "text": "The 7 merges are the only comparisons made, since splitting a run into halves needs none",
+          "misconception": "believes the number of merges counts every comparison the sort makes"
+        },
+        {
+          "id": "D",
+          "text": "The levels shrink the total each time, so the last level costs almost nothing at all",
+          "misconception": "believes a deeper level of a splitting tree handles less work"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Every level handles all 8 values exactly once, so the total is about 8 times the number of levels, which is 3 here, rather than the 8 times 8 a nested sweep would cost. Measured on [8, 3, 7, 1, 5, 2, 6, 4] the merges came to 16 comparisons, confirmed merge by merge as 1 plus 1 plus 3 plus 1 plus 1 plus 3 plus 6, and the 7 merges are the number of values less one. The last level is not cheaper, it is narrower, and splitting needs no comparisons at all so the merge count is not the comparison count.",
+      "hint": "Ask how many values each level handles, and how many levels there are.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 74,
+        "p25Sec": 43,
+        "p75Sec": 114
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "merge-sort",
+        "log-reading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0055",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Choosing between a whole sweep and two halves",
+      "learningObjective": "choose how to split a search and state the comparison count that follows",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A report must find the largest difference between any two of six values. A sweep over all six values makes 15 comparisons. Splitting the six into two halves of three and comparing only across the halves makes how many comparisons, and does it still find the true largest difference?",
+      "options": [
+        {
+          "id": "A",
+          "text": "9 comparisons, and it still finds it, since the widest gap always spans the two halves",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6 comparisons, and it still finds it, since each half needs only one of its own values",
+          "misconception": "believes two halves of three need one comparison each between them"
+        },
+        {
+          "id": "C",
+          "text": "9 comparisons, but it can miss it, since the widest gap may lie inside a single half",
+          "misconception": "believes a gap inside one half escapes a cross-halves comparison"
+        },
+        {
+          "id": "D",
+          "text": "15 comparisons, and it still finds it, since the halves must be swept as well as compared",
+          "misconception": "believes a cross-halves comparison must be backed by a full sweep"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Measuring both routes on [3, 17, 9, 4, 20, 11] gave 15 comparisons for the sweep and 9 for the cross-halves version, and both returned 17, so the split is safe here. The widest gap either lies inside one half or spans the two, and the four spanning combinations cover the cross case, so no gap is missed. The trap is thinking a gap inside a half could be lost, but the halves' own extremes are still compared through the spanning pairs, and 3 times 3 is 9 against 15.",
+      "hint": "Ask whether a gap lying inside a single half can be expressed as a gap across the two.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 80,
+        "p25Sec": 47,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "divide-and-conquer",
+        "comparison-counts"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0056",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Choosing a greedy rule and reading its cost",
+      "learningObjective": "choose between a greedy rule and an exhaustive search, and state the counts",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A till must pay out 6 in coins of 1, 3 and 4, and it takes the largest coin it can each time. How many coins does it use, and what is the fewest any method could use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It uses 3 coins, namely 4, 1 and 1, though 2 coins of 3 would do",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It uses 2 coins, namely 3 and 3, which is also the fewest any method could reach",
+          "misconception": "believes a largest-coin rule always finds the fewest coins available"
+        },
+        {
+          "id": "C",
+          "text": "It uses 3 coins, namely 4, 1 and 1, and 3 is also the fewest any method could reach",
+          "misconception": "believes the greedy result is always the best result"
+        },
+        {
+          "id": "D",
+          "text": "It uses 1 coin, namely the coin of 4, and leaves 2 that no coin can pay",
+          "misconception": "believes a greedy rule may leave an amount unpaid and still be correct"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Running the rule gave 3 coins, being 4, then 1, then 1, and an exhaustive check of every combination gave 2, being 3 and 3, so the rule is not right for these denominations. That is the general shape: a greedy rule is only usually right, and it needs a proof for the problem in hand. With coins of 1, 5 and 6 paying out 12 the rule gives 6 and 6, which the exhaustive check also confirms as best, so the same rule is right there and wrong here.",
+      "hint": "Ask whether a different first choice would use fewer coins for the same amount.",
+      "difficulty": 0.58,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 82,
+        "p25Sec": 48,
+        "p75Sec": 127
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "greedy",
+        "counterexample"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0057",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Choosing a lookup table over a chain of tests",
+      "learningObjective": "choose a conversion strategy and state the total work it costs",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Nine grade letters A through I are converted to points and one report needs all nine converted. A chain of nine tests that tries A first, then B, and so on makes how many tests in total, and what does a lookup table make of the same job?",
+      "options": [
+        {
+          "id": "A",
+          "text": "45 tests in total, against 9 table lookups, since the chain re-tests every letter it has passed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9 tests in total, against 9 table lookups, since each letter needs one test either way",
+          "misconception": "believes a chain of nine tests costs one test per letter"
+        },
+        {
+          "id": "C",
+          "text": "45 tests in total, against 45 table lookups, since a table entry is itself a test of the letter",
+          "misconception": "believes looking an entry up costs the same as searching for it"
+        },
+        {
+          "id": "D",
+          "text": "9 tests in total, against 45 table lookups, since a table must search a chain to find its entry",
+          "misconception": "believes a lookup table locates an entry by searching a chain"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The chain tries A on the A report, A then B on the B report, and so on, so the tests come to 1 plus 2 through to 9, which is 45, and the table makes 9 lookups, one per letter, a saving of 36. A table replaces a search with a direct address, which is why the saving grows with the number of letters: on eight letters the chain costs 36 and the table 8. A table does not search anything, so the last option has the two figures the wrong way round.",
+      "hint": "Add the tests for each letter in turn, from the first to the last of the chain.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 74,
+        "p25Sec": 43,
+        "p75Sec": 114
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "lookup-tables",
+        "conditional-chains"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0058",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Choosing a running-total table for repeated range sums",
+      "learningObjective": "choose how to answer repeated range sums and state the work each way costs",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A report asks for the sums of three ranges of a six-value list, the ranges being 3, 4 and 4 values long. Summing each range from its first value makes how many additions, and what does a running-total table built once make of the same job?",
+      "options": [
+        {
+          "id": "A",
+          "text": "11 additions, against 6 to build the table and 1 subtraction per range afterwards",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6 additions, against 11 to build the table and 3 subtractions per range afterwards",
+          "misconception": "believes building a running-total table costs the length of the ranges summed"
+        },
+        {
+          "id": "C",
+          "text": "11 additions, against 6 to build the table and 3 additions per range afterwards",
+          "misconception": "believes a range total from a running table still needs adding rather than subtracting"
+        },
+        {
+          "id": "D",
+          "text": "3 additions, against 6 to build the table and no subtractions at all afterwards",
+          "misconception": "believes answering three range sums needs no work beyond building a table"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Summing the three ranges from scratch costs 3 plus 4 plus 4, which is 11 additions, and a running table of [0, 4, 11, 13, 22, 27, 30] costs 6 additions to build, after which each range total is one subtraction, so 6 plus 3 is 9 against 11. The saving is thin at three ranges because the build is a one-off cost, and it grows with every further range, where a fresh sum would cost the range's length each time.",
+      "hint": "Add the three range lengths, then count the one-off cost of building the table.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 45,
+        "p75Sec": 121
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "prefix-sums",
+        "range-queries"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0059",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why an amortised cost is not a worst-case cost",
+      "learningObjective": "explain what an amortised cost claims and which single operation it does not describe",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A list starts with room for one value and doubles its room whenever it fills, moving the values it already holds into the larger space. Over 1024 additions the moves add up to 1023, and no single addition ever moves more than 512 values. Explain what this says about the cost of one addition, and why the worst single case is not what is being described.",
+      "options": [],
+      "answer": {
+        "exemplar": "The 1023 is a total spread over 1024 additions, so it describes an average of a shade under one value moved per addition, and that average is what makes the list acceptable to use. It is not a claim about any one addition: the addition that filled the list from 512 to 1024 had to move 512 values at once, and any cost figure that put that operation at one step would be describing a different list. What the total shows is that the expensive operations are rare, since they happen only when the room runs out, and that after any expensive addition there are enough cheap ones to bring the average back down. The doubling is what buys this, because the gap between expensive operations grows as the list grows, so the rare cost is spread over more and more additions rather than arriving more often."
+      },
+      "explanation": "An amortised figure divides a total cost by a number of operations, so it is always an average and never a bound on one. Here the total is 1023 over 1024 additions, and the single largest step copied 512 values, so the average and the worst case differ by a factor of over 500 for the same method. What justifies the method is the shape of the growth, since doubling makes the expensive steps further apart as the list grows, and that is why an array-backed list is a reasonable thing to append to even though one append can be costly.",
+      "hint": "Ask whether 1023 divided by 1024 bounds any single addition.",
+      "difficulty": 0.62,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 110,
+        "p25Sec": 64,
+        "p75Sec": 170
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "amortised-cost",
+        "explanation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.22-0060",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why a broken precondition is silent",
+      "learningObjective": "explain why a routine cannot detect that its caller broke a precondition",
+      "practice": "algorithm choice and cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Someone passes a halving search the list [1, 3, 5, 7, 9, 2, 4, 6, 8] and asks it for 8, which is sitting in that list. It reads 9, then 3, then 5, then 7, and prints that the value is absent without raising anything. Explain why the routine cannot tell that something has gone wrong, and say where the fault lies.",
+      "options": [],
+      "answer": {
+        "exemplar": "The routine's whole economy rests on throwing half a list away after one comparison, and that is only sound when the list is in order, since order is what guarantees everything discarded sits on the wrong side. Here it read 9 and discarded the half containing 8, then worked down through 3, 5 and 7 until the range was empty, so the value was thrown away in the very first step and the four comparisons after that were spent on a list that no longer held it. It cannot notice because checking that the list is in order means reading it, and reading it is the work the halving exists to avoid, so the only honest move would be to give up the saving entirely. The fault therefore lies with the caller, who passed a list whose order was never established, and the routine has no way to distinguish that from a correct absence: the printed verdict is byte for byte what a correct miss would print."
+      },
+      "explanation": "A precondition is a promise made by the caller and relied on by the routine, and a routine that leans on one cannot also verify it without giving up the reason it was chosen. The run read 9, 3, 5 and 7 and reported absent, which is exactly the output a correct miss produces, so nothing downstream can tell the two apart. The remedy is on the caller's side, by putting the list in order once and keeping it in order, rather than inside the search, where a check on every call would remove the logarithmic saving.",
+      "hint": "Ask what the routine would have to read in order to notice the problem.",
+      "difficulty": 0.6,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "medianSec": 104,
+        "p25Sec": 60,
+        "p75Sec": 161
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "preconditions",
+        "explanation"
+      ],
+      "version": 1
+    }
+  ]
+}
