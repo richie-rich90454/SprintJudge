@@ -1,0 +1,4144 @@
+{
+  "questions": [
+    {
+      "id": "jp-6.21-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Immutable List Rejects Replacement",
+      "learningObjective": "trace an attempt to overwrite one element of an immutable list",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list was built by the factory that promises it can never change. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B01 {\n    public static void main(String[] args) {\n        try {\n            List.of(\"tea\", \"coffee\").set(0, \"juice\");\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "UnsupportedOperationException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "IllegalArgumentException",
+          "misconception": "overwriting an element of an immutable list is an illegal argument"
+        },
+        {
+          "id": "C",
+          "text": "IndexOutOfBoundsException",
+          "misconception": "overwriting an element of an immutable list is a bad index"
+        },
+        {
+          "id": "D",
+          "text": "ConcurrentModificationException",
+          "misconception": "overwriting an element of an immutable list is a concurrent change"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Every mutating call on this kind of list is refused, and overwriting an element is a mutating call, so the request fails as an operation the list does not support. The tempting answers borrow exception types from other situations, and each of those reports a different problem: a bad index is a position outside the list and an illegal argument is a value the list refuses, whereas here the request is perfectly well formed and only the capability is missing.",
+      "hint": "Ask whether the request is well formed and only the capability is absent.",
+      "difficulty": 0.36,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 19
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "immutability"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Immutable List Rejects Null",
+      "learningObjective": "trace the failure caused by building an immutable list that contains a missing value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One of the values handed to the factory is missing. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B02 {\n    public static void main(String[] args) {\n        try {\n            List.of(\"a\", null, \"b\");\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "NullPointerException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value in the list is reported as an illegal argument"
+        },
+        {
+          "id": "C",
+          "text": "UnsupportedOperationException",
+          "misconception": "a missing value is reported as an operation the list cannot do"
+        },
+        {
+          "id": "D",
+          "text": "ClassCastException",
+          "misconception": "a missing value is reported as a failed type conversion"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The factory refuses missing values on purpose, and the way it refuses them is by rejecting the call itself, which surfaces as a failure through a reference that points at nothing. The tempting answers reuse exception types from other refusals, but an unsupported operation is about a capability and an illegal argument is about a value handed in, whereas here the list is built to hold values that are definitely present, so a missing one is a contradiction at construction time.",
+      "hint": "Ask what the list promises about its contents, and how it enforces that promise.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "null"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Copy Factory Rejects Null",
+      "learningObjective": "trace the defensive copy factory asked to copy a list that contains a missing value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The source list was built by a factory that allows missing values, and the copy factory is stricter. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B03 {\n    public static void main(String[] args) {\n        try {\n            List<String> copy = List.copyOf(new ArrayList<>(Arrays.asList(\"a\", null)));\n            System.out.println(copy);\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "NullPointerException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "UnsupportedOperationException",
+          "misconception": "copying a list is an operation this factory refuses to perform"
+        },
+        {
+          "id": "C",
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value in the source is reported as an illegal argument"
+        },
+        {
+          "id": "D",
+          "text": "NoSuchElementException",
+          "misconception": "a missing value in the source is reported as a missing element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The copy factory guarantees that the list it hands back contains no missing values, and it keeps that guarantee by refusing to copy a source that breaks it, so the call fails rather than quietly carrying the problem across. The tempting answer reads the guarantee as applying to the copy operation itself, but the guarantee is about the contents, which is why a list that permits missing values cannot be copied into this one without being cleaned first.",
+      "hint": "Ask what the copy factory promises about the contents of the list it returns.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "null"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Read Only View Is Not A Snapshot",
+      "learningObjective": "analyze whether a read-only list reflects later changes to the list it wraps",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The original list is changed after the read-only list was created. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B04 {\n    public static void main(String[] args) {\n        List<String> backing = new ArrayList<>(List.of(\"a\"));\n        List<String> readOnly = Collections.unmodifiableList(backing);\n        backing.add(\"b\");\n        System.out.println(readOnly);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[a, b]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a]",
+          "misconception": "the read-only list took a snapshot of the original at the moment it was created"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "wrapping a list that later changes is a failure the wrapper reports"
+        },
+        {
+          "id": "D",
+          "text": "[b]",
+          "misconception": "the read-only list shows only the element that was added after it was created"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The wrapper adds a restriction, not a copy, so it keeps pointing at the same list of values and a later addition to that list is visible through the wrapper. The tempting answer assumes a defensive copy, but that reading contradicts the point of the wrapper, which is to stop callers from changing a list somebody else owns; if it had copied, changes on either side would drift apart and the wrapper would protect nothing.",
+      "hint": "Ask whether the wrapper restricted the original list or duplicated it.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Read Only View Rejects Changes",
+      "learningObjective": "trace an attempt to add through a wrapper that forbids structural change",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The wrapper promises that callers cannot change the list it wraps. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B05 {\n    public static void main(String[] args) {\n        List<String> backing = new ArrayList<>(List.of(\"a\"));\n        List<String> readOnly = Collections.unmodifiableList(backing);\n        try {\n            readOnly.add(\"c\");\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "UnsupportedOperationException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "IllegalArgumentException",
+          "misconception": "the wrapper reports an illegal argument for a forbidden change"
+        },
+        {
+          "id": "C",
+          "text": "IllegalStateException",
+          "misconception": "the wrapper reports a misuse of the list state for a forbidden change"
+        },
+        {
+          "id": "D",
+          "text": "IndexOutOfBoundsException",
+          "misconception": "the wrapper reports a bad index for a forbidden change"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The wrapper implements the same list type but declines every mutating call, so an addition is refused as a capability the wrapper does not offer. The tempting answers name failures that report a bad value, a bad state or a bad position, and none of those applies: the element is a perfectly good string, the list is in a perfectly good state, and the position is the valid end position, so the only thing wrong is that this object refuses to make the change.",
+      "hint": "Ask what is wrong with the request, as opposed to what is missing from the wrapper.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Varargs List Boxes Primitives",
+      "learningObjective": "trace the element type produced when primitives are passed to the array-to-list factory",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three primitives are handed to the factory that builds a list from values. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\n\npublic class B06 {\n    public static void main(String[] args) {\n        List<Integer> list = Arrays.asList(1, 2, 3);\n        System.out.println(list.get(0).getClass().getSimpleName());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "Integer",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "int",
+          "misconception": "the element type is the primitive type because the values were written as primitives"
+        },
+        {
+          "id": "C",
+          "text": "Object",
+          "misconception": "every element of a list has the broad reference type regardless of what was passed"
+        },
+        {
+          "id": "D",
+          "text": "Number",
+          "misconception": "the element type is the common supertype shared by all boxed primitives"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A list holds references, so the values written as primitives are boxed on the way in and each element is a wrapper object of the matching type. The tempting answers keep the primitive type or widen it, but a primitive cannot be stored in a list at all, so the conversion to a reference happens before the list ever sees the value, and the type that appears at run time is the wrapper type rather than the primitive or any shared supertype.",
+      "hint": "Ask what a list can actually store, and what the compiler must do to a primitive before storing it.",
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 12,
+        "p75Sec": 25
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "autoboxing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Fixed Size List Rejects Growth",
+      "learningObjective": "trace an attempt to grow a list that is a fixed-size view onto an array",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list is a view onto an array, so its length is the array's length. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B07 {\n    public static void main(String[] args) {\n        try {\n            Arrays.asList(\"a\", \"b\").add(\"c\");\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "UnsupportedOperationException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "ArrayIndexOutOfBoundsException",
+          "misconception": "the addition is reported as a position outside the array"
+        },
+        {
+          "id": "C",
+          "text": "IllegalArgumentException",
+          "misconception": "the addition is reported as an illegal argument"
+        },
+        {
+          "id": "D",
+          "text": "OutOfMemoryError",
+          "misconception": "the addition is reported as a failure to obtain more storage"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A fixed-size list has no array it could hand a longer one to, because the array behind it was already allocated at its current length, so growing the list is a capability it simply does not have and says so. The tempting answers report a bad position, a bad argument or a lack of memory, but the position is the valid end position, the value is a perfectly good string, and no allocation was even attempted.",
+      "hint": "Ask which array the list would have to grow, and whether one exists.",
+      "difficulty": 0.38,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 10,
+        "p75Sec": 22
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Sub List Is A View",
+      "learningObjective": "analyze whether a sub-list sees a later change to the list it was taken from",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A window of the first two elements is taken, then the original list is changed. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B08 {\n    public static void main(String[] args) {\n        List<String> backing = new ArrayList<>(List.of(\"a\", \"b\", \"c\"));\n        List<String> window = backing.subList(0, 2);\n        backing.set(0, \"z\");\n        System.out.println(window);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[z, b]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a, b]",
+          "misconception": "the window took a snapshot of the two elements at the moment it was created"
+        },
+        {
+          "id": "C",
+          "text": "[z, c]",
+          "misconception": "the window shifts along the original list as the original list changes"
+        },
+        {
+          "id": "D",
+          "text": "throws",
+          "misconception": "changing the original list invalidates every window taken from it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A window holds positions rather than values, so it keeps reading the same two positions of the original list and the replacement at the first position is what it now reports. The tempting answer assumes a copy of the two values, but then the window would be useless for watching a list change, and a window that invalidated itself on any change would make the common pattern of filtering while scanning impossible to write.",
+      "hint": "Ask whether the window stores values or stores positions in the original list.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Sub List Writes Through",
+      "learningObjective": "analyze how a change made through a window reaches the list behind it",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A window of the first two elements is taken and then grown inside its own range. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B09 {\n    public static void main(String[] args) {\n        List<String> backing = new ArrayList<>(List.of(\"a\", \"b\", \"c\"));\n        List<String> window = backing.subList(0, 2);\n        window.add(\"z\");\n        System.out.println(backing);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[a, b, z, c]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a, b, c]",
+          "misconception": "the window holds its own copy so the original list never changes"
+        },
+        {
+          "id": "C",
+          "text": "[z, a, b, c]",
+          "misconception": "a value added to a window is pushed in front of the whole list"
+        },
+        {
+          "id": "D",
+          "text": "[a, b, c, z]",
+          "misconception": "a value added to a window is appended to the end of the original list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The window is a window, so inserting into it inserts into the original list at the window's own position, which shifts the following element along and leaves the rest untouched. The tempting answers each put the new value somewhere a window cannot reach: before the window, at the end of the whole list, or in a private copy, and the copy answer also contradicts the fact that the window reports changes made to the original list.",
+      "hint": "Ask at which position of the original list the window's positions begin.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Rotate Works Through Replacement",
+      "learningObjective": "analyze why a rotation helper can reorder a list that refuses structural change",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list refuses to grow, yet the rotation helper still manages to reorder it. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B10 {\n    public static void main(String[] args) {\n        List<String> list = Arrays.asList(\"a\", \"b\", \"c\");\n        Collections.rotate(list, 1);\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[c, a, b]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[b, c, a]",
+          "misconception": "a rotation of one moves every element one place towards the front"
+        },
+        {
+          "id": "C",
+          "text": "[a, b, c]",
+          "misconception": "a list that refuses structural change cannot be rotated at all"
+        },
+        {
+          "id": "D",
+          "text": "throws",
+          "misconception": "rotating a fixed-size list is refused as an unsupported operation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Rotating changes no lengths, it only moves values between positions the list already has, and the helper does that by replacing values, which a fixed-size list does allow, so the last value moves to the front and everything else shifts back one place. The tempting answers either rotate the wrong way or assume the helper needs to change the size, and it does not: a rotation is a permutation of the existing positions and nothing more.",
+      "hint": "Ask whether a rotation changes how many positions the list has.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 29,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Swap Works Through Replacement",
+      "learningObjective": "analyze why a swap helper can reorder a list that refuses structural change",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list refuses to grow, yet the swap helper still works on it. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B11 {\n    public static void main(String[] args) {\n        List<String> list = Arrays.asList(\"a\", \"b\", \"c\");\n        Collections.swap(list, 0, 2);\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[c, b, a]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[b, a, c]",
+          "misconception": "a swap exchanges the first two positions rather than the two given"
+        },
+        {
+          "id": "C",
+          "text": "[a, b, c]",
+          "misconception": "a list that refuses structural change cannot be swapped at all"
+        },
+        {
+          "id": "D",
+          "text": "[b, c, a]",
+          "misconception": "a swap moves the first element to the end and shifts the rest"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A swap exchanges the values at two positions the list already has, and the helper does it by replacing values, which a fixed-size list does allow, so the first and last elements trade places and the middle one is untouched. The tempting answers confuse a swap with a rotation or with a different pair of positions, and the refusal answer is wrong because no length change is involved anywhere in a swap.",
+      "hint": "Ask which two positions a swap touches and whether either position is new.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Empty List Is Shared",
+      "learningObjective": "trace what two calls for the shared empty list return",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The shared empty list is asked for twice. What does the program print?\n\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B12 {\n    public static void main(String[] args) {\n        List<String> first = Collections.emptyList();\n        List<String> second = Collections.emptyList();\n        System.out.println((first == second) + \" \" + first.size());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "true 0",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false 0",
+          "misconception": "each call for the shared empty list builds a separate object"
+        },
+        {
+          "id": "C",
+          "text": "true 1",
+          "misconception": "the shared empty list reports a size of one because it is never null"
+        },
+        {
+          "id": "D",
+          "text": "false 1",
+          "misconception": "each call builds a separate list that already holds one element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "There is nothing to store in an empty list, so the implementation can hand back one shared instance every time, which means the two references are the same object and the size is zero. The tempting answers assume each call allocates, but a zero-length structure is free to share, and this is a common trick for returning a safe nothing instead of a missing value, precisely because the shared object cannot be changed.",
+      "hint": "Ask what there would be for a fresh empty list to store that would justify allocating one.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Singleton List Rejects Replacement",
+      "learningObjective": "trace an attempt to overwrite the only element of a one-element list",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list is built by the factory that always produces a one-element list. What does the program print?\n\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B13 {\n    public static void main(String[] args) {\n        try {\n            Collections.singletonList(\"x\").set(0, \"y\");\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "UnsupportedOperationException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "IllegalArgumentException",
+          "misconception": "replacing the element is reported as an illegal argument"
+        },
+        {
+          "id": "C",
+          "text": "IndexOutOfBoundsException",
+          "misconception": "replacing the element is reported as a position outside the list"
+        },
+        {
+          "id": "D",
+          "text": "NoSuchElementException",
+          "misconception": "replacing the element is reported as a missing element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The factory hands back a list that is fixed in both size and content, so the replacement is refused as a capability the list does not offer, even though the position and the value are both perfectly legal. The tempting answers report a bad index, an illegal argument or a missing element, and each of those describes a different failure entirely; here nothing is out of range, nothing is malformed and nothing is absent.",
+      "hint": "Ask whether the position and the value are both acceptable, leaving only the capability in question.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "immutability"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "N Copies Is Fixed",
+      "learningObjective": "trace the size and contents of a list built by repeating one value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The factory is asked for three copies of one value and the result is printed with its size. What does the program print?\n\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B14 {\n    public static void main(String[] args) {\n        List<String> list = Collections.nCopies(3, \"z\");\n        System.out.println(list + \" \" + list.size());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[z, z, z] 3",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[z, z, z] 1",
+          "misconception": "repeating one value produces a list of size one holding it"
+        },
+        {
+          "id": "C",
+          "text": "[z] 3",
+          "misconception": "repeating one value produces a list of size three holding a single element"
+        },
+        {
+          "id": "D",
+          "text": "[z, z, z] 0",
+          "misconception": "a list built by repetition reports a size of zero because it is fixed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The count says how many positions to build and the value says what to put in each of them, so the list holds three positions and all three show the same value. The tempting answers confuse the number of positions with the number of distinct values, and a list has no notion of distinct values at all; the size is a count of positions, which is why a list of three identical entries still reports three.",
+      "hint": "Ask what the size of a list counts and whether the values have to differ.",
+      "difficulty": 0.42,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Max With A Comparator",
+      "learningObjective": "trace the extreme chosen when the comparison is supplied by the caller",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The comparison is by length rather than by alphabetical order. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B15 {\n    public static void main(String[] args) {\n        List<String> words = Arrays.asList(\"a\", \"bbb\");\n        System.out.println(Collections.max(words, (x, y) -> x.length() - y.length()));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "bbb",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a",
+          "misconception": "the extreme is chosen alphabetically no matter which comparison is supplied"
+        },
+        {
+          "id": "C",
+          "text": "b",
+          "misconception": "the extreme is chosen by the first letter of each value"
+        },
+        {
+          "id": "D",
+          "text": "bb",
+          "misconception": "the extreme is the value one shorter than the longest one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The helper takes the extreme with respect to the comparison it is given, and this comparison says the longer word is the greater one, so the three-letter word wins even though it sorts after the one-letter word alphabetically. The tempting answers assume the helper falls back on its own ordering, but supplying a comparison replaces the ordering entirely, which is what makes the call useful for a list of objects that has no natural order at all.",
+      "hint": "Ask which value the supplied comparison calls greater.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "comparators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Counting Occurrences",
+      "learningObjective": "trace the number of positions in a list that hold a given value",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The helper counts how many times a value appears. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B16 {\n    public static void main(String[] args) {\n        List<String> list = Arrays.asList(\"a\", \"b\", \"a\");\n        System.out.println(Collections.frequency(list, \"a\"));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "misconception": "the count reports how many distinct values equal the target rather than how many positions"
+        },
+        {
+          "id": "C",
+          "text": "3",
+          "misconception": "the count reports the size of the list when the target appears in it"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "the count reports nothing because the target only appears in a set"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The helper walks the list and counts every position whose value is equal to the target, and the letter a occupies two of the three positions, so the answer is two. The tempting answer counts distinct values, but that is a set's job, and a list happily holds the same value twice, so counting positions is the only reading consistent with the type it was handed.",
+      "hint": "Ask whether the same value may occupy more than one position in a list.",
+      "difficulty": 0.36,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 19
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "frequency"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Disjoint Lists",
+      "learningObjective": "trace the shared-membership test between two lists",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The test asks whether the two lists have any value in common. What does the program print?\n\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Collections;\n\npublic class B17 {\n    public static void main(String[] args) {\n        List<String> left = Arrays.asList(\"a\", \"b\");\n        List<String> right = Arrays.asList(\"b\", \"c\");\n        System.out.println(Collections.disjoint(left, right) ? \"disjoint\" : \"shared\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "shared",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "disjoint",
+          "misconception": "the test only compares the first position of each list"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "comparing two lists for shared members is reported as a failure"
+        },
+        {
+          "id": "D",
+          "text": "null",
+          "misconception": "the test reports nothing when the lists have different sizes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The test looks for any value present in both, and the letter b appears in each list, so the two are not disjoint and the shared answer is correct. The tempting answer reads the test as a position-by-position comparison, but it is a membership test that ignores order and position entirely, and the size objection is irrelevant because a list's contents are what matter, not how they are distributed.",
+      "hint": "Ask whether any single value occurs in both lists, whatever its position.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "collections"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Shuffle With A Fixed Seed",
+      "learningObjective": "trace a shuffle driven by a generator supplied with a fixed seed",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The shuffle is driven by a generator with a fixed seed, so the result is reproducible. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.Random;\n\npublic class B18 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"a\", \"b\", \"c\", \"d\"));\n        Collections.shuffle(list, new Random(7));\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[a, b, d, c]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a, b, c, d]",
+          "misconception": "a fixed seed leaves the list in its original order"
+        },
+        {
+          "id": "C",
+          "text": "[d, c, b, a]",
+          "misconception": "a fixed seed always produces the reverse of the original order"
+        },
+        {
+          "id": "D",
+          "text": "[b, a, d, c]",
+          "misconception": "a fixed seed swaps only the first two positions and leaves the rest"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The generator's sequence is fully determined by its seed, and the shuffle consumes that sequence to decide swaps, so a fixed seed produces the same permutation on every run while a different run without a seed would produce a different one. The tempting answers assume a seed forces no change, a forced reversal, or a fixed partial swap, and none of those follows: the seed fixes the sequence of random numbers, not the arrangement that results from using them.",
+      "hint": "Ask what a seed fixes, and remember the arrangement follows from the numbers the generator produces.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 29,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "randomness"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Deque As A Stack",
+      "learningObjective": "trace the order values come back off a deque used as a stack",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two values are pushed and then popped off, and the emptiness check is printed last. What does the program print?\n\nimport java.util.Deque;\nimport java.util.ArrayDeque;\n\npublic class B19 {\n    public static void main(String[] args) {\n        Deque<String> stack = new ArrayDeque<>();\n        stack.push(\"p\");\n        stack.push(\"q\");\n        System.out.println(stack.pop() + \",\" + stack.pop() + \",\" + stack.isEmpty());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "q,p,true",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "p,q,true",
+          "misconception": "values come back off in the order they were pushed"
+        },
+        {
+          "id": "C",
+          "text": "q,p,false",
+          "misconception": "the emptiness check runs before the two removals have happened"
+        },
+        {
+          "id": "D",
+          "text": "p,q,false",
+          "misconception": "values come back in order and the deque still holds something afterwards"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Pushing adds to the front of the deque and popping removes from the front, so the last value pushed is the first one removed, and once both pushes have been matched by two pops nothing is left and the emptiness check reports true. The tempting answers read a stack like a queue, where values would come back in the order they went in, or evaluate the emptiness check at the wrong moment, and both of those mistakes come from forgetting which end the deque operates on.",
+      "hint": "Ask which end of the deque a push and a pop both work at.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "deques"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Deque Rejects Null",
+      "learningObjective": "trace an attempt to put a missing value into a deque",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One value handed to the deque is missing. What does the program print?\n\nimport java.util.ArrayDeque;\n\npublic class B20 {\n    public static void main(String[] args) {\n        try {\n            new ArrayDeque<String>().add(null);\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "NullPointerException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value is reported as an illegal argument to the deque"
+        },
+        {
+          "id": "C",
+          "text": "UnsupportedOperationException",
+          "misconception": "a missing value is reported as a refused capability"
+        },
+        {
+          "id": "D",
+          "text": "ClassCastException",
+          "misconception": "a missing value is reported as a failed type conversion"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A deque deliberately refuses missing values, because its removal operations report emptiness by handing back a missing value and a stored missing value would make that report ambiguous. The tempting answers borrow exception types from other refusals, but the failure here is not a bad argument and not a missing capability: the operation is one the deque offers, and it declines this particular input for a reason internal to its own design.",
+      "hint": "Ask what a removal on this structure returns when there is nothing to remove.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "null"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Pop On An Empty Deque",
+      "learningObjective": "trace the removal that insists on finding a value to remove",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The deque is empty and the removal that reports emptiness by failing is used. What does the program print?\n\nimport java.util.ArrayDeque;\n\npublic class B21 {\n    public static void main(String[] args) {\n        try {\n            new ArrayDeque<String>().pop();\n        } catch (RuntimeException e) {\n            System.out.println(e.getClass().getSimpleName());\n        }\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "NoSuchElementException",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "NullPointerException",
+          "misconception": "removing from an empty deque is reported as a missing reference"
+        },
+        {
+          "id": "C",
+          "text": "IllegalStateException",
+          "misconception": "removing from an empty deque is reported as a misuse of the state"
+        },
+        {
+          "id": "D",
+          "text": "NoSuchFieldException",
+          "misconception": "removing from an empty deque is reported as a missing field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "This removal is the one that promises a value or a failure, and with nothing to remove it fails with a name that says there was no element to take. The tempting answer reaches for the missing-reference failure, but a deque that is empty holds nothing to dereference, and the structure is in a perfectly legal state; the design deliberately pairs this call with a second removal that reports emptiness by returning nothing instead.",
+      "hint": "Ask what this particular removal method promises when the structure has nothing to give.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "deques"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Poll On An Empty Deque",
+      "learningObjective": "trace the removal that reports emptiness by handing back nothing",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The deque is empty and the removal that reports emptiness by handing back nothing is used. What does the program print?\n\nimport java.util.Deque;\nimport java.util.ArrayDeque;\n\npublic class B22 {\n    public static void main(String[] args) {\n        Deque<String> stack = new ArrayDeque<>();\n        System.out.println(stack.poll() == null ? \"nothing\" : \"something\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "nothing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "something",
+          "misconception": "any removal call hands back a value even from an empty deque"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "every removal call fails when the deque is empty"
+        },
+        {
+          "id": "D",
+          "text": "empty",
+          "misconception": "the call hands back an empty string rather than nothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "This removal is the one that reports emptiness in its return value, so an empty deque simply produces nothing and the check for nothing succeeds. The tempting answers assume every removal shares the same contract, but the structure offers both behaviours on purpose, so a loop can drain a deque without a guard and a program that treats emptiness as an error can use the other call instead.",
+      "hint": "Ask which of the two removal calls was chosen and what it promises when there is nothing there.",
+      "difficulty": 0.36,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 19
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "deques"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Priority Queue Natural Head",
+      "learningObjective": "trace which value sits at the head of a queue ordered by natural order",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three words are queued with no comparison supplied, so the natural order decides. What does the program print?\n\nimport java.util.List;\nimport java.util.PriorityQueue;\n\npublic class B23 {\n    public static void main(String[] args) {\n        PriorityQueue<String> queue = new PriorityQueue<>();\n        queue.addAll(List.of(\"pear\", \"apple\", \"fig\"));\n        System.out.println(queue.peek());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "apple",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "pear",
+          "misconception": "the head is the value that was queued first"
+        },
+        {
+          "id": "C",
+          "text": "fig",
+          "misconception": "the head is the last value that was queued"
+        },
+        {
+          "id": "D",
+          "text": "empty",
+          "misconception": "a queue reports an empty head until a value is removed from it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The head of a queue ordered by natural order is the smallest value, and among the three words apple is the smallest, so it is what the peek reports without removing anything. The tempting answers treat the structure like a plain list of arrival order, but the whole point of this structure is that the next value out is the extreme one rather than the earliest one, and a peek shows that value while leaving the queue unchanged.",
+      "hint": "Ask which value the natural order calls smallest, not which arrived first.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Priority Queue Reversed Head",
+      "learningObjective": "trace the head of a queue whose comparison has been inverted",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The comparison has been turned upside down, so the queue now considers the largest value to be the first one out. What does the program print?\n\nimport java.util.List;\nimport java.util.Comparator;\nimport java.util.PriorityQueue;\n\npublic class B24 {\n    public static void main(String[] args) {\n        PriorityQueue<Integer> queue = new PriorityQueue<>(Comparator.reverseOrder());\n        queue.addAll(List.of(3, 9, 1));\n        System.out.println(queue.peek());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "9",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3",
+          "misconception": "inverting the comparison leaves the smallest value at the head"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "inverting the comparison makes the middle value the first one out"
+        },
+        {
+          "id": "D",
+          "text": "-1",
+          "misconception": "inverting the comparison leaves the queue with nothing to report"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The head is whichever value the supplied comparison calls smallest, and inverting the comparison makes the largest value the one it calls smallest, so 9 sits at the head. The tempting answers keep the original meaning of smallest and so describe a queue that was never inverted, which is the trap here: the structure has no opinion of its own about which direction is ascending, it only follows the comparison it is given.",
+      "hint": "Ask which value the inverted comparison now treats as the first one out.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Priority Queue Is Not Sorted",
+      "learningObjective": "analyze whether walking a priority queue visits its values in order",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The queue is copied into a list and compared with the ascending order. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.PriorityQueue;\n\npublic class B25 {\n    public static void main(String[] args) {\n        PriorityQueue<Integer> queue = new PriorityQueue<>();\n        queue.addAll(List.of(5, 1, 3));\n        List<Integer> seen = new ArrayList<>(queue);\n        System.out.println(seen.equals(List.of(1, 3, 5)) ? \"sorted\" : \"unsorted\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "unsorted",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "sorted",
+          "misconception": "a queue that always hands out the smallest value must already hold them in order"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "copying a queue into a list is a failure the queue reports"
+        },
+        {
+          "id": "D",
+          "text": "empty",
+          "misconception": "copying a queue into a list produces an empty list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The structure only guarantees that the head is the extreme value; the rest sit in whatever arrangement keeps the head reachable, so walking the whole thing does not visit values in order and the ascending comparison fails. The tempting answer reasons from the removal order to the stored order, but the two are different things: draining the queue does produce ascending values, and that is the only ordering this structure promises.",
+      "hint": "Ask what the structure promises about its head as opposed to about its whole contents.",
+      "difficulty": 0.52,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 25,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Peek On An Empty Queue",
+      "learningObjective": "trace what a peek reports when the queue holds nothing",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The queue has never received a value and is asked for its head without removing. What does the program print?\n\nimport java.util.PriorityQueue;\n\npublic class B26 {\n    public static void main(String[] args) {\n        PriorityQueue<String> queue = new PriorityQueue<>();\n        System.out.println(queue.peek() == null ? \"empty\" : \"full\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "empty",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "full",
+          "misconception": "a queue with no values still reports a head that can be read"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "asking a queue for its head when it is empty is a failure"
+        },
+        {
+          "id": "D",
+          "text": "zero",
+          "misconception": "a queue with no values reports a head of zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Peeking asks for the head without taking it, and on an empty queue there is no head, so the call hands back nothing and the check for nothing succeeds without any failure. The tempting answers assume a peek must produce a value or a failure, but this call is the non-destructive one and it is defined to report an empty queue through its return value, which is what makes it safe to use as a loop condition.",
+      "hint": "Ask whether this call removes anything, and how it signals that there is nothing to remove.",
+      "difficulty": 0.34,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 17
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Get With A Fallback",
+      "learningObjective": "trace the lookup that supplies a value when the key is absent",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One key is present and one is not, and the lookup supplies a fallback for the missing one. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\n\npublic class B27 {\n    public static void main(String[] args) {\n        Map<String, Integer> counts = new HashMap<>();\n        counts.put(\"a\", 1);\n        System.out.println(counts.getOrDefault(\"b\", -1));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "-1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0",
+          "misconception": "an absent key reports the default value of the stored type"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "an absent key reports the value stored under some other key"
+        },
+        {
+          "id": "D",
+          "text": "-2",
+          "misconception": "an absent key reports one less than the fallback that was supplied"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The lookup finds nothing under the key that was never stored, so it hands back exactly the fallback the caller supplied, which is minus one here rather than anything derived from the map. The tempting answers substitute the type's own default or a neighbouring entry's value, and neither is what a fallback is for: the caller chose that number precisely because it is meaningful in the surrounding calculation, which the map knows nothing about.",
+      "hint": "Ask where the returned number came from when the key is not in the map.",
+      "difficulty": 0.34,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 17
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "lookups"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Put If Absent",
+      "learningObjective": "trace a conditional put against a key that is already present",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The key already holds 2, and a conditional put offers 9 for it. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\n\npublic class B28 {\n    public static void main(String[] args) {\n        Map<String, Integer> counts = new HashMap<>();\n        counts.put(\"a\", 2);\n        System.out.println(counts.putIfAbsent(\"a\", 9) + \" \" + counts.get(\"a\"));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9 2",
+          "misconception": "the offered value is returned but the stored value is left alone"
+        },
+        {
+          "id": "C",
+          "text": "2 9",
+          "misconception": "the stored value is returned and the offered value is then stored"
+        },
+        {
+          "id": "D",
+          "text": "9 9",
+          "misconception": "the offered value replaces the stored value and is returned"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The call only stores when the key is absent, and the key is present, so the stored value stays at 2 and the call hands back that same 2 as the previous value. The tempting answers mix up which number describes the map before and which describes the offer, and the fourth answer describes a plain overwrite; a conditional put is defined precisely so a caller can offer a default without risking clobbering a value that already exists.",
+      "hint": "Ask whether the key was present, and what the call returns in each of the two cases.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "lookups"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Compute If Absent",
+      "learningObjective": "trace a lookup that builds and stores a value only when the key is missing",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The key is missing, so the supplied function is asked to build a value. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\n\npublic class B29 {\n    public static void main(String[] args) {\n        Map<String, Integer> counts = new HashMap<>();\n        System.out.println(counts.computeIfAbsent(\"a\", k -> 7));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "7",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0",
+          "misconception": "an absent key is given the default value of the stored type"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "an absent key is given the value the function returns for an empty string"
+        },
+        {
+          "id": "D",
+          "text": "-1",
+          "misconception": "an absent key is given one less than what the function returns"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The key is not in the map, so the supplied function is called with that key and its result is both stored and returned, which here is the number 7 the function produced. The tempting answers substitute a value derived from the map or from the function's own body rather than from its result, but the contract is that the function's return value is what gets stored, which is what makes this call the compact way to fill in a default exactly once.",
+      "hint": "Ask what the supplied function returns and what happens to that value.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "lookups"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Merge Accumulates",
+      "learningObjective": "trace two merges that combine a stored value with an offered one",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The same key is offered 1 and then 5, and the combining function adds. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\n\npublic class B30 {\n    public static void main(String[] args) {\n        Map<String, Integer> counts = new HashMap<>();\n        counts.merge(\"a\", 1, Integer::sum);\n        counts.merge(\"a\", 5, Integer::sum);\n        System.out.println(counts.get(\"a\"));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "6",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5",
+          "misconception": "the second offer replaces the stored value instead of combining with it"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "the first offer is kept and the second one is discarded"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "combining a stored value with an offered value produces nothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first merge finds no stored value, so the offer of 1 is stored as it stands, and the second merge finds 1 and hands both it and the offer of 5 to the combining function, which returns 6, so 6 is stored and printed. The tempting answers read merge as an overwrite or as a first-one-wins rule, and counting up repeated appearances of a key is exactly the job this call exists to do, which is why it is the usual way to tally items in one pass.",
+      "hint": "Ask what the combining function receives on the second call and what it returns.",
+      "difficulty": 0.52,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 25,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "lookups"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0031",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Hash Map Accepts A Null Key",
+      "learningObjective": "trace a map that is given a missing value as its key",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One entry is stored under a missing key and one under an ordinary key. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\n\npublic class B31 {\n    public static void main(String[] args) {\n        Map<String, Integer> counts = new HashMap<>();\n        counts.put(null, 0);\n        counts.put(\"a\", 1);\n        System.out.println(counts.size() + \" \" + counts.containsKey(null));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 true",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 true",
+          "misconception": "the missing key and the ordinary key are treated as the same entry"
+        },
+        {
+          "id": "C",
+          "text": "2 false",
+          "misconception": "the missing key is stored but cannot be looked up again"
+        },
+        {
+          "id": "D",
+          "text": "1 false",
+          "misconception": "the missing key replaces the ordinary key rather than adding to it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "This map permits a missing key and stores it as an ordinary entry of its own, so the map holds two entries and a lookup under that key finds one. The tempting answers treat the missing key as a synonym for the other key or as something that cannot be looked up, and both of those describe a different implementation; the design point is that a missing key is a legal key here, which is why a lookup that uses a computed key cannot blow up on the first absent one.",
+      "hint": "Ask whether a missing key is a legal key for this kind of map.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "null"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0032",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Linked Map Keeps Insertion Order",
+      "learningObjective": "trace the key order of a map that remembers the order keys arrived in",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The keys are put in the order c, a, b and the key set is printed. What does the program print?\n\nimport java.util.Map;\nimport java.util.LinkedHashMap;\n\npublic class B32 {\n    public static void main(String[] args) {\n        Map<String, Integer> scores = new LinkedHashMap<>();\n        scores.put(\"c\", 3);\n        scores.put(\"a\", 1);\n        scores.put(\"b\", 2);\n        System.out.println(scores.keySet());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[c, a, b]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a, b, c]",
+          "misconception": "the keys come out in ascending order whatever order they arrived in"
+        },
+        {
+          "id": "C",
+          "text": "[b, c, a]",
+          "misconception": "the keys come out in the reverse of the order they arrived in"
+        },
+        {
+          "id": "D",
+          "text": "[c, b, a]",
+          "misconception": "the keys come out in the order they arrived in with the last two exchanged"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "This map keeps its entries in a list as well as a lookup table, so walking the keys follows the order the entries were added, and re-storing an existing key leaves its position alone. The tempting answers impose alphabetical order, reverse order or a partial reordering, and each of those describes a different guarantee: a sorted map gives alphabetical order and an ordinary hash map gives no order at all, which is the problem this variant exists to solve.",
+      "hint": "Ask what extra structure the map maintains alongside the lookup table.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "ordering"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0033",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Tree Map Floor And Ceiling",
+      "learningObjective": "trace the greatest key at or below a value and the least key at or above it",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The keys are kept in ascending order and a value between two of them is probed from both sides. What does the program print?\n\nimport java.util.NavigableMap;\nimport java.util.TreeMap;\n\npublic class B33 {\n    public static void main(String[] args) {\n        NavigableMap<Integer, String> m = new TreeMap<>();\n        m.put(5, \"e\");\n        m.put(1, \"a\");\n        m.put(9, \"i\");\n        System.out.println(m.floorKey(6) + \" \" + m.ceilingKey(6));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 9",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9 5",
+          "misconception": "the greatest key at or below comes after the least key at or above"
+        },
+        {
+          "id": "C",
+          "text": "6 6",
+          "misconception": "a key that is not stored is still reported by both probes"
+        },
+        {
+          "id": "D",
+          "text": "-1 -1",
+          "misconception": "a key that is not stored is reported as missing by both probes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Keeping the keys in ascending order lets the map jump straight to the neighbours of a value, so the greatest stored key that does not exceed 6 is 5 and the least that does not fall short is 9. The tempting answers swap the two probes, invent a key that was never stored, or report both as missing, and the middle one is the mistake worth naming: these probes return stored keys, not the number that was asked about.",
+      "hint": "Ask which stored keys sit on either side of the value that was probed.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "ordering"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0034",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Tree Map Head Map",
+      "learningObjective": "trace a view of a sorted map restricted to the keys below a bound",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A view of the map is taken for the keys that fall short of 9. What does the program print?\n\nimport java.util.NavigableMap;\nimport java.util.TreeMap;\n\npublic class B34 {\n    public static void main(String[] args) {\n        NavigableMap<Integer, String> m = new TreeMap<>();\n        m.put(5, \"e\");\n        m.put(1, \"a\");\n        m.put(9, \"i\");\n        System.out.println(m.headMap(9).keySet());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 5]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 5, 9]",
+          "misconception": "the view includes the key the bound was taken from"
+        },
+        {
+          "id": "C",
+          "text": "[5, 9]",
+          "misconception": "the view keeps the keys at or above the bound"
+        },
+        {
+          "id": "D",
+          "text": "[9]",
+          "misconception": "the view keeps only the key the bound was taken from"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The view keeps every key that is strictly below the bound, so the 1 and the 5 are in it and the 9 is not, and the keys still come out in ascending order because the view shares the ordering. The tempting answers include the bound itself, which this call excludes unless asked for the inclusive form, or keep the wrong side of the bound entirely, and either way the resulting set of keys is not the one the call promises.",
+      "hint": "Ask whether the bound key itself belongs in a view of the keys below it.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0035",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Identity Map Compares References",
+      "learningObjective": "analyze how a map keyed by reference identity treats two equal but separate objects",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two equal but separately built strings are used as keys in both kinds of map. What does the program print?\n\nimport java.util.Map;\nimport java.util.HashMap;\nimport java.util.IdentityHashMap;\n\npublic class B35 {\n    public static void main(String[] args) {\n        String first = new String(\"x\");\n        String second = new String(\"x\");\n        Map<String, String> byValue = new HashMap<>();\n        byValue.put(first, \"one\");\n        byValue.put(second, \"two\");\n        Map<String, String> byReference = new IdentityHashMap<>();\n        byReference.put(first, \"one\");\n        byReference.put(second, \"two\");\n        System.out.println(byValue.size() + \" \" + byReference.size());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 1",
+          "misconception": "the map that compares by value keeps both while the map that compares by reference merges them"
+        },
+        {
+          "id": "C",
+          "text": "2 2",
+          "misconception": "both maps keep both entries because the strings are separate objects"
+        },
+        {
+          "id": "D",
+          "text": "1 1",
+          "misconception": "both maps merge the entries because the two strings have equal contents"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The ordinary map asks the keys whether they are equal, and two strings with the same characters are equal, so the second put lands on the first entry and the map holds one; the identity map asks whether the references are the same object, and they are not, so it holds two. The tempting answers confuse which comparison each map uses, and picking the right map is the whole point: identity keys are what you want when two equal keys must stay distinguishable.",
+      "hint": "Ask each map which question it asks of a key before deciding they are the same entry.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 29,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "maps",
+        "identity"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0036",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "List Equality Is Positional",
+      "learningObjective": "analyze whether two lists holding the same values in a different order are equal",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Both lists hold the same two values but in opposite order. What does the program print?\n\nimport java.util.List;\n\npublic class B36 {\n    public static void main(String[] args) {\n        System.out.println(List.of(\"a\", \"b\").equals(List.of(\"b\", \"a\")) ? \"same\" : \"different\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "different",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "same",
+          "misconception": "two lists are equal when they hold the same values in any order"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "comparing two lists that differ in order is a failure"
+        },
+        {
+          "id": "D",
+          "text": "null",
+          "misconception": "comparing two lists that differ in order yields nothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "List equality walks both lists together and stops at the first disagreement, and the very first positions disagree here, so the lists are not equal even though the same two values are present. The tempting answer imports the idea of a set, where order does not matter, but a list is a sequence and a sequence is not the same sequence when its elements are rearranged, which is exactly what makes a list the right structure when position carries meaning.",
+      "hint": "Ask whether the first position of one list matches the first position of the other.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "equality"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0037",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "List Hash Code Is Positional",
+      "learningObjective": "analyze whether two lists holding the same values in a different order share a hash code",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Both lists hold the same two values in opposite order. What does the program print?\n\nimport java.util.List;\n\npublic class B37 {\n    public static void main(String[] args) {\n        System.out.println(List.of(\"a\", \"b\").hashCode() == List.of(\"b\", \"a\").hashCode() ? \"same\" : \"different\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "different",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "same",
+          "misconception": "the hash code depends only on which values are present, not on their order"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "comparing the hash codes of two lists in different orders is a failure"
+        },
+        {
+          "id": "D",
+          "text": "empty",
+          "misconception": "lists in different orders report the same code as an empty list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The code is built from the elements in order, so reversing the elements reverses the combination and the two codes differ, which is exactly what is required because the two lists are also not equal to each other. The tempting answer wants the code to be set-like, but that would break the rule that equal things must share a code, since the lists here are not equal and so are under no obligation to agree.",
+      "hint": "Ask whether the two lists count as equal, and what that obliges their codes to do.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "hashing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0038",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Nested List Equality Goes Deep",
+      "learningObjective": "trace equality between two lists whose elements are themselves lists",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Each list holds one inner list holding the same two numbers. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B38 {\n    public static void main(String[] args) {\n        List<List<Integer>> left = new ArrayList<>(List.of(new ArrayList<>(List.of(1, 2))));\n        List<List<Integer>> right = new ArrayList<>(List.of(new ArrayList<>(List.of(1, 2))));\n        System.out.println(left.equals(right) ? \"same\" : \"different\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "same",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "different",
+          "misconception": "the inner lists are separate objects so the outer lists cannot be equal"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "comparing lists whose elements are lists is a failure"
+        },
+        {
+          "id": "D",
+          "text": "null",
+          "misconception": "comparing lists whose elements are lists yields nothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Equality of the outer lists asks whether corresponding elements are equal, and asking an inner list whether it equals another inner list is itself a deep comparison that finds the same two numbers in the same order, so the two outer lists are equal. The tempting answer stops at reference identity of the inner lists, but an element is compared with the rule for the element's own type, and for a list that rule is a recursive walk rather than a reference check.",
+      "hint": "Ask what rule is used to compare two elements that are themselves lists.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "equality"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0039",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Nested Contains Goes Deep",
+      "learningObjective": "evaluate whether a search for a row succeeds when the rows are equal but not identical",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A row built fresh on the spot is searched for inside a list of rows. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B39 {\n    public static void main(String[] args) {\n        List<List<Integer>> grid = new ArrayList<>(List.of(List.of(1, 2)));\n        System.out.println(grid.contains(List.of(1, 2)) ? \"found\" : \"missing\");\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "found",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "missing",
+          "misconception": "a search only succeeds when the element is the very same object"
+        },
+        {
+          "id": "C",
+          "text": "throws",
+          "misconception": "searching a list of lists with a fresh list is a failure"
+        },
+        {
+          "id": "D",
+          "text": "empty",
+          "misconception": "searching a list of lists with a fresh list finds nothing at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Searching asks each stored element whether it equals the target, and the stored row equals the fresh row because both hold 1 and then 2 in that order, so the search succeeds even though the two row objects are different. The tempting answer makes membership a reference question, but a search that only found identical objects would be useless for the ordinary case of looking something up by value, which is what a list of rows is nearly always for.",
+      "hint": "Ask what the search compares, and whether equal contents are enough.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "searching"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0040",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Index Of Misses A Different Wrapper",
+      "learningObjective": "analyze why a search for a value of one wrapper type misses a list of another",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The list holds whole numbers and the search is for a value of a different numeric type. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B40 {\n    public static void main(String[] args) {\n        List<Integer> values = new ArrayList<>(List.of(1, 2));\n        System.out.println(values.indexOf(1L));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "-1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0",
+          "misconception": "a whole number and a long holding 1 are treated as the same value"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "the search reports the position of the second entry"
+        },
+        {
+          "id": "D",
+          "text": "-2",
+          "misconception": "the search reports minus one for every value of a different type"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Wrapping a primitive produces an object, and the two wrapper types compare equal only to their own kind, so a whole number and a long holding 1 are not equal and the search finds nothing and reports minus one. The tempting answer applies numeric intuition across types, and that intuition is what makes this such a reliable trap: the values look identical on paper, but the list asked each stored wrapper whether it equals the wrapper it was handed, and it does not.",
+      "hint": "Ask whether the stored object and the searched object are of the same type as well as the same value.",
+      "difficulty": 0.54,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "autoboxing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0041",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Insert At An Index",
+      "learningObjective": "trace an insertion at a chosen position and the shifting it causes",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A value is inserted at position 1 of a two-element list. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B41 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"a\", \"c\"));\n        list.add(1, \"b\");\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[a, b, c]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[b, a, c]",
+          "misconception": "the new value is placed in front of every existing value"
+        },
+        {
+          "id": "C",
+          "text": "[a, c, b]",
+          "misconception": "the new value is placed after every existing value"
+        },
+        {
+          "id": "D",
+          "text": "[a, b]",
+          "misconception": "the last existing value is dropped to make room for the new one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Inserting at a position puts the new value at that position and shifts everything from there onwards one place along, so b lands between a and c and nothing is lost. The tempting answers place the value at the front, at the end, or in place of an existing element, and each of those mistakes comes from ignoring what the position argument means: it names where the new value goes, not which old value survives.",
+      "hint": "Ask which existing value ends up one place further along than before.",
+      "difficulty": 0.36,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 19
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "mutation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0042",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Remove By Index Or By Value",
+      "learningObjective": "evaluate which element two same-named removal calls actually delete",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two identical lists are given the two same-named removal calls. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B42 {\n    public static void main(String[] args) {\n        List<Integer> byIndex = new ArrayList<>(List.of(5, 20, 30));\n        List<Integer> byValue = new ArrayList<>(List.of(5, 20, 30));\n        byIndex.remove(1);\n        byValue.remove(Integer.valueOf(5));\n        System.out.println(byIndex + \" | \" + byValue);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[5, 30] | [20, 30]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[5, 30] | [5, 30]",
+          "misconception": "the value form removes whatever sits at the position the index form used"
+        },
+        {
+          "id": "C",
+          "text": "[20, 30] | [5, 30]",
+          "misconception": "the index form removes the value and the value form removes the position"
+        },
+        {
+          "id": "D",
+          "text": "[5, 20, 30] | [5, 30]",
+          "misconception": "the index form removes nothing at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two calls share a name but not a meaning: one takes a position and deletes whatever sits there, which is 20, while the other takes a value and deletes the first element equal to it, which is the 5 at position 0, so the two lists end up different. The tempting answers assume one call delegates to the other, and the reason that assumption is so tempting is that the names are identical; the deciding factor is the static type of the argument, which is what the compiler uses to pick the overload.",
+      "hint": "Ask what each argument means: a position or a value.",
+      "difficulty": 0.62,
+      "discrimination": 0.52,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 36,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "overloading"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0043",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Remove If With A Test",
+      "learningObjective": "trace a removal driven by a test applied to each element",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Every element is tested and the even ones are removed. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B43 {\n    public static void main(String[] args) {\n        List<Integer> list = new ArrayList<>(List.of(1, 2, 3, 4));\n        list.removeIf(n -> n % 2 == 0);\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 3]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[2, 4]",
+          "misconception": "the test is applied to the values and the ones that pass are kept"
+        },
+        {
+          "id": "C",
+          "text": "[1, 2, 3, 4]",
+          "misconception": "a removal that takes a test changes nothing at all"
+        },
+        {
+          "id": "D",
+          "text": "[3, 4]",
+          "misconception": "the first element is always removed along with the tested ones"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The test asks whether each element should go, and the two even numbers answer yes, so they are removed and the odd numbers stay in their original relative order. The tempting answer keeps the elements that pass the test, which inverts the meaning of the call, and the answer that removes the first element as well is wrong because nothing in this call has any special treatment for the head of the list.",
+      "hint": "Ask what a true result from the test means for that element.",
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 12,
+        "p75Sec": 25
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "mutation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0044",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Replace All Elements",
+      "learningObjective": "trace a rewrite applied to every element of a list",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Every element is rewritten and the list keeps its size. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B44 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"aa\", \"b\"));\n        list.replaceAll(s -> s.toUpperCase());\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[AA, B]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[aa, b]",
+          "misconception": "the rewrite produces new values that are not stored back into the list"
+        },
+        {
+          "id": "C",
+          "text": "[AAAA, BB]",
+          "misconception": "the rewrite is applied repeatedly until every value stops changing"
+        },
+        {
+          "id": "D",
+          "text": "[A, B]",
+          "misconception": "the rewrite keeps only the first character of each value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rewrite is applied once to each element and each result replaces the element it came from, so the two-letter value grows to two capitals and the one-letter value to one, and the list still has two positions. The tempting answers leave the originals in place, apply the rewrite until it stops changing, or truncate each value, and each of those misreads a single substitution as something iterative or destructive.",
+      "hint": "Ask how many times the rewrite runs on one element and where its result is stored.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "mutation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0045",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Sort Rewrites The List In Place",
+      "learningObjective": "analyze whether a second reference to a list sees the result of a sort",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two names refer to one list, and the sort is applied through one of them. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Comparator;\n\npublic class B45 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"pear\", \"apple\"));\n        List<String> same = list;\n        list.sort(Comparator.naturalOrder());\n        System.out.println(same);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[apple, pear]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[pear, apple]",
+          "misconception": "the sort produces a new list and leaves the original in place"
+        },
+        {
+          "id": "C",
+          "text": "[fig, kiwi]",
+          "misconception": "the sort fills the list with values the caller never supplied"
+        },
+        {
+          "id": "D",
+          "text": "[date, plum]",
+          "misconception": "the sort replaces the values with copies of the list itself"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Sorting reorders the list that was handed to it rather than building a new one, and both names refer to that one list, so the second name shows the reordered values. The tempting answer believes sorting returns something, but a sort call produces no new list at all, which is exactly why a caller who wants the original order kept has to pass a copy rather than relying on the sort to leave one behind.",
+      "hint": "Ask whether a sort call hands back a new list or reorders the one it was given.",
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 12,
+        "p75Sec": 25
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "sorting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0046",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Sort With A Derived Key",
+      "learningObjective": "trace a sort ordered by a key computed from each element",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The words are ordered by how many letters they have, not alphabetically. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Comparator;\n\npublic class B46 {\n    public static void main(String[] args) {\n        List<String> words = new ArrayList<>(List.of(\"fig\", \"apple\", \"kiwi\"));\n        words.sort(Comparator.comparingInt(String::length));\n        System.out.println(words);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[fig, kiwi, apple]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[apple, kiwi, fig]",
+          "misconception": "the words come out longest first"
+        },
+        {
+          "id": "C",
+          "text": "[apple, fig, kiwi]",
+          "misconception": "the words come out in alphabetical order"
+        },
+        {
+          "id": "D",
+          "text": "[kiwi, fig, apple]",
+          "misconception": "the words come out in the reverse of their lengths"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The comparison asks each word for its length, so the three-letter word comes first, the four-letter word next and the five-letter word last, and words of equal length would be left to whatever the comparison does about ties. The tempting answers sort alphabetically or longest first, and both ignore which key was actually handed to the comparison, which is the only thing the sort knows anything about.",
+      "hint": "Ask what value the comparison uses to decide which word comes first.",
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 15,
+        "p75Sec": 28
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "sorting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0047",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Copy To A Typed Array",
+      "learningObjective": "trace the array type produced when the caller supplies the type to build",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The caller supplies the type of array to build. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B47 {\n    public static void main(String[] args) {\n        List<Integer> list = new ArrayList<>(List.of(1, 2));\n        Integer[] result = list.toArray(new Integer[0]);\n        System.out.println(result.getClass().getSimpleName());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "Integer[]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Object[]",
+          "misconception": "the built array takes the broad type no matter what the caller asked for"
+        },
+        {
+          "id": "C",
+          "text": "int[]",
+          "misconception": "the built array stores the values unboxed as primitives"
+        },
+        {
+          "id": "D",
+          "text": "Number[]",
+          "misconception": "the built array takes the common supertype of the elements"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The array handed in tells the call what kind of array to produce, and an array of the wrapper type in means an array of the wrapper type out, with the values written into it. The tempting answers degrade the type or unbox the values, but the element type in that argument is exactly the type requested, and a list of wrappers cannot hand back primitives because each value it holds is already an object.",
+      "hint": "Ask what the element type of the supplied array is and what the call promises to return.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "arrays"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0048",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Copy To An Untyped Array",
+      "learningObjective": "trace the array type produced by the copy that takes no type argument",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The copy is called with no array to build into. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B48 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"a\"));\n        System.out.println(list.toArray().getClass().getSimpleName());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "Object[]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "String[]",
+          "misconception": "the copy takes the element type from the list it was called on"
+        },
+        {
+          "id": "C",
+          "text": "String",
+          "misconception": "the copy returns the only element rather than an array"
+        },
+        {
+          "id": "D",
+          "text": "ArrayList",
+          "misconception": "the copy returns the list implementation rather than an array"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With no array supplied there is nothing to say what element type is wanted, so the call is declared to hand back an array of the broad reference type and that is what it builds. The tempting answer reads the element type off the list, and a program that wants a typed array has to say so by passing an array of that type, which is the whole difference between the two forms of this call.",
+      "hint": "Ask what the declared return type of the no-argument form of the call is.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 23,
+        "p75Sec": 39
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "arrays"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0049",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Copy On Write Iterator Snapshot",
+      "learningObjective": "analyze what an iterator obtained before a change sees afterwards",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An iterator is obtained, then the list is changed, then the iterator is walked. What does the program print?\n\nimport java.util.List;\nimport java.util.Iterator;\nimport java.util.concurrent.CopyOnWriteArrayList;\n\npublic class B49 {\n    public static void main(String[] args) {\n        List<String> list = new CopyOnWriteArrayList<>(List.of(\"a\", \"b\"));\n        Iterator<String> it = list.iterator();\n        list.add(\"c\");\n        StringBuilder seen = new StringBuilder();\n        while (it.hasNext()) {\n            seen.append(it.next());\n        }\n        System.out.println(seen);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "ab",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "abc",
+          "misconception": "the iterator walks the list as it is at the moment each element is asked for"
+        },
+        {
+          "id": "C",
+          "text": "cba",
+          "misconception": "the iterator walks the list in the reverse of the order values were added"
+        },
+        {
+          "id": "D",
+          "text": "a",
+          "misconception": "an iterator obtained before a change can only ever report its first element"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "This kind of list keeps its own snapshot for traversal, so the iterator was built over the two elements that existed when it was obtained and the later addition is not in that snapshot. The tempting answer watches the live list, which is the behaviour of an ordinary list and the reason that one raises a concurrent modification failure instead; choosing this kind of list trades a copy per change for iterators that never fail.",
+      "hint": "Ask whether the traversal works from a snapshot or from the live contents.",
+      "difficulty": 0.54,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 27,
+        "p75Sec": 44
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "iteration"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0050",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "List Iterator Replaces The Last Element",
+      "learningObjective": "trace a replacement made through an iterator after it has returned an element",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The iterator returns the first element, which is then replaced through the iterator. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.ListIterator;\n\npublic class B50 {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"a\", \"b\"));\n        ListIterator<String> it = list.listIterator();\n        it.next();\n        it.set(\"A\");\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[A, b]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[a, B]",
+          "misconception": "the replacement lands on the element the iterator has not reached yet"
+        },
+        {
+          "id": "C",
+          "text": "[b, A]",
+          "misconception": "the replacement moves the element to the end of the list"
+        },
+        {
+          "id": "D",
+          "text": "[A, A]",
+          "misconception": "the replacement applies to every element the iterator can reach"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The replacement applies to the element the iterator most recently returned, which is the first one, so a becomes a capital and the second element is untouched. The tempting answers aim the replacement at the next element, at the end of the list, or at every element, and all of them miss the rule that this call overwrites the last element the traversal handed back, which is what lets a loop rewrite values one at a time.",
+      "hint": "Ask which element the iterator is pointing at after it has just returned one.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 36
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "iteration"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0051",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Copying The Outer List Is Shallow",
+      "learningObjective": "analyze how a change through a copied list of lists reaches the original inner list",
+      "practice": "code analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A new outer list is built from an old one, and the inner list is then changed through the new one. What does the program print?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B51 {\n    public static void main(String[] args) {\n        List<String> inner = new ArrayList<>(List.of(\"p\"));\n        List<List<String>> outer = new ArrayList<>(List.of(inner));\n        List<List<String>> copy = new ArrayList<>(outer);\n        copy.get(0).add(\"q\");\n        System.out.println(inner);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[p, q]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[p]",
+          "misconception": "building a new outer list also gives every inner list new storage"
+        },
+        {
+          "id": "C",
+          "text": "[q]",
+          "misconception": "adding to the inner list through the copy replaces the value already there"
+        },
+        {
+          "id": "D",
+          "text": "[p, q, q]",
+          "misconception": "the value is added to both the inner list and the copy of it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Building a new outer list copies the references it holds and those references still point at the same inner list, so adding through the copy reaches the original inner list and it now holds two values. The tempting answer believes a new outer list implies new inner lists, but only the outer structure was rebuilt; getting a genuinely independent structure means copying each element as well, which is the same lesson arrays teach one level down.",
+      "hint": "Ask what the new outer list stores, and whether those are new objects or the old ones.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 29,
+        "p75Sec": 47
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "aliasing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0052",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Nested List Printed Shape",
+      "learningObjective": "trace the printed form of a list whose element is itself a list",
+      "practice": "code tracing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The second element of the list is itself a list of two numbers. What does the program print?\n\nimport java.util.List;\n\npublic class B52 {\n    public static void main(String[] args) {\n        System.out.println(List.of(1, List.of(2, 3)));\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, [2, 3]]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 2, 3]",
+          "misconception": "the inner list is unwrapped and its values join the outer list"
+        },
+        {
+          "id": "C",
+          "text": "[[1, 2], 3]",
+          "misconception": "the outer list's own value is moved inside the inner brackets"
+        },
+        {
+          "id": "D",
+          "text": "[1, 2, [3]]",
+          "misconception": "only the first value of the inner list is printed inside the brackets"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each element is printed using the printing rule for its own type, and the second element is a list, so it prints with its own brackets inside the outer brackets, which keeps the nesting visible. The tempting answers flatten the structure or shift values across the boundary, and the reason that flattening is tempting is that a flattened form is easier to read; the cost is that nothing in the output says where one element ended and the next began.",
+      "hint": "Ask how many levels of brackets the structure has.",
+      "difficulty": 0.34,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 8,
+        "p75Sec": 17
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "printing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0053",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Removing While Traversing",
+      "learningObjective": "repair a loop that changes the list through the list rather than through its iterator",
+      "practice": "debugging",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "The loop is meant to drop every element equal to b, but the program fails partway through. Which replacement for the marked line repairs it?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Iterator;\n\npublic class B53 {\n    // must print: [a, c, d]\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"a\", \"b\", \"c\", \"d\"));\n        Iterator<String> it = list.iterator();\n        while (it.hasNext()) {\n            String current = it.next();\n            if (current.equals(\"b\")) {\n                // HOLE\n            }\n        }\n        System.out.println(list);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "it.remove();",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "list.remove(current);",
+          "misconception": "the list can be asked to remove the element just as well as the iterator"
+        },
+        {
+          "id": "C",
+          "text": "list.remove(1);",
+          "misconception": "removing by position avoids the problem without touching the iterator's state"
+        },
+        {
+          "id": "D",
+          "text": "it.next();",
+          "misconception": "advancing the iterator once more skips the element that should have gone"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A traversal and a structural change are two different operations on one list, and the iterator is what keeps track of the traversal, so the removal has to go through the iterator or the change count it is watching stops matching. The tempting answers go around the iterator, and each of those leaves the traversal pointing at a position that no longer means what it meant, which is exactly the situation the modification check exists to catch rather than to tolerate.",
+      "hint": "Ask which object knows where the traversal currently is.",
+      "difficulty": 0.58,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 31,
+        "p75Sec": 49
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "iteration"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0054",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Removing A Value From A List Of Wrappers",
+      "learningObjective": "repair a removal that names a value where the called method expects a position",
+      "practice": "debugging",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "The list should end up without the value 20, but the program removes something else. Which replacement for the marked line repairs it?\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B54 {\n    // must print: [5, 30]\n    public static void main(String[] args) {\n        List<Integer> ids = new ArrayList<>(List.of(5, 20, 30));\n        // HOLE\n        System.out.println(ids);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "ids.remove(Integer.valueOf(20));",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "ids.remove(2);",
+          "misconception": "the position of the value is the same as the value being removed"
+        },
+        {
+          "id": "C",
+          "text": "ids.remove(20);",
+          "misconception": "a whole number argument is matched against the values in the list"
+        },
+        {
+          "id": "D",
+          "text": "ids.remove(0);",
+          "misconception": "the value being removed happens to sit at the first position"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A whole number written directly is a position, so to remove by value the value has to arrive as a wrapper, and only then does the call mean the first element equal to 20, which leaves 5 and 30. The tempting answers all write a bare number and so ask for a position instead, and that is not a mistake the compiler catches because the position form is a perfectly valid call; it simply removes whatever sits at that index.",
+      "hint": "Ask whether the argument you wrote is a position or a value, and how to say the value one.",
+      "difficulty": 0.64,
+      "discrimination": 0.52,
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "overloading"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0055",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "A View Is Not A Snapshot",
+      "learningObjective": "repair code that relies on a read-only wrapper to freeze what it wraps",
+      "practice": "debugging",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "The size is meant to stay at two regardless of what the caller does next, but it does not. Which replacement for the marked line repairs it?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\n\npublic class B55 {\n    // must print: 2\n    public static void main(String[] args) {\n        List<String> original = new ArrayList<>(List.of(\"a\", \"b\"));\n        // HOLE\n        List<String> readOnly = Collections.unmodifiableList(frozen);\n        original.add(\"c\");\n        System.out.println(readOnly.size());\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "List<String> frozen = new ArrayList<>(original);",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "List<String> frozen = original;",
+          "misconception": "wrapping the original list is enough to freeze what it holds"
+        },
+        {
+          "id": "C",
+          "text": "List<String> frozen = new ArrayList<>();",
+          "misconception": "an empty copy is enough to keep the reported size at two"
+        },
+        {
+          "id": "D",
+          "text": "List<String> frozen = new ArrayList<>(original); frozen.add(\"z\");",
+          "misconception": "adding one more value to the copy still leaves the wrapper at two"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The wrapper only forbids changes, it does not remember anything, so the size it reports can only stay at two if it was built from a copy taken before the caller's change rather than from the live list. The tempting answers wrap the original, or disturb the original instead, and each of those leaves the reported size describing whatever the caller's list happens to hold, which is the trap in treating a restriction as a snapshot.",
+      "hint": "Ask whether the wrapper holds the live list or a copy of it, and when that copy has to be taken.",
+      "difficulty": 0.66,
+      "discrimination": 0.52,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "views"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0056",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Priority Queue Is Not Sorted",
+      "learningObjective": "repair code that walks a priority queue expecting ascending order",
+      "practice": "debugging",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "The values should be reported in ascending order, but the queue only guarantees an order for the values it hands out one at a time. Which replacement for the marked line repairs it?\n\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.Comparator;\nimport java.util.PriorityQueue;\n\npublic class B56 {\n    // must print: [1, 3, 5]\n    public static void main(String[] args) {\n        PriorityQueue<Integer> queue = new PriorityQueue<>();\n        queue.addAll(List.of(5, 1, 3));\n        List<Integer> seen = new ArrayList<>(queue);\n        // HOLE\n        System.out.println(seen);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "Collections.sort(seen);",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Collections.reverse(seen);",
+          "misconception": "reversing the values puts them in the order the queue handed out"
+        },
+        {
+          "id": "C",
+          "text": "seen.sort(Comparator.reverseOrder());",
+          "misconception": "sorting the values the other way still reports ascending order"
+        },
+        {
+          "id": "D",
+          "text": "queue.clear();",
+          "misconception": "emptying the queue also empties the list built from it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Copying the queue into a list gives a list in whatever arrangement the queue happened to use, so the ascending order has to be imposed on that list, and sorting it is what produces it. The tempting answers reverse the values, sort them the other way, or empty the source, and each of those leaves the report describing an order the question did not ask for or leaves the copy unchanged, which is the trap in treating a queue as though it were already sorted.",
+      "hint": "Ask what the copied list currently holds and what has to impose the order on it.",
+      "difficulty": 0.6,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0057",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Counting Matches In A Loop",
+      "learningObjective": "complete the counter that tallies how many elements pass a test",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "Fill the blank so the program counts the names of exactly three letters.\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B57 {\n    // must print: 2\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(List.of(\"ann\", \"bo\", \"cat\"));\n        int matches = 0;\n        for (String n : names) {\n            if (n.length() == 3) {\n                matches = ____;\n            }\n        }\n        System.out.println(matches);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "matches + 1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "matches * 2",
+          "misconception": "each match should be worth two because the test has two sides"
+        },
+        {
+          "id": "C",
+          "text": "matches + 0",
+          "misconception": "a match should leave the count exactly as it was"
+        },
+        {
+          "id": "D",
+          "text": "matches + n.length()",
+          "misconception": "each match should add the length of the name that matched"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A tally adds one for each element that passes the test, and two of the three names have three letters, so the count ends at 2. The tempting answers scale the tally, leave it alone, or add the measured quantity rather than one, and none of those counts matches: a tally of how many things qualified always advances by exactly one per qualifying thing, whatever the test happened to measure.",
+      "hint": "Ask what one passing element should add to a counter of passing elements.",
+      "difficulty": 0.38,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 5,
+        "medianSec": 10,
+        "p75Sec": 22
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "accumulators"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0058",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Totalling A List With A Stream",
+      "learningObjective": "complete an expression that totals the elements of a list of wrappers",
+      "practice": "code completion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "Fill the blank so the program prints the total of the four values.\n\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic class B58 {\n    // must print: 10\n    public static void main(String[] args) {\n        List<Integer> values = new ArrayList<>(List.of(1, 2, 3, 4));\n        int total = ____;\n        System.out.println(total);\n    }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "values.stream().mapToInt(Integer::intValue).sum()",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "values.stream().mapToInt(v -> 1).sum()",
+          "misconception": "a stream of wrappers has to be turned into a stream of values before it can be totalled"
+        },
+        {
+          "id": "C",
+          "text": "values.stream().mapToInt(v -> v * v).sum()",
+          "misconception": "totalling a stream squares every value before adding it"
+        },
+        {
+          "id": "D",
+          "text": "values.stream().mapToInt(v -> v + 1).sum()",
+          "misconception": "totalling a stream adds one to every value first"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A list of wrappers has to be mapped to a stream of plain values before it can be totalled, and mapping each element to the value it wraps is exactly what leaves the numbers unchanged, so the total is ten. The tempting answers produce a stream of ones, of squares, or of values raised by one, and each of those sums something other than the list, which is the quiet failure mode of a stream pipeline: it runs happily and reports a number that answers a different question.",
+      "hint": "Ask what each element should be mapped to before the values are added up.",
+      "difficulty": 0.52,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 25,
+        "p75Sec": 41
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "streams"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0059",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Choosing A List Type",
+      "learningObjective": "evaluate which list type satisfies a set of stated requirements",
+      "practice": "design reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A program must keep values in the order they arrived, allow the same value twice, and insert or delete at any position. Which list type fits those requirements?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A growable list backed by an array, because it keeps arrival order and allows changes at any position",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A fixed-size list backed by an array, because it keeps arrival order and allows changes at any position",
+          "misconception": "a list that cannot grow still satisfies a requirement to insert at any position"
+        },
+        {
+          "id": "C",
+          "text": "A list that refuses every change, because it keeps arrival order and allows changes at any position",
+          "misconception": "a list that refuses changes can still be used when changes are required"
+        },
+        {
+          "id": "D",
+          "text": "A set of distinct values, because it keeps arrival order and allows changes at any position",
+          "misconception": "a set of distinct values is the right structure when duplicates must be allowed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The requirements are arrival order, duplicates and positional changes, and a growable array-backed list is the type that offers all three: it appends new values at the end, holds the same value in as many positions as it likes, and inserts or removes at any position it is given. The tempting answers each break one requirement, and a fixed-size list cannot gain a position, an unchangeable list cannot lose one, and a set both discards duplicates and has no positions to insert at.",
+      "hint": "Check each requirement against what the type actually allows, one at a time.",
+      "difficulty": 0.58,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 31,
+        "p75Sec": 49
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "lists",
+        "design"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-6.21-0060",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 6",
+      "topic": "Peek Before Taking",
+      "learningObjective": "explain why a loop over a queue tests with one call and takes with another",
+      "practice": "conceptual reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A loop drains a queue. Which statement about the two calls such a loop needs is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Peek asks for the head without removing it, so the loop can test before it commits to a removal",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Peek removes the head, so the loop can test and then discard the value it was given",
+          "misconception": "peeking takes the head out of the queue as well as reporting it"
+        },
+        {
+          "id": "C",
+          "text": "Reading the first position always fails on a queue, because positions belong to lists only",
+          "misconception": "a queue has no positions and so cannot be read by position at all"
+        },
+        {
+          "id": "D",
+          "text": "Peek is quicker than reading the first position and the two are otherwise interchangeable",
+          "misconception": "the two calls differ in whether they change the queue, not only in speed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A draining loop has to know whether anything is left before it takes anything, and a non-destructive test is what makes that possible, because a destructive call would empty the queue on the very first check. The tempting answers make peek destructive or make it merely quick, and both of those would leave the loop unable to stop cleanly, which is why the library provides a testing call and a taking call as a deliberate pair.",
+      "hint": "Ask what happens to the queue when the loop makes its testing call.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 33
+      },
+      "provenance": {
+        "author": "bank-team-jp-p6",
+        "reviewer": "bank-review-jp-p6",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-6",
+        "collections",
+        "queues"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
