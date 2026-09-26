@@ -1,0 +1,4145 @@
+{
+  "questions": [
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.28,
+      "discrimination": 0.34,
+      "explanation": "A name is the only handle on an object, so when light returns the name l goes out of scope and nothing anywhere else points at the lamp, which leaves the lamp unreachable and eligible for collection. The program still runs to the end because nothing in it ever touches the lamp again, so only done is printed. Reading false assumes the lamp survives somewhere and gets read, reading true assumes the change never happened, and reading a NullPointerException assumes the end of a scope is checked at run time when nothing looks the object up.",
+      "format": "CODE_TRACING",
+      "hint": "Ask what can still reach that lamp once the helper has returned.",
+      "id": "jp-2.20-0001",
+      "learningObjective": "recognise that an object with no reachable reference is unreachable",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a half used object is read after its helper returns",
+          "text": "It prints done, and nothing else is printed."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the lamp stays reachable after its name goes out of scope",
+          "text": "It prints false, the value the lamp ended with."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the field change never ran because the name is local",
+          "text": "It prints true, the value the lamp started with."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints done, because the lamp is unreachable then."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "A helper builds a lamp, switches it off, and returns. What does the program print?\nclass Lamp {\n    boolean on = true;\n}\n\nclass Main {\n    static void light() {\n        Lamp l = new Lamp();\n        l.on = false;\n    }\n\n    public static void main(String[] args) {\n        light();\n        System.out.println(\"done\");\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "reachability",
+        "local-scope"
+      ],
+      "topic": "A Local Name Dies, The Object Becomes Unreachable",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "Reachability is judged from live roots, and after head is set to null and t is set to null no root can walk to either node any more, because the first node only reached the static field and the second only reached through t. The program prints checked and then both nodes are unreachable. Reading one node as reachable confuses a path that used to exist with one that still exists, and reading the static field as a permanent anchor forgets that a static field can be overwritten like any other field.",
+      "format": "CODE_TRACING",
+      "hint": "Follow every remaining path that could still name a node.",
+      "id": "jp-2.20-0002",
+      "learningObjective": "decide which objects are unreachable after a chain is broken",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a static field keeps the first node alive forever",
+          "text": "Only the node the local t pointed at is unreachable."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the local reference is the one that keeps an object alive",
+          "text": "Only the node the static head pointed at is unreachable."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "Both nodes are unreachable once both names are dropped."
+        },
+        {
+          "id": "D",
+          "misconception": "believes any object in a running method is pinned in memory",
+          "text": "Neither node is unreachable while main is still running."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 26,
+        "p75Sec": 76
+      },
+      "scope": "core-scope",
+      "stem": "Two nodes exist, one reachable from a static field and one only from a local. After the last lines run, what can the collector take?\nclass Node {\n    Node next;\n}\n\nclass Main {\n    static Node head = new Node();\n\n    public static void main(String[] args) {\n        Node t = new Node();\n        t.next = head;\n        head = null;\n        t = null;\n        System.out.println(\"checked\");\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "reachability",
+        "garbage-collection"
+      ],
+      "topic": "Only Unreachable Objects Are Collected",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "explanation": "A soft reference is a hint that the referent may be thrown away only when memory is short, and nothing here is short on memory, so the string is still there and kept is printed. Reading null assumes soft references behave like weak ones and drop the referent at the first collection, and reading an empty line assumes the referent is created empty rather than from the argument.",
+      "format": "CODE_TRACING",
+      "hint": "Compare a soft reference with a weak one.",
+      "id": "jp-2.20-0003",
+      "learningObjective": "state when a soft reference is allowed to lose its referent",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints kept, since only memory pressure clears it."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a soft reference is dropped as eagerly as a weak one",
+          "text": "It prints null, since any collection clears the referent."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a new String built with an argument starts out empty",
+          "text": "It prints an empty line, since a fresh string is blank."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the referent needs System.gc before it can be read",
+          "text": "It prints kept only after a forced collection call."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 22,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A soft reference wraps a fresh string. What does the program print?\nclass Main {\n    public static void main(String[] args) {\n        java.lang.ref.SoftReference<String> soft\n                = new java.lang.ref.SoftReference<>(new String(\"kept\"));\n        System.out.println(soft.get());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "reference-queues",
+        "soft-reference"
+      ],
+      "topic": "A Soft Reference Is Cleared Only Under Pressure",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "explanation": "hashCode is the method the class declares, so k.hashCode() calls the override and yields 7, which makes the comparison true. System.identityHashCode is a separate call that reports the runtime identity of the object and never consults the override. Reading false assumes the two sources agree, and reading a class name assumes a hash code names the type the way toString does.",
+      "format": "CODE_TRACING",
+      "hint": "One of the two hash sources reads the override and the other does not.",
+      "id": "jp-2.20-0004",
+      "learningObjective": "separate an overridden hash code from the identity hash",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the runtime identity overrides the declared hash method",
+          "text": "It prints false, because identity is what decides a hash."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints true, because the declared override is called."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a hash code call falls back to the description shape",
+          "text": "It prints the class name, as a description would."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a hash code reports the field it was built from",
+          "text": "It prints 1, the value of the field the key holds."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A key class pins its hash code to 7. Does the overridden value win?\nclass Key {\n    int id;\n\n    Key(int i) {\n        id = i;\n    }\n\n    public int hashCode() {\n        return 7;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Key k = new Key(1);\n        System.out.println(k.hashCode() == 7);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "hashcode",
+        "identity"
+      ],
+      "topic": "System Identity Ignores An Override",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.62,
+      "discrimination": 0.42,
+      "explanation": "A hash map uses the hash code only to choose a bucket, and the equals call decides which entry inside that bucket is the one wanted, so both tags land in the same bucket yet both stay in the map because their names differ. The probe for the tag named a therefore finds the first entry and prints A, and the size is 2. Reading A 1 assumes a shared bucket means one entry per bucket, reading B 2 assumes the second insertion replaced the first, and reading null 2 assumes a matching bucket is accepted without an equals call.",
+      "format": "CODE_TRACING",
+      "hint": "A bucket is a search list, not a single slot.",
+      "id": "jp-2.20-0005",
+      "learningObjective": "trace a hash map lookup when two unequal keys share one bucket",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a bucket collision discards the entry added second",
+          "text": "It prints A 1, because one bucket holds one entry."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a second put with the same hash code replaces the first",
+          "text": "It prints B 2, because the last put wins the bucket."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a lookup needs the very object that was inserted",
+          "text": "It prints null 2, because a fresh key is never found."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints A 2, because equals separates the two entries."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 40,
+        "p75Sec": 104
+      },
+      "scope": "core-scope",
+      "stem": "Both tag keys report the same hash code but compare unequal. What does the map print?\nclass Tag {\n    String name;\n\n    Tag(String s) {\n        name = s;\n    }\n\n    public int hashCode() {\n        return 1;\n    }\n\n    public boolean equals(Object o) {\n        return o instanceof Tag && ((Tag) o).name.equals(name);\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        java.util.Map<Tag, String> m = new java.util.HashMap<>();\n        m.put(new Tag(\"a\"), \"A\");\n        m.put(new Tag(\"b\"), \"B\");\n        System.out.println(m.get(new Tag(\"a\")) + \" \" + m.size());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "hashcode",
+        "hashmap",
+        "equals"
+      ],
+      "topic": "A Shared Bucket Does Not Collapse Two Entries",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.66,
+      "discrimination": 0.43,
+      "explanation": "The map stores the hash code it computed at insertion time beside the entry, so after k.code becomes 9 the entry sits in the bucket for 1 holding the recorded value 9 while its equals now reports 9. A probe for a key hashing to 1 reaches that bucket but the recorded 9 fails the check, and a probe hashing to 9 looks in a bucket that was never filled, so both probes return null and the size is still 1. Reading one assumes the entry follows the object into the new bucket, and reading a size of 0 assumes the change removes the entry.",
+      "format": "CODE_TRACING",
+      "hint": "The map remembers the hash code from the moment of the put.",
+      "id": "jp-2.20-0006",
+      "learningObjective": "predict lookups after a key field that feeds hashCode is mutated",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the map re-hashes an entry when its key changes",
+          "text": "It prints one null 1, because the old key still matches."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints null null 1, because the recorded hash is stale."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the value travels with the field the entry was keyed on",
+          "text": "It prints null nine 1, because nine is the stored text."
+        },
+        {
+          "id": "D",
+          "misconception": "believes any probe in the table lands on the same entry",
+          "text": "It prints one nine 1, because both probes reach the entry."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "A key is stored, then its field is changed. Which lookups can still find it?\nclass Key {\n    int code;\n\n    Key(int c) {\n        code = c;\n    }\n\n    public int hashCode() {\n        return code;\n    }\n\n    public boolean equals(Object o) {\n        return o instanceof Key && ((Key) o).code == code;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        java.util.Map<Key, String> m = new java.util.HashMap<>();\n        Key k = new Key(1);\n        m.put(k, \"one\");\n        k.code = 9;\n        System.out.println(m.get(new Key(1)) + \" \" + m.get(new Key(9)) + \" \" + m.size());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "hashcode",
+        "mutable-key"
+      ],
+      "topic": "Changing A Hash Field Splits The Key",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.26,
+      "discrimination": 0.33,
+      "explanation": "Objects.hash folds the hash codes of its arguments into one value with the same recipe every time, so hashing k and 3 twice gives two equal numbers and the comparison is true. Reading false assumes a random seed is mixed in per call, and reading a class name assumes the helper falls back on the description shape rather than a number.",
+      "format": "CODE_TRACING",
+      "hint": "The helper is a pure function of its arguments.",
+      "id": "jp-2.20-0007",
+      "learningObjective": "name what Objects.hash produces for the same arguments",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the helper randomises its result on every call",
+          "text": "It prints false, because each call mixes in a seed."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the helper reports the runtime type in text form",
+          "text": "It prints the class name, as a description would."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints true, because the fold is repeatable."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the helper keeps just the final argument it was given",
+          "text": "It prints 3, because only the last argument counts."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 30,
+        "p25Sec": 18,
+        "p75Sec": 50
+      },
+      "scope": "core-scope",
+      "stem": "The same two arguments are hashed twice by the standard helper. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        boolean same = java.util.Objects.hash(\"k\", 3) == java.util.Objects.hash(\"k\", 3);\n        System.out.println(same);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "hashcode",
+        "objects"
+      ],
+      "topic": "Objects Hash Combines Component Hashes",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "An inner class is written inside another class but each inner instance is permanently attached to one outer instance, and here that outer object has id 4. Since twice finds id through that attachment, it returns 8 and the outer reference o is what keeps the outer object alive. Reading 0 assumes the field is out of reach from inside a nested class, and reading 4 assumes the method ignores the field it multiplies.",
+      "format": "CODE_TRACING",
+      "hint": "The inner instance is built from an outer instance, so the field is in reach.",
+      "id": "jp-2.20-0008",
+      "learningObjective": "read an inner class that uses a field of the enclosing instance",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints 8, because the outer field is four doubled."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a nested class is detached from the object around it",
+          "text": "It prints 0, because a nested class sees no outer field."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a method named twice hands back its operand unchanged",
+          "text": "It prints 4, because the method returns the field alone."
+        },
+        {
+          "id": "D",
+          "misconception": "believes building an inner instance through a name needs a cast",
+          "text": "It fails to compile, because o.new needs a cast."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 22,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "An inner class doubles the enclosing field. What does the program print?\nclass Outer {\n    int id = 4;\n\n    class Inner {\n        int twice() {\n            return id * 2;\n        }\n    }\n\n    public static void main(String[] args) {\n        Outer o = new Outer();\n        Outer.Inner i = o.new Inner();\n        System.out.println(i.twice());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "inner-class",
+        "this"
+      ],
+      "topic": "An Inner Class Reads Its Outer Field",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "A class marked static inside another class is a plain top level style class that merely happens to be nested, so it has no enclosing instance and no this to reach an instance field through. The field it does read, level, is static and shared, so the method returns 6 doubled, which is 12. Reading 8 assumes the instance field id was used, and reading 0 assumes a static field starts at zero without an initialiser.",
+      "format": "CODE_TRACING",
+      "hint": "A static nested class has no enclosing instance, so only statics resolve.",
+      "id": "jp-2.20-0009",
+      "learningObjective": "resolve a static field read from inside a static nested class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a static nested class still has an enclosing instance",
+          "text": "It prints 8, because the instance field id was doubled."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the written initialiser on a static field is ignored",
+          "text": "It prints 0, because a static field starts at zero."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints 12, because the static field six is doubled."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a nested class is barred from reading static state",
+          "text": "It fails to compile, because statics cannot be read here."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "A static nested class reads a static field of its outer class. What is printed?\nclass Outer {\n    int id = 4;\n    static int level = 6;\n\n    static class Nested {\n        int twice() {\n            return level * 2;\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(new Outer.Nested().twice());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "static-nested-class",
+        "static-field"
+      ],
+      "topic": "A Static Nested Class Sees Only Static State",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "An inner class instance stores a reference to the outer object it belongs to, so new Inner with no receiver has nothing to attach to and the compiler rejects the static factory, which has no outer instance available. Reading a successful build assumes an inner class can exist without an outer, reading a privacy complaint misreads the error as an access rule, and reading a static complaint thinks the word static on the method is the problem rather than the missing outer instance.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask what an inner instance has to be attached to.",
+      "id": "jp-2.20-0010",
+      "learningObjective": "diagnose why a static method cannot build an inner class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an inner class can be created without an enclosing instance",
+          "text": "It compiles and builds an inner object with no outer."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the repair is to mark the inner class static instead",
+          "text": "It fails to compile because the class is not marked static."
+        },
+        {
+          "id": "C",
+          "misconception": "believes nesting itself is what the compiler objects to",
+          "text": "It fails to compile because Inner is declared inside Outer."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It fails to compile because no outer instance exists."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 24,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A static factory tries to build an inner class with no outer object in hand. What happens?\nclass Outer {\n    class Inner {\n    }\n\n    static Inner make() {\n        return new Inner();\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "inner-class",
+        "static-context"
+      ],
+      "topic": "An Inner Class Needs An Enclosing Instance",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.39,
+      "explanation": "Instance field initialisers run in the order the fields are written, so when copy is initialised the field n below it still holds its default zero, and the compiler refuses the simple name as an illegal forward reference rather than quietly storing a zero. Reading 5 assumes the initialiser order does not matter, reading 0 assumes the compiler accepts the read and stores the default, and reading a null complaint mistakes an ordering rule for a reference rule.",
+      "format": "BUG_SPOTTING",
+      "hint": "Field initialisers run in declaration order, so a later field is not ready.",
+      "id": "jp-2.20-0011",
+      "learningObjective": "diagnose an illegal forward reference between two instance fields",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the compiler accepts the read and keeps the default",
+          "text": "It compiles and stores the default value zero for copy."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It fails to compile as an illegal forward reference."
+        },
+        {
+          "id": "C",
+          "misconception": "believes field initialisers can read a field declared later",
+          "text": "It compiles and stores five, whatever the order is."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a field needs a repeated type word to be declared",
+          "text": "It fails to compile because copy has no type name."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 26,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "A field copies a sibling that is declared after it. What does the compiler say?\nclass Slot {\n    int copy = n;\n    int n = 5;\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot().copy);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "field-initializer",
+        "forward-reference"
+      ],
+      "topic": "A Field Cannot Read A Field Declared Below It",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.38,
+      "explanation": "A local variable only exists from its declaration onward, so using in on the line above the declaration names something that has not been created, and the compiler rejects it. Reading 6 assumes the declaration is hoisted to the top of the method like it is for fields, reading 0 assumes a missing local silently reads as zero, and reading a scope complaint misreads a use before declaration as a brace problem.",
+      "format": "BUG_SPOTTING",
+      "hint": "A local does not exist until its declaration is executed.",
+      "id": "jp-2.20-0012",
+      "learningObjective": "diagnose a use of a local before its declaration is reached",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It fails to compile because in is used too early."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a local is created before its declaration statement runs",
+          "text": "It compiles and prints 6, because the local is hoisted."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a read of an undeclared local silently yields the default",
+          "text": "It compiles and prints 0, because a missing local is zero."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the helper position in the file decides name visibility",
+          "text": "It fails to compile because twice is declared too high."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A local is passed to a helper before the statement that declares it. What happens?\nclass Main {\n    static int twice(int v) {\n        return v * 2;\n    }\n\n    public static void main(String[] args) {\n        int out = twice(in);\n        int in = 3;\n        System.out.println(out);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "local-scope",
+        "forward-reference"
+      ],
+      "topic": "A Local Cannot Read A Local Declared Below It",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "explanation": "Building an object runs the field initialisers and the instance initialiser blocks in the order they are written, and only then runs the constructor body, so the log accumulates field first, then the block, then the body, and the three pieces print in that order. Reading init before field assumes a block runs ahead of the field written above it, and reading ctor ahead of init assumes the constructor body starts before the initialiser phase finishes.",
+      "format": "CODE_TRACING",
+      "hint": "Instance initialiser blocks sit in the field phase, before the body.",
+      "id": "jp-2.20-0013",
+      "learningObjective": "order field initialisers, instance initialiser blocks and the constructor body",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an instance block runs before the field above it",
+          "text": "It prints init field ctor, block first of all."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the constructor body runs ahead of instance blocks",
+          "text": "It prints field ctor init, the body before the block."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints field init ctor, in written order."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the constructor body replaces whatever initialisers wrote",
+          "text": "It prints only ctor, because fields are wiped in the body."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 32,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A class has a field initialiser, an instance initialiser block and a constructor body. What is printed?\nclass Order {\n    String log = \"field \";\n\n    {\n        log += \"init \";\n    }\n\n    Order() {\n        log += \"ctor\";\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Order().log);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "initializer-block",
+        "field-initializer"
+      ],
+      "topic": "An Instance Initializer Runs Between Field And Body",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.37,
+      "explanation": "A static initialiser block runs once when the class is prepared, so the counter starts at 5, and each of the two constructor calls then adds one, giving 7. Reading 2 assumes the block never ran because objects are made at run time, and reading 5 assumes the constructors wrote to a field that does not exist yet.",
+      "format": "CODE_TRACING",
+      "hint": "The block runs at class preparation, the constructors run per object.",
+      "id": "jp-2.20-0014",
+      "learningObjective": "count constructor calls against a one time static initialiser",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a static initialiser is skipped until something needs it",
+          "text": "It prints 2, because the block never runs at run time."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 7, five from the block and two from the bodies."
+        },
+        {
+          "id": "C",
+          "misconception": "believes an instance body is barred from changing static state",
+          "text": "It prints 5, because constructors do not touch statics."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the counter stops responding after one construction",
+          "text": "It prints 6, because only the first object counts."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 26,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A static block sets a shared counter, then two objects are built. What is printed?\nclass Counter {\n    static int made;\n\n    static {\n        made = 5;\n    }\n\n    Counter() {\n        made++;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        new Counter();\n        new Counter();\n        System.out.println(Counter.made);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "static-initializer",
+        "static-counter"
+      ],
+      "topic": "A Static Initializer Runs Once Per Class",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "explanation": "A static field lives on the class, so that read compiles to a single fetch of the field and the null receiver is never inspected, which is why 3 prints first. The second read is an instance field, and reading one through a null object has to touch the object, so it throws a NullPointerException before a second line appears. Reading 3 then 4 assumes both reads ignore the receiver, and reading a leading failure assumes the static read also has to dereference it.",
+      "format": "CODE_TRACING",
+      "hint": "Only one of the two reads has to look at the object behind the name.",
+      "id": "jp-2.20-0015",
+      "learningObjective": "trace a static and an instance field read through a null variable",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an instance field read also ignores a null receiver",
+          "text": "It prints 3 then 4, because neither read uses the object."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 3, then throws a NullPointerException."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a static field read must dereference its receiver too",
+          "text": "It throws before printing, on the static field read."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a null receiver turns an instance read into its default",
+          "text": "It prints 3 then 0, reading the instance default instead."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 32,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A null variable is used to reach a static field, then the same style is used for an instance field. What does the program print?\nclass Tag {\n    static int count = 3;\n    int size = 4;\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Tag t = null;\n        System.out.println(t.count);\n        System.out.println(t.size);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "static-field",
+        "null-receiver"
+      ],
+      "topic": "A Static Field Needs No Receiver",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.38,
+      "explanation": "A field initialiser runs while the object is being built, but calling a static method of the same class is fine because that method needs no object to work on, so the initialiser stores whatever the helper returns, which is 3 doubled to 6. Reading 0 assumes the call found no object and fell back to a default, and reading 3 assumes the initialiser stores the argument rather than the value that came back.",
+      "format": "CODE_TRACING",
+      "hint": "The helper needs no object, so nothing has to exist before the call.",
+      "id": "jp-2.20-0016",
+      "learningObjective": "use a static helper from a field initialiser of the same class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a method may only be called once the object is complete",
+          "text": "It fails to compile, since no object exists yet to call."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 6, because a static helper needs no object."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a field initialiser cannot overwrite the default value",
+          "text": "It prints 0, because the field keeps its default instead."
+        },
+        {
+          "id": "D",
+          "misconception": "believes an initialiser stores the argument it passed to the helper",
+          "text": "It prints 3, because the argument is stored not the result."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 26,
+        "p75Sec": 74
+      },
+      "scope": "core-scope",
+      "stem": "A field initialiser calls a static helper of its own class. What does the program print?\nclass Sizes {\n    static int twice(int v) {\n        return v * 2;\n    }\n\n    int n = twice(3);\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Sizes().n);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "field-initializer",
+        "static-method"
+      ],
+      "topic": "A Field Initializer May Call A Static Method",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.37,
+      "explanation": "A source file may name at most one public class, and that class must match the file name, so with Alpha and Beta both public the compiler rejects the second declaration and asks for a file called Beta.java. Reading a successful run assumes two entry points are harmless, reading a complaint about main confuses an access rule with the file naming rule, and printing beta assumes the compiler picks one of the two at random.",
+      "format": "BUG_SPOTTING",
+      "hint": "The public class has to match the file name, and there is only one name.",
+      "id": "jp-2.20-0017",
+      "learningObjective": "diagnose a file that declares two public classes",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the compiler drops the extra public class silently",
+          "text": "It compiles and runs Alpha, ignoring the second class."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It fails to compile; only one public class per file."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the number of entry points is what the rule is about",
+          "text": "It fails to compile because two main methods exist."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the compiler picks the last public class as the entry",
+          "text": "It compiles and prints beta, using the second class."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 24,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A file named Alpha.java declares Alpha and Beta as public. What happens?\npublic class Alpha {\n    public static void main(String[] args) {\n        System.out.println(\"alpha\");\n    }\n}\n\npublic class Beta {\n    public static void main(String[] args) {\n        System.out.println(\"beta\");\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "file-structure",
+        "public-class"
+      ],
+      "topic": "One Public Class Per File",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "The requirement that a public class live in a file of its own name applies only when a class is declared public, and here neither Widget nor Main is public, so the file name is free and the program runs, printing 6. Reading a compile failure assumes the file must be named after every class it holds, and reading a null complaint mistakes a missing modifier for a missing type.",
+      "format": "CODE_TRACING",
+      "hint": "Only a public class ties its name to the file name.",
+      "id": "jp-2.20-0018",
+      "learningObjective": "recognise that a file name need not match a non public class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the naming rule covers non public classes too",
+          "text": "It fails to compile; the file must be named Widget.java."
+        },
+        {
+          "id": "B",
+          "misconception": "believes an entry point class has to be declared public",
+          "text": "It fails to compile because Main is not marked public."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints 6, because no public class fixes the name."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a main method is only found on a public class",
+          "text": "It prints nothing, because nothing is public to run."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "This file is saved as Runner.java and declares no public class. What does it print?\nclass Widget {\n    int id = 6;\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Widget().id);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "file-structure",
+        "entry-point"
+      ],
+      "topic": "The File Name Rule Applies To Public Classes",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.38,
+      "explanation": "A final field may be written only while the object is being built, so the write in the constructor is the one permitted assignment and the later s.row = 5 is rejected by the compiler. Reading 5 assumes the later write wins, reading 4 assumes the compiler keeps the old value and drops the write quietly, and reading a missing initialiser complaint confuses this field with a blank final that has never been written.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask how many places are allowed to write a final field.",
+      "id": "jp-2.20-0019",
+      "learningObjective": "diagnose an assignment to a final field outside its constructor",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes final on a field is ignored after construction",
+          "text": "It compiles and prints 5, because final only guards locals."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a final field must be given a value at its declaration",
+          "text": "It fails to compile because a final field needs a value here."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the compiler drops an illegal write and keeps the value",
+          "text": "It compiles and prints 4, ignoring the second write."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It fails to compile; final forbids the second write."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A final field is written again after construction. What does the compiler say?\nclass Seat {\n    final int row;\n\n    Seat(int r) {\n        row = r;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Seat s = new Seat(4);\n        s.row = 5;\n        System.out.println(s.row);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "final-field",
+        "constructor"
+      ],
+      "topic": "A Final Field Is Set Once, In Its Constructor",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.41,
+      "explanation": "A blank final field must be definitely assigned by the end of every constructor, and with the write hidden inside the if the false path reaches the end still unassigned, so the compiler rejects the constructor before the program can run. Reading false assumes the field keeps the boolean default and the program prints it, reading true assumes the branch is always taken, and reading a null complaint mistakes a definite assignment problem for a type problem.",
+      "format": "BUG_SPOTTING",
+      "hint": "The compiler needs proof that every path assigns the field.",
+      "id": "jp-2.20-0020",
+      "learningObjective": "diagnose a final field that one constructor path leaves unset",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It fails to compile; one path leaves the field unset."
+        },
+        {
+          "id": "B",
+          "misconception": "believes an unwritten field silently keeps its default and runs",
+          "text": "It compiles and prints false, the boolean default value."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the guarded write runs for every argument value",
+          "text": "It compiles and prints true, because the branch is taken."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a blank final must be written at the declaration itself",
+          "text": "It fails to compile because on has no initial value here."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A constructor writes its final field only inside a branch. What does the compiler say?\nclass Flag {\n    final boolean on;\n\n    Flag(boolean v) {\n        if (v) {\n            on = true;\n        }\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Flag(false).on);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "final-field",
+        "definite-assignment"
+      ],
+      "topic": "A Blank Final Must Be Written On Every Path",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.41,
+      "explanation": "A compound assignment such as n += k is shorthand for reading n and writing the sum back into n, and the write half is aimed at a final field, so the compiler rejects the method. Reading 6 assumes the field grows like a normal one, reading 4 assumes the write is ignored and the constructor value stands, and reading a null complaint mistakes the final rule for a type mismatch on the right side.",
+      "format": "BUG_SPOTTING",
+      "hint": "A compound assignment is a read followed by a write to the same place.",
+      "id": "jp-2.20-0021",
+      "learningObjective": "spot that a compound assignment is still a write to a final field",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a final field still accepts a compound write",
+          "text": "It compiles and prints 6, because the field grew by two."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the compiler ignores an illegal write and keeps the value",
+          "text": "It compiles and prints 4, because the write was dropped."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It fails to compile; the compound write is a write."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the failure is about the types on the two sides",
+          "text": "It fails to compile because k is an int and n is not."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A method tries to bump a final field with a compound assignment. What happens?\nclass Total {\n    final int n;\n\n    Total(int v) {\n        n = v;\n    }\n\n    void add(int k) {\n        n += k;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Total t = new Total(4);\n        t.add(2);\n        System.out.println(t.n);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "final-field",
+        "compound-assignment"
+      ],
+      "topic": "A Final Field Rejects A Compound Write",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.27,
+      "discrimination": 0.34,
+      "explanation": "When an object appears in a concatenation the compiler routes it through the text conversion, which yields the four letters null when the reference itself is null rather than throwing, so the line reads v=null. Reading a bare v= assumes the null contributes nothing at all, and reading a NullPointerException confuses this with the field read through a null receiver, which really does fail.",
+      "format": "CODE_TRACING",
+      "hint": "Concatenation converts an object by asking for its text form.",
+      "id": "jp-2.20-0022",
+      "learningObjective": "predict concatenation with a null object reference",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a null reference contributes no characters to the text",
+          "text": "It prints v= and nothing after the equals sign."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints v=null, because the text form of null is null."
+        },
+        {
+          "id": "C",
+          "misconception": "believes concatenating a null reference dereferences it",
+          "text": "It throws a NullPointerException on the concatenation."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a null reference still names the runtime type",
+          "text": "It prints v=, followed by the class name of Object."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 56
+      },
+      "scope": "core-scope",
+      "stem": "A null object is concatenated into a label. What does the program print?\nclass Main {\n    public static void main(String[] args) {\n        Object o = null;\n        System.out.println(\"v=\" + o);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "concatenation",
+        "null"
+      ],
+      "topic": "Concatenation Turns A Null Object Into Text",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.25,
+      "discrimination": 0.33,
+      "explanation": "Putting an object in a concatenation asks the object for its text form, and Coin supplies that through toString, so the label becomes c= followed by coin2. Reading c=Coin assumes the class name is used when no description exists, and reading c=2 assumes the field is concatenated directly instead of through the description method that mentions it.",
+      "format": "CODE_TRACING",
+      "hint": "Any object in a concatenation is turned into text somehow.",
+      "id": "jp-2.20-0023",
+      "learningObjective": "recognise that concatenation calls the description method of an object",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a class with toString still prints its name here",
+          "text": "It prints c=Coin, using the runtime class name."
+        },
+        {
+          "id": "B",
+          "misconception": "believes concatenation reaches into the object and picks a field",
+          "text": "It prints c=2, concatenating the field value alone."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints c=coin2, from the description method."
+        },
+        {
+          "id": "D",
+          "misconception": "believes an object contributes nothing to a concatenation",
+          "text": "It prints c=, because the object adds no text."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "A coin class has a description method. What does the concatenation print?\nclass Coin {\n    int v = 2;\n\n    public String toString() {\n        return \"coin\" + v;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Coin c = new Coin();\n        System.out.println(\"c=\" + c);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "tostring",
+        "concatenation"
+      ],
+      "topic": "Concatenation Uses The Description Method",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "An array is an object, so concatenation asks it for its text form and prints the runtime type marker with a hex identity rather than the characters, which is why the joined string begins with the array marker and the first line is true, and the second line is 2 because the array still holds its two characters. Reading ab assumes a char array prints its contents, and reading false assumes the marker describes the character type rather than the array object.",
+      "format": "CODE_TRACING",
+      "hint": "Concatenation converts the array itself, not the characters in it.",
+      "id": "jp-2.20-0024",
+      "learningObjective": "tell an array of chars from a string in a concatenation",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a char array is spliced into a concatenation by value",
+          "text": "It prints ab on the first line, the characters joined."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the array lost its characters once it was converted",
+          "text": "It prints true on the first line, then 0 for the length."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the array marker names the element type not the object",
+          "text": "It prints false, then 2, since the marker is a type name."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints true, then 2, for the array and its length."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A char array is concatenated instead of being wrapped in a string first. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        char[] letters = { 'a', 'b' };\n        String joined = \"\" + letters;\n        System.out.println(joined.startsWith(\"[C@\"));\n        System.out.println(letters.length);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "char-array",
+        "concatenation"
+      ],
+      "topic": "A Char Array Concatenates As An Object",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.57,
+      "discrimination": 0.4,
+      "explanation": "Description methods are inherited, so the call runs the body written inside Base, and that body can only mention id, which is 1, so the line reads base1 and the child field extra never appears. Reading base12 assumes the inherited body somehow reaches the child field, and reading Child2 assumes the runtime class name is reported when the child has no description of its own.",
+      "format": "CODE_TRACING",
+      "hint": "The inherited body was written in the parent, so it only knows parent fields.",
+      "id": "jp-2.20-0025",
+      "learningObjective": "trace an inherited description method that cannot see the child fields",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an inherited body can read a field added by the child",
+          "text": "It prints base12, because both fields are reported."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints base1, because the inherited body is used."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a class with no description falls back to name and field",
+          "text": "It prints Child2, using the runtime class and its field."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a field written with a value is still at its default here",
+          "text": "It prints base, because the field of the parent is not set."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "A child class adds a field but no description method. What does the printer show?\nclass Base {\n    int id = 1;\n\n    public String toString() {\n        return \"base\" + id;\n    }\n}\n\nclass Child extends Base {\n    int extra = 2;\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Base b = new Child();\n        System.out.println(b);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "tostring",
+        "inheritance"
+      ],
+      "topic": "A Child Without Its Own Description Uses The Parent's",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.37,
+      "discrimination": 0.36,
+      "explanation": "Each call to the description method reads the field as it stands at that moment, so the first print sees 1 and the second, after the field becomes 7, sees 7, giving bag1 bag7. Reading bag1 twice assumes the text was frozen when the object was built, and reading bag7 twice assumes the first print already saw the later value.",
+      "format": "CODE_TRACING",
+      "hint": "The method reads the field each time it runs, not once at construction.",
+      "id": "jp-2.20-0026",
+      "learningObjective": "trace a description method across a field change",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a description method captures the field once at construction",
+          "text": "It prints bag1 bag1, because the text was frozen early."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the description method waits for the later value both times",
+          "text": "It prints bag7 bag7, because the field was read late."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints bag1 bag7, reading the field on each call."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a field that was reassigned reads as empty in the text",
+          "text": "It prints bag1 bag, because the later field is missing."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "One object is printed, its field is changed, and it is printed again. What is shown?\nclass Bag {\n    int count = 1;\n\n    public String toString() {\n        return \"bag\" + count;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Bag b = new Bag();\n        System.out.print(b + \" \");\n        b.count = 7;\n        System.out.println(b);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "tostring",
+        "field-read"
+      ],
+      "topic": "A Description Reads The Field As It Is Now",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.26,
+      "discrimination": 0.33,
+      "explanation": "The declared type of the variable only fixes which members the compiler allows, and asking the object for its class reports the type actually built, which is StringBuilder, and the simple name is the last part of that name without any package. Reading Object assumes getClass reports the declared type, and reading hi assumes the method reports the contents of the builder.",
+      "format": "CODE_TRACING",
+      "hint": "The declared type and the actual type are two different things here.",
+      "id": "jp-2.20-0027",
+      "learningObjective": "name the runtime type behind a reference",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the runtime class query reports the declared type",
+          "text": "It prints Object, the type the variable was declared as."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints StringBuilder, the type that was built."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a class query reports the value the object holds",
+          "text": "It prints hi, the text the builder was given."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the simple name still carries the package prefix",
+          "text": "It prints java.lang.Object, the fully qualified name."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "A reference declared as Object points at a builder. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        Object o = new StringBuilder(\"hi\");\n        System.out.println(o.getClass().getSimpleName());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "getclass",
+        "runtime-type"
+      ],
+      "topic": "Get Class Reports The Runtime Type",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "The simple name of an array class is written the way the declaration reads, element type plus brackets, while the binary name the runtime reports encodes the element as one letter and the dimensions as a bracket, so the line is int[] [I. Reading int int[] assumes both forms are written the same way, and reading int[] twice assumes the binary name is spelled out in full.",
+      "format": "CODE_TRACING",
+      "hint": "One form is written for people and one is the binary name the runtime uses.",
+      "id": "jp-2.20-0028",
+      "learningObjective": "distinguish the simple and binary name of an array class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the runtime form is spelled the way the declaration is",
+          "text": "It prints int int[], the element type and the brackets."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the binary name is a copy of the simple name",
+          "text": "It prints int[] int[], because the two names agree."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints int[] [I, the simple and the binary name."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the simple name of an array is also its binary name",
+          "text": "It prints [I [I, because both are the binary form."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 20,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "An int array is asked for both of its name forms. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        int[] a = { 1 };\n        System.out.println(a.getClass().getSimpleName() + \" \" + a.getClass().getName());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "getclass",
+        "array-type"
+      ],
+      "topic": "Simple Name Versus Fully Qualified Name",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "A varargs parameter is really an array, so calling the method with no arguments hands it an empty array whose loop never runs and the total is 0, while three arguments are gathered into an array that sums to 6 and an array argument is used as the array itself, summing 4 and 5 to 9. Reading a middle 0 assumes separate arguments are not gathered into an array, and reading all zeros assumes the loop never runs for any call.",
+      "format": "CODE_TRACING",
+      "hint": "Zero arguments simply means an empty array.",
+      "id": "jp-2.20-0029",
+      "learningObjective": "call a varargs method with zero, several and array arguments",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an explicit array argument is not bound to the varargs",
+          "text": "It prints 0 6 0, because the array argument is skipped."
+        },
+        {
+          "id": "B",
+          "misconception": "believes an enhanced loop over an array body never executes",
+          "text": "It prints 0 0 0, because the loop over an array never runs."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints 0 6 9, since zero args means an empty array."
+        },
+        {
+          "id": "D",
+          "misconception": "believes an empty argument list still contributes a default value",
+          "text": "It prints 6 6 9, because no arguments still count as one."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A varargs method is called with no arguments, with three, and with an array. What is printed?\nclass Sum {\n    static int total(int... values) {\n        int t = 0;\n        for (int v : values) {\n            t += v;\n        }\n        return t;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(total() + \" \" + total(1, 2, 3) + \" \" + total(new int[] { 4, 5 }));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "varargs",
+        "array-parameter"
+      ],
+      "topic": "Varargs With No Arguments",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.68,
+      "discrimination": 0.44,
+      "explanation": "A varargs parameter is an ordinary array parameter, and when the caller supplies an array the method receives that same array rather than a copy, so the sum is taken as 1 plus 2 which is 3, and only then does the write to the first slot land in the caller's array, making data[0] equal 100. Reading 3 1 assumes the array was copied on the way in, and reading 102 assumes the overwrite happened before the summing loop read the slot.",
+      "format": "CODE_TRACING",
+      "hint": "The parameter holds the very array the caller passed, not a copy.",
+      "id": "jp-2.20-0030",
+      "learningObjective": "trace a write through a varargs array back to the caller",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a varargs parameter is defensively copied for the caller",
+          "text": "It prints 3 1, because the method got a copy of the array."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the assignment targets the last slot of the array",
+          "text": "It prints 3 2, because the second slot was the one written."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the overwrite precedes the loop that reads the slots",
+          "text": "It prints 102 1, because the write happened before the sum."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints 3 100, because the caller's array was written."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 38,
+        "p75Sec": 100
+      },
+      "scope": "core-scope",
+      "stem": "The varargs method sums its array and then overwrites the first slot. What is printed?\nclass Sum {\n    static int total(int... values) {\n        int t = 0;\n        for (int v : values) {\n            t += v;\n        }\n        values[0] = 100;\n        return t;\n    }\n\n    public static void main(String[] args) {\n        int[] data = { 1, 2 };\n        System.out.println(total(data) + \" \" + data[0]);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "varargs",
+        "aliasing"
+      ],
+      "topic": "The Varargs Parameter Is A Real Array",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.38,
+      "explanation": "When a varargs call is given an array, that array becomes the parameter itself, so the first call reports one element starting at 8 and the second reports three starting at 1, while a call with loose values packs them into a fresh array of two starting at 4. Reading a length of one for the two element array assumes the array was wrapped rather than adopted, and reading a length of one for the loose call assumes packed values are not collected at all.",
+      "format": "CODE_TRACING",
+      "hint": "An array argument is not repacked into a new array of arrays.",
+      "id": "jp-2.20-0031",
+      "learningObjective": "see when a varargs call packs arguments and when it adopts an array",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an array argument arrives wrapped inside another array",
+          "text": "It prints 1:8 | 1:1 | 2:4, wrapping each array as one value."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 1:8 | 3:1 | 2:4, adopting arrays and packing values."
+        },
+        {
+          "id": "C",
+          "misconception": "believes separate arguments are not collected into an array",
+          "text": "It prints 1:8 | 3:1 | 1:4, with loose values left unpacked."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a supplied array is spread out into its own elements",
+          "text": "It prints 3:8 | 1:1 | 2:4, with the arrays treated as loose."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "The same varargs method is called with two arrays and with two plain values. What is printed?\nclass Sum {\n    static String tag(int... values) {\n        return values.length + \":\" + values[0];\n    }\n\n    public static void main(String[] args) {\n        int[] one = { 8 };\n        int[] two = { 1, 2, 3 };\n        System.out.println(tag(one) + \" | \" + tag(two) + \" | \" + tag(4, 5));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "varargs",
+        "array-parameter"
+      ],
+      "topic": "Varargs Packs Or Adopts Its Arguments",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.66,
+      "discrimination": 0.43,
+      "explanation": "Overload resolution tries a call against the declared parameter lists before it ever considers gathering the arguments into an array, so pick with one argument matches the fixed list and prints fixed, while the two argument call matches nothing of that shape and the empty call matches nothing either, so both fall through to the varargs method and print spread. Reading the first answer spread assumes packing is preferred over an exact match, and reading the last answer fixed assumes a zero argument call can reach a method that demands one.",
+      "format": "CODE_TRACING",
+      "hint": "Packing arguments into an array is the last resort, not the first.",
+      "id": "jp-2.20-0032",
+      "learningObjective": "resolve a call between a fixed parameter list and a varargs one",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints fixed spread spread, exact shape before packing."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the varargs method is preferred over an exact arity match",
+          "text": "It prints spread fixed spread, packing before matching."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a fixed parameter can be filled by an empty call",
+          "text": "It prints fixed spread fixed, matching a call with no args."
+        },
+        {
+          "id": "D",
+          "misconception": "believes packing is tried before the fixed parameter list at all",
+          "text": "It prints spread spread fixed, packing wins for one argument."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 94
+      },
+      "scope": "core-scope",
+      "stem": "Two same-named methods differ only in arity style. What does each call choose?\nclass Main {\n    static String pick(int a) {\n        return \"fixed\";\n    }\n\n    static String pick(int... a) {\n        return \"spread\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(pick(5) + \" \" + pick(1, 2) + \" \" + pick());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "varargs",
+        "overload-resolution"
+      ],
+      "topic": "Fixed Arity Wins Over Varargs",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.64,
+      "discrimination": 0.42,
+      "explanation": "An int argument matches the int parameter without any conversion and a long argument matches the long one, and a byte argument fits both by widening but the int parameter is the more specific of the two because every int widens to long while the reverse is not true, so the answers are int, long and int. Reading all longs assumes widening is preferred over an exact match, and reading all ints assumes the first declared method is chosen whenever both fit.",
+      "format": "CODE_TRACING",
+      "hint": "When two candidates both fit, the one needing no conversion at all is more specific.",
+      "id": "jp-2.20-0033",
+      "learningObjective": "choose between two widening overloads for three argument types",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a widening conversion outranks an exact parameter match",
+          "text": "It prints long long long, always widening to the wider type."
+        },
+        {
+          "id": "B",
+          "misconception": "believes declaration order alone decides between two candidates",
+          "text": "It prints int int int, always choosing the first method."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints int long int, taking the more specific candidate."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the exact match is the one needing a conversion",
+          "text": "It prints long int long, swapping the exact and widened cases."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 32,
+        "p75Sec": 90
+      },
+      "scope": "core-scope",
+      "stem": "Two overloads take an int and a long. What does each call print?\nclass Main {\n    static String pick(int a) {\n        return \"int\";\n    }\n\n    static String pick(long a) {\n        return \"long\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(pick(4) + \" \" + pick(4L) + \" \" + pick((byte) 4));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "overload-resolution",
+        "widening"
+      ],
+      "topic": "The Narrower Widening Candidate Wins",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.41,
+      "explanation": "An int argument matches the int parameter by an identity conversion in the first phase of overload resolution, and boxing the argument into a wrapper is only tried when the earlier phases find no candidate, so the primitive method runs and prints int. Reading Integer assumes the wrapper overload is preferred because it holds an object, and reading a doubled answer assumes the call runs both methods.",
+      "format": "CODE_TRACING",
+      "hint": "Boxing is a later phase than a plain widening match.",
+      "id": "jp-2.20-0034",
+      "learningObjective": "choose between a primitive and a boxed overload for a primitive argument",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a boxed parameter outranks a primitive one",
+          "text": "It prints Integer, because the wrapper overload is richer."
+        },
+        {
+          "id": "B",
+          "misconception": "believes an overloaded call executes every matching method",
+          "text": "It prints int int, because both methods run in turn."
+        },
+        {
+          "id": "C",
+          "misconception": "believes an exact primitive match leaves the call ambiguous",
+          "text": "It fails to compile, because int is ambiguous here."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints int, because the primitive match comes first."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "Two overloads take a primitive and a wrapper. Which one runs for an int argument?\nclass Main {\n    static String pick(int a) {\n        return \"int\";\n    }\n\n    static String pick(Integer a) {\n        return \"Integer\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(pick(4));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "overload-resolution",
+        "boxing"
+      ],
+      "topic": "Boxing Is Only Reached If Nothing Else Fits",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "explanation": "A bare null is assignable to any reference type, so both overloads are applicable and neither parameter type is more specific than the other, which leaves the call ambiguous and the compiler asks for a cast. Reading text assumes the first declared method is chosen, reading box assumes the later one wins, and reading a NullPointerException confuses a compile time choice with a run time value problem.",
+      "format": "BUG_SPOTTING",
+      "hint": "Null fits every reference type, so nothing makes one candidate better.",
+      "id": "jp-2.20-0035",
+      "learningObjective": "diagnose an ambiguous call caused by a bare null literal",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes declaration order breaks a tie between two reference types",
+          "text": "It compiles and prints text, using the first declaration."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It fails to compile; the reference to pick is ambiguous."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the last declared overload wins an ambiguous call",
+          "text": "It compiles and prints box, using the later declaration."
+        },
+        {
+          "id": "D",
+          "misconception": "believes an ambiguous call still reaches a method body at run time",
+          "text": "It throws a NullPointerException once the call is chosen."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A bare null is passed to two overloads that take unrelated reference types. What happens?\nclass Main {\n    static String pick(String s) {\n        return \"text\";\n    }\n\n    static String pick(Integer n) {\n        return \"box\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(pick(null));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "overload-resolution",
+        "null"
+      ],
+      "topic": "A Null Literal Is Ambiguous Between Overloads",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.7,
+      "discrimination": 0.45,
+      "explanation": "Both methods erase to the same parameter list of a raw List, so once the type arguments are dropped the two declarations have one signature and the compiler reports a name clash rather than offering a choice. Reading a successful compile assumes the type arguments keep the overloads distinct at the point of the call, reading texts assumes the first method is picked, and reading a null complaint mistakes a clash of signatures for an ambiguous call.",
+      "format": "BUG_SPOTTING",
+      "hint": "Type arguments are not part of the erased signature a call is matched on.",
+      "id": "jp-2.20-0036",
+      "learningObjective": "diagnose a name clash caused by type erasure",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes type arguments distinguish two erased signatures at the call",
+          "text": "It compiles, because the type arguments keep them distinct."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the compiler silently prefers the first of a clashing pair",
+          "text": "It compiles and prints texts, choosing the first method."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It fails to compile; both methods have the same erasure."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a generic factory with no arguments is not allowed",
+          "text": "It fails to compile because emptyList returns no values."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 38,
+        "p75Sec": 100
+      },
+      "scope": "core-scope",
+      "stem": "Two overloads differ only in their type arguments. What does the compiler say?\nimport java.util.List;\n\nclass Main {\n    static String pick(List<String> l) {\n        return \"texts\";\n    }\n\n    static String pick(List<Integer> l) {\n        return \"numbers\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(pick(java.util.Collections.emptyList()));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "generics",
+        "erasure"
+      ],
+      "topic": "Two Overloads Cannot Erase To One Signature",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.59,
+      "discrimination": 0.41,
+      "explanation": "Passing a raw list means no type argument can be inferred from the argument, so the type parameter is erased and the call hands back something typed only as Object, and the value that arrives is still the first element of the list, the text p. Reading 7 assumes the method returns the last element or the boxed integer, and reading the whole list assumes the method returns its argument rather than one element of it.",
+      "format": "CODE_TRACING",
+      "hint": "With no type argument to read, the returned reference is only known as an object.",
+      "id": "jp-2.20-0037",
+      "learningObjective": "trace a generic method whose argument is a raw list",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints p, the first element reached through the raw list."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the first element of the list is the boxed seven",
+          "text": "It prints 7, because the boxed integer is the type argument."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the generic method hands back the list it was given",
+          "text": "It prints the whole list, because the argument is returned."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a missing type argument leaves the returned value null",
+          "text": "It throws a NullPointerException, since nothing is typed."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 30,
+        "p75Sec": 84
+      },
+      "scope": "core-scope",
+      "stem": "A generic method is handed a raw list, so nothing pins its type argument. What is printed?\nimport java.util.List;\n\nclass Main {\n    static <T> T first(List<T> items) {\n        return items.get(0);\n    }\n\n    public static void main(String[] args) {\n        List raw = java.util.Arrays.asList(\"p\", 7);\n        Object v = first(raw);\n        System.out.println(v);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "generics",
+        "raw-type"
+      ],
+      "topic": "A Generic Method Through A Raw Reference",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "The type parameter takes the type of the argument at each call, so the text call gives a String back and the number call gives an Integer that unboxes into the int variable, and the line prints hi 3. Reading 3 hi assumes the second call replaces the value stored by the first, and reading hi twice assumes one call decides the type argument for every later call too.",
+      "format": "CODE_TRACING",
+      "hint": "The type argument is worked out per call from the argument itself.",
+      "id": "jp-2.20-0038",
+      "learningObjective": "see a generic method adapt separately at each call site",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a generic method keeps state from the previous call",
+          "text": "It prints 3 hi, because the last call supplies both values."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the first call's type argument governs all later calls",
+          "text": "It prints hi hi, because the type is fixed by the first call."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints hi 3, with a type argument per call site."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the last call's type argument governs all earlier ones",
+          "text": "It prints 3 3, because the type is fixed by the last call."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "One generic method is called twice with different argument types. What is printed?\nclass Main {\n    static <T> T box(T v) {\n        return v;\n    }\n\n    public static void main(String[] args) {\n        String s = box(\"hi\");\n        int n = box(3);\n        System.out.println(s + \" \" + n);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "generics",
+        "type-inference"
+      ],
+      "topic": "A Generic Method Infers Its Type Argument",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.39,
+      "explanation": "A local captured by an anonymous class must be effectively final, meaning it is either written final or never assigned after its declaration, and base qualifies because nothing writes it again, so the class can read it and the product of 4 and 2 prints 8. Reading 0 assumes a captured local reverts to its default inside the class, and reading a compile failure assumes the final keyword is the only thing that counts.",
+      "format": "CODE_TRACING",
+      "hint": "A local counts as final when it is simply never written again.",
+      "id": "jp-2.20-0039",
+      "learningObjective": "check that a local captured by an anonymous class is effectively final",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an outer local is unreadable and reads as its default value",
+          "text": "It prints 0, because a captured local reverts to default."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 8, since both locals are effectively final."
+        },
+        {
+          "id": "C",
+          "misconception": "believes only an explicitly final local may be captured",
+          "text": "It fails to compile because base lacks the final keyword."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a class expression must be given a declared name first",
+          "text": "It fails to compile because an anonymous class needs a name."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 28,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "An anonymous class reads two locals, one written once and one never rewritten. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        int base = 4;\n        final int step = 2;\n        Runnable r = new Runnable() {\n            public void run() {\n                System.out.println(base * step);\n            }\n        };\n        r.run();\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "anonymous-class",
+        "effectively-final"
+      ],
+      "topic": "A Captured Local Must Be Effectively Final",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.43,
+      "discrimination": 0.37,
+      "explanation": "A class expression used as a value still sits inside an assignment statement, and every statement ends with a semicolon, so the missing terminator after the closing brace leaves the parser expecting the end of the statement and the compiler rejects it. Reading a successful run assumes the next line's semicolon can serve as the one that is missing, reading a run that prints go twice assumes the class body was read twice, and reading a scope complaint mistakes a missing terminator for a brace mismatch.",
+      "format": "BUG_SPOTTING",
+      "hint": "The class expression is a value in a statement, and statements end.",
+      "id": "jp-2.20-0040",
+      "learningObjective": "diagnose a missing statement terminator after a class expression",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a later semicolon can terminate an earlier statement",
+          "text": "It compiles, and the semicolon on the next line covers it."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the class body is executed by the following statement too",
+          "text": "It compiles and prints go twice, once per body."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the error is an unbalanced brace rather than a terminator",
+          "text": "It fails to compile because the braces do not balance."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It fails to compile; a semicolon is expected here."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A class expression is assigned to a variable without a terminator. What happens?\nclass Main {\n    public static void main(String[] args) {\n        Runnable r = new Runnable() {\n            public void run() {\n                System.out.println(\"go\");\n            }\n        }\n        r.run();\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "anonymous-class",
+        "syntax"
+      ],
+      "topic": "An Anonymous Class Expression Needs Its Semicolon",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.37,
+      "explanation": "A class declared inside a method body belongs to that body and is in scope for the rest of the method, so the statement after the declaration can build a Tag and read its field, giving x. Reading a NullPointerException assumes the class name is unknown to the method that declares it, and reading Tag assumes the field of that name is the class name itself rather than the value that was stored.",
+      "format": "CODE_TRACING",
+      "hint": "A class declared in a body is usable from that body onwards.",
+      "id": "jp-2.20-0041",
+      "learningObjective": "use a class declared inside a method body",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a class declared in a body is out of scope in that body",
+          "text": "It throws a NullPointerException on the class name."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a local class declaration is not allowed at all",
+          "text": "It fails to compile because a class needs a top level home."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints x, the field the local class was given."
+        },
+        {
+          "id": "D",
+          "misconception": "believes printing a field whose name matches the class shows the name",
+          "text": "It prints Tag, the name of the class that was built."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A method declares a small class in its body and builds one. What is printed?\nclass Main {\n    static String build() {\n        class Tag {\n            String name;\n\n            Tag(String s) {\n                name = s;\n            }\n        }\n        return new Tag(\"x\").name;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(build());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "local-class",
+        "scope"
+      ],
+      "topic": "A Local Class Lives Inside Its Method",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.38,
+      "explanation": "The class Tag is declared inside the body of make, so that name exists only from its declaration to the end of that body and main cannot see it, so the compiler reports that no Tag is in scope. Reading a successful build assumes a name declared in any body is visible file wide, reading false assumes the build works and the comparison yields false, and reading a privacy complaint mistakes an out of scope name for an access rule.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask where the declared class is in scope.",
+      "id": "jp-2.20-0042",
+      "learningObjective": "diagnose a use of a method local class from another method",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It fails to compile; Tag is not in scope in main."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a name declared in one body is visible in every method",
+          "text": "It compiles and prints true, since the class exists somewhere."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a legal build of a local class can still yield null",
+          "text": "It compiles and prints false, since the build returns null."
+        },
+        {
+          "id": "D",
+          "misconception": "believes declaring a class in a body is itself forbidden",
+          "text": "It fails to compile because Tag is declared inside a method."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A class declared inside one method is built from another. What happens?\nclass Main {\n    static void make() {\n        class Tag {\n            Tag(String s) {\n            }\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(new Tag(\"x\") != null);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "local-class",
+        "scope"
+      ],
+      "topic": "A Local Class Is Not Visible Outside",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.53,
+      "discrimination": 0.39,
+      "explanation": "A sort orders by the sign of the comparison, so subtracting the second length from the first puts the shorter name first and the list becomes w, xy, abc. Subtracting the other way reverses the order to abc, xy, w, comparing the names as text gives abc, w, xy, and a comparator that always reports equal leaves the list in its original order of w, abc, xy.",
+      "format": "CODE_COMPLETION",
+      "hint": "A negative result puts the first name before the second one.",
+      "id": "jp-2.20-0043",
+      "learningObjective": "write a comparator expression that orders by string length",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "(a, b) -> a.length() - b.length()"
+        },
+        {
+          "id": "B",
+          "misconception": "believes subtracting the other way still sorts shortest first",
+          "text": "(a, b) -> b.length() - a.length()"
+        },
+        {
+          "id": "C",
+          "misconception": "believes comparing the names as text is the same as comparing lengths",
+          "text": "(a, b) -> a.compareTo(b)"
+        },
+        {
+          "id": "D",
+          "misconception": "believes a comparator that reports no order still reorders the list",
+          "text": "(a, b) -> 0"
+        }
+      ],
+      "practice": "code completion",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "The list must end up shortest name first. Which expression fills the blank?\nimport java.util.ArrayList;\nimport java.util.List;\n\nclass Main {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(java.util.Arrays.asList(\"w\", \"abc\", \"xy\"));\n        names.sort(____);\n        System.out.println(names);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "lambda",
+        "comparator"
+      ],
+      "topic": "The Lambda That Sorts By Length",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "A method reference names a method to call later, and the function type says one text argument arrives and a number comes back, so applying it to quiz measures that text and returns 4. Reading quiz assumes the method hands back its argument rather than a number, and reading a compile failure assumes the reference cannot stand in for a lambda at all.",
+      "format": "CODE_TRACING",
+      "hint": "The reference is applied to the argument the caller passes.",
+      "id": "jp-2.20-0044",
+      "learningObjective": "bind a method reference to a one argument function type",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints 4, the length of the text it is applied to."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a method reference returns the argument it was given",
+          "text": "It prints quiz, the text passed to the reference."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a method reference cannot be used where a lambda fits",
+          "text": "It fails to compile, as references need a lambda here."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a method reference starts at the default for its type",
+          "text": "It prints 0, because nothing is measured until asked."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A method reference is used where a text to number function is wanted. What is printed?\nimport java.util.function.Function;\n\nclass Main {\n    public static void main(String[] args) {\n        Function<String, Integer> len = String::length;\n        System.out.println(len.apply(\"quiz\"));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "method-reference",
+        "functional-interface"
+      ],
+      "topic": "A Method Reference Needs A Matching Shape",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.27,
+      "discrimination": 0.34,
+      "explanation": "Objects.equals guards against a null on either side before it compares, so two nulls are equal while a null and a value are not, and the line prints true false false. Reading all trues assumes a null matches any value, and reading a failure assumes the helper calls the equals method on the reference without checking it first.",
+      "format": "CODE_TRACING",
+      "hint": "The helper checks both sides before it compares anything.",
+      "id": "jp-2.20-0045",
+      "learningObjective": "compare two references for equality without a null check",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a null reference compares equal to whatever it faces",
+          "text": "It prints true true true, treating null as a wildcard."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints true false false, guarding both sides first."
+        },
+        {
+          "id": "C",
+          "misconception": "believes two nulls are different because neither holds data",
+          "text": "It prints false false false, since nothing is a value."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the helper dereferences before it checks for null",
+          "text": "It throws a NullPointerException on the first call."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 56
+      },
+      "scope": "core-scope",
+      "stem": "The standard helper is asked to compare references, some of them null. What is printed?\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(java.util.Objects.equals(null, null) + \" \"\n                + java.util.Objects.equals(\"a\", null) + \" \"\n                + java.util.Objects.equals(null, \"a\"));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "objects",
+        "equals"
+      ],
+      "topic": "Objects Equals Is Null Safe",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.25,
+      "discrimination": 0.33,
+      "explanation": "The helper returns the object's own text form when there is an object and the supplied fallback when the reference is null, so the first call yields none and the second yields here, giving none here. Reading null here assumes the fallback is ignored for a null, and reading none none assumes the fallback replaces the text even when an object is present.",
+      "format": "CODE_TRACING",
+      "hint": "The second argument is what stands in for a missing value.",
+      "id": "jp-2.20-0046",
+      "learningObjective": "read the fallback value the standard text helper supplies",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the fallback text is never used for a null reference",
+          "text": "It prints null here, ignoring the fallback argument."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the fallback replaces the text of a real object too",
+          "text": "It prints none none, always using the fallback text."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints none here, using the fallback only for null."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a null reference reports the fallback object's own text",
+          "text": "It prints here here, because null reads as the object."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "The text helper is given a null and a real value. What does it print?\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(java.util.Objects.toString(null, \"none\") + \" \"\n                + java.util.Objects.toString(\"here\", \"none\"));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "objects",
+        "text-conversion"
+      ],
+      "topic": "Objects To String Falls Back For Null",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "The check throws a NullPointerException carrying the message it was given when the reference is null, so the catch block prints seat missing. Reading null assumes the exception carries no message of its own, and reading a thrown failure that escapes assumes nothing catches the exception that the check raises.",
+      "format": "CODE_TRACING",
+      "hint": "The message travels with the exception that is thrown.",
+      "id": "jp-2.20-0047",
+      "learningObjective": "use a precondition check that names what was missing",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a thrown exception reports the reference rather than a message",
+          "text": "It prints null, the default text for a missing value."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a caught exception loses the detail it was given",
+          "text": "It prints nothing, because the message is swallowed."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a message must match the type of the checked value",
+          "text": "It fails to compile, since the message type is wrong."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints seat missing, the message passed to the check."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "A precondition check is given a null and its own message. What does the catch block print?\nclass Main {\n    public static void main(String[] args) {\n        try {\n            java.util.Objects.requireNonNull(null, \"seat missing\");\n        } catch (NullPointerException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "objects",
+        "precondition"
+      ],
+      "topic": "Require Non Null Throws With Its Message",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "A private constructor means no other class can build an instance, which is the usual way to say a class of static helpers is never meant to hold state, and the static call itself is unaffected, so the program prints 6. Reading 0 assumes the private constructor ran and left the helper's value alone, and reading 3 assumes the call returns its argument rather than the doubled one.",
+      "format": "CODE_TRACING",
+      "hint": "Privacy on the constructor keeps the class from being built at all.",
+      "id": "jp-2.20-0048",
+      "learningObjective": "call a static helper on a class that cannot be instantiated",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes privacy on a constructor is not allowed by the language",
+          "text": "It fails to compile; a constructor cannot be private."
+        },
+        {
+          "id": "B",
+          "misconception": "believes constructing the class resets the static helper's result",
+          "text": "It prints 0, because a private constructor runs first."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints 6, and the class can never be instantiated."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a method named twice hands back the value unchanged",
+          "text": "It prints 3, because the static call returns its argument."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A class holds only static helpers and a private constructor. What does the program print?\nclass Doubler {\n    private Doubler() {\n    }\n\n    static int twice(int v) {\n        return v * 2;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(Doubler.twice(3));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "private-constructor",
+        "static-method"
+      ],
+      "topic": "A Utility Class Hides Its Constructor",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.47,
+      "discrimination": 0.39,
+      "explanation": "Private limits a member to its own class, so although Util and Main sit in one file the new expression in Main is outside Util and the constructor is not accessible there, so the compiler rejects it. Reading true assumes sharing a file grants access, reading false assumes the build is allowed and the comparison is false, and reading a successful print assumes the privacy rule applies only across packages.",
+      "format": "BUG_SPOTTING",
+      "hint": "Same file does not mean same class for access purposes.",
+      "id": "jp-2.20-0049",
+      "learningObjective": "diagnose a new expression aimed at a private constructor",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes classes in one source file can reach each other's privates",
+          "text": "It compiles and prints true, because the file is shared."
+        },
+        {
+          "id": "B",
+          "misconception": "believes an accessible-looking new can still produce a null result",
+          "text": "It compiles and prints false, because the build yields null."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It fails to compile; the constructor is not accessible here."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a class needs static members to be used at all",
+          "text": "It fails to compile because Util has no static members."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 26,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "Another class in the same file tries to build the helper class with new. What happens?\nclass Util {\n    private Util() {\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Util() != null);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "private-constructor",
+        "access"
+      ],
+      "topic": "APrivate Constructor Blocks Instantiation",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "explanation": "A record is given a description method that prints the record name followed by each component in declaration order with its name and value, so the line reads Slot[row=4, seat=7]. Reading Slot[4, 7] assumes the component names are left out, and reading 4 7 assumes the record's text form is just the values concatenated without any labels.",
+      "format": "CODE_TRACING",
+      "hint": "The supplied description names the record and then each component.",
+      "id": "jp-2.20-0050",
+      "learningObjective": "read the description text a record supplies for free",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the supplied description omits the component names",
+          "text": "It prints Slot[4, 7], the name and bare component values."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a record prints only its values with no name at all",
+          "text": "It prints 4 7, the component values on their own."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints Slot[row=4, seat=7], the supplied form."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the supplied description reports only the record's name",
+          "text": "It prints Slot, the record name with no components."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 22,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A record is declared with two components and printed directly. What is shown?\nrecord Slot(int row, int seat) {\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot(4, 7));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "tostring"
+      ],
+      "topic": "A Record Prints Its Components",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.33,
+      "discrimination": 0.35,
+      "explanation": "A record is given an equality method that reports true only when the other value is a record of the same kind with every component equal in declaration order, so the first comparison of 4 and 7 against 4 and 7 is true while the swapped pair is not, giving true false. Reading true twice assumes component order is irrelevant, and reading false twice assumes identity alone decides equality.",
+      "format": "CODE_TRACING",
+      "hint": "Two records are equal when every component matches in order.",
+      "id": "jp-2.20-0051",
+      "learningObjective": "compare two records built from the same and different components",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It prints true false, matching components in order."
+        },
+        {
+          "id": "B",
+          "misconception": "believes two records match when their values are a permutation",
+          "text": "It prints true true, ignoring the order of components."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a record keeps the default identity based equality",
+          "text": "It prints false false, comparing the references only."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the swapped record happens to equal the first one",
+          "text": "It prints false true, because the second call built a match."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 22,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "Two records with the same parts and two with swapped parts are compared. What is printed?\nrecord Slot(int row, int seat) {\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot(4, 7).equals(new Slot(4, 7)) + \" \"\n                + new Slot(4, 7).equals(new Slot(7, 4)));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "equals"
+      ],
+      "topic": "A Record Compares By Component Values",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.38,
+      "explanation": "Each component of a record becomes a final field set once by the constructor, so the write to row inside bump is a write to a final field and the compiler rejects it. Reading 2 assumes the method succeeded and the record changed, reading 1 assumes the write was ignored and the original value stands, and reading a missing accessor complaint mistakes the illegal write for a missing method.",
+      "format": "BUG_SPOTTING",
+      "hint": "Every component of a record is fixed when the record is built.",
+      "id": "jp-2.20-0052",
+      "learningObjective": "diagnose an attempt to write a component field of a record",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a record component can be written after construction",
+          "text": "It compiles and prints 2, because the component grew."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the compiler drops a write to a fixed component silently",
+          "text": "It compiles and prints 1, ignoring the illegal write."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a record needs an accessor written out by hand",
+          "text": "It fails to compile because the accessor is missing."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It fails to compile; a record component is final."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A record method tries to grow one of its components. What does the compiler say?\nrecord Slot(int row) {\n    void bump() {\n        row = row + 1;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot(1).row());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "final-field"
+      ],
+      "topic": "A Record Component Cannot Be Reassigned",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "difficulty": 0.29,
+      "discrimination": 0.34,
+      "explanation": "A record is a small class, so besides the accessor generated for the component it can hold ordinary methods, and here the accessor hands back 3 while the written method doubles that same component to 6, giving 3 6. Reading 6 6 assumes the accessor and the method return the same thing, and reading 3 3 assumes the extra method is never called.",
+      "format": "CODE_TRACING",
+      "hint": "The generated accessor and the written method both read the component.",
+      "id": "jp-2.20-0053",
+      "learningObjective": "call a method written on a record beside its accessors",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the generated accessor also applies the extra method",
+          "text": "It prints 6 6, because both calls double the component."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 3 6, from the accessor and the method."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a record may not carry methods of its own",
+          "text": "It prints 3 3, because the extra method is ignored."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a record cannot declare a method beside its components",
+          "text": "It fails to compile, since a record holds data only."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 20,
+        "p75Sec": 56
+      },
+      "scope": "core-scope",
+      "stem": "A record has one component and one extra method. What does the program print?\nrecord Slot(int row) {\n    int value() {\n        return row * 2;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Slot s = new Slot(3);\n        System.out.println(s.row() + \" \" + s.value());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "method"
+      ],
+      "topic": "A Record Carries Behaviour Alongside Its Data",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.41,
+      "explanation": "A compact constructor is the place to validate what the components are about to hold, and with a row of 0 the condition holds and the exception is thrown before the record exists, so the catch block prints the message it carried. Reading 0 assumes the record was built and its component printed, and reading an escaping exception assumes nothing catches what the check throws.",
+      "format": "CODE_TRACING",
+      "hint": "The check runs before the component values are stored.",
+      "id": "jp-2.20-0054",
+      "learningObjective": "reject a bad component value in a compact record constructor",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the record is created before the check rejects the value",
+          "text": "It prints 0, the component of the record that was built."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a caught exception suppresses the detail it carried",
+          "text": "It prints nothing, because the message is not shown."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints row must be positive, the message on the throw."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the thrown exception is not caught by the try block",
+          "text": "It escapes as an uncaught exception and stops the program."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A compact constructor refuses a component value it considers invalid. What is printed?\nrecord Seat(int row) {\n    Seat {\n        if (row < 1) {\n            throw new IllegalArgumentException(\"row must be positive\");\n        }\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        try {\n            new Seat(0);\n        } catch (IllegalArgumentException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "precondition"
+      ],
+      "topic": "A Compact Constructor Can Check Its Parts",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.42,
+      "explanation": "A record may declare that it implements an interface as long as it supplies the operation the interface demands, and here the public rank method packs the row into the hundreds and the seat into the units, so 4 and 7 pack to 407 while 4 and 2 pack to 402, and the test of 407 above 402 is true. Reading false assumes the seat is packed into the more significant place, and reading 407 assumes the operation hands back its own number rather than a comparison of two of them.",
+      "format": "CODE_TRACING",
+      "hint": "The record supplies the operation and packs its components into a number.",
+      "id": "jp-2.20-0055",
+      "learningObjective": "have a record supply the operation a plain interface demands",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the second component occupies the more significant place",
+          "text": "It prints false, because the seat is packed into the hundreds."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the operation hands back its own number rather than comparing",
+          "text": "It prints 407, because the operation returns the packed value."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a record is barred from declaring an implemented interface",
+          "text": "It fails to compile, since records cannot implement interfaces."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints true, because 407 sorts above 402."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 30,
+        "p75Sec": 86
+      },
+      "scope": "core-scope",
+      "stem": "A record is declared as implementing a one method interface. What does the program print?\ninterface Ranked {\n    int rank();\n}\n\nrecord Slot(int row, int seat) implements Ranked {\n    public int rank() {\n        return row * 100 + seat;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        Ranked a = new Slot(4, 7);\n        Ranked b = new Slot(4, 2);\n        System.out.println(a.rank() > b.rank());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "interface"
+      ],
+      "topic": "A Record Can Satisfy An Interface",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.39,
+      "explanation": "A record extends nothing, because the language extends the class it would otherwise need in order to hold its components, and naming a superclass is rejected by the compiler, while implementing interfaces is allowed. Reading a successful compile assumes a record behaves like any other class for inheritance, reading a null complaint mistakes the rule for a null field, and reading a private complaint confuses it with an access limit.",
+      "format": "BUG_SPOTTING",
+      "hint": "A record has no superclass to extend, only interfaces to implement.",
+      "id": "jp-2.20-0056",
+      "learningObjective": "diagnose a record that tries to extend a class",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "",
+          "text": "It fails to compile; a record cannot extend a class."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a record may extend a class and inherit its fields",
+          "text": "It compiles, and the inherited field is also available."
+        },
+        {
+          "id": "C",
+          "misconception": "believes an inherited field shadows the component accessor here",
+          "text": "It compiles and prints 1, the inherited field value."
+        },
+        {
+          "id": "D",
+          "misconception": "believes a superclass has to be declared in a separate source file",
+          "text": "It fails to compile because Base is in another file."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 26,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "A record names a superclass. What does the compiler say?\nclass Base {\n    int id = 1;\n}\n\nrecord Slot(int row) extends Base {\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot(2).row());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "inheritance"
+      ],
+      "topic": "ARecord Cannot Extend A Class",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.37,
+      "explanation": "A record may hold state only through the components listed in its header, and a separate instance field is not one of them, so the compiler rejects the declaration. Reading a successful run assumes any field may sit beside the components, reading 5 assumes the extra field is reported in the text form, and reading a missing accessor complaint mistakes the ban on extra state for a missing method.",
+      "format": "BUG_SPOTTING",
+      "hint": "The components are the only state a record may hold.",
+      "id": "jp-2.20-0057",
+      "learningObjective": "diagnose an instance field written inside a record",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a record silently drops a field it does not recognise",
+          "text": "It compiles, and the extra field is simply ignored."
+        },
+        {
+          "id": "B",
+          "misconception": "believes the supplied text form lists every field in the record",
+          "text": "It compiles and prints 5, reporting the extra field too."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It fails to compile; only components may be state."
+        },
+        {
+          "id": "D",
+          "misconception": "believes the problem is a missing reader for the field",
+          "text": "It fails to compile because the field has no accessor."
+        }
+      ],
+      "practice": "bug spotting",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 24,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A record declares a field that is not one of its components. What happens?\nrecord Slot(int row) {\n    int extra = 5;\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(new Slot(2));\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "field"
+      ],
+      "topic": "ARecord Cannot Declare An Extra Field",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "A static method on a record lives on the record type itself, so calling it needs no instance and it builds a record whose component is 1, whose ordinary method then doubles that to 2, giving 2. Reading 1 assumes the static call returns the component rather than a record, and reading a failure assumes a static method on a record is treated as a component.",
+      "format": "CODE_TRACING",
+      "hint": "A static method belongs to the record type, not to any one record.",
+      "id": "jp-2.20-0058",
+      "learningObjective": "call a static factory written on a record",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes a static factory returns the component value directly",
+          "text": "It prints 1, the component of the record that was built."
+        },
+        {
+          "id": "B",
+          "misconception": "",
+          "text": "It prints 2, after the instance method doubles it."
+        },
+        {
+          "id": "C",
+          "misconception": "believes a record may not declare a static method beside components",
+          "text": "It fails to compile, as records allow no static methods."
+        },
+        {
+          "id": "D",
+          "misconception": "believes an instance method reads the default when built by a factory",
+          "text": "It prints 0, because a static call has no component."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 22,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "A record carries a static factory beside its component. What does the program print?\nrecord Slot(int row) {\n    static Slot first() {\n        return new Slot(1);\n    }\n\n    int doubled() {\n        return row * 2;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.println(Slot.first().doubled());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "record",
+        "static-method"
+      ],
+      "topic": "A Static Method On A Record Is Not A Component",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "C"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "explanation": "Every constant of an enum is its own object, built once by the enum constructor with the argument written beside it, so SLOW holds a factor of 1 and FAST holds 5, and looking one up by name returns that same FAST object, which is why the name prints as SLOW, the field as 5, and the looked up field as 5. Reading 1 5 5 assumes the first constant is printed by its field, and reading SLOW 1 1 assumes every constant shares one field value.",
+      "format": "CODE_TRACING",
+      "hint": "Each constant is a distinct object built once by the enum constructor.",
+      "id": "jp-2.20-0059",
+      "learningObjective": "read per constant fields built by an enum constructor",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes an enum constant prints as its field value in a string",
+          "text": "It prints 1 5 5, showing the first field rather than the name."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a field set by a constructor is shared by all the constants",
+          "text": "It prints SLOW 1 1, sharing one field across constants."
+        },
+        {
+          "id": "C",
+          "misconception": "",
+          "text": "It prints SLOW 5 5, since each constant has its own field."
+        },
+        {
+          "id": "D",
+          "misconception": "believes looking up a constant by name alters the earlier constant",
+          "text": "It prints FAST 5 5, because a lookup changes the first value."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 30,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "Each enum constant is built with its own argument. What does the program print?\nenum Speed {\n    SLOW(1), FAST(5);\n\n    final int factor;\n\n    Speed(int f) {\n        factor = f;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        System.out.print(Speed.SLOW + \" \" + Speed.FAST.factor + \" \" + Speed.valueOf(\"FAST\").factor);\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "enum",
+        "constructor"
+      ],
+      "topic": "Enum Constants Carry Their Own Fields",
+      "unit": "Unit 2",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "D"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.7,
+      "discrimination": 0.45,
+      "explanation": "A constant may carry a class body that supplies its own version of the shared step, so the loop over the constants calls the addition for the first and the multiplication for the second, which gives 7 and 12 in declaration order. Reading 12 7 assumes the loop visits the constants in reverse declaration order, and reading 7 7 assumes a constant without a body would fall back to some shared arithmetic that happens to add.",
+      "format": "CODE_TRACING",
+      "hint": "A constant with a body replaces the shared step for that constant only.",
+      "id": "jp-2.20-0060",
+      "learningObjective": "run a shared abstract step that each enum constant implements",
+      "options": [
+        {
+          "id": "A",
+          "misconception": "believes the values method hands back the constants backwards",
+          "text": "It prints 12 7, because the constants are visited in reverse."
+        },
+        {
+          "id": "B",
+          "misconception": "believes a constant body cannot replace the shared step",
+          "text": "It prints 7 7, because every constant uses the same step."
+        },
+        {
+          "id": "C",
+          "misconception": "believes the shared step and the constant body both run per call",
+          "text": "It prints 7 12 7, once per body plus the shared step."
+        },
+        {
+          "id": "D",
+          "misconception": "",
+          "text": "It prints 7 12, adding for the first and multiplying next."
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w10",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-p2",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewer": "bank-review-jp-p2",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "Each constant supplies its own body for a shared step. What does the program print?\nenum Op {\n    ADD {\n        int apply(int a, int b) {\n            return a + b;\n        }\n    },\n    MUL {\n        int apply(int a, int b) {\n            return a * b;\n        }\n    };\n\n    abstract int apply(int a, int b);\n}\n\nclass Main {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder();\n        for (Op o : Op.values()) {\n            sb.append(o.apply(3, 4)).append(\" \");\n        }\n        System.out.println(sb.toString().trim());\n    }\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-2",
+        "enum",
+        "polymorphism"
+      ],
+      "topic": "Each Constant Can Own Its Own Behaviour",
+      "unit": "Unit 2",
+      "version": 1
+    }
+  ]
+}
