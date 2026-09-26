@@ -1,0 +1,3940 @@
+{
+  "questions": [
+    {
+      "id": "cf-3.26-0001",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Two failures that belong in different layers",
+      "learningObjective": "place a caller-fixable failure and a shared transient failure at different layers",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A parse routine can fail in two ways: the text it was handed is malformed, which only the caller who supplied that text can correct, or the store it reads is briefly unreachable, which every caller would hit the same way. Where should each be handled?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Let the malformed-text failure travel up to the caller that supplied the text, and handle the unreachable store inside the routine, because only the caller can fix the text while every caller would otherwise repeat the same recovery",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Handle both inside the routine, because a routine that can fail owes its caller a safe value on every path",
+          "misconception": "believes a routine must convert every failure into an ordinary return value"
+        },
+        {
+          "id": "C",
+          "text": "Let both travel to the top, because one place that reports failures is easier to keep consistent than two",
+          "misconception": "believes a single reporting layer beats fixing a failure where it can be understood"
+        },
+        {
+          "id": "D",
+          "text": "Handle the malformed text inside the routine, because the parse helper is the only place that knows the format",
+          "misconception": "believes the shape of the text is a property of the helper rather than of the caller"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Where a failure is handled should follow who can act on it. The caller owns the text, so only the caller can decide whether to reprompt, reject the record, or accept a different format; reporting it as if the store were at fault sends the reader after the wrong thing. The unreachable store is nobody's input, and its recovery is the same for every caller, so it belongs inside the routine, once. Handling the text failure inside the routine is the tempting move, because the helper is where the format lives, but it leaves the caller unable to distinguish a bad record from a bad day.",
+      "hint": "Ask who can actually change the cause: the caller, or the routine.",
+      "difficulty": 0.62,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-propagation",
+        "layering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0002",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A message that names the cause against one that names the symptom",
+      "learningObjective": "judge two failure messages by whether the reader can act on the cause they name",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two messages report the same failed sign-in. The first says only that sign-in failed. The second says that no account matches this address and password pair. Which is the better report, and what does it buy the reader?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The second, because it names the condition that produced the failure, so the reader can tell a mistyped address from a wrong password and act on that difference instead of retrying blindly",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first, because a message that reveals nothing cannot be misused by anyone who sees it",
+          "misconception": "believes that withholding detail is what makes a message safe"
+        },
+        {
+          "id": "C",
+          "text": "The second, because a longer message always gives the reader more to work with",
+          "misconception": "believes message quality is a matter of length rather than content"
+        },
+        {
+          "id": "D",
+          "text": "The first, because naming the account lookup invites one address to be probed after another",
+          "misconception": "believes that naming a check lets someone guess the values it checks"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first names the symptom, which every failure in that area shares, so it cannot separate a mistyped address from a wrong password and leaves the reader with nothing but a retry. The second names the condition the routine actually tested, so it points at the specific step that did not match. Both can be written without disclosing anything sensitive, because the fact that a lookup found no match is not a secret; what matters is that the report distinguishes causes rather than merely sounding more technical.",
+      "hint": "Ask whether the two messages would lead a reader to different next steps.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0003",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A message that carries a path, a line number, and a record identifier",
+      "learningObjective": "identify the three kinds of internal detail a raw failure report exposes",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A payment page shows a raw failure report: a null fault at line 88 of OrderService, a record identifier, and a full path to an invoice file. What is wrong with this beyond its wording?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It hands over three things worth having — a file path, a line of internal source, and a stable record identifier — none of which the person reporting the problem needs in order to be helped",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing, because a technical report is the most precise description of the fault available",
+          "misconception": "believes more internal detail always makes a report more precise"
+        },
+        {
+          "id": "C",
+          "text": "Only the path is a problem, because the other two details identify the failing record",
+          "misconception": "believes a record identifier is safe to show because it is not a secret"
+        },
+        {
+          "id": "D",
+          "text": "The problem is only the language named, which makes the report look unprofessional",
+          "misconception": "believes the offence is naming the language rather than the cause"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each detail is a lever: the path shows how the system is laid out and where its data lives, the line number turns a report into a map of internal structure, and the record identifier is a handle that can be looked up by anyone who later gains access to the store. None of them helps the person who needs help, because what they can describe is what they were trying to do, which is enough for support to search on. The fix is not to shorten the report but to replace the internal detail with a handle that support can use privately.",
+      "hint": "Ask what a reader could do with each detail that they could not do from a plain description of the attempt.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "information-leak"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0004",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A correlation handle that finds the record without revealing it",
+      "learningObjective": "state what a correlation handle must and must not carry",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A service returns a short opaque token with every failed request and writes the full internal detail in its log under that same token. What does the token buy, and what must it not contain?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It lets support find the exact log entry without exposing anything, so it must be unguessable and carry no path, account, or host of its own, since a guessable or descriptive token re-opens the leak it replaced",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It lets the service skip writing the log, because the token already records what happened",
+          "misconception": "believes the token replaces the written record rather than pointing at it"
+        },
+        {
+          "id": "C",
+          "text": "It speeds up the search through the log, because support can jump to the matching line",
+          "misconception": "believes the token's value is speed rather than certainty about which entry is meant"
+        },
+        {
+          "id": "D",
+          "text": "It lets the user see why their own request failed, because the token decodes to the detail",
+          "misconception": "believes an opaque token is a way of encoding the detail for the user"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The handle works because it is a join key, not because of anything it contains: the reader quotes it, support looks it up, and nothing sensitive crosses the boundary. That is also why its own content matters, because a token built from a timestamp, a counter, or a name carries structure that can be guessed and walked through. An unguessable token with no descriptive parts can be published to whoever needs it and still reveal nothing about the entry it names.",
+      "hint": "Ask whether the token could be guessed or read, and whether guessing it would expose anything.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "correlation-id",
+        "information-leak"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0005",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A message that stops before the remedy",
+      "learningObjective": "add the missing element that turns a rejection into something the reader can act on",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A form rejects a birth date of 1904 with the words date out of range. The person at the keyboard cannot tell whether to retype it, ask someone, or simply try again later. What is missing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The remedy: it should name what is accepted and what to do, for example enter a date between 1900 and today, so the reader can act without reading the source",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the length, because a long message is easier to read than a short one",
+          "misconception": "believes the fix is more words rather than a next step"
+        },
+        {
+          "id": "C",
+          "text": "The field name, because the person has to know which of six fields was rejected",
+          "misconception": "believes naming the field is the same as saying what to do about it"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because a form that rejects bad input is behaving correctly on its own",
+          "misconception": "believes correct rejection makes the message unnecessary"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A rejection that stops at the verdict leaves the work undone, because the reader's only route left is to guess what would be accepted. Naming the accepted range converts the report into an instruction, and it costs one clause. The field name is worth having but it is not the missing piece, since the person already knows which field they were filling in; what they cannot know is the bound that rejected it.",
+      "hint": "Ask what the reader would have to try next if the message were all they had.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "user-guidance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0006",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A value that is wrong against a call that failed",
+      "learningObjective": "explain why a wrong value and a failed call are not interchangeable to a caller",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine hands back 0 when it cannot reach the store, and its caller adds that 0 to a running total as though it were a real reading. Why does the difference between a wrong value and a failed call matter here?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because a wrong value is indistinguishable from a real one once it has been returned, so the caller cannot separate an honest 0 from a failure and the failure has to arrive by a different route than the value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It matters only for speed, because a failed call costs more time than a value lookup",
+          "misconception": "believes the distinction exists to make the program faster"
+        },
+        {
+          "id": "C",
+          "text": "It does not matter, because both end up as a 0 in the total and the total is what is reported",
+          "misconception": "believes two different causes are interchangeable once both are numbers"
+        },
+        {
+          "id": "D",
+          "text": "It matters because a failed call should be retried at once while a wrong value is recalculated",
+          "misconception": "believes both failures deserve the same immediate retry"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The moment a failure is dressed as a value it loses the one property that made it recoverable: the caller can no longer tell it apart from a genuine reading, and every downstream step inherits that blindness. This is why failures travel on a separate route from results, so that a caller is forced to decide what to do about them. The total looks reasonable either way, which is exactly why the substitution survives review and is caught, if at all, by a reader comparing totals against counts.",
+      "hint": "Ask what the caller can still do after it has received the number.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-signalling",
+        "return-values"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0007",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A marker value that is also a legal value",
+      "learningObjective": "locate the damage done when a marker sits inside the legal range of the data",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A lookup returns -1 when the code is not found, and the codes in this system legally run from -1 to 99. What breaks, and where does the break actually show up?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The caller cannot tell not found from the real code -1, so the fault surfaces in the caller's test rather than in the lookup, and the marker has to move outside the legal range or be reported apart from the value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing breaks, because the caller tests for -1 before it uses the result",
+          "misconception": "believes a test on the marker suffices when the marker is itself a legal value"
+        },
+        {
+          "id": "C",
+          "text": "The lookup breaks, because it can no longer produce -1 once -1 is a legal code",
+          "misconception": "believes the marker becomes unrepresentable inside the routine"
+        },
+        {
+          "id": "D",
+          "text": "The store breaks, because it refuses to hold a code equal to the marker",
+          "misconception": "believes the marker is a restriction on storage rather than on the reading"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A marker only works in the space of values that cannot otherwise occur, and -1 here is a perfectly good code, so the caller's test is satisfied by both outcomes and the two collapse into one. The damage lands in the caller, which is why the routine itself keeps passing its own tests. The repair is to move the marker outside the legal range, or better, to report presence separately from the value, so that no value has to double as a signal.",
+      "hint": "Ask which of the legal values the caller's test cannot distinguish from the marker.",
+      "difficulty": 0.56,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sentinel-values",
+        "error-signalling"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0008",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A default that stands in for data nobody has",
+      "learningObjective": "trace how a substituted default turns a gap into a measurement",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reporting routine fills every missing reading with 0 and then averages over the full count of readings. A colleague asks why the average has come out low. What is the mechanism?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The substituted 0 is being treated as a measurement: it pulls the mean down and the denominator still counts the gap, so the routine reports a number nobody took and hides the fact that data was missing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The mean is low because the 0 is added twice, once as the filler and once in the sum",
+          "misconception": "believes the substituted value is double counted rather than counted as a reading"
+        },
+        {
+          "id": "C",
+          "text": "The mean is low because the count of readings differs from the count of values summed",
+          "misconception": "believes the denominator disagrees with the values being added"
+        },
+        {
+          "id": "D",
+          "text": "The mean is low because whole-number division drops the fraction at the end",
+          "misconception": "believes the arithmetic type is at fault rather than the substituted value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Filling a gap turns a known unknown into a false measurement, and the routine then treats it exactly like a real one in both the sum and the count, so the result is arithmetically correct and factually wrong. The tell is the count: a number derived from data that was never taken should change shape when the gap is closed, and here it does not, because the routine has no way left to say a reading was missing.",
+      "hint": "Ask whether the routine could still tell anyone that a reading was missing.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "default-values",
+        "silent-failure"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0009",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A change that is half applied and never undone",
+      "learningObjective": "state what the caller needs when an operation stops between two writes",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transfer routine moves money out of one account and then fails while recording it in the other. What has to be true of the caller, and what does the tidier-looking alternative cost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The caller must be able to tell that the transfer did not happen and must be able to put the first move back, because otherwise the two accounts disagree and nobody can tell which one to repair from the records alone",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing, because the second record is the one that matters and the first can simply be repeated",
+          "misconception": "believes repeating a half-applied transfer repairs it"
+        },
+        {
+          "id": "C",
+          "text": "The caller must be told but nothing must be undone, because the first move is the smaller one",
+          "misconception": "believes the size of the first change decides whether it needs reversing"
+        },
+        {
+          "id": "D",
+          "text": "The caller must run both writes again, because a half-finished change always completes on a second pass",
+          "misconception": "believes a second attempt always finishes what the first one started"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A failure between two writes is not an error, it is a state: one account has been debited and the other has not been credited, and that state persists until somebody acts. The caller therefore needs two things, a way to learn that the pair is inconsistent and a way to reverse the half that happened. The tidier alternative, skipping the reversal because the first write was small, produces a mismatch that no later check attributes to this transfer, and by then the details needed to repair it are gone.",
+      "hint": "Ask what the records look like afterwards, and who could tell the two accounts apart.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "partial-change",
+        "recovery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0010",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Checking a rule at the edge and again inside",
+      "learningObjective": "weigh the benefit of an inner check against the cost of a duplicated rule",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The same rule, that a load must hold between 1 and 8 items, is checked in the request handler and again inside the loader that actually stores it. What does the second check cost, and when is it worth paying?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The inner check protects the loader from every caller, including the ones with no handler in front of them, and it costs a second copy of the rule that can drift from the first; it is worth paying when more than one path reaches the loader, provided the rule is written once and called twice",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The inner check is pure waste, because the handler always runs before the loader is reached",
+          "misconception": "believes one entry point makes every inner check redundant forever"
+        },
+        {
+          "id": "C",
+          "text": "The inner check is the only one that matters, because other callers bypass the handler",
+          "misconception": "believes an outer check adds nothing even when the inner one already exists"
+        },
+        {
+          "id": "D",
+          "text": "The two checks are equivalent, because a rule checked twice must always give one verdict",
+          "misconception": "believes repeating a rule stops the two copies from disagreeing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Validation at the edge gives a good message to the person who made the request, and validation inside gives the routine a guarantee it can rely on without knowing its callers; these are different jobs and the second one is what makes the routine safe to use from anywhere. The cost is duplication, because two hand-written copies of a rule are two rules, and one of them will be changed without the other. A rule defined in one place and checked in both keeps the guarantee and removes the drift.",
+      "hint": "Ask who reaches the loader without passing through the handler.",
+      "difficulty": 0.64,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "layering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0011",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Failing fast or degrading, decided per call site",
+      "learningObjective": "justify different handling of one failure at two call sites",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The same unavailable service is read by a dashboard that must render something and by a payment step that must be exactly right. Why should the two call sites treat that one failure differently?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the cost of a wrong answer differs at each site: the dashboard can show a marked-stale or cached reading, while the payment step must stop, since a guessed amount there is not something a later check can undo",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "They should not differ, because one consistent policy is easier to reason about than two",
+          "misconception": "believes a uniform policy is always better than a suitable one"
+        },
+        {
+          "id": "C",
+          "text": "The dashboard should also stop, because a stale reading is a failure in disguise",
+          "misconception": "believes degrading always hides something worse than stopping would"
+        },
+        {
+          "id": "D",
+          "text": "The payment step should degrade, because it can settle later while the person is present",
+          "misconception": "believes a payment amount can be guessed now and corrected later"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The same cause produces different obligations, because what a caller owes the person in front of it varies: a display that admits staleness honestly is still useful, while a settled amount that was invented is not. Deciding this per call site, rather than once for the service, is what lets one be generous and the other strict. The temptation to standardise is strong because a single rule is easier to remember, and a single rule has to be the strictest one any caller needs.",
+      "hint": "Ask what each caller would have to tell the person if it guessed.",
+      "difficulty": 0.66,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "fail-fast",
+        "trade-offs"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0012",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "An empty handler and what the caller then believes",
+      "learningObjective": "identify the false belief an empty handler leaves behind",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A cache load is wrapped in a handler whose body is empty, so a failure returns whatever the routine already holds. What does the calling code now believe that is not true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That it is holding fresh data: the empty handler makes failure look like an ordinary return, so a stale or empty value flows into the result and no later check can tell the difference",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the load succeeded, because raising nothing is what success looks like from outside",
+          "misconception": "believes the absence of a raised error is evidence the data is current"
+        },
+        {
+          "id": "C",
+          "text": "That the cache is empty, because an empty body is the same thing as a cleared cache",
+          "misconception": "believes an empty handler and an empty cache are one and the same state"
+        },
+        {
+          "id": "D",
+          "text": "Nothing false, because the value itself records whether it came from the cache",
+          "misconception": "believes a returned value carries its own freshness"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An empty handler is a promise to the caller that nothing went wrong, made by code that knows something did. Everything downstream then reads the stale or empty value as current, because there is no signal left to contradict it, and the staleness is discovered by a person noticing an old figure rather than by the system. An empty handler is not the same as no handler: without one the failure travels and someone upstream must decide, and that decision is at least visible.",
+      "hint": "Ask what signal the caller has left that the data is not current.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "swallowed-error",
+        "caller-belief"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0013",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "One report for four different rejections",
+      "learningObjective": "explain why a single collapsed test produces a single vague report",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine reports invalid input for every value it rejects: a missing field, a field of the wrong type, a field out of range, and a duplicate. Why does one message serve all four cases?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the check was written as one test with one failure branch, so four distinct conditions collapse into one report; the fix is to test the conditions separately and say which one failed and what the caller should change",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Because the caller cannot be told which field failed without seeing the whole record",
+          "misconception": "believes the entire record has to be exposed to identify one bad field"
+        },
+        {
+          "id": "C",
+          "text": "Because all four cases are repaired the same way, so naming one adds nothing",
+          "misconception": "believes different failures need no distinction when the repair might match"
+        },
+        {
+          "id": "D",
+          "text": "Because the routine never learns which field failed, as it is handed a whole record",
+          "misconception": "blames missing knowledge instead of the single collapsed test"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The vagueness is a faithful report of the code, not of the data: one test with one exit cannot distinguish four reasons, so it reports one. Whoever has to fix the record then has to reproduce the whole check themselves to find out which condition applied, which is the work the check was supposed to save. Splitting the conditions costs a few lines and turns one useless report into four instructions, each naming its own remedy.",
+      "hint": "Ask how many failure branches the check has, and how many conditions it rejects.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0014",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A broken guarantee relabelled as bad user input",
+      "learningObjective": "locate the layer that turned an internal fault into a user error",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reporting routine raises amount must be positive, and the interface above it turns every raised failure into you entered invalid data. What has gone wrong, and at which layer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At the interface: it caught a condition about the program's own state and relabelled it as a fault in the person's input, so they are told to recheck something they never controlled and the real defect stays hidden",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "At the routine, because it should have returned a sentence rather than raising a failure at all",
+          "misconception": "believes raising is wrong wherever a message could be returned instead"
+        },
+        {
+          "id": "C",
+          "text": "With the person, because a negative amount should never have been submitted in the first place",
+          "misconception": "believes the caller typed the negative value and could retype it correctly"
+        },
+        {
+          "id": "D",
+          "text": "Nowhere, because translating a raised failure into a user message is what interfaces are for",
+          "misconception": "believes any translation of a failure preserves what actually went wrong"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A precondition on the program's own state is a statement about internal consistency, and turning it into a complaint about input moves the blame to a party who has no way to check or fix it. The interface is where the damage happens, because that is where the meaning was changed, and the cost is that a real defect now looks like ordinary carelessness, so nobody investigates it. The routine that raised was behaving correctly; a report about internal state has to keep saying so as it travels up.",
+      "hint": "Ask who controls the amount, and who is being told to change it.",
+      "difficulty": 0.62,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-labels",
+        "layering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0015",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A hold that only comes back on the happy path",
+      "learningObjective": "explain why a release has to sit on both the success and the failure path",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine takes a hold on a file, reads it, and then does further work that can fail. Why must the release sit in a place that runs whether or not that work succeeded?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the hold is taken before the risky work begins, so any failure in between leaves it outstanding, and a release written only at the end is skipped by exactly the path that needed it most",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It need not, because a failure ends the program and the hold is released as it exits",
+          "misconception": "believes a failure always ends the whole program"
+        },
+        {
+          "id": "C",
+          "text": "It need not, because the hold is released when the routine's local name goes out of use",
+          "misconception": "believes a local name going out of use releases what it holds"
+        },
+        {
+          "id": "D",
+          "text": "Only on the success path, because a failed read never took a hold worth releasing",
+          "misconception": "believes a partial read leaves nothing that needs giving back"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The release has to be owned by the thing that took the hold, not by the last line of the success path, because the interesting failures are the ones that jump over the last line. A routine that returns early on a bad value, or that lets a failure travel out of the middle of its work, leaves the hold outstanding every time, and the number of outstanding holds only ever grows. The pattern that removes the reasoning entirely is to attach the release to the scope that took it, so no path can forget it.",
+      "hint": "Ask which line a failure jumps over on its way out.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "cleanup"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0016",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Giving a hold back before the work it protects",
+      "learningObjective": "reason about the wrong order of two releases and the disagreement it creates",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine writes a record into a cache and then notes the write in a log. The hold on the cache is given back before the note is attempted. What is inconsistent when the note fails?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The record is already outside the cache while the log still says nothing was stored, so the two disagree, and retrying the note alone cannot undo a write that has already left; the log's own hold has to be given back first",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing, because the cache copy is the record of truth and the log is only a note",
+          "misconception": "believes one store's version settles the disagreement with the other"
+        },
+        {
+          "id": "C",
+          "text": "Only the order of the two log lines is wrong, because the record was still cached correctly",
+          "misconception": "believes the position of a log line is the only thing the order affects"
+        },
+        {
+          "id": "D",
+          "text": "The cache hold cannot be given back at all, because it lasts until the log is written",
+          "misconception": "believes a hold covers work carried out after it is released"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Order here decides which facts can still be true at the moment something goes wrong, and releasing first guarantees that a failure can leave the two stores telling different stories with no way back. The log records what the cache was believed to hold, so the log's own hold has to cover the cache work, not the other way round. This is the general shape: a handle stays held until everything it protects is safely recorded elsewhere.",
+      "hint": "Ask which statement must still be adjustable after the cache write finishes.",
+      "difficulty": 0.63,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "ordering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0017",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A cause that clears by itself against one that never will",
+      "learningObjective": "decide retryability from a property of the cause rather than from the wording",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two failures reach a caller. One says the far end refused the connection because it is overloaded; the other says the record that was asked for does not exist. Which is worth retrying, and what decides it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the first, and the deciding property is whether the cause can change with nothing on the caller's side: an overloaded service clears by itself, while a record that is missing is missing just as much on the tenth attempt as on the first",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both, because retrying is always cheaper than reporting a failure to the person waiting",
+          "misconception": "believes a retry costs nothing regardless of what caused the failure"
+        },
+        {
+          "id": "C",
+          "text": "Neither, because nothing in the failure itself says whether the cause is temporary",
+          "misconception": "believes the wording of a failure carries no information about retryability"
+        },
+        {
+          "id": "D",
+          "text": "The first only if the caller can change something first, such as the size of the request",
+          "misconception": "believes a temporary cause always depends on the caller's own request"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Retrying is worth doing when repeating the attempt could produce a different outcome, and the property that tells you is whether the cause is under anyone's control at the moment of the call. Overload is a state of the far end that clears; a missing record is a fact about the data that a repeat cannot alter, so the retry spends time and buys nothing. Encoding that property on the failure, rather than inferring it from the sentence, is what lets a retry policy be written once and trusted.",
+      "hint": "Ask what would be different on a second identical attempt.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "retry-policy",
+        "error-classes"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0018",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A code a program can match against a sentence it cannot",
+      "learningObjective": "explain what a stable code gives a caller that prose does not",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A service reports failures as a short code such as quota exceeded, plus a sentence for people and the code for programs. What does the code give the caller that the sentence does not?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A stable handle to branch on: the code can be matched exactly, counted, and mapped to a remedy, while a sentence can be reworded or translated and matching on its wording then breaks without warning",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A shorter message, so the code saves space on the wire for every failure",
+          "misconception": "believes the value of a code is mostly how little it takes to send"
+        },
+        {
+          "id": "C",
+          "text": "A guarantee the failure cannot recur, because a code is only ever issued once",
+          "misconception": "believes a one-off code means the cause is spent"
+        },
+        {
+          "id": "D",
+          "text": "A human-readable explanation, because the code stands in for the missing sentence",
+          "misconception": "believes a code replaces prose for the person who reads it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Prose is written for people and is therefore free to change: a rewording, a translation, or a shorter version for a small screen all break a program that was matching on it. A code is a contract, and its whole purpose is to be matched, counted, and mapped to a decision, which is why it changes only on purpose. The sentence still has to exist, because the person receiving it is the one who has to act, and the two are written for different readers of the same event.",
+      "hint": "Ask which of the two a translator or an editor is allowed to rewrite.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-codes",
+        "error-messages"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0019",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Catching a kind of failure rather than a sentence",
+      "learningObjective": "say what catching by kind guarantees that catching by wording does not",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine raises three separate kinds of failure and each is caught on its own, so the routine below can answer not found without ever touching the disk. What does catching by kind buy over catching by wording?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A guarantee that survives rewording: the kind is part of the identity of the failure, so each handler fires for every instance of its own condition and none of the others, with nobody matching on English text at all",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A faster match, because comparing two kinds is quicker than comparing two sentences",
+          "misconception": "believes the benefit is speed rather than reliability of the match"
+        },
+        {
+          "id": "C",
+          "text": "A shorter program, because one handler written generally can serve all three kinds",
+          "misconception": "believes a single general handler is the shortened form rather than the blurred one"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because the wording is part of the failure and cannot change by accident",
+          "misconception": "believes a message can never be reworded after the code is written"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Kinds are decided where the failure is raised, by the code that knows what went wrong, so a handler that names a kind is bound to the right condition however the reporting is later reworded. Matching on wording inverts that: it puts the knowledge in the wrong place, makes the routine sensitive to prose, and turns a routine change in the message into a behaviour change in the handler. The kinds do not have to be many, only specific enough that a handler means one thing.",
+      "hint": "Ask who decided what went wrong, and whether that decision can be edited later.",
+      "difficulty": 0.57,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-classes",
+        "catching"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0020",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A handler that also swallows a different fault",
+      "learningObjective": "trace what a catch-all does to a fault it was never written for",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A loop wraps each step in a handler for a missing-file condition, but one of those steps also divides by a count that can be zero. What does the handler do to that second fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It takes it as well, because the handler names a condition rather than a fault, so the divide by zero is filed as a missing file and the code that caused it is never reached; handlers must take the kinds they expect and let the rest travel",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It leaves it alone, because a handler can only take the condition it names by name",
+          "misconception": "believes a named handler automatically excludes every other fault"
+        },
+        {
+          "id": "C",
+          "text": "It turns it into a warning, because an unexpected fault is softened into a message",
+          "misconception": "believes a handler can reclassify a fault without moving where it happened"
+        },
+        {
+          "id": "D",
+          "text": "It stops the step before the divide happens, so the fault never occurs at all",
+          "misconception": "believes catching a condition prevents the code inside the block from running"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A handler written to catch one condition is chosen by that name, not by anything about the fault that arrives, so an unrelated failure travelling through the same block is accepted and reported as the expected kind. The divide by zero is then invisible: it is recorded as a missing file, the code that could cause it is never looked at, and the loop carries on with whatever state the handler left behind. Narrowing the handler to the kinds it can name restores the signal, and whatever is left over keeps its own identity.",
+      "hint": "Ask what the handler has available with which to tell the two faults apart.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "catching",
+        "hidden-faults"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0021",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "An empty branch that lets the failure fall through to a default",
+      "learningObjective": "trace a failure whose handler body is empty",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the single value it displays. DEFINE parseCount(text) n <- 0. FOR EACH ch IN text { IF ch IS A DIGIT THEN n <- n * 10 + VALUE(ch) ELSE { RETURN -1 } } RETURN n END. DEFINE readOrZero(text) v <- parseCount(text). IF v = -1 THEN { } ELSE { RETURN v }. RETURN 0 END. DISPLAY readOrZero(\"12a4\").",
+      "options": [
+        {
+          "id": "A",
+          "text": "0, because the branch taken for -1 has an empty body, so execution reaches the final return and hands back the default",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "-1, because the marker parseCount returned is still the value the caller receives",
+          "misconception": "believes a returned marker survives an empty branch"
+        },
+        {
+          "id": "C",
+          "text": "124, because the letter is skipped and the remaining digits still form the number",
+          "misconception": "believes a bad character is dropped rather than ending the parse"
+        },
+        {
+          "id": "D",
+          "text": "1, because the running number is what the routine returns when a later digit fails",
+          "misconception": "believes the partially built number is returned when the parse stops"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The parse stops at the letter a and hands back the marker, and then the empty branch does what an empty branch does, which is nothing at all, so control falls to the last line and the caller receives 0. The routine therefore reports a plausible number for text it could not read, and nothing downstream can tell that number from a real reading. An empty branch is not the same as no branch: a branch that simply returned the marker, or that re-raised it, would have left the failure where the caller could see it.",
+      "hint": "Ask which line the failure path reaches after taking the empty branch.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "swallowed-error",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0022",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A marker value added into a total as though it were data",
+      "learningObjective": "trace a routine whose marker is consumed by arithmetic downstream",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the single value it displays. DEFINE firstScore(row) best <- -1. FOR EACH s IN row { IF s > best THEN best <- s }. RETURN best END. DEFINE totalBest(rows) sum <- 0. FOR EACH row IN rows { sum <- sum + firstScore(row) }. RETURN sum END. GROUPS <- [[5, 9], []]. DISPLAY totalBest(GROUPS).",
+      "options": [
+        {
+          "id": "A",
+          "text": "8, because the empty group returns the marker and it is added to the 9 as though it were the group's best score",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "9, because a group with no scores contributes nothing and leaves the total as it was",
+          "misconception": "believes a group with no scores contributes zero rather than a marker"
+        },
+        {
+          "id": "C",
+          "text": "-1, because the last group's marker replaces the sum instead of joining it",
+          "misconception": "believes the final addition overwrites the running total"
+        },
+        {
+          "id": "D",
+          "text": "13, because the marker is counted as a score and the real best of 9 is counted twice",
+          "misconception": "believes the first group's best is credited to both groups"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first group holds 5 and 9, so its best is 9, and the second group has nothing to compare, so the initial value -1 is returned unchanged and added like any other result, giving 8. The caller cannot see that one of those two numbers was never a score, because the marker travelled back through the same channel as the values. A marker only protects the routine that returns it; anything that consumes the result has to be able to tell a marker from data too.",
+      "hint": "Ask what the empty group returns, and whether the caller can tell that from a real best.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "sentinel-values",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0023",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A hold that is only given back when the work succeeds",
+      "learningObjective": "trace two calls through a routine whose release sits on one path only",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the three values it displays, in order. HOLDS <- 0. DEFINE ACQUIRE(name) { HOLDS <- HOLDS + 1. RETURN name }. DEFINE RELEASE(name) { HOLDS <- HOLDS - 1. }. DEFINE WRITE(h, src) { IF LENGTH(src) = 1 THEN RETURN \"FAIL\". RETURN src + src }. DEFINE copyTwice(src) { h <- ACQUIRE(src). out <- WRITE(h, src). IF out = \"FAIL\" THEN RETURN \"no result\". RELEASE(h). RETURN out }. DISPLAY copyTwice(\"ab\"), copyTwice(\"a\"), HOLDS.",
+      "options": [
+        {
+          "id": "A",
+          "text": "abab, then no result, then 1, because the failing call returns before its release line and its hold is still outstanding at the end",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "abab, then no result, then 0, because both calls give their hold back before returning",
+          "misconception": "believes every path through a routine reaches the release"
+        },
+        {
+          "id": "C",
+          "text": "abab, then abab, then 2, because a one-letter value is still doubled like any other",
+          "misconception": "believes a failing write still produces a doubled value"
+        },
+        {
+          "id": "D",
+          "text": "abab, then no result, then 2, because each call takes one hold and so both holds are counted",
+          "misconception": "believes taking a hold and giving it back happen as one step"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first call takes a hold, writes abab, gives the hold back and leaves the count at 0. The second call takes a hold, is refused by the write, and returns immediately, so the count stays at 1 and the last line of the routine is never reached. That single number is the cost of putting the release at the end of the happy path: every early return, and every failure that travels out of the middle of the work, is a hold that is never returned.",
+      "hint": "Ask which of the two calls reaches the release line.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0024",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A retry applied to a failure that will never clear",
+      "learningObjective": "trace a retry loop whose limit is reached on a permanent cause",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the two values it displays. ATTEMPTS <- 0. DEFINE charge(key) { ATTEMPTS <- ATTEMPTS + 1. RAISE NoSuchAccount(key) }. DEFINE withRetry(op, times) { n <- 0. REPEAT { n <- n + 1. TRY { RETURN op() } CATCH ANY { IF n >= times THEN RAISE \"gave up\" } } UNTIL TRUE }. TRY { withRetry(charge(\"a17\"), 3) } CATCH e { DISPLAY e, ATTEMPTS }.",
+      "options": [
+        {
+          "id": "A",
+          "text": "gave up, then 3, because the loop made the operation three times before the limit was reached and every one of those attempts was counted",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "gave up, then 1, because a policy that reports giving up only ever tries the body once",
+          "misconception": "believes a retry policy runs its body a single time"
+        },
+        {
+          "id": "C",
+          "text": "gave up, then 4, because one more attempt is made to confirm the limit was reached",
+          "misconception": "believes a reached retry limit is followed by a confirming attempt"
+        },
+        {
+          "id": "D",
+          "text": "NoSuchAccount, then 3, because the original failure travels out in place of the give-up notice",
+          "misconception": "believes the underlying failure is reported in place of the wrapper's own report"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The account does not exist, so every attempt raises the same permanent failure, and the handler has no reason to stop early, so the loop runs until the third attempt reaches the limit and the give-up notice replaces the original. Three attempts were made and three were counted, which is the number the caller should look at: this cause is not one that a repeat can fix. A retry policy that counts attempts without looking at what kind of failure arrived will spend its whole allowance on causes that cannot change.",
+      "hint": "Ask how many times the operation is entered before the limit stops the loop.",
+      "difficulty": 0.56,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "retry-policy",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0025",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A missing reading replaced by a default and then counted",
+      "learningObjective": "trace a mean computed over substituted values",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the two values it displays. READINGS <- [10, 20, missing, 40]. DEFINE mean(values) { total <- 0. FOR EACH v IN values { total <- total + v }. RETURN total / LENGTH(values) }. FILLED <- READINGS WITH EACH missing REPLACED BY 0. DISPLAY mean(FILLED), LENGTH(FILLED).",
+      "options": [
+        {
+          "id": "A",
+          "text": "17.5 and 4, because the missing reading became a 0 that was summed as a value and counted as one of the four readings",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "17.5 and 3, because the mean divides by the number of readings that were really taken",
+          "misconception": "believes the count excludes the substituted default"
+        },
+        {
+          "id": "C",
+          "text": "20 and 4, because the missing reading is left out of the sum and still counted in the denominator",
+          "misconception": "confuses leaving a value out of the sum with counting it in the denominator"
+        },
+        {
+          "id": "D",
+          "text": "23.3 and 3, because the missing reading is dropped from both the sum and the count",
+          "misconception": "believes a default of zero behaves like a dropped reading in both places"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The filled list is 10, 20, 0 and 40, which sums to 70 over a length of 4, so the mean comes out at 17.5 and the count says four readings were used. The arithmetic is right and the fact is wrong: one of those four numbers was never observed, and after the substitution the routine has no way to say so. The two figures are exactly what makes the damage hard to see, because a count that matches the length looks like confirmation that nothing is missing.",
+      "hint": "Ask how many values the filled list holds, and what the fourth of them actually is.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "default-values",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0026",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A handler that resets the total it was meant to protect",
+      "learningObjective": "trace a broad handler that hides a fault and destroys running work",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the value it displays. DEFINE addOrFail(total, s) { IF s = 0 THEN RAISE ZeroReading. RETURN total + s }. SCORES <- [3, 8, 0, 9]. total <- 0. FOR EACH s IN SCORES { TRY { total <- addOrFail(total, s) } CATCH ANY { total <- 0 } } DISPLAY total.",
+      "options": [
+        {
+          "id": "A",
+          "text": "9, because the fault on the zero reading was caught and the handler cleared the total, so only the reading after the fault survives",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "20, because a caught fault leaves the previous total alone and the loop carries on",
+          "misconception": "believes a handler must preserve the value it was protecting"
+        },
+        {
+          "id": "C",
+          "text": "11, because the fault stopped the addition and only the readings before it were kept",
+          "misconception": "believes a caught fault ends the loop instead of resetting the state"
+        },
+        {
+          "id": "D",
+          "text": "0, because the handler cleared the total and no later reading was added to it",
+          "misconception": "believes the loop stops at the first fault it catches"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first two readings bring the total to 11, the zero reading raises, and the handler's only action is to set the total back to 0, so the work of the first two passes is discarded as well. The last reading then brings it to 9. The true sum of these readings is 20, and the loop had already done that work, so a handler that resets state to hide a fault destroys the evidence that anything was ever wrong.",
+      "hint": "Ask what the total held just before the fault, and what the handler does to it.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "hidden-faults",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0027",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The failure that sits in the first position of a list",
+      "learningObjective": "trace a per-element check against a whole-list check",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the two values it displays. DEFINE firstBad(rows) { i <- 0. WHILE i < LENGTH(rows) { IF rows[i] IS NOT \"7\" THEN RETURN i + 1. i <- i + 1 }. RETURN 0 }. DISPLAY firstBad([\"x\", \"7\", \"7\"]), firstBad([\"7\", \"7\", \"7\"]).",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 and 0, because the walk stops at the first element that is not 7, which here is the front of the list, and the all-matching list has no such position",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3 and 0, because the walk visits every element and then reports the last one it saw",
+          "misconception": "believes the whole list is examined before any failure is reported"
+        },
+        {
+          "id": "C",
+          "text": "1 and 1, because a list of correct values still has a position where the test could fire",
+          "misconception": "believes a matching element counts as a reported failure"
+        },
+        {
+          "id": "D",
+          "text": "0 and 0, because a list that fails somewhere is judged exactly like a list that all passes",
+          "misconception": "believes a per-element check can only report on a whole list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first list holds x at position 1, so the walk returns that position at once and never reaches the two 7s behind it, while the second list matches all the way through and falls out of the loop with nothing to report, which is the 0. The gap between those two numbers is why a whole-list test is not enough: it can say the list is not all 7, but only a per-element check can say which position is at fault and let the rest of the list be processed.",
+      "hint": "Ask which position the walk reaches before its test succeeds on the value there.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "list-processing",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0028",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A handle returned before the work it was guarding",
+      "learningObjective": "trace a use-after-release check that fails quietly",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Trace this pseudocode and report the three values it displays, in order. HOLDS <- 0. COPIES <- 0. DEFINE OPEN() { HOLDS <- HOLDS + 1. RETURN \"open\" }. DEFINE CLOSE(h) { HOLDS <- HOLDS - 1. RETURN \"closed\" }. DEFINE RECORD(h) { IF h IS NOT \"open\" THEN RAISE ClosedEarly. COPIES <- COPIES + 1. RETURN \"copied\" }. DEFINE archive(label) { h <- OPEN(). CLOSE(h). TRY { RETURN RECORD(h) } CATCH e { RETURN \"skipped \" + label } }. DISPLAY archive(\"receipts\"), COPIES, HOLDS.",
+      "options": [
+        {
+          "id": "A",
+          "text": "copied, 1, 1, because the hold was already given back when the record was taken, so the check inside the record raised and the handler turned that into a skip",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "skipped, 0, 0, because the handle was closed before use and so no hold was ever taken",
+          "misconception": "believes a hold released this quickly was never taken"
+        },
+        {
+          "id": "C",
+          "text": "copied, 1, 0, because taking a record under a closed handle is allowed and the count is balanced",
+          "misconception": "believes a use-after-release check passes on a handle already returned"
+        },
+        {
+          "id": "D",
+          "text": "skipped, 1, 1, because the copy was refused but the count still records one copy",
+          "misconception": "believes a count of copies can rise on a refused attempt"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The hold is taken, then given back immediately, so when the record is taken the handle no longer means open and the check inside it raises, the count of copies is never reached, and the handler turns the failure into a skip with a label. The two numbers at the end are the whole point: no copy was made, and a hold is still outstanding, because the give-back happened before the work rather than after it. Both halves of that are invisible unless the counts are printed.",
+      "hint": "Ask what the handle holds at the moment the record is taken, and what the count becomes.",
+      "difficulty": 0.62,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "ordering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0029",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A null value, an absent key, and an empty value told apart",
+      "learningObjective": "count the three different absences a collection can hold",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the four values it displays. GUESTS <- {\"u1\": null, \"u2\": \"\"}. DISPLAY LENGTH(KEYS(GUESTS)), COUNT OF KEYS WHOSE VALUE IS null, COUNT OF KEYS WHOSE VALUE IS \"\", LENGTH(TEXT(null)) + LENGTH(TEXT(\"\")).",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, 1, 1 and 4, because both keys are listed, one value is null and one is the empty string, and turning either into text gives four characters in all",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, 0, 2 and 4, because null and the empty string are two spellings of one absence",
+          "misconception": "believes a null value and an empty value are the same thing"
+        },
+        {
+          "id": "C",
+          "text": "1, 1, 1 and 0, because a key holding null is not an entry and so is not listed",
+          "misconception": "believes a null value removes its key from the listing"
+        },
+        {
+          "id": "D",
+          "text": "2, 1, 1 and 0, because the text of a null value is empty and so adds no characters",
+          "misconception": "believes the text form of a null value has no length to count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both keys are present and both are listed, so the first count is 2, and they then split by what they hold: one is a null value and one is the empty string, which is why the middle two counts are 1 and 1 rather than 2 and 0 or 0 and 2. The last figure is the trap, because turning a null into text produces four characters and turning the empty string into text produces none, so the two are distinguishable the moment anything forces them to be text. Absent, null, and empty are three states with three different meanings and they need three different checks.",
+      "hint": "Ask which of the three states each of the two values is in, then ask what text does to each.",
+      "difficulty": 0.56,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "null-handling",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0030",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "One rule written once and evaluated twice",
+      "learningObjective": "count the evaluations when a rule is checked at two layers",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Read this pseudocode and report the two values it displays. CHECKS <- 0. DEFINE validSeat(n) { CHECKS <- CHECKS + 1. RETURN n >= 1 AND n <= 8 }. DEFINE takeOrder(n) { CHECKS <- CHECKS + 1. RETURN validSeat(n) }. DISPLAY takeOrder(5), CHECKS.",
+      "options": [
+        {
+          "id": "A",
+          "text": "true and 2, because the rule is written once but each of the two callers evaluates it for itself",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true and 1, because a rule that is shared between callers only needs evaluating once",
+          "misconception": "believes a rule shared by two callers is evaluated once in total"
+        },
+        {
+          "id": "C",
+          "text": "false and 2, because the same value cannot satisfy the same rule in two places",
+          "misconception": "believes a repeated evaluation can reach a different verdict"
+        },
+        {
+          "id": "D",
+          "text": "true and 1, because the inner check runs and the boundary check is skipped for a good value",
+          "misconception": "believes the boundary check is skipped whenever the value is acceptable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Five satisfies the rule, so the first value is true, and the count reaches 2 because the boundary routine evaluates the rule once and the inner routine evaluates it once more for its own guarantee. The two checks cost almost nothing and buy two different things: a good message for the person who asked, and a guarantee for the routine that stores the value. The number that would be worth watching is the count of evaluations when a request passes through several layers, not this one.",
+      "hint": "Ask how many times the rule itself is evaluated, rather than how many routines are involved.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0031",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Rows that cannot be corrected after the run",
+      "learningObjective": "choose a handling for bad rows in a run whose input cannot be re-entered",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A nightly run reads 4,000 uploaded rows and about 30 of them fail a check. The caller cannot re-enter the data, because the uploaded file is deleted once the run ends. How should the run handle those rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Skip each bad row, keep going through the rest, and finish with a count of what was skipped, because the run will not see that file again and one bad row must not cost the other 3,970",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Stop at the first bad row, because results from a file known to be wrong are all suspect",
+          "misconception": "believes a partial result from a flawed file is worse than no result"
+        },
+        {
+          "id": "C",
+          "text": "Run the file again until it processes cleanly, because the checks may pass on a later run",
+          "misconception": "believes repeating the same checks on the same rows changes their outcome"
+        },
+        {
+          "id": "D",
+          "text": "Substitute a default row for each bad one, so the totals downstream stay complete",
+          "misconception": "believes a stand-in row carries the same weight as the row supplied"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The deciding fact is that the input is gone, so stopping throws away 3,970 good rows to avoid 30 bad ones and leaves the caller with nothing at all. The workable shape is to keep the good rows, set the bad ones aside, and end with the number set aside, because that count is the only thing the caller can act on afterwards. Substituting a default is the same as hiding a failure with a number, and the totals it produces are arithmetically complete and factually wrong.",
+      "hint": "Ask what the caller can do with the file tomorrow, and what it would have left with if the run had stopped.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "fail-fast",
+        "batch-processing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0032",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A log line that names no attempt",
+      "learningObjective": "say what a log entry must carry for the failure to be workable",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A log contains 812 identical lines reading operation failed, with no other detail on any of them. What has to change in the entry itself before anyone can work on these failures?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The entry has to record the attempt: which record was being acted on, which step was reached, and the outcome's own code, because a line that names no attempt cannot be matched to a change, a record, or a time window",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The full internal detail of the failure, so no second investigation is ever needed",
+          "misconception": "believes more internal detail is the only thing missing from a log line"
+        },
+        {
+          "id": "C",
+          "text": "The name of the routine that failed, because that alone identifies the cause",
+          "misconception": "believes the routine's name on its own pins down the cause"
+        },
+        {
+          "id": "D",
+          "text": "A tally of failures per routine, because a count is easier to read than any entry",
+          "misconception": "believes an aggregate can take the place of the individual entries"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An entry that says only that something failed gives an investigator nothing to search on, so 812 occurrences remain 812 separate mysteries that share a word. What makes a log line useful is the attempt: the thing being acted on, the step reached, and a code that says which condition occurred, so the entries can be grouped and matched against a change. Detail about the program's insides is worth having inside the log, but it is not what turns a line into evidence, and it is not something to publish to whoever reads the report.",
+      "hint": "Ask what a reader could search on in the 812 lines as they stand.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "logging",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0033",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A true report that its reader cannot use",
+      "learningObjective": "explain how a report can be accurate and still useless",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A shopper is told that a null reference failure happened at line 88. The statement is accurate and the shopper still cannot do a single thing about it. What is wrong with the report?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It describes a condition inside the program in the program's own terms, so it names a fact the reader can neither check nor act on, which is what makes it accurate and useless at the same time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is too short, because a report that fits on one line cannot carry enough to act on",
+          "misconception": "believes the length of a report is what limits how useful it is"
+        },
+        {
+          "id": "C",
+          "text": "It is too technical, because wording drawn from programming never means anything to a shopper",
+          "misconception": "believes technical vocabulary is useless in itself rather than misdirected"
+        },
+        {
+          "id": "D",
+          "text": "It is missing the time, because a report without a clock reading cannot be placed in order",
+          "misconception": "believes the only thing absent from the report is when it happened"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Accuracy is about matching what happened, usefulness is about what the reader can do next, and the two come apart exactly here: the report is a perfect description of an internal fact and an instruction to nobody. A useful version of the same event says what the shopper was trying to do, what did not work, and what will happen next, and it may still hand the internal detail to the support team through a handle. Wording drawn from programming is not the fault; describing the wrong thing is.",
+      "hint": "Ask what the reader would do differently after reading it.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "user-guidance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0034",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Reports that both name a cause and give a next step",
+      "learningObjective": "count the reports that meet both halves of a stated standard",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "Six failure reports are waiting: (a) no account matches this address and password pair, so check the address or reset the password; (b) sign-in failed; (c) invalid input; (d) the file at the stored location for this month's orders is not readable; (e) the service is overloaded, so the request was not accepted, try again in a minute; (f) an internal error occurred. A reviewer keeps only the reports that both name what went wrong and say what to do about it. How many are kept?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, because only the account report and the overload report give a condition and a next step, while the rest stop at a verdict, an adjective, or a location",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, because only the account report tells the reader to do something specific",
+          "misconception": "counts only the reports that carry an explicit instruction"
+        },
+        {
+          "id": "C",
+          "text": "3, because the file report also names a condition the reader could act on",
+          "misconception": "counts a report that names a cause but gives no next step"
+        },
+        {
+          "id": "D",
+          "text": "4, because only the two reports that admit nothing are unusable",
+          "misconception": "counts every report except the ones that say nothing at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both halves have to be there, and only the account report and the overload report manage it: one names the condition and offers two ways forward, the other names it and says the request will work later. The file report gets half way, naming an unreadable file but leaving the reader with no idea what to try, and the remaining three name nothing that could be acted on at all. Counting reports by whether they sound informative is the usual slip, because informative and usable are different tests.",
+      "hint": "Mark each report twice: once for naming a condition, once for giving a next step.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0035",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Four versions of one failure report, one safe to show",
+      "learningObjective": "pick the report that is useful to the person and safe to publish",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A payment fails and four versions of the report are being considered. The person who placed the payment will read it, and so will anyone who screenshots it. Which version should go out?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Payment could not be completed for the order you placed, and nothing was charged; quote handle 4f2a when you contact us",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A null reference failure happened at line 88 of the order service, handle 4f2a",
+          "misconception": "believes naming a programming fault beside a handle is still safe to publish"
+        },
+        {
+          "id": "C",
+          "text": "Payment failed because the file at the stored location for today's payments was not found, handle 4f2a",
+          "misconception": "believes a stored location only leaks when no handle is attached"
+        },
+        {
+          "id": "D",
+          "text": "Payment failed, error 500, handle 4f2a",
+          "misconception": "believes a bare number cannot disclose anything on its own"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first version says what the person was trying to do, what happened, what it means for their money, and how to get help, and the handle it carries gives support the same entry without giving anyone else the entry itself. The second and third still work by telling a reader how the system is built, one as source layout and the other as internal structure, and neither of those details helps the person who placed the payment. Redacting a report by removing its words while leaving its internals is the mistake the first version avoids.",
+      "hint": "Ask what each version tells the person, and what it tells a reader who wants to learn about the system.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "information-leak",
+        "error-messages"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0036",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "How many times one rule is evaluated on the way in",
+      "learningObjective": "count rule evaluations across three validating layers",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A request with 5 seats passes through a handler that checks the seat count, a service that checks it again, and a store that checks it a third time. How many times is the rule itself evaluated for this one request?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, because each of the three layers evaluates the rule for itself, and that repeated cost is the price of three separate copies of the check",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, because the first layer settles the rule and the later checks are never reached",
+          "misconception": "believes an earlier check makes the later ones unreachable"
+        },
+        {
+          "id": "C",
+          "text": "5, because the rule is evaluated once for each seat in the request",
+          "misconception": "confuses the number of seats with the number of checks"
+        },
+        {
+          "id": "D",
+          "text": "2, because the store trusts the service and so only the first two layers check",
+          "misconception": "invents a trust between layers that was never described"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Three layers each run the check for a request of 5 seats, so the rule is evaluated 3 times, once per layer, and the number of seats does not enter into it. Three evaluations of a cheap rule cost nothing measurable, which is why the duplication is easy to justify; what the count is really for is noticing when the rule has grown expensive, or when a fourth caller appears with a fourth copy. The fix is not fewer checks but one rule that all three call.",
+      "hint": "Ask how many times the rule runs, rather than how many values it examines.",
+      "difficulty": 0.42,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "duplication"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0037",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Separating causes that clear from causes that do not",
+      "learningObjective": "count the retryable rows in a table of failure causes",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "Five failures reach a caller: (a) the far end refused because it is overloaded; (b) the record that was asked for does not exist; (c) a lock the work needs was held by another worker; (d) the name given is not a legal one; (e) the request ran past its time limit and was cut off before any work began. Which rows describe a cause that would clear on its own if the same request were sent again?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, namely a, c and e, because each of those is a temporary state that the repeat would not find again, while a missing record and an illegal name are facts that a repeat reproduces exactly",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, namely a and c, because a cut-off request is treated as lost rather than as unfinished",
+          "misconception": "believes a request stopped before any work cannot be safely repeated"
+        },
+        {
+          "id": "C",
+          "text": "4, because every cause except the illegal name is a matter of timing",
+          "misconception": "believes all timing-related causes belong in the retryable group"
+        },
+        {
+          "id": "D",
+          "text": "5, because a repeat of any of these requests is allowed by the policy as written",
+          "misconception": "believes a stated retry policy settles which causes are worth repeating"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The test is whether the cause is a state that can change with nothing on the caller's side, and an overloaded far end, a lock held by another worker, and a request cut off before it started are all states of that kind. A record that does not exist and a name that is not legal are facts about the request itself, so the tenth attempt reproduces them exactly and the retry has bought nothing. Writing this property onto each failure at the moment it is raised is what stops a policy from having to re-derive it from the wording.",
+      "hint": "Ask what would be different about the cause on a second identical attempt.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "retry-policy",
+        "error-classes"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0038",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A whole-list verdict against a position",
+      "learningObjective": "compare a whole-list check with a per-element check on one list",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A list holds [7, x, 7]. One check asks whether the whole list is made only of 7s. A second check walks the list and reports the first position whose value is not 7. What do the two checks report?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first says the list is not all 7s, and the second names position 1, so only the front element is at fault and the other two could still be used",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first says the list is not all 7s, and the second names position 2, so the middle element is the broken one",
+          "misconception": "believes the front element counts as a 7 and pushes the fault along"
+        },
+        {
+          "id": "C",
+          "text": "Both name position 3, because the element last examined is the one that gets reported",
+          "misconception": "believes a report always names the last element examined"
+        },
+        {
+          "id": "D",
+          "text": "The first says the list is not all 7s, and the second names no position at all",
+          "misconception": "believes a per-element check can only judge a whole list"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The whole-list check can only answer yes or no about the list as a unit, and no is all it can say, which leaves the reader to search for the culprit by hand. The per-element walk stops at the first value that fails and reports its position, which here is 1, so the useful work in the list is still usable and the repair is a single record. A list check that also reports where it failed is the difference between a verdict and a diagnosis.",
+      "hint": "Ask what each check can say about position, not about the list as a whole.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "list-processing",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0039",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Handlers that leave the caller able to tell",
+      "learningObjective": "count the handler bodies that preserve a failure signal",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "Five handlers are proposed for a cache read. (a) CATCH { RETURN 0 }; (b) CATCH { RAISE Failure(\"cache read failed\") }; (c) CATCH { RETURN lastKnown }; (d) CATCH { RAISE Failure(\"cache read failed, using lastKnown\") }; (e) CATCH { }. Which of them leave the caller able to tell that the read did not succeed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, namely b and d, because both report the failure on the way out, while a, c and e all hand back something that looks like a successful read",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, namely b, because reporting a failure alongside a value still counts as a success",
+          "misconception": "believes a report that names the fallback is the same as no report"
+        },
+        {
+          "id": "C",
+          "text": "3, because c is worth keeping, as returning the last known value is honest enough",
+          "misconception": "believes a stale value with no mention of it is not a hidden failure"
+        },
+        {
+          "id": "D",
+          "text": "4, because every handler except the one returning 0 keeps the caller informed",
+          "misconception": "believes any handler that touches a value informs the caller"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "What matters is whether the failure leaves the routine by a route the caller can see, and only b and d do that, because both raise something on the way out and the second one also says which fallback was used. a, c and e all return, and a returned value carries no news about how it was obtained, so the caller cannot tell fresh from stale from nothing at all. A handler is not a recovery, it is a decision about what the caller learns, and two of these five decide the caller learns nothing.",
+      "hint": "Ask for each handler whether the failure itself is still travelling when the routine returns.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "catching",
+        "caller-belief"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0040",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The interface that mistook a broken guarantee for bad input",
+      "learningObjective": "choose the translation that keeps the meaning of an internal failure",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A pricing routine computes a discount and raises amount must be positive about its own result. The interface above it turns every raised failure into something for the person to read. Which translation should it use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "We could not price this order and nothing has been charged, so please try again shortly, because the condition was about the program's own arithmetic and the person had no part in it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "You entered invalid data, so please check the order and send it again",
+          "misconception": "blames the person for a condition inside the pricing arithmetic"
+        },
+        {
+          "id": "C",
+          "text": "The order could not be processed because some data was missing",
+          "misconception": "keeps the blame on the person while hiding which value was at fault"
+        },
+        {
+          "id": "D",
+          "text": "Something went wrong at step 3, so please try again later",
+          "misconception": "reports an internal position instead of saying what happened to the order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The raised condition describes a value the routine computed, so no version of it can be the person's mistake, and the only honest translation says what happened to their order and what it means for their money. The other three all move the fault outwards: two onto the person, and one onto an internal step number that the person has never seen. Each of those makes a defect in the pricing look like ordinary user error, which is the outcome that stops anyone from investigating it.",
+      "hint": "Ask who controls the amount, and then ask what the person needs to know about their money.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-labels",
+        "user-guidance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0041",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A handler that records a failure and keeps going",
+      "learningObjective": "distinguish recording a failure from deciding what happens to it",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A handler writes a line to the log and then carries on as though nothing had happened, leaving the state it was working on half updated. Why is writing the log line not the same as handling the failure?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the line records that something failed without deciding what should happen next, and the half-updated state keeps travelling as if it were sound, so the decision is still owed to someone and nobody has made it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Because the line is written after the state changed, so the entry describes the wrong moment",
+          "misconception": "believes the ordering of the log line is what makes the handler incomplete"
+        },
+        {
+          "id": "C",
+          "text": "Because a handler that logs must also reverse the change it logged, or the log misleads",
+          "misconception": "believes recording a failure obliges the handler to undo the work"
+        },
+        {
+          "id": "D",
+          "text": "Because the log fills faster than the routine can run, so the write is the real cost",
+          "misconception": "believes the log's own size is what makes a handler inadequate"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Handling a failure means deciding between carrying on in a known state, substituting something stated, and stopping, and a handler that only writes a line has made none of those decisions while allowing the caller to believe it made one. The half-updated state is what makes the choice urgent: every later step reads it as a settled result. Logging then re-raising is the honest version of the same instinct, because it records the failure and leaves the decision with the code that has the information to make it.",
+      "hint": "Ask what the caller learns from a log line that it cannot see.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "catching",
+        "logging"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0042",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A rule that is only checked in the build used for testing",
+      "learningObjective": "identify the protection lost when a check is compiled out of the shipped program",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A routine checks that its count argument is positive only in a checking build, and that check is not present in the program that ships. What protection has actually been lost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The protection for every caller of the shipped program, since the only place the rule was tested is gone from the code that runs, and a bad count now travels on until something unrelated breaks",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the time the check took, because a check that costs little can be left out of a fast build",
+          "misconception": "believes a compiled-out check costs nothing but a little time"
+        },
+        {
+          "id": "C",
+          "text": "Nothing of value, because the rule is written down in the description of the routine",
+          "misconception": "believes a written description enforces the rule it describes"
+        },
+        {
+          "id": "D",
+          "text": "The protection for callers inside the checking build only, since that build still enforces it",
+          "misconception": "believes callers of one build are protected by a check in another build"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A check that exists only where it is convenient to run protects only that build, so the moment the program ships without it, every real caller is unchecked and the argument reaches the arithmetic unguarded. The failure then arrives somewhere unrelated, as a wrong total or a broken record, with nothing in between to connect it to the argument that caused it. If the rule matters enough to test, it belongs where it cannot be compiled away, and the build-time check is an addition to that rather than a substitute.",
+      "hint": "Ask who is running the program that lacks the check.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "preconditions"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0043",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Four causes behind two reports",
+      "learningObjective": "count the branches that let a caller name the condition that failed",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A routine raises four kinds of failure and the handler above it has these branches: (a) a missing field becomes invalid input; (b) a field of the wrong type becomes invalid input; (c) a duplicate becomes already present, skip this record; (d) an unreachable store becomes temporarily unavailable, try again shortly. How many of the four leave the caller able to name the condition that failed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, namely the duplicate and the unreachable store, because the other two collapse into one report that fits either and names neither",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3, because a field of the wrong type is a different problem from a missing field",
+          "misconception": "counts two cases that produce the same report as two informative ones"
+        },
+        {
+          "id": "C",
+          "text": "1, because only the store branch tells the caller what to do next",
+          "misconception": "counts only the reports that carry an instruction"
+        },
+        {
+          "id": "D",
+          "text": "4, because each cause is raised separately and so must be reported separately",
+          "misconception": "believes separate raises produce separate reports"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two branches that survive the test are the ones whose report matches one cause: a duplicate that says so lets the caller skip the record, and an unreachable store that says so lets it come back later. The other two causes share a report that fits both, so a caller who is told invalid input has to work out for itself whether to supply a missing field or fix a type. Raising the four causes separately is already most of the work, and it is thrown away if the branches above merge them again.",
+      "hint": "Count the branches whose report fits exactly one of the causes listed.",
+      "difficulty": 0.56,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "error-classes"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0044",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Five pieces of a report and the one that may travel",
+      "learningObjective": "count the report components that can reach the person who made the request",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": null,
+      "stem": "A failure report is assembled from five pieces: a correlation handle, the path of the file being written, a line number, the list of routine names along the call path, and the last four digits of the account. Which of the five can be shown to the person who made the request?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1, the handle, because it points support at the log entry without describing anything about the system, and each of the other four describes the system's own shape or another person's data",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, the handle and the line number, because a line number tells support which routine to look at",
+          "misconception": "believes an internal position is harmless to publish"
+        },
+        {
+          "id": "C",
+          "text": "3, the handle, the line number, and the account digits, because the person already knows their own digits",
+          "misconception": "believes something being known to its owner makes it safe to echo"
+        },
+        {
+          "id": "D",
+          "text": "5, because the person who made the request is entitled to every detail of that request",
+          "misconception": "believes ownership of a request licenses full internal detail"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each of the four internal pieces is worth keeping out of a published report for a different reason: the path shows the layout, the line number and the routine names show the structure, and the account digits belong to a different person from the one reading the page. The handle is the one piece built to travel, since it carries no description and only points at the entry that has one. Adding a piece to a report is cheap, so the discipline is in deciding what leaves the building.",
+      "hint": "Ask of each piece what a reader learns about the system that they could not learn otherwise.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "information-leak",
+        "error-messages"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0045",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Rejections that only affect a few applicants",
+      "learningObjective": "choose the probe that separates a malformed value from a misread field",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A routine rejects one applicant in fifty with invalid input, and the rejected values look well formed to whoever reads them. Candidate one is a check that counts characters rather than digits, so a value containing a space passes the length test and fails further in. Candidate two is that these records arrive through a second channel and the value is read from a neighbouring field. Which single probe tells them which candidate is real?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Print the value the routine actually read beside the value as submitted for one rejected record: if the two differ, candidate two holds, and if they match and the value carries a space, candidate one holds",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Run the same check over ten accepted records, because a rule this wrong must show up there too",
+          "misconception": "believes a large sample of successes exposes the rare rejection"
+        },
+        {
+          "id": "C",
+          "text": "Compare the rejection counts per channel, because the busier channel is the faulty one",
+          "misconception": "believes the channel with the most traffic must be the broken one"
+        },
+        {
+          "id": "D",
+          "text": "Rerun the whole file with extra logging, because the volume of work settles the question faster",
+          "misconception": "believes repeating the entire file is the smallest decisive step"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two candidates produce different values at the moment of the check, and that is the only place they differ, so the probe has to look there: the value read and the value submitted sit side by side in one line of output. A sample of accepted records proves nothing, because a rule that only fires on one value in fifty will pass every sample of the other forty-nine hundred. Channel traffic is also no guide, since the channel may simply carry the records that happen to contain spaces.",
+      "hint": "Ask what the two candidates disagree about, and print that.",
+      "difficulty": 0.62,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "diagnosis",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0046",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Handles that run out part way through a long run",
+      "learningObjective": "choose the measurement that separates a skipped release from a hold taken per pass",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "After a long run of mixed work, the service reports that no further file handles are available. Candidate one is a routine that returns early on a bad value and so skips its release line. Candidate two is a routine that takes a hold inside a loop and never gives it back between passes. Which single measurement tells them which candidate is real?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Print the outstanding count after each step of one run: a count that rises only on the steps which return early points at candidate one, and a count that climbs once per pass and never comes down points at candidate two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Count the handles the whole run takes, because the routine with the largest count is the leaky one",
+          "misconception": "believes the biggest number of takes identifies the faulty routine"
+        },
+        {
+          "id": "C",
+          "text": "Restart the service and watch whether the run fails again on its first pass",
+          "misconception": "believes repeating the run from a clean state exposes the leak"
+        },
+        {
+          "id": "D",
+          "text": "List every routine that mentions releasing anything, since the leaky one is the one that never does",
+          "misconception": "believes a leak is always visible as a missing release line"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two candidates leak at different rates and in different shapes, and the outstanding count over time shows which shape appeared: a step-shaped rise on failing steps, or a steady per-pass climb. Taking totals is the tempting shortcut and it cannot separate them, because both candidates produce large totals and only one produces a climb. A leak is a statement about a rate over a sequence, so the measurement has to keep the sequence rather than sum it.",
+      "hint": "Ask when the outstanding count rises, not how large it gets.",
+      "difficulty": 0.64,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0047",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A retry budget spent on causes that never clear",
+      "learningObjective": "choose the log addition that separates a blind policy from a miscounted limit",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A retry wrapper spends its whole allowance on failures that no repeat could ever fix, and requests are slow as a result. Candidate one is that the wrapper retries every failure without looking at what kind it is. Candidate two is that the limit itself is computed wrongly and lets more attempts through than intended. Which single addition to the log separates them?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Record the class of every failure as it is caught: permanent classes appearing among the retries confirms candidate one, while only retryable classes appearing but more attempts than the configured limit confirms candidate two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Record how long each attempt took, because a slow attempt proves the limit was miscounted",
+          "misconception": "believes timing reveals a wrongly computed attempt limit"
+        },
+        {
+          "id": "C",
+          "text": "Record the name of the wrapper that ran, since its identity settles which candidate holds",
+          "misconception": "believes which routine ran identifies the defect inside it"
+        },
+        {
+          "id": "D",
+          "text": "Record the attempt count only, since the count alone separates a policy fault from a limit fault",
+          "misconception": "believes a count distinguishes a wrong policy from a wrong limit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "One extra field per failure, the class, decides it: if the retries include classes that cannot clear, the policy is blind, and if every class is retryable yet the count runs past the limit, the arithmetic is wrong. Timing, routine names and bare counts all leave the same gap, because none of them says what kind of failure was retried. This is the practical argument for putting the class on the failure at the moment it is raised, where the cause is known.",
+      "hint": "Ask what the log does not currently say about the cause of each retry.",
+      "difficulty": 0.63,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "retry-policy",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0048",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A run that reports nothing skipped when records went missing",
+      "learningObjective": "choose the change that separates a cleared counter from a genuine zero",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A nightly run over 4,000 rows reports that nothing was skipped, and support separately knows that some records were not stored. Candidate one is that the skip counter is cleared after the loop finishes. Candidate two is that no row actually failed its check. Which single change tells them which candidate is real?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Move the counter report to the last line inside the loop body: a non-zero figure there beside a zero after the loop confirms candidate one, and a zero in both places leaves candidate two standing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Log every row that passes the check, since the accepted rows reveal the missing ones by their absence",
+          "misconception": "believes absence from a list of accepted rows identifies the fault"
+        },
+        {
+          "id": "C",
+          "text": "Rerun the same file twice, since the second report will differ if the counter is being cleared",
+          "misconception": "believes a repeat run distinguishes a cleared counter from a real zero"
+        },
+        {
+          "id": "D",
+          "text": "Compare the row count with the stored count, since only a cleared counter can explain a difference",
+          "misconception": "believes a count difference can only come from the counter and not the work"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two candidates say opposite things about the same number, and the only way to find out is to read the counter before anything can reset it, which means reporting it from inside the loop. A rerun cannot help, because a reset counter reads zero on every run, and comparing totals only tells them that a discrepancy exists rather than where the number was lost. Reporting the figure twice, inside and after, costs one line and settles it.",
+      "hint": "Ask where the counter has to be read for a reset to be visible.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "diagnosis",
+        "silent-failure"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0049",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "One account seeing another account's figures after a slow response",
+      "learningObjective": "choose the probe that separates a shared failure path from a shared cache key",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A summary page occasionally shows one person's figures to another, and every report of it comes shortly after a slow response. Candidate one is that the slow path returns a shared summary object instead of one built for the account that asked. Candidate two is that the cache handle omits the account, so two accounts share one entry. Which single probe separates them?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Force one slow response for account A, then immediately ask for account B: B seeing A's figures on that slow path confirms candidate one, and B seeing them on an ordinary fast path confirms candidate two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Check whether the two accounts belong to the same region, since a shared region explains a shared entry",
+          "misconception": "believes a shared location explains a shared cache entry"
+        },
+        {
+          "id": "C",
+          "text": "Compare the two summaries and look for differences in size, since a wrong summary is usually smaller",
+          "misconception": "believes a wrong value differs in size from the right one"
+        },
+        {
+          "id": "D",
+          "text": "Count how often each account views the page, since the busier viewer is the one being cached",
+          "misconception": "believes viewing frequency decides whose figures are served"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reports cluster after slow responses, which is itself the clue, and the probe has to use that timing rather than work around it: the slow path is the condition under which candidate one shows itself. Regions, sizes and viewing counts are all incidental, and two accounts with identical figures would defeat the size check while passing every other one. The dangerous part of either candidate is the same, which is that a value is served to someone who has no way to check whose it is.",
+      "hint": "Ask what the slow response changes about which code runs.",
+      "difficulty": 0.66,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "diagnosis",
+        "caller-belief"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0050",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "A balance reduced twice after a retry",
+      "learningObjective": "separate a retry on an unknown outcome from an update that is not safe to repeat",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A balance is reduced by the same amount twice after a slow response, and the second reduction follows a retry. Candidate one is that the retry was applied to a failure whose outcome was never known, so the first attempt may well have gone through. Candidate two is that the update is not safe to apply twice, so a repeated request reduces the balance again. Which single question separates them?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask whether the failure that triggered the retry reported its outcome as unknown or as not applied: unknown points at candidate one, while a definite not-applied paired with a non-repeatable update points at candidate two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Check whether the amount is a whole number, because a rounded amount is the one applied twice",
+          "misconception": "believes the shape of the value explains a duplicated effect"
+        },
+        {
+          "id": "C",
+          "text": "Count the retries across all accounts, because an unusual total points at the policy",
+          "misconception": "believes a tally of retries identifies which candidate holds"
+        },
+        {
+          "id": "D",
+          "text": "Check the time of day, because a duplication that only appears overnight is a scheduled job",
+          "misconception": "believes the time narrows the cause of a duplicated update"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The retry is only safe when the failure says the work did not happen, and that is a property the failure has to carry rather than something the wrapper can assume, because a dropped connection is exactly the case where the work may have completed. A definite not-applied report is the other half of the answer: it makes the retry sound, so any duplication then belongs to the update not being safe to repeat, and the repair is an identifier that lets the same request be recognised the second time. Both halves have to hold before a retry belongs in the path at all.",
+      "hint": "Ask what the failure said about whether the first attempt took effect.",
+      "difficulty": 0.68,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "retry-policy",
+        "idempotence"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0051",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "The same failure from a screen and from a job",
+      "learningObjective": "pair two call sites with the handling each one owes",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "One routine is called both from an interactive screen and from a scheduled job, and the same failure can reach either. Which option pairs the two call sites with the handling each should use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Screen: report it to the person with the accepted values and a next step; job: set the record aside, keep going, and finish with a count, because only the job has nobody to ask and no second chance at the input",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Screen: set the record aside and carry on; job: stop and report at once, because a skip hides a failure",
+          "misconception": "believes the interactive caller is the one that cannot act on the failure"
+        },
+        {
+          "id": "C",
+          "text": "Screen: retry quietly several times; job: report and stop, because a job has nobody to tell",
+          "misconception": "believes a silent retry suits a person who is waiting for an answer"
+        },
+        {
+          "id": "D",
+          "text": "Screen: substitute a default so the page still renders; job: report it, because a default only fits a display",
+          "misconception": "believes defaults are either always right or always wrong"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The handling follows what the caller can do next, and the two callers can do opposite things: the screen has a person who can correct the value right now, while the job has no one to ask and no way back to the input, so a stop there discards every good row. A quiet retry on the screen just delays an answer, and a default there produces a page that is confidently wrong. The same failure, the same routine, and two defensible handlings, decided by what the caller holds.",
+      "hint": "Ask what each caller can do after the failure that the other one cannot.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "fail-fast",
+        "trade-offs"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0052",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairing a cause with the report it should produce",
+      "learningObjective": "match one rejection reason to the report that names it and gives a next step",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A routine rejects records for four different reasons and reports invalid input for all of them. Which option pairs one of those reasons with the report it should produce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The value is already held in the store: report that it is already present and that this record should be skipped, because that tells the caller both the cause and what to do about it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The value has a space in the middle: report invalid input, since a space makes it malformed whatever else is true",
+          "misconception": "believes one generic report is adequate whenever the value is malformed"
+        },
+        {
+          "id": "C",
+          "text": "The store could not be reached: report invalid input, because the record could not be checked",
+          "misconception": "believes an unreachable store is a defect in the record itself"
+        },
+        {
+          "id": "D",
+          "text": "The value is longer than the field allows: report the length that is accepted, and nothing more",
+          "misconception": "believes naming a limit alone is a complete report of a rejection"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The duplicate is the easiest of the four to act on, and the report that says so ends the caller's work: skip the record and carry on, with no search and no guess. The other three pairings each lose something, because invalid input says nothing about which of the three reasons applied, and naming a limit without the cause leaves the reader to work out which limit was meant. The three that the routine currently collapses into one report are the reason the caller cannot do anything useful with any of them.",
+      "hint": "Ask which report would let the caller finish the job without investigating further.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-messages",
+        "validation"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0053",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairing a leaking count with the first thing to measure",
+      "learningObjective": "pair an observed leak pattern with the measurement that localises it",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A program reports that its outstanding handle count grows by one on about one run in fifty and never on the others. Which option pairs that observation with the first thing to move?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Report the outstanding count after each step of one failing run, because the shape of when the count rises points at the path that skipped the release",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Add a short delay before each release, because releasing sooner is what stops the count rising",
+          "misconception": "believes a timing change repairs a release that never happens"
+        },
+        {
+          "id": "C",
+          "text": "Restart the routine more often, because a fresh instance begins with a count of zero",
+          "misconception": "believes restarting conceals an outstanding handle"
+        },
+        {
+          "id": "D",
+          "text": "Raise the limit on open handles, because the count only matters once the limit is reached",
+          "misconception": "believes a larger limit removes the leak behind it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The one-run-in-fifty shape says the release is skipped on a path taken rarely, which is exactly what a count printed after each step exposes: one particular step ends with the count up, and the other runs do not. Delaying, restarting and raising the limit all leave that path unreleased, so the count keeps climbing and the failure simply arrives at a higher number. Measuring first costs a line of output; the other three cost a repeat of the same leak.",
+      "hint": "Ask which step the count rises after, on a run where it rises.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "resource-release",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0054",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairing a failure with the property that decides its handling",
+      "learningObjective": "match a failure to the property of its cause that settles how it is handled",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A caller has three failures in hand and must decide what to do with each. Which option pairs a failure with the property that should decide its handling?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A hold could not be taken because another process is writing the same file: the deciding property is that the cause belongs to another process and clears on its own, so the attempt is worth repeating",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A record does not exist: the deciding property is that the cause is an absence, so the run must stop",
+          "misconception": "believes an absence always has to stop work that could continue"
+        },
+        {
+          "id": "C",
+          "text": "The person typed a name that does not exist: the deciding property is that the cause is in the request, so a better message is the whole fix",
+          "misconception": "believes a request-side cause is settled by wording alone"
+        },
+        {
+          "id": "D",
+          "text": "A computation divided by a count of zero: the deciding property is that a rule was broken, so reporting it is enough",
+          "misconception": "believes a broken invariant is settled by telling someone about it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A property of the cause is what lets one handling rule cover many failures: something held by another process is a state that clears, so a repeat is sensible and needs nothing from the caller. A missing record and a name that does not exist are facts about the request, so repeating them reproduces the same answer and the fix has to come from the person. A count of zero is a broken rule about the program's own state, which no amount of retrying or rewording repairs.",
+      "hint": "Ask whether the cause is a state that can change on its own, a fact about the request, or a rule the program broke.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-classes",
+        "retry-policy"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0055",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairing a handler with the belief it leaves behind",
+      "learningObjective": "match each handler shape to what the caller is left believing",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A cache read is wrapped so that a failure does not escape, and a colleague reads the report as though the figures were current. Which option pairs the handler with what the caller now believes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Returning the last known value on failure: the caller believes the figures are current, and nothing downstream can show otherwise, because a returned value carries no news about its age",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Raising with the age attached: the caller believes the figures are current, since the number is the same one as before",
+          "misconception": "believes attaching an age stops a value from looking current"
+        },
+        {
+          "id": "C",
+          "text": "Raising with no detail: the caller believes nothing failed, because silence from a handler is a report of success",
+          "misconception": "believes a handler that says nothing reports that all was well"
+        },
+        {
+          "id": "D",
+          "text": "Returning a default: the caller believes the figures are current, because the routine produced the value itself",
+          "misconception": "believes a locally produced value is therefore a fresh one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The age attached to the raised failure is the whole difference between the first pairing and the second, because it is the only one that leaves the caller able to say the figures are stale. Returning either the last known value or a default removes that information entirely, and a value that came from the routine's own code is no more evidential than one that came from the store. The rule that holds across all four is simple: if the caller may not act on the failure, the failure has to say so on the way out.",
+      "hint": "Ask what the caller can still learn about the value after the handler returns.",
+      "difficulty": 0.57,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "caller-belief",
+        "catching"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0056",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Pairing a check with the guarantee it actually provides",
+      "learningObjective": "match each validation placement to the guarantee it gives and its cost",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A rule says a load must hold between 1 and 8 items. Which option pairs a placement of the check with the guarantee it really gives?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Inside the loader as well as at the boundary: the loader is safe to call from anywhere, at the price of a second copy of the rule that has to be kept in step with the first",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "At the boundary only: the loader is safe to call from anywhere, because every request passes the boundary",
+          "misconception": "believes one entry point covers every possible caller"
+        },
+        {
+          "id": "C",
+          "text": "In both places: there is no cost at all, because a check that runs twice costs nothing",
+          "misconception": "believes duplicated rules carry no cost in keeping them alike"
+        },
+        {
+          "id": "D",
+          "text": "Nowhere, trusting the caller: the rule still holds, because a trusted caller cannot send a bad load",
+          "misconception": "believes trust makes a check unnecessary"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A guarantee belongs with the routine that depends on it, which is why the inner check is the one that makes the loader safe for any caller, and why the boundary check is a courtesy to the person rather than a guarantee about the store. The price is a second copy, and copies drift, so the workable version defines the rule once and has both layers call it. Trusting the caller is the version that works exactly until a second caller appears.",
+      "hint": "Ask which of the two checks is protecting a routine rather than a person.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "layering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0057",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why resetting state to survive a failure hides the failure",
+      "learningObjective": "argue that discarding running work removes the evidence of the fault",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A loop catches a failure and sets its running total back to zero so that the run can continue. Explain, in a short paragraph, why this hides more than the one failure.",
+      "options": [],
+      "answer": {
+        "exemplar": "The reset does not remove the failure, it removes the evidence of it. The total was the only record of the work done before the failure, so clearing it also clears the fact that the work happened, and the run continues from a number that looks like a deliberate starting point rather than the wreckage of a fault. Anyone reading the result afterwards sees a total that is simply wrong, with no mark at the point where it stopped making sense and nothing to connect it to the row that caused the trouble. A handler that keeps the work so far and records the failure at that point preserves both the answer and the diagnosis, whereas the reset keeps neither."
+      },
+      "explanation": "A strong answer names the total as the only record of the work before the failure, says that clearing it destroys the link between the wrong result and the point where it went wrong, and concludes that the reset converts a locatable failure into an unattributable wrong number. An answer that only says the total becomes inaccurate stops one step short, because inaccuracy is a fault everyone can see and does not explain why the fault cannot be traced. The best answers also contrast the two designs, keeping the partial work and recording the failure, against discarding it and carrying on as though the count had simply started there.",
+      "hint": "Ask what the running total is evidence of, and what clearing it removes.",
+      "difficulty": 0.62,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "hidden-faults",
+        "partial-change"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0058",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "What a readable handle gives away",
+      "learningObjective": "argue that a handle gains nothing from being human readable",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A support handle is built from a timestamp and a counter so that it reads neatly in a log. Explain, in a short paragraph, what that choice gives away and why the readability is not worth it.",
+      "options": [],
+      "answer": {
+        "exemplar": "A handle made of a timestamp and a counter can be reconstructed by anyone who can see one example of it, because both parts are small in range and both follow a known order. That turns the handle from a lookup key into a window: guess the second part near a time the person already mentioned, and a stream of entries can be read without any access at all. Readability is also not really gained, since a person reading a log gains nothing from a handle that resembles the other handles around it. An unguessable handle with no descriptive parts can be quoted to support in public and still reveal nothing about the entry it names, which is the only property the handle has to have."
+      },
+      "explanation": "A good answer names the two parts as a small search space that anyone can enumerate, connects that to reading entries they were never given, and then makes the point that readability buys nothing, because a person gains no information from a handle that looks like its neighbours. An answer that stops at the handle is guessable has not finished, since guessable is the first step and the consequence is what matters: whole log entries, not just numbers. The strongest answers finish with the requirement itself, unguessable and undescribed, since that is the whole job of a handle.",
+      "hint": "Ask what a reader could build from a handle they were given, and what they would then be able to read.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "correlation-id",
+        "information-leak"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0059",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "Why a wrong layer costs more than a vague message",
+      "learningObjective": "argue that mislabelling a failure at an interface destroys the diagnosis",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "One interface turns every raised failure into the same sentence telling the person they entered invalid data. Explain, in a short paragraph, why this costs more than a vague message inside a single routine.",
+      "options": [],
+      "answer": {
+        "exemplar": "A vague message inside a routine is wrong in one place, and the person who reads it can still see from its shape that something is being described badly. An interface that relabels every failure changes what the failure means at the moment it travels, so the information is destroyed at the one point where several different causes are still distinguishable. Everything above the interface then sees a fault in the person's input, which means the real cause is never looked for and the defect that produced it is free to happen again. The cost is not a worse sentence, it is the loss of the distinction between a fault in the request and a fault in the program, which is the distinction that tells anyone where to look."
+      },
+      "explanation": "A strong answer identifies the interface as the point where several causes are still distinguishable and the collapse happens, and it says what the collapse destroys, which is the ability to tell a fault in the request from a fault in the program. An answer that only says the message is unhelpful stops short, because the same words inside one routine are merely vague. The best answers also carry the consequence through, that nobody investigates a defect that looks like carelessness, and add what the interface should do instead, keep the cause and pass it on in the terms of the thing that actually failed.",
+      "hint": "Ask how many different causes the interface is merging, and what the reader is left able to conclude.",
+      "difficulty": 0.64,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "error-labels",
+        "layering"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cf-3.26-0060",
+      "subject": "COMPUTING_FOUNDATIONS",
+      "unit": "Domain 3",
+      "topic": "What the boundary check and the inner check are each for",
+      "learningObjective": "separate the two jobs that two checks of one rule are doing",
+      "practice": "error handling and failure reporting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A rule about how many items a load may hold is checked in the request handler and again inside the routine that stores it. Explain, in a short paragraph, what each of those two checks is for.",
+      "options": [],
+      "answer": {
+        "exemplar": "The check in the handler exists for the person who made the request: it can reject the value while the person is still there, and it can say what would be accepted, which is a message only a boundary can give. The check inside the storing routine exists for whoever calls it: it makes the routine safe to use from a path with no handler in front of it, such as a scheduled job or another routine, and it costs almost nothing because a rejected value cannot reach the storage. They are not duplicates of one job, and the cost of having both is not the running of two checks but the maintenance of two copies of a rule that can be changed in one place and left alone in the other."
+      },
+      "explanation": "A good answer gives each check a different beneficiary, the person at the boundary and the routine that depends on the rule, and says why the inner one cannot be dropped when a second caller exists. An answer that calls them redundant has missed the point, since redundancy is judged against the callers rather than against the checks. The strongest answers name the real cost as two copies of one rule drifting apart, and finish with the arrangement that keeps both guarantees, one rule written once and called from both places.",
+      "hint": "Ask who each check is protecting, and what each one can say that the other cannot.",
+      "difficulty": 0.58,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 34,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-cf-d3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-cf-d3",
+        "stimulusLicense": null
+      },
+      "tags": [
+        "domain-3",
+        "validation",
+        "layering"
+      ],
+      "version": 1
+    }
+  ]
+}
