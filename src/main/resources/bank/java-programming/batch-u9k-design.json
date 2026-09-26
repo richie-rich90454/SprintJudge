@@ -1,0 +1,4018 @@
+{
+  "questions": [
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.44,
+      "explanation": "The base case of a recursive fold has to return the identity of the combining operation, not some other operation's identity. A product starts at 1, so a product of an empty array comes out as 1. Reaching for 0 works for a sum and silently destroys every product: 0 times anything is 0, so the caller receives 0 for any array containing a single zero and for a well-formed one alike. a.length would fold a count into every step, and -1 is not neutral for multiplication at all.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what value leaves the operation unchanged when combined with any other value.",
+      "id": "jp-9.21-0001",
+      "learningObjective": "choose the base case identity a recursive product needs",
+      "options": [
+        {
+          "id": "A",
+          "text": "1, because 1 multiplied by anything leaves it unchanged",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0, because 0 is the value every running total starts from",
+          "misconception": "believes the additive identity also serves a multiplicative fold"
+        },
+        {
+          "id": "C",
+          "text": "a.length, so the base case knows how many items it consumed",
+          "misconception": "believes a count belongs in the identity slot of a fold"
+        },
+        {
+          "id": "D",
+          "text": "-1, chosen because no product of real prices can be negative",
+          "misconception": "believes any value outside the answer range works as an identity"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 21,
+        "p75Sec": 51
+      },
+      "scope": "core-scope",
+      "stem": "A pricing helper multiplies every entry of an int array by recursing, and the base case is reached when the index runs off the end. Which value must that base case return?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "base-case",
+        "identity-value"
+      ],
+      "topic": "Base case identity for a product",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.47,
+      "explanation": "The guard tests a single value, and the recursive step only ever moves downward. Starting below that value means every later argument is even further from it, so the guard is unreachable and frames accumulate until the stack is exhausted. Executed, total(-1) ends in a StackOverflowError with the argument sequence -1, -2, -3 and onward. The fix is a guard the walk can actually land on, such as n <= 0, so that the sequence -1, -2, -3 terminates at the first frame.",
+      "format": "BUG_SPOTTING",
+      "hint": "Write out the first few argument values the frames actually receive.",
+      "id": "jp-9.21-0002",
+      "learningObjective": "diagnose a base case that a negative input can never reach",
+      "options": [
+        {
+          "id": "A",
+          "text": "It never returns, because the arguments run -1, -2, -3 and never equal 0",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 0, because a negative adjustment contributes nothing to a sum",
+          "misconception": "believes a negative input makes the empty-range identity apply"
+        },
+        {
+          "id": "C",
+          "text": "It returns -1, because the first frame subtracts one and then stops",
+          "misconception": "believes the first frame's own value is what the caller receives"
+        },
+        {
+          "id": "D",
+          "text": "It returns 1, because the guard fires on the first call with any input",
+          "misconception": "believes an equality guard triggers on any argument at all"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 34,
+        "p75Sec": 83
+      },
+      "scope": "core-scope",
+      "stem": "A refund ledger totals a signed adjustment with this helper.\nstatic int total(int n) {\n  if (n == 0) return 0;\n  return n + total(n - 1);\n}\nThe caller passes total(-1) for a one-unit refund. What actually happens?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "base-case",
+        "termination"
+      ],
+      "topic": "Base case unreachable from a negative start",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.5,
+      "explanation": "The empty range contributes 0, and Math.max folds that 0 into the comparison at every level. Because 0 is larger than -5, -9 and -2, it wins every comparison on the way back up and nothing real ever survives. Executed, the method returns 0, while the correct answer is -2. The base case of a maximum has to supply a value no real reading can beat, which is why Integer.MIN_VALUE belongs there and 0, a perfectly good additive identity, does not.",
+      "format": "CODE_TRACING",
+      "hint": "Compare the base case value against each reading in the array.",
+      "id": "jp-9.21-0003",
+      "learningObjective": "trace a recursive maximum whose base case supplies a harmful identity",
+      "options": [
+        {
+          "id": "A",
+          "text": "0, the value the empty range hands back as its starting point",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "-2, the largest of the three readings once they are all compared",
+          "misconception": "believes every real reading outranks the empty-range value"
+        },
+        {
+          "id": "C",
+          "text": "-5, the first reading beaten by the value the empty range returns",
+          "misconception": "believes the first element always wins a fold of this shape"
+        },
+        {
+          "id": "D",
+          "text": "-9, the smallest reading, reached after all three frames unwind",
+          "misconception": "believes an unwind visits the frames in reverse and returns the last"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 37,
+        "p75Sec": 90
+      },
+      "scope": "core-scope",
+      "stem": "This helper is meant to report the largest reading in a range.\nstatic int biggest(int[] a, int lo, int hi) {\n  if (lo > hi) return 0;\n  int rest = biggest(a, lo + 1, hi);\n  return Math.max(a[lo], rest);\n}\nRun biggest(new int[]{-5, -9, -2}, 0, 2). What comes back?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "identity-value",
+        "array-walk"
+      ],
+      "topic": "Base case identity shadowing a real maximum",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.34,
+      "discrimination": 0.43,
+      "explanation": "A base case is only a base case if the recursion can actually arrive at the value it tests. A walk that begins at 0 and increases by 1 produces 0, 1, 2 and so on up to a.length, so the guard must test a.length or anything at or above it. Testing 1 fails immediately, because the very first call arrives with 0, and testing 0 fails too, since the first call already satisfies it and nothing is ever summed. Testing i > a.length never becomes true either, because the walk stops at a.length.",
+      "format": "CONCEPT_MCQ",
+      "hint": "List the values the index actually takes on the way up.",
+      "id": "jp-9.21-0004",
+      "learningObjective": "judge whether a written base case can ever be reached",
+      "options": [
+        {
+          "id": "A",
+          "text": "return 0 when i == a.length, because the walk steps from 0 toward the end",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "return 0 when i == 1, because 1 is the position after the first element",
+          "misconception": "believes the index visits 1 before leaving the array"
+        },
+        {
+          "id": "C",
+          "text": "return 0 when i == 0, because 0 is where every walk is documented to start",
+          "misconception": "believes the documented start value is a valid stopping condition"
+        },
+        {
+          "id": "D",
+          "text": "return 0 when i > a.length, because the walk eventually overshoots the end",
+          "misconception": "believes a walk past its end keeps going and can be caught later"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 24,
+        "p75Sec": 57
+      },
+      "scope": "core-scope",
+      "stem": "A reviewer's rule for recursive helpers is that every recursive call must move toward a value the base case tests. Which candidate base case satisfies that rule for a walk that starts at index 0 and steps upward by 1?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "base-case",
+        "reachability"
+      ],
+      "topic": "Reachability of a base case",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.48,
+      "explanation": "Executed, the walk arrives once with i = 0, the guard tests 0 == 1 and fails, and the body reads a[-1] straight away, so an ArrayIndexOutOfBoundsException is thrown after a single frame. The guard value 1 is simply not on the path the walk takes. The defect is not that the walk moves in the wrong direction but that the stop condition and the step disagree about which value means finished; a.length, or an explicit lo > hi test, is a value this walk can land on.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask which value the very first frame supplies to the guard.",
+      "id": "jp-9.21-0005",
+      "learningObjective": "diagnose an index guard that the walk never satisfies",
+      "options": [
+        {
+          "id": "A",
+          "text": "It throws, because the guard never fires and the walk indexes below zero",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 0, because the guard is read as covering every start index",
+          "misconception": "believes a guard on one index covers all starting positions"
+        },
+        {
+          "id": "C",
+          "text": "It returns the first entry, because index 0 is the documented start",
+          "misconception": "believes the first call satisfies a guard placed one past it"
+        },
+        {
+          "id": "D",
+          "text": "It returns the last entry, because the walk counts backwards from the end",
+          "misconception": "believes a decreasing index means the array is read in reverse"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 36,
+        "p75Sec": 87
+      },
+      "scope": "core-scope",
+      "stem": "A totaliser walks an array from a given start index.\nstatic int from(int[] a, int i) {\n  if (i == 1) return 0;\n  return a[i - 1] + from(a, i - 1);\n}\nThe caller runs from(weights, 0) on an array of length 3. What happens?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "base-case",
+        "array-walk"
+      ],
+      "topic": "Base case testing a value the walk skips",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.45,
+      "explanation": "A decreasing measure has to be a non-negative integer that is strictly smaller on every recursive step, so that it can fall only a finite number of times. Length satisfies all three requirements. A letter-value sum can go up when a large letter is removed, so it is not monotone. A vowel count is not even guaranteed to shrink, since a vowel-heavy word can hold it steady. A count of consumed characters rises, which proves nothing and in fact signals that the walk is heading the wrong way.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Look for a value that cannot fall below zero and always falls.",
+      "id": "jp-9.21-0006",
+      "learningObjective": "select a quantity that strictly decreases on every recursive step",
+      "options": [
+        {
+          "id": "A",
+          "text": "The length of the word, which drops by one when a character is removed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The sum of the letter values, which is smaller after removing any letter",
+          "misconception": "believes removing a positive contribution always lowers a total"
+        },
+        {
+          "id": "C",
+          "text": "The number of vowels, which is unchanged by removing a consonant",
+          "misconception": "believes an unchanged count is good enough to bound the recursion"
+        },
+        {
+          "id": "D",
+          "text": "The number of characters already consumed, which rises on every step",
+          "misconception": "believes a rising counter still proves the walk must stop"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 25,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "A helper strips the first character off a word and recurses on the remainder. Which candidate is a sound choice of decreasing measure for proving that it terminates?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "termination"
+      ],
+      "topic": "Choosing a decreasing measure",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.5,
+      "explanation": "Seven modulo 3 is 1, and 1 modulo 3 is also 1, so the sequence parks on 1. Executed, the real method runs until the stack is exhausted; the instrumented trace shows 7 followed by an unbroken run of 1s. The step does shrink the value on the first call, which is exactly why eyeballing the step is not enough: what matters is whether repeated application of the step can reach the value the guard tests. Contrast wrapped(3), where 3 % 3 is 0 and the guard fires immediately.",
+      "format": "CODE_TRACING",
+      "hint": "Apply the step twice to the starting value and compare the results.",
+      "id": "jp-9.21-0007",
+      "learningObjective": "trace an argument sequence that never reaches the guard",
+      "options": [
+        {
+          "id": "A",
+          "text": "7, 1, 1, 1 and then 1 forever, so the guard is never satisfied",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "7, 4, 1, 0, so the guard fires on the fourth call and returns 4",
+          "misconception": "believes a step of n - 3 was written rather than a remainder"
+        },
+        {
+          "id": "C",
+          "text": "7, 1 and then a negative remainder, so the guard fires on the third call",
+          "misconception": "believes a remainder on a positive value can go negative"
+        },
+        {
+          "id": "D",
+          "text": "7, 4, 1, 1 and then 0, so the guard fires on the fifth call and returns 5",
+          "misconception": "believes 1 modulo 3 is 0 rather than 1"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "A digit checker wraps its argument before recursing.\nstatic int wrapped(int n) {\n  if (n == 0) return 0;\n  return 1 + wrapped(n % 3);\n}\nInstrument the method and run wrapped(7). What argument sequence does it see?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "digit-walk"
+      ],
+      "topic": "A shrinking step that reaches a fixed point",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.47,
+      "explanation": "The base case has to hand back a value that loses every comparison against real data, so that it disappears as soon as a real element is compared with it. Integer.MIN_VALUE does that by construction. Zero looks reasonable until a range holds only negative readings, and then it wins the comparison and is returned. Minus one is better than zero but still beats -2, -3 and anything below it. Returning a[lo] reads the array even when lo has run past the end, which throws instead of supplying an identity.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask which value no possible array element can be greater than.",
+      "id": "jp-9.21-0008",
+      "learningObjective": "write a base case that a maximum walk can safely use",
+      "options": [
+        {
+          "id": "A",
+          "text": "Integer.MIN_VALUE, a value no reading can beat",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0, the value a running total is folded up from",
+          "misconception": "believes zero is neutral for a maximum as well as a sum"
+        },
+        {
+          "id": "C",
+          "text": "-1, a marker sitting below every index in the array",
+          "misconception": "believes a sentinel used for not-found works as a maximum identity"
+        },
+        {
+          "id": "D",
+          "text": "a[lo], the first reading the range will be compared against",
+          "misconception": "believes the base case may read the element that ends the walk"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 32,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "Fill the blank so the helper reports the largest value in a range, including ranges whose values are all negative.\nstatic int biggest(int[] a, int lo, int hi) {\n  if (lo > hi) return /* blank */;\n  return Math.max(a[lo], biggest(a, lo + 1, hi));\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "identity-value",
+        "code-completion"
+      ],
+      "topic": "Supplying a maximum identity",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.49,
+      "explanation": "Executed, the join returns abcnull. String concatenation converts a null operand to the four characters n-u-l-l rather than skipping it, so the base case value is spliced into the finished string. The identity for this fold is the empty string, and returning it makes the base level contribute nothing at all. That is the whole difference between a base case that is merely falsy-looking and one that is mathematically neutral for the operation it feeds.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask what Java does when the right operand of + is a null reference.",
+      "id": "jp-9.21-0009",
+      "learningObjective": "diagnose a null base case in a recursive join",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"abcnull\", because the empty tail returns null which prints into the result",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"abc\", because null is silently dropped when concatenated to a string",
+          "misconception": "believes concatenation ignores a null operand entirely"
+        },
+        {
+          "id": "C",
+          "text": "\"nullabc\", because the null is joined ahead of the first label",
+          "misconception": "believes the base case value lands at the front of the result"
+        },
+        {
+          "id": "D",
+          "text": "\"a\", because the call to the next frame throws before any value comes back",
+          "misconception": "believes returning null from a String method aborts the fold"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 35,
+        "p75Sec": 84
+      },
+      "scope": "core-scope",
+      "stem": "A formatter joins labels from the back of an array toward the front.\nstatic String label(String[] a, int i) {\n  if (i == a.length) return null;\n  return a[i] + label(a, i + 1);\n}\nRun label(new String[]{\"a\", \"b\", \"c\"}, 0). What string is produced?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "identity-value",
+        "string-walk"
+      ],
+      "topic": "A string base case returning the wrong empty value",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.46,
+      "explanation": "A sentinel has to lie outside the set of values the method can otherwise return. Indices run from 0 upwards, so -1 is unreachable as a real answer and the caller can test for it directly. Zero fails the moment a negative reading sits in the first slot: the method returns 0 both for a negative at index 0 and for no negative at all, and the two cases become indistinguishable. a.length works but demands a second comparison, and -a.length collides with nothing only by accident of convention.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask which value the method could never produce for a real answer.",
+      "id": "jp-9.21-0010",
+      "learningObjective": "pick a sentinel value that cannot collide with a real answer",
+      "options": [
+        {
+          "id": "A",
+          "text": "Return -1, because no valid index is ever negative",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Return 0, because index 0 is the first slot and reads as the default",
+          "misconception": "believes a default value is safe because it looks like a normal answer"
+        },
+        {
+          "id": "C",
+          "text": "Return a.length, because a count is always outside the index range",
+          "misconception": "believes any out-of-range value is a correct not-found marker"
+        },
+        {
+          "id": "D",
+          "text": "Return -a.length, because a larger marker is easier to spot in a log",
+          "misconception": "believes a bigger negative number is a better sentinel than -1"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 26,
+        "p75Sec": 63
+      },
+      "scope": "core-scope",
+      "stem": "A helper reports the index of the first negative reading, or says there is none. Its base case must encode the not-found answer. Which choice keeps the two cases distinguishable?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "sentinel-value",
+        "base-case"
+      ],
+      "topic": "Choosing a not-found sentinel",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.46,
+      "explanation": "Run with a counter and the total is exactly 25. The smaller branch bottoms out at zero instead of going negative, which is what stops the walk, and the counts build up as 2, 4, 7, 15 and 25 for inputs 1 through 5. Twelve is the return value, not the work done, and 24 misses the initial frame, while 26 double counts it. The gap between a small answer and a much larger call count is the everyday signal that a recursion is redoing the same work.",
+      "format": "CODE_TRACING",
+      "hint": "Add one to the counter at the top of the method and run it.",
+      "id": "jp-9.21-0011",
+      "learningObjective": "count the invocations of a two-branch helper with unequal steps",
+      "options": [
+        {
+          "id": "A",
+          "text": "25, because each frame makes two calls of different sizes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "12, because that is the value split(5) returns in the end",
+          "misconception": "believes the returned value is the number of frames the run used"
+        },
+        {
+          "id": "C",
+          "text": "24, because the two branches are taken in some order worth 24 calls",
+          "misconception": "believes the total is the answer doubled for the two branches"
+        },
+        {
+          "id": "D",
+          "text": "26, because the base frame itself is also counted as an invocation",
+          "misconception": "believes the opening frame gets counted once as well as by its parent"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 45,
+        "p75Sec": 108
+      },
+      "scope": "core-scope",
+      "stem": "Instrument every invocation of this helper, the first one included.\nstatic int split(int n) {\n  if (n == 0) return 0;\n  return 1 + split(n - 1) + split(n - 2 < 0 ? 0 : n - 2);\n}\nHow many invocations occur for split(5)?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "call-count",
+        "two-branch"
+      ],
+      "topic": "Counting invocations of an uneven two-branch recursion",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.47,
+      "explanation": "substring(1) produces a suffix one character shorter than the word it was given, so the measure falls by exactly one at every frame and the walk is forced to reach the empty word after length steps. substring(0) hands back an equal string, so the measure never moves and the call repeats forever, which is the classic non-terminating substring walk. substring(s.length()) is legal but returns the empty word immediately, so the method never examines any character at all. Dropping the last character does shrink the word, but it cannot reach the empty string from a one-character word, so a walk built that way never lands on its own base case.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Check what the recursion passes to the next frame, not just that the argument differs.",
+      "id": "jp-9.21-0012",
+      "learningObjective": "choose a sound measure for a recursion over substrings",
+      "options": [
+        {
+          "id": "A",
+          "text": "Recurse on s.substring(1), which removes one character from the front",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Recurse on s.substring(0), which keeps the word but resets the start",
+          "misconception": "believes a different-looking call with the same text still shrinks"
+        },
+        {
+          "id": "C",
+          "text": "Recurse on s.substring(s.length()), which always yields the empty word",
+          "misconception": "believes jumping straight to the base case still examines the word"
+        },
+        {
+          "id": "D",
+          "text": "Recurse on s.substring(s.length() - 1), which drops the last character",
+          "misconception": "believes shrinking from the end still lands on the empty word"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 31,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "A helper scans a word for a vowel by recursing on a shorter suffix. Which step keeps a strictly decreasing measure intact?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "string-walk"
+      ],
+      "topic": "Decreasing measure for a substring walk",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.51,
+      "explanation": "Executed, the call never returns and the stack is exhausted. The recursive call hands back s.substring(i) together with the reset index 0, so for i = 0 it passes the original word and index to a frame with exactly the same inputs. The two parameters look as though they are advancing, but substring(i) taken from the original s and paired with index 0 cancels the progress. Advancing the index needs substring(i + 1), or keeping the substring call and passing i + 1.",
+      "format": "BUG_SPOTTING",
+      "hint": "Compare the arguments the first frame sends to the second frame.",
+      "id": "jp-9.21-0013",
+      "learningObjective": "diagnose a recursive call that re-sends the same text",
+      "options": [
+        {
+          "id": "A",
+          "text": "It never returns, because the call re-sends the same word and the same index",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns true, because the second frame sees the a at index 1 of the word",
+          "misconception": "believes the walk reaches index 1 before the argument stops moving"
+        },
+        {
+          "id": "C",
+          "text": "It returns false, because the word ends before the second frame looks again",
+          "misconception": "believes an unchanged word still runs out of characters"
+        },
+        {
+          "id": "D",
+          "text": "It returns true, because substring(i) always moves the window along by one",
+          "misconception": "believes taking a suffix from index i drops i characters"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 41,
+        "p75Sec": 99
+      },
+      "scope": "core-scope",
+      "stem": "A spell checker looks for a vowel in a word.\nstatic boolean hasVowel(String s, int i) {\n  if (i == s.length()) return false;\n  if (\"aeiou\".indexOf(s.charAt(i)) >= 0) return true;\n  return hasVowel(s.substring(i), 0);\n}\nRun hasVowel(\"xay\", 0). What happens?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "string-walk"
+      ],
+      "topic": "A substring walk that never shrinks",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.48,
+      "explanation": "Keeping the original word and moving the index forward by one leaves a measure, the gap between the index and the length, that falls on every step and hits zero after exactly the word's length. Passing i or 0 reproduces the frame that is already running, and i + 0 is the same expression written longer. Once the step is repaired, hasVowel(\"xay\", 0) returns true at the second frame, having examined x and then a, and a word with no vowel such as \"xyz\" walks to the end and returns false.",
+      "format": "CODE_COMPLETION",
+      "hint": "Look for the blank that makes the distance to the end strictly smaller.",
+      "id": "jp-9.21-0014",
+      "learningObjective": "edit a recursive step so the word strictly shrinks",
+      "options": [
+        {
+          "id": "A",
+          "text": "i + 1, which moves one step closer to the end of the word",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "i, which hands the next frame the index this frame was given",
+          "misconception": "believes an unchanged index still makes progress somewhere"
+        },
+        {
+          "id": "C",
+          "text": "0, which restarts the scan from the first character again",
+          "misconception": "believes resetting the index is a shorter form of advancing it"
+        },
+        {
+          "id": "D",
+          "text": "i + 0, which is the same step written with more symbols",
+          "misconception": "believes a longer expression changes what the argument evaluates to"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 31,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "Fill the blank so the scan terminates and reports the a in \"xay\" correctly.\nstatic boolean hasVowel(String s, int i) {\n  if (i == s.length()) return false;\n  if (\"aeiou\".indexOf(s.charAt(i)) >= 0) return true;\n  return hasVowel(s, /* blank */);\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "code-completion"
+      ],
+      "topic": "Repairing a substring step",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.47,
+      "explanation": "Either allowed move increases r or increases c, so rows left strictly decreases every time, and the walk must arrive at the last row. The sum r + c is the trap here: it does change, and it increases rather than decreases, so it proves nothing about stopping. The product r * c happens to fall at the top of the grid but rises once both coordinates pass one, and a cell's contents have no connection to how far the crawler has come, so neither can bound the number of steps.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what the two legal moves do to the distance still remaining.",
+      "id": "jp-9.21-0015",
+      "learningObjective": "pick a decreasing measure for a recursion over grid cells",
+      "options": [
+        {
+          "id": "A",
+          "text": "The number of rows left, (rows - 1) - r, which falls on either move",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The product r * c, which falls whenever either coordinate is below one",
+          "misconception": "believes a product of coordinates is always monotone downward"
+        },
+        {
+          "id": "C",
+          "text": "The sum r + c, which stays level because only one coordinate rises",
+          "misconception": "believes a changing sum is as good as a decreasing distance"
+        },
+        {
+          "id": "D",
+          "text": "The value stored in the grid cell, which is unrelated to the position",
+          "misconception": "believes a cell's contents bound how far the crawler can travel"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 30,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "A crawler counts routes from cell (r, c) to the last row, moving one row down or one column right each step. Which quantity serves as a decreasing measure?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "grid-walk"
+      ],
+      "topic": "Decreasing measure for a grid walk",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.49,
+      "explanation": "Executed, the counter never settles: the r + 1 branch heads for the guard, but r - 1 walks away from it and then keeps being handed its own result back, so the walk revisits rows it has already counted forever. The count climbs until the stack gives out. The defect is confined to a single branch, which is the useful part of the diagnosis, because the other branch is exactly the decreasing step the method needed. Any proposed number of routes here is a guess, since no run ever completes.",
+      "format": "CODE_TRACING",
+      "hint": "Check each branch separately for whether it moves toward the guard's value.",
+      "id": "jp-9.21-0016",
+      "learningObjective": "identify the recursive branch that prevents termination",
+      "options": [
+        {
+          "id": "A",
+          "text": "The count climbs without bound, because r - 1 moves away from the guard",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The count settles at 8, because three rows admit exactly eight routes",
+          "misconception": "believes a run that never finishes still has a finite answer"
+        },
+        {
+          "id": "C",
+          "text": "The count settles at 4, because each row offers two ways to arrive",
+          "misconception": "believes two branches per level mean a small fixed number of routes"
+        },
+        {
+          "id": "D",
+          "text": "The count stops at 6, because the guard is reached once per direction",
+          "misconception": "believes the guard is hit from both directions the same number of times"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 64,
+        "p25Sec": 40,
+        "p75Sec": 96
+      },
+      "scope": "core-scope",
+      "stem": "A route counter is written with one branch going the wrong way.\nstatic int routes(int r, int rows) {\n  if (r == rows) return 1;\n  return routes(r + 1, rows) + routes(r - 1, rows);\n}\nCall routes(0, 3) with a call counter installed. What does the run show?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "termination",
+        "grid-walk"
+      ],
+      "topic": "The one branch that breaks the measure",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.47,
+      "discrimination": 0.5,
+      "explanation": "The walk visits 4, 2, 0 and stops, which is why climb(4) behaves. From 5 the sequence is 5, 3, 1, -1, -3 and onward: a stride of two starting on an odd value can only ever reach odd values, so the even number the guard tests is unreachable and the frames accumulate until the stack is exhausted. Either the guard has to accept both parities or the step has to reach one value; the first is the smaller change.",
+      "format": "BUG_SPOTTING",
+      "hint": "Apply the step twice and check whether the guard's value is still reachable.",
+      "id": "jp-9.21-0017",
+      "learningObjective": "diagnose a step whose stride never lands on the stop value",
+      "options": [
+        {
+          "id": "A",
+          "text": "It never returns, because 5, 3, 1 and then -1 skip past the guard's 0",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 0, because a negative height is treated as ground level",
+          "misconception": "believes a guard on 0 somehow also fires for negative values"
+        },
+        {
+          "id": "C",
+          "text": "It returns 5, because the first frame hands back the value it was given",
+          "misconception": "believes a method with no return statement yields its argument"
+        },
+        {
+          "id": "D",
+          "text": "It returns 1, because the guard fires as soon as n stops being positive",
+          "misconception": "believes a guard written on n == 0 also tests for negativity"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 36,
+        "p75Sec": 87
+      },
+      "scope": "core-scope",
+      "stem": "A stair helper takes steps of two.\nstatic int climb(int n) {\n  if (n == 0) return 0;\n  return climb(n - 2);\n}\nExecuted, climb(4) returns normally. What does climb(5) do?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "termination"
+      ],
+      "topic": "A step that skips over the guard's value",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.33,
+      "discrimination": 0.45,
+      "explanation": "Integer division by ten removes exactly one digit, so a d-digit number becomes a d-1 digit number and after d steps the walk lands on a single digit, where the guard fires. The remainder n % 10 is a single digit but throws away everything except the last one, so the count becomes 1 for every input. Subtracting one does terminate and does reach a single digit, but it needs n steps rather than d, so it is correct and wildly wasteful on a long number. Multiplying by ten walks in the opposite direction and never reaches the guard at all.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask how many digits the next call's argument has, not just whether it is smaller.",
+      "id": "jp-9.21-0018",
+      "learningObjective": "choose the step that shrinks a number toward one digit",
+      "options": [
+        {
+          "id": "A",
+          "text": "n / 10, integer division, which drops the last digit and shrinks the number",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "n % 10, the remainder, which is one digit and never grows again",
+          "misconception": "believes the last digit alone carries the whole number of digits"
+        },
+        {
+          "id": "C",
+          "text": "n - 1, which always shrinks but takes n steps to reach a single digit",
+          "misconception": "believes a correct step is as good as an efficient one for a large number"
+        },
+        {
+          "id": "D",
+          "text": "n * 10, which appends a zero and grows the number on every call",
+          "misconception": "believes a step that grows the number can still reach the guard"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 24,
+        "p75Sec": 57
+      },
+      "scope": "core-scope",
+      "stem": "A checker reports how many digits a positive number has. Which recursive step makes the number of digits strictly smaller every time?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "digit-walk"
+      ],
+      "topic": "Decreasing measure for a digit list",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.47,
+      "explanation": "The guard is lo > hi, so the walk must close on it by raising lo past hi, which is what + 1 does: the call for hi = 3 runs lo = 0, 1, 2, 3, 4 and stops, totalling 100 for {10, 20, 30, 40} in five frames. Stepping lo - 1 moves the wrong way relative to the guard, so the range never closes and the walk runs off the front of the array. Executed, that version throws an ArrayIndexOutOfBoundsException after two frames. + 0 re-sends the same frame forever, and adding the length overshoots the guard on the second call and silently drops entries.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask which way the guard's inequality has to move for lo to overtake hi.",
+      "id": "jp-9.21-0019",
+      "learningObjective": "repair the step so a range walk stays inside the array",
+      "options": [
+        {
+          "id": "A",
+          "text": "+ 1, which raises lo until it overtakes hi and closes the guard",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "- 1, which lowers lo toward the start of the array and the guard",
+          "misconception": "believes lowering lo can ever overtake a higher bound hi"
+        },
+        {
+          "id": "C",
+          "text": "+ a.length, which jumps lo past the guard in a single call",
+          "misconception": "believes overshooting the bound still totals the whole range"
+        },
+        {
+          "id": "D",
+          "text": "+ 0, which is the same step written with extra symbols added",
+          "misconception": "believes adding zero to an index still advances the walk"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 32,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "Fill the blank so the helper totals a half-open range without running off the end.\nstatic int total(int[] a, int lo, int hi) {\n  if (lo > hi) return 0;\n  return a[lo] + total(a, lo /* blank */, hi);\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "decreasing-measure",
+        "code-completion"
+      ],
+      "topic": "A range walk that steps out of the array",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "Termination is a claim about an infinite sequence of arguments, so it needs two independent parts. First, some quantity must strictly decrease on every step, which bounds the number of steps by a finite number. Second, the guard must be reachable in that bounded number of steps, which the strictly decreasing part alone does not promise. Here n falls by one per frame, so at most n frames can exist, and because the fall is by one from a whole number, the sequence of arguments walks through every value from n down to 0 and cannot jump over the guard. Change the guard to a value the sequence skips, such as a step of n - 2 tested against 0, and the decreasing part still holds but the guard becomes unreachable, so the walk runs forever even though every step shrank something."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "explanation": "Termination is two claims, not one, and they fail independently. Every step must move a non-negative integer measure strictly downwards, which caps the number of frames at some finite number; and the guard must sit on a value that sequence actually reaches within that cap. A decreasing measure alone proves only the first claim, which is why a method whose step is n - 2 still fails when the guard tests 0: the measure falls on every step, but an odd starting value walks the odd integers forever and skips the even one the guard names. Correctness of a base case is therefore a claim about the path, not about the code sitting at the bottom of it.",
+      "format": "EXPLANATION",
+      "hint": "Ask what a run of infinitely many decreasing integer steps would have to avoid.",
+      "id": "jp-9.21-0020",
+      "learningObjective": "explain what makes termination provable rather than merely likely",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 96,
+        "p25Sec": 60,
+        "p75Sec": 144
+      },
+      "scope": "core-scope",
+      "stem": "A helper sums n down to zero with a guard on n == 0 and a step of n - 1. Explain why this method is guaranteed to terminate while a near-identical one whose guard is unreachable is not.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "termination",
+        "base-case"
+      ],
+      "topic": "Why a base case is the whole termination argument",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.45,
+      "explanation": "Memoization pays off precisely when a recursion is pure, so that two calls with the same arguments must return the same value, and it reaches the same state more than once. In a two-branch recursion the same suffix is routinely reached from many different prefixes, so the naive version recomputes identical subproblems; a table computed each state once and read thereafter removes exactly that repeated work. It does not shrink the stack, it does not remove the division, and it does not replace the base case, which still has to be there to start the recursion at all.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask whether two different call paths can arrive at the same arguments.",
+      "id": "jp-9.21-0021",
+      "learningObjective": "state the redundancy memoization removes",
+      "options": [
+        {
+          "id": "A",
+          "text": "Identical argument pairs being solved from scratch over and over",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The stack frames that a recursive call occupies while it is running",
+          "misconception": "believes a cache can make a deep recursion fit in a small stack"
+        },
+        {
+          "id": "C",
+          "text": "The integer division inside the method, which the table can pre-compute",
+          "misconception": "believes arithmetic cost is what makes a naive recursion slow"
+        },
+        {
+          "id": "D",
+          "text": "The base case test, which the table replaces with a single comparison",
+          "misconception": "believes the base case becomes unnecessary once a table exists"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 25,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "Adding a lookup table to a recursive helper makes it dramatically faster on large inputs. Which inefficiency does the table remove?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "complexity"
+      ],
+      "topic": "What memoization actually exploits",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.44,
+      "explanation": "Run with a counter and the total is 83, while the method returns 6. The gap is the point of the item: many distinct call paths reach the same pair of arguments, such as amount 5 with coin index 1, and each one solves it again from nothing. Six is the answer the caller cares about and says nothing about the work, 29 is nowhere near the measured count, and 84 miscounts the opening frame. Anything that reports a small number here is reporting a result rather than a cost.",
+      "format": "CODE_TRACING",
+      "hint": "Instrument the method body and compare the counter with the returned value.",
+      "id": "jp-9.21-0022",
+      "learningObjective": "count invocations of a naive two-parameter recursion",
+      "options": [
+        {
+          "id": "A",
+          "text": "83, because the same amount and coin index pair is revisited many times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, because that is the number of combinations the method returns",
+          "misconception": "believes a returned count is a measure of the work performed"
+        },
+        {
+          "id": "C",
+          "text": "29, because each of the six combinations costs one frame per coin",
+          "misconception": "believes the frames are one per combination per coin rather than per pair"
+        },
+        {
+          "id": "D",
+          "text": "84, because the initial call is counted once more than it happens",
+          "misconception": "believes the opening frame deserves a second count of its own"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 80,
+        "p25Sec": 50,
+        "p75Sec": 120
+      },
+      "scope": "core-scope",
+      "stem": "Count every invocation of this helper, the first one included.\nstatic final int[] COINS = {1, 2, 5};\nstatic int ways(int amount, int k) {\n  if (amount == 0) return 1;\n  if (amount < 0 || k == COINS.length) return 0;\n  return ways(amount - COINS[k], k) + ways(amount, k + 1);\n}\nHow many invocations does ways(7, 0) make?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "call-count"
+      ],
+      "topic": "Counting the naive coin-change recursion",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.5,
+      "explanation": "Executed, the method returns 26 instead of the correct 6. The subproblem is the pair (amount, k), and the amount alone does not identify it: the number of ways to make 7 using only 5s and 2s differs completely from the number using 1s, 2s and 5s. A cache entry keyed on a strict subset of the real identity hands back an answer computed under different constraints, so the first writer wins and every later reader inherits an unrelated number. The same value of 6 in the correct version is what makes the wrong key easy to miss in review.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask whether two calls with the same cached key can have different second parameters.",
+      "id": "jp-9.21-0023",
+      "learningObjective": "diagnose a cache that ignores part of the subproblem's identity",
+      "options": [
+        {
+          "id": "A",
+          "text": "26, because answers for one coin index overwrite those for another",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, because the cache holds the first answer computed for each amount",
+          "misconception": "believes the first value written to a slot is the only correct one"
+        },
+        {
+          "id": "C",
+          "text": "0, because every lookup starts as -1 and -1 is returned unchanged",
+          "misconception": "believes a fresh array reads as already holding the not-found value"
+        },
+        {
+          "id": "D",
+          "text": "12, because each amount is cached twice, once per recursive branch",
+          "misconception": "believes the two branches write the same value into one shared slot"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 48,
+        "p75Sec": 117
+      },
+      "scope": "core-scope",
+      "stem": "A developer adds a cache but keys it on the amount alone.\nstatic int[] memo = new int[12];\nstatic int ways(int amount, int k) {\n  if (amount == 0) return 1;\n  if (amount < 0 || k == COINS.length) return 0;\n  if (memo[amount] != -1) return memo[amount];\n  return memo[amount] = ways(amount - COINS[k], k) + ways(amount, k + 1);\n}\nWith COINS = {1, 2, 5}, what does ways(7, 0) return?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "cache-key"
+      ],
+      "topic": "A cache keyed on only one of two parameters",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.47,
+      "explanation": "The marker for not yet computed has to be a value the computation can never produce, and 0 fails that test in a coin-counting helper, where a real answer of 0 is exactly what an unreachable amount returns. Executed, the run reads 0 back as a cache miss, recomputes, and stores another 0, so the table never helps and the method reports 0 for an amount it should solve. -1 works precisely because no combination count is negative, and the convention generalises to any sentinel outside the answer's range.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask whether the computation can legitimately return the marker value.",
+      "id": "jp-9.21-0024",
+      "learningObjective": "choose a cache marker that no real answer can equal",
+      "options": [
+        {
+          "id": "A",
+          "text": "0 is a legitimate answer, so a computed zero is read back as uncomputed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0 is not an integer, so it cannot be stored in an int array at all",
+          "misconception": "believes zero is outside the range of a signed integer type"
+        },
+        {
+          "id": "C",
+          "text": "0 forces the cache to be reallocated on every lookup it survives",
+          "misconception": "believes reading a cache entry reallocates the array holding it"
+        },
+        {
+          "id": "D",
+          "text": "0 is the marker the base case returns, so both cases write the same slot",
+          "misconception": "believes the base case return value is what fills the cache"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 31,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "A cache is declared as int[] memo and the guard reads memo[amount] == 0 to mean not yet computed. Why is 0 a poor choice of marker here?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "sentinel-value"
+      ],
+      "topic": "Picking an empty marker for a cache",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.47,
+      "explanation": "Executed, the table is filled 21 times, against 83 frames for the uncached version, and the answer is still 6. Twenty-one is the number of distinct (amount, k) pairs reachable from (7, 0) once the -1 convention is in place, so that figure grows with the number of states rather than with the number of paths. 83 is the count for the version with no table, 6 counts results rather than states, and 14 counts only the pairs that never advance the coin index, which is not the reachable set.",
+      "format": "CODE_TRACING",
+      "hint": "Run both versions with counters and compare what each one recomputes.",
+      "id": "jp-9.21-0025",
+      "learningObjective": "count the real work a memo table leaves behind",
+      "options": [
+        {
+          "id": "A",
+          "text": "21, one per distinct amount and coin index pair reachable from the start",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "83, the same total the uncached version performs on this input",
+          "misconception": "believes adding a table leaves the frame count untouched"
+        },
+        {
+          "id": "C",
+          "text": "6, one per combination that the helper ultimately reports",
+          "misconception": "believes the number of results equals the number of cached states"
+        },
+        {
+          "id": "D",
+          "text": "14, the pairs reachable without ever leaving the first coin index",
+          "misconception": "believes a run that advances the coin index visits no new states"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 78,
+        "p25Sec": 48,
+        "p75Sec": 117
+      },
+      "scope": "core-scope",
+      "stem": "Add the cache and count only the frames that actually compute a new pair.\nstatic int ways(int amount, int k) {\n  if (amount == 0) return 1;\n  if (amount < 0 || k == COINS.length) return 0;\n  if (memo[amount][k] != -1) return memo[amount][k];\n  memo[amount][k] = ways(amount - COINS[k], k) + ways(amount, k + 1);\n  return memo[amount][k];\n}\nWith COINS = {1, 2, 5} and a fresh table, how many pairs does ways(7, 0) compute?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "call-count"
+      ],
+      "topic": "Counting the memoized coin-change recursion",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "explanation": "The subproblem is the pair, so the table must be indexed by both amount and k and the lookup must hand back the same slot it tested. A single-dimensional memo cannot express the two parameters at all, so memo[k] and memo[amount] both collapse distinct states onto one another and produce wrong counts, exactly the failure a partially keyed cache causes. Calling the method again inside the guard re-enters the same frame and never reaches the store line, so the table stays empty and the work is unchanged.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask which two values together identify a subproblem.",
+      "id": "jp-9.21-0026",
+      "learningObjective": "write the lookup and store that make a recursion linear in its states",
+      "options": [
+        {
+          "id": "A",
+          "text": "memo[amount][k], the same pair the guard just tested",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "memo[k], the slot named by the coin index alone",
+          "misconception": "believes the amount is not needed to identify a cached pair"
+        },
+        {
+          "id": "C",
+          "text": "memo[amount], the slot named by the amount alone",
+          "misconception": "believes the coin index does not change the answer for an amount"
+        },
+        {
+          "id": "D",
+          "text": "ways(amount, k), a fresh call made from inside the guard",
+          "misconception": "believes re-entering the method from its own guard reuses the table"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "Fill both blanks so the helper reuses a computed pair instead of solving it twice.\nstatic int ways(int amount, int k) {\n  if (amount == 0) return 1;\n  if (amount < 0 || k == COINS.length) return 0;\n  if (memo[amount][k] != -1) return /* blank */;\n  /* blank */ = ways(amount - COINS[k], k) + ways(amount, k + 1);\n  return memo[amount][k];\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "code-completion"
+      ],
+      "topic": "Inserting a cache lookup",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.5,
+      "explanation": "Executed, the helper returns 0 for an amount that has six combinations. The guard treats a stored 0 as an empty slot, recomputes, and writes another 0, so the cache never records anything the guard will accept. The failure is silent in the worst way: the method still returns a plausible integer, and only a comparison against a known answer reveals that the number is wrong. A marker outside the answer's range, such as -1, converts the same program into a correct one with no other change.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask whether a legitimate result can be mistaken for an empty cache slot.",
+      "id": "jp-9.21-0027",
+      "learningObjective": "trace the result of an unusable cache marker",
+      "options": [
+        {
+          "id": "A",
+          "text": "0, because a stored 0 is read back as a miss and the table never helps",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, because the store line still writes the correct total each time",
+          "misconception": "believes storing a value makes it readable regardless of the marker"
+        },
+        {
+          "id": "C",
+          "text": "26, because a stored 0 is mistaken for an answer from another index",
+          "misconception": "believes this marker behaves like a wrongly keyed cache rather than an empty one"
+        },
+        {
+          "id": "D",
+          "text": "83, because every call still reaches the store line and refreshes it",
+          "misconception": "believes writing on every call is the same as caching the result"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 42,
+        "p75Sec": 102
+      },
+      "scope": "core-scope",
+      "stem": "A developer tries 0 as the not-yet-computed marker.\nstatic int[] memo = new int[12];\nstatic int ways(int amount, int k) {\n  if (amount == 0) return 1;\n  if (amount < 0 || k == COINS.length) return 0;\n  if (memo[amount] == 0) return memo[amount];\n  return memo[amount] = ways(amount - COINS[k], k) + ways(amount, k + 1);\n}\nWith COINS = {1, 2, 5}, what does ways(7, 0) return?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "sentinel-value"
+      ],
+      "topic": "A cache whose marker collides with its answers",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "explanation": "There are exactly 2^n results, but the unit of work is not the result, it is the member stored inside it. Writing out every subset costs the sum of the subset sizes, which is n times 2 to the n minus one in total, so the bound is n times 2 to the n. Counting only the number of results gives 2 to the n and quietly drops the per-item cost, which is the most common way this estimate goes wrong in review. The claim that each subset needs a unique path describes the naive tree of decisions, whose internal nodes are the 2^(n+1) minus 1 frames, not the output itself.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what has to be written down for each result, not how many results there are.",
+      "id": "jp-9.21-0028",
+      "learningObjective": "state the right complexity for building every subset",
+      "options": [
+        {
+          "id": "A",
+          "text": "n times 2 to the n, because each of the 2^n results is a list of up to n items",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2 to the n, because one result per subset is produced and nothing more",
+          "misconception": "believes the count of results is the count of work done"
+        },
+        {
+          "id": "C",
+          "text": "n to the 2, because each subset is built by copying the whole input set",
+          "misconception": "believes a list of members is as long as the whole input set"
+        },
+        {
+          "id": "D",
+          "text": "2 to the 2n, because every subset is reached by a unique path of decisions",
+          "misconception": "believes the decision tree size is the cost of the output"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "Every one of the 2^n subsets of an n-element set is materialised as its own list of members. Which bound describes the work, and why?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "subset-enumeration",
+        "complexity"
+      ],
+      "topic": "Subset enumeration and its per-subset cost",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.48,
+      "explanation": "Executed, the helper performs 5 recursive invocations and stores exactly 30 items across 16 results. The 5 is the depth of the helper, the 16 is the number of subsets, and 64 is the count you would get only if every subset held all four items, which none of them do. Since the empty subset contributes nothing and the full subset contributes four, the average length lands under two, and 30 items is the visible evidence that the cost per result scales with the length of the result rather than being a constant.",
+      "format": "CODE_TRACING",
+      "hint": "Add up the sizes of the returned subsets instead of counting the results.",
+      "id": "jp-9.21-0029",
+      "learningObjective": "count element copies to justify a subset enumeration bound",
+      "options": [
+        {
+          "id": "A",
+          "text": "30, spread across 16 subsets whose average length is under two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "16, one stored item for each subset that the helper returns",
+          "misconception": "believes every subset holds exactly one member"
+        },
+        {
+          "id": "C",
+          "text": "5, one per level of recursion including the empty tail at the end",
+          "misconception": "believes the recursion depth is the number of items stored"
+        },
+        {
+          "id": "D",
+          "text": "64, four items for each of the sixteen subsets of the input set",
+          "misconception": "believes every subset contains all four members of the input"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 84,
+        "p25Sec": 52,
+        "p75Sec": 126
+      },
+      "scope": "core-scope",
+      "stem": "A factored helper returns all subsets of a 4-item set.\nstatic List<String> subs(char[] items, int i) {\n  if (i == items.length) return new ArrayList<>(List.of(\"\"));\n  List<String> tail = subs(items, i + 1);\n  List<String> out = new ArrayList<>(tail.size() * 2);\n  for (String s : tail) out.add(items[i] + s);\n  for (String s : tail) out.add(s);\n  return out;\n}\nRun subs on {a, b, c, d} and count the items actually stored. How many are there?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "subset-enumeration",
+        "complexity"
+      ],
+      "topic": "Measuring the real per-subset cost",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "The two numbers count different things. The naive helper reaches the same pair of arguments by many distinct paths, because the amount can arrive at 5 from 7 by way of 2, or from 6 by way of 1, or from several other routes, and each route then solves 5 from scratch. 83 is the number of paths, so it grows multiplicatively. With the table in place, 21 of the 28 invocations are the first visit to a distinct pair and the other 7 are lookups of pairs already stored, so the cost is the number of distinct pairs plus a constant overhead per edge of the recursion tree. The answer is unchanged because the helper is pure: the value for a pair does not depend on how the caller arrived, which is precisely the property that makes caching it legal."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.5,
+      "explanation": "Caching is only legal for a pure helper, and it pays off only when the recursion is impure in effect, reaching the same state by several paths. The uncached count of 83 counts paths: the same pair of arguments is solved again from scratch for every distinct way of arriving at it, so the count multiplies as the input grows. With the table, 21 of the 28 invocations are first visits to a distinct pair and the other 7 are lookups of pairs already stored, so the cost tracks the number of states instead of the number of routes. The answer stays 6 in both versions precisely because the helper is pure, and that same purity is the precondition that makes reusing a stored value legitimate rather than merely convenient.",
+      "format": "EXPLANATION",
+      "hint": "Ask whether the work is proportional to the paths or to the distinct subproblems.",
+      "id": "jp-9.21-0030",
+      "learningObjective": "explain what memoization does and does not remove",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 110,
+        "p25Sec": 68,
+        "p75Sec": 165
+      },
+      "scope": "core-scope",
+      "stem": "A coin-counting helper makes 83 invocations for one input before a cache is added and 28 after. Explain what the cache actually changed, given that the answer is 6 either way.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "memoization",
+        "complexity"
+      ],
+      "topic": "Why a table changes the work but not the states",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.49,
+      "explanation": "Sharing a table means every visit has to reach the same table, and passing it as a parameter is what makes that true: each branch forwards the reference it was given, so the whole recursion tree shares one array. A helper that sizes its own table per visit is exactly the recomputation being fixed. The caller's name carries no information about state, and a sibling's return value is a number, not storage, so neither can carry the cache. With a shared table the 5 by 5 route count takes 33 invocations instead of 139 and still returns 70.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what the second visit to a cell must be able to reach.",
+      "id": "jp-9.21-0031",
+      "learningObjective": "decide what a factored helper must carry to be shareable",
+      "options": [
+        {
+          "id": "A",
+          "text": "The table itself, passed in as a parameter both branches then hand on",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The number of rows, so the helper can size a fresh table each visit",
+          "misconception": "believes a new table per visit is the same as one shared table"
+        },
+        {
+          "id": "C",
+          "text": "The name of the caller, so the helper knows which branch invoked it",
+          "misconception": "believes the calling branch decides which cached values are valid"
+        },
+        {
+          "id": "D",
+          "text": "The return value of the sibling branch, so the table can be discarded",
+          "misconception": "believes a sibling's number can stand in for the storage holding results"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 56,
+        "p25Sec": 35,
+        "p75Sec": 84
+      },
+      "scope": "core-scope",
+      "stem": "A two-branch grid walk recomputes the same cells because both branches start from scratch. What must a factored helper receive so that its two branches can share one table?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "helper-extraction",
+        "memoization"
+      ],
+      "topic": "Extracting a shared helper from a two-branch recursion",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.5,
+      "explanation": "Executed, the list ends up with 81 entries instead of 16. The tail is taken with a sublist view but copied into a new list, so that part is safe; the damage is that the accumulating list keeps growing underneath the levels above it, and each level appends to a list that already holds everything the deeper levels produced. The count climbs as three to the n, so a four-item input already produces 81 strings. Handing each level its own list is what keeps the count at two to the n.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask what the caller's list contains when the topmost frame resumes.",
+      "id": "jp-9.21-0032",
+      "learningObjective": "diagnose an accumulator that is never copied",
+      "options": [
+        {
+          "id": "A",
+          "text": "81, because every level appends to the same growing list and re-reads it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "16, the same number a helper returning a fresh list produces",
+          "misconception": "believes sharing one list still yields one entry per subset"
+        },
+        {
+          "id": "C",
+          "text": "5, one per level of recursion for each of the four input items",
+          "misconception": "believes the entry count equals the recursion depth"
+        },
+        {
+          "id": "D",
+          "text": "0, because the helper adds to a copy and never touches the caller's list",
+          "misconception": "believes taking a sublist copy redirects all later appends"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 84,
+        "p25Sec": 52,
+        "p75Sec": 126
+      },
+      "scope": "core-scope",
+      "stem": "A subset helper writes into the caller's list and hands the same list back.\nstatic void subs(char[] items, int i, List<String> out) {\n  if (i == items.length) { out.add(\"\"); return; }\n  int mark = out.size();\n  subs(items, i + 1, out);\n  List<String> tail = new ArrayList<>(out.subList(mark, out.size()));\n  for (String s : tail) out.add(items[i] + s);\n  for (String s : tail) out.add(s);\n}\nCall subs(new char[]{'a','b','c','d'}, 0, new ArrayList<>()). How many entries does out hold?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "aliasing",
+        "subset-enumeration"
+      ],
+      "topic": "A helper that returns the list it was handed",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.48,
+      "explanation": "Executed, the counter reads 31 invocations, of which 16 reach the guard and record a subset. The number is two to the n plus one minus one, because every internal frame has two children and the tree is complete to depth n. Sixteen is the number of leaves alone and ignores the internal frames that do the appending and the undoing, 64 confuses a decision count with a node count, and 17 is the size of a different tree, since a 4-item set has 15 internal frames rather than 4.",
+      "format": "CODE_TRACING",
+      "hint": "Add a counter at the top of the method and run it on a 4-item set.",
+      "id": "jp-9.21-0033",
+      "learningObjective": "count the invocations behind a naive subset enumeration",
+      "options": [
+        {
+          "id": "A",
+          "text": "31, half of them the 16 leaves that actually record a subset",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "16, because every invocation corresponds to one recorded subset",
+          "misconception": "believes there is no work above the level that records a result"
+        },
+        {
+          "id": "C",
+          "text": "64, because four items give two decisions each and all paths are taken",
+          "misconception": "believes the count of decision strings equals the count of frames"
+        },
+        {
+          "id": "D",
+          "text": "17, because the tree has one root, four middles and twelve leaves",
+          "misconception": "believes a complete tree of depth four has only seventeen nodes"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 43,
+        "p75Sec": 105
+      },
+      "scope": "core-scope",
+      "stem": "Count every invocation of this enumerator, the first one included.\nstatic void subsets(char[] items, int i, StringBuilder cur, List<String> out) {\n  if (i == items.length) { out.add(cur.toString()); return; }\n  cur.append(items[i]);\n  subsets(items, i + 1, cur, out);\n  cur.setLength(cur.length() - 1);\n  subsets(items, i + 1, cur, out);\n}\nHow many invocations occur for a 4-item set?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "subset-enumeration",
+        "call-count"
+      ],
+      "topic": "Invocations and leaves of naive subset enumeration",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.5,
+      "explanation": "Forwarding the reference the method was handed is what makes the cache shared, so both recursive calls receive memo and every level in the tree consults the same array. Allocating a fresh table in each call discards the results the deeper levels stored and reinstates the naive behaviour, so the 5 by 5 count goes back to 139 invocations. Passing null cannot compile against the lookup two lines above, and memo[r] is a single row rather than the table, so the two-dimensional index would fail on the first lookup.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask which object both branches must be holding when they look up a cell.",
+      "id": "jp-9.21-0034",
+      "learningObjective": "write a helper that forwards a shared cache to its branches",
+      "options": [
+        {
+          "id": "A",
+          "text": "memo",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "new int[ROWS][COLS]",
+          "misconception": "believes a fresh table per call still shares cached values"
+        },
+        {
+          "id": "C",
+          "text": "null",
+          "misconception": "believes the lookup two lines above is never actually executed"
+        },
+        {
+          "id": "D",
+          "text": "memo[r]",
+          "misconception": "believes a single row can be indexed with two coordinates"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "Fill the blanks so both branches of the grid walk consult the one table.\nstatic int cell(int r, int c, int[][] memo) {\n  if (r == ROWS - 1 || c == COLS - 1) return 1;\n  if (memo[r][c] != -1) return memo[r][c];\n  return memo[r][c] = cell(r + 1, c, /* blank */)\n      + cell(r, c + 1, /* blank */);\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "helper-extraction",
+        "code-completion"
+      ],
+      "topic": "Threading a cache through a helper",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.48,
+      "explanation": "The failure is not stylistic, it is a wrong answer: executed, the recursive total over 20000 amounts ends in a StackOverflowError while the loop returns 20000. A single unbroken chain of calls has to place every pending frame on the stack, so the depth equals the number of items and no per-operation saving offsets that. Readability is a real consideration but it is not the strongest one here, recursion is perfectly testable, and a loop is not doing a different amount of addition, just the same addition with a bounded amount of memory.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask how many nested calls a single unbroken chain of 20000 items requires.",
+      "id": "jp-9.21-0035",
+      "learningObjective": "decide when recursion is the wrong shape for a job",
+      "options": [
+        {
+          "id": "A",
+          "text": "It needs 20000 stack frames, and the run fails before the total is produced",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is harder to read than a loop, and readability alone outweighs correctness",
+          "misconception": "believes a style preference is strong enough to overrule a wrong answer"
+        },
+        {
+          "id": "C",
+          "text": "It cannot be tested, because a recursive method always needs a live stack",
+          "misconception": "believes recursion cannot be exercised without a real call stack"
+        },
+        {
+          "id": "D",
+          "text": "It is slower per operation, since a loop cannot add as many values per pass",
+          "misconception": "believes a loop body performs less work than a recursive call"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 30,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "A payroll system must total 20000 daily amounts. Which argument against the recursive version is strongest?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "recursion-to-loop",
+        "stack-overflow"
+      ],
+      "topic": "When a loop is the better tool",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.5,
+      "explanation": "Executed, the recursive form over 20000 entries ends in a StackOverflowError and the loop returns 20000. Every one of those frames is live at once, because each has an addition still pending after its recursive call, so the depth tracks the array length exactly. Halving the array to 10000 entries makes both succeed, which is the useful diagnostic: the failure boundary moves with the length of the input, so the fault is the depth of the recursion and not the size of the result. An index error would be a different exception entirely.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Compare the two versions on successively smaller inputs to find the boundary.",
+      "id": "jp-9.21-0036",
+      "learningObjective": "compare the two shapes on an unbounded length of input",
+      "options": [
+        {
+          "id": "A",
+          "text": "The recursive form fails with a stack overflow while the loop returns 20000",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both return 20000, because a frame costs nothing once it has been entered",
+          "misconception": "believes a stack frame is released as soon as it is created"
+        },
+        {
+          "id": "C",
+          "text": "Both return 20000, with each one holding one frame per array element",
+          "misconception": "believes a loop keeps a frame alive for each iteration it performs"
+        },
+        {
+          "id": "D",
+          "text": "The recursive form returns 20000 and the loop throws on the same input",
+          "misconception": "believes array traversal by loop is the shape that overruns a stack"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "A total over an int array is written both as a recursive helper and as a for loop, and the array holds 20000 entries of 1. Which statement about the pair is correct?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "recursion-to-loop",
+        "stack-overflow"
+      ],
+      "topic": "What changes when a recursion becomes a loop",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.5,
+      "explanation": "Executed, the recursive version returns abc and the loop returns cba. The recursive join puts the current element in front of the result it is handed, so the deepest call, which holds nothing, supplies the suffix and each frame prepends as it unwinds, leaving the original order intact. A loop has no unwinding, so the natural forward pass accumulates in the same order while this version walks the array backwards and accumulates in reverse. A StringBuilder appends at its end and never reorders, which is what makes the direction of the loop the whole decision.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask which end of the result the current element lands on in each version.",
+      "id": "jp-9.21-0037",
+      "learningObjective": "diagnose a loop that changes a recursive method's output",
+      "options": [
+        {
+          "id": "A",
+          "text": "rec gives \"abc\" and the loop gives \"cba\", because the order was reversed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "rec gives \"cba\" and the loop gives \"abc\", because the loop undoes the fold",
+          "misconception": "believes a forward loop reproduces the reverse order of an unwind"
+        },
+        {
+          "id": "C",
+          "text": "Both give \"abc\", because a loop always reproduces a recursive join",
+          "misconception": "believes the two shapes must agree because the code is equivalent"
+        },
+        {
+          "id": "D",
+          "text": "Both give \"cba\", because a StringBuilder appends from the last slot",
+          "misconception": "believes append inserts at the front rather than the end"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 38,
+        "p75Sec": 93
+      },
+      "scope": "core-scope",
+      "stem": "A recursive join returns a[i] followed by the rest, and a developer rewrites it as a loop.\nstatic String rec(String[] a, int i) {\n  if (i == a.length) return \"\";\n  return a[i] + rec(a, i + 1);\n}\nstatic String loopWrong(String[] a) {\n  StringBuilder sb = new StringBuilder();\n  for (int i = a.length - 1; i >= 0; i--) sb.append(a[i]);\n  return sb.toString();\n}\nFor {\"a\", \"b\", \"c\"}, how do the two results differ?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "loop-to-recursion",
+        "string-walk"
+      ],
+      "topic": "An iterative conversion that reverses the answer",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "Space here means how much working storage is live at the same moment, not how much the program allocates over its whole life. In the recursive version each frame has an addition pending after its call, so no frame can be discarded until the call beneath it returns, and the number of simultaneously live frames equals the number of digits. The working storage therefore grows with the length of the input even though the answer is a single int. The loop keeps exactly one accumulator and one copy of the remaining number, so its storage is the same for a 5-digit number and a 5000-digit one. Converting a recursion to a loop is therefore not a stylistic swap: it is the only one of the two that bounds memory independently of the input."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.5,
+      "explanation": "The recursion needs a live frame per digit because each frame has an addition still pending after its recursive call, and a frame cannot be discarded while it owes work. Twenty thousand digits therefore means twenty thousand simultaneous frames, and the working set grows with the length of the input even though the answer is a single int. The while loop holds one accumulator and one remaining value at all times, so its storage is identical for a 5-digit and a 5000-digit number. This is why the conversion is not a matter of taste: a loop is the only one of the two shapes whose memory cost is independent of the data, and it is the shape that has to win when the input length is not bounded in advance.",
+      "format": "EXPLANATION",
+      "hint": "Ask what each frame still has to do after its recursive call returns.",
+      "id": "jp-9.21-0038",
+      "learningObjective": "explain the space difference between the two shapes",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 96,
+        "p25Sec": 60,
+        "p75Sec": 144
+      },
+      "scope": "core-scope",
+      "stem": "A digit total is written recursively and then as a while loop over the same number. Explain why the loop version runs in constant space while the recursive version does not.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "space-profile",
+        "recursion-to-loop"
+      ],
+      "topic": "Why the loop version needs constant memory",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.47,
+      "explanation": "An accumulator is the right shape when the work has to be visible outside before the recursion finishes, or when a single object is written progressively and copying it per level would be wasteful. A returned value is the right shape when each level simply transforms what the level below produced, because then the finished answer can travel back up in one hop. A base case always has something to return, so option two is not a real situation, and returning a value per level is what keeps a fold's intermediate storage to one frame, not an argument.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask whether the caller needs the result before the last call returns.",
+      "id": "jp-9.21-0039",
+      "learningObjective": "choose the better way to carry partial work down a recursion",
+      "options": [
+        {
+          "id": "A",
+          "text": "The caller must see the finished list while the deepest level is still unwinding",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The base case has no value to return, so nothing can come back up at all",
+          "misconception": "believes a base case is allowed to return nothing at all"
+        },
+        {
+          "id": "C",
+          "text": "The list is built once, so the intermediate copies of it are all identical",
+          "misconception": "believes passing an argument avoids copying a list per level"
+        },
+        {
+          "id": "D",
+          "text": "The recursion must run in constant space, which only a parameter allows",
+          "misconception": "believes a returned value is what forces one frame per level of space"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 33,
+        "p75Sec": 81
+      },
+      "scope": "core-scope",
+      "stem": "Two ways of building a running list are on the table. Which situation genuinely calls for passing an accumulator down rather than returning a value from each level?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "accumulator",
+        "helper-extraction"
+      ],
+      "topic": "Accumulator parameter against a returned value",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.5,
+      "explanation": "Executed, the builder holds 3,2,1,1,2,3 followed by three commas. The write before the call runs on the way down, producing 3,2,1, and the write after the call runs on the way back up through the same three frames in reverse, which is what duplicates the sequence around the middle. Sharing one builder is why this is visible at all: the frames do not hold separate copies, they append into the same object. A method that writes only before the call, or only after it, produces the short answers in the distractors.",
+      "format": "CODE_TRACING",
+      "hint": "Trace the two statements separately, one on the way down and one on the way up.",
+      "id": "jp-9.21-0040",
+      "learningObjective": "trace a builder that both branches of a recursion write to",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"3,2,1,1,2,3,\", because the write after each call runs again on the way back",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "\"3,2,1,\", because only the frames that run before the call write at all",
+          "misconception": "believes the statements after a recursive call never execute"
+        },
+        {
+          "id": "C",
+          "text": "\"1,2,3,3,2,1,\", because the calls are written before the frames resume",
+          "misconception": "believes the descent order is the reverse of the ascent order"
+        },
+        {
+          "id": "D",
+          "text": "\"3,2,1,\", because the writes after the calls are skipped by the base case",
+          "misconception": "believes a void base case prevents the frames above from resuming"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 43,
+        "p75Sec": 105
+      },
+      "scope": "core-scope",
+      "stem": "One builder is shared by every frame of this method.\nstatic void build(StringBuilder sb, int n) {\n  if (n == 0) return;\n  sb.append(n).append(',');\n  build(sb, n - 1);\n  sb.append(n).append(',');\n}\nRun build(new StringBuilder(), 3). What does the builder hold afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "shared-argument",
+        "string-builder"
+      ],
+      "topic": "A shared builder written on the way in and out",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.51,
+      "explanation": "Executed, the printed lines are [a, b, c], [a, b, c], [a, b, c, c], [a, b, c, c], [a, b, c, c, b, c], [a, b, c, c, b, c], [a, b, c, c, b, c, c] and [a, b, c, c, b, c, c]. The first branch of each frame should remove what it added before the second branch starts, and without that line every choice leaks into every later path, so the empty subset never appears and some lines repeat. Eight lines are still printed because the tree shape is unchanged, which is why the defect is invisible from the line count alone.",
+      "format": "BUG_SPOTTING",
+      "hint": "Compare what a sibling branch sees in the list the first branch left behind.",
+      "id": "jp-9.21-0041",
+      "learningObjective": "diagnose a missing undo step in a branching walk",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 lines, none of which is the empty subset and several of which repeat",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 lines listing all 8 subsets of the set, each one exactly once",
+          "misconception": "believes the tree shape alone guarantees the subsets are correct"
+        },
+        {
+          "id": "C",
+          "text": "4 lines, because only the deepest level reaches the printing statement",
+          "misconception": "believes a shared list cannot be observed by the shallower frames"
+        },
+        {
+          "id": "D",
+          "text": "8 identical lines, because every path prints the same completed list",
+          "misconception": "believes one shared list always ends up holding the same contents"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 80,
+        "p25Sec": 50,
+        "p75Sec": 120
+      },
+      "scope": "core-scope",
+      "stem": "A search over subsets adds each item, recurses, and prints when it runs out of items.\nstatic void show(List<String> chosen, String[] items, int i) {\n  if (i == items.length) { System.out.println(chosen); return; }\n  chosen.add(items[i]);\n  show(chosen, items, i + 1);\n  show(chosen, items, i + 1);\n}\nRun show on {\"a\", \"b\", \"c\"}. What is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "shared-argument",
+        "undo-step"
+      ],
+      "topic": "A recursive walk that never undoes its own addition",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.5,
+      "explanation": "Each frame added exactly one element and must take back exactly that element, so removing the last entry restores the list to the state the sibling branch expects. Executed, the repaired version prints all 8 subsets, including the empty one. clear throws away everything the enclosing frames added, so the outer levels would print wrong lists. set overwrites rather than removes and changes the length nowhere, so duplicates appear. remove by value takes out the first matching entry, which is not the one this frame added whenever the same value occurs twice.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask how many elements this frame added, and take back exactly that many.",
+      "id": "jp-9.21-0042",
+      "learningObjective": "insert the step that undoes a mutation before a sibling branch runs",
+      "options": [
+        {
+          "id": "A",
+          "text": "chosen.remove(chosen.size() - 1)",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "chosen.clear()",
+          "misconception": "believes dropping the whole list restores the frame's own view"
+        },
+        {
+          "id": "C",
+          "text": "chosen.set(chosen.size() - 1, items[i])",
+          "misconception": "believes overwriting an entry is the same as removing it"
+        },
+        {
+          "id": "D",
+          "text": "chosen.remove(items[i])",
+          "misconception": "believes removing by value removes the entry just added"
+        }
+      ],
+      "practice": "code writing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 41,
+        "p75Sec": 99
+      },
+      "scope": "core-scope",
+      "stem": "Fill the blank so every printed subset is correct for {a, b, c}.\nstatic void show(List<String> chosen, String[] items, int i) {\n  if (i == items.length) { System.out.println(chosen); return; }\n  chosen.add(items[i]);\n  show(chosen, items, i + 1);\n  /* blank */\n  show(chosen, items, i + 1);\n}",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "shared-argument",
+        "code-completion"
+      ],
+      "topic": "Restoring a shared list between sibling branches",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.49,
+      "explanation": "Arguments are passed by value, but a reference value copies the pointer, not the object, so every frame names the same list. When one frame appends, the change is immediately visible to every other frame that was handed the same reference, which is why a mutation made on the way down is still there on the way back up. Nothing is being copied per frame and nothing is being discarded, so the surprises come entirely from the sharing. If each frame genuinely needs its own list, the object has to be built inside the frame rather than passed in.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what happens to the object the reference points at, not to the reference.",
+      "id": "jp-9.21-0043",
+      "learningObjective": "explain the risk of handing a mutable object down a recursion",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every frame holds a reference to one object, so a change in one frame is seen by all",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Each frame receives a private copy, so one frame's change is silently discarded",
+          "misconception": "believes passing an object argument duplicates the object per frame"
+        },
+        {
+          "id": "C",
+          "text": "The list is copied on entry, so mutations are local to the frame that made them",
+          "misconception": "believes the language makes a defensive copy of a mutable parameter"
+        },
+        {
+          "id": "D",
+          "text": "The list is final, so no frame can change it and the surprise must come from the loop",
+          "misconception": "believes a final reference prevents any mutation of the object"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 52,
+        "p25Sec": 32,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "A developer passes the same List into every frame of a recursive walk and is surprised by the result. What is the underlying reason?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "aliasing",
+        "shared-argument"
+      ],
+      "topic": "Why a shared argument surprises",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.5,
+      "explanation": "Executed, the array ends up holding 0, 1, 4 and 9. The four calls share one array, and each writes squares from its own start index onward, so the fourth call, which starts at 3, touches only the last slot and leaves the earlier entries from the third call. Every entry still holds the square of its own index, which makes the array look correct while four separate computations did the work. A new array per call would give 0, 1, 4, 9 as well but only by accident here, since a call starting at 3 can only fill one slot.",
+      "format": "CODE_TRACING",
+      "hint": "Work out which slots the last call in the loop can actually write.",
+      "id": "jp-9.21-0044",
+      "learningObjective": "trace repeated calls that overwrite a single shared array",
+      "options": [
+        {
+          "id": "A",
+          "text": "{0, 1, 4, 9}, because each later call overwrites the entries the earlier one wrote",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "{9, 9, 9, 9}, because the final call keeps writing its own square into slot 0",
+          "misconception": "believes a call writing only slot 3 can also change slot 0"
+        },
+        {
+          "id": "C",
+          "text": "{0, 0, 0, 0}, because a fresh array is created inside each recursive call",
+          "misconception": "believes a recursive call allocates its own copy of a passed array"
+        },
+        {
+          "id": "D",
+          "text": "{16, 16, 16, 16}, because each call squares the whole array and the last wins",
+          "misconception": "believes a[i] = i * i assigns to every slot rather than one"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 43,
+        "p75Sec": 105
+      },
+      "scope": "core-scope",
+      "stem": "One array is passed to four separate calls, each with a different start index.\nstatic void fill(int[] a, int i) {\n  if (i == a.length) return;\n  a[i] = i * i;\n  fill(a, i + 1);\n}\nstatic int[] run() {\n  int[] row = new int[4];\n  for (int r = 0; r < 4; r++) fill(row, r);\n  return row;\n}\nWhat does run() return?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "shared-argument",
+        "array-walk"
+      ],
+      "topic": "Four calls writing into one shared array",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "Each frame appends to the same list object, and an append is visible to every other frame the instant it happens, so a level that resumes after its branches return finds not only what it added but everything its descendants added. The tail snapshot taken at each level is taken from a list that is itself still growing, so the counts multiply instead of adding and the result grows as three to the n rather than two to the n. What the caller can rely on is the invariant that the list is in the correct state only at the moment a frame is entered, which is why a well-formed walk restores the list before the next sibling branch starts. Sharing is not wrong in itself, it is right when the caller wants one progressively built result, and it is the wrong choice when each level needs its own view of the output."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.5,
+      "explanation": "An append is visible to every other frame at once, because all the frames hold references to one list object rather than to separate copies. A level that resumes after its branches return therefore finds its own contribution plus everything its descendants added, and since each level appends two entries for every entry the level below produced, the sizes multiply and the result grows as three to the n instead of two to the n. The invariant a correct walk maintains is that the list holds exactly the choices made on the current path at the moment a frame is entered, which is what the undo line before the sibling branch exists to restore. Sharing is the right choice when the caller wants one progressively built result and the wrong one when each level needs its own view.",
+      "format": "EXPLANATION",
+      "hint": "Ask what the list looks like to a frame that has just returned from both branches.",
+      "id": "jp-9.21-0045",
+      "learningObjective": "explain how sharing one mutable object changes a recursion's behaviour",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 110,
+        "p25Sec": 68,
+        "p75Sec": 165
+      },
+      "scope": "core-scope",
+      "stem": "A helper that enumerates subsets receives the caller's output list and appends to it at every level. Explain how sharing that one list changes the number of results, and what a caller can rely on instead.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "aliasing",
+        "subset-enumeration"
+      ],
+      "topic": "Aliasing across the frames of a recursion",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.28,
+      "discrimination": 0.42,
+      "explanation": "The method does not return from a child until that child's entire subtree has been handled, so every descendant of the first child is visited before the second child is even reached. That is depth-first, and it costs nothing extra: the call stack is already holding the path, so the stack is the to-do list. Breadth first and level order both need all nodes at one depth before any node at the next, which the stack cannot supply, and post order is a different method that would report the node after its children rather than before.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what must finish before the second child of a node is even reached.",
+      "id": "jp-9.21-0046",
+      "learningObjective": "identify the traversal that falls out of a recursive walk",
+      "options": [
+        {
+          "id": "A",
+          "text": "Depth first, because a child's whole subtree is finished before the next sibling",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Breadth first, because children are queued before their own children",
+          "misconception": "believes recursing over a child list is the same as enqueuing it"
+        },
+        {
+          "id": "C",
+          "text": "Level order, because all nodes at one depth are visited before any deeper node",
+          "misconception": "believes a recursive call reports its parent only after the whole level"
+        },
+        {
+          "id": "D",
+          "text": "Post order, because a node is reported only after both of its children",
+          "misconception": "believes reporting a node before its children is a post-order walk"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 21,
+        "p75Sec": 51
+      },
+      "scope": "core-scope",
+      "stem": "A recursive method visits a node and then recurses on each of its children in order. Which traversal does this produce on a tree?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "depth-first",
+        "tree-traversal"
+      ],
+      "topic": "The traversal recursion gives for free",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.48,
+      "explanation": "Executed, the order is A, B, D, E, C. The method recurses on the first child and cannot return to the loop until that child's whole subtree is finished, so D and E are reported before C is even considered. Nothing in the shape can produce level order, because the call stack holds one path at a time and a level order needs every node at the current depth held at once. Reporting a node after its children would be a third order again, and B before A is not a traversal of the root at all.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask which node is reported after the first child's subtree is exhausted.",
+      "id": "jp-9.21-0047",
+      "learningObjective": "diagnose a traversal that promises level order and delivers depth first",
+      "options": [
+        {
+          "id": "A",
+          "text": "A, B, D, E, C, which is depth first and not the level order promised",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, B, C, D, E, which is the level order the method was asked to produce",
+          "misconception": "believes a recursive walk over children reports them before descending"
+        },
+        {
+          "id": "C",
+          "text": "A, D, E, B, C, which reports every leaf before its own parent",
+          "misconception": "believes the loop body runs after the recursive call returns"
+        },
+        {
+          "id": "D",
+          "text": "B, D, E, C, A, which reports each node only after its children are done",
+          "misconception": "believes the root is reported after its whole subtree instead of first"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 36,
+        "p75Sec": 87
+      },
+      "scope": "core-scope",
+      "stem": "A reporter claims to list nodes level by level but writes this.\nstatic void report(Node n, List<String> out) {\n  out.add(n.name);\n  for (Node k : n.kids) report(k, out);\n}\nFor a root with children B and C, where B has children D and E, what order comes out?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "breadth-first",
+        "tree-traversal"
+      ],
+      "topic": "A breadth-first attempt that just recurses",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.47,
+      "explanation": "Executed, the list receives A, B, D, E, C, F, G. The loop over B's children runs to completion, which means D and then all of D's descendants and E are appended, and only when B's frame returns does the loop reach C. This is the defining property of depth first and it falls directly out of the control flow, with no extra data structure involved. The level order in the second option is what a queue produces instead, and reporting a node after its children would be a different order from the one this method implements.",
+      "format": "CODE_TRACING",
+      "hint": "Trace the frames in order and note when each loop resumes.",
+      "id": "jp-9.21-0048",
+      "learningObjective": "trace the visit order of a recursive tree walk",
+      "options": [
+        {
+          "id": "A",
+          "text": "A, B, D, E, C, F, G, because each subtree is completed before the next sibling",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, B, C, D, E, F, G, because children are queued before their own children",
+          "misconception": "believes recursion keeps discovered nodes waiting in arrival order"
+        },
+        {
+          "id": "C",
+          "text": "A, D, E, B, F, G, C, because each node is reported after its own children",
+          "misconception": "believes the append happens after the loop rather than before it"
+        },
+        {
+          "id": "D",
+          "text": "A, B, C, D, F, E, G, because siblings alternate between their own children",
+          "misconception": "believes a loop over children interleaves the two child subtrees"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 37,
+        "p75Sec": 90
+      },
+      "scope": "core-scope",
+      "stem": "The tree is A with children B and C; B has D and E; C has F and G.\nstatic void walk(Node n, List<String> out) {\n  out.add(n.name);\n  for (Node k : n.kids) walk(k, out);\n}\nRun walk on A. What order is appended?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "depth-first",
+        "tree-traversal"
+      ],
+      "topic": "Order produced by a recursive tree walk",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.45,
+      "explanation": "Level order is defined by arrival rather than by descent, so the nodes that have been discovered but not yet reported have to be kept in the order they were found, and that is a queue. Executed, a queue-based walk over the same tree reports A, B, C, D, E, F, G. A depth counter only lets you sort afterwards, which is not the same as generating the order, and a stack would hand back the most recently discovered node, which is depth first wearing different clothes.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask in what order the discovered but unreported nodes must be taken.",
+      "id": "jp-9.21-0049",
+      "learningObjective": "identify the data structure a level-order walk requires",
+      "options": [
+        {
+          "id": "A",
+          "text": "A queue holding every node found so far, so new nodes are taken in arrival order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A second recursive call per node, so the second subtree is visited as well",
+          "misconception": "believes visiting a branch twice can flatten the tree into levels"
+        },
+        {
+          "id": "C",
+          "text": "A counter of the node's depth, so nodes can be grouped by it when printing",
+          "misconception": "believes sorting by depth afterwards is the same as generating the order"
+        },
+        {
+          "id": "D",
+          "text": "A stack of the node's children, so the deepest child is taken first of all",
+          "misconception": "believes taking the most recently found node gives the earliest level"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 26,
+        "p75Sec": 63
+      },
+      "scope": "core-scope",
+      "stem": "A report must list nodes level by level rather than subtree by subtree. Which addition does that require?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "breadth-first",
+        "queue"
+      ],
+      "topic": "What breadth-first traversal needs",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.47,
+      "explanation": "A shortest-path search on an unweighted graph needs the frontier explored in order of distance, because a node discovered later on a shorter route may sit further along the queue, and a depth-first walk commits to one branch and can arrive at the target by a long route after exhausting a subtree. The other three are order independent or explicitly hierarchical, so any traversal that respects the parent-before-child rule gives the same answer. A counter for a total, an indented listing, and a validity test over all nodes do not change when the nodes are visited.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask whether the answer changes if the branches are visited in a different order.",
+      "id": "jp-9.21-0050",
+      "learningObjective": "match a problem to the traversal that answers it",
+      "options": [
+        {
+          "id": "A",
+          "text": "Finding the fewest moves between two cells, where every move costs the same",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Printing a file tree with indentation, where each parent precedes its children",
+          "misconception": "believes an indented listing changes when the branches are walked"
+        },
+        {
+          "id": "C",
+          "text": "Counting how many nodes a tree contains, where the total does not depend on order",
+          "misconception": "believes a count over a tree is sensitive to the order of visits"
+        },
+        {
+          "id": "D",
+          "text": "Testing whether every node has a value, where one counter is enough",
+          "misconception": "believes a validity test over all nodes depends on the visiting order"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 33,
+        "p75Sec": 81
+      },
+      "scope": "core-scope",
+      "stem": "Which of these four jobs is the one for which a depth-first walk is the wrong choice, so that a queue-based walk is the right tool?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "breadth-first",
+        "design-choice"
+      ],
+      "topic": "The problem that needs breadth first",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.5,
+      "explanation": "Executed, the output is A, B, C, B, C, D, E, F, G, D, E, F, G. The guard enqueues the root's children and then the unconditional line enqueues them again, and a queue is a plain container that keeps both copies, so B and C are each reported twice and each of them enqueues D through G again. Nothing about the container deduplicates. The extra reports come from four duplicated nodes each producing two children, which is the fastest way to see that the fault multiplies rather than adding.",
+      "format": "BUG_SPOTTING",
+      "hint": "Count how many copies of each node the two add lines place in the queue.",
+      "id": "jp-9.21-0051",
+      "learningObjective": "diagnose duplicated output from a breadth-first walk",
+      "options": [
+        {
+          "id": "A",
+          "text": "A, B, C, B, C, D, E, F, G, D, E, F, G, because the root's children are queued twice",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A, B, C, D, E, F, G, because the queue discards a duplicate on add",
+          "misconception": "believes a container removes equal elements when one is added"
+        },
+        {
+          "id": "C",
+          "text": "A, A, B, B, C, C, D, D, because the root is removed from the queue twice",
+          "misconception": "believes the loop removes the head node on each of its first passes"
+        },
+        {
+          "id": "D",
+          "text": "A, B, C, D, E, F, G, G, because only the last node is reported twice",
+          "misconception": "believes the duplication stops at the two levels the guard can reach"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 43,
+        "p75Sec": 105
+      },
+      "scope": "core-scope",
+      "stem": "A level-order walk enqueues the root's children twice.\nArrayDeque<Node> q = new ArrayDeque<>();\nq.add(root);\nboolean first = true;\nwhile (!q.isEmpty()) {\n  Node n = q.remove();\n  System.out.print(n.name + \" \");\n  if (first) { q.addAll(n.kids); first = false; }\n  q.addAll(n.kids);\n}\nFor the same seven-node tree, what is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "breadth-first",
+        "queue"
+      ],
+      "topic": "A queue walk that enqueues the first node twice",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "The loop inside the method is not what fixes the order; the call structure is. A recursive call does not return until its whole subtree is finished, so the stack holds one root-to-node path and nothing else, and there is no place in it to keep the siblings that were discovered but not yet reported. A level order needs exactly that: every node found at the current depth, held until the whole depth is reported. A queue supplies the missing structure, because it releases the oldest discovered node first, so all nodes at one depth leave before any node at the next. The recursive form would have to be rebuilt as a loop over that queue, and once it is, the recursion has no work left to do, which is why the order and the control structure are not separable."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.5,
+      "explanation": "The order is fixed by the call structure, not by the loop inside the method. A recursive call does not return until its entire subtree is finished, so the stack holds one root-to-node path and has nowhere to keep the siblings that have been discovered but not yet reported. A level order needs exactly those pending nodes held together, so the first node discovered is the first one reported, which is the definition of a queue. Building a recursive version of that walk means giving each frame a sibling list, and the moment a frame has to pass such a list down, the method is a loop over a queue with extra steps. That is why the order and the control structure cannot be separated, and why a recursive rewrite can only ever return to depth-first order.",
+      "format": "EXPLANATION",
+      "hint": "Ask where a node that has been found but not yet reported would be kept.",
+      "id": "jp-9.21-0052",
+      "learningObjective": "explain the structural reason a level order needs a queue",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 110,
+        "p25Sec": 68,
+        "p75Sec": 165
+      },
+      "scope": "core-scope",
+      "stem": "A recursive tree walk reports a node, then recurses on its children, and the developer wants nodes listed one level at a time. Explain why the shape has to change rather than the loop inside it.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "breadth-first",
+        "tree-traversal"
+      ],
+      "topic": "Why recursion cannot produce a level order",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.46,
+      "explanation": "A return value is the only channel a frame has, so a frame that receives false from below and has no further test of its own simply returns false as well, and the answer reaches the original caller unchanged. Nothing is accumulated because an all-or-nothing predicate carries no partial total, so there is nothing for the frames above to add up. Skipping the remaining elements is a saving in work, not a change in what is reported, and null never appears because every path through the method ends in a return.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what a frame does with the value it received once it has no test left.",
+      "id": "jp-9.21-0053",
+      "learningObjective": "state what a caller receives from a predicate that stops early",
+      "options": [
+        {
+          "id": "A",
+          "text": "false, because each frame passes that answer back up unchanged to its caller",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true, because an exit only skips work and cannot change the reported result",
+          "misconception": "believes skipping elements leaves the verdict of a predicate intact"
+        },
+        {
+          "id": "C",
+          "text": "A partial count, because the frames above still add up what they had seen",
+          "misconception": "believes an all-or-nothing predicate accumulates a total as it goes"
+        },
+        {
+          "id": "D",
+          "text": "null, because an early exit leaves the frames above with nothing to hand back",
+          "misconception": "believes a boolean method can return no value at all on some path"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 46,
+        "p25Sec": 29,
+        "p75Sec": 69
+      },
+      "scope": "core-scope",
+      "stem": "A recursive predicate returns false the moment it meets a value it dislikes, without looking at the rest. What does the caller of the whole recursion receive?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "predicate",
+        "early-exit"
+      ],
+      "topic": "What an early exit leaves to the frames above",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.45,
+      "explanation": "A conjunction is true unless something in the range is false, so with nothing left to test there is no counterexample and the honest answer is true. Returning false here inverts the meaning of the method, so every array, even one that is entirely positive, would be reported as containing a bad reading. Zero is a numeric identity and has no place in a boolean fold, and reporting the length answers a different question, namely how many elements were examined, which the caller can already know. This is the mirror of the product case, where the identity is 1 rather than 0.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what the claim means when there is nothing left to contradict it.",
+      "id": "jp-9.21-0054",
+      "learningObjective": "choose the base case value of a recursive all-elements test",
+      "options": [
+        {
+          "id": "A",
+          "text": "true, because a conjunction over nothing is vacuously satisfied",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false, because an empty array has no element to confirm the claim",
+          "misconception": "believes a universal claim needs a witness in order to hold"
+        },
+        {
+          "id": "C",
+          "text": "0, because that is the value a running total starts from",
+          "misconception": "believes the numeric identity also serves a boolean fold"
+        },
+        {
+          "id": "D",
+          "text": "a.length, so the caller can see how many elements were tested",
+          "misconception": "believes a count is an acceptable answer to a yes-or-no question"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 22,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "A recursive helper reports whether every reading in an array is positive, and folds the per-element tests together. Which value must its base case return?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "identity-value",
+        "predicate"
+      ],
+      "topic": "The identity for a conjunction",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.5,
+      "explanation": "Executed, the helper reports true for an array containing -5. The parameter called ok is never used to combine anything; next holds only the current element, so the previous frame's verdict is overwritten at every level and the base case returns whatever the last element said. The fix is one token, folding the incoming flag into the new one before recursing, and then the same input correctly reports false. This is the failure that a running-answer design is supposed to prevent, and it is invisible on an all-positive array.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask what happens to the flag the previous frame passed in.",
+      "id": "jp-9.21-0055",
+      "learningObjective": "diagnose a boolean fold that discards the accumulated result",
+      "options": [
+        {
+          "id": "A",
+          "text": "true, because each frame passes on only its own element and forgets the earlier ones",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false, because a negative reading is seen before the guard is reached",
+          "misconception": "believes a dropped running answer still gets recomputed somewhere"
+        },
+        {
+          "id": "C",
+          "text": "-1, because the running flag ends up holding the reading rather than a boolean",
+          "misconception": "believes the accumulator can change to the type of the values tested"
+        },
+        {
+          "id": "D",
+          "text": "true, because the base case returns its argument whatever the array holds",
+          "misconception": "believes the base case inspects the array before returning its flag"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 66,
+        "p25Sec": 41,
+        "p75Sec": 99
+      },
+      "scope": "core-scope",
+      "stem": "A helper is meant to report whether every reading is positive.\nstatic boolean allPositive(int[] a, int i, boolean ok) {\n  if (i == a.length) return ok;\n  boolean next = a[i] > 0;\n  return allPositive(a, i + 1, next);\n}\nRun allPositive on {1, 2, -5, 4} starting with ok = true. What comes back?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "predicate",
+        "invariant"
+      ],
+      "topic": "A predicate that throws away its running answer",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.49,
+      "explanation": "The message names a symptom and the shape names the cause. If the argument handed to the recursive call is never strictly smaller than the one received, then the measure cannot fall, the guard can never newly become true, and the number of frames grows without bound, which is exactly the condition a stack overflow reports. The return type has no bearing on stack depth, a base case is a necessary part of a correct recursion rather than evidence of a fault, and calling a method from a loop adds depth per pass but not per element inside the method.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Read the recursive call and ask what its argument is compared with.",
+      "id": "jp-9.21-0056",
+      "learningObjective": "identify the structural evidence of a non-terminating recursion",
+      "options": [
+        {
+          "id": "A",
+          "text": "A recursive call whose argument is not smaller than the argument it was given",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A method whose return type is int rather than a wider numeric type",
+          "misconception": "believes the width of a return type sets the depth of a call stack"
+        },
+        {
+          "id": "C",
+          "text": "A method that has a base case, which shows the frames have somewhere to stop",
+          "misconception": "believes the presence of a base case is evidence that a fault exists"
+        },
+        {
+          "id": "D",
+          "text": "A method called from inside a loop, which multiplies the depth of every pass",
+          "misconception": "believes a loop around a call is what makes a single chain unbounded"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 31,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "A program ends in a StackOverflowError. Which property of the failing method, visible without running it, points at the cause?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "stack-overflow",
+        "termination"
+      ],
+      "topic": "Diagnosing an overflow from the shape",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "Write down the measure you are prepared to defend, then check each branch separately and only that. A termination proof is a claim about every path, so one bad branch invalidates it no matter how good the other branch is, and the fastest way to find the bad branch is to compare the argument each one passes against the argument that branch received. In a grid walk where the second call decrements the row index while the guard tests the last row, the row distance grows instead of shrinking, so that branch alone is enough to produce an unbounded chain of frames. The confirming evidence is not a message but a run: instrument a counter and the count climbs until the stack is exhausted, and repairing only that one branch makes the run terminate with a finite count."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.52,
+      "explanation": "A termination proof is a claim about every path, so a single bad branch invalidates it however good the other branch is, and the efficient procedure is to check each branch in isolation rather than reasoning about the pair. Name the measure you are prepared to defend, then for each recursive call compare the argument it passes with the argument it received. In a grid walk where one call increments the row index and the other decrements it while the guard tests the last row, the row distance falls on one branch and grows on the other, so the decrementing branch alone is enough to produce an unbounded chain of frames. The confirming evidence is a run rather than a message: with a counter installed the count climbs until the stack is exhausted, and repairing only that one branch turns the same input into a run that terminates with a finite count.",
+      "format": "EXPLANATION",
+      "hint": "Ask what each branch alone does to the measure, ignoring the other one.",
+      "id": "jp-9.21-0057",
+      "learningObjective": "explain how to locate the one faulty branch in a two-branch recursion",
+      "options": [],
+      "practice": "mechanism reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 115,
+        "p25Sec": 71,
+        "p75Sec": 173
+      },
+      "scope": "core-scope",
+      "stem": "A method has two recursive calls and one of them is the reason it never finishes. Describe the procedure that finds it, and what evidence confirms the finding.",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "termination",
+        "two-branch"
+      ],
+      "topic": "Finding the branch that breaks a termination proof",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.49,
+      "explanation": "Executed, the counter reads 3 and the method returns 2, the index of the first negative reading. Frames are entered for indices 0, 1 and 2, and the third returns immediately instead of recursing, so 9 and -2 are never examined and two frames are saved. Six would be the count for a version that recursed first and tested afterwards, which is the same method with the early exit removed. Five is the count with only the trailing elements skipped, and 4 leaves out the frame that actually produced the answer.",
+      "format": "CODE_TRACING",
+      "hint": "Count only the frames that are entered, and note which one returns without recursing.",
+      "id": "jp-9.21-0058",
+      "learningObjective": "count the invocations an early exit removes",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, because the walk stops at the first negative and never inspects the rest",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, because the guard is reached once per element regardless of the exit",
+          "misconception": "believes an early return still costs one frame for every element"
+        },
+        {
+          "id": "C",
+          "text": "5, because only the two readings after the negative are skipped",
+          "misconception": "believes the frames for the two leading positives are also saved"
+        },
+        {
+          "id": "D",
+          "text": "4, because the frame that reports the index is not counted as an invocation",
+          "misconception": "believes the frame that returns an answer does not count as a call"
+        }
+      ],
+      "practice": "code tracing",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 42,
+        "p75Sec": 102
+      },
+      "scope": "core-scope",
+      "stem": "Instrument every invocation of this predicate, the first one included.\nstatic int firstBad(int[] a, int i) {\n  if (i == a.length) return 0;\n  if (a[i] < 0) return i;\n  return firstBad(a, i + 1);\n}\nRun firstBad on {5, 7, -1, 9, -2} starting at index 0. How many invocations occur?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "early-exit",
+        "call-count"
+      ],
+      "topic": "Frames skipped by a predicate that exits early",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.51,
+      "explanation": "Executed, the call ends in a StackOverflowError. The even branch decreases n and hands over to the odd branch, but the odd branch has no guard of its own and passes n straight back unchanged, so the pair ping-pongs on the same value forever. Adding the missing guard to the odd branch, n == 0 ? false : isEven(n - 1), makes the sequence 4, 3, 2, 1, 0 terminate and return true. A two-method recursion needs a stopping condition reachable from every cycle in the pair, not from just one of them.",
+      "format": "BUG_SPOTTING",
+      "hint": "Look at what the odd branch does to n before handing control back.",
+      "id": "jp-9.21-0059",
+      "learningObjective": "diagnose a two-method recursion where only one method can stop",
+      "options": [
+        {
+          "id": "A",
+          "text": "It never returns, because the odd branch hands the same value back to the even branch",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns true, because the even branch can still reach its own base case",
+          "misconception": "believes a base case in one method halts a cycle through both"
+        },
+        {
+          "id": "C",
+          "text": "It returns false, because the two branches cancel each other's contribution",
+          "misconception": "believes two mutually calling branches produce a negated result"
+        },
+        {
+          "id": "D",
+          "text": "It returns true, because the value stops changing once it reaches zero",
+          "misconception": "believes an argument that stops shrinking is the same as one that stops"
+        }
+      ],
+      "practice": "code debugging",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 68,
+        "p25Sec": 42,
+        "p75Sec": 102
+      },
+      "scope": "core-scope",
+      "stem": "Two helpers are written to test even and odd numbers.\nstatic boolean isEven(int n) { return n == 0 ? true : isOdd(n - 1); }\nstatic boolean isOdd(int n) { return isEven(n); }\nExecuted, what does isEven(4) do?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "mutual-recursion",
+        "base-case"
+      ],
+      "topic": "Mutual recursion with one base case missing",
+      "unit": "Unit 9",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.5,
+      "explanation": "The walk decreases n by one, so it can land on any value at or below where it started, and the guard has to be one of those values. n <= 0 is such a value, so an odd start is caught on its first step. n < 0 is not, because the walk passes from 1 straight to 0 and never reaches -1 from above in a way the guard would catch first, so the odd start still runs past the stop. An accumulator changes nothing about the arguments, and a loop changes the shape without addressing the real defect, which is that the guard names a value the descent never reaches.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask which values a walk stepping by one downward can actually land on.",
+      "id": "jp-9.21-0060",
+      "learningObjective": "select the change that gives a non-terminating recursion a stopping point",
+      "options": [
+        {
+          "id": "A",
+          "text": "Widen the guard to n <= 0, so the descending walk lands on it from either side",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Widen the guard to n < 0, which is closer to where the walk already passes",
+          "misconception": "believes a guard one step further on is reached sooner by a unit step"
+        },
+        {
+          "id": "C",
+          "text": "Add an accumulator, so the descending walk also carries a second value",
+          "misconception": "believes carrying an extra parameter shortens the chain of frames"
+        },
+        {
+          "id": "D",
+          "text": "Convert the method to a loop, which removes the frames the walk builds",
+          "misconception": "believes changing the shape fixes a stop condition the walk cannot reach"
+        }
+      ],
+      "practice": "conceptual reasoning",
+      "provenance": {
+        "author": "bank-team-jp-u9",
+        "reviewer": "bank-review-jp-u9",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 54,
+        "p25Sec": 33,
+        "p75Sec": 81
+      },
+      "scope": "core-scope",
+      "stem": "A helper subtracts one on each call but tests its guard against 0, and it is being called with an odd value. Which change alone makes the method terminate for every input?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-9",
+        "termination",
+        "base-case"
+      ],
+      "topic": "The rewrite that restores termination",
+      "unit": "Unit 9",
+      "version": 1
+    }
+  ]
+}
