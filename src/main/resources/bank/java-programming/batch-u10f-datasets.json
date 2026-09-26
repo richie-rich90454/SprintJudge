@@ -1,0 +1,1969 @@
+{
+  "questions": [
+    {
+      "id": "jp-10.13-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Split regex metacharacter handling",
+      "learningObjective": "escape a delimiter that is also a regular expression metacharacter",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A track roster stores leg times separated by a pipe, so the row \"12|7|20\" must become three fields. Which call splits it into exactly those three?",
+      "options": [
+        {
+          "id": "A",
+          "text": "line.split(\"\\\\|\")",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "line.split(\"|\")",
+          "misconception": "believes a lone pipe is a literal character in a pattern"
+        },
+        {
+          "id": "C",
+          "text": "line.split(\"|\", 3)",
+          "misconception": "believes the pipe is a plain delimiter and only the limit matters"
+        },
+        {
+          "id": "D",
+          "text": "line.split(\"\\\\|\\\\|\")",
+          "misconception": "believes two escaped pipes together match one pipe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The argument to split is a regular expression, and inside one a bare | means alternation, so a literal pipe has to be written as backslash pipe and the Java literal doubles that to \"\\\\|\". Running it gives the three fields 12, 7 and 20. Option B matches the empty string between every character and yields seven one-character fields, and option D looks for two adjacent pipes that never occur, so it returns the whole row as one field.",
+      "hint": "split takes a pattern, not a plain character.",
+      "difficulty": 0.45,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Split regex metacharacter handling",
+      "learningObjective": "trace a split on an unescaped metacharacter",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A parser splits a pipe separated row without escaping the delimiter and reports what it got.\nString line = \"12|7|20\";\nString[] p = line.split(\"|\");\nSystem.out.println(p.length + \":\" + (p.length > 0 ? p[0] : \"none\"));\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "7:1, because a bare pipe matches the empty gap between characters",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3:12, because the pipe is treated as a plain separator character",
+          "misconception": "believes a metacharacter still splits on itself without escaping"
+        },
+        {
+          "id": "C",
+          "text": "1:12, because the pattern never matches and the row stays whole",
+          "misconception": "believes an unmatched pattern leaves the row as a single field"
+        },
+        {
+          "id": "D",
+          "text": "0:none, because an empty pattern is rejected by the split call",
+          "misconception": "believes split refuses to run on a pattern that can match nothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "In a regular expression | means alternation, so \"|\" can match the empty gap between any two characters, and running the fragment prints 7:1 for the fields 1, 2, |, 7, |, 2, 0. Option B is the tempting answer because the row really does contain three numbers, but the pattern is what decides the cut points, and the seven fields prove it cut in the wrong places.",
+      "hint": "Count the cut points a pattern that can match the empty string produces.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Trailing carriage return in rows",
+      "learningObjective": "identify the stray line ending that survives a split",
+      "practice": "error analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A roster written on a system that ends lines with two characters crashes on its first data row, whose numeric field is the three characters 9, 1 and a carriage return.\nString[] p = line.split(\",\");\nint score = Integer.parseInt(p[1]);\nWhich statement identifies the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The line still carries its trailing carriage return into the last field",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The split should use a pipe so a carriage return cannot survive",
+          "misconception": "believes a different delimiter strips stray whitespace"
+        },
+        {
+          "id": "C",
+          "text": "parseInt needs a radix to accept a field with a line ending",
+          "misconception": "believes parseInt has a mode that tolerates line endings"
+        },
+        {
+          "id": "D",
+          "text": "The header row must be removed before any data row is split",
+          "misconception": "believes the crash comes from the header still being present"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A carriage return is ordinary text to split, so it stays inside the final field and Integer.parseInt refuses the trailing character, which running the code confirms by throwing NumberFormatException. Option C is tempting because parseInt does take a second argument, but that argument is the number base and has nothing to do with line endings, and options B and D change nothing about the character that remains.",
+      "hint": "Look at the exact characters left in the last field after the split.",
+      "difficulty": 0.58,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 57,
+        "medianSec": 95,
+        "p75Sec": 147
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Trailing carriage return in rows",
+      "learningObjective": "clean a padded field before parsing it",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A roster row arrives as \"mia,91\" followed by a carriage return, and the score must parse. Fill the blank so the reader works on a file written that way.\nfor (String line : lines) {\n  String[] cells = line.split(\",\");\n  int score = Integer.parseInt(_____)  ;\n  total += score;\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "cells[1].trim()",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "cells[1].stripTrailing()",
+          "misconception": "believes String offers a method that removes only line endings"
+        },
+        {
+          "id": "C",
+          "text": "cells[1].trim(\",\")",
+          "misconception": "believes trim accepts a set of characters to strip"
+        },
+        {
+          "id": "D",
+          "text": "cells[1].substring(1)",
+          "misconception": "believes the stray character is always the first one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "trim removes leading and trailing characters up to the limit of a character code, and a carriage return counts as whitespace, so trim turns the three character field into the two character 91 and the parse succeeds. Option B names a method that does not exist on String, option C is a compile error because trim takes no argument, and option D drops the 9 and turns the value into 1.",
+      "hint": "Which String method strips whitespace from both ends of a field?",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 35,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Field padding and trim",
+      "learningObjective": "state what trim removes from a parsed field",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A roster row is written with padded fields, \"mia , 91\", so each field carries stray characters at its edges. What does trim remove before the row is parsed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whitespace at both ends of the field, including spaces and line endings",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the spaces on the left, leaving the rest of the field untouched",
+          "misconception": "believes trim only ever touches the start of a string"
+        },
+        {
+          "id": "C",
+          "text": "The comma separators, so the row ends up with fewer fields",
+          "misconception": "believes trim strips delimiter characters as well"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because a Scanner has already removed the padding",
+          "misconception": "believes whitespace inside a file line is never present"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "trim walks in from both ends while the character is at or below a space, and a carriage return sits below that, so padded fields lose the padding at both edges and become usable numbers or names. Option B is the tempting belief because leading padding is the visible problem, but trailing padding is equally real and equally removed, and option D is wrong because Scanner only skips whitespace between tokens by default, not inside a line.",
+      "hint": "Trim works from both ends. What counts as whitespace?",
+      "difficulty": 0.32,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Field padding and trim",
+      "learningObjective": "trace a split followed by trim on padded fields",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A padded roster row is parsed and printed with this fragment.\nString line = \"  mia , 91 \";\nString[] padded = line.split(\",\");\nSystem.out.println(\"[\" + padded[0].trim() + \"][\" + padded[1].trim() + \"]\");\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "[mia][91], because trim removes the padding from each field",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[  mia ][ 91 ], because split keeps the padding inside every field",
+          "misconception": "believes splitting a line also cleans the fields it produces"
+        },
+        {
+          "id": "C",
+          "text": "[mia ][91 ], because trim stops at the first inner space it meets",
+          "misconception": "believes trim stops at an internal space instead of the field edge"
+        },
+        {
+          "id": "D",
+          "text": "[mia][91], because a Scanner strips padding before the split runs",
+          "misconception": "believes the padding was removed by the Scanner rather than by trim"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Running the fragment prints [mia][91]: split cuts at the comma and leaves the padding inside each field, then trim removes the spaces at each field's two ends. Option B is what the fields hold before trim, and option C invents an inner stop that trim does not have, since it only looks at the edges. Option D reaches the right text for the wrong reason, because the padding was removed by the explicit trim calls.",
+      "hint": "Split first, then decide what each field still contains.",
+      "difficulty": 0.28,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Hex field parse radix",
+      "learningObjective": "parse a hexadecimal field by naming the base",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A badge file stores a colour code in hex, and the row \"lamp,1A\" must yield its decimal value. This line does the conversion.\nint v = Integer.parseInt(p[1], 16);\nWhat integer does v hold?",
+      "options": [],
+      "answer": {
+        "value": 26
+      },
+      "explanation": "The second argument is the number base, so base 16 reads 1A as one sixteen and one ten, which is 26, and running the line returns 26. The tempting failure is calling parseInt with one argument, which assumes base ten and throws NumberFormatException on the letter A, or reading the code as 1 then 10 and reporting 110.",
+      "hint": "In base sixteen the letters stand for values above nine.",
+      "difficulty": 0.35,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "IndexOf field extraction",
+      "learningObjective": "take the text on one side of a found delimiter",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A reader cuts each row at its first comma and needs the numeric field from what follows. Fill the blank.\nint cut = line.indexOf(',');\nString name = line.substring(0, cut);\nString value = line.substring(____).trim();",
+      "options": [
+        {
+          "id": "A",
+          "text": "cut + 1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "cut",
+          "misconception": "believes the value should still include the comma itself"
+        },
+        {
+          "id": "C",
+          "text": "cut - 1",
+          "misconception": "believes the value should stop one slot before the comma"
+        },
+        {
+          "id": "D",
+          "text": "line.length()",
+          "misconception": "believes the value field runs to the end of the whole row"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "indexOf returns the position of the comma itself, so the text after it starts one position later, and running this on \"north,6\" gives the name north and the value 6. Option B keeps the comma at the front of the value so the parse fails, option C drops the last character of the name instead, and option D starts one position past the end of the row and throws.",
+      "hint": "The found index points at the delimiter, not past it.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 60,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "LastIndexOf for embedded delimiters",
+      "learningObjective": "cut at the final delimiter when a field may contain one",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A log row is \"site:glen, north:12\", where the site text itself contains a colon, and the reader must take everything before the final colon.\nString cut = line.lastIndexOf(':');\nString place = line.substring(0, cut);\nSystem.out.println(place);\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "site:glen, north, because the final colon is the one that ends the site",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "site, because the first colon is taken as the field boundary",
+          "misconception": "believes the earliest colon is always the right cut point"
+        },
+        {
+          "id": "C",
+          "text": "glen, north, because the site text is dropped from the field",
+          "misconception": "believes the code skips past the first colon before cutting"
+        },
+        {
+          "id": "D",
+          "text": "12, because the digits after the final colon are the field",
+          "misconception": "believes substring keeps the text to the right of the index"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "lastIndexOf finds the last colon, which is the one separating the site text from the reading, and substring(0, cut) keeps everything to its left, so running the fragment prints site:glen, north. Option B is the tempting answer because indexOf is the more familiar call, but the first colon sits inside the site text and cutting there loses glen, north.",
+      "hint": "Which colon in the row is the real field boundary?",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Fixed width field slices",
+      "learningObjective": "read a fixed width field by character range",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A legacy roster uses a fixed width layout, so the name occupies characters 0 to 2 and the score occupies characters 5 to 6, and no delimiter appears anywhere. Which read extracts the score correctly?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Take a substring of the exact character range the layout promises",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Split the line on a comma that the fixed width layout never writes",
+          "misconception": "believes every text row carries a comma separator"
+        },
+        {
+          "id": "C",
+          "text": "Split the line on whitespace even though the columns are space padded",
+          "misconception": "believes a fixed width column can be read as a whitespace token"
+        },
+        {
+          "id": "D",
+          "text": "Read the whole line as one field and let the caller slice it later",
+          "misconception": "believes deferring the slicing still extracts the field"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A fixed width layout is a promise about character positions, so the score is exactly the characters 5 to 6 and a substring(5, 7) of \"mia  91north\" gives 91, which running it confirms. Option B produces a single field because no comma exists, and option C cannot be trusted because the name column is itself padded with spaces and would split into several tokens.",
+      "hint": "When there is no delimiter, the layout itself states the offsets.",
+      "difficulty": 0.34,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Header detection by parse failure",
+      "learningObjective": "recognise a header row by what it cannot supply",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A reader must skip the header without knowing its text, and the first row is \"site,cm\". Fill the blank so the header is recognised by what it cannot supply.\nString row = sc.nextLine();\nString[] cols = row.split(\",\");\nif (cols.length == 2 && !isNumeric(cols[1])) { /* header */ } else { /* data */ }\nWhich helper makes the header branch true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "s.matches(\"[0-9]+\")",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "s.isEmpty()",
+          "misconception": "believes the header is the row with nothing in its second column"
+        },
+        {
+          "id": "C",
+          "text": "s.startsWith(\"c\")",
+          "misconception": "believes any field beginning with c is a column label"
+        },
+        {
+          "id": "D",
+          "text": "s.contains(\",\")",
+          "misconception": "believes a nested comma inside a field marks the header"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A header is a row whose numeric column holds text, so asking whether the field is all digits answers the question without hard coding the label: cm fails the test and a row like north,6 passes it. Option B can never be true for a well formed row, and options C and D test the shape of the text rather than whether it can be parsed as a number.",
+      "hint": "Ask whether the field could be parsed as a number, not what it says.",
+      "difficulty": 0.6,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 90,
+        "p75Sec": 140
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Footer row detection",
+      "learningObjective": "tell a trailing summary line from a data row",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A meter file ends with a summary line, \"TOTAL,140\", that must not be counted as a reading. What distinguishes that line from the data rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Its first field is a label word where every data row starts with a site code",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is the last line, which is true of the final data row as well",
+          "misconception": "believes the last line of any file is always a footer"
+        },
+        {
+          "id": "C",
+          "text": "It has two fields, which is also true of every data row",
+          "misconception": "believes the field count alone marks a summary row"
+        },
+        {
+          "id": "D",
+          "text": "Its number is larger than any reading, as any total must be",
+          "misconception": "believes a total is always bigger than the values it adds"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A footer is identified by its label, because every data row in this format begins with a site code and TOTAL does not, so a label check separates the two reliably. Option D is the tempting test because 140 is indeed the largest number in the file, but a total need not exceed its parts, and option C cannot work at all because both kinds of line have two fields.",
+      "hint": "Look at the part of the row that is the same in every data record.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 60,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Blank row skipping",
+      "learningObjective": "count data rows while ignoring empty lines",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A reader counts the data rows in this buffer while skipping blanks.\nString data = \"site,cm\\nnorth,6\\n\\nsouth,9\\n\";\nScanner sc = new Scanner(data);\nsc.nextLine();\nint n = 0;\nwhile (sc.hasNextLine()) { if (!sc.nextLine().isBlank()) n++; }\nSystem.out.println(n);\nWhat integer is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, because the blank line is read but not counted",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3, because every line after the header is a data row",
+          "misconception": "believes a blank line is still a record"
+        },
+        {
+          "id": "C",
+          "text": "1, because the blank line ends the loop before the last row",
+          "misconception": "believes a blank line terminates a line based loop"
+        },
+        {
+          "id": "D",
+          "text": "0, because the header call consumed the only counted line",
+          "misconception": "believes the header counts as the first data row"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The header is consumed once before the loop, then three lines remain, one of which is blank, so the counter is raised twice and running the fragment prints 2. Option C is the tempting answer because a blank line feels like the end of a record, but hasNextLine is still true for the line after it, and nothing in the loop breaks on emptiness.",
+      "hint": "Count the lines the guard lets through, not the lines the file holds.",
+      "difficulty": 0.26,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 53
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Blank row skipping",
+      "learningObjective": "find an inverted guard that counts the wrong lines",
+      "practice": "error analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A counter should report 2 for the buffer \"site,cm\" then \"west,4\" then a blank line then \"east,8\", but it reports 1.\nString data = \"site,cm\\nwest,4\\n\\neast,8\\n\";\nScanner input = new Scanner(data);\ninput.nextLine();\nint n = 0;\nwhile (input.hasNextLine()) {\n  String row = input.nextLine();\n  if (!row.isBlank()) continue;\n  n++;\n}\nWhich statement identifies the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The guard is inverted, so the counter rises for the blank and skips the readings",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The header must be consumed twice before the loop begins",
+          "misconception": "believes one nextLine does not remove the header"
+        },
+        {
+          "id": "C",
+          "text": "The counter must be declared inside the loop so each row resets it",
+          "misconception": "believes a counter declared outside forgets its value"
+        },
+        {
+          "id": "D",
+          "text": "hasNextLine already counts the lines, so each row is added twice",
+          "misconception": "believes the guard itself increments a counter"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The continue fires exactly for the two real readings, so the only line that reaches n++ is the blank one, and running the fragment prints 1. Option A names the single flipped condition. Option B is tempting because headers are a classic off by one trap, but nextLine really does consume it, and options C and D describe things that do not happen in this code.",
+      "hint": "Find the line whose condition is the opposite of what the count needs.",
+      "difficulty": 0.55,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 53,
+        "medianSec": 88,
+        "p75Sec": 136
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Malformed row recovery scope",
+      "learningObjective": "place the try block around a single row, not the whole loop",
+      "practice": "error analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A reader must keep going after a corrupt row, but it stops at the first one. The file holds site,cm then north,6 then bad,x then south,9, and the code is\nint total = 0;\ntry {\n  while (scan.hasNextLine()) {\n    String[] row = scan.nextLine().split(\",\");\n    total += Integer.parseInt(row[1]);\n  }\n} catch (NumberFormatException e) { }\nWhich statement identifies the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The try block wraps the whole loop, so one failure ends every later read",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The catch block must rethrow the exception to let the loop continue",
+          "misconception": "believes continuing requires propagating the failure outward"
+        },
+        {
+          "id": "C",
+          "text": "The split call must move outside the try block to avoid failures",
+          "misconception": "believes the failure comes from splitting rather than parsing"
+        },
+        {
+          "id": "D",
+          "text": "hasNextLine should be replaced by a hasNextInt guard for this file",
+          "misconception": "believes a line based file must be read with a token guard"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The handler is outside the loop, so the exception leaves the loop entirely and the last row is never read; running both versions gives 6 for the code as written and 15 for a try inside the loop. Option B is the tempting fix because rethrowing does propagate an error, but recovery here means skipping one row, which only a per row try block can do.",
+      "hint": "Ask which rows are inside the block the handler covers.",
+      "difficulty": 0.62,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 66,
+        "medianSec": 110,
+        "p75Sec": 171
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Malformed row counter placement",
+      "learningObjective": "raise a good row tally only for rows that parsed",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A reader counts only the rows it managed to parse, and the file holds north,6 then bad,x then south,9. Fill the blank so the tally is 2.\nint n = 0;\nwhile (feed.hasNextLine()) {\n  String[] cells = feed.nextLine().split(\",\");\n  try {\n    int depth = Integer.parseInt(cells[1]);\n    /* blank */\n  } catch (NumberFormatException bad) { }\n}",
+      "options": [
+        {
+          "id": "A",
+          "text": "n++;",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "n += p.length;",
+          "misconception": "believes a parsed row contributes one count per field"
+        },
+        {
+          "id": "C",
+          "text": "n += cm;",
+          "misconception": "believes the reading itself is a count of good rows"
+        },
+        {
+          "id": "D",
+          "text": "n += 2;",
+          "misconception": "believes the header and the data row are both counted"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The tally has to rise once per row that survived the parse, so it must sit inside the try after the conversion, and running it gives 2 for the file given. Option C is the tempting choice because the converted value is sitting right there, but it adds the depth rather than counting rows, giving 17 here, and option B counts columns rather than records.",
+      "hint": "The question is how many rows, so the statement should add one per row.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 45,
+        "medianSec": 75,
+        "p75Sec": 116
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Empty field parse failure",
+      "learningObjective": "trace what a doubled delimiter does to a numeric field",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A doubled comma leaves an empty middle field, and the reader reports what happens.\nString line = \"west,,9\";\nString[] fields = line.split(\",\");\nSystem.out.println(fields.length + \":\" + Integer.parseInt(fields[1]));\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It throws NumberFormatException, because p[1] is the empty string",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 3:0, because an empty field parses as the number zero",
+          "misconception": "believes parseInt treats a blank field as the number zero"
+        },
+        {
+          "id": "C",
+          "text": "It prints 2:9, because the empty field is dropped and the fields shift",
+          "misconception": "believes split removes empty fields from its result"
+        },
+        {
+          "id": "D",
+          "text": "It prints 3:9, because the parse skips forward to the next field",
+          "misconception": "believes parseInt scans past a field it cannot read"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "split keeps the empty gap between two commas, so the array is west, an empty string and 9, and parseInt on an empty string throws NumberFormatException rather than printing anything. Option C is the tempting belief because trailing empties are dropped, but interior empties are kept, and that asymmetry is exactly why a doubled comma survives a length check.",
+      "hint": "Decide whether the field between the two commas survives the split.",
+      "difficulty": 0.56,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 80,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Error tally placement",
+      "learningObjective": "raise a failure tally where the failure happens",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reader keeps a count of the rows it could not parse and logs each one. Why must that counter be raised inside the catch block rather than after the loop?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A bad row can be followed by good rows, so the tally has to follow the failure",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The counter must be raised after the loop so it is not a running value",
+          "misconception": "believes a running tally is wrong inside a loop"
+        },
+        {
+          "id": "C",
+          "text": "The catch block runs only when the file is closed, so it belongs outside",
+          "misconception": "believes the handler fires at the end of the file"
+        },
+        {
+          "id": "D",
+          "text": "Java forbids assigning to an outer variable from inside a catch block",
+          "misconception": "believes locals cannot be updated inside a handler"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The counter records failures, and a failure is observable only while the row that caused it is being read, so the increment belongs where the handler runs. Option B is the tempting reasoning because reports are often written after a loop, but this tally measures bad rows, not a summary, and option D is simply false since a local declared before the loop can be incremented inside the catch.",
+      "hint": "The tally counts events, and the event happens at the row that failed.",
+      "difficulty": 0.41,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 58,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Int accumulator overflow",
+      "learningObjective": "predict a wrapped int total",
+      "practice": "data analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A census adds 50,000 households, each holding 50,000 people, into a single int accumulator.\nint total = 0;\nfor (int h = 0; h < 50000; h++) { total += 50000 * 50000; }\nWhat integer does total hold when the loop finishes?",
+      "options": [],
+      "answer": {
+        "value": -728182784
+      },
+      "explanation": "An int wraps instead of growing past 2,147,483,647, and this loop adds two and a half billion fifty thousand times, so running it leaves -728182784 rather than the true 125,000,000,000,000. The tempting answers are 2500000000, which is the single step that already exceeds the range, and the correct large total, which no int can hold and which a long accumulator reports exactly.",
+      "hint": "Run the arithmetic in 32 bit two's complement rather than on paper.",
+      "difficulty": 0.66,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 60,
+        "medianSec": 100,
+        "p75Sec": 155
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Int accumulator overflow",
+      "learningObjective": "repair a total that wraps past the int range",
+      "practice": "error analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A census program reports a negative population for 50,000 households of 50,000 people each.\nint households = 50000;\nint total = 0;\nfor (int h = 0; h < households; h++) { total += households * 50000; }\nWhich statement identifies the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The int accumulator wraps past 2,147,483,647, so the printed value is a wrapped negative",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The loop bound of 50000 is close enough to the int limit to overflow it",
+          "misconception": "believes a loop bound of 50000 sits near the largest int"
+        },
+        {
+          "id": "C",
+          "text": "The multiplication needs a leading zero to keep the result in range",
+          "misconception": "believes a leading zero changes the numeric type of a literal"
+        },
+        {
+          "id": "D",
+          "text": "The accumulator must start at 1 so the first addition cannot wrap",
+          "misconception": "believes an off by one seed is what causes an integer to wrap"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each step adds two and a half billion, past the int ceiling, so every addition wraps and the final value is a negative number, which running the loop confirms as -728182784. A long accumulator reports 125,000,000,000,000 exactly. Option B is the tempting diagnosis because 50000 looks large, but the limit is over two billion, and options C and D change nothing about the width of the arithmetic.",
+      "hint": "Compare one step's value against the largest int, then check the type of the accumulator.",
+      "difficulty": 0.7,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 69,
+        "medianSec": 115,
+        "p75Sec": 178
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Money held as a double",
+      "learningObjective": "recognise why repeated decimal addition drifts",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A till adds ten ten-cent coins into a double and prints the total to two decimal places.\ndouble total = 0.0;\nfor (int i = 0; i < 10; i++) { total += 0.10; }\nSystem.out.printf(\"%.2f%n\", total);\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1.00, because the format rounds the stored value for display",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "0.99, because the repeated addition loses enough to round down",
+          "misconception": "believes the drift is large enough to cross a rounding boundary"
+        },
+        {
+          "id": "C",
+          "text": "1.10, because each coin is added once and the total is exact",
+          "misconception": "believes a double can hold a repeating decimal exactly"
+        },
+        {
+          "id": "D",
+          "text": "10.00, because the loop adds the coin value ten times over",
+          "misconception": "believes the printed figure counts the coins rather than their value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "One tenth has no exact form in binary, so the accumulator settles at 0.9999999999999999, and printf rounds that for display, which running the fragment confirms as 1.00. Option B is the tempting answer because the drift is real, but it is far too small to cross a rounding boundary, and option C asks for a total the ten coins do not add up to.",
+      "hint": "Separate the value stored from the value displayed.",
+      "difficulty": 0.59,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 51,
+        "medianSec": 85,
+        "p75Sec": 132
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Filtered summary divisor",
+      "learningObjective": "divide a filtered sum by the number of rows kept",
+      "practice": "error analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A report must print the mean of the passing scores 90, 80 and 30 with a pass mark of 70, but it prints 66.\nint sum = 0, kept = 0, rows = 0;\nwhile (marks.hasNextLine()) {\n  String[] cols = marks.nextLine().split(\",\");\n  rows++;\n  int mark = Integer.parseInt(cols[1]);\n  if (mark >= 70) { sum += mark; kept++; }\n}\nSystem.out.println(sum / rows);\nWhich statement identifies the fault?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The divisor counts every row instead of only the rows that passed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Integer division must be forced to a double before the mean is printed",
+          "misconception": "believes the wrong number comes from the type of the division"
+        },
+        {
+          "id": "C",
+          "text": "The pass mark must be compared with a strict greater than sign",
+          "misconception": "believes the boundary of the pass mark changes the mean"
+        },
+        {
+          "id": "D",
+          "text": "The sum must be cleared before each row is added to it",
+          "misconception": "believes the accumulator should restart for every row"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The sum only receives the two passing scores, so dividing by rows, which is 3, gives 200 / 3 = 66, while dividing by kept, which is 2, gives the intended 85; running both confirms the difference. Option B is tempting because integer division truncates, but truncation changes 85 to 84 and cannot turn 85 into 66, so the divisor is the only thing that explains the printed value.",
+      "hint": "Write down the sum, the number of rows and the number of kept rows separately.",
+      "difficulty": 0.64,
+      "discrimination": 0.48,
+      "responseTimeBaseline": {
+        "p25Sec": 72,
+        "medianSec": 120,
+        "p75Sec": 186
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Filter then aggregate",
+      "learningObjective": "average only the rows a filter kept",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A report writes the qualifying rows to a file first, then averages the file. The rows it kept are the strings deep,14 and mid,11, and it finishes with\nint sum = 0, n = 0;\nfor (String row : kept) { sum += Integer.parseInt(row.split(\",\")[1]); n++; }\nSystem.out.println(sum / n);\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "12, because 14 and 11 are added and divided by the two kept rows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "25, because the sum is printed when the loop divides by nothing",
+          "misconception": "believes the counter stays at zero after the loop"
+        },
+        {
+          "id": "C",
+          "text": "13, because the mean rounds up instead of dividing evenly",
+          "misconception": "believes integer division of 25 by 2 rounds upward"
+        },
+        {
+          "id": "D",
+          "text": "5, because the mean of the two depths is the difference between them",
+          "misconception": "believes a mean is found by subtracting the values"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Averaging what was kept means summing only the kept rows and dividing by how many were kept, so 14 + 11 = 25 over n = 2 gives 12 and running it confirms 12. Option B is the trap that the counter is 0 after the loop, but n++ runs inside the loop so it ends at 2, and option C rounds 12.5 upward when integer division truncates.",
+      "hint": "Check that the counter is raised inside the loop that fills the file.",
+      "difficulty": 0.38,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Conditional extreme tracking",
+      "learningObjective": "read which extreme a tracker actually keeps",
+      "practice": "code tracing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A report must print the shallowest reading that is at least 10 cm, and the rows are 6, 14, 11 and 9.\nint best = 0;\nwhile (gauge.hasNextLine()) {\n  String[] reading = gauge.nextLine().split(\",\");\n  int v = Integer.parseInt(reading[1]);\n  if (v > best) best = v;\n}\nSystem.out.println(best);\nWhat does the console show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "14, because the tracker keeps the largest reading it has seen",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "11, because the smallest qualifying reading replaces the tracker",
+          "misconception": "believes the comparison is inverted and still reports the right answer"
+        },
+        {
+          "id": "C",
+          "text": "6, because the row below the threshold still updates the tracker",
+          "misconception": "believes every row updates the tracker regardless of the limit"
+        },
+        {
+          "id": "D",
+          "text": "0, because nothing clears the value the tracker started with",
+          "misconception": "believes an empty qualifying set is reported as the seed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The loop as written has no threshold test at all, so it keeps the largest of every reading, and running it gives 14 while the answer the report wanted is 11. Option B is the answer the report should print rather than the answer this code prints, and option C depends on a limit test that is not present in the fragment.",
+      "hint": "Read the condition the loop actually applies to each reading.",
+      "difficulty": 0.43,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 60,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Extreme tracker seeding",
+      "learningObjective": "seed a tracker from the data when no neutral value exists",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A file can hold only negative readings, and the tracker must report the one closest to zero. How should the running value be seeded before the loop?",
+      "options": [
+        {
+          "id": "A",
+          "text": "From the first data reading, so no value outside the data can win",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "From 0, because zero is the natural neutral reading for a sensor",
+          "misconception": "believes zero is a safe seed when every reading is negative"
+        },
+        {
+          "id": "C",
+          "text": "From the most negative value the type allows, to be safe from below",
+          "misconception": "believes seeding with an extreme reports the reading closest to zero"
+        },
+        {
+          "id": "D",
+          "text": "From the header text, so the column label sets the starting point",
+          "misconception": "believes a header field can seed a numeric tracker"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A tracker needs a seed that cannot beat a real reading, and for all negative data the first reading is the only such value, which is why the usual pattern seeds from the first row rather than from a constant. Option B is the tempting seed because 0 looks neutral, but 0 is greater than every reading and is returned unchanged, which running both versions shows as 0 against -3.",
+      "hint": "Ask whether the seed can be better than a genuine reading.",
+      "difficulty": 0.47,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 39,
+        "medianSec": 65,
+        "p75Sec": 101
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Written revenue summary",
+      "learningObjective": "compute a filtered summary written back to a file",
+      "practice": "data analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "FILE_DATASET",
+      "stimulus": null,
+      "stem": "A price file holds this table:\nitem,units,price\nbolts,4,3\nnails,6,1\nrope,2,9\nA filter writes the revenue of every row, units multiplied by price, into revenue.txt as one integer per line, then closes the writer. What is the largest integer written into revenue.txt?",
+      "options": [],
+      "answer": {
+        "value": 18
+      },
+      "explanation": "Skipping the header leaves three rows whose revenues are 4 times 3 = 12, 6 times 1 = 6 and 2 times 9 = 18, and writing them out and reading the file back confirms revenue.txt holds exactly 12, 6 and 18. The tempting answer is 27, which adds the three unit counts instead of multiplying, and 21 comes from adding the prices rather than computing each row.",
+      "hint": "Compute each row's revenue first, then compare the three results.",
+      "difficulty": 0.68,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 72,
+        "medianSec": 120,
+        "p75Sec": 186
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Rewritten delimiter on output",
+      "learningObjective": "write fields back with a different separator",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A report must write each row's fields separated by a semicolon instead of the comma it read. Fill the blank.\nout.println(_____);\nA keeps both fields, trims their padding and joins them with a semicolon.",
+      "options": [
+        {
+          "id": "A",
+          "text": "p[0].trim() + \";\" + p[1].trim()",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "p[0] + \",\" + p[1]",
+          "misconception": "believes copying the fields unchanged also rewrites the separator"
+        },
+        {
+          "id": "C",
+          "text": "p[0].trim() + \";\"",
+          "misconception": "believes the second field can be dropped when the separator changes"
+        },
+        {
+          "id": "D",
+          "text": "line.replace(';', ',')",
+          "misconception": "believes the row should be turned back into comma separated form"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The output separator is a string the writer supplies, so joining the two trimmed fields with a semicolon produces north;6 from the row north,6, which running it confirms. Option B is tempting because it looks like a faithful copy, but it writes the comma back and the output file is unchanged in shape, and option D searches for semicolons in a row that has none and does nothing.",
+      "hint": "The parsed row has no semicolashes, so build the line rather than editing it.",
+      "difficulty": 0.33,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Delimiter inside a field value",
+      "learningObjective": "keep a delimiter that is part of a value when writing it back",
+      "practice": "conceptual reasoning",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A row's name field is \"glen, north\" and the report must write it back with a semicolon separator without losing the comma inside the name. What must the writer do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Write the field as it stands, since the comma inside it is part of the value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Replace the comma inside the name with a semicolon to match the new separator",
+          "misconception": "believes every comma in a row is a separator"
+        },
+        {
+          "id": "C",
+          "text": "Split the name again and write only its first word",
+          "misconception": "believes a comma inside a field makes the field invalid"
+        },
+        {
+          "id": "D",
+          "text": "Wrap the whole row in quotes so readers know not to split it",
+          "misconception": "believes quoting changes how a reader splits the row"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Once the row is split, the comma inside glen, north is just a character of the value, so writing the field unchanged preserves the name and the only difference from the input is the separator the writer chose. Option B silently rewrites the data, option C discards half the name, and option D is the tempting one because quoting looks like a fix, but nothing in the reader was taught to honour quotes, so the row would still be cut at the comma.",
+      "hint": "The comma is a character in the value now, not a separator.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 80,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Record lines among other lines",
+      "learningObjective": "count only the lines that are data records",
+      "practice": "data analysis",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "FILE_DATASET",
+      "stimulus": null,
+      "stem": "A roster file holds this table:\nname,score\nmia,91\nben,74\n#saved\nA reader skips the header and then counts every line whose split on a comma yields exactly two fields. How many data records does it count?",
+      "options": [],
+      "answer": {
+        "value": 2
+      },
+      "explanation": "Only mia,91 and ben,74 split into two fields, so the count is 2, and running the loop over those four lines confirms it. The trailing #saved line has no comma at all and yields one field, so it is rejected, which is the point of testing the field count rather than trusting every line after the header.",
+      "hint": "Check the field count of the last line, which has no comma at all.",
+      "difficulty": 0.63,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 66,
+        "medianSec": 110,
+        "p75Sec": 171
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-10.13-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 10",
+      "topic": "Writing a filtered summary file",
+      "learningObjective": "write a program that filters rows and writes them to a file",
+      "practice": "code writing",
+      "scope": "current-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "JUDGED_PROBLEM",
+      "stimulus": null,
+      "stem": "Write a complete program DeepList that reads depth.csv, whose lines have the form site,cm with a header row, keeps only the rows whose cm is at least 10, writes each kept row to kept.txt under a header line site,cm, closes the writer, and prints how many rows it kept. Sample file:\nsite,cm\nnorth,6\ndeep,14\nmid,11\neast,8\nwest,21\nFor that sample file the correct printed output is a single integer. What integer?",
+      "options": [],
+      "answer": {
+        "value": 3
+      },
+      "explanation": "Comparing each cm against 10 keeps deep,14, mid,11 and west,21 and drops north,6 and east,8, so the count is 3, and running the program writes kept.txt as site,cm, deep,14, mid,11 and west,21 and prints 3. The tempting answer is 5, which counts every data row, and 2, which mistakes the values below ten for rows missing entirely.",
+      "hint": "Apply the 10 cm test to each of the five data rows in turn.",
+      "difficulty": 0.74,
+      "discrimination": 0.49,
+      "responseTimeBaseline": {
+        "p25Sec": 144,
+        "medianSec": 240,
+        "p75Sec": 372
+      },
+      "provenance": {
+        "author": "bank-team-jp-x5",
+        "reviewer": "bank-review-jp-x5",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w8",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-10",
+        "csv",
+        "files"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
