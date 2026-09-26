@@ -1,0 +1,2046 @@
+{
+  "questions": [
+    {
+      "id": "jp-8.6-0001",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Runtime type selection",
+      "learningObjective": "state that the object's runtime type picks the method body",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A shelter keeps a generic reference to a specific animal:\nclass Animal { String speak() { return \"generic\"; } }\nclass Dog extends Animal { String speak() { return \"woof\"; } }\nAnimal a = new Dog();\nSystem.out.println(a.speak());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "woof, because the call dispatches on the object's runtime type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "generic, because the reference is declared as Animal.",
+          "misconception": "believes the declared reference type selects the body"
+        },
+        {
+          "id": "C",
+          "text": "generic woof, because both versions run in turn.",
+          "misconception": "believes an override adds itself to the base behavior"
+        },
+        {
+          "id": "D",
+          "text": "Nothing prints, because an Animal cannot hold a Dog.",
+          "misconception": "believes a reference forbids a subtype object"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The compiler emits a virtual call, and the JVM resolves it against the class of the object actually stored, which is Dog, so the override body runs. The declared reference type is the tempting answer because that is the only type visible on the source line, but it is checked at compile time for accessibility rather than used to choose the body at run time.",
+      "hint": "Ask what the object really is, not what the variable is called.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 7,
+        "medianSec": 13,
+        "p75Sec": 24
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0002",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Super calls and dispatch",
+      "learningObjective": "trace a super call that bypasses dynamic dispatch",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A middle class builds its tag by calling up to its parent:\nclass Base { String tag() { return \"B\"; } }\nclass Mid extends Base { String tag() { return \"M\" + super.tag(); } }\nMid m = new Mid();\nSystem.out.println(m.tag());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "MB, because super.tag() runs Base's body directly.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "MM, because super still dispatches on the runtime type.",
+          "misconception": "believes every call goes through the override chain"
+        },
+        {
+          "id": "C",
+          "text": "M, because the super result is discarded.",
+          "misconception": "believes super calls contribute nothing to the return value"
+        },
+        {
+          "id": "D",
+          "text": "B, because super skips Mid's own override entirely.",
+          "misconception": "believes super suppresses the whole method including Mid's part"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "super.tag() is bound to Base at compile time, so it runs Base's body even though the object is a Mid, and concatenating the results gives MB. Expecting the override to fire inside a super call is the tempting belief because almost everything else dispatches dynamically, and this rule is the deliberate exception: super opts out of dispatch for that single call.",
+      "hint": "super names a compile-time bound call.",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 34
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch",
+        "super"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0003",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Static methods hide rather than override",
+      "learningObjective": "explain why a static call uses the reference's declared type",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass declares a same-named static method on a base class that also has one:\nclass Base { static String name() { return \"base\"; } }\nclass Sub extends Base { static String name() { return \"sub\"; } }\nBase b = new Sub();\nSystem.out.println(b.name());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "base, because a static call binds to the reference's type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "sub, because every call uses the runtime type.",
+          "misconception": "believes static methods also dispatch dynamically"
+        },
+        {
+          "id": "C",
+          "text": "basesub, because both bodies run in turn.",
+          "misconception": "believes hidden methods chain like overrides"
+        },
+        {
+          "id": "D",
+          "text": "Nothing prints, because statics are not inherited.",
+          "misconception": "believes a static method is hidden from subclasses"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "name is static, so the compiler binds the call to Base using the reference's declared type, and Sub's method only hides it for calls written against Sub. Runtime dispatch is the tempting assumption, and it is right for instance methods, but a static method lives on the class rather than on instances, which is exactly why it can be hidden but never overridden.",
+      "hint": "Which keyword is on name in each class?",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "static-vs-instance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0004",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Private methods and overriding",
+      "learningObjective": "predict dispatch when the superclass method is private",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A base class keeps its identifier private and a subclass declares a public method of the same name:\nclass Base {\n  private String id() { return \"base\"; }\n  public String show() { return id(); }\n}\nclass Sub extends Base { public String id() { return \"sub\"; } }\nSystem.out.println(new Sub().show());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "base, because Base.id() is private and not overridden.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "sub, because show() dispatches into Sub's id().",
+          "misconception": "believes the call inside show() is a normal virtual call"
+        },
+        {
+          "id": "C",
+          "text": "sub, because Sub's id() has the same name and signature.",
+          "misconception": "believes a matching signature alone creates an override"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile, because Sub.id() conflicts.",
+          "misconception": "believes declaring the same signature is illegal in a subclass"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A private method is not inherited, so the id() call inside Base.show is bound to Base's private method and Sub.id() is simply an unrelated new method that happens to share the name. Matching signature and name is the tempting belief, but an override requires an inherited visible instance method, and private members are excluded along with static and final ones.",
+      "hint": "Which methods is a subclass actually allowed to override?",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overriding-rules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0005",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Overridability modifiers",
+      "learningObjective": "identify the modifier that forbids overriding",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A base class offers four commit methods to subclasses. Which one can never be replaced by a subclass declaration of the same name and parameters?",
+      "options": [
+        {
+          "id": "A",
+          "text": "public final void commit()",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "public void commit()",
+          "misconception": "believes a missing modifier still prevents overriding"
+        },
+        {
+          "id": "C",
+          "text": "protected void commit()",
+          "misconception": "believes reduced visibility prevents overriding"
+        },
+        {
+          "id": "D",
+          "text": "public static void commit()",
+          "misconception": "believes static methods are overridable when public"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "final forbids replacement, so a subclass declaring the same signature fails to compile. An absent modifier is the tempting near-miss because the four declarations look interchangeable on paper, and the difference only shows up when the compiler rejects a subclass; static is also non-overridable, but for the opposite reason, since a static method is not inherited in the first place.",
+      "hint": "Look for the modifier that closes the method to subclasses.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overriding-rules"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0006",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Overload resolution versus overriding",
+      "learningObjective": "separate compile-time overload choice from run-time override choice",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass adds a differently typed method of the same name and a call is made through a base-typed reference:\nclass Animal { String who(String s) { return \"A\"; } }\nclass Dog extends Animal { String who(int n) { return \"D\"; } }\nAnimal a = new Dog();\nSystem.out.println(a.who(7));\nWhat happens when this is compiled and run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, since Animal declares only who(String).",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints D, since the runtime type supplies the method.",
+          "misconception": "believes the runtime type picks the overload as well"
+        },
+        {
+          "id": "C",
+          "text": "It prints A, since the widest applicable overload wins.",
+          "misconception": "believes an int argument selects the base String version"
+        },
+        {
+          "id": "D",
+          "text": "It prints A, since Animal's who(String) accepts any object.",
+          "misconception": "believes an int is automatically a String argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Overload selection happens at compile time from the reference's declared type, so the compiler looks for who(int) in Animal, finds only who(String), and the int argument cannot be converted to that String, so the program does not compile. Runtime type winning is the tempting carryover from overriding, but the two decisions are asked at different moments: which signature, decided early against the declared type; which body, decided late against the object.",
+      "hint": "Is the declared reference type enough to find this signature?",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "overloading-vs-overriding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0007",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Fields do not dispatch",
+      "learningObjective": "predict which hidden field a base-typed reference reads",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass declares a field with the same name as one in its superclass, and the superclass reports the field:\nclass Animal { String name = \"generic\"; void report() { System.out.println(name); } }\nclass Dog extends Animal { String name = \"rex\"; }\nAnimal a = new Dog();\na.report();\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "generic, because the field read is fixed at compile time.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "rex, because field reads dispatch at runtime too.",
+          "misconception": "believes hidden fields resolve like overridden methods"
+        },
+        {
+          "id": "C",
+          "text": "rex, because report() runs on the Dog object.",
+          "misconception": "believes the receiver's type picks the field"
+        },
+        {
+          "id": "D",
+          "text": "rex, because Dog's field initializer runs before the call.",
+          "misconception": "believes the newest initializer wins at the call site"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The name inside report is resolved during compilation against Animal, and a field read has no run-time step at all, so the Animal field is printed even though the object is a Dog and even though Dog's initializer did run. A field hiding another field is the tempting trap because the code looks like an ordinary method call, and the two behave differently on purpose: methods dispatch, while fields bind to the reference type.",
+      "hint": "Are field reads virtual in Java?",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 32,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "field-hiding"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0008",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Dispatch per element",
+      "learningObjective": "trace dispatch at each element of a heterogeneous array",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two different animals share one array and one call site:\nclass Animal { String sound() { return \"...\"; } }\nclass Dog extends Animal { String sound() { return \"woof\"; } }\nclass Cat extends Animal { String sound() { return \"meow\"; } }\nAnimal[] pets = { new Dog(), new Cat() };\nfor (Animal p : pets) System.out.print(p.sound() + \" \");\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "woof meow, because each element dispatches on its own type.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "woof woof, because the array's type fixes the method.",
+          "misconception": "believes one container type chooses a single body"
+        },
+        {
+          "id": "C",
+          "text": "... ..., because the base body is always used.",
+          "misconception": "believes calls through a base array skip overrides"
+        },
+        {
+          "id": "D",
+          "text": "meow woof, because the last element wins the dispatch.",
+          "misconception": "believes a later element overrides an earlier dispatch"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Both elements are stored in an Animal[], but the dispatch decision is made per invocation, so the first call finds a Dog and the second finds a Cat, printing woof then meow. Expecting one type to win for the whole array is the tempting reading, and it would hold if a single bound variable were reused, but the call site is evaluated again for each element.",
+      "hint": "Decide dispatch separately for each call.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0009",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Where shared behavior can live",
+      "learningObjective": "choose the construct that can supply an inherited implementation",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Every Sound subclass must share the same describe() text, while each subclass supplies its own speak(). Which shape delivers that requirement?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An abstract class with a concrete describe() and an abstract speak().",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An interface with a describe() declaration that has no body.",
+          "misconception": "believes an interface declaration carries an implementation"
+        },
+        {
+          "id": "C",
+          "text": "An interface where speak() is a default and describe() is abstract.",
+          "misconception": "believes defaults belong to the subtype rather than the type"
+        },
+        {
+          "id": "D",
+          "text": "A concrete class with an empty describe() and an abstract speak().",
+          "misconception": "believes a concrete class may declare an abstract method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A shared concrete body needs a home, and an abstract class supplies one while still forcing subclasses to implement speak(). A bare interface declaration is the tempting wrong choice, and it was correct before Java 8; default methods do exist, but a default sits in the implementing class's own hierarchy, which puts the shared text in the wrong place for a requirement that every subclass must inherit.",
+      "hint": "Which construct can carry an inherited implementation?",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 46
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-vs-interface"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0010",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Class methods beat interface defaults",
+      "learningObjective": "predict which method wins when a class overrides a default",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A greeting interface supplies a default and one implementer replaces it:\ninterface Greeter { default String hi() { return \"hi\"; } }\nclass Formal implements Greeter { public String hi() { return \"hello\"; } }\nGreeter g = new Formal();\nSystem.out.println(g.hi());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "hello, because the class method wins over the default.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "hi, because the interface default always wins.",
+          "misconception": "believes the supertype is always searched first"
+        },
+        {
+          "id": "C",
+          "text": "It fails to compile, because hi() is declared twice.",
+          "misconception": "believes repeating a default name is a redeclaration clash"
+        },
+        {
+          "id": "D",
+          "text": "hihello, because both bodies run in order.",
+          "misconception": "believes an override prepends the inherited body"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The class is searched before any interface, so Formal.hi is selected and the inherited default is never consulted; there is no ambiguity because a class in the hierarchy outranks every interface default. The interface always winning is the tempting belief, and that rule does apply when two interface defaults compete, but only until a class supplies its own implementation.",
+      "hint": "Which of the two candidates comes first in the search order?",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-defaults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0011",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Conflicting interface defaults",
+      "learningObjective": "diagnose two unrelated defaults inherited at once",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A class implements two unrelated interfaces that both declare the same default method:\ninterface A { default String tag() { return \"A\"; } }\ninterface B { default String tag() { return \"B\"; } }\nclass C implements A, B { }\nSystem.out.println(new C().tag());\nWhat happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, because neither default is more specific.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints A, because A is listed first in the implements clause.",
+          "misconception": "believes declaration order breaks a default-method tie"
+        },
+        {
+          "id": "C",
+          "text": "It prints B, because the later interface wins the conflict.",
+          "misconception": "believes the most recently listed interface is preferred"
+        },
+        {
+          "id": "D",
+          "text": "It prints AB, because both default bodies execute.",
+          "misconception": "believes conflicting defaults are combined in order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Neither A.tag nor B.tag is a subtype of the other, so no most-specific default exists and the compiler rejects the class until tag() is overridden. Source order deciding is the tempting guess, and it would be reasonable if conflicts behaved like overloads, but default-method ties are settled by subtyping, not by the order the interfaces appear in the implements clause.",
+      "hint": "Nothing in the hierarchy makes one default more specific.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 31,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-defaults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0012",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Restating an abstract method",
+      "learningObjective": "state that a concrete restatement completes an abstract method",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An abstract class declares abstract double area(); and a subclass writes double area() { return side * side; } with no abstract keyword. What does leaving the keyword off accomplish?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Square becomes concrete, since the body supplies the implementation.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Square stays abstract, because abstractness is inherited.",
+          "misconception": "believes abstractness flows down to every restated method"
+        },
+        {
+          "id": "C",
+          "text": "It fails to compile, because the keyword is required to restate.",
+          "misconception": "believes abstract is mandatory on any restatement"
+        },
+        {
+          "id": "D",
+          "text": "Square stays abstract, because area() must be marked public.",
+          "misconception": "believes public access is the missing ingredient"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A restatement that carries a body is an implementation of the inherited abstract method, so the subclass is no longer abstract and new Square() is allowed. Abstractness flowing down is the tempting belief, and it does hold while some method is genuinely unimplemented, but a method with a body is implemented, and the compiler keeps a class abstract only while an abstract method from a supertype has no implementation anywhere in the hierarchy.",
+      "hint": "Does the restated method still have an implementation?",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 18,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "abstract-methods"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0013",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Static interface methods",
+      "learningObjective": "state that a static interface method is not inherited",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An interface declares interface Util { static int of(int n) { return n * 2; } } and a class MyUtil implements Util whose body calls of(3) with no qualifier. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, because the static method is not inherited.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 6, because MyUtil inherits Util.of and calls it directly.",
+          "misconception": "believes interface statics are inherited by implementers"
+        },
+        {
+          "id": "C",
+          "text": "It prints 6, because interface statics dispatch like instance methods.",
+          "misconception": "believes static interface methods follow dispatch rules"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile, because Util.of is private to the interface.",
+          "misconception": "believes interface static methods are inaccessible elsewhere"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A static interface method belongs to the interface itself and is not inherited, so the unqualified call inside MyUtil does not resolve and the class fails to compile. Inheriting it is the tempting belief, and the instance-method rules of interfaces make that look consistent, but interface statics exist precisely so that adding a helper does not force every implementer to expose it.",
+      "hint": "Which members does an implementing class actually inherit?",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-defaults"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0014",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Interface constants and hiding",
+      "learningObjective": "predict which constant name wins on a class that implements an interface",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An interface fixes a limit as interface Limits { int MAX = 100; } and a class A implements Limits also declares int MAX = 5;. Reading the field through an instance of A, which value appears, and does the interface constant change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5, because the class field hides the inherited constant.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "100, because a final constant cannot be shadowed.",
+          "misconception": "believes a final constant cannot be shadowed by a field"
+        },
+        {
+          "id": "C",
+          "text": "It fails to compile, because the two names collide.",
+          "misconception": "believes shadowing an inherited field is illegal"
+        },
+        {
+          "id": "D",
+          "text": "5, and the interface's constant is overwritten to 5.",
+          "misconception": "believes hiding overwrites the interface's constant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The class's own field shadows the interface constant for reads made through A, so an A instance reports 5, while Limits.MAX still reports 100 for anyone holding the interface. Being unable to change an inherited constant is the tempting belief, and MAX in Limits really is final, but shadowing only decides which name wins at each reference; it does not rewrite the constant that other references still see.",
+      "hint": "Read MAX twice, once through an A and once through Limits.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "interface-constants"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0015",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Super calls and instance state",
+      "learningObjective": "explain why a super call cannot read a subclass field",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass constructor tries to hand one of its own fields to the superclass constructor:\nclass Base { Base(int n) { System.out.print(n); } }\nclass Sub extends Base {\n    int size = 5;\n    Sub() { super(size); }\n}\nWhat happens when this is compiled?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, because the object is not built yet.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles and passes 0, since fields start at their default.",
+          "misconception": "believes an uninitialized field can be read by super"
+        },
+        {
+          "id": "C",
+          "text": "It compiles and passes 5, since initializers run before super().",
+          "misconception": "believes the initializer runs before the superclass body"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile, because a superclass takes no arguments.",
+          "misconception": "believes superclass constructors accept no parameters"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An explicit super call runs before the subclass has any state of its own, so the compiler refuses the read and reports that size cannot be referenced before the supertype constructor has been called. Defaulting to 0 is the tempting assumption, and a field really does hold 0 until its initializer runs, but that initializer runs after the superclass constructor, which is precisely why the value is unavailable to pass.",
+      "hint": "Compare when the super call runs with when the initializer runs.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chaining"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0016",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Superclass construction order",
+      "learningObjective": "trace the print order across a three-level constructor chain",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three classes form a chain and then a method runs:\nclass A { A() { System.out.print(\"A\"); } }\nclass B extends A { B() { System.out.print(\"B\"); } void go() { System.out.print(\"go\"); } }\nclass C extends B { C() { System.out.print(\"C\"); } }\nnew C().go();\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "ABCgo, because each superclass constructor runs first.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "CBAgo, because the subclass constructor runs first.",
+          "misconception": "believes construction follows the source order of classes"
+        },
+        {
+          "id": "C",
+          "text": "CABgo, because the chain is built from the top down.",
+          "misconception": "believes the outermost constructor starts the chain"
+        },
+        {
+          "id": "D",
+          "text": "ABgoC, because go() runs inside the constructor.",
+          "misconception": "believes a called method joins the constructor output"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Constructing a C must run A's body before B's and B's before C's, so A, B, and C print in that order and only then does go() print. Running the subclass body first is the tempting picture, and it matches the order a reader meets the classes in the file, but a superclass constructor cannot be skipped, so execution climbs the hierarchy before it descends again.",
+      "hint": "A superclass constructor can never be skipped.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 17,
+        "p75Sec": 31
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chaining"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0017",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Field initializers versus super",
+      "learningObjective": "trace when field initializers run relative to the superclass constructor",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A superclass constructor reads a field while a subclass initializes one:\nclass Base { int x; Base() { System.out.println(x); } }\nclass Derived extends Base {\n    int y = 5;\n    Derived() { System.out.println(y); }\n}\nnew Derived();\nWhat does the program print?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0 then 5, because Base runs before the initializer.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5 then 5, because initializers run before super().",
+          "misconception": "believes field initializers precede the superclass body"
+        },
+        {
+          "id": "C",
+          "text": "0 then 0, because y is never assigned at all.",
+          "misconception": "believes the initializer is skipped for a subclass field"
+        },
+        {
+          "id": "D",
+          "text": "5 then 0, because super() runs after the fields are set.",
+          "misconception": "believes the two lines print in declaration order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Instance field initializers run after the superclass constructor finishes, so when Base's body reads x it finds the default 0, and by the time Derived's body runs its initializer has set y to 5. Initializers running before super is the tempting belief, and it matches the visual order of the source file, but the actual sequence is superclass construction, then this class's initializers, then this constructor's own body.",
+      "hint": "When exactly do instance initializers run relative to super()?",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "initialization-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0018",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Implicit super constructor call",
+      "learningObjective": "diagnose a missing argument for an implicit super call",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A superclass has only a one-argument constructor and the subclass declares none of its own arguments:\nclass Base { Base(int n) { System.out.print(n); } }\nclass Sub extends Base { Sub() { System.out.print(9); } }\nnew Sub();\nWhat happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, since no no-argument super exists.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 09, because the compiler supplies a 0 argument.",
+          "misconception": "believes the compiler invents a default argument"
+        },
+        {
+          "id": "C",
+          "text": "It prints 9, because the implicit super call is skipped.",
+          "misconception": "believes an unsatisfiable super call is silently dropped"
+        },
+        {
+          "id": "D",
+          "text": "It prints 9, because static state replaces construction order.",
+          "misconception": "believes the superclass constructor does not run at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The compiler's implicit super() is only available when the superclass declares a no-argument constructor, and Base declares only Base(int), so Sub() has nothing to call and the class fails to compile. Some default value is the tempting assumption, and it holds whenever a no-argument constructor exists, but Java provides no default argument and no synthetic zero, so the missing call becomes a compile error instead.",
+      "hint": "Is there a superclass constructor that Sub() can reach?",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chaining"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0019",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "this and super together",
+      "learningObjective": "state the single-invocation rule for constructor chaining",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A constructor must delegate to a sibling constructor of the same class, and that sibling already passes a value to the superclass. Which arrangement is legal for this constructor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "this(5); first, with no explicit super() call in this constructor.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "super(5); first, with no sibling delegation at all.",
+          "misconception": "believes a super call can replace the required delegation"
+        },
+        {
+          "id": "C",
+          "text": "this(5); first, then super(5); on the next line.",
+          "misconception": "believes both kinds of call can appear in one body"
+        },
+        {
+          "id": "D",
+          "text": "super(5); first, then this(5); on the next line.",
+          "misconception": "believes the two calls can be combined in either order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A constructor body allows one explicit invocation, and javac reports a second one as redundant; this(5) hands the whole job to a sibling constructor that is itself responsible for calling super, so the chain is already complete. Chaining twice is the tempting plan, and it reads like composing two independent actions, but the JVM builds a single chain and the second invocation of either kind is rejected.",
+      "hint": "A constructor body allows exactly one explicit invocation.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "constructor-chaining"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0020",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Overridden call from a superclass constructor",
+      "learningObjective": "evaluate dispatch combined with uninitialized subclass fields",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A superclass constructor calls a method the subclass overrides and reports what it returns:\nclass Base {\n  String label = \"B\";\n  String tag() { return \"base:\" + label; }\n  Base() { System.out.println(tag()); }\n}\nclass Sub extends Base {\n  String label = \"S\";\n  String tag() { return \"sub:\" + label; }\n}\nnew Sub();\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "sub:null, because Sub.label is not yet assigned.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "base:B, because the superclass body uses Base.tag().",
+          "misconception": "believes a constructor's call site is bound to its own class"
+        },
+        {
+          "id": "C",
+          "text": "sub:S, because field initializers run before super().",
+          "misconception": "believes subclass initializers precede superclass construction"
+        },
+        {
+          "id": "D",
+          "text": "base:B, because a super-bound call skips the override.",
+          "misconception": "believes any call inside a superclass constructor is non-virtual"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The tag() call inside Base's constructor is an ordinary virtual call, so Sub.tag runs, but Sub's field initializer has not executed yet and label is still the default null, giving sub:null. A super-bound call is the tempting explanation, and it would be true for an explicit super.tag(), but the unqualified call here dispatches normally while the initialized-looking sub:S is what people expect when fields are pictured as existing from the start.",
+      "hint": "Dispatch still happens; the question is when subclass initializers run.",
+      "difficulty": 0.85,
+      "discrimination": 0.55,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 48,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "initialization-order",
+        "dynamic-dispatch"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0021",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Covariant return declarations",
+      "learningObjective": "complete an override that narrows a reference return type",
+      "practice": "code completion",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_COMPLETION",
+      "stimulus": null,
+      "stem": "A base class returns the general type and the subclass wants to return its own type instead:\nclass Animal { Animal spawn() { return new Animal(); } }\nclass Dog extends Animal {\n    ______ spawn() { return new Dog(); }\n}\nWhich completion makes this a legal covariant override?",
+      "options": [
+        {
+          "id": "A",
+          "text": "public Dog",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "private Dog",
+          "misconception": "believes the return type overrides the visibility rule"
+        },
+        {
+          "id": "C",
+          "text": "static Dog",
+          "misconception": "believes static can replace an inherited instance method"
+        },
+        {
+          "id": "D",
+          "text": "abstract Dog",
+          "misconception": "believes an implemented method may stay abstract"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A covariant override narrows the reference return type to a subtype while keeping the method an ordinary public instance method, and Dog is a subtype of Animal, so the declaration is legal. A narrower return type cannot rescue the other modifiers: private would drop visibility below the inherited public method, static would stop it being an override at all, and abstract cannot be attached here because the superclass version already provides an implementation to inherit.",
+      "hint": "Narrowing the type is allowed; changing the method's kind is not.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 19,
+        "p75Sec": 35
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "covariant-returns"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0022",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Covariance is reference-only",
+      "learningObjective": "explain why primitives cannot narrow in an override",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A base class declares long total() { return 0L; } and a subclass declares int total() { return 0; }. What does the compiler do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails, because long and int are unrelated types.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It compiles, because int widens to long on return.",
+          "misconception": "believes widening is what an override return allows"
+        },
+        {
+          "id": "C",
+          "text": "It compiles, because primitives are covariant as well.",
+          "misconception": "believes the reference-type rule extends to primitives"
+        },
+        {
+          "id": "D",
+          "text": "It fails, because the method must be marked static.",
+          "misconception": "believes a primitive return requires a static method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Covariance needs a subtype relationship, and primitive types form no hierarchy: int and long are siblings whose only connection is widening, which points the wrong way for a return type. Widening automatically is the tempting belief because assigning an int to a long is always legal, but an override's declared return type must match exactly for primitives and only reference types may be narrowed.",
+      "hint": "Subtype is not the same thing as assignable.",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "covariant-returns"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0023",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Covariant return seen from a base reference",
+      "learningObjective": "evaluate the static type of a narrowed return at the call site",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "An override narrows the return type and a caller holds a base-typed reference:\nclass Animal { String tag() { return \"A\"; } Animal spawn() { return new Animal(); } }\nclass Dog extends Animal { String tag() { return \"D\"; } Dog spawn() { return new Dog(); } }\nAnimal a = new Dog();\nAnimal x = a.spawn();\nDog y = a.spawn();\nSystem.out.println(x.tag() + y.tag());\nWhat happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fails to compile, since a.spawn() is typed as Animal.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints AD, because the call returns the narrowed type.",
+          "misconception": "believes the runtime object rewrites the declared return type"
+        },
+        {
+          "id": "C",
+          "text": "It prints DA, because a holds a Dog object.",
+          "misconception": "believes the stored object determines every signature at the call"
+        },
+        {
+          "id": "D",
+          "text": "It prints AA, because spawn returns a fresh base Animal.",
+          "misconception": "believes the base implementation body is always the one used"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The static type of a.spawn() comes from the reference's declared type, Animal, so the compiler sees an Animal expression and rejects assigning it to a Dog variable even though the stored object is a Dog. Believing the covariant return reaches the caller is the tempting mistake, and it is the exact mirror image of dispatch: the body is chosen at run time, while the signature the caller compiles against is fixed by the reference type.",
+      "hint": "Which signature does the compiler use for a.spawn()?",
+      "difficulty": 0.7,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 38,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "covariant-returns"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0024",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Covariance when implementing an interface",
+      "learningObjective": "state that an implementation may narrow an interface return type",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A provider declares interface Source { Object fetch(); } and a class Impl implements Source declares public String fetch(). Which description of that class is accurate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It compiles, because String is a subtype of Object.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It fails, because an implementation must return Object.",
+          "misconception": "believes an interface return type must be repeated exactly"
+        },
+        {
+          "id": "C",
+          "text": "It compiles, but every caller still receives a static Object.",
+          "misconception": "believes narrowing is ignored for all callers of the class"
+        },
+        {
+          "id": "D",
+          "text": "It fails, because interface methods cannot be narrowed.",
+          "misconception": "believes covariance applies only to class hierarchies"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A class may implement an interface method with a covariant return, and String narrows Object, so Impl is valid and its own callers see String. Callers receiving a static Object is the tempting companion belief, and it is true for someone holding a Source-typed reference, but that reference is a separate declaration whose static type is fixed at compile time rather than rewritten by the implementing class.",
+      "hint": "Is String a subtype of Object?",
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 21,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "covariant-returns"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0025",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Bridge methods behind covariance",
+      "learningObjective": "predict the runtime class returned through a covariant interface call",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A class narrows an interface return type and a caller asks the returned object to describe itself:\ninterface Source { Object fetch(); }\nclass Impl implements Source { public String fetch() { return \"s\"; } }\nSource s = new Impl();\nSystem.out.println(s.fetch().getClass().getSimpleName());\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "String, because the bridge method calls the covariant override.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Object, because the interface return type names the class.",
+          "misconception": "believes the declared return type decides the runtime class"
+        },
+        {
+          "id": "C",
+          "text": "Impl, because getClass reports the receiver's type.",
+          "misconception": "believes getClass reports the variable's owning class"
+        },
+        {
+          "id": "D",
+          "text": "Object, because the bridge method discards the value.",
+          "misconception": "believes the synthetic bridge throws the result away"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The compiler adds a synthetic bridge in Impl that casts the result to Object for callers compiled against the interface, and that bridge forwards to the covariant String fetch, so the value's real class is String. The declared type naming the runtime class is the tempting belief, and getClass reports the object rather than the variable, so the interface's Object return type cannot be what it prints.",
+      "hint": "getClass reports the object's real class, and the object is a String.",
+      "difficulty": 0.7,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 36,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "covariant-returns"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0026",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Symmetry of equals",
+      "learningObjective": "detect an equals implementation that is not symmetric",
+      "practice": "code tracing",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A row class defines equality with a less-than comparison on its position:\nclass Row {\n  final int index;\n  Row(int index) { this.index = index; }\n  public boolean equals(Object o) {\n    return o instanceof Row && this.index < ((Row) o).index;\n  }\n}\nSystem.out.println(new Row(1).equals(new Row(2)) + \",\" + new Row(2).equals(new Row(1)));\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true,false, because equals must work in both directions.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "true,true, because the two indices differ by one.",
+          "misconception": "believes the comparison ignores the direction it runs in"
+        },
+        {
+          "id": "C",
+          "text": "false,false, because the indices are not equal.",
+          "misconception": "believes equals reduces to testing numeric equality"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile, because equals compares an int field.",
+          "misconception": "believes an int field cannot appear in an equals body"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The body uses a less-than test, so Row(1) reports Row(2) as equal while Row(2) does not report Row(1), and the pair prints true,false. An ordering test is the tempting shortcut because it does establish some relation between objects, but equals must be an equivalence, meaning reflexive, symmetric, transitive, and consistent, or sets and maps built on it quietly misbehave.",
+      "hint": "Evaluate the call in both directions before answering.",
+      "difficulty": 0.6,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals-contract"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0027",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "The equals contract",
+      "learningObjective": "name two required properties of a correct equals",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A class author is writing an equals override. Which pair of properties is part of the contract that the override must honour?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Symmetric and transitive, so equality chains agree both ways.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Symmetric and final, so no subclass may weaken the comparison.",
+          "misconception": "believes the contract itself forbids subclass overrides of equals"
+        },
+        {
+          "id": "C",
+          "text": "Fast and cached, so repeated calls avoid recomputation.",
+          "misconception": "believes performance requirements belong to the contract"
+        },
+        {
+          "id": "D",
+          "text": "Symmetric and private, so callers cannot depend on details.",
+          "misconception": "believes equals must be hidden from calling code"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The contract requires reflexivity, symmetry, transitivity, and consistency with hashCode, so a chain of objects that compare equal must compare equal at every step. Making equals final is the tempting extra, and good practice often does it, but the contract does not demand it, since what must hold is that a redefined equals stays symmetric and transitive for the class that declares it.",
+      "hint": "Think about x.equals(y) and y.equals(x) together, then chains.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 16,
+        "p75Sec": 30
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals-contract"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0028",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Subclass equals and super",
+      "learningObjective": "evaluate a subclass equals that ignores the superclass rule",
+      "practice": "code analysis",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A subclass redefines equals on a new field and never mentions the superclass:\nclass Item {\n  int id;\n  Item(int id) { this.id = id; }\n  public boolean equals(Object o) { return o instanceof Item && ((Item) o).id == id; }\n}\nclass Gift extends Item {\n  String wrap;\n  Gift(int id, String wrap) { super(id); this.wrap = wrap; }\n  public boolean equals(Object o) { return o instanceof Gift && ((Gift) o).wrap.equals(wrap); }\n}\nItem a = new Item(1);\nItem b = new Gift(1, \"red\");\nSystem.out.println(a.equals(b) + \",\" + b.equals(a));\nWhat is printed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "true,false, because the two bodies test different criteria.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false,false, because a Gift is not equal to a plain Item.",
+          "misconception": "believes the subclass rule overrides the superclass rule"
+        },
+        {
+          "id": "C",
+          "text": "true,true, because both objects share the same id.",
+          "misconception": "believes matching ids override the different test types"
+        },
+        {
+          "id": "D",
+          "text": "It fails to compile, because Gift.equals skips super.",
+          "misconception": "believes calling the superclass is a compile-time requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Item.equals accepts anything that is an Item with a matching id, so it accepts the Gift, while Gift.equals rejects anything that is not a Gift and never consults the superclass, giving true,false. Delegating to super.equals is the fix and the tempting omission, because a subclass often only wants to add a field, but the two bodies must agree on one criterion or the relation stops being an equivalence.",
+      "hint": "Run both equals bodies against both objects.",
+      "difficulty": 0.7,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 36,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals-contract"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0029",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Null handling in equals",
+      "learningObjective": "predict the effect of short-circuit evaluation on a null argument",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An equals body begins if (o == null || getClass() != o.getClass()) return false; and a caller executes item.equals(null). What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns false immediately, before any field is touched.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It throws NullPointerException on the o.getClass() call.",
+          "misconception": "believes the right operand of || is always evaluated"
+        },
+        {
+          "id": "C",
+          "text": "It returns true, because null equals any reference.",
+          "misconception": "believes a null argument is a matching comparison"
+        },
+        {
+          "id": "D",
+          "text": "It returns false only when the classes happen to differ.",
+          "misconception": "believes the class test is what rejects a null argument"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The o == null test short-circuits ahead of the getClass comparison, so the call returns false and no dereference happens. Throwing is the tempting worry, and the concern is well founded because writing the conditions in the other order would indeed throw on null, but || evaluates its left operand first and a true left operand skips the right one entirely.",
+      "hint": "|| evaluates left to right and can skip the right side.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 23,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals-contract"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "jp-8.6-0030",
+      "subject": "JAVA_PROGRAMMING",
+      "unit": "Unit 8",
+      "topic": "Consistency with hashCode",
+      "learningObjective": "state the hashCode obligation that follows from overriding equals",
+      "practice": "conceptual reasoning",
+      "scope": "legacy-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A class overrides equals to compare a String field called name but inherits hashCode from Object. What goes wrong when these objects go into a HashSet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Equal objects can hash differently, so the set keeps both copies.",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It fails to compile, because hashCode must be overridden too.",
+          "misconception": "believes the compiler enforces the pairing of the two methods"
+        },
+        {
+          "id": "C",
+          "text": "The set still finds them, because contains calls equals on every item.",
+          "misconception": "believes a set compares against all of its members"
+        },
+        {
+          "id": "D",
+          "text": "Equal objects are collapsed, because the hash decides equality.",
+          "misconception": "believes the hash code itself determines set membership"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The contract says equal objects must have equal hash codes, and the inherited identity hash violates that, so two Items with the same name land in different buckets and a set can hold both. Duplicates being collapsed is the tempting reversal, and it matches the intuition that hashing decides membership, but the hash only selects a bucket while the equals call inside that bucket decides the match.",
+      "hint": "The hash picks the bucket; equals decides the match.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-jp-w4",
+        "reviewer": "bank-review-jp-w4",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w6",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "equals-contract"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
