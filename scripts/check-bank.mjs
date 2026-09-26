@@ -70,6 +70,14 @@ function checkQuestion(file, q, index) {
     const looksLikeCode = /[;{}()]|=>|\bint\b|\bvoid\b|\bString\b|\bfor\b|\bif\b|\bnew\b|\breturn\b/.test(q.stem);
     if (!looksLikeCode) err(file, id, `${q.format} stem carries no code`);
   }
+  // Quality floor: an item with options must say which one is correct. Without
+  // this, a missing `answer` silently skipped every distractor check below.
+  const correctIds = new Set();
+  if (q.answer && typeof q.answer.correctId === "string") correctIds.add(q.answer.correctId);
+  if (q.answer && Array.isArray(q.answer.correctIds)) for (const c of q.answer.correctIds) correctIds.add(c);
+  if (options.length > 0 && correctIds.size === 0) {
+    err(file, id, "no answer: an item with options must set answer.correctId or answer.correctIds");
+  }
   if (NEEDS_OPTIONS.has(q.format) && options.length < 2) err(file, id, "need 2+ options");
   else if (options.length > 0) {
     const seen = new Set();
@@ -81,9 +89,7 @@ function checkQuestion(file, q, index) {
       if (seen.has(opt.id)) err(file, id, "duplicate option id");
       seen.add(opt.id);
     }
-    const correct = new Set();
-    if (q.answer && typeof q.answer.correctId === "string") correct.add(q.answer.correctId);
-    if (q.answer && Array.isArray(q.answer.correctIds)) for (const c of q.answer.correctIds) correct.add(c);
+    const correct = correctIds;
     for (const opt of options) {
       if (!correct.has(opt.id) && opt.misconception.trim().length === 0 && correct.size > 0) {
         err(file, id, `distractor ${opt.id} needs a named misconception`);
