@@ -1,0 +1,4146 @@
+{
+  "questions": [
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "explanation": "deepEquals walks the outer array and then each row, comparing every int, so two separately built grids with the same values match. The one-argument equals stops at the first level and compares row references, and int[][] never overrides hashCode, so both of those report a difference for content that is in fact identical.",
+      "format": "CONCEPT_MCQ",
+      "hint": "One of these calls descends into the rows.",
+      "id": "jp-7.20-0001",
+      "learningObjective": "choose the comparison that walks nested rows",
+      "options": [
+        {
+          "id": "A",
+          "text": "Arrays.equals(a, b)",
+          "misconception": "compares the row references, so equal contents look different"
+        },
+        {
+          "id": "B",
+          "text": "Arrays.deepEquals(a, b)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "(a == b)",
+          "misconception": "treats two separately built grids as the same object"
+        },
+        {
+          "id": "D",
+          "text": "Arrays.hashCode(a) == Arrays.hashCode(b)",
+          "misconception": "believes matching hash codes would prove the contents match"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0028"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 30,
+        "p25Sec": 18,
+        "p75Sec": 50
+      },
+      "scope": "core-scope",
+      "stem": "A checker builds two grids separately and needs to know whether they hold the same values:\nint[][] a = {{1, 2}, {3, 4}};\nint[][] b = {{1, 2}, {3, 4}};\nWhich call reports that the two grids match?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "equality"
+      ],
+      "topic": "deepEquals on nested arrays",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.38,
+      "explanation": "int[][] inherits Object.hashCode, which returns an identity value, so a set of grids can only find the very object it was given. deepEquals and deepHashCode both walk the rows, and the deep hash gives equal contents the same key. A toString of a nested array prints identity marks rather than stored values, and a manual equals pre-check does not change the hash the collection actually stores.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The default hashCode of a grid does not look at its contents.",
+      "id": "jp-7.20-0002",
+      "learningObjective": "key a collection of grids by content",
+      "options": [
+        {
+          "id": "A",
+          "text": "Store each grid as a String built with toString",
+          "misconception": "believes the default string form of a grid lists its values"
+        },
+        {
+          "id": "B",
+          "text": "Key the collection on Arrays.deepHashCode(grid)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Call grid.hashCode() once and store the result",
+          "misconception": "assumes the inherited hashCode walks the rows"
+        },
+        {
+          "id": "D",
+          "text": "Compare grids with Arrays.equals before adding",
+          "misconception": "thinks a pre-check makes identity hashing find them"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 45,
+        "p25Sec": 28,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A cache keeps whole grids in a HashSet and later asks whether an equivalent grid is already present. Which change makes that lookup work by content rather than by identity?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "hashing"
+      ],
+      "topic": "hashCode on nested arrays",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "B"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.42,
+      "explanation": "fill acts on exactly the array reference it is handed, so passing grid[1] writes into that row and leaves the other two untouched. There is no three-argument fill for an int[][] with an int value, and the one-argument call on the outer array does not write into cells: it stores a boxed value where a row reference belongs and dies with ArrayStoreException at run time.",
+      "format": "CONCEPT_MCQ",
+      "hint": "fill works on the array you name, not on arrays inside it.",
+      "id": "jp-7.20-0003",
+      "learningObjective": "limit a fill to one row of a grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "Arrays.fill(grid, 0)",
+          "misconception": "thinks filling the outer array reaches into every row"
+        },
+        {
+          "id": "B",
+          "text": "Arrays.fill(grid[1], 0)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Arrays.fill(grid, 1, 0)",
+          "misconception": "believes a row index can be passed in as the fill value"
+        },
+        {
+          "id": "D",
+          "text": "Arrays.deepFill(grid, 0)",
+          "misconception": "invents a deep variant of the fill method"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 20,
+        "p75Sec": 52
+      },
+      "scope": "core-scope",
+      "stem": "A cleaning routine must blank only the second row of a grid and leave the other rows alone:\nint[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\nWhich call does that?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "fill"
+      ],
+      "topic": "fill scope on a row",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "explanation": "An int[][] is an array of int[] references, so filling the outer array stores one and the same reference in every slot, and writing grid[0][0] then shows up in every row. It copies references, not the ints the row holds, which is why the rows end up indistinguishable from one another rather than independent copies.",
+      "format": "CONCEPT_MCQ",
+      "hint": "An outer grid holds row references, not cells.",
+      "id": "jp-7.20-0004",
+      "learningObjective": "predict what a fill of the outer grid stores",
+      "options": [
+        {
+          "id": "A",
+          "text": "true, because fill stores the same reference in each slot",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "false, because fill clones the value into each slot",
+          "misconception": "believes fill duplicates the reference for every element"
+        },
+        {
+          "id": "C",
+          "text": "false, because fill copies the row's int values",
+          "misconception": "confuses reference filling with element copying"
+        },
+        {
+          "id": "D",
+          "text": "true, but only because the allocator cloned the rows",
+          "misconception": "attributes the shared reference to the row allocation"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0026"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 25,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A utility points every row of a new grid at one prepared row:\nint[][] grid = new int[3][2];\nint[] prepared = {9, 9};\nArrays.fill(grid, prepared);\nWhat does the expression grid[0] == grid[1] evaluate to?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "aliasing"
+      ],
+      "topic": "fill scope on a whole grid",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "explanation": "arraycopy takes source array, source position, destination array, destination position, and length, so naming h[0] and h[1] moves ints from one row into the other and leaves row 0 as it was. Handing it the outer int[][] would try to move row references into a row of ints, and copyOf allocates a brand new array instead of writing into an existing one.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The source and destination arguments both name rows here.",
+      "id": "jp-7.20-0005",
+      "learningObjective": "copy values from one row into another",
+      "options": [
+        {
+          "id": "A",
+          "text": "System.arraycopy(h[0], 0, h[1], 0, 2);",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "System.arraycopy(h, 0, h, 1, 2);",
+          "misconception": "passes the outer grid where a row reference is required"
+        },
+        {
+          "id": "C",
+          "text": "System.arraycopy(h[0], 0, h[0], 1, 2);",
+          "misconception": "copies into the source row and so disturbs row 0"
+        },
+        {
+          "id": "D",
+          "text": "System.copyOf(h[0], 2);",
+          "misconception": "believes a truncated copy writes back into the grid"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 35,
+        "p25Sec": 22,
+        "p75Sec": 55
+      },
+      "scope": "core-scope",
+      "stem": "A snapshot tool must copy the first two cells of row 0 over row 1 of a grid without disturbing row 0:\nint[][] h = {{1, 2, 3}, {4, 5, 6}};\nWhich call performs exactly that copy?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "arraycopy"
+      ],
+      "topic": "arraycopy of a row",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.62,
+      "discrimination": 0.36,
+      "explanation": "arraycopy behaves as if the source region were saved before any write happens, so the overlap cannot corrupt the copy: the saved 1, 2, 3 land at positions 1, 2, 3 while the leading element keeps its own 1. A hand-written forward loop is different, because it overwrites a value before reading it, which is why that version collapses to all ones.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The library call is specified to survive overlapping regions.",
+      "id": "jp-7.20-0006",
+      "learningObjective": "predict an in-place shift with overlapping regions",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 1, 2, 3]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 2, 3, 4]",
+          "misconception": "believes an in-place shift leaves the values untouched"
+        },
+        {
+          "id": "C",
+          "text": "[1, 1, 1, 1]",
+          "misconception": "implements the shift as a forward element-by-element loop"
+        },
+        {
+          "id": "D",
+          "text": "[2, 3, 4, 4]",
+          "misconception": "reads the arguments as copying toward lower indexes"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 32,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "A shift slides a row's values one place right inside the same array:\nint[] row = {1, 2, 3, 4};\nSystem.arraycopy(row, 0, row, 1, 3);\nWhat does the row hold afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "arraycopy"
+      ],
+      "topic": "overlapping arraycopy",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.41,
+      "explanation": "clone on a two-dimensional array allocates a fresh outer array and copies the references it holds, so both grids name the same row objects. Writing snapshot[0][0] therefore writes into the row the original grid is also using, which is why a snapshot taken this way cannot be trusted as a record of the past.",
+      "format": "CONCEPT_MCQ",
+      "hint": "clone is one level deep.",
+      "id": "jp-7.20-0007",
+      "learningObjective": "predict what a cloned grid shares with its source",
+      "options": [
+        {
+          "id": "A",
+          "text": "99, because clone copies the row references, not the rows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, because clone also duplicates every row it points to",
+          "misconception": "believes clone performs a deep copy of nested arrays"
+        },
+        {
+          "id": "C",
+          "text": "1, because the two grids are separate objects",
+          "misconception": "stops at the outer object and ignores what the rows share"
+        },
+        {
+          "id": "D",
+          "text": "99, because the rows live inside the outer array",
+          "misconception": "gets the shared edit right but for the wrong reason"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0027",
+        "jp-7.7-0028"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 24,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "A snapshot is taken before a scoring pass rewrites cells:\nint[][] grid = {{1, 2}, {3, 4}};\nint[][] snapshot = grid.clone();\nsnapshot[0][0] = 99;\nWhat is grid[0][0] afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "clone"
+      ],
+      "topic": "shallow clone of a grid",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "explanation": "Independence has to be established one row at a time, because each row is a separate object that a clone of the outer array only references. Calling clone on each row allocates a fresh int[] and copies the ints, so a later write to copy[r] cannot reach grid[r], while assigning the row itself would leave both grids pointing at one array.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Every row needs its own allocation.",
+      "id": "jp-7.20-0008",
+      "learningObjective": "build a grid whose rows are independent",
+      "options": [
+        {
+          "id": "A",
+          "text": "for (int r = 0; r < grid.length; r++) copy[r] = grid[r].clone();",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "for (int r = 0; r < grid.length; r++) copy[r] = grid[r];",
+          "misconception": "copies row references and keeps sharing every row"
+        },
+        {
+          "id": "C",
+          "text": "for (int r = 0; r < grid.length; r++) copy[r] = new int[grid[r].length];",
+          "misconception": "allocates empty rows and silently drops the stored values"
+        },
+        {
+          "id": "D",
+          "text": "for (int r = 0; r < grid.length; r++) copy[r] = grid[r].clone(grid.length);",
+          "misconception": "invokes a clone method that arrays do not have"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0027",
+        "jp-7.7-0028"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 26,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "A method must return a grid the caller can change freely without disturbing the original grid. Which loop body produces that?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "copying",
+        "clone"
+      ],
+      "topic": "per-row deep copy",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "explanation": "An inner array in a grid is a reference, so naming row twice makes both slots point at one array and the write through index 1 lands in the array index 0 also reads. Rectangularity has nothing to do with it: the shape is fine, and what matters is that the two slots alias rather than own separate rows.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask how many row objects exist after the assignment.",
+      "id": "jp-7.20-0009",
+      "learningObjective": "predict an edit made through an aliased row",
+      "options": [
+        {
+          "id": "A",
+          "text": "[9, 2, 3], because both slots name the same row object",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 2, 3], because the literal built two separate rows",
+          "misconception": "believes an array literal duplicates each inner value"
+        },
+        {
+          "id": "C",
+          "text": "[1, 2, 3], because the write went to a copy of the slot",
+          "misconception": "thinks writing through one index isolates that row"
+        },
+        {
+          "id": "D",
+          "text": "[9, 2, 3], because the grid is rectangular and rows must match",
+          "misconception": "gets the shared value right but blames the shape"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0026"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 21,
+        "p75Sec": 55
+      },
+      "scope": "core-scope",
+      "stem": "Two slots of a grid are filled from one shared row:\nint[] row = {1, 2, 3};\nint[][] grid = {row, row};\ngrid[1][0] = 9;\nWhat does grid[0] hold afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "aliasing",
+        "references"
+      ],
+      "topic": "row aliasing",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.45,
+      "explanation": "Java passes the reference, so the parameter and grid[0] name the same int[] and the element write is visible to the caller. What gets copied on entry is the reference value, not the array it points at, which is why 101 shows up in the caller's grid rather than 1.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Element writes and name assignment behave differently.",
+      "id": "jp-7.20-0010",
+      "learningObjective": "trace an element write made through a row parameter",
+      "options": [
+        {
+          "id": "A",
+          "text": "101, because the method received the caller's row object",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, because parameters are copied before the call",
+          "misconception": "believes an array argument is deep-copied on entry"
+        },
+        {
+          "id": "C",
+          "text": "1, because only the local name was updated inside",
+          "misconception": "confuses an element write with rebinding the parameter"
+        },
+        {
+          "id": "D",
+          "text": "105, because the method also reached the second row",
+          "misconception": "thinks the helper walked the whole grid"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 30,
+        "p25Sec": 18,
+        "p75Sec": 48
+      },
+      "scope": "core-scope",
+      "stem": "A helper is meant to bump the first cell of a row:\nstatic void bump(int[] row) { row[0] = row[0] + 100; }\nint[][] grid = {{1, 2, 3}, {4, 5, 6}};\nbump(grid[0]);\nWhat is grid[0][0] afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "methods",
+        "references"
+      ],
+      "topic": "passing a row to a method",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "explanation": "A parameter is a local name. Assigning a new array to it changes only what that name points at inside the method, and the caller's slot still names the row it had before, which is why row 1 is untouched. To blank the caller's row the method would have to write into the elements of the row it was given, or return the new array for the caller to store.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The caller's variable was never assigned to.",
+      "id": "jp-7.20-0011",
+      "learningObjective": "explain why assigning to a parameter is invisible to the caller",
+      "options": [
+        {
+          "id": "A",
+          "text": "[4, 5, 6], because the new array is bound only to the parameter",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[0, 0, 0], because the assignment reached the caller's slot",
+          "misconception": "believes assigning to a parameter rewrites the caller's variable"
+        },
+        {
+          "id": "C",
+          "text": "[4, 5, 6], because the caller's slot was copied first",
+          "misconception": "credits the right value to a deep copy of the argument"
+        },
+        {
+          "id": "D",
+          "text": "[0, 0, 0], because every row reference is replaced by one array",
+          "misconception": "thinks the new array is installed into all grid slots"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 22,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "A helper is meant to blank a row by handing it a fresh array:\nstatic void blank(int[] row) { row = new int[] {0, 0, 0}; }\nint[][] grid = {{1, 2, 3}, {4, 5, 6}};\nblank(grid[1]);\nWhat is grid[1] afterwards?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "methods",
+        "parameters"
+      ],
+      "topic": "rebinding a formal parameter",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.43,
+      "discrimination": 0.4,
+      "explanation": "Each chunk is split on its own, so the field count of that chunk becomes the inner array's length and the rows end up with 3, 2, and 4 cells. Nothing in the text forces the rows to agree; building a rectangular grid from ragged input would need an explicit padding or truncation step that the loop does not contain.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Each inner array is derived from one chunk alone.",
+      "id": "jp-7.20-0012",
+      "learningObjective": "build rows of uneven length from delimited text",
+      "options": [
+        {
+          "id": "A",
+          "text": "The number of comma-separated fields in that chunk",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The number of chunks the split produced overall",
+          "misconception": "believes every inner array matches the outer row count"
+        },
+        {
+          "id": "C",
+          "text": "The first chunk's field count, applied to every row",
+          "misconception": "assumes a rectangular grid falls out of ragged text"
+        },
+        {
+          "id": "D",
+          "text": "The number of delimiters left after the final chunk",
+          "misconception": "counts separators instead of counting the fields"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 21,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "A grid is built from one delimited string, row by row:\nString[] chunks = \"1,2,3|4,5|6,7,8,9\".split(\"\\\\|\");\nWhat decides the length of the inner array built for each chunk?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "strings"
+      ],
+      "topic": "jagged construction from split",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "explanation": "A flat buffer stores rows side by side, so its row stride has to equal the widest row; reading row 0's length would understate it and the copy would run past the end. Array lengths never change after allocation, so the widest row must be measured in a first pass before a second pass can place cells at row times width plus column.",
+      "format": "CONCEPT_MCQ",
+      "hint": "No single row reports the widest one.",
+      "id": "jp-7.20-0013",
+      "learningObjective": "explain why a flatten pass must measure first",
+      "options": [
+        {
+          "id": "A",
+          "text": "The buffer stride must be the widest row, which no single row reveals",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Rows can be resized later, so the width must be rechecked",
+          "misconception": "believes array lengths can change after allocation"
+        },
+        {
+          "id": "C",
+          "text": "The outer length is fixed at compile time and read first",
+          "misconception": "thinks the row count is known before the program runs"
+        },
+        {
+          "id": "D",
+          "text": "The width is settled only after every cell is copied",
+          "misconception": "believes copying has to precede measuring the target"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 24,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "A grid holds rows of 3, 2, and 5 cells. A routine must learn the grid's width before it can allocate a flat buffer. Why must the width come from a separate first pass?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "flattening"
+      ],
+      "topic": "ragged width discovery in two passes",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "explanation": "best is declared once, so after row 0 it already holds 5 and no cell in row 1 can lower it, which means the value recorded for a row is the largest cell seen up to that point rather than the largest in that row. Restarting the accumulator at the top of the row loop is what turns this into a genuine per-row maximum.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The accumulator outlives the row it was filled in.",
+      "id": "jp-7.20-0014",
+      "learningObjective": "recognise a per-row accumulator that is never reset",
+      "options": [
+        {
+          "id": "A",
+          "text": "[5, 9, 9], because the accumulator carries the largest value so far",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[5, 9, 7], because the accumulator restarts each row",
+          "misconception": "assumes the code reinitialises best before every row"
+        },
+        {
+          "id": "C",
+          "text": "[5, 5, 5], because the accumulator is reset to the first cell",
+          "misconception": "believes the seed is reapplied on every iteration"
+        },
+        {
+          "id": "D",
+          "text": "[1, 2, 3], because the accumulator keeps the last value compared",
+          "misconception": "reads the recorded slot as the final comparison result"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 28,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A routine keeps one accumulator outside the row loop and records it after each row:\nint[][] g = {{5, 1}, {9, 2}, {7, 3}};\nint[] rowMax = new int[3];\nint best = 0;\nfor (int r = 0; r < g.length; r++) { for (int c = 0; c < g[r].length; c++) { if (g[r][c] > best) { best = g[r][c]; } } rowMax[r] = best; }\nWhat does rowMax hold?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "accumulators",
+        "row-maxima"
+      ],
+      "topic": "per-row max accumulator reset",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.54,
+      "discrimination": 0.4,
+      "explanation": "A column index is only meaningful up to the widest row, so the accumulator needs one slot for every index that any row actually uses. Sizing from row 0 or from the narrowest row would leave later columns with nowhere to go, while sizing from the outer length wastes slots and can still fall short on a grid that is wider than it is tall.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Some column index has to exist in the widest row.",
+      "id": "jp-7.20-0015",
+      "learningObjective": "size a column accumulator for a ragged grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "To the widest row, so every column index that occurs has a slot",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "To the first row, since all rows are assumed to match it",
+          "misconception": "sizes from row 0 and drops the later columns"
+        },
+        {
+          "id": "C",
+          "text": "To the outer length, treating rows as columns",
+          "misconception": "confuses the row count with the number of columns"
+        },
+        {
+          "id": "D",
+          "text": "To the shortest row, totalling only shared columns",
+          "misconception": "sizes from the narrowest row and loses the widest columns"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 26,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "Rows of a grid hold 2, 4, and 1 cells. A routine must total each column index across the grid. How should the accumulator be sized?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "accumulators",
+        "ragged"
+      ],
+      "topic": "per-column accumulator on ragged rows",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.41,
+      "explanation": "The transpose's row count is the source's column count, and for a ragged grid the widest row supplies that, which here is 3. Sizing the destination from the row count would leave the third column with nowhere to go, so writing into it would run past the end of a destination row.",
+      "format": "CONCEPT_MCQ",
+      "hint": "One destination row per source column index.",
+      "id": "jp-7.20-0016",
+      "learningObjective": "size the destination of a ragged transpose",
+      "options": [
+        {
+          "id": "A",
+          "text": "3, one for each column index of the widest row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, because a transpose keeps the original row count",
+          "misconception": "believes transposing preserves the number of rows"
+        },
+        {
+          "id": "C",
+          "text": "4, because the total cell count sets the row count",
+          "misconception": "confuses the number of cells with the number of columns"
+        },
+        {
+          "id": "D",
+          "text": "5, because the two row lengths are added together",
+          "misconception": "adds row lengths to invent a column count"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 25,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A grid has 2 rows holding 3 and 2 cells. Its transpose must have a row for every column index that occurs. How many rows does that transpose have?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "ragged"
+      ],
+      "topic": "transpose of a ragged grid",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.49,
+      "discrimination": 0.43,
+      "explanation": "The first pass writes t[c][r] = g[r][c] and the second writes u[r][c] = t[c][r], so the two index swaps restore the original positions and therefore the original contents. This relies on the grid being rectangular; with rows of different lengths the second pass has holes that were never filled.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Each pass swaps the two indexes once.",
+      "id": "jp-7.20-0017",
+      "learningObjective": "explain the effect of transposing a grid twice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The original grid again, because the two index swaps cancel",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A grid of all zeros, because the second pass blanks cells",
+          "misconception": "believes a second pass overwrites real values with zero"
+        },
+        {
+          "id": "C",
+          "text": "A grid with the same values in reversed row order",
+          "misconception": "confuses a second transpose with reversing the rows"
+        },
+        {
+          "id": "D",
+          "text": "A grid of the same shape holding only diagonals",
+          "misconception": "believes a transpose keeps only diagonal cells"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0085"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 22,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "A rectangular grid is transposed, and the result is transposed again. What does the second pass produce?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "involution"
+      ],
+      "topic": "transposing twice",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "explanation": "A transpose trades the two index positions, so the value that sat at row 1 column 0 of g appears at row 0 column 1 of t. Because t was built by writing t[c][r] = g[r][c], reading the same indexes on t would land on the value 2 instead, and only the diagonal cells keep their position.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Row and column trade places in the result.",
+      "id": "jp-7.20-0018",
+      "learningObjective": "read a source cell through its transposed position",
+      "options": [
+        {
+          "id": "A",
+          "text": "t[0][1]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "t[1][0]",
+          "misconception": "did not swap the two indexes when locating the cell"
+        },
+        {
+          "id": "C",
+          "text": "t[0][0]",
+          "misconception": "stays on the first row of the transpose"
+        },
+        {
+          "id": "D",
+          "text": "t[1][1]",
+          "misconception": "reads the value that sits on the transpose diagonal"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0082"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 28,
+        "p25Sec": 16,
+        "p75Sec": 46
+      },
+      "scope": "core-scope",
+      "stem": "Grid g holds {{1, 2, 3}, {4, 5, 6}} and t is its transpose. Which expression reads the value 4, the cell at row 1 column 0 of g?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "indexing"
+      ],
+      "topic": "reading a transposed cell",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.39,
+      "explanation": "A spiral is nested loops over a shrinking rectangle, so once the top row is taken the top bound moves down, once the right column is taken the right bound moves left, and the same happens for the bottom and the left. The grid's own dimensions never change, which is exactly why the bounds are tracked separately from the array lengths.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The region being read gets smaller each lap.",
+      "id": "jp-7.20-0019",
+      "learningObjective": "describe the state a spiral walk must update",
+      "options": [
+        {
+          "id": "A",
+          "text": "The four bounds, each pulled one cell inward",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the top bound, since the other sides follow it",
+          "misconception": "believes a single bound controls all four edges"
+        },
+        {
+          "id": "C",
+          "text": "The row and column counts of the grid itself",
+          "misconception": "thinks the array's dimensions can shrink during a walk"
+        },
+        {
+          "id": "D",
+          "text": "The outer loop variables, reset to zero on each pass",
+          "misconception": "restarts the indexes instead of narrowing the region"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0025"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 25,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A spiral walk over a grid peels the top row, then the right column, the bottom row, and the left column, and repeats on what remains. Which state has to change after each peeled side?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "traversal",
+        "spiral"
+      ],
+      "topic": "spiral traversal",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.44,
+      "explanation": "deepToString walks the outer array and formats each row, so every int appears in the output. The single-argument toString on an int[][] stops at the outer level and prints one identity string per row, and the inherited form does the same, which is why a report built from either shows text like an object reference instead of numbers.",
+      "format": "CONCEPT_MCQ",
+      "hint": "One of these calls knows about nesting.",
+      "id": "jp-7.20-0020",
+      "learningObjective": "select a call that prints every stored cell",
+      "options": [
+        {
+          "id": "A",
+          "text": "Arrays.deepToString(grid)",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Arrays.toString(grid)",
+          "misconception": "thinks the one-argument form descends into the rows"
+        },
+        {
+          "id": "C",
+          "text": "grid.toString()",
+          "misconception": "assumes the inherited form lists the stored ints"
+        },
+        {
+          "id": "D",
+          "text": "Arrays.asList(grid)",
+          "misconception": "believes boxing the rows in a list prints their contents"
+        }
+      ],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0006"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 26,
+        "p25Sec": 15,
+        "p75Sec": 44
+      },
+      "scope": "core-scope",
+      "stem": "A report has to list the values held in a grid, not object identities. Which call produces a readable listing of every cell?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "printing"
+      ],
+      "topic": "printing nested arrays",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.4,
+      "explanation": "The inner bound is the current row's own length, so all nine cells are visited exactly once: 2+5+1+4+3+7+0+6+8 = 36. Adding just row 0 gives 8 and adding just column 0 gives 2+4+7 = 13, and neither of those touches the cells that only the other rows hold.",
+      "format": "CODE_TRACING",
+      "hint": "Add every cell row by row.",
+      "id": "jp-7.20-0021",
+      "learningObjective": "trace a full traversal of a ragged grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "36",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8",
+          "misconception": "adds only the first row of the grid"
+        },
+        {
+          "id": "C",
+          "text": "9",
+          "misconception": "counts the cells instead of adding their values"
+        },
+        {
+          "id": "D",
+          "text": "13",
+          "misconception": "adds only the first column of the grid"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 32,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "A depot totals the cells of a ragged grid:\nint[][] rg = {{2, 5, 1}, {4, 3}, {7, 0, 6, 8}};\nint total = 0;\nfor (int r = 0; r < rg.length; r++) { for (int c = 0; c < rg[r].length; c++) { total += rg[r][c]; } }\nSystem.out.println(total);\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "loops"
+      ],
+      "topic": "ragged traversal",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "explanation": "Each row adds into its own slot of an array sized by the outer length, and the per-row bound visits exactly the cells that row owns: 4+8+1 = 13, 2+6 = 8, and 9+3+5+7 = 24. Those figures add up to 45, the whole-grid sum, which is what a single shared accumulator would have reported instead of three per-row totals.",
+      "format": "CODE_TRACING",
+      "hint": "Each row writes into the slot of its own index.",
+      "id": "jp-7.20-0022",
+      "learningObjective": "trace per-row totals into an accumulator array",
+      "options": [
+        {
+          "id": "A",
+          "text": "[13, 8, 24]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[12, 2, 17]",
+          "misconception": "stops one cell short in every row"
+        },
+        {
+          "id": "C",
+          "text": "[45, 45, 45]",
+          "misconception": "puts the whole-grid sum in every slot"
+        },
+        {
+          "id": "D",
+          "text": "[24, 13, 8]",
+          "misconception": "reports the row totals in reverse order"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 58,
+        "p25Sec": 38,
+        "p75Sec": 92
+      },
+      "scope": "core-scope",
+      "stem": "A lab records the total of each row of a ragged grid:\nint[][] grid = {{4, 8, 1}, {2, 6}, {9, 3, 5, 7}};\nint[] rowSum = new int[grid.length];\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { rowSum[r] += grid[r][c]; } }\nSystem.out.println(Arrays.toString(rowSum));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "row-sums",
+        "loops"
+      ],
+      "topic": "row sums",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "explanation": "Seeding best with the smallest possible int means every real cell can beat it, so each slot ends up holding that row's own maximum: 9, 8, and 7. Seeding with the first cell of the row would give 5, 2, 7, and carrying the accumulator across the rows would report the running maximum 9 three times.",
+      "format": "CODE_TRACING",
+      "hint": "The seed is smaller than every value in the grid.",
+      "id": "jp-7.20-0023",
+      "learningObjective": "trace a per-row maximum that restarts each row",
+      "options": [
+        {
+          "id": "A",
+          "text": "[9, 8, 7]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[9, 9, 9]",
+          "misconception": "carries one accumulator across all the rows"
+        },
+        {
+          "id": "C",
+          "text": "[5, 2, 7]",
+          "misconception": "keeps the first cell of each row"
+        },
+        {
+          "id": "D",
+          "text": "[9, 3, 0]",
+          "misconception": "keeps the last cell of each row"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 40,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A scanner records the largest cell of each row:\nint[][] m = {{5, 1, 9}, {2, 8, 3}, {7, 0}};\nint[] rowMax = new int[m.length];\nfor (int r = 0; r < m.length; r++) { int best = Integer.MIN_VALUE; for (int c = 0; c < m[r].length; c++) { if (m[r][c] > best) { best = m[r][c]; } } rowMax[r] = best; }\nSystem.out.println(Arrays.toString(rowMax));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "row-maxima",
+        "accumulators"
+      ],
+      "topic": "row maxima",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.38,
+      "explanation": "carry is created once, so after row 0 it holds 5 and row 1 raises it to 9, at which point no later cell, including the 7 in row 2, can beat it. The value recorded for a row is therefore the largest cell seen up to that point, and only a per-row reset would report each row's own maximum.",
+      "format": "CODE_TRACING",
+      "hint": "The accumulator is not cleared between rows.",
+      "id": "jp-7.20-0024",
+      "learningObjective": "trace a maximum accumulator that is never reset",
+      "options": [
+        {
+          "id": "A",
+          "text": "[5, 9, 9]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[5, 9, 7]",
+          "misconception": "assumes the accumulator is cleared at the top of each row"
+        },
+        {
+          "id": "C",
+          "text": "[1, 2, 3]",
+          "misconception": "records the last cell compared instead of the largest"
+        },
+        {
+          "id": "D",
+          "text": "[9, 9, 9]",
+          "misconception": "assumes the accumulator starts at the largest value present"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 40,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "A routine reuses one accumulator across the rows without clearing it:\nint[][] n = {{5, 1}, {9, 2}, {7, 3}};\nint[] leaked = new int[n.length];\nint carry = 0;\nfor (int r = 0; r < n.length; r++) { for (int c = 0; c < n[r].length; c++) { if (n[r][c] > carry) { carry = n[r][c]; } } leaked[r] = carry; }\nSystem.out.println(Arrays.toString(leaked));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "accumulators",
+        "row-maxima"
+      ],
+      "topic": "accumulator carry-over",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.4,
+      "explanation": "The accumulator is sized from the widest row so column 3 has a slot to land in, and each row then contributes only the cells it actually has: 3+1+2, 1+5+6, 4+5, and 0. The whole-grid sum is 27, so a single shared total would give 27 rather than four separate column figures.",
+      "format": "CODE_TRACING",
+      "hint": "Slot c collects column c from whichever rows have one.",
+      "id": "jp-7.20-0025",
+      "learningObjective": "trace column totals across rows of unequal length",
+      "options": [
+        {
+          "id": "A",
+          "text": "[6, 12, 9, 0]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[27, 27, 27, 27]",
+          "misconception": "puts the whole-grid total into every column slot"
+        },
+        {
+          "id": "C",
+          "text": "[4, 6, 4, 0]",
+          "misconception": "stops after the first two rows of the grid"
+        },
+        {
+          "id": "D",
+          "text": "[8, 6, 13, 0]",
+          "misconception": "reports the row totals in the column slots"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.8-0047"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 46,
+        "p75Sec": 110
+      },
+      "scope": "core-scope",
+      "stem": "Column totals are collected from a ragged grid whose widest row has 4 cells:\nint[][] rag = {{3, 1, 4}, {1, 5}, {2, 6, 5, 0}};\nint widest = 0;\nfor (int r = 0; r < rag.length; r++) { if (rag[r].length > widest) { widest = rag[r].length; } }\nint[] colSum = new int[widest];\nfor (int r = 0; r < rag.length; r++) { for (int c = 0; c < rag[r].length; c++) { colSum[c] += rag[r][c]; } }\nSystem.out.println(Arrays.toString(colSum));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "column-sums",
+        "ragged"
+      ],
+      "topic": "column sums on ragged rows",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "explanation": "Writing t[c][r] = a[r][c] moves each cell across to the swapped index pair, so 1, 2, 3 down column 0 become row 0 of the result. The destination is allocated with the source's column count first, which is why a grid of 2 rows by 3 columns yields 3 rows of 2.",
+      "format": "CODE_TRACING",
+      "hint": "Follow where the value 1 lands.",
+      "id": "jp-7.20-0026",
+      "learningObjective": "trace a transpose of a rectangular grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "[[1, 4], [2, 5], [3, 6]]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[[1, 2, 3], [4, 5, 6]]",
+          "misconception": "writes to the same index pair and changes nothing"
+        },
+        {
+          "id": "C",
+          "text": "[[1, 2], [3, 4], [5, 6]]",
+          "misconception": "refills rows in order without moving any cell"
+        },
+        {
+          "id": "D",
+          "text": "[[4, 1], [5, 2], [6, 3]]",
+          "misconception": "reverses the source rows instead of transposing"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A 2-by-3 grid is transposed:\nint[][] a = {{1, 2, 3}, {4, 5, 6}};\nint[][] t = new int[a[0].length][a.length];\nfor (int r = 0; r < a.length; r++) { for (int c = 0; c < a[r].length; c++) { t[c][r] = a[r][c]; } }\nSystem.out.println(Arrays.deepToString(t));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "loops"
+      ],
+      "topic": "transposition",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.37,
+      "explanation": "Row 0 of the source contributes three cells and row 1 contributes two, so the third destination row receives a single real value and keeps the zero it was allocated with. A transpose trades row and column positions rather than reordering the source rows, which is why source row 1 turns up as the second column.",
+      "format": "CODE_TRACING",
+      "hint": "One source cell is missing from the third row.",
+      "id": "jp-7.20-0027",
+      "learningObjective": "trace a transpose whose source rows differ in length",
+      "options": [
+        {
+          "id": "A",
+          "text": "[[1, 4], [2, 5], [3, 0]]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[[1, 2, 3], [4, 5, 0]]",
+          "misconception": "keeps the source row widths instead of swapping"
+        },
+        {
+          "id": "C",
+          "text": "[[1, 4], [2, 5]]",
+          "misconception": "leaves out the destination row that has no source cells"
+        },
+        {
+          "id": "D",
+          "text": "[[4, 5, 0], [1, 2, 3]]",
+          "misconception": "swaps the two rows without moving any cell"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0083"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 75,
+        "p25Sec": 50,
+        "p75Sec": 115
+      },
+      "scope": "core-scope",
+      "stem": "A ragged grid is transposed into a destination sized by its widest row:\nint[][] src = {{1, 2, 3}, {4, 5}};\nint wide = 0;\nfor (int r = 0; r < src.length; r++) { if (src[r].length > wide) { wide = src[r].length; } }\nint[][] rt = new int[wide][src.length];\nfor (int r = 0; r < src.length; r++) { for (int c = 0; c < src[r].length; c++) { rt[c][r] = src[r][c]; } }\nSystem.out.println(Arrays.deepToString(rt));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "ragged"
+      ],
+      "topic": "transposition of ragged rows",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.68,
+      "discrimination": 0.35,
+      "explanation": "The first lap takes 1 2 3 4 across the top, 8 and 12 down the right edge, then 11 10 9 back along the bottom, and 5 up the left, which leaves only 6 and 7 in the middle row. Those two are the last cells appended, so the walk ends with 6 7 rather than restarting at the top.",
+      "format": "CODE_TRACING",
+      "hint": "Trace the first lap, then see what is left inside.",
+      "id": "jp-7.20-0028",
+      "learningObjective": "trace a spiral walk over a rectangular grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 2 3 4 8 12 11 10 9 5 6 7",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1 2 3 4 5 6 7 8 9 10 11 12",
+          "misconception": "reads the grid row by row instead of spiralling"
+        },
+        {
+          "id": "C",
+          "text": "1 2 3 4 8 12 7 6 5 9 10 11",
+          "misconception": "reads the bottom row left to right"
+        },
+        {
+          "id": "D",
+          "text": "1 2 3 4 8 12 11 10 9 5",
+          "misconception": "stops before the inner row is appended"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0025"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 90,
+        "p25Sec": 62,
+        "p75Sec": 140
+      },
+      "scope": "core-scope",
+      "stem": "A 3-by-4 grid is walked in a spiral: the top row, the right column, the bottom row, and the left column are appended, then the loop repeats on the remainder.\nint[][] s = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}};\nIn what order are the values appended?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "traversal",
+        "spiral"
+      ],
+      "topic": "spiral traversal",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "explanation": "On the main diagonal the row index and the column index are the same number, so only the k values where both indexes exist can be read, and with two rows that limits the array to two entries: 1 and 6. Sizing the array from the longer side instead would ask row 2 for cells the grid never had.",
+      "format": "CODE_TRACING",
+      "hint": "A diagonal cell needs both indexes to be valid.",
+      "id": "jp-7.20-0029",
+      "learningObjective": "extract the main diagonal of a non-square grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 6]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 5]",
+          "misconception": "reads the first column instead of the diagonal"
+        },
+        {
+          "id": "C",
+          "text": "[1, 2, 3, 4]",
+          "misconception": "reads the whole first row of the grid"
+        },
+        {
+          "id": "D",
+          "text": "[4, 8]",
+          "misconception": "reads the last column of the grid"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0026"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 45,
+        "p25Sec": 28,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "The main diagonal is collected from a 2-by-4 grid:\nint[][] h = {{1, 2, 3, 4}, {5, 6, 7, 8}};\nint[] diag = new int[Math.min(h.length, h[0].length)];\nfor (int k = 0; k < diag.length; k++) { diag[k] = h[k][k]; }\nSystem.out.println(Arrays.toString(diag));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "diagonals",
+        "traversal"
+      ],
+      "topic": "diagonal extraction",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "explanation": "From row 0 the offset {-1, 0} lands on row -1, which the guard rejects, so only three offsets are in play: below is 1, left is 1, and right is 0, giving 2. Adding a {0, 0} entry to the table would also count the cell itself and report 3, which is the classic way a neighbour table goes wrong.",
+      "format": "CODE_TRACING",
+      "hint": "One offset points off the top of the board.",
+      "id": "jp-7.20-0030",
+      "learningObjective": "count side-sharing neighbours of an edge cell",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3",
+          "misconception": "counts the cell itself as one of its neighbours"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "misses the live cell directly below the target"
+        },
+        {
+          "id": "D",
+          "text": "4",
+          "misconception": "treats an edge cell as if it were in the interior"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0027"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A board is scanned for side-sharing neighbours using the four offsets {-1, 0}, {1, 0}, {0, -1}, {0, 1}. The board holds\n1 1 1 0 0\n1 0 1 0 1\n0 1 1 1 0\n0 0 1 0 0\n1 1 0 1 1\nHow many live cells are found for the cell at row 0, column 2?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "neighbours",
+        "bounds"
+      ],
+      "topic": "neighbour offsets",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.54,
+      "discrimination": 0.41,
+      "explanation": "Dividing the flat index by the width gives the row and the remainder gives the column, so index 4 is row 1 column 1 and the values land in reading order. Using the remainder for the row instead transposes the result, and a width that does not divide the length leaves a partial final row that must be padded or dropped.",
+      "format": "CODE_TRACING",
+      "hint": "Integer division counts whole rows.",
+      "id": "jp-7.20-0031",
+      "learningObjective": "rebuild a grid from a flat buffer using a width",
+      "options": [
+        {
+          "id": "A",
+          "text": "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[[1, 4, 7], [2, 5, 8], [3, 6, 9]]",
+          "misconception": "uses the remainder for the row and transposes"
+        },
+        {
+          "id": "C",
+          "text": "[[1, 2, 3, 4], [5, 6, 7, 8], [9, 0, 0, 0]]",
+          "misconception": "uses a width of 4 and pads the last row"
+        },
+        {
+          "id": "D",
+          "text": "[[1, 2, 3], [4, 5, 6], [7, 8, 0]]",
+          "misconception": "stops one value short of the end of the buffer"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.2-0012"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 40,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "A flat row of nine values is rebuilt into a 3-by-3 grid using a width of 3:\nint[] flat = {1, 2, 3, 4, 5, 6, 7, 8, 9};\nint w = 3;\nint[][] out = new int[flat.length / w][w];\nfor (int i = 0; i < flat.length; i++) { out[i / w][i % w] = flat[i]; }\nSystem.out.println(Arrays.deepToString(out));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "flattening",
+        "indexing"
+      ],
+      "topic": "unflattening with a width",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.43,
+      "explanation": "Writing row[0] inside bumpRow changes the array the caller's slot names, so 1 becomes 101. Assigning a brand new array to the parameter in doubleRow only repoints the method's own local name, so the zeros never leave the method and the caller's row 1 keeps 4, 5, 6.",
+      "format": "CODE_TRACING",
+      "hint": "One helper writes a cell, the other replaces its own name.",
+      "id": "jp-7.20-0032",
+      "learningObjective": "trace a call that writes then rebinds a row",
+      "options": [
+        {
+          "id": "A",
+          "text": "[[101, 2, 3], [4, 5, 6]]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[[101, 2, 3], [0, 0, 0]]",
+          "misconception": "thinks the new array reached the caller's row"
+        },
+        {
+          "id": "C",
+          "text": "[[1, 2, 3], [0, 0, 0]]",
+          "misconception": "thinks the element write was lost and only the rebind counted"
+        },
+        {
+          "id": "D",
+          "text": "[[101, 2, 3], [4, 105, 106]]",
+          "misconception": "thinks the row was doubled in place"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 45,
+        "p75Sec": 110
+      },
+      "scope": "core-scope",
+      "stem": "Two helpers are called in sequence:\nstatic void bumpRow(int[] row) { row[0] = row[0] + 100; }\nstatic void doubleRow(int[] row) { row = new int[] {0, 0, 0}; }\nint[][] g = {{1, 2, 3}, {4, 5, 6}};\nbumpRow(g[0]);\ndoubleRow(g[1]);\nSystem.out.println(Arrays.deepToString(g));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "methods",
+        "references"
+      ],
+      "topic": "row passed to a method",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.36,
+      "explanation": "arraycopy behaves as if it saved the three source values before writing, so 1, 2, 3 land at positions 1, 2, and 3 while position 0 keeps its original 1. A hand-written loop that copies forward would instead overwrite each value before reading it and collapse the row to all ones.",
+      "format": "CODE_TRACING",
+      "hint": "The library call is specified to survive overlap.",
+      "id": "jp-7.20-0033",
+      "learningObjective": "trace an overlapping arraycopy inside one row",
+      "options": [
+        {
+          "id": "A",
+          "text": "[1, 1, 2, 3]",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[1, 2, 3, 4]",
+          "misconception": "believes an overlapping shift changes nothing"
+        },
+        {
+          "id": "C",
+          "text": "[1, 1, 1, 1]",
+          "misconception": "implements the shift as a forward element-by-element loop"
+        },
+        {
+          "id": "D",
+          "text": "[2, 3, 4, 4]",
+          "misconception": "reads the arguments as copying toward lower indexes"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 90
+      },
+      "scope": "core-scope",
+      "stem": "A row is shifted one place to the right in place:\nint[] row = {1, 2, 3, 4};\nSystem.arraycopy(row, 0, row, 1, 3);\nSystem.out.println(Arrays.toString(row));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "arrays-util",
+        "arraycopy"
+      ],
+      "topic": "in-place row shift",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "explanation": "Column 1 holds three 1s and the main diagonal reads 1, 1, 1, so there are two winning lines. No row is all 1s and the anti-diagonal reads 0, 1, 0, which is why scanning only rows and columns would find only one of the pair and counting diagonals carelessly would find a third.",
+      "format": "CODE_TRACING",
+      "hint": "Check the single column and the two diagonals by hand.",
+      "id": "jp-7.20-0034",
+      "learningObjective": "count winning rows, columns, and diagonals",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "misconception": "checks only the rows and the columns"
+        },
+        {
+          "id": "C",
+          "text": "3",
+          "misconception": "counts the anti-diagonal as a third line"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "ignores the diagonals in both directions"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0028"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0061"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A win is any row, column, or diagonal of three cells that all hold the marker, and this routine counts them:\nint[][] tic = {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}};\nint marker = 1;\nint wins = 0;\nfor (int r = 0; r < 3; r++) { boolean full = true; for (int c = 0; c < 3; c++) { if (tic[r][c] != marker) { full = false; } } if (full) { wins++; } }\nfor (int c = 0; c < 3; c++) { boolean full = true; for (int r = 0; r < 3; r++) { if (tic[r][c] != marker) { full = false; } } if (full) { wins++; } }\nboolean main = true;\nboolean anti = true;\nfor (int k = 0; k < 3; k++) { if (tic[k][k] != marker) { main = false; } if (tic[k][2 - k] != marker) { anti = false; } }\nif (main) { wins++; }\nif (anti) { wins++; }\nSystem.out.println(wins);\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "win-detection",
+        "loops"
+      ],
+      "topic": "win-line detection",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "explanation": "clone allocates a new outer array and copies the references inside it, so snapshot[0] and grid[0] are the same int[] and the write is visible in both. A genuine snapshot needs one clone per row, so that each row of the copy is an array of its own.",
+      "format": "BUG_SPOTTING",
+      "hint": "Count how many row objects exist after the clone.",
+      "id": "jp-7.20-0035",
+      "learningObjective": "identify why a cloned grid is not a snapshot",
+      "options": [
+        {
+          "id": "A",
+          "text": "clone copies row references, so both grids share the same rows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "clone cannot be applied to an array of arrays at all",
+          "misconception": "believes nested arrays cannot be cloned in Java"
+        },
+        {
+          "id": "C",
+          "text": "The write to index 0, 0 is past the end of the first row",
+          "misconception": "thinks a two-cell row has no index 0"
+        },
+        {
+          "id": "D",
+          "text": "The snapshot needs one more dimension to hold a grid",
+          "misconception": "believes a snapshot requires an extra bracket level"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0027"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A snapshot is meant to preserve a grid before a scoring pass, but later edits turn up inside the snapshot:\nint[][] grid = {{1, 2}, {3, 4}};\nint[][] snapshot = grid.clone();\nsnapshot[0][0] = 99;\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "clone"
+      ],
+      "topic": "shallow clone defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "explanation": "Assigning a new array to row only repoints the method's own name; the caller's slot keeps naming the row it had, so nothing outside the method changes. Writing into the elements of the row it was given, or returning the new array for the caller to store, would both reach the caller.",
+      "format": "BUG_SPOTTING",
+      "hint": "Nothing in the method touches an element of the row.",
+      "id": "jp-7.20-0036",
+      "learningObjective": "find why a helper cannot blank a caller's row",
+      "options": [
+        {
+          "id": "A",
+          "text": "The method rebinds its parameter instead of writing into the row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The method is missing a return statement for the new array",
+          "misconception": "believes an in-place method must hand a value back"
+        },
+        {
+          "id": "C",
+          "text": "The caller passed a row where the method needed the grid",
+          "misconception": "insists the argument type is wrong when the row fits"
+        },
+        {
+          "id": "D",
+          "text": "A rectangular grid cannot be routed to a single row",
+          "misconception": "thinks the shape of the grid blocks a one-row call"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 65,
+        "p25Sec": 42,
+        "p75Sec": 100
+      },
+      "scope": "core-scope",
+      "stem": "A helper is meant to blank a row of the caller's grid, yet the row is unchanged:\nstatic void blank(int[] row) { row = new int[] {0, 0, 0}; }\nint[][] grid = {{1, 2, 3}, {4, 5, 6}};\nblank(grid[1]);\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "parameters"
+      ],
+      "topic": "parameter rebinding defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "explanation": "The one-argument equals on an int[][] stops at the outer level and compares the row references, which differ for two separately built grids, so it reports false where the contents match. deepEquals descends into each row and compares the ints, which is the comparison this check actually wants.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask how deep the comparison goes.",
+      "id": "jp-7.20-0037",
+      "learningObjective": "find the comparison that misses equal nested content",
+      "options": [
+        {
+          "id": "A",
+          "text": "equals compares row references, so the deep form is required",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "equals cannot accept a two-dimensional array as an argument",
+          "misconception": "believes the method rejects nested arrays"
+        },
+        {
+          "id": "C",
+          "text": "The two literals must be compared with the == operator",
+          "misconception": "switches to reference equality as the remedy"
+        },
+        {
+          "id": "D",
+          "text": "A hash code must be computed before equals compares contents",
+          "misconception": "believes a hash has to be computed beforehand"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 32,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A duplicate check reports two identical grids as different:\nint[][] a = {{1, 2}, {3, 4}};\nint[][] b = {{1, 2}, {3, 4}};\nboolean same = Arrays.equals(a, b);\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "arrays-util"
+      ],
+      "topic": "nested equality defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.38,
+      "explanation": "int[][] is an array of int[] references, so filling it with a boxed Integer compiles by way of the object overload but fails at run time when the store is attempted. Filling one row at a time with fill(grid[r], 0) is what actually writes zeros into the stored cells.",
+      "format": "BUG_SPOTTING",
+      "hint": "What type does each slot of the outer array hold?",
+      "id": "jp-7.20-0038",
+      "learningObjective": "find why filling an outer grid throws at run time",
+      "options": [
+        {
+          "id": "A",
+          "text": "The outer grid holds int[] rows, so an Integer cannot be stored",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "fill only works on flat arrays and rejects nesting",
+          "misconception": "believes the method refuses any nested array"
+        },
+        {
+          "id": "C",
+          "text": "The literal 0 is a double and does not match the cells",
+          "misconception": "misreads the type of the literal as the cause"
+        },
+        {
+          "id": "D",
+          "text": "The value 0 lies outside the range of a two-cell row",
+          "misconception": "confuses array indexing with a range check"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 75,
+        "p25Sec": 50,
+        "p75Sec": 115
+      },
+      "scope": "core-scope",
+      "stem": "A routine dies with java.lang.ArrayStoreException: java.lang.Integer on the line after this one:\nint[][] grid = {{1, 2}, {3, 4}};\nArrays.fill(grid, 0);\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "arrays-util"
+      ],
+      "topic": "fill on a whole grid",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.44,
+      "explanation": "grid[0].length is 3, so the second row is asked for column 2, which it does not have, and the read throws ArrayIndexOutOfBoundsException. The inner bound has to come from the row being visited, written grid[r].length, so each row is walked only as far as it actually goes.",
+      "format": "BUG_SPOTTING",
+      "hint": "Which row does the inner bound describe?",
+      "id": "jp-7.20-0039",
+      "learningObjective": "find the loop bound that overruns a short row",
+      "options": [
+        {
+          "id": "A",
+          "text": "The inner bound reads the first row's length, so short rows overrun",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The outer bound should use grid[0].length as well",
+          "misconception": "blames the row count instead of the column count"
+        },
+        {
+          "id": "C",
+          "text": "Ragged rows cannot be counted by any nested loop",
+          "misconception": "believes uneven rows defeat nested iteration"
+        },
+        {
+          "id": "D",
+          "text": "The counter must be cleared inside the inner loop",
+          "misconception": "blames accumulator scope for an index failure"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.2-0009"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A cell counter dies on the second row of a ragged grid:\nint[][] grid = {{1, 2, 3}, {4, 5}};\nint n = 0;\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[0].length; c++) { n += grid[r][c]; } }\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "ragged"
+      ],
+      "topic": "ragged loop bound defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "explanation": "A transpose has one row per source column, so the destination must be allocated as new int[grid[0].length][grid.length]. With only two destination rows the write for column 2 has nowhere to go and the store throws ArrayIndexOutOfBoundsException.",
+      "format": "BUG_SPOTTING",
+      "hint": "How many columns does the source have?",
+      "id": "jp-7.20-0040",
+      "learningObjective": "find the destination size that overruns a transpose",
+      "options": [
+        {
+          "id": "A",
+          "text": "The destination needs the source's column count as its row count",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The destination must reuse the source array in place",
+          "misconception": "believes a transpose has to be done in place"
+        },
+        {
+          "id": "C",
+          "text": "The assignment t[r][c] = grid[r][c] would avoid the crash",
+          "misconception": "suggests dropping the swap that defines a transpose"
+        },
+        {
+          "id": "D",
+          "text": "The outer loop must run over grid[0].length instead",
+          "misconception": "moves the fault onto the outer loop bound"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A transpose of a 2-by-3 grid dies with an index error:\nint[][] grid = {{1, 2, 3}, {4, 5, 6}};\nint[][] t = new int[grid.length][grid.length];\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { t[c][r] = grid[r][c]; } }\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "transposition"
+      ],
+      "topic": "transpose allocation defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.4,
+      "explanation": "From row 0 the offset {-1, 0} gives nr = -1, and a guard that checks only the upper bound lets that through to the read, which throws ArrayIndexOutOfBoundsException. Both indexes need a lower bound as well as an upper one before the neighbouring cell is touched.",
+      "format": "BUG_SPOTTING",
+      "hint": "One of the four offsets points off the board.",
+      "id": "jp-7.20-0041",
+      "learningObjective": "find the missing bound in a neighbour guard",
+      "options": [
+        {
+          "id": "A",
+          "text": "The guard tests the upper bound but never checks that nr is 0 or more",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The offsets must be declared as int[][] rather than int[]",
+          "misconception": "blames the declared type of the offset table"
+        },
+        {
+          "id": "C",
+          "text": "The cell should be addressed as board[1][0] to stay in bounds",
+          "misconception": "moves the fault onto the cell being inspected"
+        },
+        {
+          "id": "D",
+          "text": "The loop should skip offsets whose column is negative",
+          "misconception": "restricts the repair to one axis of the guard"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0027"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 45,
+        "p75Sec": 108
+      },
+      "scope": "core-scope",
+      "stem": "Counting neighbours of a cell on the top row dies with a negative index error:\nint[][] board = {{1, 1, 1}, {0, 0, 0}, {0, 0, 0}};\nint[][] four = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};\nint count = 0;\nfor (int[] d : four) { int nr = 0 + d[0]; int nc = 1 + d[1]; if (nr < board.length && nc >= 0 && nc < board[0].length && board[nr][nc] == 1) { count++; } }\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "neighbours"
+      ],
+      "topic": "neighbour guard defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "explanation": "grid[0].length is 2, so the buffer holds 4 cells, but the grid actually holds 5 and the fifth write lands past the end. Measuring the widest row first and allocating rows times widest is what makes the buffer large enough for every cell that exists.",
+      "format": "BUG_SPOTTING",
+      "hint": "Two rows, but they are not the same length.",
+      "id": "jp-7.20-0042",
+      "learningObjective": "find the buffer size that overruns a flatten",
+      "options": [
+        {
+          "id": "A",
+          "text": "The buffer is sized from the first row instead of the widest row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The buffer must be sized from the grid's total cell count",
+          "misconception": "picks a size that still undercounts this grid"
+        },
+        {
+          "id": "C",
+          "text": "The index k must restart at 0 for every row",
+          "misconception": "blames index scope instead of the buffer size"
+        },
+        {
+          "id": "D",
+          "text": "The copy must stop at the shortest row's length",
+          "misconception": "truncates the data instead of fixing the size"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "Flattening a ragged grid dies on its last row:\nint[][] grid = {{1, 2}, {3, 4, 5}};\nint[] flat = new int[grid.length * grid[0].length];\nint k = 0;\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { flat[k++] = grid[r][c]; } }\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "flattening"
+      ],
+      "topic": "flatten buffer defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "explanation": "Filling the outer array stores the same reference in all three slots, so grid[0], grid[1], and grid[2] are one array seen three ways, and the write to index 0, 0 shows up in every row. Genuinely independent rows require one allocation per row, which is what new int[3][2] alone would have given.",
+      "format": "BUG_SPOTTING",
+      "hint": "How many row objects exist after the fill?",
+      "id": "jp-7.20-0043",
+      "learningObjective": "explain why every row changes after a shared fill",
+      "options": [
+        {
+          "id": "A",
+          "text": "[[5, 9], [5, 9], [5, 9]], because all three slots name one row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "[[5, 9], [0, 0], [0, 0]], because fill allocated a row per slot",
+          "misconception": "believes fill duplicates the row for every slot"
+        },
+        {
+          "id": "C",
+          "text": "[[5, 9], [5, 9], [9, 9]], because only two rows were filled",
+          "misconception": "thinks the fill stopped once the rows ran out"
+        },
+        {
+          "id": "D",
+          "text": "[[0, 0], [0, 0], [0, 0]], because a shared row absorbs writes",
+          "misconception": "believes a shared row stays zeroed after a write"
+        }
+      ],
+      "practice": "code tracing",
+      "prerequisiteQuestionIds": [
+        "jp-7.1-0001"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0026"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 40,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "Writing a single cell changes every row of a freshly built grid:\nint[][] grid = new int[3][2];\nint[] shared = {9, 9};\nArrays.fill(grid, shared);\ngrid[0][0] = 5;\nSystem.out.println(Arrays.deepToString(grid));\nWhat is printed?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "aliasing"
+      ],
+      "topic": "shared row fill defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.41,
+      "explanation": "a has 2 rows and 3 columns, so b[c][r] asks for row 2 of b on the last pass and the read runs past the end. Addition pairs cell for cell in the same position, so both operands are indexed identically and the two shapes have to match before the loop starts.",
+      "format": "BUG_SPOTTING",
+      "hint": "How many rows does b actually have?",
+      "id": "jp-7.20-0044",
+      "learningObjective": "find the operand index that overruns an addition",
+      "options": [
+        {
+          "id": "A",
+          "text": "b is indexed as though transposed, so column 2 has no matching row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The result must be written into the first operand in place",
+          "misconception": "blames the destination instead of the operand"
+        },
+        {
+          "id": "C",
+          "text": "Matrix addition is only defined for square matrices",
+          "misconception": "believes addition needs equal height and width"
+        },
+        {
+          "id": "D",
+          "text": "The inner bound should come from b[r].length instead",
+          "misconception": "shifts the fault onto the loop bound"
+        }
+      ],
+      "practice": "debugging",
+      "prerequisiteQuestionIds": [
+        "jp-7.6-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.6-0002"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 65,
+        "p25Sec": 42,
+        "p75Sec": 100
+      },
+      "scope": "core-scope",
+      "stem": "Adding two 2-by-3 grids dies because the second operand is read with its indexes swapped:\nint[][] a = {{1, 2, 3}, {4, 5, 6}};\nint[][] b = {{1, 2, 3}, {4, 5, 6}};\nint[][] sum = new int[a.length][a[0].length];\nfor (int r = 0; r < a.length; r++) { for (int c = 0; c < a[r].length; c++) { sum[r][c] = a[r][c] + b[c][r]; } }\nWhich statement identifies the fault?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "debugging",
+        "matrices"
+      ],
+      "topic": "matrix addition defect",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.43,
+      "explanation": "The width has to be the largest row length seen so far, so each row is compared with the running value and replaces it when it is longer, ending at 4. Reading row 0 alone gives 2, keeping the last row's length gives 4 by luck on this grid but 2 whenever the widest row is not last, and the row count 3 is not a width at all.",
+      "format": "CODE_COMPLETION",
+      "hint": "Only a running maximum finds the widest row.",
+      "id": "jp-7.20-0045",
+      "learningObjective": "complete a pass that measures the widest row",
+      "options": [
+        {
+          "id": "A",
+          "text": "if (grid[r].length > w) { w = grid[r].length; }",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "w = grid[0].length;",
+          "misconception": "reads the width from the first row only"
+        },
+        {
+          "id": "C",
+          "text": "w = grid.length;",
+          "misconception": "confuses the row count with the column width"
+        },
+        {
+          "id": "D",
+          "text": "w = grid[r].length;",
+          "misconception": "keeps the width of whichever row came last"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A flatten routine must learn the width of a ragged grid before it can allocate a buffer:\nint[][] grid = {{1, 2}, {3, 4, 5}, {6, 7, 8, 9}};\nint w = 0;\nfor (int r = 0; r < grid.length; r++) { ____; }\nWhich statement belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "flattening"
+      ],
+      "topic": "widest row discovery",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "explanation": "The destination needs one row per source column, and on a rectangular grid every row agrees on the column count, so grid[0].length supplies 3 and the result has 3 rows of 2. Sizing by the row count leaves the third column with nowhere to go, and a stored value is a number in a cell rather than a dimension.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask how many destination rows the swapped write needs.",
+      "id": "jp-7.20-0046",
+      "learningObjective": "complete the destination size of a transpose",
+      "options": [
+        {
+          "id": "A",
+          "text": "grid[0].length",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "grid.length",
+          "misconception": "sizes the destination by the row count"
+        },
+        {
+          "id": "C",
+          "text": "grid[0][0]",
+          "misconception": "uses a stored value as though it were a count"
+        },
+        {
+          "id": "D",
+          "text": "grid.length + grid[0].length",
+          "misconception": "adds the two dimensions together"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0081"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 30,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "A rectangular grid is transposed into a fresh array:\nint[][] grid = {{1, 2, 3}, {4, 5, 6}};\nint[][] t = new int[____][grid.length];\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { t[c][r] = grid[r][c]; } }\nWhich expression belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "transposition",
+        "allocation"
+      ],
+      "topic": "transpose allocation",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "explanation": "Every column index that occurs needs a slot, and the widest row is the one that uses the largest index, so widest gives 4 and the totals come out 10, 13, 13, 9. Row 0 holds only 2 cells here, so sizing from it would leave column 2 with nowhere to go, and one extra slot would report a column that no row ever fills.",
+      "format": "CODE_COMPLETION",
+      "hint": "Size it for the largest column index in use.",
+      "id": "jp-7.20-0047",
+      "learningObjective": "complete the size of a column accumulator",
+      "options": [
+        {
+          "id": "A",
+          "text": "widest",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "grid[0].length",
+          "misconception": "sizes the accumulator from the narrowest first row"
+        },
+        {
+          "id": "C",
+          "text": "grid.length",
+          "misconception": "confuses the row count with the column count"
+        },
+        {
+          "id": "D",
+          "text": "widest + 1",
+          "misconception": "pads the accumulator by one as if for a sentinel"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.8-0048"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "Column totals are collected from a grid whose rows hold 2, 3, and 4 cells, and the widest row's length is already in the variable widest:\nint[][] grid = {{1, 2}, {3, 4, 5}, {6, 7, 8, 9}};\nint[] colSum = new int[____];\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { colSum[c] += grid[r][c]; } }\nWhich expression belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "column-sums",
+        "ragged"
+      ],
+      "topic": "column accumulator size",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "explanation": "The accumulator must start below every value a row can hold, and Integer.MIN_VALUE is the smallest int, so the all-negative first row still reports -2. Starting at 0 leaves that row reported as 0, and starting at the largest int reports it unchanged, because no stored value can beat either seed; a dimension is not a candidate value at all.",
+      "format": "CODE_COMPLETION",
+      "hint": "The first row contains no positive numbers.",
+      "id": "jp-7.20-0048",
+      "learningObjective": "choose a seed that survives all-negative rows",
+      "options": [
+        {
+          "id": "A",
+          "text": "Integer.MIN_VALUE",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Integer.MAX_VALUE",
+          "misconception": "starts the search at the top of the int range"
+        },
+        {
+          "id": "C",
+          "text": "readings[0].length",
+          "misconception": "seeds the accumulator with a column count"
+        },
+        {
+          "id": "D",
+          "text": "readings.length",
+          "misconception": "seeds the accumulator with a row count"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.8-0046"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "Row maxima are recorded for a grid that includes negative readings:\nint[][] readings = {{-5, -2, -9}, {3, -8}};\nint[] rowMax = new int[readings.length];\nfor (int r = 0; r < readings.length; r++) { int best = ____; for (int c = 0; c < readings[r].length; c++) { if (readings[r][c] > best) { best = readings[r][c]; } } rowMax[r] = best; }\nWhich initial value belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "row-maxima",
+        "accumulators"
+      ],
+      "topic": "accumulator seed value",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.58,
+      "discrimination": 0.39,
+      "explanation": "An offset moves both indexes at once, so each one needs a lower and an upper test before the cell is read, and only then is the value comparison safe. The full guard reports 1 here, while dropping either pair of bounds lets a negative or oversized index reach the read and throw instead of being skipped.",
+      "format": "CODE_COMPLETION",
+      "hint": "Both indexes move, so both need both bounds.",
+      "id": "jp-7.20-0049",
+      "learningObjective": "complete a bounds guard for a neighbour offset",
+      "options": [
+        {
+          "id": "A",
+          "text": "nr >= 0 && nr < board.length && nc >= 0 && nc < board[0].length && board[nr][nc] == 1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "nr < board.length && nc >= 0 && nc < board[0].length && board[nr][nc] == 1",
+          "misconception": "checks the upper row bound but not the lower one"
+        },
+        {
+          "id": "C",
+          "text": "nr >= 0 && nc >= 0 && board[nr][nc] == 1",
+          "misconception": "checks the lower bounds but not the upper ones"
+        },
+        {
+          "id": "D",
+          "text": "nr + nc >= 0 && nr < board.length && nc < board[0].length && board[nr][nc] == 1",
+          "misconception": "sums the indexes instead of bounding each one"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0027"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 75,
+        "p25Sec": 50,
+        "p75Sec": 115
+      },
+      "scope": "core-scope",
+      "stem": "Neighbours are counted for the cell at row 0, column 1 of a board, using the offsets in the table four:\nint[][] board = {{1, 1, 0}, {0, 0, 0}, {0, 0, 1}};\nint[][] four = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};\nint count = 0;\nfor (int[] d : four) { int nr = 0 + d[0]; int nc = 1 + d[1]; if (____) { count++; } }\nWhich condition belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "neighbours",
+        "bounds"
+      ],
+      "topic": "neighbour guard expression",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "explanation": "Row r begins at offset r * w in the buffer, so the cell at column c belongs at r * w + c, which with w = 4 fills 1, 2, then 3, 4, 5, then 6, 7, 8, 9 and leaves the unused slots as zeros. Using each row's own length as the stride overlaps the rows, and adding the indexes with no multiplier at all collides cells and can run past the end.",
+      "format": "CODE_COMPLETION",
+      "hint": "Skip whole rows, then step across the row.",
+      "id": "jp-7.20-0050",
+      "learningObjective": "complete the buffer index used when flattening",
+      "options": [
+        {
+          "id": "A",
+          "text": "r * w + c",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "r * grid[r].length + c",
+          "misconception": "uses each row's own length as the stride"
+        },
+        {
+          "id": "C",
+          "text": "c * grid.length + r",
+          "misconception": "lays the grid out column by column"
+        },
+        {
+          "id": "D",
+          "text": "r + c * w",
+          "misconception": "adds the indexes without a stride multiplier"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.2-0012"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 45,
+        "p75Sec": 108
+      },
+      "scope": "core-scope",
+      "stem": "A ragged grid is copied into a flat buffer whose row stride is the grid's width w, measured beforehand:\nint[][] grid = {{1, 2}, {3, 4, 5}, {6, 7, 8, 9}};\nint[] flat = new int[grid.length * w];\nfor (int r = 0; r < grid.length; r++) { for (int c = 0; c < grid[r].length; c++) { flat[____] = grid[r][c]; } }\nWhich index belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "flattening",
+        "indexing"
+      ],
+      "topic": "flatten index arithmetic",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "explanation": "The row index is how many whole widths fit inside the flat index, which is integer division by w, while the remainder gives the column. With w = 4 that places 1 to 4 in row 0, 5 to 8 in row 1, and 9 to 12 in row 2, whereas dividing by the total length would make every index zero and pile all twelve values into the first row.",
+      "format": "CODE_COMPLETION",
+      "hint": "Count the whole rows that fit before this value.",
+      "id": "jp-7.20-0051",
+      "learningObjective": "complete the row index used when rebuilding a grid",
+      "options": [
+        {
+          "id": "A",
+          "text": "i / w",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "i % w",
+          "misconception": "uses the remainder for the row and transposes"
+        },
+        {
+          "id": "C",
+          "text": "i / flat.length",
+          "misconception": "divides by the total length instead of the width"
+        },
+        {
+          "id": "D",
+          "text": "i / 3",
+          "misconception": "hard-codes a divisor that does not match the width"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.2-0012"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 62,
+        "p25Sec": 40,
+        "p75Sec": 98
+      },
+      "scope": "core-scope",
+      "stem": "A flat buffer of twelve values is rebuilt into rows of width w = 4:\nint[] flat = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};\nint w = 4;\nint[][] out = new int[flat.length / w][w];\nfor (int i = 0; i < flat.length; i++) { out[____][i % w] = flat[i]; }\nWhich index belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "flattening",
+        "indexing"
+      ],
+      "topic": "unflatten index arithmetic",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.44,
+      "explanation": "Rectangularity is a claim about widths, so each row's length is compared with the first row's length and any difference means the grid is ragged. Comparing references can never report a difference, because index 0 always equals itself, and testing only for longer rows misses a grid whose first row happens to be the widest.",
+      "format": "CODE_COMPLETION",
+      "hint": "The property being tested is a length, not an object.",
+      "id": "jp-7.20-0052",
+      "learningObjective": "complete a test for equal row lengths",
+      "options": [
+        {
+          "id": "A",
+          "text": "grid[r].length != grid[0].length",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "grid[r] == grid[0]",
+          "misconception": "compares row references instead of row lengths"
+        },
+        {
+          "id": "C",
+          "text": "grid[r].length > grid[0].length",
+          "misconception": "misses rows that are shorter than the first"
+        },
+        {
+          "id": "D",
+          "text": "grid.length != grid[0].length",
+          "misconception": "compares the row count against a row length"
+        }
+      ],
+      "practice": "code writing",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.7-0013"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 65,
+        "p25Sec": 42,
+        "p75Sec": 100
+      },
+      "scope": "core-scope",
+      "stem": "A method must reject any grid whose rows are not all the same length:\nstatic boolean uneven(int[][] grid) { for (int r = 0; r < grid.length; r++) { if (____) { return true; } } return false; }\nWhich condition belongs in the blank?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "validation"
+      ],
+      "topic": "rectangularity check",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 8
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.35,
+      "discrimination": 0.42,
+      "explanation": "The counter adds the row lengths rather than the values inside them, so 2 + 5 + 1 = 8. Multiplying the row count by the widest row would give 15, which counts padding slots that were never stored, and the outer length on its own gives 3.",
+      "format": "NUMERIC",
+      "hint": "Add the three row lengths.",
+      "id": "jp-7.20-0053",
+      "learningObjective": "count the cells of a ragged grid",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 24,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A grid holds rows of 2, 5, and 1 cells. A routine adds each row's length to a counter, once per row. What integer does the counter reach?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "ragged",
+        "counting"
+      ],
+      "topic": "ragged cell counts",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 10
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "explanation": "Checking right and below visits each side-sharing pair exactly once: six pairs run horizontally and four run vertically, for 10 in total. Counting all four directions would double the answer to 20, and the same figure appears by summing each live cell's side-neighbour count and halving it, which confirms the pair count.",
+      "format": "NUMERIC",
+      "hint": "Count pairs from the top-left member of each pair only.",
+      "id": "jp-7.20-0054",
+      "learningObjective": "count pairs of cells that share a side",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0027"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 85,
+        "p25Sec": 55,
+        "p75Sec": 135
+      },
+      "scope": "core-scope",
+      "stem": "A 5-by-5 board holds\n1 1 1 0 0\n1 0 1 0 1\n0 1 1 1 0\n0 0 1 0 0\n1 1 0 1 1\nA routine counts unordered pairs of live cells that share a side, checking only the cell to the right and the cell below. How many pairs does it count?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "neighbours",
+        "counting"
+      ],
+      "topic": "side-sharing pairs",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 20
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.6,
+      "discrimination": 0.38,
+      "explanation": "Ten pairs share a side and ten more touch only at a corner, so 20 pairs in total. Summing the eight-direction neighbour count over the 14 live cells gives 40, and halving that also gives 20, since every touching pair is seen once from each of its two cells.",
+      "format": "NUMERIC",
+      "hint": "Add the side-sharing pairs to the corner-sharing ones.",
+      "id": "jp-7.20-0055",
+      "learningObjective": "count every pair of live cells that touch",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0027"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 95,
+        "p25Sec": 62,
+        "p75Sec": 150
+      },
+      "scope": "core-scope",
+      "stem": "Live cells on a 5-by-5 board read\n1 1 1 0 0\n1 0 1 0 1\n0 1 1 1 0\n0 0 1 0 0\n1 1 0 1 1\nA routine counts unordered pairs of live cells that touch, whether they share a side or only a corner. How many pairs does it count?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "neighbours",
+        "counting"
+      ],
+      "topic": "corner and side pairs",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 63
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.43,
+      "explanation": "The original cells add to 21, and scaling every cell by 3 scales the total by the same factor, so the result sums to 63. Scaling the dimensions instead would give a 6-by-9 grid, which is a different operation entirely, and doubling rather than tripling would give 42.",
+      "format": "NUMERIC",
+      "hint": "Scaling distributes over a sum.",
+      "id": "jp-7.20-0056",
+      "learningObjective": "total the cells of a scaled matrix",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.6-0002"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.6-0008"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 50,
+        "p25Sec": 32,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "A 2-by-3 matrix holding {{1, 2, 3}, {4, 5, 6}} is multiplied by 3, with every cell of the result set to three times the original. What is the sum of all the result's cells?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "matrices",
+        "scaling"
+      ],
+      "topic": "matrix scaling",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 22
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.45,
+      "discrimination": 0.44,
+      "explanation": "The main diagonal reads 4, 8, 9, 1, and those four values add to 22. Reading the anti-diagonal instead would give 17, and adding every cell of the grid would give 73, which is what a routine that forgot the index test would report.",
+      "format": "NUMERIC",
+      "hint": "Take the cells where the two indexes match.",
+      "id": "jp-7.20-0057",
+      "learningObjective": "sum the main diagonal of a square grid",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0026"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A 4-by-4 grid holds\n4 9 2 7\n3 8 1 6\n5 1 9 3\n8 4 2 1\nA routine adds the cells whose row index equals their column index. What sum does it produce?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "diagonals",
+        "summing"
+      ],
+      "topic": "main diagonal sum",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 9
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "explanation": "The anti-diagonal here is 2, 4, 3, since the column index counts back from the last one, and those add to 9. Pairing row index with column index instead would read the main diagonal 2, 3, 3 for a sum of 8, and the row with the greatest column count is 5, not the number of rows.",
+      "format": "NUMERIC",
+      "hint": "Count columns back from the widest row.",
+      "id": "jp-7.20-0058",
+      "learningObjective": "sum the anti-diagonal of a wide grid",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0026"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A 3-by-5 grid holds\n2 7 1 8 2\n6 3 9 4 1\n5 8 3 7 5\nA routine adds the anti-diagonal, pairing row 0 with the last column, row 1 with the second-to-last, and row 2 with the middle. What sum does it produce?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "diagonals",
+        "summing"
+      ],
+      "topic": "anti-diagonal sum",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 34
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "explanation": "Reading the first row gives 16 + 2 + 3 + 13 = 34, and every other line repeats it, including the diagonals 16 + 11 + 6 + 1 and 13 + 10 + 7 + 4. A 4-by-4 square of the numbers 1 to 16 always totals 136 across all cells, and four equal lines of 34 account for all of it.",
+      "format": "NUMERIC",
+      "hint": "Add the first row and check another line.",
+      "id": "jp-7.20-0059",
+      "learningObjective": "find the shared line total of a magic square",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.5-0026"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [
+        "jp-7.4-0070"
+      ],
+      "responseTimeBaseline": {
+        "medianSec": 55,
+        "p25Sec": 35,
+        "p75Sec": 88
+      },
+      "scope": "core-scope",
+      "stem": "A 4-by-4 square holds\n16 2 3 13\n5 11 10 8\n9 7 6 12\n4 14 15 1\nEvery row, column, and diagonal of this square adds to the same total. What is that total?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "magic-squares",
+        "summing"
+      ],
+      "topic": "magic square constant",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 20
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.43,
+      "explanation": "The widest row holds 5 cells, so the buffer holds 4 times 5 = 20 slots, and the 15 real cells leave 5 slots padded with zeros. Sizing from the first row's length would give 20 here as well only by coincidence of the first row being widest, and sizing from the actual cell count would give 15 and drop the fixed stride the unflatten step needs.",
+      "format": "NUMERIC",
+      "hint": "Multiply the row count by the widest row.",
+      "id": "jp-7.20-0060",
+      "learningObjective": "size a flat buffer for a ragged grid",
+      "options": [],
+      "practice": "code analysis",
+      "prerequisiteQuestionIds": [
+        "jp-7.4-0019"
+      ],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-jp-u7",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-jp-u7",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "medianSec": 60,
+        "p25Sec": 38,
+        "p75Sec": 95
+      },
+      "scope": "core-scope",
+      "stem": "A grid has 4 rows holding 5, 2, 3, and 5 cells. A routine measures the widest row and allocates a flat buffer of rows times width. How many cells does that buffer hold?",
+      "stimulus": null,
+      "subject": "JAVA_PROGRAMMING",
+      "tags": [
+        "unit-7",
+        "flattening",
+        "ragged"
+      ],
+      "topic": "flatten buffer length",
+      "unit": "Unit 7",
+      "version": 1
+    }
+  ]
+}
