@@ -1,0 +1,3708 @@
+{
+  "questions": [
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "The count is a sum of arithmetic series, not a product of the two bounds. For a fixed i the inner loop body runs n minus i times, and the total is n plus n minus one plus n minus two and so on down to one, which is the triangular number n times n plus one over two. That grows like n squared, so the inner loop starting at j equal to i rather than zero removes only half the work and cannot change the order. This is the standard trap: multiplying the two loop bounds would overcount, and reading a single pass as the cost of the whole nest undercounts by a factor of n.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Add up how many times the inner body runs, one sum for each value of the outer counter.",
+      "id": "int3-7.1-0001",
+      "learningObjective": "derive a tight running time from a loop nest",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is quadratic in n, since the inner loop runs n minus i times for each value of i",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is linear in n, since the two counters together advance only n steps on each pass",
+          "misconception": "adds the loop counters instead of adding up the trip counts of the two loops"
+        },
+        {
+          "id": "C",
+          "text": "It is cubic in n, since each pass of the outer loop rebuilds a full copy of the array",
+          "misconception": "assumes the inner loop traverses every element, ignoring that it starts at j equal to i"
+        },
+        {
+          "id": "D",
+          "text": "It is exponential in n, since the number of loop bodies doubles at every level of nesting",
+          "misconception": "treats nested iteration as a branching recursion and counts the bodies as a doubling tree"
+        }
+      ],
+      "practice": "bounding loop nests",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "Consider the loop nest `for (int i = 0; i < n; i++) { for (int j = i; j < n; j++) { visit(a[i], a[j]); } }`. What is the tight worst-case running time in terms of n?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "big-o",
+        "loop-nest",
+        "complexity"
+      ],
+      "topic": "Tight running time of a loop nest",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 10,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.32,
+      "discrimination": 0.34,
+      "explanation": "Each probe leaves at most half the interval, so after k probes the interval is at most a thousand over two to the k, and the search fails to make progress once that drops below one. The smallest k with two to the k at least a thousand is ten, because two to the ninth is five hundred and twelve and two to the tenth is one thousand and twenty-four. Two independent routes agree: the floor of the base-two logarithm of a thousand is nine and the worst case adds one probe, and the ceiling of the base-two logarithm of one thousand and one is also ten. A student who answers nine has forgotten the probe that finally settles the question, and a student who answers twenty has doubled the input.",
+      "format": "NUMERIC",
+      "hint": "Ask how many halvings of an interval of a thousand are needed before the interval drops below one.",
+      "id": "int3-7.1-0002",
+      "learningObjective": "count the worst-case comparisons of a halving search",
+      "options": [],
+      "practice": "counting search comparisons",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A sorted array holds one thousand distinct values. A halving search probes the middle remaining position and discards half the interval, repeating until the value is found or the interval is empty. How many elements does it examine in the worst case? Report the number of probes.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "binary-search",
+        "comparison-count",
+        "logarithm"
+      ],
+      "topic": "Comparisons made by a halving search",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "The quantity added on each pass is the final resting index of the key that was originally at position i. Because the sort is stable, the element that started at index i finishes at index i minus the number of smaller elements sitting to its right, so the accumulated total is the sum of all indices from zero to seven, which is twenty-eight, minus the number of inverted pairs. That pair count is three from the leading three, two from the four, one from the five and two from the nine, giving eight, and twenty-eight minus eight is twenty. The eight is the count of inversions, which is what the inner while loop actually performs, so it is a different quantity from the sum the code accumulates.",
+      "format": "CODE_TRACING",
+      "hint": "On each pass the added value is the resting index of the key that started at position i.",
+      "id": "int3-7.1-0003",
+      "learningObjective": "trace an accumulator through an insertion sort",
+      "options": [
+        {
+          "id": "A",
+          "text": "20",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8",
+          "misconception": "reports the inversion count, which counts inverted pairs rather than summing resting indices"
+        },
+        {
+          "id": "C",
+          "text": "28",
+          "misconception": "reports the count of all ordered pairs, forgetting that the shifted keys land short of their own index"
+        },
+        {
+          "id": "D",
+          "text": "12",
+          "misconception": "adds only the positions reached by the two passes that moved the smallest keys leftward"
+        }
+      ],
+      "practice": "tracing a sorting loop",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 46,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "The fragment below sorts an array in place and accumulates a running total:\n```\nint[] a = {3, 1, 4, 1, 5, 9, 2, 6};\nint c = 0;\nfor (int i = 1; i < a.length; i++) {\n    int key = a[i], j = i - 1;\n    while (j >= 0 && a[j] > key) {\n        a[j + 1] = a[j];\n        j--;\n    }\n    a[j + 1] = key;\n    c += j + 1;\n}\n```\nWhat is the value of c once the outer loop has run to completion?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "insertion-sort",
+        "code-tracing",
+        "accumulator"
+      ],
+      "topic": "Tracing an insertion sort accumulator",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.34,
+      "discrimination": 0.36,
+      "explanation": "Amortised cost divides total work by the number of operations, so the individual append that triggers a copy looks enormous while the average does not. Doubling means the array sizes at which copies occur are one, two, four, eight and onwards, and the total number of element copies is bounded above by twice the final size: appending a thousand elements performs one thousand and twenty-three copies, comfortably under twice a thousand. Adding the constant cost of the a thousand individual stores keeps the per-append average constant. The quadratic reading is the one that forgets the schedule; a single expensive operation is compatible with a cheap average, which is the whole point of the method.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Divide the total copying work by the number of appends, and count when the copies actually happen.",
+      "id": "int3-7.1-0004",
+      "learningObjective": "justify an amortised cost for repeated appends",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is constant per append, because the expensive copies happen only logarithmically many times",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is quadratic overall, because every append has to copy the whole array to make room",
+          "misconception": "ignores the fact that the array only doubles on a geometric schedule"
+        },
+        {
+          "id": "C",
+          "text": "It is logarithmic per append, because each new element costs the height of a balanced tree",
+          "misconception": "borrows the height argument of a balanced search tree for a flat array"
+        },
+        {
+          "id": "D",
+          "text": "It is linear per append, because a gap has to be opened at the front before a value is added",
+          "misconception": "assumes a front insertion, which is not how a growable array appends"
+        }
+      ],
+      "practice": "reasoning about amortised cost",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 50,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "A sequence keeps its elements in an array and, whenever the array is full, allocates one of twice the length and copies everything across. What is the amortised cost of appending n elements one at a time?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "amortised-analysis",
+        "dynamic-array",
+        "doubling"
+      ],
+      "topic": "Amortised cost of appending to a growable array",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "All four keys leave the same remainder on division by seven, so this is a worst-case input for a table whose size is a multiple of seven: ten leaves three, seventeen leaves three, twenty-four leaves three and thirty-one leaves three. The first key occupies slot three, the second walks to slot four, the third to slot five, and the fourth therefore probes slots three, four, five and six before settling, which is four examinations. Two routes give the same number: a direct simulation of the insertion reports one, two, three and four probes for the four keys, and the cluster arithmetic gives one probe plus the three earlier keys already sitting in the block. The lesson is that a table size sharing a factor with the key pattern turns constant expected probing into a linear run.",
+      "format": "NUMERIC",
+      "hint": "All four keys leave the same remainder, so count the occupied slots in the block they form.",
+      "id": "int3-7.1-0005",
+      "learningObjective": "count the slots examined under linear probing",
+      "options": [],
+      "practice": "tracing hash insertion",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 37,
+        "p75Sec": 55
+      },
+      "scope": "core-scope",
+      "stem": "A hash table with seven slots resolves collisions by linear probing, and the home slot of a key is the remainder when the key is divided by seven. The keys 10, 17, 24 and 31 are inserted in that order. How many slots are examined during the insertion of 31, counting the slot that finally receives it?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "hashing",
+        "linear-probing",
+        "clustering"
+      ],
+      "topic": "Linear probing and its primary cluster",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctIds": [
+          "B",
+          "E",
+          "D",
+          "A",
+          "C"
+        ]
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "The first thing a breadth-first search does is fix a distance for every vertex, so its visiting order is the order of increasing distance from the start. P is at distance zero. Q and R are the two neighbours of P, so they sit at distance one and are dequeued in the order they were enqueued, which is alphabetical. Dequeuing Q reveals S at distance two, and dequeueing R reveals T at distance two; because S was enqueued first it is dequeued first, and the marks stop S from being enqueued again. Hence the order is P, Q, R, S, T. A depth-first search on the same graph would instead give P, Q, S, R, T, since it follows the first branch all the way down before turning, which is why the two orders differ and why the queue discipline has to be stated.",
+      "format": "ORDERING",
+      "hint": "List the vertices by increasing distance from P, and within a distance keep the enqueue order.",
+      "id": "int3-7.1-0006",
+      "learningObjective": "record the visiting order of a breadth-first search",
+      "options": [
+        {
+          "id": "A",
+          "text": "S",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "P",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "T",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "R",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "Q",
+          "misconception": ""
+        }
+      ],
+      "practice": "tracing a graph search",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 41,
+        "p75Sec": 61
+      },
+      "scope": "core-scope",
+      "stem": "An undirected graph on five vertices has exactly the edges P to Q, P to R, Q to S and R to T. A breadth-first search starts at P, enqueues each vertex's unvisited neighbours in alphabetical order, and marks a vertex when it is enqueued. List the five vertices in the order they are dequeued.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "breadth-first-search",
+        "graph",
+        "traversal-order"
+      ],
+      "topic": "Order in which a breadth-first search visits vertices",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.36,
+      "explanation": "Unfolding the recurrence replaces each T of n by its two children plus one, and the plus-ones attach to every internal node of the resulting tree. With the value always at the first probe the tree is a full binary tree whose leaves are the individual array positions, so it has n leaves and therefore n minus one internal nodes, each contributing exactly one comparison; for a thousand positions that is nine hundred and ninety-nine. The logarithmic number counts the depth of the tree, which is what bounds the worst case, where only one path is followed. Depth and total node count are different quantities, and the best case is the one that pays for the whole tree.",
+      "format": "FORMULA_APPLICATION",
+      "hint": "Unfold the recurrence: it describes a tree, and in the best case the whole tree is built.",
+      "id": "int3-7.1-0007",
+      "learningObjective": "unfold a divide-and-conquer cost recurrence",
+      "options": [
+        {
+          "id": "A",
+          "text": "It equals n minus one, because the recursion unfolds into a tree of n internal nodes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It equals the base-two logarithm of n, because each level of the tree adds one comparison",
+          "misconception": "reads the depth of the search tree as though it were the total node count"
+        },
+        {
+          "id": "C",
+          "text": "It equals n times the base-two logarithm of n, because every level of the tree costs n work",
+          "misconception": "multiplies the tree depth by the input size as if each level scanned the input"
+        },
+        {
+          "id": "D",
+          "text": "It equals a constant, because the recursion stops on its first step whenever the value is first",
+          "misconception": "assumes one comparison ends the search whatever the size of the input"
+        }
+      ],
+      "practice": "unfolding a recurrence",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 67
+      },
+      "scope": "core-scope",
+      "stem": "A search probes a position, discards the half that cannot contain the value and repeats, so its cost obeys the recurrence T of n equals two T of n over two, plus one. What does the recurrence give for the best case, in which the value is found on the first probe of every call?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "recurrence",
+        "divide-and-conquer",
+        "binary-search"
+      ],
+      "topic": "Best-case cost of a searching recurrence",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.38,
+      "explanation": "Halving works by computing the middle index in constant time and jumping there, and both steps are array operations. A singly linked list offers one operation, take the next element, so to reach the middle of the remaining suffix the search must walk every node ahead of it, and the walk is repeated at each stage. The cost is therefore linear in the number of nodes, and the sorted ordering buys only the ability to stop early. A data structure that restores random access, such as a skip list or a balanced search tree, restores the logarithmic bound; the fix is to change the structure, not the argument.",
+      "format": "ERROR_ANALYSIS",
+      "hint": "Ask which operation the halving step actually needs, and whether a chain can perform it.",
+      "id": "int3-7.1-0008",
+      "learningObjective": "diagnose a logarithmic claim about a linked structure",
+      "options": [
+        {
+          "id": "A",
+          "text": "Halving needs random access by index, and a list exposes only the next element, so the search is linear",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The claim holds for an unsorted list as well, so the ordering of the list turns out to be irrelevant",
+          "misconception": "believes halving needs no ordering at all, only arithmetic on indices"
+        },
+        {
+          "id": "C",
+          "text": "The claim is right but the constant doubles, since each list step costs two machine operations",
+          "misconception": "accepts the logarithmic count and disputes only the size of the constant"
+        },
+        {
+          "id": "D",
+          "text": "The claim is right, because a sorted list lets the search skip half the remaining nodes outright",
+          "misconception": "believes a chain can be halved like an array without being able to jump into it"
+        }
+      ],
+      "practice": "diagnosing a complexity claim",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 49,
+        "p75Sec": 73
+      },
+      "scope": "core-scope",
+      "stem": "A student claims that searching a singly linked list of n sorted elements takes on the order of the base-two logarithm of n comparisons, because the same halving argument that makes array search logarithmic applies to a list just as well. What has gone wrong?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "linked-list",
+        "binary-search",
+        "error-analysis"
+      ],
+      "topic": "Why a halving search needs random access",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 21,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.26,
+      "discrimination": 0.32,
+      "explanation": "The degrees are counted twice over, once from each endpoint of every edge, so the total must be divided by two. Three vertices of degree five contribute fifteen and nine of degree three contribute twenty-seven, giving a total of forty-two, and forty-two over two is twenty-one. A check is available without running anything: the twelve degrees are all odd, so their total is even, so halving it leaves a whole number, and twenty-one is the only figure consistent with the two partial sums. A student who answers forty-two has counted each edge twice, and one who answers fifteen has counted only the high-degree vertices.",
+      "format": "NUMERIC",
+      "hint": "Each edge is counted once from each of its two endpoints.",
+      "id": "int3-7.1-0009",
+      "learningObjective": "convert a degree sequence into an edge count",
+      "options": [],
+      "practice": "counting graph edges",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 79
+      },
+      "scope": "core-scope",
+      "stem": "In an undirected graph three vertices have degree five and the remaining nine vertices have degree three. Every edge of a graph without loops contributes one to the degree of each of its two endpoints. How many edges does the graph have?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "graph",
+        "degree",
+        "handshaking"
+      ],
+      "topic": "Edge count from a degree sequence",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.24,
+      "discrimination": 0.32,
+      "explanation": "The principle says that placing more objects than boxes forces some box to hold at least two objects, and it says nothing about which box. With thirteen people and twelve calendar months, more people than months, so at least one month holds two. February is not forced, because the crowded month could be any of the twelve, and the weekday claim counts a different set of boxes, seven rather than twelve, and is true for a different reason than the month claim. The leap-year option shows the same slip in a third way: the boxes there are days, of which there are far more than thirteen across a year of births, so nothing is forced at all.",
+      "format": "CONCEPT_MCQ",
+      "hint": "The principle forces a crowded box but never names the box.",
+      "id": "int3-7.1-0010",
+      "learningObjective": "state a pigeonhole conclusion precisely",
+      "options": [
+        {
+          "id": "A",
+          "text": "Two of them were born in the same calendar month, since thirteen people fill twelve month boxes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One of them was born in February, since thirteen people exceed the twelve available months",
+          "misconception": "treats a crowded box as though the principle named a particular month"
+        },
+        {
+          "id": "C",
+          "text": "Two of them share a weekday of birth, since a week has only seven days to hold them",
+          "misconception": "counts weekdays as the boxes while the thirteen subjects were already assigned to months"
+        },
+        {
+          "id": "D",
+          "text": "One of them was born in a leap year, since any group this size spans all 365 days",
+          "misconception": "counts the days in a year as the boxes and forgets the group spans many years"
+        }
+      ],
+      "practice": "applying the pigeonhole principle",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 56
+      },
+      "scope": "core-scope",
+      "stem": "Thirteen people are selected at random. Which statement follows from the selection alone, with nothing else known about the group?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "pigeonhole",
+        "combinatorics",
+        "discrete"
+      ],
+      "topic": "What the pigeonhole principle guarantees",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.38,
+      "explanation": "The bound admits one index too many, namely the length itself, and a read at an index equal to the length yields nothing rather than a value. Adding nothing to a number produces something that is no longer a number, so the total stops being a quantity and no exception announces it, which is why this bug is so much harder to notice than a crash. The correct sum of the four entries is twenty-two, and the loop as written produces a total that cannot even be compared with it. The minimal repair is a strict less-than in the condition, because the largest legal index is the length minus one.",
+      "format": "BUG_SPOTTING",
+      "hint": "The condition admits an index equal to the length; consider what reading at that index yields.",
+      "id": "int3-7.1-0011",
+      "learningObjective": "diagnose a loop bound that runs one step too far",
+      "options": [
+        {
+          "id": "A",
+          "text": "No error is reported; the total silently stops being a number, and the bound needs a strict less-than",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An index error is raised on the final pass, and the bound needs a strict less-than instead",
+          "misconception": "expects a bounds check to fire where the language silently returns nothing"
+        },
+        {
+          "id": "C",
+          "text": "No error is reported; the extra pass simply adds zero, so the bound needs no change at all",
+          "misconception": "assumes a read past the end of an array yields zero rather than nothing"
+        },
+        {
+          "id": "D",
+          "text": "An index error is raised on the very first pass, and the array should be indexed from one instead",
+          "misconception": "puts the failure on the first iteration and blames the indexing base"
+        }
+      ],
+      "practice": "debugging a summation loop",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 44,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "A method is written as follows.\n```\nint[] a = {4, 7, 2, 9};\nint total = 0;\nfor (int i = 0; i <= a.length; i++) {\n    total += a[i];\n}\n```\nWhat actually happens when this method runs, and what is the smallest change that makes the sum correct?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "off-by-one",
+        "array-bounds",
+        "code-debugging"
+      ],
+      "topic": "An inclusive loop bound in a summation",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 127,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "The move count satisfies M of n equals two M of n minus one plus one with M of zero equal to zero, and solving that gives two to the n minus one. Two independent evaluations agree: building the recurrence forward from zero gives one, three, seven, fifteen, thirty-one, sixty-three and one hundred and twenty-seven, and the closed form two to the seventh minus one gives the same figure. The count of sixty-three would be the result of forgetting that the six smaller disks have to be transferred a second time once the largest has moved, which is exactly the second occurrence of the same subproblem in the recurrence.",
+      "format": "NUMERIC",
+      "hint": "Write the move count for a stack of n in terms of the count for a stack of n minus one.",
+      "id": "int3-7.1-0012",
+      "learningObjective": "evaluate the move count of a recursive transfer",
+      "options": [],
+      "practice": "evaluating a recurrence",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 48,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "In the three-peg version of the tower puzzle the whole stack is moved one disk at a time and no larger disk is ever placed on a smaller one. What is the smallest number of moves that suffices to transfer a stack of seven disks to the empty peg, counting the move of the smallest disk?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "recursion",
+        "tower-of-hanoi",
+        "closed-form"
+      ],
+      "topic": "Minimum moves for a tower transfer",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.4,
+      "explanation": "The counter i is the number of keys the routine has classified as belonging on the left, and the recursion afterwards works on the i keys to the left of the pivot. With all five keys equal to the pivot, a strict less-than test never fires, i stays at zero, and the routine hands the recursion all but one key, so the split is zero against four and no progress is made at all. Allowing equality fires the test on every pass, i climbs to four, and the array halves, which is the balance the method needs. More generally the equal-key case is the input on which a strict comparison degenerates a quicksort into quadratic behaviour, and a three-way partition that separates less, equal and greater avoids the same failure.",
+      "format": "CODE_COMPLETION",
+      "hint": "Ask how many keys the counter marks as belonging on the left when all of them equal the pivot.",
+      "id": "int3-7.1-0013",
+      "learningObjective": "choose a partition condition that keeps the split balanced",
+      "options": [
+        {
+          "id": "A",
+          "text": "a[j] <= pivot, so a key equal to the pivot counts as belonging to the left part",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "a[j] < pivot, so a key equal to the pivot is deferred to the right of the split",
+          "misconception": "counts equal keys as belonging to the right, which collapses the split on an all-equal input"
+        },
+        {
+          "id": "C",
+          "text": "a[j] >= pivot, so every key larger than the pivot is swept into the left part",
+          "misconception": "reverses the comparison so the larger keys land on the small side of the split"
+        },
+        {
+          "id": "D",
+          "text": "a[j] != pivot, so only the keys that differ from the pivot are ever moved",
+          "misconception": "builds the split from a difference test, which says nothing about the size of either part"
+        }
+      ],
+      "practice": "completing a partition routine",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 35,
+        "p75Sec": 74
+      },
+      "scope": "core-scope",
+      "stem": "A quicksort partition is written as follows, and the missing condition is what decides how the array is split.\n```\nint[] a = {4, 4, 4, 4, 4};\nint pivot = a[a.length - 1];\nint i = 0;\nfor (int j = 0; j < a.length - 1; j++) {\n    if (a[j] /* FILL IN */) {\n        int t = a[i]; a[i] = a[j]; a[j] = t;\n        i++;\n    }\n}\nint u = a[i]; a[i] = a[a.length - 1]; a[a.length - 1] = u;\n```\nWhich condition keeps the split balanced when every key in the array is equal to the pivot?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "quicksort",
+        "partition",
+        "code-completion"
+      ],
+      "topic": "Choosing the condition in a quicksort partition",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer separates the cost of one call from the number of calls, because the two statements are about different quantities and neither contradicts the other. Each activation does constant work, so the cost per call is indeed bounded, but a recursive walk performs one activation per node it visits and these activations are all alive at once, since a call cannot return until every call beneath it has returned. On a tree of depth d that is d simultaneous activations, each holding a frame of constant size, so the storage in use grows linearly in the depth and can exceed what the runtime reserves. An answer that only says the stack is too small has missed the point, and so has one that claims the per-call work must be quadratic; the fix is to change the shape of the computation, not the amount of work in a call. A good answer then offers a concrete redesign and checks that it is the same computation: convert the recursion into an explicit stack or queue that holds the pending nodes, which gives the same visit order under a last-in-first-out or first-in-first-out discipline and moves the memory demand from the call stack to a heap structure the programmer sizes; or, for a walk whose only purpose is to accumulate a quantity such as a sum or a count, replace the recursion with a running accumulator threaded through a loop or a fold, so the whole computation collapses to a fixed number of loop variables. The answer should note the trade-off honestly, since an explicit stack costs the same order of storage as the frames it replaces and is not free, and it should say that the change is safe only where the recomputation of results is independent, because turning recursion into iteration silently changes the order in which side effects happen when the routine is not a pure walk."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.4,
+      "explanation": "This item rewards an answer that treats cost per call and the number of live calls as two separate quantities. The bound that matters is the product of the two, so a constant per-call cost multiplied by a number of simultaneous calls that grows with the depth of the input still grows without bound, and no amount of making each frame smaller removes the linear dependence. The stronger answer notices that a redesign only works when the computation has no order-dependent side effects, since an explicit stack reproduces a last-in-first-out discipline and an explicit queue reproduces a first-in-one, and a routine that both recurses and accumulates must choose which order it means.",
+      "format": "CONCEPTUAL_REASONING",
+      "hint": "One call is cheap; the question is how many of them are alive at the same time.",
+      "id": "int3-7.1-0014",
+      "learningObjective": "reconcile a per-call cost claim with a stack overflow",
+      "options": [],
+      "practice": "explaining a resource failure",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 39,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "A routine that walks a tree by calling itself reports that each call does only a fixed small amount of work, yet deep inputs abort with a stack overflow. Explain how both statements can be true at the same time, and describe one change that removes the failure without altering what the routine computes.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "recursion",
+        "stack-depth",
+        "amortised-analysis"
+      ],
+      "topic": "Constant per-call work against unbounded recursion depth",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "Filling a table whose entry in row i and column j is the length of the longest common subsequence of the two prefixes gives four in the bottom-right cell, and the answer is therefore four, not five. Two independent computations agree: the table method returns four, and enumerating every subsequence of the first string and testing each against the second, which is feasible here because the string is only nine characters long, also returns four. The five that students often report comes from counting the letters the two strings share, namely R, H, T and M, without noticing that those shared letters are not in the same relative order in both strings, and a shared letter set says nothing about order at all.",
+      "format": "NUMERIC",
+      "hint": "Order matters: the shared letters of the two strings are not in the same relative order.",
+      "id": "int3-7.1-0015",
+      "learningObjective": "compute the length of a longest common subsequence",
+      "options": [],
+      "practice": "dynamic programming on strings",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 43,
+        "p75Sec": 57
+      },
+      "scope": "core-scope",
+      "stem": "The two strings ALGORITHM and RHYTHMIC are given. A common subsequence uses the same characters in the same order as they appear but need not use adjacent ones. What is the greatest number of characters such a subsequence can contain? Report the length as a number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "dynamic-programming",
+        "strings",
+        "lcs"
+      ],
+      "topic": "Longest common subsequence of two strings",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "The choice is decided by the ratio of edges to vertices, and an average degree below three means the graph is sparse, with a number of edges proportional to the number of vertices. An adjacency list stores one entry per edge and so costs linear space, while a matrix spends one slot on every ordered pair of vertices, which for a fixed but large count is a square of that count, and the square dominates even when the graph is sparse. A matrix buys a single advantage, a constant-time test for a given pair of vertices, and it buys it at quadratic space; the recommended use is a large sparse graph, and since a matrix still gives that constant-time pair test the honest comparison is space against the pattern of queries actually used, which here is neighbour walks.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Count what each representation stores: one entry per edge, or one entry per ordered pair.",
+      "id": "int3-7.1-0016",
+      "learningObjective": "choose a graph representation from the graph's shape",
+      "options": [
+        {
+          "id": "A",
+          "text": "An adjacency list, because its size tracks the number of edges rather than the square of the vertex count",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An adjacency matrix, because a constant-time neighbour test is worth more than any storage saving",
+          "misconception": "values the constant neighbour test without counting the quadratic scan that computing it forces"
+        },
+        {
+          "id": "C",
+          "text": "An adjacency matrix, because a vertex count that never changes guarantees the storage is small",
+          "misconception": "reads a fixed vertex count as a promise that the quadratic storage stays modest"
+        },
+        {
+          "id": "D",
+          "text": "An adjacency list, because it makes every question about two specific vertices constant time",
+          "misconception": "believes a list answers the two-vertex question in constant time without walking a list"
+        }
+      ],
+      "practice": "choosing a data structure",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 47,
+        "p75Sec": 63
+      },
+      "scope": "core-scope",
+      "stem": "A graph has a large and fixed vertex count while its average degree stays below three, and the program mostly walks from a vertex to the neighbours of the vertex it is standing on. Which representation should be chosen, and on what grounds?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "graph",
+        "adjacency-list",
+        "adjacency-matrix"
+      ],
+      "topic": "Adjacency list against adjacency matrix",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 11,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "explanation": "Settling the cheapest unsettled vertex repeatedly gives a distance of one to b, then three to a through b rather than four directly, then eight to c, and finally eleven to t, so the answer is eleven along the route s, b, a, c, t. Two independent computations agree: a settling-order search and an all-pairs relaxation run that keeps updating every edge for a fixed number of rounds both produce the same distances, namely zero, three, one, eight and eleven. The instructive trap is the route s, a, c, t, which uses only three edges and weighs twelve; the shortest route uses four edges and weighs less, so counting edges is not the same as measuring weight, which is exactly the situation in which a greedy method must look past the first path it finds.",
+      "format": "NUMERIC",
+      "hint": "Settle the cheapest unsettled vertex each time, and do not stop at the first route you find.",
+      "id": "int3-7.1-0017",
+      "learningObjective": "find a shortest path by settled distances",
+      "options": [],
+      "practice": "running a shortest-path search",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 34,
+        "p75Sec": 69
+      },
+      "scope": "core-scope",
+      "stem": "An undirected weighted graph has edges s to a of weight 4, s to b of weight 1, b to a of weight 2, a to c of weight 5, b to c of weight 8 and c to t of weight 3. What is the total weight of the shortest path from s to t?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "shortest-path",
+        "greedy",
+        "graph"
+      ],
+      "topic": "Shortest path that a greedy search finds",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "What makes the structure constant time is that a logical position is reached by arithmetic on the index rather than by walking to it, so both ends are just numbers that are incremented or decremented. Reading the front is one index computation, removing from the front adds the decrement and the count update, and removing from the back decrements the count, all without touching any other element, and a read at a known offset is the same kind of arithmetic. Membership is different in kind: nothing in the structure records which values are present, so the test must inspect every live slot, which is linear in the number of elements held. Growing the capacity is also linear, because the new array has to receive the existing elements, and that cost is the price paid for avoiding it at every other moment.",
+      "format": "MULTI_SELECT",
+      "hint": "Separate operations that only move an index from operations that must inspect every live slot.",
+      "id": "int3-7.1-0018",
+      "learningObjective": "identify the constant worst-case operations of a ring buffer",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reading the element sitting at the front of the buffer",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Removing the element sitting at the front of the buffer",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Removing the element sitting at the back of the buffer",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Testing whether a particular value is anywhere in the buffer",
+          "misconception": "expects a constant-time membership test from a structure that only tracks order"
+        },
+        {
+          "id": "E",
+          "text": "Doubling the capacity of the buffer from eight slots to sixteen",
+          "misconception": "ignores that growing a fixed-capacity structure has to move every element across"
+        }
+      ],
+      "practice": "auditing data structure operations",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 38,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "A first-in-first-out buffer of fixed capacity eight is built from an array of eight slots together with a front index and a count. Which of the following actions on that structure can be guaranteed to take constant worst-case time? Select every action that qualifies.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "circular-buffer",
+        "queue",
+        "complexity"
+      ],
+      "topic": "Constant-time operations on a circular buffer",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "The first midpoint of the interval from 0 to 9 is index 4, holding sixteen, which is below twenty-three, so the search keeps the upper half and sets the lower bound to 5. The midpoint of the interval from 5 to 9 is index 7, holding fifty-six, which is above twenty-three, so the search keeps the lower part of that half and sets the upper bound to 6. The midpoint of the interval from 5 to 6 is index 5, which is where twenty-three sits, so the answer is index 5 and the value is found on the third comparison. Two independent traces agree, an iterative loop and a recursive formulation that returns the same sequence of probed indices. The trap in the fourth option is keeping the wrong half, which is what would happen if the comparison test were reversed.",
+      "format": "CODE_TRACING",
+      "hint": "Write down the surviving interval after each comparison before computing the next midpoint.",
+      "id": "int3-7.1-0019",
+      "learningObjective": "trace the probed indices of a halving search",
+      "options": [
+        {
+          "id": "A",
+          "text": "Index 5, because the three probes fall on indices 4, then 7, then 5",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Index 4, because the three probes fall on indices 4, then 7, then 4",
+          "misconception": "repeats the first probe instead of halving the surviving interval again"
+        },
+        {
+          "id": "C",
+          "text": "Index 6, because the three probes fall on indices 4, then 7, then 6",
+          "misconception": "rounds the midpoint of the surviving interval upward rather than downward"
+        },
+        {
+          "id": "D",
+          "text": "Index 7, because the three probes fall on indices 4, then 6, then 7",
+          "misconception": "keeps the larger half of the interval, which discards the half holding the value"
+        }
+      ],
+      "practice": "tracing an array search",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 42,
+        "p75Sec": 81
+      },
+      "scope": "core-scope",
+      "stem": "A halving search is written as follows, with integer division truncating towards zero.\n```\nint[] a = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};\nint lo = 0, hi = a.length - 1;\nwhile (lo <= hi) {\n    int mid = (lo + hi) / 2;\n    if (a[mid] == 23) break;\n    if (a[mid] < 23) lo = mid + 1; else hi = mid - 1;\n}\n```\nThe search is run for the value 23 and stops as soon as it finds it. Which index is examined on the third comparison?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "binary-search",
+        "code-tracing",
+        "indices"
+      ],
+      "topic": "Probing sequence of a halving search on a concrete array",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer builds a decision tree rather than analysing any particular procedure, because the bound is a statement about what any procedure can achieve. Each comparison of two keys has two outcomes, the left one is smaller or it is not, so a procedure that makes k comparisons is a binary tree of depth at most k with at most two to the k leaves. For the procedure to sort, every one of the n factorial arrangements of the keys must lead to a distinct leaf, because two arrangements that reach the same leaf have been told the same answers and are therefore indistinguishable to the procedure, and it would have to give them the same output and so be wrong on one of them. Hence n factorial cannot exceed two to the k, so k must be at least the base-two logarithm of n factorial, and Stirling's formula turns that into about n times the base-two logarithm of n. The assumption the argument depends on, and which a good answer names explicitly, is that the only source of information about the true order is these pairwise comparisons, so a procedure that may inspect the numeric values of the keys directly, or read them in a radix order, is not bound by it. The answer should then acknowledge the tightness of the bound, since merge sort does achieve order n log n and so the bound is not merely an artefact, and should distinguish the worst case from the average, since a procedure that always picks the first key as a pivot and always meets already sorted input also needs only linear comparisons in that case. An answer that stops at the leaf count without stating the assumption is incomplete, and an answer that claims no algorithm can sort in linear time is wrong, since integer keys allow radix sorts below the comparison bound."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.54,
+      "discrimination": 0.4,
+      "explanation": "The item asks for a proof sketch rather than a citation, so a response that merely states the bound has not met it. The pieces that must be present are the two-outcome nature of a comparison, the counting of possible orders as n factorial, the injection from orders to leaves of the decision tree, the application of Stirling's formula to get the closed form, and an explicit statement of the comparison-only assumption. Marking rewards the acknowledgement that the bound is tight, since a merge sort meets it, and it rewards the distinction between the worst case and a lucky input.",
+      "format": "EXPLANATION",
+      "hint": "Think about a tree whose branches are comparison outcomes and whose leaves are possible orders.",
+      "id": "int3-7.1-0020",
+      "learningObjective": "justify the comparison lower bound for sorting",
+      "options": [],
+      "practice": "explaining a lower bound",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 46,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "Explain why a sorting procedure that can learn the order of n keys only by comparing two keys at a time must make at least n times the base-two logarithm of n comparisons in the worst case, and state the assumption your argument relies on.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "sorting",
+        "lower-bound",
+        "decision-tree"
+      ],
+      "topic": "Why comparison sorting needs a logarithmic number of comparisons",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "A growth order is read from the ratio between successive rows, not from the raw counts, and a factor of roughly four per doubling of the input is the signature of a quadratic while a factor of exactly two is the signature of a linear count. The nested column multiplies by 3.8, then 3.9 and then 3.95, converging on four, and its values are exactly the triangular number n times n plus one over two at every size, which is the sum of the row n minus i from i equal to one. The scan column doubles exactly because it performs one body execution per element and nothing more. The cubic reading comes from counting loop levels as a multiplier, which is the same error that produces a cubic answer from a doubly nested loop.",
+      "format": "DATA_INTERPRETATION",
+      "hint": "Compare each row with the row above it and look at the factor, not the absolute count.",
+      "id": "int3-7.1-0021",
+      "learningObjective": "infer an asymptotic order from a table of counts",
+      "options": [
+        {
+          "id": "A",
+          "text": "The nested column is quadratic and the scan is linear, a factor of four against two",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both columns are linear, since the nested column only doubles from one row to the next",
+          "misconception": "reads a factor close to four as though the counts merely doubled"
+        },
+        {
+          "id": "C",
+          "text": "The nested column is quadratic and the scan is constant, since a scan visits one slot",
+          "misconception": "confuses visiting one slot per pass with visiting a fixed number overall"
+        },
+        {
+          "id": "D",
+          "text": "The nested column is cubic and the scan is linear, since nesting adds a level per pass",
+          "misconception": "counts the number of loop levels as a factor in the growth order"
+        }
+      ],
+      "practice": "interpreting a measurement table",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 50,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "The innermost body of each of two routines was counted on inputs of doubling size.\n```\nn     nested    scan\n10      55       10\n20     210       20\n40     820       40\n80    3240       80\n```\nWhat growth order does the nested column follow, and what does the scan column do in contrast?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "complexity",
+        "measurement",
+        "data-interpretation"
+      ],
+      "topic": "Reading a growth order off measured counts",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "The trace is short enough to write out. Pushing seven and two gives a stack of seven over two; the minus removes both, computes five and leaves a single value. Pushing three and four and applying the plus gives seven beside five, and the final multiply takes five as the left operand and seven as the right, giving thirty-five. That is exactly the value of the expression seven minus two times the quantity three plus four, so the postfix form encodes that grouping and the operands must be taken in the order the machine specifies. Two independent evaluations agree, a direct stack simulation and a conversion of the sequence to the infix expression it denotes. The reading that adds the two intermediate results gives twelve, the reading that multiplies across the pairs gives twenty-two, and a machine that stopped at the first operator would leave five.",
+      "format": "CODE_TRACING",
+      "hint": "Work left to right, pushing numbers and replacing the top two values at each operator.",
+      "id": "int3-7.1-0022",
+      "learningObjective": "evaluate a postfix expression on an explicit stack",
+      "options": [
+        {
+          "id": "A",
+          "text": "35",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "12",
+          "misconception": "adds the two intermediate results instead of multiplying them, giving five plus seven"
+        },
+        {
+          "id": "C",
+          "text": "22",
+          "misconception": "multiplies across the two pairs instead, taking seven times four less two times three"
+        },
+        {
+          "id": "D",
+          "text": "5",
+          "misconception": "stops at the first operator and never consumes the remaining tokens"
+        }
+      ],
+      "practice": "tracing a stack machine",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 37,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A stack machine reads a sequence of tokens and keeps its working values on a stack. Pushing a number puts it on top; an operator removes the top two values, applies itself with the deeper value on the left, and pushes the result. What single value remains when the machine has consumed the whole sequence `7 2 - 3 4 + *`?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "postfix",
+        "stack",
+        "code-tracing"
+      ],
+      "topic": "Evaluating an expression written in postfix form",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 10,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "The count is the sum over the three merges in the recursion tree. The top merge compares the sorted halves 2, 5, 8 and 1, 3, 9 and takes 1, then 2, then 3, then 5, then 8 and 9, which costs five comparisons, and the left subtree 2, 5, 8 merges 5 against 2 and 8 and costs two, while the right subtree 1, 9, 3 merges 1 against 9 and then merges 1, 9 against 3, which costs one plus two. The total is five plus two plus three, which is ten. Two independent counts agree, a recursive routine that returns the count and a routine that logs every comparison as it merges. The count is not the five of the top merge alone, which is the usual omission, and it is not nine, which drops the final comparison of the left subtree.",
+      "format": "NUMERIC",
+      "hint": "Count the comparisons inside each merge separately, and remember the input is not sorted.",
+      "id": "int3-7.1-0023",
+      "learningObjective": "count the comparisons of a merge sort on a given input",
+      "options": [],
+      "practice": "counting merge comparisons",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 41,
+        "p75Sec": 76
+      },
+      "scope": "core-scope",
+      "stem": "A merge sort splits the list in half, sorts each half, and then merges the two by repeatedly comparing the fronts of the halves and taking the smaller. Applied to the list 5, 2, 8, 1, 9, 3, how many element comparisons does the whole procedure make? Report the number of comparisons.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "merge-sort",
+        "comparison-count",
+        "recursion"
+      ],
+      "topic": "Comparisons made by a merge sort",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.34,
+      "discrimination": 0.34,
+      "explanation": "Stability is a promise about the relative order of records the key cannot distinguish, and it is what lets a program sort by several fields in several passes. Sorting on the second field first and then stably on the first leaves the records sharing a first-field value in second-field order, whereas an unstable sort may scramble them and the program has lost information it cannot recover without storing a tie-break key in every record. The property costs nothing to state and is easy to lose, since it depends on the implementation rather than the specification, and a merge sort is stable while a plain quicksort with a two-way partition is not.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what happens to two records that compare as equal under the key being sorted on.",
+      "id": "int3-7.1-0024",
+      "learningObjective": "state precisely what a stable sort guarantees",
+      "options": [
+        {
+          "id": "A",
+          "text": "Records that compare as equal keep their original relative order, so a second pass cannot undo the first",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The sort never moves a record, so equal records stay in place because nothing moves at all",
+          "misconception": "reads stability as an absence of movement rather than a guarantee about order"
+        },
+        {
+          "id": "C",
+          "text": "The sort runs in the same time on every input, so equal records take the same path as unequal ones",
+          "misconception": "conflates stability with a guarantee about running time across inputs"
+        },
+        {
+          "id": "D",
+          "text": "Records with equal keys are collapsed into one, so no two equal records can be told apart",
+          "misconception": "treats stability as a rule that discards duplicates rather than ordering them"
+        }
+      ],
+      "practice": "reasoning about sort stability",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 45,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "Records are sorted on one field of the five they carry. What does it mean for the sort to be stable, and why does that matter when the other fields exist?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "stable-sort",
+        "sorting",
+        "tie-breaking"
+      ],
+      "topic": "What stability in a sort guarantees",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 377,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "explanation": "Running the recurrence gives 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377 for lengths zero through twelve. Two independent computations agree, the recurrence and a direct check of all four thousand and ninety-six strings of length twelve, which both return three hundred and seventy-seven. Four thousand and ninety-six is the count with no restriction at all, so the spacing condition keeps only about one string in ten, and a student who works from the number of arrangements rather than the number of valid ones will report that larger figure.",
+      "format": "NUMERIC",
+      "hint": "Split the strings by their last digit and reduce each class to a shorter string.",
+      "id": "int3-7.1-0025",
+      "learningObjective": "count binary strings avoiding adjacent ones by a recurrence",
+      "options": [],
+      "practice": "counting with a recurrence",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 49,
+        "p75Sec": 59
+      },
+      "scope": "core-scope",
+      "stem": "A string of twelve digits is built from zeros and ones with the restriction that no two ones may stand next to each other. How many such strings of length twelve are there? Report the count as a number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "recurrence",
+        "counting",
+        "binary-strings"
+      ],
+      "topic": "Counting binary strings with a spacing condition",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "explanation": "The declaration inside the body creates a new variable on every iteration and destroys the old one at the end of that iteration, so the addition that is supposed to continue across passes is thrown away each time. Each pass therefore contributes only the current element, which makes the total equal to the plain sum of the four elements, namely eighteen, and that is a perfectly reasonable-looking number, which is why the defect survives inspection. The intended value adds the prefix sums 2, 7, 10 and 18, which total thirty-seven. Declaring the running variable once before the loop restores it, and the general lesson is that a variable whose whole purpose is to carry a value between iterations must not be declared inside the body.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask how long the inner variable survives, and what the outer total therefore collects.",
+      "id": "int3-7.1-0026",
+      "learningObjective": "find a scoping defect that silently changes an accumulation",
+      "options": [
+        {
+          "id": "A",
+          "text": "It holds 18 rather than 37, because running is discarded and reset on every pass",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It holds 37 rather than 18, because the inner declaration shadows the outer accumulator",
+          "misconception": "believes a fresh declaration inside a body preserves the previous value"
+        },
+        {
+          "id": "C",
+          "text": "It holds 22, which is the plain sum of the four elements with no prefix taken",
+          "misconception": "reads the faulty result as a deliberate plain sum rather than a scope defect"
+        },
+        {
+          "id": "D",
+          "text": "It holds 4, since the loop adds one to the total for each element that it visits",
+          "misconception": "counts the iterations instead of the values that were meant to accumulate"
+        }
+      ],
+      "practice": "debugging an accumulation loop",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 36,
+        "p75Sec": 65
+      },
+      "scope": "core-scope",
+      "stem": "A routine is meant to add up the running prefix sums of an array, that is, to add the first element, then the first two, then the first three, and so on.\n```\nint[] a = {2, 5, 3, 8};\nint total = 0;\nfor (int x : a) {\n    int running = 0;\n    running += x;\n    total += running;\n}\n```\nWhat value does total actually hold, and what value was intended?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "accumulator",
+        "scope",
+        "code-debugging"
+      ],
+      "topic": "A running total reset inside a loop body",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 21,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "The division steps are 1071 divided by 462, which is two times 462 plus 147; then 462 divided by 147, which is three times 147 plus 21; then 147 divided by 21, which is seven times 21 with no remainder. The last non-zero remainder is therefore twenty-one. Two independent implementations agree, an iterative loop and a recursive formulation that reduces the pair. A direct check confirms the answer without running the algorithm at all, since 1071 is fifty-one times twenty-one and 462 is twenty-two times twenty-one, so twenty-one divides both, and any common divisor of the two divides every remainder in the sequence, so it cannot exceed twenty-one. The answer 147 confuses the first remainder with the last, and 462 simply restates the input.",
+      "format": "NUMERIC",
+      "hint": "Write the division with quotient and remainder, then repeat on divisor and remainder.",
+      "id": "int3-7.1-0027",
+      "learningObjective": "run the remainder sequence of Euclid's algorithm",
+      "options": [],
+      "practice": "computing a greatest common divisor",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 40,
+        "p75Sec": 71
+      },
+      "scope": "core-scope",
+      "stem": "Euclid's algorithm replaces the pair of numbers by the divisor and the remainder, repeating until the remainder is zero, and the last non-zero remainder is the greatest common divisor. Applied to 1071 and 462, what is that last non-zero remainder? Report the number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "number-theory",
+        "euclid",
+        "divisibility"
+      ],
+      "topic": "Euclid's algorithm for a greatest common divisor",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctIds": [
+          "B",
+          "D",
+          "A",
+          "E",
+          "C"
+        ]
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "The repair always follows the same discipline, and the order of the five actions is forced by it. The value being sifted is set aside and the last slot is moved to the root, which leaves the array 6, 7, 8, 3, 2, 1. The replacement is compared against the two children of the root, and because 8 is the larger of 7 and 8 the value 8 is moved up, leaving the array 8, 7, 6, 3, 2, 1 with the replacement now in slot 2. At slot 2 the only child is in slot 5 and holds 1, and the comparison stops the repair because 6 is not smaller than 1, so the value 6 is written into slot 2 and the heap is restored. Two checks confirm the result: the final array has no parent smaller than either child, and the value 8, the largest remaining, is at the root. The trap is comparing against the smaller child, which would leave the heap unsorted and would never terminate on a skewed heap.",
+      "format": "ORDERING",
+      "hint": "Always compare the replacement value against the larger child, and stop as soon as it is not smaller.",
+      "id": "int3-7.1-0028",
+      "learningObjective": "sequence the moves of a heap sift-down",
+      "options": [
+        {
+          "id": "A",
+          "text": "The value 8 is moved up into the slot the root has vacated",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The value 9 is set aside and the last slot, holding 6, is moved to the root",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The value 6 is written into slot 2 and the repair stops there",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The value 6 is compared against the two children of the root, which are 7 and 8",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "The value 6 is compared against the child in slot 5, which holds 1",
+          "misconception": ""
+        }
+      ],
+      "practice": "tracing a heap repair",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 44,
+        "p75Sec": 77
+      },
+      "scope": "core-scope",
+      "stem": "A max-heap holds the values 9, 7, 8, 3, 2, 1, 6 in that array order, so a node's children sit at twice its index and twice its index plus one. The largest value is removed by moving the last slot to the root and repairing the heap by sifting that value down. List the five actions of the repair in the order they occur.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "binary-heap",
+        "sift-down",
+        "traversal-order"
+      ],
+      "topic": "Move sequence of a heap sift-down",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 22,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "The first line creates two regions, and each later line meets all of the earlier ones at distinct points, so it is cut into one more piece than the number of lines already drawn, and each piece splits one existing region. The first line therefore adds one, the second adds two because it meets one line, the third adds three, and the sixth adds six, for a total of one plus the sum of one through six, which is one plus twenty-one, or twenty-two. Two independent evaluations agree, adding the increments one at a time and applying the closed form n times n plus one over two plus one, which for six gives twenty-two and which also reproduces the smaller cases one, two, four, seven, eleven and sixteen. Counting the lines themselves gives six and counting the pairs that meet gives fifteen, and neither is a count of regions, while the general-position condition matters because three concurrent lines would add one fewer region than this count has already credited.",
+      "format": "NUMERIC",
+      "hint": "Ask how many new pieces the k-th line creates, and why the answer depends on the k minus one before it.",
+      "id": "int3-7.1-0029",
+      "learningObjective": "count the regions formed by lines in general position",
+      "options": [],
+      "practice": "counting regions in the plane",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 48,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "Six straight lines are drawn in a plane so that no two are parallel and no three pass through one point, so that every pair of lines meets at its own point. Into how many regions do the six lines divide the plane? Report the number of regions.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "combinatorics",
+        "geometry",
+        "counting-regions"
+      ],
+      "topic": "Regions cut out by lines in the plane",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.36,
+      "explanation": "The cost of a find is the length of the path from the node to the root, and that length is what makes a long chain slow. Path compression pays a little extra during the walk, rewriting each node's parent to be the root directly, so the same walk next time stops at the first or second step. The gain is an amortised one: a single find on a long chain is still slow, but the sequence of finds over the whole run is cheap in aggregate, and combining compression with a union rule that keeps the trees shallow gives close to constant amortised time. The distinction between amortised and worst case is the substance of the item, since the rare expensive walk is exactly what the amortised bound exists to accommodate.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Consider a long chain of merges in which one element is queried repeatedly.",
+      "id": "int3-7.1-0030",
+      "learningObjective": "explain the effect of path compression in a disjoint-set structure",
+      "options": [
+        {
+          "id": "A",
+          "text": "It reattaches every node on the walk to the root, so later walks over the same path are shorter",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It shortens the walk to at most two steps, so the cost of every find becomes exactly constant",
+          "misconception": "promises a worst-case constant bound, which no union of this kind provides"
+        },
+        {
+          "id": "C",
+          "text": "It merges the two trees it walks through, so a find can change the set membership it reports",
+          "misconception": "conflates reshaping paths inside a tree with merging two separate trees"
+        },
+        {
+          "id": "D",
+          "text": "It stores the root in each visited node once and never revisits them, so the cost becomes logarithmic",
+          "misconception": "states a worst-case logarithmic bound where the guarantee is amortised"
+        }
+      ],
+      "practice": "explaining a disjoint-set optimisation",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 35,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "A disjoint-set structure keeps its elements in trees whose roots are the set representatives, and a find operation walks from a node up to its root. What does path compression add to each find, and what does it buy?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "union-find",
+        "path-compression",
+        "amortised-analysis"
+      ],
+      "topic": "What path compression does in a disjoint-set structure",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 46,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "Shifting left by two moves every one two places towards the high end and multiplies the value by four, so 0b1011 becomes 0b101100, whose value is eleven times four, or forty-four. The or with 0b0010 sets the bit worth two, which 0b101100 does not have, giving 0b101110, which is forty-six. Three independent evaluations agree: evaluating in binary, evaluating the shift as multiplication by four on the decimal value eleven, and reading 0b101110 back in decimal all produce forty-six. The answer forty-four omits the or, and forty-two would be the result of an or without the shift, since forty equals two raised to no effect and forty-two adds two to it. Reading the shift as a right shift instead would give a much smaller number, which is the usual direction error.",
+      "format": "NUMERIC",
+      "hint": "A shift left by two multiplies by four, and the or operation keeps a one wherever either input has one.",
+      "id": "int3-7.1-0031",
+      "learningObjective": "evaluate a shift and or combination on a bit pattern",
+      "options": [],
+      "practice": "evaluating bit operations",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 39,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "The bit pattern 0b1011 is shifted left by two places and the result is combined with 0b0010 by a bitwise or. What is the value of the whole expression in decimal? Report the value as a decimal number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "bit-manipulation",
+        "shift",
+        "binary-representation"
+      ],
+      "topic": "Shift and or on a small bit pattern",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.38,
+      "discrimination": 0.38,
+      "explanation": "The whole point of the heap invariant is that every parent is no larger than its children, and from that it follows that the minimum of the whole structure is at the root, so inspecting it is one array read. The linear-time claim describes what you would have to do in an unsorted array, which is the structure the heap replaced. The costly operations are the ones that change the contents, namely inserting an item and removing the root, each of which walk a path of length logarithmic in the number of items and cost that much per operation, so a queue built on the heap costs logarithmic time per item rather than linear. The student has confused the invariant with its absence.",
+      "format": "ERROR_ANALYSIS",
+      "hint": "The heap invariant pins the extreme value to one place, so ask where that place is.",
+      "id": "int3-7.1-0032",
+      "learningObjective": "diagnose a complexity claim about a heap operation",
+      "options": [
+        {
+          "id": "A",
+          "text": "The heap keeps its extreme value at the root by construction, so the inspection is constant time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing is wrong: a linear scan really is needed, but it can be hoisted out of the queue loop",
+          "misconception": "accepts the linear bound and proposes only moving the scan, not avoiding it"
+        },
+        {
+          "id": "C",
+          "text": "Nothing is wrong: the claim holds, provided the heap is rebalanced after every insertion",
+          "misconception": "blames the shape maintenance rather than the location of the extreme value"
+        },
+        {
+          "id": "D",
+          "text": "The claim is right about the scan but wrong about n, since a heap holds only the square root of n items",
+          "misconception": "invents a different size relation instead of addressing where the minimum sits"
+        }
+      ],
+      "practice": "diagnosing a heap claim",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 43,
+        "p75Sec": 72
+      },
+      "scope": "core-scope",
+      "stem": "A student argues that finding the smallest value in a binary min-heap of n elements must scan the whole array, so the operation costs on the order of n, and therefore the priority queue built on that heap runs in linear time. What is wrong with the argument?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "priority-queue",
+        "heap",
+        "error-analysis"
+      ],
+      "topic": "Cost of inspecting the extreme of a heap",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.4,
+      "explanation": "Two coins of value three make six, and no single coin has that value, so the minimum is two, and a check of the remaining one-coin possibilities confirms that none of the four denominations equals six. Two independent searches agree, a dynamic program that considers the best result for each remaining amount and an exhaustive enumeration of every multiset of coins. The instructive step is the greedy attempt, which takes the largest coin that fits, namely four, and is then left with two, which it must pay as one and one, for three coins in total. Greedy is wrong here precisely because the leftover amount has a representation that the greedy rule never sees, and this is the standard reason a greedy choice needs a proof of optimality that this one lacks. A student who reports three has computed the greedy answer correctly and drawn the wrong conclusion from it.",
+      "format": "NUMERIC",
+      "hint": "Take the largest coin and see what is left, then check whether some other choice does better.",
+      "id": "int3-7.1-0033",
+      "learningObjective": "minimise the number of coins by considering every combination",
+      "options": [],
+      "practice": "minimising a combinatorial count",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 47,
+        "p75Sec": 78
+      },
+      "scope": "core-scope",
+      "stem": "Coins are available in denominations of 1, 3, 4 and 7, and any number of each may be used. What is the smallest number of coins whose values add up to exactly 6? Report the number of coins.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "dynamic-programming",
+        "greedy",
+        "coin-change"
+      ],
+      "topic": "Fewest coins for a given amount",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "Memoisation is the standard space for time trade. Without a table, a routine that splits into two half-sized calls at each level performs an exponential number of calls, and many of those calls are solving a subproblem that has already been solved; with a table, each distinct subproblem is computed once and every later call is a single lookup, so the number of computations drops to the number of distinct subproblems. The table is not free, since it must be allocated, initialised and searched, so the program pays memory that it did not pay before, and for a routine that is already linear in its input the table can cost more than it saves. The change is also only sound when the subproblem's answer depends on its arguments alone and not on the surrounding state.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Count how many times a subproblem is recomputed without a table and stored with one.",
+      "id": "int3-7.1-0034",
+      "learningObjective": "describe the trade-off a memo table introduces",
+      "options": [
+        {
+          "id": "A",
+          "text": "Time falls sharply while space grows, because each distinct subproblem is now solved exactly once",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Time and space both fall, since the table removes the work of computing the results a second time",
+          "misconception": "believes storing results costs nothing, forgetting that the table itself occupies memory"
+        },
+        {
+          "id": "C",
+          "text": "Time is unchanged while space grows, since the table is written but never actually consulted again",
+          "misconception": "denies that the stored values are read, which is the entire mechanism"
+        },
+        {
+          "id": "D",
+          "text": "Time falls and space is unchanged, because the table reuses storage the recursion was not using",
+          "misconception": "assumes the table costs no extra storage beyond the frames already on the stack"
+        }
+      ],
+      "practice": "reasoning about memoisation",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 34,
+        "p75Sec": 55
+      },
+      "scope": "core-scope",
+      "stem": "A recursive routine recomputes the same subproblem many times before finally returning. Adding a table that stores each result the first time it is produced changes the cost profile. Which statement describes that change correctly?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "memoisation",
+        "recursion",
+        "space-time-tradeoff"
+      ],
+      "topic": "What memoisation buys and what it costs",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 6,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "explanation": "Multiplication by three undoes itself modulo eleven once the inverse is found, and the inverse of three is four because three times four is twelve, which is congruent to one. Multiplying both sides by four gives x congruent to twenty-eight, which reduces to six. Two independent solutions agree: a direct scan of the residues from zero to ten finds exactly one, namely six, and the inverse method gives the same figure, and the check closes the argument since three times six is eighteen, and eighteen leaves a remainder of seven on division by eleven. Because eleven is prime, three has an inverse and the solution is unique in the residue class, so six is the only acceptable answer and no other value in the range works. Dividing both sides by three to get seven thirds, which is a value outside the residue class, is the standard error.",
+      "format": "NUMERIC",
+      "hint": "Find the value that undoes multiplication by three modulo eleven, then multiply both sides by it.",
+      "id": "int3-7.1-0035",
+      "learningObjective": "solve a linear congruence using a modular inverse",
+      "options": [],
+      "practice": "solving a modular equation",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 38,
+        "p75Sec": 61
+      },
+      "scope": "core-scope",
+      "stem": "Solve the congruence three times x is congruent to seven modulo eleven, and report the least non-negative value of x that satisfies it.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "number-theory",
+        "modular-arithmetic",
+        "congruence"
+      ],
+      "topic": "Solving a linear congruence by finding a modular inverse",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "explanation": "The current sum is 3 after the first value, 1 after the second, 6 after the third, 5 after the fourth, 9 after the fifth and then 3 after the sixth, since a negative current sum is discarded and replaced by the value just read, so the run 5, minus 1, 4 begins at 5. The best value ever recorded is 9, reached at the fifth element by the run 3, minus 2, 5, minus 1, 4, and the last element leaves the current sum at 3, which is not better. Two independent computations agree, the incremental routine and a brute-force search over every contiguous run, and both return nine for the same run. The sum of all seven elements is five, which is the answer that appears when the run is not required to be contiguous, and eleven counts the best run twice.",
+      "format": "CODE_TRACING",
+      "hint": "A run that has gone negative is worth discarding, since extending it only lowers the total.",
+      "id": "int3-7.1-0036",
+      "learningObjective": "track a best-sum and current-sum update in one pass",
+      "options": [
+        {
+          "id": "A",
+          "text": "9",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "5",
+          "misconception": "reports the sum of every element, which is the whole list rather than the best run"
+        },
+        {
+          "id": "C",
+          "text": "11",
+          "misconception": "adds the best run to the whole-list total, counting the run twice over"
+        },
+        {
+          "id": "D",
+          "text": "7",
+          "misconception": "stops the run short, dropping the final positive value at the end of the list"
+        }
+      ],
+      "practice": "tracing a single-pass scan",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 42,
+        "p75Sec": 67
+      },
+      "scope": "core-scope",
+      "stem": "A routine scans a list once, keeping a current sum and a best sum. Whenever the current sum is negative it discards it and starts again from the value just read.\n```\nint[] a = {3, -2, 5, -1, 4, -6, 2};\nint cur = 0, best = 0;\nfor (int i = 0; i < a.length; i++) {\n    if (cur < 0) cur = a[i]; else cur += a[i];\n    if (cur > best) best = cur;\n}\n```\nRun on the array shown, what value does best hold when the loop finishes?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "prefix-sums",
+        "code-tracing",
+        "single-pass"
+      ],
+      "topic": "Largest sum of a contiguous run of a list",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer separates the three requests and gives a structure and a cost for each, rather than naming a single structure and hoping it covers everything. A hash table suits the membership test, which resolves in expected constant time by computing a slot from the key and probing until it finds a match or an empty slot, and it suits insertion at the same expected cost, with the caveat that the load factor must be kept bounded because the cost of an unsuccessful search grows without limit as the table fills. The least recently added identifier is not a priority that a heap can express, because a heap can only compare keys and has no notion of insertion time, so the natural choice is a queue, and specifically a doubly linked list used as a queue, whose removal from the front is constant time. The best answer connects the two halves: a hash table from identifier to a node in the queue, plus the queue itself, gives constant expected time for both insertion and membership and constant time for the fetch, and deleting a node when it is processed is also constant time given the node's address, which is precisely what the table provides. It should also state the cost that was traded away, since a hash table does not support ordered traversal, so a request for the identifiers in sorted order would need a separate ordered structure or a different table entirely. A strong answer names a workload feature that would reverse the decision, and the best candidates are a requirement for ordered traversal, which rules out a plain hash table; a requirement for worst-case rather than expected time, which rules out hashing and points to a balanced tree at logarithmic cost per operation; or a workload in which the identifiers are small integers drawn from a bounded range, in which case a direct-address array of flags gives constant time with no collisions and less memory than a table with entries. A weak answer names one structure for all three requests without noticing that the fetch has a different requirement from the lookup, or gives cost claims with no mention of the expected versus worst-case distinction."
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "explanation": "The item is a synthesis task, so the mark scheme rewards an answer that maps each request to a distinct cost model and then connects the structures, and it penalises a single structure offered as a universal answer. The strongest responses also price the decision by naming the requirement that would overturn it, since a design argument is only as good as the condition that falsifies it.",
+      "format": "SYNTHESIS",
+      "hint": "Treat the three requests separately, since a membership test and a first-in queue are not the same requirement.",
+      "id": "int3-7.1-0037",
+      "learningObjective": "justify a structure choice against a stated workload",
+      "options": [],
+      "practice": "synthesising a design argument",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 46,
+        "p75Sec": 73
+      },
+      "scope": "core-scope",
+      "stem": "A service keeps a working set of up to a million identifiers and must answer three kinds of request: add a new identifier, ask whether a particular identifier is present, and repeatedly fetch the least recently added identifier that has not yet been processed. Say which structure you would choose for each request, justify the choice in terms of the operation costs, and name one workload feature that would make you change your mind.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "data-structures",
+        "design-tradeoff",
+        "synthesis"
+      ],
+      "topic": "Choosing a structure for a stated workload",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "The four routes are s to a to c to t, s to a to b to c to t, s to b to c to t and s to b to a to c to t, and there are no others, because t is reachable only through c and c is reachable only from a or b, and the edge between a and b allows each of those to be used after the other. Two independent enumerations agree, a depth-first walk that refuses to revisit a vertex and a count obtained by listing every three-edge and four-edge route separately. The counting is easy to get wrong by treating the graph as a tree, in which case there would be exactly two routes, or by allowing repeats, which introduces infinitely many. Weights do not enter the count, and it is worth noting that the shortest of the four is not the one with the fewest edges, since the three-edge routes both weigh twelve while the four-edge route weighs eleven.",
+      "format": "NUMERIC",
+      "hint": "List every route from the start that never revisits a vertex, and keep going when a branch is exhausted.",
+      "id": "int3-7.1-0038",
+      "learningObjective": "enumerate all simple paths between two vertices",
+      "options": [],
+      "practice": "enumerating graph paths",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 50,
+        "p75Sec": 79
+      },
+      "scope": "core-scope",
+      "stem": "An undirected graph has vertices s, a, b, c and t, with edges s to a, s to b, a to b, a to c, b to c and c to t. A simple path is one that never visits a vertex twice. How many simple paths lead from s to t? Report the number of paths.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "graph",
+        "path-counting",
+        "enumeration"
+      ],
+      "topic": "Counting routes between two vertices in a small graph",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "difficulty": 0.36,
+      "discrimination": 0.36,
+      "explanation": "The remainders of a run of keys spaced a constant amount apart are as spread out as the table size allows, and when the table size shares a factor with that spacing the remainders collapse onto a small set of slots. A table of size six and keys spaced by two, for instance, can only ever reach three slots, so half the table is unusable and the cluster grows without bound; a prime table has no common factor with the spacing and the keys fan out as widely as the table permits. The prime does not prevent collisions, which occur whenever more keys than slots exist, and it does not make the modulo arithmetic faster; it is a choice about the distribution of the keys, and it is worth knowing that a power-of-two table is perfectly workable if the mixing step is done properly, which is what most production hash functions do.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask what the remainders look like when the divisor shares a factor with the pattern in the keys.",
+      "id": "int3-7.1-0039",
+      "learningObjective": "explain the role of the table size in key distribution",
+      "options": [
+        {
+          "id": "A",
+          "text": "A prime shares no factor with the key pattern, so stepping by a common stride spreads out",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A prime makes the remainder computation faster, since division by a prime is simpler",
+          "misconception": "believes the prime choice is a speed trick for the modulo operation itself"
+        },
+        {
+          "id": "C",
+          "text": "A prime table cannot overflow, since a prime has no divisors that could fill it completely",
+          "misconception": "confuses a property of the number with a guarantee about the table's contents"
+        },
+        {
+          "id": "D",
+          "text": "A prime table needs no collision resolution at all, since distinct keys get distinct slots",
+          "misconception": "believes a prime table size removes collisions rather than spreading them out"
+        }
+      ],
+      "practice": "explaining a design constant",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 37,
+        "p75Sec": 56
+      },
+      "scope": "core-scope",
+      "stem": "A hash table has a fixed number of slots and takes the remainder of the key on division by that number. Why is a size that is prime usually preferred to one that is a large power of two?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "hashing",
+        "table-size",
+        "distribution"
+      ],
+      "topic": "Why a hash table size is usually taken prime",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "A spanning tree on n vertices contains exactly n minus one edges, because a connected acyclic graph on n vertices has one fewer edge than vertices, and for six vertices that is five. The first stage counts what is left over: nine edges minus the five a tree keeps is four, and those four are precisely the independent cycles, since removing any one of them leaves a graph whose cycle count has dropped by one. Two independent routes give the same pair, computing the surplus as m minus n plus one and computing the tree size directly as n minus one. The distinction matters because the two numbers are answers to different questions, and a graph with more edges than a tree is not thereby disconnected; it simply contains cycles that a tree cannot represent.",
+      "format": "TWO_STAGE",
+      "hint": "A spanning tree on the same vertices has exactly one fewer edge than the number of vertices.",
+      "id": "int3-7.1-0040",
+      "learningObjective": "relate cycle count to spanning-tree size",
+      "options": [
+        {
+          "id": "A",
+          "text": "5",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6",
+          "misconception": "reports the number of vertices, which coincides with the tree size only by accident here"
+        },
+        {
+          "id": "C",
+          "text": "4",
+          "misconception": "reports the number of surplus edges, the quantity computed in the first stage"
+        },
+        {
+          "id": "D",
+          "text": "9",
+          "misconception": "reports every edge of the graph instead of the subset a tree keeps"
+        }
+      ],
+      "practice": "combining a cycle count with a tree size",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 41,
+        "p75Sec": 62
+      },
+      "scope": "core-scope",
+      "stem": "An undirected connected graph has six vertices and nine edges. First determine how many edges are independent of any choice of spanning tree, in the sense that they are the edges beyond those a tree would use, and then state how many edges a spanning tree on those same six vertices contains. What is the number of edges in that spanning tree?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "graph",
+        "spanning-tree",
+        "cycles"
+      ],
+      "topic": "Independent cycles and the edges of a spanning tree",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.38,
+      "explanation": "The heap property is a statement about each node against its own children, and every parent in the drawing is at least as large as either of its children, so the structure is a valid max-heap; siblings are never compared with each other, which is why the apparent problem in the third option is not one. Removing the root means moving the last slot, which holds 8, into the root, giving 8, 10, 9, 5, 6, 7. The repair compares 8 against the children 10 and 9 and moves the larger, 10, up, and then compares 8 against the single child below it, which is 6, and stops, leaving 10, 8, 9, 5, 6, 7. Two checks confirm it: the root now holds the largest remaining value, and no parent is smaller than a child anywhere in the result.",
+      "format": "DIAGRAM",
+      "hint": "Ask whether the drawing obeys the heap property, then trace the repair after the root is removed.",
+      "id": "int3-7.1-0041",
+      "learningObjective": "read a heap structure and predict the result of an operation",
+      "options": [
+        {
+          "id": "A",
+          "text": "It obeys the heap property, and removing the root and repairing leaves 10 at the root",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It obeys the heap property, and removing the root and repairing leaves 9 at the root",
+          "misconception": "assumes the second-largest value is the right child rather than the larger child"
+        },
+        {
+          "id": "C",
+          "text": "It breaks the heap property, because 10 and 9 are siblings and are not in decreasing order",
+          "misconception": "believes a heap orders siblings against each other as well as parents against children"
+        },
+        {
+          "id": "D",
+          "text": "It obeys the heap property, and removing the root and repairing leaves 7 at the root",
+          "misconception": "takes the value that is last in level order rather than the largest remaining value"
+        }
+      ],
+      "practice": "interpreting a heap diagram",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "scope": "core-scope",
+      "stem": "The values below sit in a max-heap, drawn as a tree and given in level order as 12, 10, 9, 5, 6, 7, 8.\n```\n            12\n          /    \\\n        10      9\n       /  \\    / \\\n      5    6  7   8\n```\nWhich statement about this structure is correct?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "binary-heap",
+        "diagram",
+        "heap-property"
+      ],
+      "topic": "Reading a max-heap drawn as a tree",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 28,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.28,
+      "discrimination": 0.32,
+      "explanation": "A selection sort repeatedly picks the smallest element of the unsorted part and swaps it into the next position, and it always scans the whole unsorted part to find that smallest element, so the number of comparisons is the number of pairs of positions it ever looks at, and for eight positions that is eight times seven over two, or twenty-eight. Two independent evaluations agree, evaluating the formula and running the double loop that a selection sort performs. The count does not depend on the order of the input, which is the property that makes selection sort useful as a subroutine when swaps are expensive, and it is the quadratic cost that makes the method unsuitable for large inputs. Fifty-six would come from counting ordered pairs rather than unordered ones, and twenty-one from stopping the final pass early.",
+      "format": "NUMERIC",
+      "hint": "Every unordered pair of positions is compared exactly once, so count the pairs.",
+      "id": "int3-7.1-0042",
+      "learningObjective": "count the comparisons of a selection sort",
+      "options": [],
+      "practice": "counting sort comparisons",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 49,
+        "p75Sec": 74
+      },
+      "scope": "core-scope",
+      "stem": "A selection sort repeatedly picks the smallest element of the unsorted part and swaps it into the next position, and it always scans the whole unsorted part to find that smallest element. Applied to a list of eight distinct values, how many comparisons of two values does it make in total? Report the number of comparisons.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "selection-sort",
+        "comparison-count",
+        "quadratic"
+      ],
+      "topic": "Comparisons made by a selection sort",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctIds": [
+          "A",
+          "C",
+          "D"
+        ]
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "explanation": "The definition of O is an existence statement: the cost is eventually no larger than some fixed multiple of the stated function. Because it is an upper limit, replacing the function by a larger one preserves the statement, since a bound on a smaller quantity is a bound on a larger one, which is why the first statement holds and the second does not. A constant cost is bounded above by a constant multiple of n for all sufficiently large n, so the third statement holds. A bound is unchanged by an additive constant because the defining inequality has a multiplicative constant in it, so the fourth statement holds, whereas a constant inside a function such as a shift in an argument is a different matter. The fifth statement confuses two procedures that both satisfy a bound with two procedures that actually take the same time, since a bound says nothing about the constant factors.",
+      "format": "MULTI_SELECT",
+      "hint": "A bound is an upper limit, so replacing it by a larger function can only loosen it.",
+      "id": "int3-7.1-0043",
+      "learningObjective": "judge which claims about growth bounds follow from the definition",
+      "options": [
+        {
+          "id": "A",
+          "text": "If a procedure is O of n then it is also O of n log n, since the bound only grows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "If a procedure is O of n log n then it is also O of n, since the bound only grows",
+          "misconception": "treats replacing a bound by a smaller function as though it loosened the limit"
+        },
+        {
+          "id": "C",
+          "text": "A procedure whose cost is constant on every input is also O of n",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Adding a fixed constant to a cost leaves its order of growth unchanged",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "Two procedures of the same order necessarily take the same time on a given input",
+          "misconception": "reads a shared order as a shared running time rather than a shared bound"
+        }
+      ],
+      "practice": "judging asymptotic claims",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 36,
+        "p75Sec": 80
+      },
+      "scope": "core-scope",
+      "stem": "A running time is described by a bound of the form O of some function of the input size. Which of the following statements follow from that definition? Select every statement that is correct.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "big-o",
+        "asymptotics",
+        "definitions"
+      ],
+      "topic": "Statements that follow from the definition of a growth bound",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctIds": [
+          "C",
+          "E",
+          "B",
+          "D",
+          "A"
+        ]
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.38,
+      "explanation": "Only T has no incoming edge, so T is taken first and that releases S and R. Of those two, R is alphabetically smaller, so R is taken second, and it does not yet release Q because S is still unscheduled and Q requires both. Taking S third reduces Q's remaining prerequisites to none, so Q is taken fourth, and P follows because it requires only Q. Two independent implementations agree, one that repeatedly removes the smallest ready vertex and one that enumerates every order consistent with the edges. Six orders satisfy the edge constraints, so the tie-break rule is what makes the answer unique, and an answer that lists T first but then takes S before R has respected the constraints while breaking the stated rule.",
+      "format": "ORDERING",
+      "hint": "Only T has no prerequisite, and after each removal look for the alphabetically smallest vertex with none left.",
+      "id": "int3-7.1-0044",
+      "learningObjective": "produce a topological order under an explicit tie-break rule",
+      "options": [
+        {
+          "id": "A",
+          "text": "P",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "S",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "T",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Q",
+          "misconception": ""
+        },
+        {
+          "id": "E",
+          "text": "R",
+          "misconception": ""
+        }
+      ],
+      "practice": "tracing a topological sort",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 40,
+        "p75Sec": 57
+      },
+      "scope": "core-scope",
+      "stem": "A course-prerequisite graph has directed edges from each course to the courses that require it: T to S, T to R, S to Q, R to Q, and Q to P. A topological sort repeatedly takes the alphabetically smallest vertex that has no unscheduled prerequisite, and continues until all five are scheduled. In what order are the vertices taken?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "topological-sort",
+        "directed-graph",
+        "traversal-order"
+      ],
+      "topic": "Order produced by a topological sort with a stated tie-break",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "The first pass walks the whole array and finds exactly one inversion, the pair 5 and 4, which it swaps, leaving 1, 2, 3, 4, 5, and the flag is therefore set. Because the flag was raised, the break does not fire and the loop runs again, incrementing the counter a second time. The second pass finds no inversion, so the flag stays false and the loop stops. Two independent simulations agree, and the same routine returns one pass for an already sorted array and four for a reversed one, which is the behaviour the early exit exists to produce. The answer of one is the tempting mistake, since the array really is sorted after the first pass, but the routine can only discover that by looking for a swap that does not happen.",
+      "format": "CODE_TRACING",
+      "hint": "The array is sorted at the end of the first pass, but the loop only knows that after checking the flag.",
+      "id": "int3-7.1-0045",
+      "learningObjective": "count the passes of a sort with a swap flag",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "misconception": "stops the moment the array is sorted, skipping the pass that would confirm it"
+        },
+        {
+          "id": "C",
+          "text": "3",
+          "misconception": "counts the confirming pass twice, as though the flag were raised again on it"
+        },
+        {
+          "id": "D",
+          "text": "4",
+          "misconception": "counts one pass per element rather than one pass per outer iteration"
+        }
+      ],
+      "practice": "tracing a sort loop",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 44,
+        "p75Sec": 63
+      },
+      "scope": "core-scope",
+      "stem": "A bubble sort with an early exit is written as follows.\n```\nint[] a = {1, 2, 3, 5, 4};\nint passes = 0;\nfor (int i = 0; i < a.length - 1; i++) {\n    boolean swapped = false;\n    passes++;\n    for (int j = 0; j < a.length - 1 - i; j++) {\n        if (a[j] > a[j + 1]) {\n            int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t;\n            swapped = true;\n        }\n    }\n    if (!swapped) break;\n}\n```\nHow many times does the outer loop body execute before the loop finishes?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "bubble-sort",
+        "early-exit",
+        "code-tracing"
+      ],
+      "topic": "How many outer passes an early-exit bubble sort performs",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.54,
+      "discrimination": 0.42,
+      "explanation": "The three cases of the standard classification are decided by comparing the exponent of the recursive term with that of the joining term, and here the recursion multiplies its argument count by three while dividing the size by two, so the number of levels deepens by the base-two logarithm of three, which is about one and a half. The joining work grows like n to the first power, and one is smaller than one and a half, so the joining work is dominated and the total is dominated by the leaves. Evaluating the recurrence confirms it: the cost divided by n to the base-two logarithm of three climbs towards a constant of about three, so the growth really is n to the base-two logarithm of three. The linear-times-logarithmic reading is the classic error, because it holds when a problem splits into two halves, where the branching factor and the halving exactly cancel and the joining work is what is left over.",
+      "format": "FORMULA_APPLICATION",
+      "hint": "Compare the exponent of the recursive term with the exponent of the work done at each node.",
+      "id": "int3-7.1-0046",
+      "learningObjective": "classify a divide-and-conquer recurrence by its growth",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is n raised to the base-two logarithm of three, since the recursive work outweighs the joining work",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is n times the base-two logarithm of n, since the joining work is linear and the depth is logarithmic",
+          "misconception": "adds the depth to the joining cost and ignores the factor of three branching at each level"
+        },
+        {
+          "id": "C",
+          "text": "It is linear in n, because the work done per element does not change from one level down",
+          "misconception": "assumes a fixed cost per element settles the total without any branching"
+        },
+        {
+          "id": "D",
+          "text": "It is quadratic in n, because each of the three subproblems is solved on a full copy of the input",
+          "misconception": "blames the branching factor on copying the input rather than on solving three subproblems"
+        }
+      ],
+      "practice": "classifying a recurrence",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 48,
+        "p75Sec": 69
+      },
+      "scope": "core-scope",
+      "stem": "A procedure splits a problem of size n into three problems of size n over two, solves each, and then spends an amount of work proportional to n joining the answers together, so its cost satisfies T of n equals three T of n over two, plus n, with T of one equal to one. What order does T grow in as n grows?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "divide-and-conquer",
+        "recurrence",
+        "master-theorem"
+      ],
+      "topic": "Growth of a divide-and-conquer recurrence",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 16,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.32,
+      "explanation": "In a complete binary tree the leaves occupy the last row, and every other node is internal, so counting the nodes with a child gives the answer directly: of thirty-one nodes indexed from zero, the ones whose left child falls outside the tree are those with index fifteen and above, which is exactly sixteen of them. Two independent counts agree, enumerating the indices with no child and using the fact that a complete tree of thirty-one nodes is a full tree of depth four, where half of the nodes at each level are leaves and the last level holds sixteen. The count is also one more than the number of internal nodes, which is fifteen, since in a full binary tree every internal node has exactly two children. A student who answers thirty-one has counted every node, and fifteen has counted the internal nodes.",
+      "format": "NUMERIC",
+      "hint": "In a complete binary tree every node except those in the last row has a child.",
+      "id": "int3-7.1-0047",
+      "learningObjective": "count the leaves of a complete binary tree",
+      "options": [],
+      "practice": "counting nodes in a tree",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 35,
+        "p75Sec": 75
+      },
+      "scope": "core-scope",
+      "stem": "A complete binary tree is a binary tree in which every position is filled except possibly the rightmost positions of the last row, and a node at index i has children at indices two i plus one and two i plus two, counting from zero. How many leaves does such a tree have when it contains thirty-one nodes? Report the number of leaves.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "binary-tree",
+        "complete-tree",
+        "nodes"
+      ],
+      "topic": "Leaves of a complete binary tree",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "explanation": "Depending on only the two previous values says what each call computes, not how many calls are made. The count of calls satisfies C of n equals C of n minus one plus C of n minus two plus one, since every call above the base cases makes two more calls, and the solution of that recurrence grows exponentially, so a value at position thirty already requires over a million calls. The quadratic reading misapplies the halving argument, which requires each call to shrink the problem; here both children are almost as large as the parent. The diagnosis points at the fix, since storing each computed value in a table so that later calls read it instead of recomputing it changes the count to the number of distinct subproblems, which is linear, and that change is exactly memoisation.",
+      "format": "ERROR_ANALYSIS",
+      "hint": "The count of calls, not the work inside a call, is what the claim is about.",
+      "id": "int3-7.1-0048",
+      "learningObjective": "diagnose a linear claim about an exponential routine",
+      "options": [
+        {
+          "id": "A",
+          "text": "The subproblems repeat, so the count of calls satisfies a recurrence that grows exponentially in n",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The routine is linear, but only because the two base cases keep the recursion from descending further",
+          "misconception": "accepts the linear bound and credits the base cases for preventing the blow-up"
+        },
+        {
+          "id": "C",
+          "text": "The routine is quadratic, since each of the two recursive calls handles about half of the remaining work",
+          "misconception": "applies a halving argument to two calls that each handle almost all of the work"
+        },
+        {
+          "id": "D",
+          "text": "The routine is constant, since a single addition already produces the answer from its two inputs",
+          "misconception": "treats the arithmetic at the bottom of the recursion as the whole computation"
+        }
+      ],
+      "practice": "diagnosing a recurrence claim",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 39,
+        "p75Sec": 81
+      },
+      "scope": "core-scope",
+      "stem": "A routine computes the n-th number of the sequence one, one, two, three, five and so on, and the first two values are given directly while every later value is obtained by adding the two values before it. A student computes the number of calls needed for the value at n and concludes the routine is linear, because each value depends on only the two before it. What is wrong with the conclusion?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "recursion",
+        "exponential",
+        "error-analysis"
+      ],
+      "topic": "Why a naive recursive sequence blows up",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.4,
+      "discrimination": 0.36,
+      "explanation": "The choice follows from the full set of required operations, and a hash table is deliberately blind to order: it can tell you whether a key is present in expected constant time and can it also report the smallest key or list the keys in order, because nothing in the structure records how the keys relate. An ordered search tree supports all of these, giving a logarithmic presence test, an in-order walk in time linear in the number of keys, and range queries, at the cost of a bound that is logarithmic rather than constant. The usual performance gap between the two on a presence test is real but modest, and it is far smaller than the cost of the ordered report, so the report decides the question. Option four states the constant-time claim wrongly, since even a perfectly balanced tree needs a logarithmic number of comparisons.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask whether the program ever needs the keys in order, and whether it must bound the worst case.",
+      "id": "int3-7.1-0049",
+      "learningObjective": "choose between hashing and an ordered tree on the workload",
+      "options": [
+        {
+          "id": "A",
+          "text": "An ordered search tree, because in-order traversal is the operation hashing cannot provide",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A hash table, because it answers the presence test faster than any tree can manage",
+          "misconception": "weighs only the presence test and ignores the ordered report the program requires"
+        },
+        {
+          "id": "C",
+          "text": "A hash table plus a second index of the same keys, so that the ordering can be recovered on demand",
+          "misconception": "proposes storing the same data twice without asking whether one structure provides both"
+        },
+        {
+          "id": "D",
+          "text": "An ordered search tree, because a tree also gives the presence test in constant time like a table",
+          "misconception": "attributes a constant-time lookup to a balanced tree, whose bound is logarithmic"
+        }
+      ],
+      "practice": "choosing between structures",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 43,
+        "p75Sec": 58
+      },
+      "scope": "core-scope",
+      "stem": "A lookup table must answer whether a key is present, and the program also needs to walk all the keys in increasing order to produce a report. Which structure should be used, and on what grounds?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "hashing",
+        "search-tree",
+        "structure-choice"
+      ],
+      "topic": "When a hash table beats an ordered tree",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 9,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "Reading the pattern from the left, the ones fall in positions one, two, four, six, seven, nine, eleven, twelve and thirteen of the sixteen, which is nine of them, leaving seven zeros. Two independent counts agree, tallying the characters directly and applying the standard clearing trick that repeatedly removes the lowest set bit, and both give nine. A related check is that the pattern as a whole is the number fifty-four thousand nine hundred and sixty-eight, and a hexadecimal grouping into four nibbles gives thirteen, six, eleven and eight, whose binary lengths sum to three plus two plus three plus one, which is also nine. The answer sixteen confuses the number of bits with the number of ones, and eight would come from assuming the pattern alternates perfectly, which it does not.",
+      "format": "NUMERIC",
+      "hint": "Read the pattern from left to right and tally the ones; the length of the word is a red herring.",
+      "id": "int3-7.1-0050",
+      "learningObjective": "count the one bits of a given pattern",
+      "options": [],
+      "practice": "counting set bits",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 47,
+        "p75Sec": 64
+      },
+      "scope": "core-scope",
+      "stem": "The sixteen-bit pattern 1101011010111000 is stored in a machine word. How many of its bits have the value one? Report the count as a number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "bit-manipulation",
+        "popcount",
+        "binary-representation"
+      ],
+      "topic": "Counting one bits in a machine word",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "explanation": "The loop condition requires both halves to have a live element, so the moment one is exhausted the routine stops, and everything still queued in the other half is discarded. With the two arrays given, the loop copies 1, then 2, then 3, then 4, at which point the second half is empty and the remaining 5 is never copied, leaving the last slot at its initial value of zero. The repair is the two drain steps that copy whatever remains of the first half and then of the second, and until they are present a merge sort silently loses elements rather than failing, which is the worst kind of defect in a routine whose output is used for arithmetic. Checking the output length against the combined input length on every call is a cheap guard against exactly this.",
+      "format": "BUG_SPOTTING",
+      "hint": "Ask what happens to whichever half still has elements when the other half runs out.",
+      "id": "int3-7.1-0051",
+      "learningObjective": "find a missing drain step in a merge routine",
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns 1, 2, 3, 4, 0, because the loop stops once one half is spent and never drains the other",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns 1, 2, 3, 4, 5, because the out array was allocated at the full combined length",
+          "misconception": "believes allocating the right number of slots fills the left ones"
+        },
+        {
+          "id": "C",
+          "text": "It returns 2, 3, 4, 5, 0, because the first element of the shorter half is dropped by the loop",
+          "misconception": "misplaces the loss at the front of the output rather than at its end"
+        },
+        {
+          "id": "D",
+          "text": "It returns 1, 2, 3, 5, 0, because the comparison stops as soon as the two fronts differ in parity",
+          "misconception": "invents a rule about the values that the code does not contain"
+        }
+      ],
+      "practice": "debugging a merge routine",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 34,
+        "p75Sec": 70
+      },
+      "scope": "core-scope",
+      "stem": "A merge routine is meant to join two already sorted arrays into one sorted array of the combined length.\n```\nint[] merge(int[] a, int[] b) {\n    int[] out = new int[a.length + b.length];\n    int i = 0, j = 0, k = 0;\n    while (i < a.length && j < b.length) {\n        if (a[i] <= b[j]) out[k++] = a[i++];\n        else out[k++] = b[j++];\n    }\n    return out;\n}\n```\nCalled with a holding 1, 3, 5 and b holding 2, 4, what does it return, and what is missing?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "merge-sort",
+        "off-by-one",
+        "code-debugging"
+      ],
+      "topic": "A merge that stops before the ends of the input",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer identifies the mechanism as memory locality rather than arithmetic effort, and makes the difference concrete in terms of addresses rather than in the abstract. Multiplying a whole row visits consecutive memory locations, so the processor fetches a cache line and the remaining entries on that line are already in the cache when the loop needs them. Multiplying a whole column strides through memory by a whole row length, so every single access lands on a different cache line and almost every fetch brings nothing that the next access can use. The number of multiplications is the same in both, and the number of instructions per multiplication is roughly the same, so the difference has to be in the cost of getting each operand to the arithmetic unit; with a row length much larger than a cache line the row-wise version can approach a many-fold speed-up even though the loop bodies are textually identical. The answer should then propose a measurement that tests the mechanism rather than the outcome, and the natural one is to vary the matrix dimension and check that the speed-up ratio changes in the way the explanation predicts, growing as the row length grows and flattening once the row fits in cache. Changing the row padding to break alignment, or running the same test on a machine with a much smaller cache, provides a second discriminating check, because if the explanation is right the two effects should move together. A strong answer also names the standard remedy, which is to restructure the column-wise loop into a blocked or tiled traversal so that each pass works on a submatrix small enough to stay resident, preserving the arithmetic exactly while changing only the order in which it is performed. A weak answer says only that caching is involved without saying what is being cached or why the pattern matters, or offers the timing comparison alone, which establishes a difference but cannot distinguish this explanation from any other, such as a difference in instruction count or in compiler optimisation."
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "difficulty": 0.52,
+      "discrimination": 0.42,
+      "explanation": "The item asks for a mechanism and a test, so a response that reports the two timings has answered only half of it. Marking rewards naming what is being reused between successive accesses, and rewards a measurement whose outcome could come out the other way if the explanation were wrong.",
+      "format": "CONCEPTUAL_REASONING",
+      "hint": "Compare the addresses the two loops touch, not the number of multiplications they perform.",
+      "id": "int3-7.1-0052",
+      "learningObjective": "explain how memory layout and traversal order interact",
+      "options": [],
+      "practice": "explaining a performance effect",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 38,
+        "p75Sec": 76
+      },
+      "scope": "core-scope",
+      "stem": "A loop multiplies every entry of a large square matrix by two, and the program can be written either to take the rows in turn or to take the columns in turn. The arithmetic is identical and the count of multiplications is identical, yet the two versions can differ in running time by a large factor. Explain why, and describe a measurement that would confirm your explanation rather than merely show that the times differ.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "memory-locality",
+        "cache",
+        "performance"
+      ],
+      "topic": "Why traversal order changes the cost of the same arithmetic",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 13,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "explanation": "Pairing the ten values into five pairs costs five comparisons and settles a smallest and a largest for each pair. The smaller member of each pair can only be the overall smallest and the larger member can only be the overall largest, so the five candidates for the minimum and the five for the maximum are each reduced by four more comparisons, giving five plus four plus four, which is thirteen. Two independent routes agree, running that construction on a concrete array of ten values and applying the standard closed form for the best possible count, which is three n over two minus two and gives thirteen for ten, the case of an even number of values. Finding the minimum and then the maximum separately costs nineteen, and the pairing argument shows why that is wasteful, since the first comparison of each pair already answers one of the two questions.",
+      "format": "NUMERIC",
+      "hint": "Compare values in pairs first, which settles one small and one large value at a time.",
+      "id": "int3-7.1-0053",
+      "learningObjective": "count the comparisons needed to find both the smallest and largest value",
+      "options": [],
+      "practice": "optimising a comparison count",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 42,
+        "p75Sec": 82
+      },
+      "scope": "core-scope",
+      "stem": "Ten values are held in an array and the task is to identify both the smallest and the largest of them, using nothing but comparisons of two values. What is the smallest number of comparisons that always suffices? Report the number of comparisons.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "comparisons",
+        "min-and-max",
+        "lower-bound"
+      ],
+      "topic": "Fewest comparisons to find both an extreme and its opposite",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 14062.5,
+        "tolerance": 0.01
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "difficulty": 0.3,
+      "discrimination": 0.34,
+      "explanation": "Elapsed time is the cycle count divided by the rate, so forty-five million over three point two billion is one point four zero six two five hundredths of a second. Since one second is a million microseconds, multiplying by a million gives fourteen thousand and sixty-two and a half microseconds. Three independent evaluations agree: the division, the same division written as forty-five over three thousand two hundred, and the conversion to milliseconds of fourteen point zero six two five, which times ten gives the same figure. The result is a small number of microseconds because a sort of a modest size does very little work, and a student who reports one point four zero six two five has stopped at seconds without converting, while a student who reports zero point zero one four zero six two five has converted the wrong way.",
+      "format": "CALCULATION_WITH_UNITS",
+      "hint": "Divide the cycles by the cycles per second, then convert seconds into microseconds.",
+      "id": "int3-7.1-0054",
+      "learningObjective": "convert a cycle count into elapsed time with the right units",
+      "options": [],
+      "practice": "converting processor counts to time",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 46,
+        "p75Sec": 59
+      },
+      "scope": "core-scope",
+      "stem": "A processor completes three point two billion instruction cycles each second, and a particular sort consumes forty-five million cycles when run on that processor. How many microseconds does the sort take? Report the value in microseconds as a number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "units",
+        "performance",
+        "arithmetic"
+      ],
+      "topic": "Converting a cycle count into elapsed time",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer turns the amortised claim into a measurable prediction, because the claim is about an average over a whole sequence of operations rather than about any single one, and an experiment that times one append cannot test it. The prediction to test is that if n items are appended to an array that starts with capacity one and doubles whenever it fills, then the total time for the whole sequence grows no faster than a fixed multiple of n, so the cost per append plotted against n should flatten towards a horizontal line. The design should therefore run the sequence for a geometric ladder of sizes, for example ten, a hundred, ten thousand and a million appends, timing the whole sequence rather than any individual append, and repeating each size many times to get a stable central estimate. It should record both the total time and the number of copies, and it should note that the very first append after each doubling is expected to be individually slow, so any instrumentation that times single appends will see spikes and must average over the sequence or report a distribution. The crucial addition is the stated refutation criterion, and it should be a quantitative one: if the measured cost per append grows without bound as n increases, or if the total time for a sequence of n appends is observed to scale faster than linearly, the claim is refuted, and in particular a total that scales as n squared would be the signature of copying on every append rather than on a geometric schedule. A strong answer also says what would be controlled, such as running each size in a fresh process so that the heap state from the previous size cannot bias the next, and warming up before the first timed run so that the cost of the very first call is not attributed to the algorithm. A weak answer times a single append at one size and concludes from it, which cannot distinguish a constant amortised cost from a constant true cost, and a weaker answer omits the refutation criterion entirely, so the experiment is incapable of disagreeing with the claim."
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "difficulty": 0.56,
+      "discrimination": 0.42,
+      "explanation": "The item tests whether a student can convert an abstract amortised claim into a falsifiable measurement, and the mark scheme rewards an explicit refutation criterion, repeated trials, and the recognition that a single timed append cannot test an average.",
+      "format": "EXPERIMENT_DESIGN",
+      "hint": "An amortised claim is about a whole sequence of operations, so time the sequence.",
+      "id": "int3-7.1-0055",
+      "learningObjective": "design an experiment that could falsify an amortised claim",
+      "options": [],
+      "practice": "designing a measurement",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 50,
+        "p75Sec": 65
+      },
+      "scope": "core-scope",
+      "stem": "A programmer claims that appending to an array that doubles its capacity is constant time per append in the amortised sense. Design an experiment that would support or refute the claim, and state what result would count as a refutation.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "amortised-analysis",
+        "experiment-design",
+        "measurement"
+      ],
+      "topic": "Designing a measurement of an amortised claim",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A complete answer has three parts and must be explicit about which quantity is being generalised. The statement to prove is that for every integer n at least one, the sum of the odd numbers from one to the term two n minus one equals n squared. The base case takes n equal to one, where the sum is a single term, one, and one squared is also one, so the statement holds at the first value. The inductive hypothesis then assumes the statement holds for some particular integer k, that is that one plus three plus five and so on up to two k minus one equals k squared, and the inductive step must show that the statement holds at k plus one, where the new sum has one more term, namely two k plus one, so the sum becomes k squared plus two k plus one, which is exactly the square of k plus one, and the step closes. An answer that only checks a few small cases has verified the identity numerically without proving it, and a weak answer states the hypothesis without using it in the step, which is the most common failure. A strong answer also notes why the identity is a statement about odd numbers specifically, since the extra term on passing from k to k plus one is two k plus one, and that is the whole content of the step. A polished answer may remark that the two sides can also be seen as the areas of nested squares, which explains why the identity is true as well as proving it, and may comment that the induction would fail if the step were attempted with the even numbers, where the corresponding claim does not hold."
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "explanation": "The mark scheme requires the general statement, a genuine base case, an explicit hypothesis, and a step that uses that hypothesis to reach the next case. Numerical confirmation is not a proof, and a step that restates the goal without invoking the hypothesis does not close the argument.",
+      "format": "PROOF",
+      "hint": "Work out what one extra term does to the sum before writing anything down.",
+      "id": "int3-7.1-0056",
+      "learningObjective": "write an inductive proof of a sum identity",
+      "options": [],
+      "practice": "proving an identity by induction",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 37,
+        "p75Sec": 71
+      },
+      "scope": "core-scope",
+      "stem": "Prove by mathematical induction that the sum of the first n odd positive integers, that is one plus three plus five and so on, equals the square of n. Give the base case, the inductive hypothesis and the inductive step.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "induction",
+        "proof",
+        "sums"
+      ],
+      "topic": "Inductive proof of a sum identity",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "value": 12,
+        "tolerance": 0
+      },
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "explanation": "Counting all two-to-the-four subsets gives sixteen, but that counts duplicates, because the two occurrences of a and the two of b are interchangeable. Building the set of distinct subsequences one character at a time gives one after a, two after b, four after a again, since the new a reproduces four sequences already present, and twelve after the final b, which contributes eight new ones and reproduces four. Two independent computations agree, an explicit construction of the set and a running dynamic program that doubles the count and subtracts the count at the position of the previous occurrence of the same character. The answer sixteen is the count with no duplicates removed, and eight is what the count would be if the second copy of each letter were ignored, as it would be in a string with four distinct characters.",
+      "format": "NUMERIC",
+      "hint": "Each new character doubles the count, except when it has already been used, in which case some subsequences are duplicates.",
+      "id": "int3-7.1-0057",
+      "learningObjective": "count distinct subsequences of a short string",
+      "options": [],
+      "practice": "counting distinct subsequences",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 41,
+        "p75Sec": 77
+      },
+      "scope": "core-scope",
+      "stem": "A subsequence of a string uses some of its characters in their original order but need not use adjacent ones, and the empty subsequence counts as one. How many distinct subsequences does the four-character string abab have, counting the empty one? Report the count as a number.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "strings",
+        "counting",
+        "dynamic-programming"
+      ],
+      "topic": "Counting the distinct subsequences of a string",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "difficulty": 0.42,
+      "discrimination": 0.36,
+      "explanation": "A binary heap stores only the relation that a parent outranks its children, and that is enough to find the extreme element at the root and to restore the relation along one path after an update, which is why both operations cost the height of the tree, that is, the base-two logarithm of the number of elements. A sorted array gives constant-time access to the extreme but pays a linear cost to insert, because the remaining elements must shift. Neither structure supports both cheaply, and the heap's real cost is not memory but order: from a heap one cannot list the jobs from highest to lowest without removing them one at a time, whereas a sorted array can. A program that needs occasional ordered reporting may prefer the array, and one that only adds and takes should prefer the heap; the claim of dominance in the third option is false precisely because the ordered walk is exactly what the heap does not give.",
+      "format": "CONCEPT_MCQ",
+      "hint": "Ask which operations the workload actually performs often, and what each structure makes expensive.",
+      "id": "int3-7.1-0058",
+      "learningObjective": "compare a heap-backed and an array-backed priority queue",
+      "options": [
+        {
+          "id": "A",
+          "text": "It gives logarithmic insertion and removal, at the price of losing the ability to walk the jobs in order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It gives constant-time insertion and removal, at the price of using more memory than a sorted array",
+          "misconception": "attributes constant-time updates to a heap, whose updates walk a logarithmic path"
+        },
+        {
+          "id": "C",
+          "text": "It gives logarithmic updates while keeping the jobs in priority order, so it dominates the sorted array",
+          "misconception": "believes a heap also supports an ordered walk without extra bookkeeping"
+        },
+        {
+          "id": "D",
+          "text": "It gives faster updates because it stores fewer elements, since low-priority jobs are discarded",
+          "misconception": "credits the heap with discarding jobs, which no priority queue may do"
+        }
+      ],
+      "practice": "weighing two implementations",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 45,
+        "p75Sec": 54
+      },
+      "scope": "core-scope",
+      "stem": "A scheduling program must repeatedly add jobs with a priority and repeatedly take out the job with the highest priority, and the priorities change only when a job is added or taken. A binary heap and a sorted array both support both requests. What does the heap buy, and what does it cost?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "priority-queue",
+        "heap",
+        "sorted-array"
+      ],
+      "topic": "Why a queue of priorities is built on a heap",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "correctId": "A"
+      },
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "explanation": "A spanning tree on eight vertices keeps seven edges, so thirteen minus seven is six edges beyond the tree, and those six are the independent cycles, since removing any one of them leaves a graph with one fewer cycle. The total degree is the sum of all vertex degrees, and since each of the thirteen edges contributes one to the degree of each of its two endpoints, the total is twenty-six. Two independent routes agree, doubling the edge count directly and adding the degrees of a concrete graph with the given vertex and edge counts, whose degrees sum to twenty-six. The distinction between the two numbers in the item is the point: six is a count of edges and twenty-six is a count of incidences, and confusing them is the common error.",
+      "format": "TWO_STAGE",
+      "hint": "Each edge is counted once at each of its two endpoints, so the total degree is twice the edge count.",
+      "id": "int3-7.1-0059",
+      "learningObjective": "relate a graph's edge count to its total degree",
+      "options": [
+        {
+          "id": "A",
+          "text": "26",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "13",
+          "misconception": "reports the edge count without doubling it for the two endpoints of each edge"
+        },
+        {
+          "id": "C",
+          "text": "6",
+          "misconception": "reports the surplus edges computed in the first stage instead of the degree total"
+        },
+        {
+          "id": "D",
+          "text": "7",
+          "misconception": "reports the number of edges a spanning tree keeps, which is a different count"
+        }
+      ],
+      "practice": "combining two edge counts",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 49,
+        "p75Sec": 60
+      },
+      "scope": "core-scope",
+      "stem": "An undirected connected graph has eight vertices and thirteen edges. First determine how many edges lie beyond those a spanning tree would keep, and then state the total of the degrees of all eight vertices. What is that total degree?",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "graph",
+        "degree",
+        "spanning-tree"
+      ],
+      "topic": "Surplus edges and the total degree of a graph",
+      "unit": "Unit 7",
+      "version": 1
+    },
+    {
+      "answer": {
+        "exemplar": "A good answer starts from the observation that algorithms differ in how much work they do on a nearly ordered input as against a random one, and that adaptivity is the property of exploiting that difference. What it buys is speed on the inputs that occur in practice, since real data is often close to ordered: a data set that receives a few small updates a day can be resorted by an adaptive procedure for far less work than a fresh sort would cost, and the same is true of merging two long runs that are each already sorted. The reason it is not free is that the procedure has to notice, which means comparing elements that a non-adaptive method would not have compared; a method achieves the property precisely by performing comparisons whose outcomes are discarded when the input is random, so on a random input an adaptive procedure does strictly more work than a non-adaptive one of the same average cost. That is the trade, and a good answer states it as a trade rather than as a free improvement. The merge sort is not adaptive because it never looks at the order of the input: it splits the list by position, sorts each half independently and merges by comparing fronts, and the comparisons it makes are entirely determined by the two halves rather than by the arrangement of the values, so a nearly sorted input costs exactly the same as a random one. A strong answer gives the contrasting case, since insertion sort is adaptive, performing one comparison per element on an already sorted list and the full quadratic number on a random one, and it may note that timsort-style methods achieve adaptivity by first identifying sorted runs and merging only those, which is adaptivity assembled from two non-adaptive pieces. A weak answer defines the term without saying what it is worth, or claims a merge sort is adaptive because it examines all of its elements, which confuses touching the data with responding to its order."
+      },
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 4
+      },
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "explanation": "The item rewards an answer that states the benefit, the price in comparisons wasted on random input, and a mechanism-based reason why a merge sort cannot benefit, and it penalises an answer that asserts adaptivity without pricing it.",
+      "format": "EXPLANATION",
+      "hint": "Ask how the procedure reacts to the order of the input, and what that reaction costs on a random input.",
+      "id": "int3-7.1-0060",
+      "learningObjective": "define an adaptive sort and explain what it costs",
+      "options": [],
+      "practice": "explaining an algorithmic property",
+      "prerequisiteQuestionIds": [],
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "attestation": "authored from first principles; no protected content used",
+        "author": "bank-team-int3",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-int3",
+        "stimulusLicense": null
+      },
+      "relatedQuestionIds": [],
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 36,
+        "p75Sec": 66
+      },
+      "scope": "core-scope",
+      "stem": "A sorting procedure is called adaptive when the number of operations it performs depends on how far the input is from being in order. Explain what this buys, why it is not free, and give a reason a merge sort is not adaptive.",
+      "stimulus": null,
+      "subject": "INTEGRATED_3",
+      "tags": [
+        "unit-7",
+        "adaptive-sort",
+        "sorting",
+        "invariance"
+      ],
+      "topic": "What it means for a sort to be adaptive",
+      "unit": "Unit 7",
+      "version": 1
+    }
+  ]
+}
