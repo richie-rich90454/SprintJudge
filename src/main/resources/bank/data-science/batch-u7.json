@@ -1,0 +1,3638 @@
+{
+  "questions": [
+    {
+      "id": "datasci-7.1-0001",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A seasonal index written on a base of one hundred",
+      "learningObjective": "compute a seasonal index from a month average and the series mean",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A monthly series runs for twenty-four months and averages 120 units across the whole span. Its two Marches recorded 150 and 170 units, so the March average is 160. The scheme sets each month's factor as that month's average divided by the overall average, then writes the factor with an average month standing at 100. To the nearest whole point, what is the March index?",
+      "options": [],
+      "answer": {
+        "value": 133,
+        "tolerance": 0
+      },
+      "explanation": "The factor is 160 divided by 120, which is 1.3333, and an index on a base of 100 is that factor multiplied by 100, giving 133.33 and rounding to 133. The same number arrives by asking how many hundred units of an average month the March average is worth, which is 160 divided by 1.2 because an average month is 1.2 hundred units. Two wrong readings sit nearby. Reporting 1.33 gives the factor rather than the index, which is a scale convention rather than a different measurement but will be read by anyone downstream as a number one third as large. Reporting 100 normalises against the wrong base: dividing the March average by itself always returns 100 and says nothing about any other month, which is exactly the property a seasonal index is supposed to supply.",
+      "hint": "Divide the March average by the overall average, then express the result per hundred units of an average month.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 40,
+        "medianSec": 74,
+        "p75Sec": 118
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonality",
+        "seasonal-index"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0002",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An autocorrelation at lag one",
+      "learningObjective": "compute a sample autocorrelation at lag one from a short series",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A series of eight readings is 1, 3, 2, 4, 3, 5, 4 and 6. Using the mean of all eight readings in both sums, the lag-one autocorrelation is the sum of the products of consecutive deviations from that mean divided by the sum of the squared deviations. What is that autocorrelation?",
+      "options": [],
+      "answer": {
+        "value": 0.125,
+        "tolerance": 0.001
+      },
+      "explanation": "The mean is 3.5, so the deviations are -2.5, -0.5, -1.5, 0.5, -0.5, 1.5, 0.5 and 2.5, and their squares sum to 18. The products of consecutive pairs are 1.25, 0.75, -0.75, -0.25, -0.75, 0.75 and 1.25, which sum to 2.25, and 2.25 divided by 18 is 0.125. Dividing both sums by seven first and then taking the ratio gives the same figure, since the factor cancels. The trap is stopping at 2.25, which is the unnormalised cross-product and grows with the length of the series, so quoting it as a correlation would make a longer sample look more dependent than a shorter one. Note also how little eight points can say: the sampling band here is about 0.69, so 0.125 is not distinguishable from no lag-one dependence at all.",
+      "hint": "Subtract the mean of all eight readings from each, then divide the sum of consecutive products by the sum of squared deviations.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 46,
+        "medianSec": 86,
+        "p75Sec": 136
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "autocorrelation",
+        "lag-one"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0003",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The next one-step-ahead smoothed forecast",
+      "learningObjective": "produce a one-step-ahead forecast from a simple smoothing recursion",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Eight periods of demand are 20, 24, 22, 26, 24, 28, 26 and 30 units and the smoothing constant is 0.5. The recursion sets the first forecast equal to the first observation, and each later forecast is 0.5 times the observation just seen plus 0.5 times the previous forecast. What is the one-step-ahead forecast for period nine?",
+      "options": [],
+      "answer": {
+        "value": 28,
+        "tolerance": 0
+      },
+      "explanation": "The forecasts run 20, 20, 22, 22, 24, 24, 26, 26 and 28, and the last of these is the answer, because the eighth forecast of 26 combines the eighth observation of 30 with the seventh forecast of 26 in equal parts. Off-by-one errors dominate this item. Stopping one step early returns 26, which is the forecast for period eight and quietly ignores the most recent observation, the one piece of information the whole method exists to use. Treating the series as flat returns 30, which is the naive forecast that simple smoothing is supposed to improve on and here fails to, since the last observation happens to sit above the level. The sample mean of 25 is another comfortable wrong answer that answers a different question, and extending the average rise of 1.43 per period to get 31.4 imports a trend this method has no state to carry.",
+      "hint": "Carry the forecast forward one period at a time, making sure the final update uses the eighth observation.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 80,
+        "p75Sec": 126
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "exponential-smoothing",
+        "forecast-recursion"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0004",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Assembling a forecast from three smoothed states",
+      "learningObjective": "assemble an additive forecast from level, trend and seasonal states",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An additive triple exponential smoothing fit ends with a level state of 100 units, a trend state of 4 units per month, and a seasonal state of 10 units for the month being forecast. What is the two-month-ahead point forecast from those three states?",
+      "options": [],
+      "answer": {
+        "value": 118,
+        "tolerance": 0
+      },
+      "explanation": "The additive combination is level plus the horizon times the trend plus the seasonal state for the target month, which is 100 plus 2 times 4 plus 10, or 118. Two of the three terms are where the errors live. Using 4 rather than 2 times 4 gives 114, which reads the trend as a one-period increment and is right for the first month ahead and wrong for every month after it, which is the reason the horizon appears in the formula at all. Leaving the seasonal out entirely gives 108, and that mistake looks harmless in a month with no season and quietly over- or under-states every month that has one. The states are indexed to the month being forecast rather than to the last month observed, so a seasonal state of 10 for the target month is the one that belongs in the sum; using a seasonal state belonging to the current month instead would be a different and equally plausible error that no amount of arithmetic would catch.",
+      "hint": "The horizon multiplies the trend, and the seasonal state must be the one indexed to the month being forecast.",
+      "difficulty": 0.34,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 78,
+        "p75Sec": 122
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "holt-winters",
+        "additive-decomposition"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0005",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Removing the bias from an initialised smoothing level",
+      "learningObjective": "compute the factor that removes initialisation bias from a smoothed forecast",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A smoothed level is started at the first observation rather than estimated from the data, so its forecasts sit systematically below the level the recursion has settled on. With a smoothing constant of 0.2, what factor divides the three-step-ahead forecast to remove that bias?",
+      "options": [],
+      "answer": {
+        "value": 1.24,
+        "tolerance": 0.001
+      },
+      "explanation": "The correction is the accumulated weight the recursion has given the initial value by the third step, which is 1 plus 0.2 plus 0.04, so 1.24. The geometric form reaches the same figure from the other direction: the correction is one minus alpha cubed, over one minus alpha, which is 0.992 divided by 0.8 and again 1.24. The most attractive wrong answer is 1.25, the reciprocal of one minus alpha, which is the factor for an infinite horizon and over-corrects a three-step forecast by about one part in a hundred. That error is small, which is what makes it dangerous: it looks like a rounding difference and gets carried for years. Using 1.2 keeps only the first term and under-corrects, while 0.8 is the weight the recursion gives the previous forecast and is not a correction at all, and 0.008 is simply the cube of the constant, which is the smallest piece of the sum rather than the whole.",
+      "hint": "The bias comes from the initial value still carrying weight at step three, so add up the weights it retains.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 45,
+        "medianSec": 84,
+        "p75Sec": 132
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "bias-correction",
+        "smoothing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0006",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a time index commits a column to",
+      "learningObjective": "say what the index of a series supplies that a row number does not",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A table holds one reading per hour, but the hour column was loaded as text, so the string 9 sorts ahead of the string 10 and the stored order disagrees with the timeline. What did choosing a text column give up that a proper index would have kept?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The spacing between observations, because an index is a position on a timeline and not merely a place in a list, so an order that disagrees with the clock corrupts every gap computed from it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing that matters downstream, since the rows can be put back into the right order by eye once somebody reads the text column",
+          "misconception": "believes a mis-sorted text column can be repaired by reading it"
+        },
+        {
+          "id": "C",
+          "text": "The identity of each reading, since two hours both labelled 9 cannot be told apart once the hour label repeats in the column",
+          "misconception": "thinks a repeated hour label destroys row identity"
+        },
+        {
+          "id": "D",
+          "text": "The regularity of the interval, since a table with no index cannot reveal whether its readings are evenly spaced",
+          "misconception": "assumes no table can reveal interval regularity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An index is a coordinate, and a coordinate on a timeline carries the gaps between the points as well as the order. Once the hour is text, the order is decided by which character comes first, so nine precedes ten and every downstream calculation of a lag, a difference or a moving average is computed across the wrong neighbours. The problem is not that the readings are wrong; they are perfectly good numbers attached to the wrong moments. The other options each relocate the damage: sorting by eye repairs this file and leaves the next file broken, a repeated label is a duplicate key problem rather than an ordering problem, and interval regularity is visible in the index whenever the index is a real one.",
+      "hint": "Ask what an index knows that a position in a list does not.",
+      "difficulty": 0.34,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 40,
+        "medianSec": 76,
+        "p75Sec": 120
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "indexing",
+        "time-series"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0007",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a stationarity claim is actually about",
+      "learningObjective": "state what a claim of stationarity asserts",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An analyst reports a series as stationary because its mean is 10.2 across the first half of the sample and 10.4 across the second half, with a similar spread in both. What has that argument left out of the claim it is making?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the whole joint distribution is unchanged by a shift of time, since a series that drifts away and drifts back can match in two half-sample means while moving the whole time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The sample length, because two halves of a short series can agree by luck, and an agreement about one average settles nothing on its own",
+          "misconception": "believes a sample size alone can establish stationarity"
+        },
+        {
+          "id": "C",
+          "text": "The spread of the differences, which is a different quantity from the spread of the levels and the one that stationarity is defined on",
+          "misconception": "thinks stationarity is defined on first differences"
+        },
+        {
+          "id": "D",
+          "text": "The lag-by-lag dependence, since a stationary series is one whose every lag carries an identical correlation with the present",
+          "misconception": "describes white noise as though it were stationarity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Stationarity is a statement about the whole sequence: shift every time index by the same amount and the distribution of the resulting series is the distribution you had. Matching means across two halves of one sample is consistent with that and does not establish it, because a series that rises through the first half and falls through the second can produce nearly equal half-means while the process behind them moves throughout. The evidence offered is real evidence, just not the claim. The other three options substitute a different subject for the one under examination: a sample length speaks to precision rather than to invariance, the spread of differences is a stationarity diagnostic rather than the definition, and identical dependence at every lag describes white noise, which is one stationary series among many.",
+      "hint": "Ask what has to be true of the distribution of the whole sequence, not of one average over part of it.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 92,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "stationarity",
+        "definition"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0008",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An autocorrelation table after differencing",
+      "learningObjective": "read an autocorrelation table against the band its sample size implies",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "After a first difference, a monthly series of 120 points has sample autocorrelations of 0.58 at lag one, 0.14 at lag two, 0.06 at lag three and 0.03 at lag four. What does this table support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A first-order model on the differenced series is close to sufficient, since only the lag-one value stands clear of the band of roughly 0.18 that 120 points allow",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A second-order term is required, because a correlation of 0.14 at lag two is large enough on its own to deserve a coefficient of its own",
+          "misconception": "treats a value inside the sampling band as genuine structure"
+        },
+        {
+          "id": "C",
+          "text": "A seasonal cycle of four periods, since the values fall smoothly through the first four lags and so repeat with that spacing",
+          "misconception": "reads a decaying sequence as a repeating cycle"
+        },
+        {
+          "id": "D",
+          "text": "The series is still not stationary, since a correlation of 0.58 at lag one is far too large for any stationary series to carry",
+          "misconception": "believes a stationary series may hold no lag-one dependence"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With 120 points the band inside which a sample correlation is expected to fall for a genuinely independent series is about 1.96 over the square root of 120, which is 0.18, and only the lag-one value of 0.58 clears it by a wide margin. Reading the table against that band rather than against the eye is the whole skill, because 0.14 looks substantial on a printed row and is unremarkable at this sample size. A decaying run of values is not a cycle: a seasonal signature would reappear at lag twelve, not fade out by lag four. And a large lag-one correlation is exactly what differencing is meant to leave behind, so its presence is evidence that the differencing worked, not that the series is still unsuitable.",
+      "hint": "Compare each value with the band that the number of observations allows, not with your sense of what looks large.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "autocorrelation",
+        "differencing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0009",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A spike left in the residuals",
+      "learningObjective": "interpret a spike in the residual autocorrelation of a fitted model",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A fitted model leaves residuals whose autocorrelation is 0.48 at lag one and 0.05 at lag twelve, measured over 200 points, a band of roughly 0.14. What does that pattern say about the fit?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One period of structure is still unmodelled, usually a missing first-order term or a level that was specified wrongly, so the fit is not yet adequate",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The fit is adequate, because only one lag is large and a single large value can reasonably be set aside as an outlier",
+          "misconception": "dismisses an entire lag of residuals as one bad draw"
+        },
+        {
+          "id": "C",
+          "text": "A seasonal period of twelve, because lag twelve is the one value the table singles out for reporting",
+          "misconception": "treats the one lag quoted as the lag that was found"
+        },
+        {
+          "id": "D",
+          "text": "The residuals are white noise apart from one unusual draw, because white noise is a claim about spread rather than about dependence",
+          "misconception": "defines white noise by its variance and ignores its correlations"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A residual autocorrelation of 0.48 sits four times outside a band of 0.14, so something systematic remains, and the usual culprits are exactly the structural ones: a first-order term that was never given to the model, or a mean that does not sit where the fit puts it. A residual is supposed to be indistinguishable from noise, which is a claim about the whole autocorrelation function and not about one value of it. The 0.05 at lag twelve is what a well-behaved lag looks like here, and it is evidence that whatever is wrong is short rather than seasonal. Treating the lag-one spike as an outlier misreads a persistent pattern as an event, since a single outlier would lift a single residual and would not lift every consecutive pair.",
+      "hint": "Ask how far outside the band the lag-one value sits, and what kind of omission produces exactly that pattern.",
+      "difficulty": 0.44,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 92,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "residuals",
+        "diagnostics"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0010",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a three-part decomposition claims",
+      "learningObjective": "explain what a level, trend and seasonal decomposition asserts about a series",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a decomposition into a level, a trend and a seasonal component claims about a series, and give the sentence that gets it wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "The claim is that each observation can be written as a slowly moving baseline, a long-run direction, and a pattern that repeats on a fixed cycle, and that the third of these is a property of the calendar rather than of the particular year being examined. In an additive scheme the three parts are in the units of the series and are simply added, and the seasonal part is constrained to sum to zero over a whole cycle so that it averages out and cannot be confused with a change in the level; in a multiplicative scheme the seasonal part is a ratio averaging to one, which is what you need when the swing grows as the series grows. Choosing between the two is a question about the data, not a preference, and a swing that widens with the level is the usual signal. The sentence that gets it wrong is this one: the seasonal part for a month is whatever that month happened to record in the most recent year. That sentence makes the seasonal component an observation rather than an average over cycles, which lets a single unusual year rewrite the profile that is supposed to be stable, and it double-counts whatever happened in that year, since the event is already inside the observation being explained."
+      },
+      "explanation": "A decomposition is a model with a specific claim attached: that some part of the movement repeats, that the repetition has a known period, and that what is left after removing level and seasonal shape is trend. The zero-sum or one-average constraint is what keeps the components identifiable, since otherwise some of the trend can always be moved into the seasonal part and the decomposition is not unique. The failure mode worth naming is treating the seasonal profile as a single year rather than as an average across cycles, because one unusual year then writes itself into the profile twice, once as the profile and once as the level it is subtracted from.",
+      "hint": "Ask what the seasonal component is an average of, and over how many cycles.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 92,
+        "p75Sec": 145
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "decomposition",
+        "seasonality"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0011",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "One step ahead from an autoregression",
+      "learningObjective": "produce a one-step-ahead forecast from autoregressive coefficients",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A model has no intercept and states that each value is 0.5 times the value one period earlier plus 0.2 times the value two periods earlier. The two most recent observations are 34 and 30, the 34 being the more recent. What is the one-step-ahead forecast?",
+      "options": [],
+      "answer": {
+        "value": 23,
+        "tolerance": 0
+      },
+      "explanation": "The most recent observation takes the first coefficient and the one before it takes the second, so the forecast is 0.5 times 34 plus 0.2 times 30, which is 17 plus 6, or 23. The most common error is attaching the coefficients to the wrong lags, and the two candidate swaps land close enough to look plausible: applying the larger coefficient to the older observation gives 23.8, and using the most recent value for both terms gives 23.8 again by a different route. Averaging the two observations, which returns 32, is a forecast from a model with no memory structure at all and belongs to the naive baseline this model is being compared against. Note also what the absent intercept commits the modeller to: the series is assumed to be centred already, and a level that has drifted away from the origin will be carried forward as a bias rather than corrected.",
+      "hint": "The first coefficient belongs to the most recent observation and the second to the one before it.",
+      "difficulty": 0.3,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 40,
+        "medianSec": 74,
+        "p75Sec": 116
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "autoregression",
+        "forecast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0012",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The fitted value an average of past shocks implies",
+      "learningObjective": "compute a fitted value from a moving-average specification",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A model treats each value as a constant level of 20 plus 0.6 times the shock that occurred one period earlier. The shock one period earlier was 4 and the value actually observed in the period being explained is 26. What is the fitted value for that period?",
+      "options": [],
+      "answer": {
+        "value": 22.4,
+        "tolerance": 0.001
+      },
+      "explanation": "The fitted value is the level plus the coefficient times the earlier shock, which is 20 plus 0.6 times 4, or 22.4, and the residual is then 26 minus 22.4, which is 3.6. The defining property of a moving-average term is that it reaches backwards only, so the shock available to explain the current period is the one that has already happened; using the current period's own shock, which is not knowable when the forecast is made, produces a fitted value that fits perfectly and forecasts terribly. The subtler trap is dropping the level and reading 24 as the fitted value, which treats a 4-unit shock as if it were the whole story and quietly assumes the mean is zero. The sign of the coefficient is also informative: a positive one means shocks push in the same direction for two periods, and a fitted value built on a negative shock would sit below the level.",
+      "hint": "Only shocks that have already occurred can enter the fitted value, so use the earlier one.",
+      "difficulty": 0.32,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 78,
+        "p75Sec": 122
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "moving-average",
+        "fitted-value"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0013",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "How a random walk spreads uncertainty with the horizon",
+      "learningObjective": "compute the variance of a random walk forecast error at a given horizon",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A series follows a random walk with a known drift, so each period adds the same drift to the last value plus an independent shock with a variance of 2.25. Taking the drift as given rather than estimated, what is the variance of the error made by the eight-step-ahead forecast?",
+      "options": [],
+      "answer": {
+        "value": 18,
+        "tolerance": 0
+      },
+      "explanation": "The eight-step error is the sum of eight independent shocks, so its variance is eight times 2.25, which is 18; the same figure comes from adding the eight variances one at a time, since a sum of independent terms has a variance equal to the sum of the variances. Note the shape of that growth: the standard deviation rises with the square root of the horizon, so at eight steps it is about 4.24 against 1.5 at one step, a factor of 2.8 rather than a factor of 8. The most common wrong answer is 2.25, which reports the one-period uncertainty for every horizon and produces an interval that is far too narrow precisely where the model's ignorance is greatest. A linear inflation to 144 treats the growth as proportional to the horizon, which is what happens to the variance if the shocks are not independent but keep the same sign.",
+      "hint": "Add the variances of the eight independent one-period shocks rather than their standard deviations.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 46,
+        "medianSec": 86,
+        "p75Sec": 134
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "random-walk",
+        "forecast-variance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0014",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "How a forecast interval widens with the horizon",
+      "learningObjective": "compute a forecast interval half-width that grows with the horizon",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A fitted model leaves residuals with a standard deviation of 4 units, and the shocks that drive it are independent from one period to the next. An interval is built by multiplying that residual standard deviation by the square root of the horizon and by 1.96. What is the half-width of the five-step-ahead 95 per cent interval?",
+      "options": [],
+      "answer": {
+        "value": 17.53,
+        "tolerance": 0.02
+      },
+      "explanation": "The half-width is 1.96 times 4 times the square root of 5, which is 17.53, and the same value comes from putting the growth inside the root: 1.96 times the square root of 16 times 5, which is the square root of 80. The one-step half-width is 7.84, so five steps is 2.24 times as wide, and the square root is the whole content of the calculation. The trap is the linear version, 1.96 times 4 times 5, which is 39.2 and inflates the interval by a factor of 2.24 exactly the amount the square root should have shrunk it. That error is the more dangerous one because it produces a wide, cautious interval, and a reader checking only that the interval is generous will find it entirely plausible. A narrower mistake is to reach for 1.645, which is the 90 per cent multiplier and quietly answers a different question about coverage.",
+      "hint": "Scale the residual standard deviation by the square root of the horizon, then apply 1.96.",
+      "difficulty": 0.42,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 90,
+        "p75Sec": 140
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "forecast-interval",
+        "horizon"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0015",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a plot against a lag reveals",
+      "learningObjective": "say what a plot of each value against a lagged value can show that a time plot cannot",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Plotted against the time index, a series looks like one thick band of values between 40 and 60. Plotted against its own value one period earlier, the same points fall on two clearly separated diagonal streaks rather than one cloud. What has the second plot found that the first could not show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A repeating pattern of period two, in which every other observation sits high and the one between it sits low, so the pair of values identifies the phase",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing new, since the same numbers are being plotted and a change of axes cannot reveal structure the values do not contain",
+          "misconception": "believes the choice of axes cannot expose anything"
+        },
+        {
+          "id": "C",
+          "text": "That the two streaks are two separate series, since two groups of points on a scatter always mean two populations were measured",
+          "misconception": "reads two clusters as two separate populations"
+        },
+        {
+          "id": "D",
+          "text": "That the series is trending upward, since points lying above the diagonal on one side and below it on the other indicate growth over time",
+          "misconception": "interprets scatter about the diagonal as a trend"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A time plot puts every observation on one axis and a 20-unit swing in the vertical direction, so a strict alternation is flattened into a band and the alternation itself disappears. Putting one value against the previous one makes the alternation structural: a high value is always followed by a low one and a low one always by a high one, which is what the two streaks say, and it also tells you which phase a new observation is in, because the current value and the previous one jointly determine the next. That is the practical use of the plot, since the alternation is predictable rather than merely present. The clusters are not two populations but one series at two phases, and the pattern is a cycle rather than a trend.",
+      "hint": "Ask what the pair of a value and the value before it tells you about the value after it.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 92,
+        "p75Sec": 144
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "lag-plot",
+        "periodicity"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0016",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What the two numbers in a model order commit",
+      "learningObjective": "interpret the numbers in a combined autoregressive and moving-average order",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A forecasting write-up specifies an order of two, one, two and explains that the series is differenced once before it is fitted. What does that order commit the modeller to?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One difference to reach a stationary series, then two lagged terms of the differenced series and two lagged shocks in the equation for it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A window of two observations and a forecast made one step ahead, since the numbers describe the inputs and the output of the recursion",
+          "misconception": "reads the order as a window length and a horizon"
+        },
+        {
+          "id": "C",
+          "text": "Two differences applied to the series, with the middle number counting them, so the fitted series has been differenced more than once",
+          "misconception": "mistakes the differencing order for the autoregressive order"
+        },
+        {
+          "id": "D",
+          "text": "A single term of each kind, since the two numbers repeat across the notation and so describe one parameter rather than two",
+          "misconception": "merges the two order numbers into one parameter"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The three numbers of the order name the terms in the equation for the differenced series: the first counts lagged values of the series itself, the second counts the differences needed before it can be modelled at all, and the third counts lagged shocks. So a one in the middle is a commitment that a single difference makes the series stationary enough to model, and getting that wrong in either direction is expensive. Two differences when one would do leaves an over-differenced series with a negative lag-one correlation, and one difference when two are needed leaves a series that is still trending, which no amount of lag terms will fix. The order is a statement about the structure of the data, chosen by looking at the series rather than by trying values until one fits.",
+      "hint": "Read the three numbers as lagged terms, differences applied, and lagged shocks, in that order.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 88,
+        "p75Sec": 138
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "model-order",
+        "interpretation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0017",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "One table that tails off and one that cuts off",
+      "learningObjective": "select a model order from a paired autocorrelation and partial autocorrelation table",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A stationary series of 200 points has sample autocorrelations of 0.71, 0.44, 0.27 and 0.17 at lags one to four, and sample partial autocorrelations of 0.62, 0.08, 0.05 and 0.03 over the same lags. The sampling band at this size is about 0.14. What do these two tables support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A first-order autoregressive model, since the partial correlations stop immediately after lag one while the ordinary ones decay away gradually",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A four-term autoregressive model, since all four ordinary correlations exceed the band and so each needs a coefficient of its own",
+          "misconception": "counts significance bands as though each implied a parameter"
+        },
+        {
+          "id": "C",
+          "text": "No autoregressive structure at all, since the partial correlations beyond lag one fall inside the band and so carry no information",
+          "misconception": "reads a cut-off after lag one as an absence of structure"
+        },
+        {
+          "id": "D",
+          "text": "A model with a seasonal term, because the gradual decay of the ordinary correlations is the signature of a repeating cycle",
+          "misconception": "reads a decaying autocorrelation as a seasonal cycle"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two tables answer different questions, and their shapes are complementary. The ordinary correlations at 0.71, 0.44, 0.27 and 0.17 stay above the band for several lags, which is the pattern an autoregressive process produces because one shock keeps working through the chain. The partial correlations, which remove the effect of the lags in between, cut off at lag one, which says that once the immediately preceding value is in the model the more distant values add nothing. Agreement between the two shapes is the classic signature of a first-order autoregressive model, and the check on it is a residual table: if the first-order model is right, its residuals should be flat. The decay of the ordinary correlations is arithmetic, not seasonal, because a seasonal signature would reappear at the seasonal lag instead of continuing to shrink.",
+      "hint": "Ask which of the two tables stops early and which keeps decaying, and what that pairing means.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 104,
+        "p75Sec": 162
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "partial-autocorrelation",
+        "model-order"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0018",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A negative lag-one correlation that should not be there",
+      "learningObjective": "recognise the autocorrelation signature of an over-differenced series",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A trending series is differenced once and its autocorrelation at lag one becomes 0.05 on 200 points. A colleague differences it a second time for tidiness, and the lag-one autocorrelation of the twice-differenced series is minus 0.62, a band of 0.14. What does the second difference indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The extra difference was not needed and has introduced a dependence of its own, so the twice-differenced series should not be the one modelled",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The second difference removed the remaining structure, since a correlation of minus 0.62 is closer to zero than the 0.05 it replaced",
+          "misconception": "reads a large negative correlation as being near zero"
+        },
+        {
+          "id": "C",
+          "text": "The series was never stationary, since a correlation this large cannot arise in a series that has already been made stationary",
+          "misconception": "treats a large correlation as proof of non-stationarity"
+        },
+        {
+          "id": "D",
+          "text": "The model will forecast better, because differencing always reduces the scale of the values and so reduces the error",
+          "misconception": "believes differencing always improves a fit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A large negative lag-one correlation is the fingerprint of over-differencing, and the mechanism is arithmetic rather than statistical. The first difference turned a trending series into a series with little lag-one dependence, 0.05 here. Differencing again subtracts each change from the next, and where consecutive changes were similar this produces a positive quantity, while where they alternated it produces a negative one; a genuinely alternating series gives the strong negative value seen here. The model is now being handed a dependence the data never had, and it will spend coefficients reproducing it. The first difference of 0.05 is the reading that says the job was already done, and the discipline is to check the autocorrelation after each difference rather than to difference until the numbers look small.",
+      "hint": "Ask what the second difference does to a series whose changes already look unrelated.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "over-differencing",
+        "autocorrelation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0019",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Which residual reading supports which conclusion",
+      "learningObjective": "pair a residual diagnostic with the conclusion it actually supports",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two candidate models for a weekly series are compared. One has a lower error inside the sample but leaves residuals with an autocorrelation of 0.55 at lag four; the other fits slightly worse and leaves residuals flat inside the band at every lag. Which pairing of conclusion with evidence survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The second model is the one to carry forward, since the first has bought in-sample fit by reproducing a structure it should have modelled",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first model is the one to carry forward, since in-sample error is computed on the observations the model was built to reproduce",
+          "misconception": "prefers in-sample fit over the residual structure"
+        },
+        {
+          "id": "C",
+          "text": "Neither model can be chosen on this evidence, because a residual correlation at one lag is too thin a basis for a decision of this size",
+          "misconception": "dismisses a clear structural residual as too thin"
+        },
+        {
+          "id": "D",
+          "text": "The first model is the one to carry forward, since a spike at lag four proves its forecast of the fourth period ahead was poor in the past",
+          "misconception": "reads a residual spike as a measured forecast error"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "In-sample error is the score a model achieves on the observations it was built from, and a model with enough flexibility can drive it low by reproducing noise, so it is a measure of the fit rather than of the forecasting. The residual autocorrelation is the check that distinguishes the two: a spike at lag four says the model is using coefficients to absorb a repeating four-period pattern rather than describing the process, and that pattern will not have been reproduced on data the model has not seen. A flat residual table says the structure the data offered has been taken. The lag-four spike does not report a past forecast error, because the model never issued a four-step forecast on those observations; it reports a dependency in what the model could not explain.",
+      "hint": "Ask which score measures the fit and which measures what the model failed to describe.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 100,
+        "p75Sec": 156
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "residual-diagnostics",
+        "model-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0020",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "From an unexamined series to a reportable forecast",
+      "learningObjective": "order the stages that take a raw series to a defensible forecast",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A team holds an unexamined monthly series and has to publish a forecast with an interval. Put these four stages in the order that gets from the raw column to a number a reader could check.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Establish what the series is indexed by and what its period is, so lags and differences have something to count",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Look at the plot, the autocorrelation table and the behaviour of the variance, and decide what has to be removed before the rest",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Fit a model, then read its residuals for anything the specification left behind before accepting it",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Compare it against a naive forecast on rolling origins, and report an interval only once the comparison has been made",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The index comes first because everything after it counts steps, and a monthly column labelled by a running number rather than by a calendar cannot support a seasonal difference or a lag of twelve. Inspection comes next, since what needs removing is a decision about the data rather than a parameter, and choosing it after fitting means choosing it to suit the fit. Reading the residuals belongs immediately after fitting, because a specification that has left a lag-four spike is not finished, and the next stage is a test of the finished thing. The backtest comes last and is the stage most often skipped: a forecast with no naive comparison has not been shown to be better than the assumption that tomorrow equals today, which on most series is a hard thing to beat.",
+      "hint": "Ask which stage the next one counts steps, and which stage the interval depends on.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "workflow",
+        "forecasting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0021",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The error a naive forecast actually makes on held-out origins",
+      "learningObjective": "compute a backtest error for a naive forecast over rolling origins",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Ten periods of a series are 12, 15, 14, 18, 20, 17, 22, 26, 25 and 29. Each period from the second onward is forecast by carrying the previous period's value forward unchanged, and the error is the absolute difference between forecast and outcome. What is the mean absolute error over those nine forecasts?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "The nine absolute errors are 3, 1, 4, 2, 3, 5, 4, 1 and 4, which sum to 27, and 27 over nine origins is exactly 3. The count of origins is the part that gets lost: nine forecasts come from ten observations, because the first has nothing to be predicted from, and dividing by ten returns 2.7 and a dividing-by-eight convention returns 3.375. Both look like reasonable numbers and neither is the backtest. A root mean square of 3.28 is also correct for a different measure, since the larger errors of 5 and 4 pull the square root up, and choosing between the two is a statement about whether the large misses matter more than the small ones. The drift method does better on this series, at 2.37, which is the comparison that gives the number its meaning: an error of 3 is only a good result if nothing simpler achieves less.",
+      "hint": "Take the absolute step from each period to the next, add them, and divide by the number of forecasts rather than the number of observations.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 46,
+        "medianSec": 86,
+        "p75Sec": 134
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "backtest",
+        "naive-forecast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0022",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An error expressed in units of what the naive method achieves",
+      "learningObjective": "compute a scaled error against a naive in-sample baseline",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A candidate model has a mean absolute error of 2.0 units across its rolling-origin backtest. Over the same series, the in-sample mean absolute error of the naive forecast that carries the previous value forward is 5.0 units. What is the mean absolute scaled error of the candidate?",
+      "options": [],
+      "answer": {
+        "value": 0.4,
+        "tolerance": 0.001
+      },
+      "explanation": "The scaled error divides the candidate's own error by the error the naive method makes on the training data, which is 2.0 over 5.0, or 0.4. The division is what makes the number interpretable across series: a value under 1 says the model beats the assumption that tomorrow equals today, and the size of the margin is the size of the improvement rather than a property of the units. Inverting the ratio to get 2.5 is the most common error and it says the opposite of the truth. The choice of naive baseline is itself a decision, and an in-sample one is the specified convention because it is the only one computable without spending the data on the backtest; a reviewer should still be told which baseline was used, since a seasonal naive on a seasonal series is a much harder opponent than the last-value one used here.",
+      "hint": "Divide the model's error by the naive in-sample error, and read anything under one as an improvement.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 78,
+        "p75Sec": 122
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "scaled-error",
+        "baseline"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0023",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Extrapolating the average rise rather than the last one",
+      "learningObjective": "compute a drift forecast from the endpoints of a series",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A series runs for ten periods, starting at 12 and ending at 29. A drift method takes the average change per period as the total change divided by the number of gaps between the first and last periods, then adds that average change for each period ahead. What is its four-period-ahead forecast?",
+      "options": [],
+      "answer": {
+        "value": 36.56,
+        "tolerance": 0.01
+      },
+      "explanation": "Ten periods contain nine gaps, so the average change is 17 over 9, which is 1.8889, and adding four of those to the last value of 29 gives 36.56. The denominator is the whole point of the method: dividing 17 by ten gaps that do not exist understates the drift by a tenth and returns 35.8, while dividing by the number of periods rather than the number of gaps is the standard off-by-one. Scaling the total change of 17 by the horizon instead of the average gives 97, which treats the whole two-year rise as if it repeated every period and is the error that makes a drift forecast look absurd on a trending series. The naive forecast of 29 is the honest benchmark for this one, and on a series that rises steadily the drift method will beat it while saying nothing about the variance, which is the part a reader should ask about next.",
+      "hint": "Count the gaps rather than the periods, divide the total change by them, then add that average for each period ahead.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 90,
+        "p75Sec": 138
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "drift-method",
+        "forecast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0024",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a seasonal spike at lag twelve commits you to",
+      "learningObjective": "identify the seasonal period a lag-twelve autocorrelation spike indicates",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A monthly series of 240 points has a sample autocorrelation of 0.61 at lag twelve, 0.18 at lag six and 0.05 at lag one, against a band of about 0.13. What does this pattern support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A yearly cycle in the raw series, so the differencing it calls for is a seasonal one at twelve months and not an ordinary one at one month",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A half-yearly cycle, since the value at lag six is also outside the band and a six-month rhythm would produce both",
+          "misconception": "treats a value on the band as evidence of a second cycle"
+        },
+        {
+          "id": "C",
+          "text": "No structure worth modelling, since a correlation only counts when it is present at the first lag as well as at the seasonal one",
+          "misconception": "requires short-range dependence before accepting a seasonal one"
+        },
+        {
+          "id": "D",
+          "text": "A trend that has not been removed, because any large correlation at a distant lag is the signature of a rising level over the sample",
+          "misconception": "reads a seasonal lag as a trend"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A spike at lag twelve with the neighbouring lags flat is the seasonal signature: the same month a year apart resembles itself and nothing in between does. Lag six at 0.18 is only just past the band and sits at half the seasonal lag, where a yearly cycle would not predict anything, so the more natural reading is ordinary sampling variation. The consequence is about differencing rather than about description. Because the dependence is at twelve and not at one, an ordinary first difference leaves it entirely in place, and the fit will use lag coefficients to absorb a pattern it should have removed. A seasonal difference at twelve, or a seasonal model with a period of twelve, is what addresses what the table is showing. A rising level produces correlation at the short lags first, which is why lag one here is the least of the three values.",
+      "hint": "Ask which lag the correlation appears at, and whether the lags between it are also large.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-difference",
+        "autocorrelation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0025",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A coverage claim the backtest does not support",
+      "learningObjective": "test a stated interval coverage against the coverage actually observed",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A report claims that the published 95 per cent interval covered the outcome 98 per cent of the time. A rolling-origin backtest over 400 origins found that the interval covered the actual value in 372 of them. What does this comparison support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the stated coverage is not supported, since 0.93 observed against 0.98 claimed is about four sampling errors apart on 400 origins, so the intervals are too narrow",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the stated coverage is supported, because 372 of 400 is close enough to 98 per cent for a rounding difference in the report",
+          "misconception": "accepts a four-error gap as a rounding difference"
+        },
+        {
+          "id": "C",
+          "text": "That the backtest is the unreliable figure, because a rolling origin is a biased way to evaluate an interval and so cannot judge its width",
+          "misconception": "dismisses rolling origins as incapable of judging intervals"
+        },
+        {
+          "id": "D",
+          "text": "That the interval is too wide, since a shortfall of five points in the other direction would have produced over-coverage instead",
+          "misconception": "reads an under-coverage shortfall as over-coverage"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The observed coverage is 372 over 400, which is 0.93, and the sampling error on a proportion like that at this size is about 0.013, so the claimed 0.98 sits nearly four errors away and is not a fluctuation. An under-covered interval is narrow, and the mechanism is the usual one: residual standard deviations computed over the whole sample understate the dispersion a genuine future draw will have, particularly when the fit was chosen on the same data. What the comparison does not establish is which of several causes applies. A rolling origin is the right design for this question precisely because it only ever measures intervals against outcomes that were not used to build them, and the honest reading of a claim like this is that the number in the report was computed a different way from the number in the backtest, and the report should say which.",
+      "hint": "Turn 372 of 400 into a proportion, then ask how far the claim sits from it in sampling-error units.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 148
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "forecast-interval",
+        "backtest"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0026",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Which evidence would actually locate a change point",
+      "learningObjective": "identify the evidence that supports a claimed change point",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A team claims the level of a weekly series stepped up at month 40. Four pieces of evidence are on the table. Which pairing of claim and evidence survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A real step at 40, since the running mean sits on one level for thirty-nine weeks and on a higher one afterwards, with the difference far larger than the week-to-week noise",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A real step at 40, since a fit of one line to the whole series leaves a visible kink at that point in the residuals",
+          "misconception": "accepts a kink in a single-line residual as evidence of a step"
+        },
+        {
+          "id": "C",
+          "text": "No step, since forty weeks of a hundred is too short a window to distinguish a level change from a slow drift",
+          "misconception": "rejects a step because the window is short rather than testing it"
+        },
+        {
+          "id": "D",
+          "text": "A real step at 40, since the variance after month 40 is visibly wider, which is a level shift changing the spread of the series",
+          "misconception": "reads a change in spread as a change in level"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A change point is a claim about the level, and the evidence for it is a persistent offset in the mean that is large against the ordinary variation, which is what the running mean provides. The competing readings each substitute a different signal. A kink in the residuals of a single straight line is what a trend misspecification looks like, since a line fitted through a curved series leaves structure at the ends and at the turn, and it will show a kink whether or not anything stepped. Treating the window length as decisive confuses a weak test with a null result, and a change in spread is a different claim about a different parameter, one that can accompany a step or occur without one. The honest form of the claim names the size of the offset, the size of the noise it was measured against, and the alternatives considered.",
+      "hint": "Ask whether the evidence is about a level, and whether the comparison is against the week-to-week noise.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 100,
+        "p75Sec": 156
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "change-point",
+        "evidence"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0027",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a fitted value is and what its residual is for",
+      "learningObjective": "explain the roles of a fitted value and the residual it leaves",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a fitted value is and what the residual it leaves is for, and give the sentence that gets the residual wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "A fitted value is the number the model produces for a period using only what was available before that period, and the residual is the difference between it and what actually happened. The residual is the part of the period the model could not account for, and it exists to be looked at rather than to be minimised to the last decimal, because a model whose residuals are predictable has left something on the table. The sentence that gets it wrong is this one: the residual is the error in the model. It is not the error in the prediction, since a residual of plus three is a three-unit under-forecast, which is the opposite sign from what the word error suggests; and it is not noise in any case, because if the residuals are noise then the model is finished, and if they are not noise then the error is a property of the specification rather than of the arithmetic. Keeping the sign straight matters for every diagnostic that follows, since a model biased low leaves residuals of one sign throughout and a model that has missed a seasonal cycle leaves a pattern in them."
+      },
+      "explanation": "Two properties of the residual are doing the work here. Its sign records the direction of the miss, which is what turns a table of residuals into evidence about bias, and its dependence over time is what turns it into evidence about specification. Both are lost the moment a residual is reduced to a single average error, which is why the average is reported and the residuals are kept. The distinction between a residual and a forecast error also settles a common confusion: a residual is computed against a value the model was built from and a forecast error against one it was not, and only the second is evidence about the future.",
+      "hint": "Ask what the sign of a residual records, and what a pattern across residuals would mean.",
+      "difficulty": 0.42,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 92,
+        "p75Sec": 144
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "residual",
+        "definition"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0028",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Matching the error measure to the horizon the forecast is used at",
+      "learningObjective": "order the stages of choosing a forecast for use at several horizons",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A forecast will be used at one, seven and thirty days ahead, and the three uses have different costs for a miss. Put these four stages in the order they must happen.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Decide what a miss costs at each horizon, since which error counts follows from what being wrong is worth",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Choose the error measure that expresses that cost, and say in advance which horizon it is being judged on",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Evaluate every candidate on rolling origins at the horizon that matters and compare them against the naive baseline",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Report each horizon with an interval whose width grows the way the residuals say it should at that distance",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The cost comes first because it decides the question, and a team that picks an error measure first has usually picked one that flatters the method they already prefer. The measure then has to be tied to a horizon, since a method that wins at one day can lose at thirty and an error averaged across horizons will hide exactly that. Evaluation follows on rolling origins, because a fit on the whole series answers a question nobody asked, and the naive baseline is included so that the comparison has a floor. The interval comes last and is derived from what the evaluation found rather than from a constant written into the template, since the dispersion of a thirty-day-ahead error is not the dispersion of a one-day-ahead one and reporting the narrower of the two is a claim about the future rather than about the fit.",
+      "hint": "Ask which stage decides the question and which stage only reports what an earlier one established.",
+      "difficulty": 0.46,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "horizon",
+        "model-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0029",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A trend that has to be removed before the lags mean anything",
+      "learningObjective": "say what removing a trend changes about the dependence a model can use",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A series climbs steadily across the sample, and every lag correlation it reports is high. Subtracting a straight line fitted to the series leaves a residual whose lag correlations are near zero. What has the detrending actually shown?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the apparent dependence was the trend repeating itself, so a model fitted without detrending will spend its terms on a level it could have subtracted once",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the series has no structure at all, since a detrended series with near-zero correlations can be forecast no better than by guessing",
+          "misconception": "reads the absence of correlation as the absence of forecastable structure"
+        },
+        {
+          "id": "C",
+          "text": "That the straight line was the wrong choice, because any detrending that leaves no correlation has removed too much of the data",
+          "misconception": "judges detrending by how little correlation survives"
+        },
+        {
+          "id": "D",
+          "text": "That the model should use the raw series and let the coefficients absorb the trend, since coefficients fitted on levels are always more accurate than fitted on differences",
+          "misconception": "assumes levels are always better than differences to fit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A series that rises has high correlation at every lag for a reason that has nothing to do with dynamics: the level alone makes near neighbours resemble each other, and the further apart two observations the less alike they are, which is the decaying autocorrelation a trend produces. Removing it separates the two effects, and what is left is the part that a lag term could legitimately model. The claim is not that the series is now unpredictable; a stable level plus a stable seasonal shape is most of what makes a series forecastable, and both are recoverable once the trend is separated out. The right structure is usually a difference or a trend state rather than a fitted straight line removed once, because a line fitted to the whole sample encodes an assumption about the entire future that the data at the end of the sample cannot check.",
+      "hint": "Ask whether two observations resemble each other because of their level or because of their dynamics.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 94,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "trend",
+        "stationarity"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0030",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a level is being measured against",
+      "learningObjective": "state what a level state in a smoothing method represents",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a smoothing recursion the level at the end of a run is called the current level of the series, and it is carried into the next period's forecast. What is that level actually a statement about?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The recent past of the observed series, since it is a weighted average of the observations seen so far and moves only when an observation moves it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The average of the whole sample, since a level is a central value and the central value of a series is its mean",
+          "misconception": "reads a smoothed level as the sample mean"
+        },
+        {
+          "id": "C",
+          "text": "The value the series is expected to take next, since a level and a one-step forecast are the same quantity under another name",
+          "misconception": "conflates a level state with a one-step forecast"
+        },
+        {
+          "id": "D",
+          "text": "The trend of the series, since a level that stops moving is describing the direction the series is heading",
+          "misconception": "treats a level as a slope"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The level is a running summary of the observed data, and its weight on the present observation is set by the smoothing constant, which is exactly the statement about how quickly the past should be forgotten. That is why a large constant makes the level track the data closely and a small one makes it sluggish, and why the initialisation matters: a level started at the first observation carries a bias that the recursion has not yet shaken out. The level is not the sample mean, which weights every observation equally regardless of when it arrived, and not the forecast, which is the level plus whatever trend and seasonal state the method also carries. Calling it a trend confuses a level with the rate of change of the level, which is a separate state with a separate coefficient.",
+      "hint": "Ask which observations the level is a weighted average of, and how that weight is chosen.",
+      "difficulty": 0.36,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 80,
+        "p75Sec": 126
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "level",
+        "exponential-smoothing"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0031",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The baseline that knows the season",
+      "learningObjective": "compute the error of a seasonal naive forecast over a backtest",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A series of sixteen quarterly-shaped periods with a repeating four-period pattern runs 10, 14, 18, 12, 11, 16, 19, 13, 12, 15, 20, 14, 13, 17, 21 and 15. A seasonal naive forecast for each period from the fifth onward copies the value from four periods earlier. What is the total absolute error of those twelve forecasts?",
+      "options": [],
+      "answer": {
+        "value": 14,
+        "tolerance": 0
+      },
+      "explanation": "The twelve absolute errors are 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1 and 1, which sum to 14, and the count of origins is twelve because the first four have no value four periods back. The one-step naive forecast over the same series makes a total error of 59 across fifteen origins, so the seasonal version is not a marginal improvement on a series that plainly repeats; it is four times better, and any candidate model has to beat 14 rather than 59 to be worth discussing. Two off-by-one readings sit nearby and both produce tidy wrong numbers: dividing by the sixteen observations gives 0.875, and dividing the twelve by twelve gives the mean error of 1.17, which is a different and equally legitimate summary that answers a slightly different question. Which one to quote depends on whether the reader wants a total or an average, not on which is easier.",
+      "hint": "Compare each period with the one four places back, for the twelve periods where that comparison exists.",
+      "difficulty": 0.36,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 46,
+        "medianSec": 88,
+        "p75Sec": 136
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-naive",
+        "baseline"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0032",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Reading a fitted value out of a decomposition",
+      "learningObjective": "assemble a fitted value from a level, a trend and a seasonal adjustment",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A fitted additive decomposition puts the level at 200 units at the start of a year, the trend at 5 units per month, and the seasonal adjustments at plus 10 for January, minus 6 for February and plus 2 for March. What is the fitted value for March?",
+      "options": [],
+      "answer": {
+        "value": 212,
+        "tolerance": 0
+      },
+      "explanation": "March is two months past the start of the year, so the trend contributes 2 times 5, or 10, and the fitted value is 200 plus 10 plus the March adjustment of 2, which is 212. Walking the year forward gives the same figure and is the better habit because it makes the indexing explicit: January is 200 plus nothing plus 10, which is 210, and February is 200 plus 5 minus 6, which is 199, and March follows. The distinction between an adjustment and a proportion is the one that catches people here. An additive adjustment of plus 2 is two units whatever the level, so treating it as a percentage and computing 210 times 1.02 gives 214.2, which is a multiplicative model answering a different question about a series whose seasonal swing should grow as the level rises. Dropping the seasonal term entirely gives 210 and will look right in a flat month and wrong in every other.",
+      "hint": "Count how many months of trend have passed by March and add the March adjustment in the units of the series.",
+      "difficulty": 0.32,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 78,
+        "p75Sec": 122
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "decomposition",
+        "fitted-value"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0033",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The constraint that keeps a seasonal profile identifiable",
+      "learningObjective": "apply the zero-sum constraint to an additive seasonal profile",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An additive seasonal profile over twelve periods must sum to zero so that it cannot be confused with a change in level. Eleven of the twelve adjustments are 4, -2, 6, -5, 3, -7, 8, -4, 5, -6 and 2. What must the twelfth adjustment be?",
+      "options": [],
+      "answer": {
+        "value": -4,
+        "tolerance": 0
+      },
+      "explanation": "The eleven adjustments sum to 4, so the twelfth has to be minus 4 for the twelve to close on zero, and adding it in returns exactly zero. The constraint exists because the decomposition is otherwise not unique: any constant could be added to all twelve adjustments and subtracted from the level, giving a different set of numbers that fits every observation identically. Fixing the level to the mean of the seasonal-free series is what makes the parts separately interpretable, and a reader who wants to know whether the seasonal effect is genuinely there has to be able to compare a month against the average month. Averaging the eleven to 0.36 and using that is the seductive wrong answer, because the mean and the sum look interchangeable when a number of adjustments is involved and are not: the constraint is on the sum over a full cycle, and it is what stops a slow seasonal drift from being reabsorbed as trend.",
+      "hint": "Add the eleven adjustments and take whatever makes the twelve of them total zero.",
+      "difficulty": 0.38,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 84,
+        "p75Sec": 130
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-index",
+        "identifiability"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0034",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Scoring a forecast that is supposed to sit high in its distribution",
+      "learningObjective": "compute a weighted quantile loss for a stated quantile",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A 0.75 quantile forecast of 30 is issued. The outcome comes out at 20 with probability 0.2, at 30 with probability 0.5, and at 40 with probability 0.3. The quantile loss charges 0.75 times the amount by which the outcome exceeded the forecast, and 0.25 times the amount by which the forecast exceeded the outcome. What is the expected quantile loss?",
+      "options": [],
+      "answer": {
+        "value": 2.75,
+        "tolerance": 0.001
+      },
+      "explanation": "The outcome of 20 is below the forecast, so it costs 0.25 times 10, which is 2.5, weighted by 0.2 for 0.5; the outcome of 30 lands on the forecast and costs nothing, weighted by 0.5 for 0; and the outcome of 40 is above it, so it costs 0.75 times 10, which is 7.5, weighted by 0.3 for 2.25. The expected loss is therefore 2.75. Adding the three unweighted losses and dividing by three gives 3.33, which is the right shape of calculation with the probabilities thrown away, and a plain mean absolute error gives 5. Both are easy to arrive at by treating the three outcomes as equally likely. The asymmetry is the point of the measure: a 0.75 quantile is meant to sit above three quarters of the distribution, so being too low is penalised three times as heavily as being too high, and a model that has learned to sit too low to look safe cannot improve by doing so.",
+      "hint": "Work out each outcome's loss, weight it by its probability, and add the three weighted terms.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "quantile-forecast",
+        "distribution-forecast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0035",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a point forecast leaves out",
+      "learningObjective": "state what a point forecast omits that a distribution forecast supplies",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A forecast is published as a single number with a spreadsheet of the single number beside it, and the two are 118 and 118. What has the publication failed to say that a user of the forecast needs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "How wrong the number could plausibly be, since a point forecast states where the centre is and is silent about the spread around it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Which period the number belongs to, because a forecast without a date cannot be compared with the observation it is scored against",
+          "misconception": "believes an unlabelled forecast cannot be scored at all"
+        },
+        {
+          "id": "C",
+          "text": "Which method produced the number, since a forecast with no method stated cannot be reproduced by anyone else who wants to check it",
+          "misconception": "treats the absence of a method as the primary gap"
+        },
+        {
+          "id": "D",
+          "text": "Nothing of consequence, since a user who needs a range can attach one of their own to any single number they are given",
+          "misconception": "assumes a reader can invent the missing uncertainty"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A point forecast is a statement about the centre of the distribution and carries no information about its width, so two series can produce the identical 118 and differ in how wrong they can plausibly be by a factor of ten. That is the gap, and it is not cosmetic: a reader deciding whether to act needs to know the size of the commitment they are making, and a number alone is a claim of far more confidence than the method can support. The other options identify real requirements and none of them is the missing one here, since a dated forecast and a stated method are both present in a published figure. A reader cannot attach their own spread, because the spread is a property of the fitted model and of the data, not a matter of taste.",
+      "hint": "Ask what a single number says about the width of the distribution it came from.",
+      "difficulty": 0.38,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 84,
+        "p75Sec": 130
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "point-forecast",
+        "uncertainty"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0036",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A model written as both memory and shock",
+      "learningObjective": "say what a combined autoregressive and moving-average specification contains",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A specification writes each value as a weighted sum of the two preceding values plus a weighted sum of the two preceding shocks. What has that specification committed the modeller to?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the series carries both a memory of its own past values and a memory of shocks, and that either may be present when the other is not",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the two weights pairs must be equal, since four coefficients in one equation can only be written as two repeated values",
+          "misconception": "reads the two pairs as necessarily the same"
+        },
+        {
+          "id": "C",
+          "text": "That the shocks are predictable, since a specification that uses the two preceding shocks is claiming they were known in advance",
+          "misconception": "confuses using a past shock with forecasting it"
+        },
+        {
+          "id": "D",
+          "text": "That the series is stationary, because a specification written on levels rather than differences cannot describe a trend",
+          "misconception": "believes level specifications exclude trends"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two halves of the specification do different jobs. The lagged values carry a persistence that is a property of the series itself and shows up in the autocorrelation function, while the lagged shocks carry effects that the series does not remember directly and that appear as a moving-average signature in the same function. A model with only the first cannot describe an effect that decays in one period and is gone, and a model with only the second cannot describe a series whose values remain related long after the shock. Using a past shock is not forecasting it, since the shock is known at the moment it is used, which is why the specification is legitimate for one-step-ahead forecasts. Nothing in the form settles whether the series needs differencing; that is a separate decision made by looking at the data.",
+      "hint": "Ask what each of the two weighted sums is carrying, and which of them a level-only model would miss.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 94,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "autoregressive-moving-average",
+        "specification"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0037",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A level that has been reported without its spread",
+      "learningObjective": "interpret a residual table that reports only a mean and a spread",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A fitted model is reported as leaving residuals with a mean of 0.4 and a standard deviation of 2.1, and nothing else about them is shown. What does this support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the model is roughly unbiased and roughly calibrated in size, but nothing about whether structure remains, because a mean and a spread say nothing about how residuals are arranged over time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the model is adequate, since a mean near zero is exactly the condition residuals must satisfy to be indistinguishable from noise",
+          "misconception": "treats a mean near zero as a sufficient condition for adequacy"
+        },
+        {
+          "id": "C",
+          "text": "That the model is biased high, because a positive residual mean means the fitted values sit below the observations they were fitted to",
+          "misconception": "reads a positive residual mean as a bias in the other direction"
+        },
+        {
+          "id": "D",
+          "text": "That the residuals are white noise, since a standard deviation of 2.1 with a mean of 0.4 is the same summary white noise produces",
+          "misconception": "treats a two-number summary as a full diagnostic"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Two numbers are being offered where the question needs more. A residual mean of 0.4 against a spread of 2.1 is a small offset relative to the variation, which is the sort of figure a well-specified model produces, and the spread is the calibration the reader can compare against the forecast intervals being published. Neither figure touches the question that decides adequacy, which is whether the residuals are related to each other over time. A model with a strong seasonal pattern left in it produces exactly this summary and a strongly patterned residual table, which is why the table is reported and not the two numbers. The direction of the mean is also worth stating plainly: residuals are observations minus fitted values, so a positive mean means the fit sits below the data.",
+      "hint": "Ask what a mean and a standard deviation cannot tell you about the arrangement of the residuals.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 148
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "residual-diagnostics",
+        "white-noise"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0038",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A claim about accuracy that the horizon table contradicts",
+      "learningObjective": "test a general accuracy claim against errors reported by horizon",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A vendor reports a single accuracy figure of 94 per cent for a forecasting service. A backtest on the buyer's own data reports mean absolute errors of 2.1 at one day, 6.4 at seven days and 19.8 at thirty days against a mean absolute naive error of 2.1. Which pairing of claim and evidence survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the claim is not supported, since the method equals the naive baseline at one day and is seven times worse at thirty, so a single figure hides where it fails",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the claim is supported, since a mean absolute error of 2.1 at one day is below the naive baseline and one accurate horizon is enough",
+          "misconception": "accepts a good result at one horizon as a general claim"
+        },
+        {
+          "id": "C",
+          "text": "That the claim is supported, since the vendor's figure was measured over all horizons pooled and pooling is the fairer comparison with a pooled backtest",
+          "misconception": "accepts a pooled figure as settling the question"
+        },
+        {
+          "id": "D",
+          "text": "That neither figure is usable, because mean absolute error and an accuracy percentage measure different things and cannot be compared at all",
+          "misconception": "treats two different measures as mutually incomparable rather than as complementary"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A single accuracy number is a weighted average over the horizons a user happens to ask for, and it is dominated by the short ones because most requests are short. Reporting errors by horizon is what makes the claim checkable, and here it fails the check twice over: at one day the method is no better than assuming tomorrow equals today, and at thirty days it is nearly ten times worse than that assumption, so the mean is being carried entirely by the easy horizon. The pooling objection misses the point, since the buyer's decision is about a specific horizon rather than about a mixture. The last option confuses comparability with identity: a percentage of cases inside a band and a mean absolute error answer related questions and are routinely reported together, and it is the per-horizon breakdown that the pooled figure hides.",
+      "hint": "Compare the errors at each horizon with the naive error at the same horizon.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 58,
+        "medianSec": 106,
+        "p75Sec": 162
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "horizon",
+        "backtest"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0039",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Which segmentation and which justification belong together",
+      "learningObjective": "pair a segmented model with the evidence that would justify splitting the series",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A weekly series appears to move differently before and after a date in the middle of the sample. Three ways of handling it are proposed. Which pairing of method and justification survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fit two segments and keep the split only if the step between their levels is large against the within-segment variation, because a split fitted to noise doubles the parameters and buys nothing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Fit two segments unconditionally, because a step anywhere in the sample is a step the model should represent whatever its size",
+          "misconception": "assumes any visible step is worth a parameter"
+        },
+        {
+          "id": "C",
+          "text": "Fit one segment with a curve, because a change in level is just a change in slope and a curve expresses both in one place",
+          "misconception": "treats a level change as though a slope change covered it"
+        },
+        {
+          "id": "D",
+          "text": "Fit one segment and add a step indicator, because a single equation with an indicator and a shared slope is always at least as good as two separate fits",
+          "misconception": "claims a shared slope is never worse than a separate one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Segmentation is a claim about the parameters as much as about the data: fitting two segments adds a break date, a second level and often a second slope, and a break date chosen by looking at the series will always find some point where the two halves look different. The justification has to be that the step is large relative to the variation within each segment, so that it survives the additional freedom it costs. The unconditional version is the failure this protects against, and it produces a model that fits the sample better and forecasts worse on both sides of a break it invented. A curve is a different claim about slope rather than level, and it will spend its flexibility on a turn that is not there. Sharing the slope across the break is sometimes right and is a genuine restriction that the two-segment fit does not impose.",
+      "hint": "Ask what the extra parameters cost, and what size of step would justify paying for them.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 54,
+        "medianSec": 100,
+        "p75Sec": 156
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "change-point",
+        "segmentation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0040",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "How far a forecast should be trusted as the horizon grows",
+      "learningObjective": "order the statements that describe how accuracy decays with the horizon",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A service publishes forecasts at one, seven and thirty days and states nothing about how much to trust each. Put these four statements in the order that follows from the evidence the backtest produced.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Report the backtest error separately at each horizon rather than pooled, because a pooled error cannot show where the method stops helping",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compare each horizon's error with the naive error at the same horizon, since a method that only wins on average is not usable at the horizons where it loses",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Report an interval at each horizon whose width comes from the residuals at that horizon, since the spread of a distant forecast is not the spread of a near one",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Say plainly at which horizon the method stops beating the naive assumption, since that is the point at which a user should stop paying for it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The per-horizon breakdown comes first because nothing else can be computed from a pooled figure. The comparison with the naive baseline comes next, because it is what converts an error into a judgement: an error of 19.8 at thirty days means one thing if the naive error is 22 and quite another if it is 2. The interval follows from the residuals, and it has to be horizon-specific because the dispersion of a thirty-day-ahead error is not a multiple of the one-day one that anybody would recognise. The honest statement of the limit comes last and is the one most services leave out, since a user paying for a thirty-day forecast needs to be told that the method is at or past the point where it earns its fee. A method that is worse than tomorrow-equals-today at a horizon should be described that way in the same document that sells it.",
+      "hint": "Ask which figure every later statement depends on, and which statement is the one a user most needs.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "horizon",
+        "communication"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0041",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What each difference costs the series",
+      "learningObjective": "count the points remaining after an ordinary and a seasonal difference",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A monthly series holds 120 points. It is differenced once at a one-month gap and then once more at a twelve-month gap. How many differences does the resulting series hold?",
+      "options": [],
+      "answer": {
+        "value": 107,
+        "tolerance": 0
+      },
+      "explanation": "The ordinary difference removes one point, leaving 119, and the seasonal difference removes twelve more because it needs a value twelve periods earlier for every one it produces, leaving 107. The two steps are not independent and the order is not arbitrary: taking the seasonal difference first and then the ordinary one gives the same count, and a series short enough to run out of history is the practical limit on how many seasonal differences can be taken. The count matters because it is the effective sample size behind every standard error and significance statement made afterwards, and a model fitted on 107 points behaves differently from one fitted on 119 even though the chart looks the same. A count of 108 comes from subtracting the seasonal gap only, which is the error that appears when the ordinary difference is folded in without being counted.",
+      "hint": "Subtract one for the ordinary difference, then subtract the seasonal gap from what is left.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 82,
+        "p75Sec": 128
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-difference",
+        "sample-size"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0042",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An error measure that weights the large misses",
+      "learningObjective": "compute a root mean squared error and contrast it with a mean absolute one",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Six forecast errors on a backtest are 3, 4, 2, 5, 0 and 0 units. What is the root mean squared error over those six forecasts?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "The squared errors are 9, 16, 4, 25, 0 and 0, which sum to 54, the mean square is 54 over 6, which is 9, and the root is 3. The mean absolute error over the same six is 14 over 6, which is 2.33, and the gap between the two figures is the whole content of the measure. The root mean square punishes the miss of 5 disproportionately because squaring puts the large errors in charge of the average, so a method with one bad month can look worse here than one that is mildly wrong every month, which is the right behaviour when a large miss is genuinely more costly. A reader choosing between the two is choosing a statement about the loss function and should say which one they mean. The total of the squares, 54, is a common stopping point and is not an error rate, and averaging the raw errors instead of the squares returns 0.4, which is a bias measure rather than a magnitude.",
+      "hint": "Square each error, average the squares, and take the square root of that average.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 42,
+        "medianSec": 80,
+        "p75Sec": 124
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "backtest",
+        "error-measure"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0043",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Where a step in the level is largest",
+      "learningObjective": "identify the split point that maximises the difference between two segment means",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A series of eight periods is 10, 10, 10, 10, 20, 20, 20 and 20. A single-break model is fitted at each of the seven possible split points, and at each one the difference between the two segment means is recorded. At which split, and what is the largest difference it produces?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0
+      },
+      "explanation": "The split after the fourth period puts four 10s on one side and four 20s on the other, so the two means are 10 and 20 and the difference is 10, which is the largest any split can give since no side can average below 10 or above 20. The neighbouring splits are the instructive ones: after the third period the means are 10 and 18 for a difference of 8, and after the fifth they are 12 and 20 for the same 8, so the maximum is flat enough here that three adjacent splits are within a quarter of the best. A reader who reports only the best split is reporting a number selected from seven candidates, and the spread of the near-optimal values is the cheapest available warning that the break has not been pinned down. The same search is what a change point procedure performs, and it is why the resulting break date carries an uncertainty that the fitted model does not show.",
+      "hint": "Compute both segment means at each split and keep the largest difference, then look at how the neighbours score.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 90,
+        "p75Sec": 138
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "change-point",
+        "segmentation"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0044",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A residual table that has been read too shallowly",
+      "learningObjective": "diagnose the pattern a residual table reveals about a fitted model",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A fitted model leaves residuals whose means are zero in the first half of each year and positive in the second half of each year, with a spread that is constant throughout. The autocorrelation table is flat inside the band at every lag. What does this pattern support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A seasonal bias in the fit, since the model is under-predicting every second half-year while showing no remaining dependence, so the shortfall is a level error with a calendar cause",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An inadequate model, since a flat autocorrelation table can only be produced by a model whose structure is correct at every lag",
+          "misconception": "treats a flat table as proof of a correct specification"
+        },
+        {
+          "id": "C",
+          "text": "A good fit, since residuals that average to zero in every window are exactly the property a model should have",
+          "misconception": "believes averaging to zero in half-years is sufficient"
+        },
+        {
+          "id": "D",
+          "text": "A problem with the data rather than the model, since residuals cannot show a calendar pattern unless the observations were recorded wrongly",
+          "misconception": "attributes a residual pattern to the source data"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two halves of the residual distribution are the finding here, and a flat autocorrelation table does not contradict them because the two are measuring different things. Dependence asks whether a residual predicts the next one, and a seasonal bias produces none: the high residuals come in one half-year and the low residuals in the other, with nothing to predict from one to the next. The mean that matters is a mean within a slice, not a mean over the whole sample, which is why a single reported average can be exactly zero while the model is wrong in half of every year. A constant spread alongside a shifting centre is the signature of a mean that has not tracked the calendar, and the remedy is a seasonal term or a seasonal adjustment rather than more lag terms.",
+      "hint": "Compare the residual mean within each slice of the calendar, and ask what a flat dependence table can and cannot rule out.",
+      "difficulty": 0.52,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 58,
+        "medianSec": 106,
+        "p75Sec": 162
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "residual-diagnostics",
+        "seasonal-bias"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0045",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What white noise asserts and what it does not",
+      "learningObjective": "state what a white-noise residual claim is about",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A write-up states that a fitted model leaves white noise, and the supporting evidence is a residual table flat at every lag inside its sampling band. What has that claim established?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the residuals carry no dependence the model could have used, at the lags and the sample size that were examined, and nothing beyond that",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the model is the correct model of the process, since white noise is the defining property of a process that has been identified correctly",
+          "misconception": "equates a clean residual table with a correct specification"
+        },
+        {
+          "id": "C",
+          "text": "That the residuals are normally distributed, since white noise is a claim about the shape of the distribution rather than about its timing",
+          "misconception": "reads white noise as a distributional claim"
+        },
+        {
+          "id": "D",
+          "text": "That the forecasts will be unbiased, since an absence of residual dependence is the same statement as an absence of residual bias",
+          "misconception": "conflates independence with a zero mean"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The claim is narrow and worth keeping narrow. A flat table says that within the lags examined, and at a sample size that puts a floor on what could have been detected, the residuals are not related to each other and the specification has taken the structure the data offered. It says nothing about lags beyond those examined, nothing about the shape of the marginal distribution, and nothing at all about bias, which is a question about the mean of the residuals and survives a perfectly flat table. Nor does it identify the model, since several specifications can share the same residual behaviour on a given series. The practical value of the claim is that it is the precondition for the standard errors attached to the forecast, which is why it is checked and reported rather than assumed, and the sample size belongs in the sentence beside it.",
+      "hint": "Ask what a residual table measures, and what it cannot reach.",
+      "difficulty": 0.42,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 48,
+        "medianSec": 90,
+        "p75Sec": 140
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "white-noise",
+        "residuals"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0046",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A forecast whose distribution is the deliverable",
+      "learningObjective": "distinguish a distribution forecast from a point forecast plus an interval",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two ways of reporting the same model are offered: a central value with a 90 per cent interval around it, and the full set of quantiles from the 5th to the 95th. What does the second report carry that the first cannot?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The shape and spread of the whole predictive distribution, so a user can ask about a particular tail rather than only whether a single cut was crossed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The same information in a more readable form, since a set of quantiles and a central interval describe one distribution in two notations",
+          "misconception": "treats the two reports as interchangeable"
+        },
+        {
+          "id": "C",
+          "text": "A guarantee of coverage, since publishing every quantile forces the producer to state the coverage of each one of them",
+          "misconception": "claims quantile reporting implies a coverage guarantee"
+        },
+        {
+          "id": "D",
+          "text": "Nothing additional, because any quantile in the range can be interpolated from the central value and the two interval ends",
+          "misconception": "believes two ends determine a distribution"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A central value and two interval ends are three numbers, and many distributions share those three while disagreeing everywhere else, so a user who needs a different tail has nothing to read. A predictive distribution is often lopsided, and knowing the 10th percentile is far from the midpoint of the lower half is exactly the information a capacity plan or a reserve calculation needs. The extra quantiles also make the disagreement between the model and its own errors visible, since a distribution whose quantiles are evenly spaced is claiming a shape that the residuals may not support. The last option is the trap: two ends and a centre fix a spread and a centre and say nothing about the shape between them, which is why two symmetric-looking intervals can enclose asymmetric distributions.",
+      "hint": "Ask how many degrees of freedom three reported numbers leave, and what a user needing a tail would do.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "distribution-forecast",
+        "quantile-forecast"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0047",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A level change that a single coefficient cannot follow",
+      "learningObjective": "judge whether a step in the level should be modelled inside the forecast",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A series steps up by 15 units in period 60 and stays there. Two proposals pair a treatment with a justification. Which pairing survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Refit with the step inside the model from period 60, because a level the recursion has not seen will be carried forward as a bias for as long as the forecast runs",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Leave the model alone and add 15 to every forecast, because a permanent step is a constant offset and constants are the easiest adjustment to make",
+          "misconception": "assumes the step is known and permanent in advance"
+        },
+        {
+          "id": "C",
+          "text": "Leave the model alone and rely on the smoothing recursion, because a smoothing constant chosen large enough will absorb a step within a period or two on its own",
+          "misconception": "believes the smoothing constant adapts to a structural change"
+        },
+        {
+          "id": "D",
+          "text": "Refit but discard everything before period 60, because the earlier history describes a process that no longer operates and so is worse than useless",
+          "misconception": "discards useful history without cause"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A level the recursion has not observed is a level it will not forecast, and the bias persists for as long as the state takes to catch up, so the forecast is wrong by most of 15 units for a run of periods after a change the data plainly shows. Putting the step inside the specification makes the level states on both sides of it correct and lets the trend be estimated on the regime that is actually operating. Adding 15 by hand assumes the change is permanent, which is exactly the assumption a change point should not be given for free, and it assumes the team knows the size, which they do not at the moment they most need it. A large smoothing constant makes the level responsive at a cost to every other period, and a window that throws away the earlier history discards the observations that identify the seasonal profile, which usually survives a level change intact.",
+      "hint": "Ask what the level state believes after a step it has not seen, and for how long.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 102,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "change-point",
+        "level-shift"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0048",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What an average forecast conceals about its own errors",
+      "learningObjective": "explain what an averaged forecast hides about the distribution of its errors",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what an averaged forecast hides about the distribution of its errors, and give the sentence that gets it wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "An averaged forecast hides everything the average is not sensitive to, which on a series with a seasonal or a regime structure is most of what matters. Two periods can be wrong by twenty in opposite directions and average to zero error, so the summary reports a model that appears unbiased while missing a fifth of its values badly, and a capacity plan built on the average will be short on exactly the days the average called calm. The sentence that gets it wrong is this one: a small average error means the forecast is close most of the time. The average says nothing about how often the forecast is close and nothing about the size of the occasions when it is not, since a mean of near zero is compatible with a narrow reliable model and with an erratic one whose large misses are balanced by compensating overshoots. The second wrong sentence is that the errors are small because the model is well fitted, which reverses the relationship, since a model that fits the training data tightly can still carry the largest errors forward into the future where nothing constrains them."
+      },
+      "explanation": "The two summaries a forecast needs are a measure of typical size and a measure of how the size is distributed, and an average supplies the first while discarding the second. The tables that preserve the second cost nothing extra to compute and are what make a bias or a seasonal miss visible before it reaches a user. The practical discipline is to publish the error distribution beside the mean, and to publish it by period and by horizon so that a compensating pattern cannot hide.",
+      "hint": "Ask what pair of error values would average to zero and still be two bad forecasts.",
+      "difficulty": 0.44,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 148
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "error-measure",
+        "communication"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0049",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The order in which a seasonal model is specified",
+      "learningObjective": "order the stages of specifying and checking a seasonal model",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A monthly series with a strong yearly pattern must be modelled. Put these four stages in the order they must happen.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Confirm the period from the data rather than from the calendar, since a lag-twelve spike and a period of twelve are different claims and only one of them is tested",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Decide whether the seasonal swing is proportional to the level or fixed in units, because that choice determines the whole form of the seasonal component",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Fit the model and check that the residual table is flat at lag one and at the seasonal lag, since either one still showing structure means the seasonal term is wrong",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Compare against a seasonal naive forecast on rolling origins, since a seasonal model has to beat the assumption that this month repeats last year",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The period is established first because a seasonal term indexed to the wrong lag will fit a great deal of the sample and forecast nothing, and because the calendar tells you only when to look, not what is there. The proportionality decision comes next because it is structural rather than a matter of degree, and a swing that widens with the level cannot be represented by a fixed adjustment however large it is chosen. The residual check follows the fit and looks at two specific places: lag one for the short-range structure and the seasonal lag for the pattern itself, and a spike in either is a statement about what the specification still owes. The comparison with a seasonal naive comes last and is the one most often skipped, because the seasonal naive is a strong opponent and a seasonal model that cannot beat repeating last year is not worth the parameters it spends.",
+      "hint": "Ask which stage the later ones are indexed by, and which benchmark the seasonal term has to clear.",
+      "difficulty": 0.46,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-model",
+        "workflow"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0050",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The uncertainty a drift estimate carries with it",
+      "learningObjective": "compute a forecast-error variance that includes the drift estimate",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A random walk with drift is fitted to twenty points whose one-step increments have a variance of 4. The drift is estimated from those points, and the variance of that estimate is taken as the increment variance divided by the number of points. Taking the drift as uncertain, what is the variance of the five-step-ahead forecast error?",
+      "options": [],
+      "answer": {
+        "value": 25,
+        "tolerance": 0
+      },
+      "explanation": "The five-step error is the sum of five shocks minus five times the error in the drift estimate, and the two terms are not independent of each other in general but are conventionally treated as such, so the variance is five times 4 plus 25 times 4 over 20, which is 20 plus 5, or 25. Ignoring the drift entirely gives 20 and is the answer most methods report, which understates the spread by a quarter and understates it more the further out it goes, since the drift term grows with the square of the horizon while the shock term grows with the horizon. That asymmetry is why a long-horizon drift forecast is the most overconfident number a time series produces. The separate contributions are worth keeping: 20 is the part that no amount of data will reduce, since it is the noise of the process, and 5 is the part a longer history would shrink.",
+      "hint": "Add the variance of the accumulated shocks to the horizon times the variance of the drift estimate.",
+      "difficulty": 0.5,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 60,
+        "medianSec": 110,
+        "p75Sec": 168
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "random-walk",
+        "forecast-variance"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0051",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "The period a seasonal model has to be told",
+      "learningObjective": "state what a seasonal model requires of its period before it can be fitted",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A series is read weekly and a seasonal model is to be fitted with a term for the yearly cycle. What does the model require of the period before anything else, and what goes wrong if the requirement is met with a convenient number?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A period stated in the series' own units, since 52 weekly steps is not 12 and a seasonal term indexed to the wrong lag will fit the sample while forecasting nothing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A period expressed in months, since a seasonal model is defined on calendar months and a weekly series has to be aggregated before it can carry one",
+          "misconception": "believes a seasonal term requires monthly data"
+        },
+        {
+          "id": "C",
+          "text": "A period chosen by trying the candidates that fit best, since the length of a cycle is a parameter like any other and the data should settle it",
+          "misconception": "confuses choosing the period with testing a period"
+        },
+        {
+          "id": "D",
+          "text": "No period at all, since a seasonal component is estimated from the data and does not need to be told which lag to occupy",
+          "misconception": "believes a seasonal component has no lag to specify"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A seasonal term is a set of values indexed by a lag, so the lag has to be stated in the units the series is recorded in, and a weekly series runs a year in 52 steps rather than 12. Using the convenient 12 produces a model that finds a plausible repeating pattern at a lag that has nothing to do with the calendar, fits the training sample better than the correct lag would, and forecasts worse, because it has spent its parameters on a coincidence. Testing a period means looking at the autocorrelation function and seeing whether a lag stands out beyond the band, which is a different act from choosing the value that improves a fit. The other two options describe a restriction the method does not have and a data requirement it does not impose: a seasonal term works on any regularly spaced series, and its lag is always specified.",
+      "hint": "Ask how many steps the cycle actually takes in the units the series is recorded in.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 148
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-model",
+        "period"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0052",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A decomposition that follows the series instead of assuming one shape",
+      "learningObjective": "distinguish a local seasonal decomposition from a fixed one",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A decomposition method estimates the seasonal shape separately within each short window of the series and allows the trend to bend inside a window, rather than fitting one straight trend and one profile for the whole span. What has that bought and what has it cost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It can follow a seasonal shape that drifts across the sample, and it pays for that with two extra smoothing parameters and an assumption that a season completes inside a window",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It removes the need to choose a period, since estimating the shape locally means the cycle length is discovered rather than supplied",
+          "misconception": "believes a local estimate discovers the period"
+        },
+        {
+          "id": "C",
+          "text": "It makes the components identifiable, since a shorter window gives fewer free parameters per point and so pins the level down more tightly",
+          "misconception": "claims more flexibility improves identifiability"
+        },
+        {
+          "id": "D",
+          "text": "It guarantees white noise afterwards, since a trend free to bend will absorb whatever irregularity the series contains",
+          "misconception": "believes a flexible trend absorbs all irregularity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Buying flexibility with parameters is the trade, and it is a good one when the seasonal profile genuinely moves, which happens more often than textbooks suggest, since promotions, product launches and regulatory changes all shift it. The window length is the constraint that makes the method work: it has to be long enough to hold at least two full cycles and short enough that the profile can change within it, and a window shorter than two cycles cannot separate a level from a trend at all. The remaining options each mistake a property for an achievement. Flexibility never discovers a period, it only ever assumes the one it was given, and a trend permitted to bend will absorb noise as readily as signal, so the residual behaviour after such a decomposition is a thing to check rather than a thing guaranteed.",
+      "hint": "Ask what flexibility costs in parameters, and what window length makes the local estimate possible.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 102,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "decomposition",
+        "seasonality"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0053",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a random walk commits you to assuming",
+      "learningObjective": "state the assumption a random walk with drift makes about shocks",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A random walk with drift is chosen for a series, and the write-up notes that the model has one parameter for the drift and assumes each shock is independent of everything before it. What has the model committed the modeller to?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the level of the series carries all the memory, so a shock moves the level once and leaves nothing behind for a later observation to respond to",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the series is stationary once the drift is removed, since a constant increment and independent shocks are the definition of a stationary process",
+          "misconception": "confuses removing a drift with reaching stationarity"
+        },
+        {
+          "id": "C",
+          "text": "That the shocks are small, since an independent shock assumption only holds while no single shock dominates the drift",
+          "misconception": "reads independence as implying small magnitude"
+        },
+        {
+          "id": "D",
+          "text": "That the drift is constant for ever, since a model with a single drift parameter has by construction committed to a constant rate of change",
+          "misconception": "reads a one-step estimate as a permanent commitment"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A shock that leaves nothing behind is what makes the model a random walk rather than an autoregression, and it is the reason the forecasts are so wide: with no dependence to exploit, every future value is the last one plus an accumulated sequence of shocks whose dispersion grows with the horizon. The consequences follow from that and are worth stating when the model is chosen, because a series with visible short-range dependence is being left on the table. Removing the drift does not make the levels stationary, since the level of a random walk wanders however constant its increments are, and that distinction is the most common confusion in the whole area. The independence assumption says nothing about magnitude, and a one-step estimate of the drift is an estimate rather than a promise, which is a fair criticism of extrapolating a long way.",
+      "hint": "Ask what a shock leaves behind for the next observation to respond to.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 50,
+        "medianSec": 94,
+        "p75Sec": 146
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "random-walk",
+        "drift-method"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0054",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An averaging window that does not divide the cycle",
+      "learningObjective": "identify the misalignment a smoothing window creates on a short cycle",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A centred moving average of five points is applied to a series with a strong cycle of seven periods in order to estimate its level, and the result oscillates even where the underlying series has no such movement. What has the window done?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Left part of each cycle in the estimate, because a window that is not a whole number of cycles cannot cancel the cycle out and passes a fraction of it through",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Removed too little, since a longer window would smooth the oscillation away and the estimate would then be the true level",
+          "misconception": "assumes a longer window always solves a misaligned cycle"
+        },
+        {
+          "id": "C",
+          "text": "Shifted the series, since a centred window over an odd number of points is known to move observations forward by half the window",
+          "misconception": "describes an alignment problem as a shift problem"
+        },
+        {
+          "id": "D",
+          "text": "Added noise, because averaging more points always introduces a variance that the raw series does not have",
+          "misconception": "claims averaging creates noise that was not present"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A moving average estimates the level by cancelling movement, and it can only cancel a movement whose period divides the window. Seven into five does not divide, so each window contains five sevenths of a cycle and the leftover fraction moves with the cycle, which is exactly the oscillation described. The cure is to use a window that is a whole number of cycles, or to use the two-stage arrangement in which a window matched to the cycle strips the seasonal part first and a second window estimates the level from what is left. The second option is the seductive one because a longer window does reduce the amplitude, but it reduces it by averaging across more of the oscillation rather than by removing it, and it blurs genuine changes in level in exchange. The oscillation is an artifact of the misalignment and is a reason to reconsider the window rather than a reason to lengthen it.",
+      "hint": "Ask whether the window holds a whole number of cycles, and what it does with the remainder.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "moving-average",
+        "seasonality"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0055",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "A fit figure and a forecasting figure that disagree",
+      "learningObjective": "interpret a large gap between in-sample and out-of-sample error",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A model's root mean squared error on the data it was fitted to is 2.1, and its mean absolute error across rolling origins is 8.4, four times larger. What does this support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the fit is much better than the forecasting, since a model with enough flexibility can reproduce structure specific to the observations it was given and none of it is available on a period it has not seen",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the two figures measure different things and neither is wrong, so a ratio of four between them is unremarkable and needs no explanation",
+          "misconception": "dismisses a fourfold gap as a matter of units"
+        },
+        {
+          "id": "C",
+          "text": "That the rolling origins were chosen badly, since a fourfold increase in error is too large to be caused by a data sample alone",
+          "misconception": "blames the evaluation design for the gap"
+        },
+        {
+          "id": "D",
+          "text": "That the model is well specified but under-trained, since more data would close a gap of this size without any change to its form",
+          "misconception": "assumes a large gap is a data volume problem"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A fourfold gap between the two figures is the measurement, and it is the classic symptom of a model that has fitted the sample rather than the process. Two measures are being compared rather than one, which is true and does not make the ratio unremarkable: the two are on similar scales and the gap is large enough that it would be remarkable if it were nothing. The distinction between fitting and forecasting is not a technicality here, because a flexible specification will absorb noise, and the noise it absorbs is not repeatable. More data of the same kind would close some of the gap by making the sample-specific component a smaller share of the total, which is a real and useful effect, and it would not close the whole of it, because a model with too many terms for the structure present will keep finding things to fit on a larger sample as well.",
+      "hint": "Ask which of the two figures the model was allowed to see while it was being built.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 102,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "backtest",
+        "overfitting"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0056",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "An interval that covers less than it promises on the periods that matter",
+      "learningObjective": "test an interval claim against the periods on which it was checked",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A 90 per cent interval is published for a monthly series. Over 200 rolling origins it covered the outcome 183 times overall, and it covered 61 of the 66 origins that fell in the third quarter of the year, against 122 of 134 in the other three quarters. What does this support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the overall 0.915 is flattered by the other quarters, since the third quarter covers 0.924 of its origins with no visible shortfall and the pooled figure conceals a difference worth examining",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the interval meets its 90 per cent promise, since 183 out of 200 is above 0.90 and the promise is a statement about the whole series",
+          "misconception": "accepts a pooled figure as settling a per-season question"
+        },
+        {
+          "id": "C",
+          "text": "That the third quarter is a small enough slice to ignore, since 66 origins out of 200 cannot support a claim about one quarter on its own",
+          "misconception": "dismisses a slice for being small rather than testing it"
+        },
+        {
+          "id": "D",
+          "text": "That the interval is too wide in the other three quarters, since 122 of 134 indicates a level of caution that the third quarter does not need",
+          "misconception": "reads a high coverage rate as over-wide"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The pooled figure is 0.915 against a promise of 0.90, and the pooled figure is the one that goes in the report, which is exactly why the breakdown is worth computing. The quarterly rates are 0.924 and 0.910, and the difference between them is a handful of origins, so the honest conclusion is that this table has not established that the interval behaves differently by season. What the breakdown does buy is the ability to say that, rather than leaving a reader to assume the pooled number describes every season equally, and a difference of this size is exactly the kind that becomes obvious once a real structural change appears and is invisible in the average. A claim about one quarter needs enough origins to support it, and 66 is few, which is a reason to keep collecting rather than a reason to stop looking.",
+      "hint": "Compute the rate within each slice, and ask what the pooled rate is averaging over.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 58,
+        "medianSec": 106,
+        "p75Sec": 164
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "forecast-interval",
+        "coverage"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0057",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Which model and which stated limit belong together",
+      "learningObjective": "pair a forecast method with the limitation its claim should state",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A supplier offers a smoothed forecast for a weekly series and a claim attached to it. Two pairings of method and stated limit are on the table. Which pairing survives scrutiny?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A smoothed forecast with the limit that it carries no seasonal state, so the claim should name the cycles it cannot represent and a seasonal method as the alternative",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A smoothed forecast with the limit that it is only valid for a single period ahead, so the claim should say the horizon may not be extended beyond the next observation",
+          "misconception": "restricts the horizon rather than naming the missing state"
+        },
+        {
+          "id": "C",
+          "text": "A seasonal method with the limit that it needs a full cycle of history, so the claim should name the warm-up the model requires before its forecasts mean anything",
+          "misconception": "states a real limit against the wrong method"
+        },
+        {
+          "id": "D",
+          "text": "A seasonal method with the limit that its interval is approximate, so the claim should present the coverage as indicative rather than measured",
+          "misconception": "hedges a coverage figure instead of measuring it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A stated limit is useful when it names the structure the method does not represent, because that tells a reader which alternative to look at. A method carrying only a level and a trend state has nowhere to put a repeating pattern, and on a seasonal series it will smooth the cycle away and forecast a level that is wrong by the size of the swing in every season, which is a structural omission rather than a matter of tuning. The second option describes a real property of smoothed forecasts, that they are most trustworthy one step out, and states it as though it were a horizon restriction rather than as the consequence of carrying no seasonal state. The third and fourth pair honest observations with the wrong method, and the fourth is the weakest because a coverage figure that is described as indicative rather than measured has simply not been computed.",
+      "hint": "Ask what state the method has available, and therefore which structures it cannot carry.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 58,
+        "medianSec": 106,
+        "p75Sec": 164
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "exponential-smoothing",
+        "communication"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0058",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a walk-forward evaluation does and does not establish",
+      "learningObjective": "explain what a walk-forward evaluation establishes about a forecast method",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a walk-forward evaluation of a forecast method does and does not establish, and give the sentence that gets it wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "A walk-forward evaluation establishes that the method, refitted as it would be in production and asked only for forecasts it could actually have made at each origin, has produced errors of a stated size on a stated series over a stated period, and that is a real and much stronger claim than an in-sample figure because every forecast was made before its outcome was known. What it does not establish is that the errors will continue at that size, that the method will do as well on a series it was not developed against, or that a smaller average error corresponds to a better decision, which is a claim about the loss the errors cause rather than about their magnitude. The sentence that gets it wrong is this one: the method achieves an average error of 4.2, so it is suitable for planning. A number is not a suitability finding, and the gap between the two is where a forecast programme either earns trust or spends it, since an average error that was measured on a calm period says very little about the period a plan is actually built for. A second wrong sentence says the evaluation proves the model is right, when what it produces is evidence of a size, gathered by a method whose own design deserves to be stated."
+      },
+      "explanation": "The value of the walk-forward design is that it removes the one thing an in-sample figure cannot, which is the model's access to its own future. What remains uncertain is everything about the conditions, and the honest report says which conditions held. Reporting the distribution of errors beside the average, and reporting them by horizon, keeps the parts that a pooled number discards in view.",
+      "hint": "Ask what the evaluation had access to at each origin, and what the resulting number is a statement about.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 102,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "backtest",
+        "walk-forward"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0059",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "What a seasonal index is and is not claiming",
+      "learningObjective": "explain what a seasonal index asserts and what it leaves open",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a seasonal index asserts about a series, and give the sentence that gets it wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "A seasonal index asserts that the same positions in the cycle behave alike across cycles, so that the average behaviour of a position can stand in for its behaviour in the cycle now being forecast, and that the positions can be separated from the level without either one absorbing the other. The second half of that claim is the one usually forgotten, and it is what the zero-sum constraint on an additive profile and the average-to-one constraint on a multiplicative one are for. The sentence that gets it wrong is this one: the index gives the exact effect of the season, so the forecast error is the rest. The index is an average over past cycles, so it carries the variation between cycles inside it and cannot be treated as a known quantity to be removed, and the variation it leaves behind is real error rather than a residual of the calculation. A second wrong sentence treats the index as permanent, which turns a summary of the past into a promise about the future, and it is the sentence behind a forecast that was never updated after the season it described had changed."
+      },
+      "explanation": "An index is a parameter estimated from data, and every property of an estimate applies to it, including the one that matters most here, which is that it was estimated on a sample of cycles. Reporting the index alongside the number of cycles behind it and the spread across them turns a bare number into something a reader can weigh, and it is the cheapest improvement available to a seasonal forecast.",
+      "hint": "Ask how many cycles the index is an average of, and what happens to the variation between them.",
+      "difficulty": 0.44,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 52,
+        "medianSec": 96,
+        "p75Sec": 150
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "seasonal-index",
+        "uncertainty"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-7.1-0060",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 7",
+      "topic": "Why the horizon changes which method is wanted",
+      "learningObjective": "explain why a longer horizon calls for a different forecast structure",
+      "practice": "time series and forecasting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why the length of a forecast horizon changes which structure a forecast should have, and give the sentence that gets it wrong.",
+      "options": [],
+      "answer": {
+        "exemplar": "The horizon changes which parts of the series a forecast can still lean on, and it changes them at different rates. At one step the last observation is nearly all of the information available, so a forecast that carries a level and updates it on the new observation is close to optimal. At thirty steps the series has moved on thirty times, the last observation has said much less about where the process now is, and the only things still carrying information are the slower structures: a trend, a seasonal profile, and whatever the level has been converging to. That is why a method tuned on a short horizon is a poor choice for a long one, and why the method and the horizon have to be chosen together rather than the horizon being a parameter passed in afterwards. The sentence that gets it wrong is this one: the same model serves every horizon, so only the error grows with distance. The structure is what has to change, not merely the width of the interval around it, and a model with no trend state extrapolates a flat line a month ahead with some confidence and a year ahead with none at all, however the interval is scaled."
+      },
+      "explanation": "The variance of the forecast error growing with the horizon is universal and is not the point. The point is that the sources of predictability differ by horizon, so the relative value of a trend state or a seasonal state changes as the distance does, and a method is being asked to do different jobs at different distances. Choosing per horizon, and reporting which method was used at each, is the arrangement that follows.",
+      "hint": "Ask what information survives at thirty steps that did not matter at one, and which state the method carries.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 56,
+        "medianSec": 102,
+        "p75Sec": 158
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-7",
+        "horizon",
+        "model-selection"
+      ],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
