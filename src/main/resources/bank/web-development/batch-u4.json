@@ -1,0 +1,3984 @@
+{
+  "questions": [
+    {
+      "id": "web-4.1-0001",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What the weight of a script bundle is made of",
+      "learningObjective": "identify the contributions that make up a shipped script file",
+      "practice": "reading bundle reports",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A page ships 480 kilobytes of script and the network panel shows it arriving as one file. Which of these is inside that 480 kilobytes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The module code, the values the code holds, and the runtime it needs",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the module code, because data and runtime are fetched at run time",
+          "misconception": "believes data and the runtime are always fetched after the file"
+        },
+        {
+          "id": "C",
+          "text": "Only the code the entry module imports, not the modules it imports",
+          "misconception": "believes a file contains only the modules named in the first import"
+        },
+        {
+          "id": "D",
+          "text": "The compiled code alone, because names and comments are dropped by the compiler",
+          "misconception": "believes the compiler is the step that removes names and comments"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A bundle is everything needed to run, flattened into one file: the code of every module that survived, the constants and tables those modules define, and whatever library support the target needs. That is why a file can be far larger than the code anyone wrote, and why a single large dependency moves the number more than any amount of local tidying. The separate-fetch belief is contradicted by the fact that a page works with the network panel offline for assets already cached, and the direct-import belief is contradicted by every module that re-exports: the chain behind the first import is in the file too.",
+      "hint": "Ask what the browser needs in hand before it can run anything from that file.",
+      "difficulty": 0.4,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 29,
+        "medianSec": 50,
+        "p75Sec": 76
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "bundle-size",
+        "modules",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0002",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What lets a build drop an unused module",
+      "learningObjective": "state the condition under which an unused module may be dropped",
+      "practice": "reading build configuration",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A package ships 300 modules, the application imports two of them, and the built file still contains all 300. What decides whether the other 298 can be removed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the package declares its modules free of side effects, so removing one is safe",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Whether the two imported modules are written with const rather than let",
+          "misconception": "believes a keyword choice decides whether a module can be dropped"
+        },
+        {
+          "id": "C",
+          "text": "Whether the build can minify every module, since minified code is droppable",
+          "misconception": "believes minifying a module makes it safe to remove"
+        },
+        {
+          "id": "D",
+          "text": "Whether the package lists its modules in one entry file, so nothing is ambiguous",
+          "misconception": "believes a single entry file is what makes dropping safe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A build can only omit a module it imported but never used if running that module would have changed nothing, so the package has to say whether its modules are free of side effects. A module that registers a global, patches another library, or starts a timer on import has effects even when nothing reads its exports, and dropping it changes the program, so it must stay. The declaration is what lets a build skip 298 modules; without it, silence is read as possible effect and everything is kept. Minifying changes the text, not whether running the module matters, and neither keyword choice nor the file layout changes that.",
+      "hint": "Ask whether running the unused module would have changed anything at all.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "tree-shaking",
+        "side-effects",
+        "bundles"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0003",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "How a wait after the last keystroke shapes a request curve",
+      "learningObjective": "trace the calls a delayed search makes over a burst of keystrokes",
+      "practice": "tracing request shaping",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A search box runs `runSearch()` 300 ms after the user stops typing, cancelling any earlier wait. Keystrokes arrive at 0, 100, 200 and 300 ms, and the run is watched until 900 ms. How many times does it run, and when?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Once, at 600 ms, because each keystroke replaces the wait before it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Four times, at 300, 400, 500 and 600 ms, because each keystroke starts a wait",
+          "misconception": "believes several pending waits run one after another instead of being replaced"
+        },
+        {
+          "id": "C",
+          "text": "Twice, at 0 and 300 ms, because the wait is measured from the first keystroke",
+          "misconception": "believes the wait is counted from the first keystroke rather than the last"
+        },
+        {
+          "id": "D",
+          "text": "Never, because each keystroke restarts the wait before it can ever finish",
+          "misconception": "believes replacing a pending wait also cancels the search it stood for"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each keystroke starts a wait and cancels the one before it, so only the wait started by the last keystroke at 300 ms survives, and it comes due at 600 ms. That is one call. The same burst under a rule that allows at most one call per 300 ms gives two calls instead, at 0 and 300 ms, so the two rules have visibly different shapes: a trailing wait only fires once the input has gone quiet, while an interval rule fires on a schedule whether or not typing has finished. The endless-reset belief is the natural one when the code cancels a timer, and the cancellation is exactly why the search does happen.",
+      "hint": "Ask which pending wait is still alive once all four keystrokes have arrived.",
+      "difficulty": 0.47,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "debounce",
+        "requests",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0004",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A token bucket and the requests it turns away",
+      "learningObjective": "trace how many requests a token bucket serves in a burst",
+      "practice": "tracing rate limits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A route serves a request with `if (tokens < 1) return 429;` from a bucket that holds 5 places and gains one place back every second, up to that cap. Eight requests arrive inside the same second. How many are served, and what happens to the rest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 are served, and the other 3 are refused with a hint to retry later",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "All 8 are served, because the bucket refills once for the whole group",
+          "misconception": "believes a refill makes places available to every waiting request at once"
+        },
+        {
+          "id": "C",
+          "text": "5 are served, and the other 3 wait until places free up and are then run",
+          "misconception": "believes a token bucket holds requests rather than only places"
+        },
+        {
+          "id": "D",
+          "text": "1 is served, because the bucket holds one place however many it was given",
+          "misconception": "believes the configured capacity is a rate rather than a store of places"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The bucket starts with five places, and each of the eight requests that arrives inside the same second takes one if there is one left. The first five succeed and the bucket is empty, and because the whole burst lands before any second has passed there are no places back yet, so the last three are refused. A token bucket refuses rather than queues, which is what keeps a busy client from accumulating a backlog of work the server never intended to accept. The store-versus-rate confusion is common because the number 5 reads like a rate, and the difference decides whether a burst of eight is mostly served or mostly refused.",
+      "hint": "Ask whether a place comes back before the last of the eight requests has arrived.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 53,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "rate-limit",
+        "tracing",
+        "capacity"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0005",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "One query per row of a result set",
+      "learningObjective": "count the queries a lookup inside a loop produces",
+      "practice": "tracing data access",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A page loads three orders. The code runs one statement for the orders and then, inside the loop over them, one statement per order to get its customer name. How many statements reach the database for this one page load?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Four, because the loop adds one statement for each order it visits",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Three, because the order statement and the customer ones share a round trip",
+          "misconception": "believes a statement inside a loop reuses the previous round trip"
+        },
+        {
+          "id": "C",
+          "text": "One, because the customer name is joined onto the order rows in the same statement",
+          "misconception": "believes a loop over rows does not produce further statements by itself"
+        },
+        {
+          "id": "D",
+          "text": "Two, because the loop's customer statements are sent as one batched statement",
+          "misconception": "believes statements issued in a loop are combined into one by the driver"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "One statement gets the orders, and then the loop runs once per order with a statement of its own, so a page of three costs one plus three, which is four. The cost grows with the page, which is the whole point: a page of fifty orders costs fifty-one round trips, and most of the time is spent waiting rather than working. One joined statement, or one statement asking for every customer the page needs and matching the names afterwards, turns the growth into a constant. The batching belief is worth testing directly on a real loop, because drivers do not merge statements that were issued separately.",
+      "hint": "Add the one statement before the loop to the count made inside it.",
+      "difficulty": 0.4,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 50,
+        "p75Sec": 75
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "n-plus-one",
+        "database",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0006",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Paging by offset after a row above the page is deleted",
+      "learningObjective": "trace which rows a second page returns after an earlier deletion",
+      "practice": "tracing pagination",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds ids 1 to 10 in order and the page size is 5. Page two is fetched with `rows.slice(5, 10)`. Then id 3 is deleted and page two is fetched the same way. Which ids come back the second time?",
+      "options": [
+        {
+          "id": "A",
+          "text": "7, 8, 9 and 10, because the deletion moved every later id one place up",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6, 7, 8, 9 and 10, because a slice of five always yields five rows",
+          "misconception": "believes a slice always returns as many rows as its length asks for"
+        },
+        {
+          "id": "C",
+          "text": "8, 9 and 10, because the deleted id is also missing from the rows after it",
+          "misconception": "believes a deletion shortens the list by more than the one row removed"
+        },
+        {
+          "id": "D",
+          "text": "1, 2, 4, 5 and 6, because the offset is counted from the top of the list",
+          "misconception": "believes the offset counts the page rather than the rows to skip"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "After the deletion the list is 1, 2, 4, 5, 6, 7, 8, 9, 10, so skipping five rows lands on 7 and the page is 7, 8, 9, 10, only four rows because the list is one shorter. The row with id 6 has moved into page one, so anyone reading page one and then page two never sees it at all, and a reader who fetched page one before the deletion sees 6 twice. This is the structural weakness of paging by position: the offset names a place in a list that is changing underneath it. A cursor that names the last key of the previous page keeps pointing at the same row however many rows come and go before it.",
+      "hint": "Write out the list after the deletion, then skip five entries.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "pagination",
+        "offset",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0007",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Matching a host against an allowed source",
+      "learningObjective": "decide whether a script address matches a policy source",
+      "practice": "tracing policy evaluation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A policy is set with `res.setHeader('Content-Security-Policy', \"script-src 'self' https://cdn.example.com\")` and the page is at `https://app.example.com/dashboard`. One tag has `src=\"https://cdn.example.com.evil.net/lib.js\"`. Does the policy allow it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, because the host must equal the allowed host or sit directly under it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, because the host contains the allowed host as a run of characters",
+          "misconception": "believes a host containing the allowed name matches that source"
+        },
+        {
+          "id": "C",
+          "text": "Yes, because the address uses the same scheme as the allowed source",
+          "misconception": "believes matching the scheme is enough to satisfy a host source"
+        },
+        {
+          "id": "D",
+          "text": "No, because the host ends in net rather than in com at its end",
+          "misconception": "believes a host must end with the same final label as the allowed host"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A host source matches when the address's host is that host exactly or a subdomain of it, judged at the label boundary, so app.example.com is under example.com and cdn.example.com.evil.net is not under cdn.example.com: the allowed name there is in the middle of a longer name owned by someone else. Comparing characters anywhere in the string is what lets that address through, and it is the most common way a policy written by hand is defeated. The same mistake in a server allowlist is a real vulnerability, so the rule worth remembering is the label boundary, not the substring.",
+      "hint": "Ask whether the allowed name is followed by a dot and more of the same owner's labels.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 58,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "csp",
+        "hosts",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0008",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A stored value written into the page as markup",
+      "learningObjective": "identify which stored value produces script execution when written as markup",
+      "practice": "tracing injection",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A display name is stored on the server and put into the page by `el.innerHTML = name`. Three stored values are tried: `Ada Lovelace`, `Ada <b>head</b> of ops`, and `<img src=x onerror=fetch('/take')>`. Which one runs script?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the third, because it opens a tag carrying an event handler attribute",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The second and the third, because any tag in a value becomes a live element",
+          "misconception": "believes inserting a tag always leads to the script running"
+        },
+        {
+          "id": "C",
+          "text": "All three, because writing markup always runs the scripting it finds",
+          "misconception": "believes assigning markup re-runs scripting for any value at all"
+        },
+        {
+          "id": "D",
+          "text": "Only the second, because a tag wrapped in text is the one that is parsed",
+          "misconception": "believes a tag must be surrounded by text to be parsed as markup"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Writing a string as markup means the string is parsed, and what runs is whatever the parser builds: the second value builds a bold element and nothing more, so it is a real defect but not script execution, while the third builds an image whose error handler is code the browser will run as soon as the source fails to load. The first is plain text and stays text. The distinction matters when choosing a fix, because the answer is to assign the value as text rather than as markup, which turns all three into text, and the mismatch between what a value is trusted to be and what the sink treats it as is the whole of the flaw.",
+      "hint": "Ask which of the three parses into an element that carries code to run.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "xss",
+        "innerhtml",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0009",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A value the build wrote into the shipped file",
+      "learningObjective": "state what a build-time substitution does to a value placed in client code",
+      "practice": "tracing build output",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A build step does `source.replace('process.env.PAYMENT_KEY', JSON.stringify(secret))` and writes the result as the file it ships. What does that file, as received by the browser, contain?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The key in plain text, because the substitution happened before it was written",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The name of the variable only, because the value stays in the build machine",
+          "misconception": "believes a substituted value stays behind on the build machine"
+        },
+        {
+          "id": "C",
+          "text": "A hashed value, because the build hashes every long string it writes in",
+          "misconception": "believes a build step automatically hashes any secret it inserts"
+        },
+        {
+          "id": "D",
+          "text": "A lookup performed at run time, because a file never carries a value of its own",
+          "misconception": "believes a literal written into a file is fetched again at run time"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Substitution is a text replacement done before the file is written, so the shipped file contains the key as plain text and anyone who can read the file can read the key. The value being absent from the source repository does not help, because the value that ships is the one that matters, and the build machine's copy is not what runs in the browser. A value substituted this way can only ever be public: hiding it behind a name that the build then replaces is not protection, since the name is what the source holds and the value is what the file holds. Anything secret has to be fetched at run time by code that holds no secret itself.",
+      "hint": "Ask what the browser receives, not what the source repository holds.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "secrets",
+        "build",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0010",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A policy so tight the page stops working",
+      "learningObjective": "choose the repair that keeps a script policy while restoring the page",
+      "practice": "diagnosing deployed headers",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A page is given `Content-Security-Policy: script-src 'self'`. A report tool loaded from another host stops running, so the header is deleted entirely. Which change actually keeps the protection?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Name that one host in the script source list, and keep the header in place",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Move the report tool's address into a connect source list instead",
+          "misconception": "believes a connect source permits a script to be loaded and run"
+        },
+        {
+          "id": "C",
+          "text": "Allow any host with a wildcard so the report tool is never blocked again",
+          "misconception": "believes a wide allowlist still counts as a meaningful restriction"
+        },
+        {
+          "id": "D",
+          "text": "Send the header only on the page that was broken, and omit it elsewhere",
+          "misconception": "believes applying a policy to one address protects the others"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A script source list is an allowlist of places scripts may come from, so naming the one host the report tool is served from is the smallest change that lets it work and keeps the restriction on everything else. Deleting the header removes the only thing doing the work, and an allowlist that admits any host is the same absence with extra characters. A connect source governs where a script may send requests, not what it may load, so it cannot unblock a load, and sending the header on one address leaves every other address unprotected, which is where an attacker would prefer to be.",
+      "hint": "Ask which directive governs loading a script, and whether it is still present.",
+      "difficulty": 0.52,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 60,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "csp",
+        "headers",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0011",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Two identical writes from one click",
+      "learningObjective": "identify the check that stops a repeated write regardless of the client",
+      "practice": "diagnosing write endpoints",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A pay button sets itself to disabled as its first statement, yet pressing Enter in the form still produces two charges. Which change is the one that actually prevents the second write?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Have the server refuse a second write carrying the same idempotency key",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Set the button to disabled while rendering, before the handler can be bound",
+          "misconception": "believes rendering the control as disabled stops a second submission"
+        },
+        {
+          "id": "C",
+          "text": "Remove the click handler once it has run, so a second click finds nothing",
+          "misconception": "believes the click path is the only route that can submit the form"
+        },
+        {
+          "id": "D",
+          "text": "Add a delay to the response so the second request arrives after the first",
+          "misconception": "believes a slower response prevents a duplicate write"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Disabling the control in the page is a courtesy to the person clicking, and it only helps on the path it guards; a second path, such as submitting the form with the keyboard or a script, reaches the server just the same. The server is the only place every write passes through, so the check has to be there: a key the client generates once per intended action, and a record of the keys already applied, so a repeat is answered with the first result instead of doing the work again. Delaying the response changes nothing about how many writes arrive, and removing the handler leaves the other path untouched.",
+      "hint": "Ask which path the disabled control actually guards, and where every write must pass.",
+      "difficulty": 0.51,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 58,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "idempotency",
+        "diagnosis",
+        "writes"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0012",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A health check that only asks the process",
+      "learningObjective": "choose what a readiness check must verify to be worth having",
+      "practice": "diagnosing service checks",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service reports healthy from a handler that returns 200 as soon as the process answers, while its database refuses every connection. What does that check fail to tell the operator?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the service can do its work, since a running process may serve nothing useful",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "How fast the process answers, because a slow answer is a different fault",
+          "misconception": "believes a readiness check must report response time"
+        },
+        {
+          "id": "C",
+          "text": "Which user is asking, because the answer should differ per account",
+          "misconception": "believes a health endpoint should be scoped to the caller"
+        },
+        {
+          "id": "D",
+          "text": "Whether the build is current, because a stale build is a health problem",
+          "misconception": "believes a health check should verify the deployed version"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A check that only proves the process is running is answering a much weaker question than the one an operator is asking, which is whether this instance can serve a request. A process whose database is unreachable is alive and useless, and a readiness check that says otherwise keeps traffic going to it, so requests fail in a way that looks like an application bug. The useful check exercises the dependency the work needs, with a short timeout, and reports the reason so the difference between a slow answer and a broken one is visible. There is a separate liveness question, which is whether to restart the process, and conflating the two is how a service gets restarted for a database outage it did not cause.",
+      "hint": "Ask what a request served by this instance would need in order to succeed.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "health-check",
+        "operations",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0013",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Counting statements before and after joining a lookup",
+      "learningObjective": "compute a statement count and then the count a fix produces",
+      "practice": "two-stage data access work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A page loads eight orders by running one statement for the orders and then one statement per order inside the loop. Count the statements that reach the database now, then give the number the page sends once the customer names are fetched in the same statement as the orders.",
+      "options": [
+        {
+          "id": "A",
+          "text": "1",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8",
+          "misconception": "believes the loop's statements replace the statement that fetched the orders"
+        },
+        {
+          "id": "C",
+          "text": "2",
+          "misconception": "believes a join requires one statement for orders and one for customers"
+        },
+        {
+          "id": "D",
+          "text": "16",
+          "misconception": "believes the current cost is the loop count and the fixed cost is its double"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The current cost is one plus eight, which is nine, and the number here asked for is the cost after the fix. Once the customer names come back in the same statement as the orders there is nothing left to look up per row, so the page sends a single statement regardless of how many orders it holds. That is the point of the change: the cost stops growing with the size of the page. The answer two is the shape people reach for because it separates reading and looking up, but a join expresses both in one statement, and the eight case is a symptom of a loop rather than the correct total.",
+      "hint": "The count asked for is the one after the fix, where nothing is looked up per row.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "n-plus-one",
+        "two-stage",
+        "database"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0014",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What an index changes about the work a lookup does",
+      "learningObjective": "compare the rows read by a scan and by an indexed search",
+      "practice": "two-stage index work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A table holds 2000 rows in no useful order and the query `where owner = 'r-jian'` matches the very last row. Give the rows a full scan reads, then give the worst-case number of entries an index on owner must read.",
+      "options": [
+        {
+          "id": "A",
+          "text": "11",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "misconception": "believes an index entry names its row directly with no searching"
+        },
+        {
+          "id": "C",
+          "text": "20",
+          "misconception": "believes an index halves the rows read rather than narrowing by halves"
+        },
+        {
+          "id": "D",
+          "text": "2000",
+          "misconception": "believes an index still reads the whole table before deciding"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The scan reads all 2000 rows because it has no way to skip any of them, and the number asked for is what the index costs instead. An index on owner is kept in that column's order, so a search halves the range at each step, and 2000 entries are covered in at most 11 reads because 2 to the power of 11 is 2048. So the scan reads 2000 and the index reads at most 11, and the gap grows with the table rather than staying fixed. A single read is the belief that an index entry points straight at its row, which is true of a hash index and not of an ordered one.",
+      "hint": "The number wanted is the index's cost; an ordered index halves the range each step.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 37,
+        "medianSec": 63,
+        "p75Sec": 94
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "index",
+        "two-stage",
+        "database"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0015",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What promising that a file never changes does and does not promise",
+      "learningObjective": "explain the promise an immutable cache directive makes and its limit",
+      "practice": "explaining caching directives",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what `immutable` promises a browser about a cached file, what it does not promise, and what happens if the bytes at that address are later replaced.",
+      "options": [],
+      "answer": {
+        "exemplar": "The directive is a statement to the browser about how long a stored copy stays good: during its freshness period the copy may be used without asking again, and it is not revalidated even when a reload is requested, so the bytes a file had when it was stored are the bytes the browser keeps serving. What it does not promise is anything about the origin; it is an assertion the server makes, not a guarantee the file system can enforce, and it says nothing about the first load, about other caches, or about the address being permanent. That is the limit, and it is why the directive is safe only on a name that changes when the content does. If the bytes at the same address are later replaced, a browser still holding a fresh copy keeps serving the old ones for the rest of the period and never finds out, so the fix is not to shorten the period afterwards but to make the new content arrive at a new address, which is what a content hash in the file name does. Serving the old file from a cache is not a cache bug; the mistake was promising permanence for an address that did not have it."
+      },
+      "explanation": "A model answer has to separate what the directive instructs the browser to do, which is skip revalidation for the freshness period, from what it guarantees, which is nothing at all about the server's future behaviour. The consequence of replacing the bytes at the same address has to be stated plainly, and the resolution named as a new address rather than a shorter period.",
+      "hint": "Separate what the browser is told to do from what the server actually promises.",
+      "difficulty": 0.53,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 62,
+        "p75Sec": 93
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "explanation",
+        "headers"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0016",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The stages a service worker passes through",
+      "learningObjective": "sequence the stages between registering a worker and its first request",
+      "practice": "sequencing service worker work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "Put these five stages in the order a newly installed service worker passes through on its way to answering requests.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The page registers the worker, and the browser installs it separately",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The install step fills a new versioned cache with the files to keep",
+          "misconception": "believes the files are fetched later, once requests begin"
+        },
+        {
+          "id": "C",
+          "text": "An older worker still in charge leaves the new one waiting",
+          "misconception": "believes a new worker takes over as soon as it is installed"
+        },
+        {
+          "id": "D",
+          "text": "The waiting worker activates, drops older caches, and claims its clients",
+          "misconception": "believes activation happens before installation finishes"
+        },
+        {
+          "id": "E",
+          "text": "Later requests are answered by the worker, cache first and network behind",
+          "misconception": "believes every request goes to the network before any cache is used"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "explanation": "Each stage follows from the one before it. Installation has to finish before the worker is eligible to control anything, and the install step is where the files to keep are fetched, because that is the one moment the worker is guaranteed to run to completion and can be watched for failure. It cannot activate immediately while an older worker is still serving the open pages, so it waits, and waiting is what stops a half-installed version from taking over mid-session. Once the old worker lets go, activation clears out the caches of versions that are no longer current and claims the clients, and only then are later requests answered by the worker rather than straight from the network.",
+      "hint": "Ask which stage each later one has to wait for.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 58,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "service-worker",
+        "ordering",
+        "caching"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0017",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Splitting a bundle at a route boundary",
+      "learningObjective": "state what a route-based split changes about what a first visit downloads",
+      "practice": "reading build configuration",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A build is told to put the code of each screen into its own file, loaded when that screen is first opened. What changes for someone who only ever looks at the first screen?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They download the first screen's code and the rest only if they go there",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing changes, because the same total code is downloaded either way",
+          "misconception": "believes splitting files leaves the total bytes on the first visit the same"
+        },
+        {
+          "id": "C",
+          "text": "They download every file at once, because the browser fetches them in parallel",
+          "misconception": "believes separate files are fetched together whether or not they are needed"
+        },
+        {
+          "id": "D",
+          "text": "They download less, because unused code is compressed away by the split",
+          "misconception": "believes splitting a bundle is the same as removing unreachable code"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A split only helps if the extra files are not fetched until something asks for them, and a route is the natural boundary because the first screen has a clear moment at which its own file is needed and the others have none. Somebody who never leaves the first screen then pays for that screen, the shared code, and the runtime, and nothing else. The total-bytes belief is the one to watch, because a build report that sums every file still shows the same total and it takes a moment to realise the sum is not what a first visit downloads. Splitting also does not remove unreachable code; it defers it, which is why the two are complementary rather than alternatives.",
+      "hint": "Ask when a file that is not needed is actually fetched.",
+      "difficulty": 0.47,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "code-splitting",
+        "routes",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0018",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Telling the browser how many pixels an image needs",
+      "learningObjective": "state what the sizes attribute on a responsive image decides",
+      "practice": "reading responsive image markup",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A picture element offers one source at 480 pixels, one at 960 and one at 1440. What does the `sizes` attribute in the markup tell the browser before it chooses?",
+      "options": [
+        {
+          "id": "A",
+          "text": "How wide the picture will be in the layout, so it can pick a source to suit",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "How many pixels high the picture may be shown at, so it keeps the ratio",
+          "misconception": "believes the attribute sets the height the image is displayed at"
+        },
+        {
+          "id": "C",
+          "text": "Which of the three sources the author has decided is the best one",
+          "misconception": "believes the author names a winner that the browser always uses"
+        },
+        {
+          "id": "D",
+          "text": "How long the browser should wait for the network before trying again",
+          "misconception": "believes the attribute sets a timeout before a further source is tried"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The candidate sources are the same picture at different widths, and the choice is between them, but the markup is what tells the browser how wide the picture will actually be once the layout is applied, taking the viewport, any column widths and any scaling into account. With that number the browser can pick the smallest source that is still sharp enough, and describe the space to reserve so the page does not jump. Without it the browser assumes the image fills the viewport width, which on a wide screen asks for a source far larger than the one on screen. Naming a winner by hand is the thing the attribute exists to avoid, since the right answer changes with the size of the window.",
+      "hint": "Ask what the browser cannot work out on its own about a laid-out picture.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "responsive-images",
+        "sizes",
+        "images"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0019",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Painting text in a font that is not ready yet",
+      "learningObjective": "identify the shift a font loading strategy is chosen to prevent",
+      "practice": "reading font loading strategy",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A heading is drawn in a fallback face and then redrawn in the intended one once the font file arrives. What is the visible cost of doing nothing about it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The text changes width and line breaks, so the page shifts under the reader",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The text is drawn twice and looks bolder, but the layout never moves",
+          "misconception": "believes a font swap changes appearance without moving anything"
+        },
+        {
+          "id": "C",
+          "text": "The heading stays invisible until the font arrives, and then appears once",
+          "misconception": "believes the default behaviour is to hide text while a font loads"
+        },
+        {
+          "id": "D",
+          "text": "Nothing happens, because a font never changes the size of the text it is used for",
+          "misconception": "believes two faces for the same text occupy the same space"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Two faces for the same string rarely have the same widths, so a heading laid out in the fallback can be a different number of lines once the real face arrives, and everything below it moves. That is the shift the loading strategy is chosen to prevent: describing the space to reserve in advance, using matched fallback metrics, or showing nothing for a moment all stop the page moving under the reader. Hiding the text is a real strategy but it is not the default behaviour, and a page that draws twice without reserving space is precisely the case people notice on a slow connection, where the move is largest because the two faces are most different.",
+      "hint": "Ask what a reader sees when the width of the text changes after the first paint.",
+      "difficulty": 0.46,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "fonts",
+        "layout-shift",
+        "loading"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0020",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a cache directive forbids a shared cache from doing",
+      "learningObjective": "state the effect a no-store directive has on every cache",
+      "practice": "reading caching directives",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A response is sent with `Cache-Control: no-store`. Which of these does that forbid?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keeping any copy of the response, in the browser or in a shared cache",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Reusing the response at all, even while the same page is still open",
+          "misconception": "believes no-store means the response is used only once and never again"
+        },
+        {
+          "id": "C",
+          "text": "Storing the response but never sending it to the same user again",
+          "misconception": "believes no-store keeps a copy that is only withheld from the user"
+        },
+        {
+          "id": "D",
+          "text": "Sending the response to a shared cache, while still allowing a browser copy",
+          "misconception": "believes no-store applies only to caches the user does not control"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "No-store says the response is not to be written down at all, by any cache, which is stronger than saying when it may be reused. The difference from the directives that set a lifetime is the difference between a copy that is used for a while and then revalidated and no copy existing in the first place, and the second is the only one that leaves nothing behind on a shared machine. It says nothing about the request already in flight or about the response being used while the page that asked for it stays open, since that use is not a stored copy. The directive that only names shared caches exists too, and confusing the two is how a private response ends up in a cache the user does not control.",
+      "hint": "Ask whether the response is written down at all, rather than how long it is kept.",
+      "difficulty": 0.48,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "headers",
+        "privacy"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0021",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What an image format trades away",
+      "learningObjective": "state the tradeoff behind choosing an image format",
+      "practice": "choosing asset formats",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A photograph and a logo both appear on a page, and only one of the two may be lossily compressed. Which way should the choice go?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The photo in a lossy format, the logo in one that keeps its edges sharp",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both in a lossy format, because every image is smaller once it has been lossy",
+          "misconception": "believes lossy compression suits every kind of image equally well"
+        },
+        {
+          "id": "C",
+          "text": "Both in a format that keeps every pixel, because quality always comes first",
+          "misconception": "believes keeping every pixel is worth the bytes for any picture"
+        },
+        {
+          "id": "D",
+          "text": "The logo lossily, the photo losslessly, since edges show artefacts sooner",
+          "misconception": "believes a logo tolerates loss because it has fewer pixels than a photo"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Lossy compression throws away detail it judges the eye will not miss, which is a good bargain for a photograph, where the detail is noise anyway, and a bad one for a logo, whose flat areas and edges are exactly the thing the reader is looking at. A format that keeps every pixel avoids that gamble and costs more bytes for a photograph nobody could tell apart. So the choice is per image rather than per site, and the useful question is always what a reader would notice losing, not which format is newer or smaller in the abstract.",
+      "hint": "Ask what kind of detail each image is made of, and what the reader notices.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 79
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "images",
+        "formats",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0022",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "One long task and everything waiting behind it",
+      "learningObjective": "state what a long task does to the page's ability to respond",
+      "practice": "reading performance measurements",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "One piece of work runs for 900 ms without yielding, and the reader clicks a button during it. What happens to that click?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It waits until the work ends, because the page handles input between tasks",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is handled at once, because input is delivered on a separate thread",
+          "misconception": "believes input events are delivered while a task is still running"
+        },
+        {
+          "id": "C",
+          "text": "It is discarded, because the page stops accepting input while work runs",
+          "misconception": "believes a long task makes the page drop what was typed"
+        },
+        {
+          "id": "D",
+          "text": "It runs first, because input has priority over the work already started",
+          "misconception": "believes queued input jumps ahead of the running task"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A page runs one piece of work at a time on its main thread, and input events are delivered in the gaps between tasks rather than during one, so a task that never yields makes the whole page unresponsive for its duration. A click is not lost, it is late, and everything the reader perceives as frozen is this one fact. The usual remedies all follow from it: doing the work in pieces that yield, moving genuinely heavy work off the main thread, and keeping the task that must run short. A separate thread for input would be a different architecture, and priority for queued input would break every task that assumed it could finish.",
+      "hint": "Ask when an input event is delivered relative to the work in progress.",
+      "difficulty": 0.43,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 29,
+        "medianSec": 51,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "long-tasks",
+        "responsiveness",
+        "performance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0023",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Serving a stored copy while checking for a newer one",
+      "learningObjective": "state what a stale-while-revalidate strategy serves and when",
+      "practice": "choosing caching strategies",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A cache holds a copy of a file that is past its freshness period. A reader asks for it under a stale-while-revalidate rule. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The stored copy is served at once, and a check for a newer one runs behind it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing is served until the check finishes, so the newest copy is guaranteed",
+          "misconception": "believes the strategy waits for the network before answering"
+        },
+        {
+          "id": "C",
+          "text": "The stored copy is served and no check is made, since the rule forbids one",
+          "misconception": "believes serving a stored copy means never checking again"
+        },
+        {
+          "id": "D",
+          "text": "The request fails, because a copy past its period may not be used at all",
+          "misconception": "believes a stale copy may not be served under any strategy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The strategy trades certainty for speed: the reader gets the stored copy immediately instead of waiting, and the check happens in the background so the next reader gets a fresher one. The reader who triggers the check is the one who sees the older bytes, which is the accepted cost and why it suits assets that change rarely. Waiting for the check is the opposite strategy, and it is the right one for anything where a stale answer would be wrong, such as a price or a permission. The no-check answer describes serving from cache without the revalidating half, and the failure answer describes a rule that only ever permits a fresh copy.",
+      "hint": "Ask what the reader waits for, and what happens in the background.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "stale-while-revalidate",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0024",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The header that decides whether a page may be framed",
+      "learningObjective": "state what a frame denial header forbids and what it does not",
+      "practice": "reading response headers",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A response carries `X-Frame-Options: SAMEORIGIN`. Which of these does that produce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The page may be framed by its own origin and by no other",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The page may be framed by any origin, and the header is only advice",
+          "misconception": "believes a response header about framing is advisory rather than enforced"
+        },
+        {
+          "id": "C",
+          "text": "The page may not be framed at all, including by its own origin",
+          "misconception": "believes the header forbids every framing rather than cross-origin framing"
+        },
+        {
+          "id": "D",
+          "text": "The page may be framed once per origin, however many places embed it",
+          "misconception": "believes the header limits the number of frames rather than their origin"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The value names the origins allowed to place the page in a frame, and the same-origin setting allows exactly the page's own origin and refuses everything else. It is enforced by the browser, so a site that does not want to be embedded says so in its own response and does not depend on the other site behaving. That is the clickjacking defence: a page that cannot be framed cannot be made to sit invisibly under something a reader is meant to click. A policy that lists particular allowed origins does the same job in a newer and more expressive form, and having both is normal during a transition.",
+      "hint": "Ask which origins the value permits, and whether anything is only advice.",
+      "difficulty": 0.47,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "clickjacking",
+        "headers",
+        "security"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0025",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The shape of a call curve on a stream of events",
+      "learningObjective": "count the calls a leading-edge interval rule makes on a given stream",
+      "practice": "tracing rate shaping",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A scroll handler runs at most once per 200 ms on the leading edge, using `if (t - last >= 200) { last = t; run(); }`. Events arrive at 0, 40, 190, 205, 260 and 700 ms. When does it run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At 0, 205 and 700 ms, because each call opens a fresh 200 ms gap",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "At 0, 205, 260 and 700 ms, because every event past the gap runs at once",
+          "misconception": "believes every event after the gap is allowed rather than the first"
+        },
+        {
+          "id": "C",
+          "text": "Only at 0 ms, because the first call closes the window for the whole burst",
+          "misconception": "believes a leading-edge rule never allows a later call in the same stream"
+        },
+        {
+          "id": "D",
+          "text": "At all six times, because the rule records the last time rather than gating",
+          "misconception": "believes recording the last time is the same as refusing a call"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each allowed call sets the reference time, and an event is allowed when it is at least 200 ms past that reference, so 0 runs, 40 and 190 are inside the gap, 205 is just past it and runs, 260 is only 55 ms later and does not, and 700 is well past and runs. The result is a call roughly every 200 ms for as long as events keep coming, which is the shape that keeps a scroll handler bounded no matter how fast the events arrive. The trailing-edge rule produces a different curve, firing once after the stream pauses, and neither shape is right for every job: a call on the leading edge feels immediate, a call on the trailing edge only sees the final value.",
+      "hint": "Ask which event is the first one at least 200 ms past the last call, then repeat.",
+      "difficulty": 0.49,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "throttle",
+        "events",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0026",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Grouping the calls made inside one frame",
+      "learningObjective": "count the round trips a group of calls makes alone and batched",
+      "practice": "tracing request grouping",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stem": "Five independent calls are made in one frame. Issued alone they are five round trips. A collector holds them and `flush()` runs once at the end of the frame with `queue.length = 0` after one call. How many round trips now?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1, because the five were collected into a single outgoing call",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2, because the collector waits one frame and then issues the calls",
+          "misconception": "believes a collector adds a second round trip for the wait"
+        },
+        {
+          "id": "C",
+          "text": "5, because each call still has to reach the server on its own connection",
+          "misconception": "believes grouping calls does not reduce the number of round trips"
+        },
+        {
+          "id": "D",
+          "text": "0, because a grouped call is answered from the collector itself",
+          "misconception": "believes collecting the calls means they never leave the page"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The cost of a request is dominated by the round trip rather than the work, and five requests issued together pay that cost five times while the page waits for all of them. Collecting them and sending one grouped call pays it once, which is the whole reason the pattern exists, and the number of results coming back is not the number of round trips. The trap is that grouping is not free in every direction: a grouped call that fails fails for all of them, and a caller that needs one result now has to wait for the rest, so it suits independent, small, frequent calls rather than anything large or urgent.",
+      "hint": "Ask how many times the request leaves the page, not how many results come back.",
+      "difficulty": 0.42,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 29,
+        "medianSec": 51,
+        "p75Sec": 78
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "batching",
+        "requests",
+        "tracing"
+      ],
+      "version": 1,
+      "stimulus": null
+    },
+    {
+      "id": "web-4.1-0027",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Checking a request against the token held for its session",
+      "learningObjective": "trace which of four requests a token check lets through",
+      "practice": "tracing request defences",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Sessions hold tokens, `s-1` holding `s-9f2b` and `s-2` holding `s-77aa`, and the check is `if (header !== sessions[cookie]) return 403;`. Four writes arrive: `s-1` with that token, `s-1` with none, `s-1` with `s-0000`, and `s-2` with `s-9f2b`. Which pass?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the first, because the token must match the one held for that session",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The first and the fourth, because a valid token is valid whatever the session",
+          "misconception": "believes a matching token is accepted for any session"
+        },
+        {
+          "id": "C",
+          "text": "The second and the third, because a missing or wrong token is still a token",
+          "misconception": "believes any header value counts as presenting a token"
+        },
+        {
+          "id": "D",
+          "text": "All four, because a same-origin request needs no token of its own",
+          "misconception": "believes a same-origin request is trusted without a token"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The token is compared against the value held for the session that made the request, so only the first matches, and the fourth fails because a token that is valid in one session is not valid in another. The second has nothing to compare and the third compares against the wrong value. This is the part of the defence that a page on another origin cannot satisfy on its own: a browser will happily attach a session cookie to a request it was talked into sending, but it will not let the other page read the session's token in order to repeat it in a header, so the header is something an attacker has to know and cannot obtain.",
+      "hint": "Ask which value the check compares against, and for which session.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "csrf",
+        "sessions",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0028",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A legacy framing header beside a modern policy",
+      "learningObjective": "trace which header decides framing when one of them is ignored",
+      "practice": "tracing header interaction",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A page at `https://app.example.com` sends `X-Frame-Options: ALLOW-FROM https://partner.example.com` and `Content-Security-Policy: frame-ancestors 'self'`, and the check `frameAllowed(origin)` acts on the first header only for `DENY` and `SAMEORIGIN`. Can the partner frame it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, because the legacy value is ignored and the policy lists no partner",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, because the legacy header names the partner explicitly",
+          "misconception": "believes a named origin in that header is honoured by browsers"
+        },
+        {
+          "id": "C",
+          "text": "Yes, because the two headers are merged into a single allowed list",
+          "misconception": "believes headers about framing are combined rather than judged separately"
+        },
+        {
+          "id": "D",
+          "text": "No, because any page with two framing headers is blocked entirely",
+          "misconception": "believes sending two headers about framing blocks the page from all framing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The legacy header is only implemented for the deny and same-origin values, so the named origin in it is read as a value the browser does not recognise and the header has no effect at all. What remains is the policy, whose list is the page's own origin, and the partner is not on it, so the frame is refused. The trap is entirely reasonable: the header plainly says the partner is welcome, and it works in testing on something that still honours the old value. Naming a partner is done in the policy list instead, and the fix is one line in whichever header is actually read.",
+      "hint": "Ask which of the two the browser acts on, then check the partner against it.",
+      "difficulty": 0.52,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 60,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "clickjacking",
+        "csp",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0029",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a recorded version list guarantees",
+      "learningObjective": "trace what two installs resolve to with and without a recorded list",
+      "practice": "tracing dependency resolution",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A manifest asks for `^2.3.0`, available versions are 2.3.0, 2.4.1 and 2.5.0, and the recorded list pins 2.4.1. A new install picks the highest match, 2.5.0. What do the two installs produce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2.4.1 and 2.4.1, because the recorded list decides rather than the range",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2.4.1 and 2.5.0, because the recorded list is only a hint about the range",
+          "misconception": "believes a recorded list is advisory and the range still decides"
+        },
+        {
+          "id": "C",
+          "text": "2.5.0 and 2.5.0, because a new install always prefers the newest match",
+          "misconception": "believes a fresh install ignores a recorded list"
+        },
+        {
+          "id": "D",
+          "text": "2.4.1 and 3.0.0, because the range is ignored once a list is recorded",
+          "misconception": "believes a recorded list removes the range and takes any version"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The range is a description of what would be acceptable, and it is what an install with nothing recorded has to work from, so it picks the highest match and different days can produce different builds from the same source. A recorded list names the exact version of every package, and an install that finds it uses those versions rather than resolving afresh, so both installs produce 2.4.1. That is what makes a build reproducible, and it is also why a recorded list has to be updated deliberately when a dependency is meant to move: nothing about adding a new release should change what an existing build installs.",
+      "hint": "Ask what an install uses when it finds a recorded list and when it does not.",
+      "difficulty": 0.48,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "lockfile",
+        "dependencies",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0030",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a failure response puts in the body",
+      "learningObjective": "trace whether two error bodies reveal internals",
+      "practice": "tracing error responses",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One handler answers with `JSON.stringify({ message: err.message, stack: err.stack })` and another with `JSON.stringify({ message: 'Something went wrong', id: 'inc-4471' })`. Which body reveals the file and function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first, because a stack carries the path and the function names",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Neither, because a response body is never read by the person who got it",
+          "misconception": "believes a body is private because the server produced it"
+        },
+        {
+          "id": "C",
+          "text": "The second, because naming an incident leaks more about the build than a path",
+          "misconception": "believes an identifier in a body reveals the source layout"
+        },
+        {
+          "id": "D",
+          "text": "Both, because any body can be read as source when it is long enough",
+          "misconception": "believes a body describing a failure always contains a file path"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A stack is a list of the file paths and function names the failure passed through, so putting one in a response hands over the directory layout, the naming of the internals, and often the exact line that failed, which is a map for anyone probing further. The second body gives the reader a reference they can quote and the operator a record to find, and the failure itself is kept in the log where it belongs. This is not about hiding the fact that something broke, which is not a secret and is worse to hide, but about not publishing the inside of the system to whoever happened to trigger it.",
+      "hint": "Ask which of the two values is derived from where the code lives on disk.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "errors",
+        "logging",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0031",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Finding one request among many identical failures",
+      "learningObjective": "identify the field that makes a log query single out one record",
+      "practice": "reading log records",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Three records share the message `order lookup failed` and the level `error`, with request ids `r-7`, `r-8` and `r-9` and order ids 42, 43 and 44. A query uses `records.filter(r => r.requestId === 'r-7')`. How many come back?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1, because the request id occurs on exactly one of the three",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3, because the query matches every record that has a request id",
+          "misconception": "believes a query matches a field by presence rather than by value"
+        },
+        {
+          "id": "C",
+          "text": "0, because the id is nested in the record rather than at the top level",
+          "misconception": "believes only top-level fields can be searched"
+        },
+        {
+          "id": "D",
+          "text": "2, because r-7 also appears in the timestamp of the second record",
+          "misconception": "believes the id also appears in another field of another record"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The comparison is by value, and only the first record carries r-7, so the query returns one record and the operator can read the whole of that request's history rather than a wall of identical lines. This is why a request identifier is worth putting on every line of a request's work: the message alone cannot separate three failures that are the same failure, and neither can a level, since all three are errors. Choosing a field that is unique per request, and writing it as its own field rather than inside the message, is what turns a log into something that can be queried.",
+      "hint": "Ask which field has a different value on each of the three records.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 53,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "logging",
+        "observability",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0032",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A page that checks and a server that does not",
+      "learningObjective": "diagnose validation the server relies on the page to perform",
+      "practice": "diagnosing write endpoints",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A sign-up page refuses an empty name and a password under eight characters, and the server stores whatever it is sent. Why is the check in the page not enough?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A request that never went through the page skips the check entirely",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The page check runs after the write, so bad rows are already stored",
+          "misconception": "believes a check in the page happens after the data is saved"
+        },
+        {
+          "id": "C",
+          "text": "The check only covers typing, so pasted values skip it entirely",
+          "misconception": "believes a page check applies to typed input but not pasted input"
+        },
+        {
+          "id": "D",
+          "text": "The check is enforced correctly, since every request comes from that page",
+          "misconception": "believes every request that reaches a server comes from the site's own page"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A check in the page is a courtesy to the person using it, and the request it sends is just a request: anything that can send one, a script, another site, a saved copy of the form, a tool, can send one without it. So the rule has to be stated where every write passes, on the server, and the page's check stays as a way of avoiding a pointless round trip rather than as the enforcement. The value of doing both is different in kind from doing one: the page check saves the reader a wasted submission, and the server check is the only one that makes the rule true, which is why a rule that exists only in the page is a rule that is not really there.",
+      "hint": "Ask what stands between the check and a request that never used the page.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "validation",
+        "security",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0033",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A dependency the build already knows about",
+      "learningObjective": "choose the response to a dependency with a published advisory",
+      "practice": "diagnosing dependency risk",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A scan reports a dependency at a version with a published advisory, and the team removes the scan from the build so it stops failing. What has actually been achieved?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing about the risk, since the vulnerable version is still the one that ships",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The risk is gone, since nothing reports it and so nothing is wrong",
+          "misconception": "believes an unreported problem is an absent problem"
+        },
+        {
+          "id": "C",
+          "text": "The risk is gone, since the team agreed the advisory does not apply here",
+          "misconception": "believes an assessment can retire the vulnerable version itself"
+        },
+        {
+          "id": "D",
+          "text": "The risk is contained, since the scan only read the code and changed nothing",
+          "misconception": "believes reading a value about a dependency changes what the build ships"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The advisory describes a weakness in that version, and the version is decided by the recorded list, so the weakness is still in the build whatever the tooling says about it. Turning the scan off removes the only thing that was making the problem visible, and the next person to add a dependency gets no signal at all. The real choices are to move to a fixed version, to replace the package, or to record a decision not to and say why, with the scan still running so the decision stays honest. An assessment about whether the weakness is reachable is worth making, but it is a reason to document a risk rather than to delete the record of it.",
+      "hint": "Ask what decides which version of the dependency the build ships.",
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dependencies",
+        "advisories",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0034",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A build that assumes where it is running",
+      "learningObjective": "diagnose a build whose success depends on a path assumption",
+      "practice": "diagnosing deployment failures",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A build writes its output to `/srv/app/dist` and works on a laptop, but in the pipeline the directory does not exist and the step reports success. What went wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The path is absolute and is not the pipeline's, and nothing checked that it landed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The path is relative, so the pipeline resolved it against its own working folder",
+          "misconception": "believes a path starting with a slash is resolved against the current folder"
+        },
+        {
+          "id": "C",
+          "text": "The output was written correctly, and the step is reporting the wrong status",
+          "misconception": "believes a successful step means the file arrived where it was meant to"
+        },
+        {
+          "id": "D",
+          "text": "The directory is created on first use, so the first pipeline run misses it",
+          "misconception": "believes a missing directory is created automatically when a file is written"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A path beginning with a slash is absolute, so it names one place on the machine and the pipeline's machine is not that place, and the write is therefore going somewhere the pipeline does not own or inspect. The step still reporting success is the more serious half: a build that cannot say where its output went is a build that can report having produced nothing. The fix is to write relative to where the build is running, to fail loudly when the destination is not the one expected, and to treat the presence of the output at the expected address as part of the step's own success, which is what turns a silent wrong path into an error someone sees.",
+      "hint": "Ask what a path starting with a slash is measured from, and who checks the result.",
+      "difficulty": 0.49,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "build",
+        "paths",
+        "diagnosis"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0035",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Comparing the curves of two rate-shaping rules",
+      "learningObjective": "count the calls two rate rules make on the same stream",
+      "practice": "two-stage rate shaping work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Events arrive at 0, 40, 190, 205, 260 and 700 ms. A leading-edge rule allows one call per 200 ms and a trailing rule waits 200 ms after the last event. Count the leading rule's calls first, then the trailing rule's.",
+      "options": [
+        {
+          "id": "A",
+          "text": "2",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "misconception": "believes a trailing wait collapses the whole stream into one call"
+        },
+        {
+          "id": "C",
+          "text": "3",
+          "misconception": "gives the leading rule's count instead of the trailing rule's"
+        },
+        {
+          "id": "D",
+          "text": "6",
+          "misconception": "counts the events rather than the calls either rule makes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The leading rule runs at 0, then at 205 because that is the first event at least 200 ms past the last call, then at 700, which is three calls, and the number asked for from it is 3. The trailing rule restarts its wait at every event, so it can only run once the stream pauses, and this stream has a pause between 260 and 700: the wait from 260 comes due at 460, and a second one from 700 comes due at 900, which is two calls. The one-call answer is the natural assumption that a stream of six events is one burst, and the gap of 440 ms in the middle is what makes it two.",
+      "hint": "The leading rule opens a new 200 ms gap at each call; the trailing one fires once per pause.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 37,
+        "medianSec": 63,
+        "p75Sec": 94
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "throttle",
+        "debounce",
+        "two-stage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0036",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What the first and second readers of a cached file wait for",
+      "learningObjective": "compute the wait for a cold and a warm reader",
+      "practice": "two-stage caching work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A 40 kilobyte script takes 200 ms to arrive from the network and is then cached. A reader arrives first and a second reader arrives after the file is stored. Give the first reader's wait, then the second's.",
+      "options": [
+        {
+          "id": "A",
+          "text": "0",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "200",
+          "misconception": "believes a reader always waits for the network even when cached"
+        },
+        {
+          "id": "C",
+          "text": "100",
+          "misconception": "believes a cached file still costs half of the network wait"
+        },
+        {
+          "id": "D",
+          "text": "400",
+          "misconception": "adds the two readers' waits together instead of asking for the second"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first reader finds nothing stored, so it waits the full 200 ms for the file to arrive, and the number wanted first is 200. Once it is stored the second reader is answered from the copy, so it waits 0, and the second number asked for is 0. The gap between the two numbers is the entire argument for a cache header: the file is the same on both visits and only the first one pays for the network. Bytes already compressed do not change this, since compression reduces what travels rather than removing the wait for the first reader.",
+      "hint": "The second number asked for is the warm reader's wait, which is not the network's.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "two-stage",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0037",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Why a performance claim needs the number behind it",
+      "learningObjective": "explain what a measurement has to show before a speed-up can be claimed",
+      "practice": "explaining performance claims",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A change is described as making the page twice as fast. Explain what a measurement would have to establish for that sentence to mean anything.",
+      "options": [],
+      "answer": {
+        "exemplar": "A claim about speed is a comparison, and a comparison needs both sides to be the same kind of thing. A measurement has to establish what was measured, which is a named number for a named action such as the time to the first render, a response time at the ninetieth percentile, or the size of a file, rather than a general impression of the page feeling quicker. It has to establish both sides of the comparison, which means running the old and the new build the same way, on comparable input, with the caches and the connections in a stated state, because a measurement taken after a cold start against one taken after a warm one compares two different things. And it has to establish that the difference is larger than the noise, which is why a single run is not evidence and why a number that moved a few percent is not twice as fast. The two failures to watch for are a change that moved a number nobody was reading, such as a function nobody calls, and a change that genuinely improved a real metric while making something else worse, which is why the rest of the measurements have to be reported too. Twice as fast is a claim about a specific quantity measured a specific way, and without those three things the sentence is an impression with a number in it."
+      },
+      "explanation": "A model answer has to insist that the quantity measured is named, that both sides were measured the same way, and that the difference exceeds the variation between runs. A response that only says measure it properly, or that only repeats that impressions are unreliable, has not said what to measure or what would settle it.",
+      "hint": "Ask what a claim about speed is a comparison between, and what would have to be the same on both sides.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 38,
+        "medianSec": 66,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "measurement",
+        "explanation",
+        "performance"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0038",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The path from a change to traffic",
+      "learningObjective": "sequence the steps between a change and the traffic it receives",
+      "practice": "sequencing delivery work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stem": "Put these five steps in the order they happen between a change being merged and every reader receiving it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The build turns the merged change into an artifact with fixed versions",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The artifact is tried against the checks that decide whether it may go out",
+          "misconception": "believes the checks can run before there is anything to check"
+        },
+        {
+          "id": "C",
+          "text": "A small share of traffic is sent to the new artifact and watched",
+          "misconception": "believes watching happens after the whole audience has moved over"
+        },
+        {
+          "id": "D",
+          "text": "Error rates and timings are compared against what they were before",
+          "misconception": "believes the comparison can be made before the change has traffic"
+        },
+        {
+          "id": "E",
+          "text": "The change is either widened to everyone or stopped and investigated",
+          "misconception": "believes the decision to stop comes before the share is widened"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "explanation": "The order is forced by what each step needs. There has to be an artifact before anything can be checked against it, and the checks have to pass before any reader is exposed to the change, because that is the whole value of running them in a pipeline rather than in production. A small share comes next so that a fault is contained to a fraction of readers rather than all of them, and the comparison belongs after that share is running, since before then there is nothing to compare against except the previous state and no evidence about the new one. Only then is there a basis for widening the change or stopping it, and stopping is a real outcome rather than a formality.",
+      "hint": "Ask what each step needs to exist before it can be carried out.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 58,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "delivery",
+        "ordering",
+        "operations"
+      ],
+      "version": 1,
+      "stimulus": null
+    },
+    {
+      "id": "web-4.1-0039",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The token that a forged request cannot supply",
+      "learningObjective": "state what a cross-site request forgery token stops",
+      "practice": "reading request defences",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A site keeps its session in a cookie and also issues a token the page reads and returns in a header. What does the token stop?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Another site causing the browser to make a write while the reader is signed in",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A reader from changing their own password by hand",
+          "misconception": "believes the token prevents a reader from changing their own details"
+        },
+        {
+          "id": "C",
+          "text": "A stolen session cookie being used from another machine",
+          "misconception": "believes the token protects a session cookie that has been copied"
+        },
+        {
+          "id": "D",
+          "text": "The session cookie being sent at all, since a token replaces it",
+          "misconception": "believes a token replaces the cookie rather than accompanying it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A browser attaches a session cookie to a request for the site whether or not the person asking meant to make it, so a page on another origin can cause a write to happen as the signed-in reader without ever seeing the session. The token closes that gap because the other origin cannot read the value from the page and therefore cannot put it in the header, and the server refuses a write whose header does not match. It is aimed at a forged request rather than a stolen one: a copied cookie plus a copied token is a different problem, and a reader deliberately changing their own password is not an attack at all.",
+      "hint": "Ask what the browser attaches to a request it was talked into sending.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "csrf",
+        "sessions",
+        "security"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0040",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a recorded version list buys a build",
+      "learningObjective": "state the guarantee a lockfile gives a build",
+      "practice": "reading dependency records",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A build records the exact version of every package it installed. What does that record make possible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The same source producing the same build on another machine and another day",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The build using the newest release of each package without checking anything",
+          "misconception": "believes a record makes the newest release the chosen one"
+        },
+        {
+          "id": "C",
+          "text": "The build running with no packages at all, since they are all recorded",
+          "misconception": "believes recording a package means it no longer has to be installed"
+        },
+        {
+          "id": "D",
+          "text": "The build skipping its checks, since the versions are already known to be good",
+          "misconception": "believes fixed versions make the checks unnecessary"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A range in a manifest says what would be acceptable, so an install with nothing more precise may legitimately pick different versions on different days, and two builds from one source can then differ for reasons nobody changed. The record removes that freedom by naming the version of every package, including the ones that arrived indirectly, which is what lets a build be reproduced and a fault be reasoned about. It is a record of one particular resolution rather than a promise that the versions are good, so the checks still run, and moving a dependency still means changing the record on purpose rather than having it happen on its own.",
+      "hint": "Ask what an install chooses from when it has nothing but a range to go on.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "lockfile",
+        "dependencies",
+        "reproducibility"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0041",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A screen whose code is fetched on demand",
+      "learningObjective": "state why a lazily loaded screen needs something around it",
+      "practice": "code splitting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A screen's code is fetched the first time someone opens that screen, and the module may not be there. Why is something placed around the point where it is used?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the code is not there yet, and something has to be shown meanwhile",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Because the router can only match an address once its code has arrived",
+          "misconception": "believes matching a route waits for that route's code"
+        },
+        {
+          "id": "C",
+          "text": "Because a module may only be run after the whole page has finished loading",
+          "misconception": "believes code cannot run until every asset has arrived"
+        },
+        {
+          "id": "D",
+          "text": "Because the browser refuses to run any code that was not in the first document",
+          "misconception": "believes a browser will not run code fetched afterwards"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Until the module arrives there is no screen to draw, and until it is confirmed to have arrived there may never be one, so the place where it is used needs to say what to show during the wait and what to show if the wait fails. That is what the surrounding boundary is for, and without it a reader who opens the screen sees an empty region, or a page that has failed in a way nobody can explain. Matching the address is a separate and earlier step that needs only the route table, and a browser will happily run code it fetches later, which is the whole basis of splitting a bundle at all.",
+      "hint": "Ask what there is to draw in the first few hundred milliseconds, and what if nothing ever arrives.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "code-splitting",
+        "lazy-loading",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0042",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What an optimistic update has to be able to undo",
+      "learningObjective": "state what an optimistic update must keep in order to reverse itself",
+      "practice": "writing data changes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A screen shows a new row straight away and sends the request afterwards. What must be kept to be able to undo that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The list as it was beforehand, so it can be put back if the write fails",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The new row's identifier, so a failure can be reported against it",
+          "misconception": "believes an identifier is enough to reverse a change"
+        },
+        {
+          "id": "C",
+          "text": "A copy of the request, so it can be sent again once the failure is known",
+          "misconception": "believes reversing means sending the same request once more"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because a failed write leaves the list as the server holds it",
+          "misconception": "believes a failed write reaches back and changes what is shown"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Showing the change before the server agrees means the screen and the server briefly disagree, and the only way back is the value the screen had before, so that is what has to be captured at the moment the change is made. An identifier tells you which row to complain about and a saved request would repeat the same failure, and neither puts the list back. Nothing reaches back to change what is on screen, which is why a screen that shows a change optimistically and cannot undo it ends up displaying a row that does not exist, and the reader has no way to tell it from a real one.",
+      "hint": "Ask what the list looked like before the change, and who kept it.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "optimistic-update",
+        "rollback",
+        "data"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0043",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a script source policy forbids",
+      "learningObjective": "state what a script source policy blocks and what it leaves alone",
+      "practice": "reading content security policy",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A policy permits scripts from the page's own origin and from one named host, and from nowhere else. What does that stop?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An injected tag or handler running code from any other place",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "An injected image from being shown, since the same rule governs pictures",
+          "misconception": "believes one directive governs every kind of subresource"
+        },
+        {
+          "id": "C",
+          "text": "A form on the page from sending its values to its declared address",
+          "misconception": "believes a script policy also governs where a form may post"
+        },
+        {
+          "id": "D",
+          "text": "A link from pointing elsewhere, since leaving the site is also forbidden",
+          "misconception": "believes a script policy also governs navigation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule is an allowlist of places scripts may be loaded from, and the injection this stops is the one where a value written into the page becomes a tag or an attribute that causes code to be fetched from somewhere the attacker chose. With the address on the list, the fetch is refused and the injected code never runs, which is why this is the directive that matters most against a stored injection. Images, form destinations and links are each governed by a directive of their own, so a script policy says nothing about them, and mistaking one for another is a common reason a policy is believed to be protecting more than it does.",
+      "hint": "Ask which kind of subresource the rule is about, and what the injection needs in order to run.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "csp",
+        "xss",
+        "security"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0044",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What makes an injection stored",
+      "learningObjective": "distinguish a stored injection from a reflected one",
+      "practice": "diagnosing injection",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A comment is saved as typed and later put into a page by `el.innerHTML = comment`. What makes this stored rather than reflected?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The value is written into a record and served again to later readers of it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The value is shown to the reader who typed it, and only to that reader",
+          "misconception": "believes a value shown to its own author is the stored case"
+        },
+        {
+          "id": "C",
+          "text": "The value arrives in a response the page fetched rather than in its markup",
+          "misconception": "believes a fetched value is what makes an injection stored"
+        },
+        {
+          "id": "D",
+          "text": "The value is written by the server, so the reader did not choose it",
+          "misconception": "believes a stored value must have been written by the server"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The distinction is about where the value waits. Here it is written into a record and read back whenever somebody opens the page, so the person who typed it may be gone and the person who is hurt is a different reader entirely, which is what makes it worth fixing seriously rather than treating as a self-inflicted problem. A reflected value is handed straight back in the same exchange, so it hurts the person who sent it, and that is a smaller problem. Where the value came from matters less than where it rests, and the fix follows from the sink: a value assigned as text is text whichever route it arrived by.",
+      "hint": "Ask who else sees the value afterwards, and when they see it.",
+      "difficulty": 0.46,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 55,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "xss",
+        "stored",
+        "security"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0045",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Putting the list back after a refused write",
+      "learningObjective": "trace an optimistic update whose write is refused",
+      "practice": "tracing data changes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds `['pen','book']`. The screen does `items.push('ruler')`, then calls `send()`, which returns false, and restores the saved list. What does the list hold afterwards?",
+      "options": [
+        {
+          "id": "A",
+          "text": "`['pen','book']`, because the earlier list was kept and put back",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "`['pen','book','ruler']`, because a refusal does not touch the screen",
+          "misconception": "believes a refused write leaves the shown change in place"
+        },
+        {
+          "id": "C",
+          "text": "`['ruler']`, because restoring replaces the list rather than adding to it",
+          "misconception": "believes restoring a saved list discards the other entries"
+        },
+        {
+          "id": "D",
+          "text": "`['pen','book','ruler','pen']`, because a refusal is retried at once",
+          "misconception": "believes a refused write is retried immediately"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The earlier list was captured before the change, the change was shown while the write was in flight, and the refusal means the write did not happen, so restoring the capture returns the screen to what the server actually holds. Without the capture there is no way back, because nothing else knows what the list looked like, and the reader is left looking at a row that does not exist. A row that appears and then silently disappears is also worth a message rather than nothing, so the rollback and the notice are separate jobs and both are part of doing this properly.",
+      "hint": "Ask what value the list held before the change, and whether it was kept.",
+      "difficulty": 0.44,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 79
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "optimistic-update",
+        "rollback",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0046",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A lazy load that never arrives",
+      "learningObjective": "trace what a reader sees when a deferred module fails to load",
+      "practice": "tracing code splitting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A screen is obtained with `import('./orders.js')` inside a boundary that renders a fallback if the call throws. The chunk is not found, so the call fails. What does the reader see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The fallback, because the failure happened while the screen was obtained",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A blank page, because the failure came after the boundary had finished",
+          "misconception": "believes the boundary has stopped covering the screen by then"
+        },
+        {
+          "id": "C",
+          "text": "The previous screen, because the router holds the old one until the new is ready",
+          "misconception": "believes a router always keeps the old screen until a new one loads"
+        },
+        {
+          "id": "D",
+          "text": "The fallback and then the screen, because loading always retries by itself",
+          "misconception": "believes a failed load is retried without being asked"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The failure happens while the screen is being obtained, which is inside the region the boundary covers, so the fallback is what gets drawn in its place and the reader is told the screen is unavailable rather than being left looking at a hole. This is the case a boundary around a deferred load exists for, since the alternative is an empty region that looks like a bug in the page. Keeping the previous screen until a new one is ready is a separate pattern that needs its own arrangement, and a load that is never retried is a real possibility, which is why the fallback says what to do next rather than just apologising.",
+      "hint": "Ask whether the failure happened inside the region the boundary covers.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "code-splitting",
+        "lazy-loading",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0047",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A limit counted over a fixed window",
+      "learningObjective": "trace what a fixed-window limit does to a burst",
+      "practice": "tracing rate limits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A route allows 10 requests per 60 s, resetting the count at each new window, and runs `if (served < 10) served++; else refused++;`. 100 requests arrive in the first 10 s. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10 are served, 90 refused, and the next window counts from zero",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10 are served and 90 wait for the end of the window they arrived in",
+          "misconception": "believes a limit holds requests rather than refusing them"
+        },
+        {
+          "id": "C",
+          "text": "100 are served, because the count resets on every request that arrives",
+          "misconception": "believes the count resets on each request rather than each window"
+        },
+        {
+          "id": "D",
+          "text": "10 are served and 90 more are served at once in the next window",
+          "misconception": "believes a new window releases the refusals as well as the count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The counter starts the window at zero, the first ten requests in that window take it to ten, and every request after that finds it already at the limit and is refused, so the burst of 100 produces 10 served and 90 refused, all inside the first 10 s. At the next window the counter is set back to zero, which is both what makes the limit recover and the reason a fixed window has a known weakness: a caller can send the whole allowance at the end of one window and again at the start of the next, so twice the allowance in a moment. A sliding window fixes that by looking at the recent history rather than at a clock boundary.",
+      "hint": "Ask what the counter is at when the eleventh request arrives.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 53,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "rate-limit",
+        "window",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0048",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Choosing a picture source for a known slot",
+      "learningObjective": "trace which picture source a slot and density select",
+      "practice": "tracing responsive images",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Sources exist at 400, 800 and 1200 pixels, and the rule is `srcs.find(w => w >= needed)`. The slot is 400 pixels wide, and on a plain screen `needed` is 400 while at twice the density it is 800. What is chosen?",
+      "options": [
+        {
+          "id": "A",
+          "text": "400 at plain density and 800 at twice it, since the need doubles too",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "800 at both, because a slot is always measured at twice its size",
+          "misconception": "believes a slot is measured at twice its width by default"
+        },
+        {
+          "id": "C",
+          "text": "1200 at both, because the largest covers zooming in later",
+          "misconception": "believes a future zoom decides which source is fetched now"
+        },
+        {
+          "id": "D",
+          "text": "400 at both, because the slot width is what the sources are measured against",
+          "misconception": "believes the density has no effect on which source is chosen"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule takes the first source that is at least what is needed, so a need of 400 lands on 400 and a need of 800 lands on 800, which is the point of offering several: a reader on a plain screen never downloads the pixels nobody can see. The need is the slot width times the density, so a sharper screen asks for more and gets more, while the number of pixels in the element on screen stays the same. Fetching the largest in case somebody zooms later spends real bytes on a guess, and the density-has-no-effect answer is the one that comes from reading the slot width as the whole of what matters.",
+      "hint": "Ask what the need is before the rule is applied, and what the density does to it.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 53,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "responsive-images",
+        "density",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0049",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A package whose bytes are not the recorded ones",
+      "learningObjective": "trace what an install does when a recorded checksum does not match",
+      "practice": "tracing installation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A recorded list stores a checksum per package. On install the fetched bytes hash to `a4fcc70c48a4` and the file records `9f1c0a0c48a4`, checked with `if (actual !== recorded) return 1;`. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The install stops, because the bytes are not the ones being vouched for",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The install continues and records the new checksum, since the install decides",
+          "misconception": "believes the install is entitled to overwrite the recorded checksum"
+        },
+        {
+          "id": "C",
+          "text": "The install continues with a warning, since this is usually a re-pack",
+          "misconception": "believes a changed package is normally harmless"
+        },
+        {
+          "id": "D",
+          "text": "The install stops only if the range is unmet, since the range is the real check",
+          "misconception": "believes a version range is what verifies the bytes"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A checksum is a promise about the exact bytes, and the two values here are not equal, so the comparison fails and the install stops rather than building from something nobody vouched for. That check is the last thing standing between a recorded list and whatever the registry served at that moment, which is why overwriting the recorded value on the spot would remove the only evidence that something changed. A range cannot stand in for it, because a version number is chosen by whoever published the release and says nothing about the bytes that release contains.",
+      "hint": "Ask what the comparison returns when the two values are different.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "lockfile",
+        "integrity",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0050",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Asking whether to restart against asking whether to serve",
+      "learningObjective": "trace the two health checks over a broken dependency",
+      "practice": "tracing health checks",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A liveness check returns 200 whenever the process answers. A readiness check runs `if (!db.reachable) return 503;` and the database is refusing connections. What do the two report?",
+      "options": [
+        {
+          "id": "A",
+          "text": "200 and 503, because one asks about restarting and the other about traffic",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "200 and 200, since a running process is all either may ask about",
+          "misconception": "believes both checks are limited to the same question"
+        },
+        {
+          "id": "C",
+          "text": "503 and 503, since a dead dependency means the process has failed",
+          "misconception": "believes a dependency failure is evidence the process is broken"
+        },
+        {
+          "id": "D",
+          "text": "200 and 503, because both read one signal and word it differently",
+          "misconception": "believes the two checks read the same thing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The process is running, so the liveness check answers 200, and the database is not reachable, so the readiness check answers 503, and the two are answering different questions rather than the same one twice. The questions matter because the actions taken from them differ: liveness decides whether to replace the process, and readiness decides whether to send it traffic. Reporting the dependency failure as a liveness failure would have every instance restarted in turn while the database stayed down, turning one outage into a restart loop, which is why the failure is reported in the readiness answer along with its reason.",
+      "hint": "Ask what decision each check's answer is used to make.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 83
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "health-check",
+        "operations",
+        "tracing"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0051",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A change shown before the server agreed to it",
+      "learningObjective": "diagnose an optimistic update that cannot be reversed",
+      "practice": "diagnosing data changes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A screen shows a new row immediately, sends the request, and on failure shows a message but leaves the row in place. What is wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The screen and the server now disagree about a row that never existed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The message appears too early, since the failure is only known later",
+          "misconception": "believes a message about a failure can appear before the failure"
+        },
+        {
+          "id": "C",
+          "text": "Nothing, since telling the reader is enough to keep the two in step",
+          "misconception": "believes a message substitutes for putting the screen back"
+        },
+        {
+          "id": "D",
+          "text": "Only the reader can remove the row, since only they asked for it",
+          "misconception": "believes a change the reader made can only be undone by the reader"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The row is on the screen but not in the store, and it looks exactly like the ones that are, so a reader who acts on it acts on something that is not there: the row can be opened, ordered against, or shared, and every one of those fails later and further away. Telling the reader it failed does not make the row mean anything, and the screen is now describing a state the system is not in. An optimistic change has to be reversible as well as prompt, which means keeping what was there before and putting it back, and the message is what makes the reversal understandable rather than mysterious.",
+      "hint": "Ask whether the row the reader can now click is one the server has agreed to.",
+      "difficulty": 0.49,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "optimistic-update",
+        "diagnosis",
+        "data"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0052",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A deferred screen with nothing around it",
+      "learningObjective": "diagnose a lazily loaded screen whose failure has no visible effect",
+      "practice": "diagnosing code splitting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "One screen's module is fetched the first time that screen is opened, and nothing surrounds the place where it is used. What happens if the fetch fails?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The page is left with nothing in that place, and the reason is easy to miss",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The previous screen stays, so the reader notices nothing at all",
+          "misconception": "believes the old screen is always kept until a new one loads"
+        },
+        {
+          "id": "C",
+          "text": "The router retries until the module arrives, so the page recovers alone",
+          "misconception": "believes a router retries a failed module load by itself"
+        },
+        {
+          "id": "D",
+          "text": "The whole application fails to start, since one module is needed first",
+          "misconception": "believes every module must load before anything runs"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The place where the screen should be is filled by the module, so a module that never arrives leaves a region of the page with nothing in it, and the reader is looking at a gap rather than at a message. The failure is worth reporting because the usual reasons are things an operator can fix: a stale address left over from an earlier build, a chunk that was never written, or a service worker still holding the old list of files. Retrying until it arrives turns one visible failure into a request that never stops, and keeping the previous screen needs an arrangement that says so rather than happening by accident.",
+      "hint": "Ask what is drawn in the region when the module that fills it does not arrive.",
+      "difficulty": 0.48,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 56,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "code-splitting",
+        "diagnosis",
+        "delivery"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0053",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Reading the shape of a burst against a limit",
+      "learningObjective": "compute the served and refused counts for a burst under a limit",
+      "practice": "two-stage rate limit work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A route allows 10 requests per 60 s and refuses the rest, and 100 requests arrive in the first 10 s of a window. Count the requests served first, then the number refused.",
+      "options": [
+        {
+          "id": "A",
+          "text": "90",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "10",
+          "misconception": "gives the served count instead of the refused one"
+        },
+        {
+          "id": "C",
+          "text": "100",
+          "misconception": "assumes every request in a window is served"
+        },
+        {
+          "id": "D",
+          "text": "0",
+          "misconception": "believes a limit refuses everything above it and then all of it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The window starts empty, so the first ten of the hundred requests are served and the limit is reached, and the number asked for first is 10. The other ninety all arrive after the limit was reached and are refused, which is the second number asked for and the reason a limit exists: without it one caller can send everything and the rest wait for a service that is already saturated. Both figures come from the same two facts, that the counter begins at zero for the window and that it does not rise again until the window ends.",
+      "hint": "The counter starts at zero for the window, so the first requests are the ones that get through.",
+      "difficulty": 0.47,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "rate-limit",
+        "two-stage",
+        "capacity"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0054",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "How wide a picture is actually needed",
+      "learningObjective": "compute the source a slot needs at two densities",
+      "practice": "two-stage image work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stem": "A slot is 400 pixels wide and sources exist at 400, 800 and 1200, and the browser takes the smallest that is not narrower than what is needed. At a plain density, give the smallest source that fits; at twice the density, give the one it then takes.",
+      "options": [
+        {
+          "id": "A",
+          "text": "800",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "400",
+          "misconception": "gives the plain-density source instead of the doubled one"
+        },
+        {
+          "id": "C",
+          "text": "1200",
+          "misconception": "gives the largest source rather than the smallest that fits"
+        },
+        {
+          "id": "D",
+          "text": "1600",
+          "misconception": "multiplies the slot width by four instead of by two"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "At a plain density the need is the slot width of 400 and the smallest source that is not narrower is 400, so the first number asked for is 400. At twice the density the same slot needs 800 pixels of picture to stay sharp, and the rule then lands on 800, which is the second number asked for. What the reader sees on the element is 400 pixels wide in both cases; the difference is how many real pixels are behind it, and that is exactly why offering the three sources rather than only the largest is worth doing.",
+      "hint": "The need is the slot width at a plain density, and the same width times the density otherwise.",
+      "difficulty": 0.46,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 54,
+        "p75Sec": 81
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "responsive-images",
+        "two-stage",
+        "density"
+      ],
+      "version": 1,
+      "stimulus": null
+    },
+    {
+      "id": "web-4.1-0055",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The condition under which unused code may go",
+      "learningObjective": "explain what a build needs to know before it may drop a module",
+      "practice": "explaining tree shaking",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a build must be told before it can leave an imported but unused module out, and what goes wrong when it is told the wrong thing in either direction.",
+      "options": [],
+      "answer": {
+        "exemplar": "A module that is imported and whose exports are never read is not necessarily dead, because running a module can change something outside it: it can register a handler, patch another library, start a timer, or write to a shared store. A build may only leave it out when running it would have changed nothing, so the only reliable statement about that is the package saying so, and silence has to be read as the cautious answer rather than as permission. Claiming no module has effects when some do produces a bundle that is missing code the page needed, and the failure appears as something not working with no mention of the build in the trace at all. Claiming every module has effects when most do produces a bundle that keeps everything, so a package shipping three hundred modules and being asked for two still carries three hundred, which is the situation a person usually discovers by looking at a size and wondering what is in it. Neither keyword choice nor the file layout tells a build this, and minifying does not either, since shortening a module's text says nothing about what running it would do. The declaration is a small piece of information a maintainer writes once per package, and it is the only thing that lets a build do the work."
+      },
+      "explanation": "A model answer has to name the fact that importing a module runs it, say that the declaration is what tells a build this is safe, and give a consequence for a false claim in each direction. An answer that says only that unused code should be removed has not addressed why a build is not allowed to remove it.",
+      "hint": "Ask what happens merely by importing a module, before any of its exports are read.",
+      "difficulty": 0.54,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 37,
+        "medianSec": 64,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "tree-shaking",
+        "explanation",
+        "bundles"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0056",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Why the two health questions have to be separate",
+      "learningObjective": "explain what each health check decides and what confusion between them costs",
+      "practice": "explaining service checks",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a service needs one check that asks whether to restart it and another that asks whether to send it traffic, and what goes wrong if the two are merged.",
+      "options": [],
+      "answer": {
+        "exemplar": "The two checks answer different questions because the actions taken from their answers are different and neither answer is right for the other's question. Liveness asks whether this process is working at all, and a negative answer means it should be replaced, so the check must be cheap and must not depend on anything outside the process, or a blip elsewhere will have every instance restarting at once. Readiness asks whether this instance can usefully serve a request, which means exercising the dependencies the work needs: if the database refuses connections, the instance is alive and useless, and it should be taken out of rotation rather than restarted. Merging them is expensive in a specific way. Report a failing database as a liveness failure and the platform restarts every instance in turn while the database is still down, so one outage becomes a restart loop, and the instances come back still unable to serve and get restarted again, which fills the logs and hides the actual cause. Report the failure as readiness and the traffic moves elsewhere while the database is repaired, which is the outcome that was wanted. The other half of keeping them apart is that readiness has to say what failed and why, since a bare failure leaves an operator with an instance that is refusing work and no indication whether to repair a dependency, raise a limit, or look at the code."
+      },
+      "explanation": "A model answer has to state the two questions, tie each to the action taken from it, and describe the restart loop that merging them produces. An answer that only says one is about the process and the other is about the service has not said what the difference costs when it is ignored.",
+      "hint": "Ask what is done with each answer, and what happens if the wrong one is used.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 38,
+        "medianSec": 66,
+        "p75Sec": 99
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "health-check",
+        "explanation",
+        "operations"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0057",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "The checks a write passes through",
+      "learningObjective": "sequence the checks a state-changing request goes through",
+      "practice": "sequencing request defences",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stem": "Put these five steps in the order a request that changes data passes through them.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A limit on how often this caller may ask is applied first",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The session is identified and the request's token compared with it",
+          "misconception": "believes the caller's identity is settled after the body is checked"
+        },
+        {
+          "id": "C",
+          "text": "The values are parsed and checked against what the endpoint requires",
+          "misconception": "believes the values are checked before the caller is known"
+        },
+        {
+          "id": "D",
+          "text": "The write is made, and a failure becomes a reference for the log",
+          "misconception": "believes a failure is reported to the reader with its internals"
+        },
+        {
+          "id": "E",
+          "text": "A record naming the caller, the action and the outcome is written",
+          "misconception": "believes the record is written only when something goes wrong"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "explanation": "The limit comes first because a caller who has already been told to slow down should not be able to make the service do the work of reading a body and identifying it, and refusing early is also what keeps one caller from consuming the capacity the others need. Identity and the token follow, since everything after them, including which rules apply and which record is written, depends on knowing who is asking. The values are checked once the caller is known, because the rules for what is acceptable can depend on the account, and only then is the write attempted. A failure is turned into a reference rather than a description of the internals, and the record is written whichever way it went, because a record of the successes is what makes the refusals meaningful later.",
+      "hint": "Ask which check is worth the least work, and which one everything else depends on.",
+      "difficulty": 0.5,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 58,
+        "p75Sec": 87
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "security",
+        "ordering",
+        "requests"
+      ],
+      "version": 1,
+      "stimulus": null
+    },
+    {
+      "id": "web-4.1-0058",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "Answering from a cache before the network",
+      "learningObjective": "sequence the steps a cache-first fetch handler takes",
+      "practice": "sequencing cache work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stem": "Put these five steps in the order they happen when a worker answers a request from a cache it keeps.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A request arrives and the worker is asked to answer it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The cache is looked in for an entry matching that request",
+          "misconception": "believes the network is consulted before the cache is searched"
+        },
+        {
+          "id": "C",
+          "text": "A stored answer is returned at once, and a miss falls through",
+          "misconception": "believes a miss is answered from the cache anyway"
+        },
+        {
+          "id": "D",
+          "text": "A network answer is stored under a key for that request",
+          "misconception": "believes a network answer is returned without being stored"
+        },
+        {
+          "id": "E",
+          "text": "A later request for it finds the entry and skips the network",
+          "misconception": "believes a stored entry is used only once"
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "explanation": "The order is what makes the strategy a strategy: the cache is searched first precisely so that a reader who has been there before pays nothing, and only a miss is allowed to reach the network, which is the whole point of keeping a copy. Storing the network answer is what makes the next request cheap, and it has to happen after the answer arrives rather than before, since there is nothing to store until then. The final step is the one that tells you the arrangement is working, and the trap is treating the cache as something consulted once: an entry that is stored and never read again is a slower way of doing nothing.",
+      "hint": "Ask what has to be found before the network may be involved at all.",
+      "difficulty": 0.49,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "service-worker",
+        "ordering"
+      ],
+      "version": 1,
+      "stimulus": null
+    },
+    {
+      "id": "web-4.1-0059",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "What a limit is for and what a caller does next",
+      "learningObjective": "state the purpose of a rate limit and the caller's part in it",
+      "practice": "reading rate limits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A route refuses a request because that caller has asked too often. What is the limit for, and what should the caller do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keeping one caller from crowding out others, and waiting before retrying",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Making the route slower on purpose, so that callers learn to stop",
+          "misconception": "believes a limit is meant to discourage the caller"
+        },
+        {
+          "id": "C",
+          "text": "Charging the caller for the requests, so retrying is what adds cost",
+          "misconception": "believes a limit exists to bill the caller"
+        },
+        {
+          "id": "D",
+          "text": "Keeping the route's own memory small, so callers should send less",
+          "misconception": "believes a limit is a measure of the route's memory"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A shared service has a finite amount of capacity and no way to tell a legitimate caller from one that has stopped caring, so the limit exists to stop any one caller from using all of it, which is what makes the service unusable for everyone else. That is why a refusal carries a hint about when to come back rather than being silent, and why a caller that backs off and retries is behaving correctly while one that retries immediately is not, having turned its own refusal into extra load. The purpose is fairness between callers, and the failure it produces for the caller that ignores it is being refused, which is a cost it brought on itself.",
+      "hint": "Ask what happens to the other callers when one of them sends without stopping.",
+      "difficulty": 0.45,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 53,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "rate-limit",
+        "reliability",
+        "requests"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-4.1-0060",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 4",
+      "topic": "A cache key that leaves out part of the request",
+      "learningObjective": "diagnose a cache key that cannot tell two different requests apart",
+      "practice": "diagnosing caching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A cache stores responses under the path alone, so `/report?month=1` and `/report?month=2` share one entry. What goes wrong, and what must a key therefore include?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A reader asking for one month can be served the other month's answer",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Both are refused, since one address may only have one stored answer",
+          "misconception": "believes a shared key makes the second request impossible"
+        },
+        {
+          "id": "C",
+          "text": "The newer answer replaces the older, so only the later request succeeds",
+          "misconception": "believes a shared key means only one of the two is ever served"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, since a query is a hint and the two requests are one request",
+          "misconception": "believes a query never changes what is being asked for"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A key has to distinguish two requests that deserve different answers, and a path does not when the query is what selects the data, so whichever request came first fills the entry and everyone after it is served that answer until it expires. A report for the wrong month is the visible symptom, and the more serious one is any key of this shape that carries a permission, where one reader is handed another's answer. The query is part of what is being asked for, so it belongs in the key, and the same applies to the name of the format being asked in, which is why a key is built from the whole request rather than from its address.",
+      "hint": "Ask what part of the request decides which answer is correct, and whether the key includes it.",
+      "difficulty": 0.5,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 57,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "caching",
+        "diagnosis",
+        "keys"
+      ],
+      "version": 1
+    }
+  ]
+}
