@@ -1,0 +1,3818 @@
+{
+  "questions": [
+    {
+      "id": "datasci-4.1-0001",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What makes a pipeline a pipeline",
+      "learningObjective": "name what a pipeline is that a single script is not",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team replaces a monthly script with four scheduled steps that hand a table to each other and record when each finished. What has the rewrite added that the script did not have?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stages that hand work on, so a failure is located in a step rather than inside one long job",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing structural, since the same rows are processed either way and the output is identical",
+          "misconception": "assumes identical output means the two arrangements are equivalent"
+        },
+        {
+          "id": "C",
+          "text": "A guarantee that each step runs exactly once, which a single script cannot promise about itself",
+          "misconception": "believes splitting a job into steps is what makes a job idempotent"
+        },
+        {
+          "id": "D",
+          "text": "Automatic recovery, since a step that fails can be rerun on its own without any extra work",
+          "misconception": "believes scheduling stages is the same thing as making retries safe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A pipeline is a sequence of named steps with recorded boundaries between them, and the boundaries are what make it more than a long job: when a figure is wrong, the boundary is where you look, and a step that failed is a step whose output can be inspected rather than a job that died somewhere in the middle. The rewrite buys observability and locality, not correctness, and it does not by itself make anything run once or recover automatically, both of which are properties of how the steps are written rather than of the fact that there are several of them. That distinction is why splitting a job is often the first change worth making and rarely the last one needed.",
+      "hint": "Ask what you can do with a failure when you know which step it happened in.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 52,
+        "p75Sec": 82
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "pipeline",
+        "orchestration"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0012",
+        "datasci-4.1-0013"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0002",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Choosing between batch and streaming",
+      "learningObjective": "say what decides whether a load can be a stream",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team must keep a feature table current within seconds for a live scoring service, and the source only produces a complete file every night. What does that constraint decide?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because a streaming pipeline can be fed from a file as soon as the file lands",
+          "misconception": "believes the choice between the two styles is independent of what the source produces"
+        },
+        {
+          "id": "B",
+          "text": "That the load must be batch, since no amount of streaming machinery shortens the gap in the source itself",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "That the load must be streaming, since a nightly file is only a stream that has not been read yet",
+          "misconception": "reduces a nightly file to a stream by relabelling it"
+        },
+        {
+          "id": "D",
+          "text": "That the freshness target is negotiable, since no architecture can promise better than its source delivers",
+          "misconception": "concludes the requirement is void rather than the design being wrong"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A pipeline can only be as current as the earliest moment its input exists, so a source that publishes once a night sets a floor of roughly a day no matter how the processing is arranged, and choosing a streaming engine for it adds machinery without moving the number anybody cares about. The reverse case is the one that catches people: a source that emits continuously and a table rebuilt nightly is a stream being throttled, and the fix is usually to consume the events rather than to write a faster batch job. The honest way to run this conversation is to state the freshness target, then ask when the data exists, because those two numbers decide the architecture and nothing else does.",
+      "hint": "Ask when the input first exists, since no processing can precede that.",
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 58,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "batch-vs-streaming",
+        "latency"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0009",
+        "datasci-4.1-0015"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0003",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a late record does to a window",
+      "learningObjective": "explain why a late record breaks an already-closed window",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A pipeline groups events into one-hour windows and closes a window when its clock passes the hour. An event for 14:05 arrives at 14:47, after the 14:00 window was closed. What happens to that event?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is added to the 14:00 window, because the window is defined by the event's own timestamp",
+          "misconception": "believes a closed window can be reopened by a late arrival"
+        },
+        {
+          "id": "B",
+          "text": "It is dropped or routed to a correction path, because the window it belongs to has already been reported",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It starts a new 14:00 window containing only itself, so the totals become two partial windows",
+          "misconception": "assumes a late event opens a second window for the same period"
+        },
+        {
+          "id": "D",
+          "text": "It replaces the 14:00 window entirely, so the published figures are recomputed with the event included",
+          "misconception": "believes closed windows are provisional until the next event arrives"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A window is closed because something downstream has already consumed its total, and putting a late event back into it would mean a figure changed after it was read, which is the failure mode windows exist to prevent. The event therefore goes to a correction path, a late-data side output, or nowhere, and the choice is a business decision about how much a late arrival is worth rather than a technical detail. What makes this uncomfortable in practice is that the late event is not wrong, and a pipeline that discards it is discarding real activity, which is why the correction path and its reconciliation against the raw stream are worth the extra work.",
+      "hint": "Ask what downstream has already done with the window by the time the late event arrives.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 62,
+        "p75Sec": 96
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "windowing",
+        "late-data"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0005",
+        "datasci-4.1-0028"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0004",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Duplicates and an idempotent write",
+      "learningObjective": "say what makes a repeated write safe to repeat",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A stream redelivers a batch of events after a consumer restart, so the same event ids arrive twice. What makes the second write harmless?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Writing under the event's own id so that a repeat replaces the row it already wrote",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Checking the row count before writing, so a second attempt against a full table is skipped",
+          "misconception": "believes a size check identifies which rows have already been written"
+        },
+        {
+          "id": "C",
+          "text": "Writing to a new table each time and reading from the newest, so earlier tables are left intact",
+          "misconception": "assumes keeping old versions of the data makes a repeated write harmless"
+        },
+        {
+          "id": "D",
+          "text": "Writing only the fields that changed, so a repeat sends an empty update and alters nothing",
+          "misconception": "believes a partial write is the same operation as a full one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Idempotence means the second attempt leaves the same state as the first, and the only way to get that with duplicated deliveries is to give each event a key the sink can recognise, so a repeat overwrites its own row instead of adding another. The other three are versions of hoping rather than deciding: a row count cannot say which rows are new, a new table per attempt trades duplicates for an unbounded number of tables to reconcile, and a partial write leaves the first attempt's values in place only if every field happens to be unchanged, which is exactly the assumption that failed. The event id has to come from the producer for this to work, which is why an identifier in the contract is worth as much as a schema.",
+      "hint": "Ask what the sink can recognise about a repeat, and whether anything it can see identifies the event.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 60,
+        "p75Sec": 94
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "idempotency",
+        "streaming"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0013",
+        "datasci-4.1-0007"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0005",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Out-of-order events and the watermark",
+      "learningObjective": "say what a watermark decides about an out-of-order event",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Events arrive out of order: the 14:07 event is seen before the 14:03 one. A watermark tracks how far behind the latest event time the stream has fallen. What does it tell the pipeline?",
+      "options": [
+        {
+          "id": "A",
+          "text": "How late an event may still arrive before its window is treated as complete and closed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "How many events have arrived out of order, which is the disorder the pipeline must absorb",
+          "misconception": "confuses the bound on lateness with a count of disordered events"
+        },
+        {
+          "id": "C",
+          "text": "Which events will arrive late, so the ones already seen can be discarded before their window opens",
+          "misconception": "believes the watermark predicts which specific events will be late"
+        },
+        {
+          "id": "D",
+          "text": "How long the stream has been running, so a long-running stream can use a wider window than a short one",
+          "misconception": "reads a lateness bound as a measure of elapsed time"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A watermark is a promise about the future made by the pipeline's own state: no event older than this point is still expected. That is precisely what a windowing decision needs, because a window can only be closed once it is safe, and safety here means nobody will add to it later. A larger watermark tolerates more disorder and closes windows later, so there is a direct trade between completeness and latency, and choosing it is a business decision about how much lateness the reporting can absorb. What the watermark never does is predict which events will be late or count the ones that already were, so an event beyond the bound is a genuine surprise and needs a correction path rather than an assumption that it cannot happen.",
+      "hint": "Ask what the watermark asserts about events that have not arrived yet.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "watermark",
+        "windowing"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0003",
+        "datasci-4.1-0028"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0006",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A schema change and the consumer it breaks",
+      "learningObjective": "say why a compatible-looking change still breaks a consumer",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A producer renames a column from amount_cents to amount and keeps the values identical. A downstream consumer that reads the old name stops receiving data. Why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The consumer's contract named the old column, and a consumer may only read what its contract promised",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The values changed type during the rename, so the old column no longer holds anything the consumer can use",
+          "misconception": "assumes a rename necessarily changes the stored type"
+        },
+        {
+          "id": "C",
+          "text": "The consumer's schedule was disturbed by the change, so it ran before the new table was ready",
+          "misconception": "explains a naming change through an unrelated timing effect"
+        },
+        {
+          "id": "D",
+          "text": "The producer deleted the old column, so the consumer's query is now invalid against the table",
+          "misconception": "believes a rename is a deletion of the column it replaced"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A consumer that was written against a contract is entitled to assume the names in it, and a rename is a change to that contract whether or not the values are identical, so the consumer's read fails and the break is total rather than gradual. The type of change matters less than its declaration: a renamed column delivered under a version bump is a legitimate new version, and the consumer's obligation is to move to it, which is why a contract that states versions and a deprecation window turns this from an outage into a scheduled piece of work. A change delivered without either is the same event as far as production is concerned, an unannounced break, and no amount of identical values prevents it.",
+      "hint": "Ask what the consumer was promised, and whether the change was declared against that promise.",
+      "difficulty": 0.42,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 58,
+        "p75Sec": 92
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "schema-change",
+        "data-contract"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0007",
+        "datasci-4.1-0043"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0007",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a data contract states",
+      "learningObjective": "name what belongs in a data contract and what does not",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team writes a document promising that a table will keep its columns, types and meanings, that new fields may be added, and that removals will be announced a quarter ahead. What has the team written?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A data contract, since it states what consumers may rely on and how that reliance will be broken",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A schema dump, since a list of columns and types is what the consumers actually read from",
+          "misconception": "reduces a contract to the part that a schema file already records"
+        },
+        {
+          "id": "C",
+          "text": "An access policy, since what consumers may rely on is decided by who is allowed to read the table",
+          "misconception": "reads a promise about shape as a statement about permissions"
+        },
+        {
+          "id": "D",
+          "text": "A service level objective, since the notice period is a promise about timing rather than about contents",
+          "misconception": "confuses a deprecation window with an availability target"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A contract is the part of a schema a consumer may build on, plus the rules for taking it away, and those two halves are what make it different from a description. The types and names are the easy half and are often recorded anyway; the deprecation window is the half that changes behaviour, because it converts a breaking change from an event into a scheduled piece of work that a consumer can plan for. What a contract does not do is describe the data's meaning in prose, guarantee that values are correct, or promise anything about volume, and a document that claims those things will be believed and then relied upon in exactly the ways it cannot support.",
+      "hint": "Ask what the document permits a consumer to assume, and how that assumption may be withdrawn.",
+      "difficulty": 0.38,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 54,
+        "p75Sec": 86
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "data-contract",
+        "governance"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0006",
+        "datasci-4.1-0042"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0008",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a data quality test can express",
+      "learningObjective": "separate the checks a data test can make from the ones it cannot",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A pipeline runs a test before publishing. Which of these can that test actually decide?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the key column holds no duplicates, the amounts are all positive, and no value is outside its stated range",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the amounts are correct, since a rule about their range is enough to establish what they should be",
+          "misconception": "believes a range check establishes the correctness of a value"
+        },
+        {
+          "id": "C",
+          "text": "That the rows describe real events, since a row passing every rule is by definition a true record",
+          "misconception": "assumes a row satisfying declared rules is therefore factually right"
+        },
+        {
+          "id": "D",
+          "text": "That nothing important is missing, since every rule the team wrote down has now been checked",
+          "misconception": "equates passing the checks that exist with having checked everything"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A data test can only decide questions whose answers are already written down somewhere: a uniqueness rule, a sign rule, an allowed range, a required field, a referential rule. Those are worth having because they catch the failure that actually happens most often, a column that quietly changes shape between runs, and a test that fails is a signal worth waking somebody for. What no test can do is confirm that a value is the right value, because correctness lives in the world the pipeline observes and the test has no access to it, which is why every one of the three wrong options involves a jump from a declared rule to a real-world fact. A test suite nobody trusts is worse than none, so the discipline is to state plainly what each rule proves.",
+      "hint": "Ask which of these questions has its answer recorded somewhere the test can read.",
+      "difficulty": 0.4,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 56,
+        "p75Sec": 90
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "data-quality",
+        "testing"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0011",
+        "datasci-4.1-0042"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0009",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a freshness check catches",
+      "learningObjective": "name the failure a freshness check detects",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A daily table is checked by comparing the time its last successful load finished against a target of 30 minutes after the schedule. One morning the check finds the last load finished 47 minutes before the schedule. What has it caught?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The table is older than agreed, whether the cause is a late start, a slow step or a job that never ran",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The table is empty, since a load that finished late must have written nothing at all",
+          "misconception": "assumes lateness and emptiness are the same failure"
+        },
+        {
+          "id": "C",
+          "text": "The load is wrong, since a job that took longer than agreed must have produced incorrect rows",
+          "misconception": "believes a duration overrun implies a data error"
+        },
+        {
+          "id": "D",
+          "text": "The schedule is wrong, since the agreed time was set before the table's volume was known",
+          "misconception": "treats a missed target as evidence the target was badly chosen"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Freshness measures the age of the data as a reader experiences it, and it is deliberately indifferent to the cause: a job that started late, a step that ran long, and a job that failed outright all show up as the same symptom, a table older than promised. That indifference is the strength, because the check answers the question a consumer actually has, which is whether they can trust what they are reading now, and it does so without needing to understand the pipeline well enough to diagnose it. What freshness cannot tell you is whether the rows are right, so it belongs beside a content check rather than instead of one, and a table can be perfectly fresh and perfectly wrong.",
+      "hint": "Ask what the age of the table looks like from the outside under each of the possible causes.",
+      "difficulty": 0.34,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 52,
+        "p75Sec": 84
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "freshness",
+        "monitoring"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0016",
+        "datasci-4.1-0012"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0010",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a row-count check cannot see",
+      "learningObjective": "name an anomaly a row-count check passes",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A load is checked by comparing the rows written against the rows expected, within a 2 percent tolerance. Today's load wrote 1,018,000 rows against 1,000,000 expected, so the check passes. What could still be wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The 18,000 surplus rows could be duplicates of rows already written, offset by 18,000 rows that never arrived",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing, since a total inside tolerance is a direct measure of how much data arrived",
+          "misconception": "treats a passing count as proof of completeness"
+        },
+        {
+          "id": "C",
+          "text": "The values in those rows could be wrong, since a count of rows says nothing about what is inside them",
+          "misconception": "misses that a count check and a content check answer different questions"
+        },
+        {
+          "id": "D",
+          "text": "Only the scheduling could be wrong, since the content is verified by the count matching the expectation",
+          "misconception": "believes a row count verifies contents as well as volume"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A count is one number, and two errors of opposite sign add up to a number that looks fine, so a duplicated day and a missing day can pass a tolerance check while the table is wrong in both directions at once. This is the specific blind spot that makes a count check necessary and not sufficient, and it is why the useful additions are all cheap and specific: a count of distinct keys against a count of rows catches duplication, and a count of the key values present yesterday but absent today catches loss. Both are single numbers, both can be run on every load, and both catch the class of failure the total cannot see.",
+      "hint": "Ask what two different mistakes could add up to, and whether the check can tell them apart.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 102
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "row-count",
+        "data-quality"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0018",
+        "datasci-4.1-0008"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0011",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a null-rate check detects",
+      "learningObjective": "say what a null-rate check detects and what it costs",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A check records the share of blanks in a key column each day and pages when it moves more than two percentage points from its training value. It fires this week. What has it detected?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The column's missingness has shifted, which usually means the source changed shape rather than that rows went missing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Rows have been deleted, since a deleted row would leave a blank behind in the key column",
+          "misconception": "believes a deleted row can leave evidence in another column"
+        },
+        {
+          "id": "C",
+          "text": "The load has failed, since a partial load is the ordinary cause of a rising blank rate",
+          "misconception": "assumes a distribution shift is always a load failure"
+        },
+        {
+          "id": "D",
+          "text": "The training data was wrong, since a shift in production invalidates everything the model learned",
+          "misconception": "believes a production change implies the historical data was faulty"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A null rate is a description of a column's shape, and a move in it is a signal that something upstream changed: a new source system, a field that began arriving empty for one region, a parser that stopped filling a default. Its real value is as a drift detector rather than as a data-quality rule, because the blanks may be entirely legitimate and the check is still reporting something that matters, namely that the population the model was fitted on no longer describes the population it is serving. The cost of the check is that it says nothing about which rows are affected, so it is a trigger for investigation rather than a diagnosis, and a team that pages on it without a follow-up ends up muting it.",
+      "hint": "Ask what a change in the share of blanks says about the column, and what it does not identify.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 62,
+        "p75Sec": 98
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "null-rate",
+        "drift"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0017",
+        "datasci-4.1-0008"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0012",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Alerting on a pipeline failure",
+      "learningObjective": "choose the alert that a failure actually reaches",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A nightly load has failed once in the last month and nobody noticed for two days. Which change to the alerting would have caught it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Have the job report its own success or failure to the alerting system, and page when it reports neither",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Add a row-count check to the load, so a partial write is caught before the next run",
+          "misconception": "assumes a content check on a table that was never written can fire"
+        },
+        {
+          "id": "C",
+          "text": "Lower the threshold on the existing data quality tests, so marginal rows trip them more often",
+          "misconception": "believes tightening a rule helps when nothing ran at all"
+        },
+        {
+          "id": "D",
+          "text": "Have the dashboard read from a backup of the previous day's table, so the page never goes empty",
+          "misconception": "treats hiding the symptom as detecting the failure"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A job that never ran leaves no bad rows for any content check to find, because the table still holds yesterday's correct data, and every check that inspects the table therefore passes on the most serious failure there is. The only signal that distinguishes did not run from ran and produced nothing is a report from the job itself, which is why a success or failure signal from the scheduler, and an alert on the absence of that signal, is the check that closes this gap. Adding a third content check to a pipeline that did not execute buys nothing at all, which is a useful reminder that the checks guarding a pipeline are not interchangeable.",
+      "hint": "Ask what a check inspecting the table can conclude when the table was never written.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 60,
+        "p75Sec": 94
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "alerting",
+        "reliability"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0009",
+        "datasci-4.1-0013"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0013",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a retry risks",
+      "learningObjective": "say what a retried job must be true of before it is safe",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A job that writes 50,000 rows fails after writing 45,000, and the scheduler retries it from the beginning without clearing the table. What is the result?",
+      "options": [
+        {
+          "id": "A",
+          "text": "95,000 rows, because the retry adds a second copy of the 45,000 already written",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "50,000 rows, because the retry overwrites the rows it wrote the first time",
+          "misconception": "assumes a plain write replaces existing rows rather than adding to them"
+        },
+        {
+          "id": "C",
+          "text": "45,000 rows, because the job skips the rows it has already written on the retry",
+          "misconception": "believes a job can tell which of its own rows are already present"
+        },
+        {
+          "id": "D",
+          "text": "5,000 rows, because only the work after the failure point is repeated by the retry",
+          "misconception": "assumes a restart from the beginning resumes from where it stopped"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A retry that starts from the beginning re-does the work the first attempt had already completed, and a write that appends does not notice, so the 45,000 rows that succeeded are now present twice and the table holds 95,000. The two properties that make a retry safe are both about what happens before it runs: either the step replaces the whole target, or it is written so that repeating it changes nothing, which is the same idempotence that protects a stream from redelivery. Retrying is usually the right response to a transient failure, so the fix is not to stop retrying but to make the destination tolerate being written twice, because the next failure will be retried too.",
+      "hint": "Ask what a plain append does to rows that are already there.",
+      "difficulty": 0.4,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 58,
+        "p75Sec": 92
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "retry",
+        "idempotency"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0004",
+        "datasci-4.1-0030"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0014",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Why a backfill needs its own path",
+      "learningObjective": "say why a backfill cannot be the daily job run differently",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A pipeline must rebuild 182 days of history that a broken change left unwritten. Why does this need a path of its own rather than a longer-running daily job?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It must read a different range of the source and write over existing rows, while the daily job must not touch what is already there",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It can reuse the daily job unchanged, since the only difference between the two is how long the range is",
+          "misconception": "believes volume is the only thing that separates a backfill from a normal run"
+        },
+        {
+          "id": "C",
+          "text": "It must skip its quality checks, because historical data is known to be worse than the current day's",
+          "misconception": "assumes older data should be exempt from the checks that protect current data"
+        },
+        {
+          "id": "D",
+          "text": "It must run against a copy of the source, since the source can only be read once per day by design",
+          "misconception": "invents a source limitation that the daily job would also be subject to"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A backfill differs from a daily run in the direction of its writes: the daily job appends one new day and must leave the rest alone, while a backfill rewrites days that already hold rows and must produce the same result the daily job would have produced. That is a different contract with the destination table, and the difference shows up as duplicated rows, stale rows left behind a corrected change, and a run that reads far more than a day and therefore needs a different set of timeouts. It also needs its own reconciliation, because the evidence that a backfill worked is a per-day comparison against what the pipeline would have produced, not a single total at the end.",
+      "hint": "Ask in which direction each run writes, and what that implies about rows that are already there.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 62,
+        "p75Sec": 98
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "backfill",
+        "pipeline-design"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0023",
+        "datasci-4.1-0013"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0015",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "End-to-end time of a staged pipeline",
+      "learningObjective": "compute the wall-clock duration of a sequential pipeline",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A daily pipeline runs four stages in sequence: extract takes 4 minutes, validate 2 minutes, transform 9 minutes and load 6 minutes. Assuming no overlap between stages, how many minutes pass between the first stage starting and the last stage finishing?",
+      "options": [],
+      "answer": {
+        "value": 21,
+        "tolerance": 0
+      },
+      "explanation": "Sequential stages add, so 4 + 2 + 9 + 6 = 21 minutes. The second route groups the stages instead of listing them: extract and validate together are 6 minutes, transform and load together are 15, and 6 + 15 = 21, which agrees. The figure that matters operationally is not this total but the pair that bounds it, since the freshness a consumer sees is set by when the load finishes rather than when the pipeline starts, so a pipeline that begins on the hour and takes 21 minutes delivers its data 21 minutes late no matter how the stages are arranged. That is also the number to compare against a freshness target before deciding whether the target is realistic.",
+      "hint": "Add the stage durations, then check by pairing the first two and the last two.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "pipeline",
+        "latency"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0001",
+        "datasci-4.1-0016"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0016",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "How far past target a table is",
+      "learningObjective": "compute a freshness overrun against an agreed target",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A daily table is meant to be no more than 30 minutes old. The last successful load finished 47 minutes before the scheduled time. By how many minutes has the table missed its freshness target?",
+      "options": [],
+      "answer": {
+        "value": 17,
+        "tolerance": 0
+      },
+      "explanation": "The overrun is 47 − 30 = 17 minutes. The second route counts the minutes individually: of the 47 minutes that have passed, the first 30 were within the target and minutes 31 through 47 are the 17 that were not, which agrees. The distinction worth holding on to is between a table that is late and a table that is wrong, because the same 17 minutes could have been spent on a job that ran perfectly or on one that failed silently, and only a report from the job itself distinguishes those two cases. A freshness check therefore says the promise was missed and leaves the reason to be established separately.",
+      "hint": "Subtract the target from the age, and confirm by counting the minutes past the target one at a time.",
+      "difficulty": 0.32,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "freshness",
+        "monitoring"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0009",
+        "datasci-4.1-0015"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0017",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Movement in a null rate",
+      "learningObjective": "compute the change in a null rate between two snapshots",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In a training snapshot of 500,000 rows, a key column held 10,000 blanks. In today's extract of 60,000 rows, that column holds 4,500 blanks. By how many percentage points has the blank rate moved?",
+      "options": [],
+      "answer": {
+        "value": 5.5,
+        "tolerance": 0.01
+      },
+      "explanation": "The training blank rate is 10,000 out of 500,000, which is 2.0 percent, and today's rate is 4,500 out of 60,000, which is 7.5 percent, so the movement is 7.5 − 2.0 = 5.5 percentage points. The second route computes both rates from their numerators directly, 4,500 as a percentage of 60,000 less 10,000 as a percentage of 500,000, and reaches the same 5.5. The two extract sizes are what make this worth doing carefully, because a team comparing raw blank counts would see 4,500 against 10,000, conclude the column improved, and be wrong by more than a factor of two, since the two numbers were never about the same quantity.",
+      "hint": "Turn each blank count into a percentage of its own row count before comparing them.",
+      "difficulty": 0.4,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "null-rate",
+        "drift"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0011",
+        "datasci-4.1-0018"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0018",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Deviation a count check tolerates",
+      "learningObjective": "compute the percentage deviation a count check measures",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A load is expected to write 1,000,000 rows and its check fails when the count is more than 2 percent away from that. Today it wrote 1,018,000 rows. What percentage deviation does the check measure?",
+      "options": [],
+      "answer": {
+        "value": 1.8,
+        "tolerance": 0.01
+      },
+      "explanation": "The surplus is 18,000 rows, and 18,000 out of 1,000,000 is 0.018, which is 1.8 percent. The second route divides first and subtracts one, so 1,018,000 out of 1,000,000 is 1.018 and 1.018 − 1 = 0.018, the same 1.8 percent. At 1.8 percent the check passes its 2 percent tolerance, which is exactly why this figure is interesting: the load wrote more rows than expected, and a check written only to catch dramatic losses will wave through a surplus just as readily as a shortfall, even though a surplus of this shape is often a duplicated day arriving on top of a correct one.",
+      "hint": "Divide the surplus by the expected count, and check by dividing actual by expected and subtracting one.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "row-count",
+        "data-quality"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0010",
+        "datasci-4.1-0017"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0019",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Rows a repeated delivery writes",
+      "learningObjective": "compute the row count an idempotent sink holds after a redelivery",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A stream delivered 1,000,000 distinct events, then a consumer restart caused 24,000 of them to be delivered a second time. The sink writes under each event's own id, so a repeat overwrites the row it already wrote. How many rows does the sink hold afterwards?",
+      "options": [],
+      "answer": {
+        "value": 1000000,
+        "tolerance": 0
+      },
+      "explanation": "The sink holds one row per distinct event id, so the redelivery changes nothing and the count stays at 1,000,000. The second route works from the naive count: without the key the sink would hold 1,000,000 + 24,000 = 1,024,000, and removing the 24,000 repeats gives 1,024,000 − 24,000 = 1,000,000, which agrees. The 1,024,000 figure is worth keeping in mind because it is what the same pipeline would have produced without an identifier on the events, and the difference between the two numbers is the entire value of the contract clause that requires the producer to supply one.",
+      "hint": "Count the distinct ids, and confirm by subtracting the repeats from the naive total.",
+      "difficulty": 0.38,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "idempotency",
+        "streaming"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0004",
+        "datasci-4.1-0013"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0020",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Requests a canary receives",
+      "learningObjective": "compute the traffic a canary share sends to a new model",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A release sends 5 percent of live traffic to a candidate model while the rest stays on the current one. During a window carrying 2,000,000 requests, how many requests reach the candidate?",
+      "options": [],
+      "answer": {
+        "value": 100000,
+        "tolerance": 0
+      },
+      "explanation": "One twentieth of 2,000,000 is 100,000, since 5 percent is one part in twenty. The second route divides instead of multiplying, and 2,000,000 divided by 20 is the same 100,000. The number is not only a routing detail, because it sets what the canary can detect: with 100,000 requests, an error rate of 0.62 percent is roughly 620 failures, which is a rate that can be told apart from a 0.5 percent baseline, while the same error rate spread over a thousand requests would be six failures and no conclusion at all. Choosing a share is therefore choosing how much evidence the release gets before it has to decide.",
+      "hint": "Take one part in twenty of the request count, and confirm by dividing by twenty.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "canary",
+        "release"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0021",
+        "datasci-4.1-0047"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0021",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Error rate a canary measures",
+      "learningObjective": "compute a canary's error rate from its own request and failure counts",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A candidate model served 100,000 requests during a canary window and 620 of them failed. The current model over the same window failed 0.5 percent of requests. What is the candidate's error rate, as a percentage?",
+      "options": [],
+      "answer": {
+        "value": 0.62,
+        "tolerance": 0.01
+      },
+      "explanation": "620 failures out of 100,000 requests is 0.0062, which is 0.62 percent. The second route rescales the same ratio, since 620 per 100,000 is 6.2 per 10,000 and therefore 0.062 percent per thousand, which converts back to 0.62 percent. Against the 0.5 percent baseline the candidate is 0.12 percentage points worse, and whether that is a reason to stop depends on the volume behind it: 620 failures is a large enough sample for the difference to be real rather than noise, which is not true of every canary and is why the traffic share in the previous question is a decision about statistical power rather than about caution.",
+      "hint": "Divide the failures by that model's own request count, then express it as a percentage.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "canary",
+        "reliability"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0020",
+        "datasci-4.1-0022"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0022",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Share of a canary window spent rolling back",
+      "learningObjective": "compute the share of a canary window in a breached state",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A canary ran for 40 minutes. On 27 of those minutes the candidate's error rate sat above the rollback threshold, though never for the three consecutive minutes the policy requires. What share of the canary window was spent in a breaching state? Give the answer as a decimal.",
+      "options": [],
+      "answer": {
+        "value": 0.675,
+        "tolerance": 0.001
+      },
+      "explanation": "27 minutes out of 40 is 0.675, so two thirds of the canary window was spent above the threshold. The second route works from the clean minutes: 13 minutes were within the threshold, and 1 − 13/40 = 0.675 is the same figure. The 27 on its own is the more alarming number and the one that would appear in a summary, yet the policy did not fire because the breach was never sustained for three minutes running, so a report that quoted only the count of breaching minutes would describe a release that was never rolled back as one that spent most of its canary failing.",
+      "hint": "Divide the breaching minutes by the total, and check by subtracting the share of clean minutes from one.",
+      "difficulty": 0.42,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "canary",
+        "rollback"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0021",
+        "datasci-4.1-0048"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0023",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Length of a backfill window",
+      "learningObjective": "compute the number of days a backfill must cover",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A change broke the pipeline for a period running from 1 January 2024 to 30 June 2024 inclusive, and a backfill must rebuild every day in that period. How many days must it rebuild? 2024 is a leap year. Give the count of days.",
+      "options": [],
+      "answer": {
+        "value": 182,
+        "tolerance": 0
+      },
+      "explanation": "The six months hold 31, 29, 31, 30, 31 and 30 days, and those sum to 182, which is what a backfill must rebuild day by day. The second route uses the calendar rather than the month lengths: 1 July 2024 is the 183rd day of the year, so the last day before it is day 182, and counting inclusively from 1 January to 30 June gives 182 days. The 181 that comes from subtracting the endpoints is the classic slip here, and it is silent, because a backfill that skips its first day still runs to completion and still leaves a table that looks complete to every check except the one that compares day 1 against the source.",
+      "hint": "Add the six month lengths including the leap February, and confirm against the day of the year of 1 July.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "backfill",
+        "date-arithmetic"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0014",
+        "datasci-4.1-0015"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0024",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Days a retraining trigger fires",
+      "learningObjective": "count the days a threshold-based retraining trigger fires",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A weekly job retrains whenever a key feature's blank rate exceeds 1 percent on a given day. Over the seven days it observed, those rates were 0.4, 0.6, 0.9, 1.2, 1.1, 1.4 and 0.5 percent. On how many of the seven days did the trigger fire?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explanation": "Three of the seven rates exceed 1 percent, being 1.2, 1.1 and 1.4, so the trigger fired on 3 days. The second route counts the days that did not fire instead: four rates sit at or below the threshold, being 0.4, 0.6, 0.9 and 0.5, and 7 − 4 = 3, which agrees. Note that 1.2 and 1.1 are close enough to the line that a rounding change in how the rate is computed would move the count, which is a fair argument for setting a trigger on a sustained breach rather than on a single day, and for recording the rate rather than only the boolean it produces.",
+      "hint": "Count the days above the threshold, then confirm by subtracting the days at or below it from the total.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "retraining",
+        "drift"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0011",
+        "datasci-4.1-0046"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0025",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Gap between training and serving figures",
+      "learningObjective": "compute the gap between a training figure and its serving figure",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A click rate computed over a training sample was 2,375 clicks on 5,000 impressions. The same rate computed by the live scoring service on one day was 402,000 clicks on 1,000,000 impressions. By how many percentage points does the serving figure fall below the training figure? Give the answer in percentage points.",
+      "options": [],
+      "answer": {
+        "value": 7.3,
+        "tolerance": 0.01
+      },
+      "explanation": "The training rate is 2,375 out of 5,000, which is 47.5 percent, and the serving rate is 402,000 out of 1,000,000, which is 40.2 percent, so the gap is 47.5 − 40.2 = 7.3 percentage points. The second route divides first and takes the difference, giving 0.475 − 0.402 = 0.073, which is the same 7.3 points. This gap is the definition of training-serving skew, and its importance is not the size but the cause: a feature computed differently in the two places produces exactly this pattern while every individual value stays inside its expected range, so the model is confidently wrong on every request it serves rather than occasionally wrong.",
+      "hint": "Express both rates as percentages, then take the difference between the two percentages.",
+      "difficulty": 0.42,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "training-serving-skew",
+        "features"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0049",
+        "datasci-4.1-0017"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0026",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Rows a feature store has not published",
+      "learningObjective": "compute the gap between an offline and an online feature store",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An offline feature store holds 1,200,000 rows for the current day while the online store, refreshed every fifteen minutes, holds 1,185,000. How many rows are missing from the online store?",
+      "options": [],
+      "answer": {
+        "value": 15000,
+        "tolerance": 0
+      },
+      "explanation": "The online store is short by 1,200,000 − 1,185,000 = 15,000 rows. The second route checks that gap as a share and multiplies back: 15,000 out of 1,200,000 is 1.25 percent, and 1.25 percent of 1,200,000 is 15,000, which agrees. Whether those 15,000 rows matter is a question about who is missing rather than how many, since a feature store's online side is read at serving time and a customer whose features have not landed is scored on a stale row or on a default, and both of those look like a model problem to whoever is looking at the predictions.",
+      "hint": "Subtract the online count from the offline count, then confirm as a share of the offline total.",
+      "difficulty": 0.36,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "feature-store",
+        "consistency"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0049",
+        "datasci-4.1-0009"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0027",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Consumers a schema change reaches",
+      "learningObjective": "compute the share of consumers a schema change affects",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A table is read by 14 downstream consumers. A rename of one column affects 5 of them directly, while the other 9 do not reference it. What share of the consumers does the change reach? Give the answer as a decimal.",
+      "options": [],
+      "answer": {
+        "value": 0.357,
+        "tolerance": 0.001
+      },
+      "explanation": "Five of fourteen is 0.357, so the change reaches about 35.7 percent of consumers. The second route counts the unaffected instead: 9 of 14 are untouched, and 1 − 9/14 = 0.357 is the same share. The useful discipline here is to state the denominator, because a summary that says five consumers will break is not actionable and one that says five of fourteen are affected is: it tells the team the change is survivable, tells them which five to find in the dependency list, and makes the question of whether to version the change a matter of arithmetic rather than of appetite.",
+      "hint": "Divide the affected consumers by the total, and confirm by subtracting the unaffected share from one.",
+      "difficulty": 0.4,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "schema-change",
+        "dependencies"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0006",
+        "datasci-4.1-0007"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0028",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Events a watermark discards",
+      "learningObjective": "compute the events a watermark's lateness bound discards",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A stream carries 1,000,000 events an hour, of which 0.4 percent arrive after the watermark has passed their window. How many events an hour does that discard?",
+      "options": [],
+      "answer": {
+        "value": 4000,
+        "tolerance": 0
+      },
+      "explanation": "Four events in a thousand are late, and 1,000,000 events at four per thousand is 4,000 events an hour left outside the reported windows. The second route works in blocks: 0.4 percent is 4 per 1,000, there are a thousand such blocks in a million events, and a thousand blocks times 4 is the same 4,000. The figure is worth stating in a report because it is the pipeline's own accuracy statement, and it is a choice rather than a defect: a looser watermark keeps more of those events at the cost of closing windows later, so the number of discarded events and the freshness of the output move together.",
+      "hint": "Express the late share per thousand events and multiply by the number of thousands in the hour.",
+      "difficulty": 0.38,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "watermark",
+        "windowing"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0005",
+        "datasci-4.1-0003"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0029",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Success rate over a quarter of runs",
+      "learningObjective": "compute a pipeline's success rate from its run history",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A scheduled job ran 90 times in a quarter and 6 of those runs failed. What was its success rate over the quarter, as a percentage?",
+      "options": [],
+      "answer": {
+        "value": 93.33,
+        "tolerance": 0.01
+      },
+      "explanation": "The job succeeded on 84 of its 90 runs, and 84 out of 90 is 0.9333, which is 93.33 percent. The second route counts the failures and works backwards: 6 out of 90 is 6.67 percent, and 100 − 6.67 = 93.33, which agrees. The figure is a fair summary of what happened and a poor summary of what to expect, because a quarterly rate averages over months in which the job ran fine and months in which it failed every night, and no reader of 93.33 percent can tell those two histories apart. That is the argument for reporting a rate per run alongside the worst stretch, and for treating a sustained streak of failures as a different event from an occasional one.",
+      "hint": "Divide the successful runs by the total, and confirm by subtracting the failure percentage from one hundred.",
+      "difficulty": 0.34,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reliability",
+        "monitoring"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0055",
+        "datasci-4.1-0012"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0030",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Duplicate rows a retried job leaves",
+      "learningObjective": "compute the duplicates a retried job leaves behind",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A job writes 50,000 rows and fails once it has written 45,000 of them. The scheduler retries it from the start against a table that was not cleared, and every write appends. How many duplicate rows does the retry leave?",
+      "options": [],
+      "answer": {
+        "value": 45000,
+        "tolerance": 0
+      },
+      "explanation": "The retry repeats the 45,000 writes that had already succeeded, and an appending write does not notice, so 45,000 rows exist twice. The second route works from the finished table: 50,000 rows plus the 45,000 written twice comes to 95,000, and 95,000 − 50,000 = 45,000 is the number of duplicates, which agrees. The clean total of 50,000 is what a reader of the table would expect to see and is not what the table contains, which is why a count check is worth running on any job that can be retried: it turns an invisible duplication into a number that disagrees with the job's own report of how much it wrote.",
+      "hint": "Work out how much of the work the retry repeated, and confirm from the finished row count.",
+      "difficulty": 0.38,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "retry",
+        "idempotency"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0013",
+        "datasci-4.1-0019"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0031",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Inferences a shadow deployment produces",
+      "learningObjective": "compute the work a shadow deployment performs",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A shadow deployment mirrors every live request to a candidate model at 20,000 requests an hour and runs for five days. How many inferences does the candidate produce over that period?",
+      "options": [],
+      "answer": {
+        "value": 2400000,
+        "tolerance": 0
+      },
+      "explanation": "Five days is 120 hours, and 20,000 requests an hour over 120 hours is 2,400,000 inferences. The second route counts by day instead: 20,000 an hour is 480,000 a day, and 480,000 over five days is the same 2,400,000. The number is the reason a shadow deployment needs a budget as well as a plan, because the candidate's answers are discarded and none of that work reaches a user, so the cost is paid entirely for the sake of comparison. It is still the cheapest form of comparison available, since it produces a paired sample on identical traffic, which is the only way to tell a real difference from a difference between two different sets of requests.",
+      "hint": "Convert the five days into hours, multiply, and check by computing the hourly figure per day.",
+      "difficulty": 0.32,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "shadow-deployment",
+        "release"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0047",
+        "datasci-4.1-0020"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0032",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Dependencies that do not match a lockfile",
+      "learningObjective": "compute the share of dependencies that differ from the pinned set",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A training job's environment was rebuilt and installs 12 packages. Three of them resolved to versions other than the ones pinned in the lockfile the team committed. What share of the environment no longer matches the pin? Give the answer as a decimal.",
+      "options": [],
+      "answer": {
+        "value": 0.25,
+        "tolerance": 0.001
+      },
+      "explanation": "Three of twelve is 0.25, so a quarter of the environment no longer matches what the team recorded. The second route counts what did match: nine of twelve packages are as pinned, and 1 − 9/12 = 0.25 is the same share. The reason the figure matters is that the pin is the artefact that makes a result reproducible, so a quarter of it having moved means the run that produced today's numbers cannot be reconstructed from the repository, and nobody will discover this by looking at the results. Recording the resolved versions alongside the outputs costs one file and converts an unrepeatable number into one that can at least be explained.",
+      "hint": "Divide the mismatched packages by the installed total, and confirm by subtracting the matching share from one.",
+      "difficulty": 0.38,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reproducibility",
+        "environments"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0056",
+        "datasci-4.1-0026"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0033",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Downtime a monthly target allows",
+      "learningObjective": "compute the downtime budget implied by an availability target",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A service commits to 99.9 percent availability across a 30-day month. How many minutes of downtime does that target permit in such a month? Give the answer in minutes.",
+      "options": [],
+      "answer": {
+        "value": 43.2,
+        "tolerance": 0.01
+      },
+      "explanation": "A 30-day month holds 30 × 24 × 60 = 43,200 minutes, and one tenth of a percent of that is 43.2 minutes, which is the budget the target permits. The second route works from the allowed uptime: 99.9 percent of 43,200 minutes is 43,156.8 minutes of availability, and 43,200 − 43,156.8 = 43.2 minutes is what is left for downtime, which agrees. The figure earns its place in a report because it converts an abstract percentage into a number an on-call rota can be measured against, and because it makes the trade explicit: a single outage of an hour consumes the whole month's budget, which is a fact better discovered in planning than at two in the morning.",
+      "hint": "Convert the month to minutes, then take the complement of the target as a share of that total.",
+      "difficulty": 0.4,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reliability",
+        "service-levels"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0029",
+        "datasci-4.1-0055"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0034",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Change expressed in points and in percent",
+      "learningObjective": "separate an absolute change in points from a relative change",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A dashboard reports that a conversion rate improved by 25 percent, having moved from 4.0 percent to 5.0 percent. By how many percentage points did the rate actually move?",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "The rate moved from 4.0 to 5.0 percent, so the movement is 5.0 − 4.0 = 1.0 percentage point. The second route works from the relative claim: 25 percent of the original 4.0 percent is 1.0, which is the same movement expressed as points. The distinction is the whole content of the item, because the headline's 25 percent is a true statement about a ratio while the reader almost certainly takes it as a statement about the rate itself, and a 25 percent improvement in a 4 percent rate is one point, which is a very different thing to announce in a review. Reporting the two endpoints, or the point change, removes the ambiguity without weakening the claim.",
+      "hint": "Subtract the two percentages, and confirm by taking the stated relative change of the original rate.",
+      "difficulty": 0.42,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "metrics"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0053",
+        "datasci-4.1-0052"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0035",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a run log",
+      "learningObjective": "interpret a run log and name what it does not show",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A job's log for yesterday reads: extract finished 01:04, validate finished 01:06, transform finished 01:15, load finished 01:21, and no further entries. The pipeline's freshness target is 01:30. What does the log establish?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The run completed inside its target, and the absence of later entries is not itself evidence of success",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The run completed inside its target, because every stage reported a finish time without reporting a failure",
+          "misconception": "assumes a stage that logs a finish time has necessarily written correct rows"
+        },
+        {
+          "id": "C",
+          "text": "The pipeline is healthy, since a total of 21 minutes matches the target the team agreed to hit",
+          "misconception": "believes the target's length is the same thing as the target being met"
+        },
+        {
+          "id": "D",
+          "text": "The load stage failed silently, because no entry appears after 01:21 to confirm that the table was published",
+          "misconception": "treats a missing confirmation as a positive report of a failure"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The log shows the four stages finishing, 01:04, 01:06, 01:15 and 01:21, and 01:21 is before the 01:30 target, so the run met its promise on time. What the log does not contain is any statement about the contents of what was written, and a stage that recorded a finish time and wrote nothing at all would produce exactly the same four lines. That is the argument for a job that reports its own outcome, in the log or to the scheduler, rather than for a reader inferring success from the absence of complaints, because absence of evidence is what a failed silent job looks like from the outside.",
+      "hint": "Compare the last recorded finish time with the target, then ask what the log never says.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "pipeline",
+        "alerting"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0012",
+        "datasci-4.1-0015"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0036",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a freshness panel",
+      "learningObjective": "interpret a freshness figure and name the claim it supports",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A monitoring panel shows the daily orders table at 47 minutes old against a target of 30, the customers table at 8 minutes old, and the products table at 12 hours old. What can be concluded from it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The orders table missed its freshness promise while the other two met theirs, since each is measured against its own target",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The whole pipeline is behind, because the orders table is the first stage and everything after it waits",
+          "misconception": "assumes the stage order forces the same lateness on every later table"
+        },
+        {
+          "id": "C",
+          "text": "The products table is failing, because twelve hours is a long time compared with the other two figures",
+          "misconception": "judges one table's age against another's target rather than its own"
+        },
+        {
+          "id": "D",
+          "text": "Nothing is wrong, since a panel that reports ages is reporting measurements rather than breaches",
+          "misconception": "believes a breached target shown on a dashboard is not a breach"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Freshness is a comparison between a table's age and that table's own promise, so the panel supports exactly one conclusion: the orders table is 17 minutes past a target it was given, the other two are inside theirs, and the products table's twelve hours is fine if its target says twelve hours. The instinct to read a breach as a pipeline-wide problem is reasonable and wrong, because the three tables are produced by different paths with different schedules, and a single late stage rarely delays everything that follows it. What the panel should also show, and does not, is the reason: age tells you the promise was missed and nothing about which step missed it.",
+      "hint": "Ask what each figure is compared against, and whether the three tables share a schedule.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "freshness",
+        "monitoring"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0009",
+        "datasci-4.1-0016"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0037",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a null-rate spike",
+      "learningObjective": "interpret a sudden rise in blanks and name the likely cause",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A null-rate panel shows a feature's blank share steady near 2 percent for months, then rising to 7.5 percent on one day and staying there, with the overall row count unchanged. What does that pattern suggest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The source changed shape for part of the population, since a step change with no volume change is not a partial load",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The load partially failed, since rows that failed to arrive would leave the column blank instead of missing",
+          "misconception": "believes a missing row can leave a blank in a column that did arrive"
+        },
+        {
+          "id": "C",
+          "text": "The pipeline is slower than before, since a step change in blanks is what a slower load looks like from here",
+          "misconception": "reads a distribution change as a timing change"
+        },
+        {
+          "id": "D",
+          "text": "The model's training data was invalid, since a rise in blanks now cannot be reconciled with what it learned earlier",
+          "misconception": "concludes the historical data was defective because the present changed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The shape of the change is the diagnosis: a blank rate that sits flat and then steps up and stays up, while the row count is unmoved, is a change in what the source is sending rather than a change in how much it sends. A partial load would show both a smaller row count and a rise in blanks at the same time, so the fact that the count is stable rules that explanation out, and the likeliest cause is a new source system, a new region, or a field that has begun arriving empty for part of the population. The reason it matters for a model is that the population it was fitted on has changed underneath it, and the panels that show a rate rather than a raw count are the only ones that make this visible at all.",
+      "hint": "Ask whether the row count moved with the blank rate, and what a stable count rules out.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "null-rate",
+        "drift"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0011",
+        "datasci-4.1-0017"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0038",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a canary comparison",
+      "learningObjective": "interpret a canary result and name what it licenses",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A canary table shows the candidate at a 0.62 percent error rate on 100,000 requests against the current model's 0.5 percent on 1,900,000, with the candidate's latency 40 milliseconds higher at the ninety-fifth percentile. What does this license the team to conclude?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The candidate is measurably worse on errors and slightly worse on latency, so promoting it needs a stated reason",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The candidate is worse, since any increase in error rate disqualifies it regardless of how small the difference is",
+          "misconception": "treats any difference as disqualifying without regard to the sample behind it"
+        },
+        {
+          "id": "C",
+          "text": "The candidate is better, because a 40 millisecond difference is small next to the traffic it served",
+          "misconception": "judges the error rate by the latency difference instead of by its own figure"
+        },
+        {
+          "id": "D",
+          "text": "Nothing can be concluded, because the two models were measured on different request volumes and are not comparable",
+          "misconception": "believes comparable metrics require equal sample sizes to be compared"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A canary result is a measurement on a real sample, and what it licenses depends on how large the sample is and how the difference compares with it: 620 failures against 100,000 requests is enough evidence to treat 0.62 against 0.5 as a real difference rather than noise, so the candidate is genuinely a little worse on errors and 40 milliseconds worse at the tail of latency. That does not make it unusable, since a candidate may be worth its cost for a reason the table does not contain, which is why the honest conclusion names the reason rather than declaring a verdict. The sample-size objection in the fourth option is worth dismissing explicitly, because unequal volumes are normal in a canary and only the precision of each figure depends on its own denominator.",
+      "hint": "Ask how much evidence each figure rests on, and whether a real difference is the same as a disqualifying one.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "canary",
+        "release"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0021",
+        "datasci-4.1-0022"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0039",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a model card",
+      "learningObjective": "judge what a model card must state and what it may leave out",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A model card states the training period, the population it was fitted on, its measured performance on a held-out set, and the metrics it was optimised for. It does not mention where it should not be used. What is missing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Its limits, since a card that cannot say who should not rely on it invites use exactly where it is weakest",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Its training time, since a reader cannot judge currency without knowing when the fit happened",
+          "misconception": "assumes the training period and the training time are the same disclosure"
+        },
+        {
+          "id": "C",
+          "text": "Its code, since a model nobody can retrain is not reproducible in any meaningful sense",
+          "misconception": "believes a code listing belongs in a document aimed at users of the model"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, since limitations are known only after the model has been used and cannot be stated in advance",
+          "misconception": "assumes the limits of a model can only be discovered in production"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A model card is read by somebody deciding whether to rely on a prediction, and the decision that matters most is the one where the answer is no, so the disclosure that belongs in it above all others is where the model should not be used. The sections a card already has here describe the model well, and the gap is the one that transfers a decision nobody has made yet: which populations, which decisions and which conditions are outside what the fit can support. Stating those in advance is not pessimism, since an unstated limit is not a limit respected but a limit discovered in production by the first person who depends on the model and is hurt by it.",
+      "hint": "Ask what a reader is deciding when they read the card, and which answer to that decision is missing.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "model-card",
+        "communication"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0052",
+        "datasci-4.1-0041"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0040",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A dashboard metric with no definition",
+      "learningObjective": "judge a metric whose definition is missing",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A dashboard shows an engagement number for each channel and two teams have reported different totals for the same week. The dashboard carries no definition of engagement. What is the primary problem?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The metric has no stated definition, so the two totals may be answering different questions and neither can be called wrong",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The dashboard needs a longer history, since a short window makes any two totals disagree by chance",
+          "misconception": "attributes a definitional disagreement to the length of the window"
+        },
+        {
+          "id": "C",
+          "text": "One of the two teams made an error, since two computations of the same metric must agree",
+          "misconception": "presumes a single definition exists before checking whether one does"
+        },
+        {
+          "id": "D",
+          "text": "The metric should be replaced, since a figure two teams can compute differently cannot be used at all",
+          "misconception": "jumps from an undefined metric to no metric"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Two teams computing different totals for a metric whose definition was never written down are not in conflict, because there is no single quantity for them to have computed, and the disagreement is the only evidence anybody has that the label has been standing for more than one thing. The repair is unglamorous and cheap: write down the entity, the event, the window and the filter, and attach that definition to the dashboard rather than to a wiki page, so the definition travels with the number. Until it exists, the honest description of the dashboard is that it shows two metrics wearing one label, and a figure that cannot be defined cannot be improved by choosing a better tool to display it.",
+      "hint": "Ask what quantity the label names, and whether anyone has written it down.",
+      "difficulty": 0.44,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "metrics",
+        "communication"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0052",
+        "datasci-4.1-0054"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0041",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A figure that misleads by its scale",
+      "learningObjective": "identify the axis choice that changes a reader's conclusion",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A report shows two lines over the same quarter: error rate falling from 4.0 percent to 1.0 percent and volume rising from 900 to 1,200. The chart's vertical axis on the error panel starts at 0.9 percent rather than at zero. What has the chart done to the reader?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A three-quarter fall is drawn as a collapse, because a truncated axis magnifies the visible change without changing the data",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing, since both series are shown on the same quarter and the comparison is therefore fair",
+          "misconception": "assumes a shared period makes any two panels comparable"
+        },
+        {
+          "id": "C",
+          "text": "The volume panel is now misleading, since a rise from 900 to 1,200 is being shown against the same axis",
+          "misconception": "redirects the problem to a panel that was drawn correctly"
+        },
+        {
+          "id": "D",
+          "text": "The error rate is overstated, because a panel that begins above zero can only exaggerate a fall",
+          "misconception": "believes truncating an axis inflates a decreasing series specifically"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A fall from 4.0 to 1.0 percent is a reduction of three quarters of the errors, which is a serious improvement, and a panel whose axis begins just below the final value draws that improvement as a cliff, so a reader glancing at it infers a collapse and a reader glancing at the volume panel infires modest growth. Nothing in the data has been altered; only the picture has, which is what makes axis truncation the easiest deception in a report to commit by accident and among the hardest for a reader to detect. The two habits that prevent it are to start a bar chart's axis at zero always and to label a truncated line panel's axis range prominently, so the shape can be read as a decision rather than a fact.",
+      "hint": "Ask what the same data would look like on a panel starting at zero, and what the reader concluded instead.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "figures"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0053",
+        "datasci-4.1-0042"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0042",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A claim the analysis does not carry",
+      "learningObjective": "judge whether a stated conclusion follows from the analysis performed",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A report finds that customers who used the new export button converted at 11 percent against 8 percent for those who did not, and concludes that the new button caused the difference. What does the analysis support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An association between using the button and converting, with the direction of causation still unestablished",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The causation, since the group that used the button converted at a higher rate in the same period",
+          "misconception": "believes a difference observed in the same period must be an effect"
+        },
+        {
+          "id": "C",
+          "text": "Nothing at all, since observational comparisons of two groups can never support any conclusion",
+          "misconception": "dismisses a real association along with the causal claim"
+        },
+        {
+          "id": "D",
+          "text": "The causation, provided the two groups are large enough, since a large sample removes the alternative explanations",
+          "misconception": "assumes sample size settles confounding rather than reducing noise"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The comparison establishes that the two groups differ, and the groups were not assigned, so anything that made some customers more likely to press the button and more likely to convert is a live alternative explanation of the same 11 against 8. A larger sample would make the difference more precisely measured and would not touch that problem at all, which is the single most common misunderstanding in this area: precision and identification are different achievements. The honest conclusion names the association, states the plausible confounder, and either designs the next analysis to address it or asks a reader to hold the causal claim loosely until it is tested.",
+      "hint": "Ask whether the two groups were assigned to their behaviour or chose it, and what else could differ between them.",
+      "difficulty": 0.48,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "causation"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0041",
+        "datasci-4.1-0053"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0043",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a change-impact report",
+      "learningObjective": "interpret a dependency report and name the decision it supports",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A change-impact report lists 14 consumers of a table, names 5 that reference a column due to be renamed, and marks 3 of those 5 as owned by a team that has already been told. What decision does the report support?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Proceed under a versioned rename with the remaining 2 consumers given notice, since the report bounds the blast radius",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Defer the change indefinitely, because any consumer naming the column will break and the risk cannot be retired",
+          "misconception": "assumes a break can only be avoided by never making the change"
+        },
+        {
+          "id": "C",
+          "text": "Proceed immediately without notice, because 3 of the 5 affected consumers already know and the rest will read the report",
+          "misconception": "assumes awareness of a report substitutes for a change to the code that reads it"
+        },
+        {
+          "id": "D",
+          "text": "Replace the column with a second copy of it, so consumers keep working against the old name forever",
+          "misconception": "assumes duplicating a column retires the need to notify anyone"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The report's value is that it turns an unbounded worry into a finite list: 14 consumers, 5 affected, 3 already informed, so the remaining work is a conversation with two named teams rather than a search of the organisation. That is what makes a versioned rename with notice a reasonable next step instead of a decision deferred forever, and it is also what makes the report worth keeping, since a change whose reach is written down can be reviewed and a change whose reach is unknown can only be argued about. The trap in the third option is treating awareness as action: a team that has read about a rename still has code pointing at the old name until somebody changes it.",
+      "hint": "Ask how much of the affected set is already accounted for, and what remains to be done about the rest.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "schema-change",
+        "dependencies"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0027",
+        "datasci-4.1-0006"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0044",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reading a backfill completion report",
+      "learningObjective": "interpret a backfill report and name the check it leaves out",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A backfill of 182 days reports completion with 182 successful day-jobs and 21,904,000 rows written. It reports no comparison against the source. What does the report establish?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the jobs ran, and not that the days they rebuilt match what the pipeline would have produced then",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the backfill is correct, since 182 jobs for 182 days is the whole of the period accounted for",
+          "misconception": "equates coverage of the period with correctness of its contents"
+        },
+        {
+          "id": "C",
+          "text": "That the source is unchanged, because a backfill that found differences would have reported them itself",
+          "misconception": "assumes a process would disclose its own failures without being asked"
+        },
+        {
+          "id": "D",
+          "text": "That 21,904,000 rows is the expected total, since a figure of that size is implausibly large to be wrong",
+          "misconception": "judges a total by whether it seems reasonable rather than by comparison"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A completion report is evidence about execution and silence about content: 182 successful day-jobs and a total row count say that the work finished, and a backfill that ran a changed transform over old data can finish perfectly while producing rows that differ from what the pipeline would have produced at the time. The missing comparison is the only thing that would close the gap, and it is cheap in the sense that matters here, being a per-day row count and key sum against the source for each of the 182 days, reported as a list of days that disagree rather than as a single averaged number. Without it, a backfill's success is a claim about the runner rather than about the data.",
+      "hint": "Ask what a report of completed jobs tells you about the rows those jobs produced.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 34,
+        "medianSec": 64,
+        "p75Sec": 100
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "backfill",
+        "verification"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0023",
+        "datasci-4.1-0014"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0045",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A retraining trigger and the signal behind it",
+      "learningObjective": "pair a retraining decision with a signal that justifies it",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A model is retrained on a schedule and separately on demand. Which pairing of trigger with signal produces a retraining decision that can be defended afterwards?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retrain when a monitored feature's distribution has moved beyond a stated threshold, and record the value that fired it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Retrain whenever accuracy dips on any single day, since any dip is evidence the model has degraded",
+          "misconception": "treats day-to-day variation in a measured rate as proof of degradation"
+        },
+        {
+          "id": "C",
+          "text": "Retrain on a fixed calendar regardless of what the data does, since a schedule is easier to audit than a threshold",
+          "misconception": "prefers predictability to evidence and treats the two as the same virtue"
+        },
+        {
+          "id": "D",
+          "text": "Retrain when a new team asks for a model, since demand is the clearest available signal that one is needed",
+          "misconception": "uses the existence of a request as evidence about the data"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A trigger earns its place by naming a signal that moved, a threshold it crossed, and the recorded value at the moment it fired, because those three are what let somebody reconstruct the decision months later. Daily accuracy is the worst available signal, since it moves for reasons that have nothing to do with the model, and a schedule, while tidy, is a decision to replace a model on a date rather than a response to anything. The reason this pairing matters is not the retraining but the audit: a model that changed without a recorded reason is a model whose current version nobody can account for, which is the failure the registry exists to prevent.",
+      "hint": "Ask what a trigger must be able to show afterwards to justify having fired.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "retraining",
+        "drift"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0024",
+        "datasci-4.1-0050"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0046",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "One definition of a feature, two places it is used",
+      "learningObjective": "pair a feature's definition with the consistency it must hold everywhere",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A click-rate feature is computed during training from a training table and at serving time from a live stream. Training gave 47.5 percent and serving gives 40.2 percent. Which pairing of mechanism with definition addresses this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One stored definition of the feature, used by both the batch fit and the online lookup, so the two cannot drift apart",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Two definitions tuned separately, since a training table and a stream have different shapes and need different handling",
+          "misconception": "believes separate definitions are the way to avoid a shared mistake"
+        },
+        {
+          "id": "C",
+          "text": "One definition plus a monthly reconciliation, since drift is inevitable and can only be measured after the fact",
+          "misconception": "accepts a known divergence in exchange for measuring it later"
+        },
+        {
+          "id": "D",
+          "text": "A feature store holding the computed values only, so the definition can change freely without touching either path",
+          "misconception": "confuses storing a value with storing the rule that produced it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Skew of this kind comes from two copies of a rule drifting apart, and the only durable fix is one copy of the rule, written once and applied by both the batch fit and the online lookup, so that a change to the definition moves both sides together. Storing values without the definition leaves the rule in two places where it was before, and a monthly reconciliation tells you how far the two have diverged without preventing the next divergence. Tuning them separately is worse than either, because it makes the divergence intentional and hard to argue about, since each side looks locally reasonable.",
+      "hint": "Ask how many copies of the definition of the feature exist, and what happens to both when it changes.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "training-serving-skew",
+        "feature-store"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0025",
+        "datasci-4.1-0026"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0047",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Choosing between shadow and canary",
+      "learningObjective": "pair a release goal with the mechanism that delivers it",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A team must choose between shadowing a candidate on mirrored traffic and canarying it on a small share of live traffic. Which pairing of goal with mechanism is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Comparing a candidate against the current model on identical requests, paired with shadow; affecting real users on a small share, paired with canary",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Comparing a candidate on identical requests, paired with canary, because a small share is still identical traffic",
+          "misconception": "believes a traffic share yields a paired comparison"
+        },
+        {
+          "id": "C",
+          "text": "Affecting real users on a small share, paired with shadow, because shadowed requests are served by the live model anyway",
+          "misconception": "confuses who answers the request with who computes the prediction"
+        },
+        {
+          "id": "D",
+          "text": "Neither, since a candidate must be tested on a large share to be trusted, and a small share proves nothing",
+          "misconception": "assumes statistical power can only come from a large share rather than from a large count"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two mechanisms differ in what they change, and the goal decides which one is wanted. A shadowed candidate computes predictions that are thrown away, so the same request is answered by the current model and the pair of outcomes can be compared directly, which is what makes it the cleanest way to see a difference at all. A canary candidate answers real requests, so it measures what users actually experience at the cost of exposing a few of them to the risk, and that exposure is the reason the share is small and the rollback condition is written down beforehand. A share can also be plenty of evidence, since 100,000 requests is a large count, so the objection in the fourth option confuses sample size with exposure.",
+      "hint": "Ask whether the candidate's answer is used or discarded, and what each choice exposes a user to.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "shadow-deployment",
+        "canary"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0031",
+        "datasci-4.1-0020"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0048",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A rollback and the condition that starts it",
+      "learningObjective": "pair a rollback with a condition stated before the release",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A release sends 5 percent of traffic to a candidate. Which pairing of rollback condition and action would make the decision automatic rather than a judgement call?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Roll back when the candidate's error rate exceeds the baseline by more than a stated margin for a stated run of minutes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Roll back when someone on the team judges the candidate to be behaving oddly, since judgement catches what a threshold misses",
+          "misconception": "trusts an unquantified impression to be a better trigger than a stated one"
+        },
+        {
+          "id": "C",
+          "text": "Roll back at the end of the canary if the candidate is not clearly better, since improvement must be proven to keep it",
+          "misconception": "makes the condition depend on a comparison that a small share may not resolve"
+        },
+        {
+          "id": "D",
+          "text": "Roll back only if the baseline also degrades, so a shared problem is not blamed on the candidate",
+          "misconception": "guards against a false positive by ignoring the most common cause of a real one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An automatic rollback needs its condition written before the release, in the two forms that matter: how far the candidate must depart from the baseline, and how long that departure must persist, because without the second a single noisy minute reverses a healthy release. The judgement variant is worse than useless at three in the morning, because the person awake then has the least information and the most pressure to act; the proof-of-improvement variant makes the release depend on a difference the canary may not be able to resolve; and the last variant inverts the logic, since a candidate performing badly during a broadly bad afternoon is exactly the case that most needs reversing. The condition should name a metric, a margin, a duration and an action, and it should be written down where the release can read it.",
+      "hint": "Ask what the trigger names, and whether it was agreed before the release or after the first bad minute.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "rollback",
+        "release"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0022",
+        "datasci-4.1-0038"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0049",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "What a model registry must track",
+      "learningObjective": "pair a model version with the facts needed to find and trust it",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A team has nine model versions in production history and cannot tell which one produced a figure from last quarter. Which pairing of what the registry records with what that failure needs would have answered it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each version's training data, code, resolved dependencies and evaluation figures, linked to the predictions it served",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Each version's name and the date it was trained, so the team can narrow the search to a month",
+          "misconception": "believes a date and a name are enough to identify the behaviour of a version"
+        },
+        {
+          "id": "C",
+          "text": "Each version's evaluation score, so the team can pick the version with the best recorded performance",
+          "misconception": "equates identifying a version with choosing the best one"
+        },
+        {
+          "id": "D",
+          "text": "Only the current version, since superseded versions are noise and the one in service is the one that matters",
+          "misconception": "believes a superseded version cannot have produced a figure that is still in use"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The question asked is which version produced a specific figure, and answering it requires the link from a version to the predictions it served plus the record of what it was built from, because a version nobody can reproduce is a version nobody can explain when its behaviour is questioned. A date and a name narrow the search without answering it, a score helps choose rather than identify, and keeping only the current version is what creates the failure in the first place, since last quarter's figure was served by a version that is no longer current. The registry is worth its upkeep only if superseded versions are kept with the same care as the live one, which is a decision about disk and about habit rather than about tooling.",
+      "hint": "Ask what would be needed to trace one historical figure back to the exact model and inputs behind it.",
+      "difficulty": 0.46,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "model-registry",
+        "provenance"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0032",
+        "datasci-4.1-0056"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0050",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Reproducibility and what a run must record",
+      "learningObjective": "pair a reproducibility failure with the record that would have prevented it",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A figure from last quarter cannot be regenerated, and nobody can say why. Which pairing of the step that broke and the record that would have prevented it identifies the cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The environment was rebuilt without the pinned dependencies, and recording resolved versions with the outputs would have shown the drift",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The model was retrained, and recording the training date would have shown which fit produced the figure",
+          "misconception": "assumes a date identifies a fit's behaviour"
+        },
+        {
+          "id": "C",
+          "text": "The data was corrected in place, and recording the table's row count would have shown that it had changed",
+          "misconception": "believes a row count reveals what changed inside a table"
+        },
+        {
+          "id": "D",
+          "text": "The code changed, and recording the repository's commit would have shown that the code was different",
+          "misconception": "assumes a commit identifies the inputs the code was given"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Reproducibility fails at a specific link in the chain, and the chain has four: the code, the dependencies, the inputs and the random seed. Naming one link and pairing it with the record that would have revealed the change is what turns an unrepeatable number into a diagnosable one, and here the dependencies are the link that broke, which a set of resolved versions recorded beside the outputs would have shown at the time rather than a year later. Each wrong option pairs a real kind of change with a record that cannot detect it: a date does not describe a fit's behaviour, a row count does not say what changed inside a table, and a commit does not record the data or the environment the code was handed.",
+      "hint": "Ask which link in the chain from code to output changed, and whether the record named could detect that change.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 66,
+        "p75Sec": 104
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reproducibility",
+        "provenance"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0032",
+        "datasci-4.1-0056"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0051",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "An honest limitation against a hedge",
+      "learningObjective": "distinguish a stated limitation from a disclaimer that protects nobody",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what separates a limitation stated honestly from a hedge that protects the writer instead of the reader, and give the sentence that fails.",
+      "options": [],
+      "answer": {
+        "exemplar": "A limitation names a specific population, condition or use where the model should not be relied on, and a hedge attaches uncertainty to the writer rather than to the model's reach. The honest sentence says the performance figures were measured on accounts opened in the last twelve months and says nothing about older accounts, so a reader knows exactly which rows the evidence covers. The failing sentence says the results may vary and that the model is intended for general use, which commits the team to the widest possible claim while warning about none of it, and whose only function is to be quotable in a later dispute. The difference is not tone but addressability: a limitation can be checked against a population and acted on by deciding not to use the model there, whereas a hedge can be applied to any objection at all and therefore disposes of none. It is worth noting that honest limits are also cheaper for the team, because a limit stated in advance is a boundary somebody agreed to, while a limit discovered after an incident is a failure with a name attached to it."
+      },
+      "explanation": "The test is whether the sentence can be acted on by somebody who was not in the room when it was written. A limitation that names a population gives a reader a decision to make, and a hedge gives them nothing to do except worry, which is why the hedge is preferred by the writer and useless to everyone else. Both protect against being wrong, but only one of them changes what anybody does, and the difference shows up months later when the question is whether the model was ever supposed to be used on those rows at all.",
+      "hint": "Ask whether the sentence tells a reader where not to rely on the model, or merely tells the writer they are covered.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "model-card"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0039",
+        "datasci-4.1-0042"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0052",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "Why an undefined metric cannot be improved",
+      "learningObjective": "explain what is missing from a metric that has no written definition",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a dashboard metric that nobody has written a definition for cannot be improved by changing the tool that displays it, and say what the definition must contain.",
+      "options": [],
+      "answer": {
+        "exemplar": "A dashboard renders whatever its query returns, so changing the tool changes the rendering and leaves the quantity exactly as undefined as it was, and a prettier panel around an undefined number makes the number more authoritative rather than better defined. The disagreement between two teams is the evidence, since each computed something real and neither can be shown to have computed the wrong thing. The definition has four parts and no more: the entity the row is about, the event that is counted, the window the count covers, and the filter that decides which rows are in scope. Written once and attached to the dashboard rather than to a document, those four sentences end the argument permanently, and until they exist the honest description of the panel is that it displays two metrics that share a label. The temptation to resolve such a disagreement by declaring one team's version canonical is worth resisting, because the reason the two differ is usually that the label has been doing two jobs for a year, and canonising one of them hides a real ambiguity rather than settling it."
+      },
+      "explanation": "The reason a display change cannot help is that the ambiguity is upstream of the display, so any improvement to the panel is a change to the presentation of a quantity that has not been agreed. Two teams disagreeing is therefore the most valuable thing on the dashboard, because it is the only evidence that the label has been doing two jobs, and silencing it by declaring one version canonical removes the evidence along with the argument. The four-part definition is short enough to write in a sentence and specific enough that a second team computing the metric from it will get the same number, which is the test a definition has to pass.",
+      "hint": "Ask what a tool change alters, and which four facts a metric has to name before it names a quantity.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "metrics",
+        "communication"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0040",
+        "datasci-4.1-0053"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0053",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "How a figure misleads without being false",
+      "learningObjective": "explain how a chart can mislead while every number in it is correct",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain how a chart can mislead a reader while every number in it is correct, and name two things a reader can check in the picture itself.",
+      "options": [],
+      "answer": {
+        "exemplar": "A chart constrains what the eye compares, so the same correct numbers read differently depending on the window, the scale and the ordering, and the misleading happens in the presentation rather than in the data. A vertical axis beginning just above the final value turns a three-quarter fall in error rate into what looks like a cliff, a window chosen to begin on a good day makes a flat series look like a recovery, and a paired series drawn on two different scales invites a comparison between quantities that were never commensurable. None of these is a lie, which is precisely why they survive review, since a reviewer checking the figures finds them all correct. Two things a reader can check in the picture itself cost nothing: whether the axis begins at zero when the mark is a bar whose length is the value, and whether a truncated axis is labelled with its range so the reader can see the choice. A third habit belongs to the author rather than the reader, which is to state the two endpoints in the caption as well, since a caption saying 4.0 percent to 1.0 percent makes the truncation harmless."
+      },
+      "explanation": "The deception lives in what the eye is asked to compare rather than in any figure, which is why a review that checks numbers finds nothing to object to. Every one of the three devices, a truncated axis, a chosen window and a mismatched pair of scales, changes the comparison while leaving the data intact, and all three are recoverable by a reader who knows to look. That is the useful conclusion: the defences are small and specific, an axis that starts at zero for bars, a labelled range for truncated lines, and the two endpoints repeated in the caption, and they cost nothing while removing most of the room in which a chart can mislead.",
+      "hint": "Ask what the chart constrains the eye to compare, and what a reader can verify without seeing the data.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "figures"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0041",
+        "datasci-4.1-0042"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0054",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A conclusion the analysis cannot carry",
+      "learningObjective": "explain what an analysis must have done to support a causal claim",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a comparison between two groups found in the data does not by itself support a causal claim, and say what the analysis would need.",
+      "options": [],
+      "answer": {
+        "exemplar": "A comparison between two groups describes how they differed, and the groups were formed by what people did rather than by what was done to them, so any factor that both raises the likelihood of the behaviour and the likelihood of the outcome will produce the same difference with no causal story at all. In the export-button case a plausible alternative is that the customers who press a button labelled export are, by their job, the ones who were already going to complete, which makes the 11 against 8 a statement about two kinds of customer rather than about a button. A larger sample would not help, because it sharpens the estimate of a difference that was never a controlled comparison, and this is the most persistent confusion in reporting, because precision is mistaken for identification. What the analysis needs is either a mechanism that cannot act any other way, a design that assigned the behaviour, or a comparison that holds the plausible alternative fixed, and where none of those is available the honest wording is that the two groups differed, with the candidate explanations named, and the causal claim left for a test that was actually run."
+      },
+      "explanation": "The gap is between measuring a difference and identifying its cause, and only the first is achieved by comparing groups that formed themselves. Everything the causal claim needs, a mechanism, an assignment, or a comparison holding the alternative fixed, is absent from an observational contrast, and none of them can be supplied by collecting more rows of the same kind. This is worth separating clearly in a report because the two achievements are often confused in both directions: dismissing the comparison because it is observational throws away a real and useful association, while promoting it to causation puts a claim in a document that no one can later defend.",
+      "hint": "Ask what else could differ between the two groups besides the thing the claim names.",
+      "difficulty": 0.5,
+      "discrimination": 0.47,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "causation"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0042",
+        "datasci-4.1-0051"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0055",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "A reliability claim the history contradicts",
+      "learningObjective": "explain how an aggregate reliability figure hides the history that matters",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a quarterly success rate of 93.3 percent is a poor basis for a reliability claim, and say what should be reported alongside it.",
+      "options": [],
+      "answer": {
+        "exemplar": "An aggregate over ninety runs is an average of months in which the job never failed and months in which it failed every night, and the average of those two histories is a number that describes neither, so a reader who sees 93.3 percent learns something true and something actionable only by accident. What the average hides is the shape, and the shape is what an on-call rota and a consumer of the data actually experience: the worst streak, the longest recent run of successes, and whether the failures cluster. Those three say whether the pipeline is dependable now, which the quarterly figure cannot, and they are cheap to compute from a log that is already being kept. There is a second reason to distrust the aggregate here, which is that a run that fails without being noticed is not counted as a failure by anything except the job's own report, so an aggregate built from visible errors understates the problem by exactly the number of silent failures, and a team that has never instrumented that distinction is reading a figure about a job rather than about the data."
+      },
+      "explanation": "An aggregate over a quarter is a summary of ninety runs, and the two histories that produce the same summary, one healthy month beside one broken month, and steady quiet failure, are indistinguishable in it. What a reader needs in order to act is the shape of the distribution rather than its centre, so the worst streak and the recent record belong beside the rate, and both come from a log nobody has to start collecting today. The second problem with the figure is that it may be counting only the failures that announced themselves, which makes it a statistic about the job's logging rather than about the data's availability.",
+      "hint": "Ask what months the average is averaging, and what a reader would want to know that the average cannot say.",
+      "difficulty": 0.48,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reliability",
+        "communication"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0029",
+        "datasci-4.1-0035"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0056",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "An environment that drifts from the record",
+      "learningObjective": "explain how an unpinned environment breaks reproducibility without breaking anything visible",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain how an environment that resolves versions differently from the committed pin breaks reproducibility while every run still appears to succeed, and say what closes the gap.",
+      "options": [],
+      "answer": {
+        "exemplar": "A pin is a claim about the future that only holds if something checks it, and an environment that resolves its own versions turns that claim into a suggestion, so a run performed today and a run performed next quarter are two different computations that share a name. Nothing about this announces itself: the job exits successfully, the metrics come out in a plausible range, and the report looks the same as last month's, which is why the drift is usually discovered when somebody tries to regenerate an old figure and cannot get the same number. The failure is worst for the results nobody re-ran, since a model that quietly changed behaviour after a dependency moved leaves no trace in its own outputs, and the only evidence is a comparison nobody made at the time. The gap closes by recording the resolved versions beside the outputs rather than merely pinning them in a file, because a pin describes an intention while a resolved list describes the environment that actually ran, and a container image or a fully pinned environment closes it more durably by making the two impossible to differ."
+      },
+      "explanation": "The environment is the one link in the chain from code to result that nothing about the result reveals, because a run under different versions produces output of the same shape and a plausible size, and there is no marker in the numbers saying the ground moved. That is why a pin in a repository is not sufficient on its own: it describes an intention that only a check or a fully pinned image can enforce, and the artefact that actually documents a run is the list of versions that were resolved when it happened. Recording that list beside the outputs is cheap, and it is the difference between a result that can be explained when it surprises somebody and one that has to be regenerated and hoped for.",
+      "hint": "Ask what a pin promises, and what evidence would show whether the promise was kept.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 44,
+        "medianSec": 100,
+        "p75Sec": 154
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "reproducibility",
+        "environments"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0032",
+        "datasci-4.1-0050"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0057",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "From an incident to a verified pipeline",
+      "learningObjective": "order the steps so an incident ends in a verified repair",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A daily table was found two days stale and the cause is unknown. Put these four stages in the order that reaches a repair somebody can trust rather than one that merely restores service.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Establish what the table should contain and when it was last correct, so there is a fact to restore to",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Find the step that stopped publishing, using the run history and the freshness record rather than a guess",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Repair and rerun the affected days, comparing each day's output against what the pipeline would have produced",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Add the check that would have caught this, and confirm it fires by testing it against the failure it missed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The order runs from fact to cause to repair to detection, and each stage is worthless without the one before it. Restoring the table is not the same as restoring it correctly, and a rerun over a changed transform will produce a table that looks healthy and is wrong, so the definition of what should be there has to be fixed before anything is rewritten. Locating the cause comes before the repair for the ordinary reason that a repair applied without a cause is a guess, and a guess that works once is still a guess. The per-day comparison in the third stage is what turns the repair into a verified one, and the check in the fourth is the only stage that reduces the chance of the same two-day silence happening again, which is the point at which an incident stops being a story about one person.",
+      "hint": "Ask what each stage needs to have been given, and which stage is the only one that changes the future.",
+      "difficulty": 0.5,
+      "discrimination": 0.46,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 72,
+        "p75Sec": 110
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "incident-response",
+        "pipeline-order"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0012",
+        "datasci-4.1-0035"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0058",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "From a candidate to a promoted model",
+      "learningObjective": "order the stages so a release is reversible at every point",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A candidate model must go from a repository to production. Put these four stages in the order that keeps every step reversible and every decision recorded.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Register the version with its training data, code, resolved dependencies and evaluation figures",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Shadow it on mirrored traffic to compare it with the current model on identical requests",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Canary it on a small share of live traffic against a rollback condition agreed beforehand",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Promote it to full traffic, keeping the previous version registered and reachable for instant reversal",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The order is decided by what each stage needs and what it costs to be wrong. Registering first is what makes the rest auditable, because a candidate whose training data and dependencies are unrecorded cannot be explained later and cannot be rebuilt, and the promotion stage is where that absence becomes permanent. Shadowing precedes canarying because it is the only comparison that holds the request mix fixed, and it carries no exposure, so it is the cheap place to discover a difference at all. The canary then takes on real exposure deliberately, under a condition agreed while nobody is watching a bad graph, and the promotion preserves the ability to reverse by keeping the superseded version registered rather than deleted, which is the only part of a release that cannot be reconstructed after the fact.",
+      "hint": "Ask what each stage needs to have been recorded or measured, and which stage has no exposure.",
+      "difficulty": 0.5,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 72,
+        "p75Sec": 110
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "release",
+        "model-registry"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0031",
+        "datasci-4.1-0048"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0059",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "From a table to a set of checks",
+      "learningObjective": "order the checks so the most serious failure is caught first",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A new table needs checks before anyone depends on it. Put these four checks in the order that catches the failure nobody can currently detect, then the one a reader would notice last.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Report success or failure from the job itself, so a pipeline that never ran cannot pass silently",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Compare the row count against the source, so a partial or duplicated load is visible as a number",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Compare the blank rate in each key column against its expected range, so a change in shape is caught",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Check that the columns the consumers read are present and correctly typed, as a contract test",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The order is by consequence rather than by ease. The job's own report comes first because a pipeline that never ran leaves yesterday's correct data in place, and every check that inspects the table will pass on that, so the most serious failure is the one only the job can report. The count comes next because it is the broadest statement about the data as a whole and it localises a loss or a duplication that the narrower checks would only hint at. The blank rate and the contract test then describe the shape of what arrived, and while both are worth having every day, neither substitutes for the two above them, and a suite organised the other way round gives the reassuring impression of coverage while the failure everybody fears goes unreported.",
+      "hint": "Ask which check still passes when the pipeline never ran at all.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 72,
+        "p75Sec": 110
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "data-quality",
+        "pipeline-order"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0012",
+        "datasci-4.1-0010"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "datasci-4.1-0060",
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 4",
+      "topic": "From a finding to a report a reader can check",
+      "learningObjective": "order the steps so a report's claims can be followed back to its evidence",
+      "practice": "production, MLOps and communication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "A team must publish a finding about a metric that changed over a quarter. Put these four stages in the order that makes each claim in the report checkable by the person reading it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fix the definition of the metric, naming the entity, the event, the window and the filter in one place",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "State the two endpoint values and the change between them, in both points and relative terms",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Name what else differed between the compared groups, and mark the causal claim to that limit",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "State where the model or pipeline behind the figure would fail, so the reader knows where not to rely on it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctIds": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "explanation": "The order is a chain of dependencies and each link is what the next one rests on. Without a written definition there is no quantity to state, and a report that opens with a figure whose computation two teams perform differently has not made a claim so much as started an argument. The endpoints come next because a change stated in both forms is the one place a reader can check the arithmetic themselves, and stating only the relative form is what turns a one-point improvement in a low rate into a headline number. Naming the alternatives then bounds the causal claim honestly, and the stated limits close the document by telling a reader where the whole analysis should not be leaned on, which is the section that makes the rest of it worth reading.",
+      "hint": "Ask what each stage needs to have been settled before it can be written, and what a reader can check first.",
+      "difficulty": 0.48,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 72,
+        "p75Sec": 110
+      },
+      "provenance": {
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "author": "bank-team-datasci",
+        "humanReviewer": "orchestrator-spotcheck",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewer": "bank-review-datasci",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-4",
+        "communication",
+        "report-order"
+      ],
+      "relatedQuestionIds": [
+        "datasci-4.1-0034",
+        "datasci-4.1-0054"
+      ],
+      "prerequisiteQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
