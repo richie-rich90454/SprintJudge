@@ -54,7 +54,9 @@ function checkQuestion(file, q, index) {
   // or per-unit coverage silently reports on the wrong content.
   const idUnit = typeof q.id === "string" ? /^[a-z0-9]+-(\d+)\.\d+-\d{4}$/.exec(q.id) : null;
   const labelUnit = /^(?:unit|domain)\s+(\d+)$/i.exec(q.unit ?? "");
-  if (idUnit && labelUnit && idUnit[1] !== labelUnit[1]) {
+  if (idUnit && /^(?:unit|domain)\b/i.test(q.unit ?? "") && !labelUnit) {
+    err(file, id, `unit label "${q.unit}" is not of the form "Unit <n>"`);
+  } else if (idUnit && labelUnit && idUnit[1] !== labelUnit[1]) {
     err(file, id, `unit label "${q.unit}" disagrees with the unit number in the id`);
   }
   if (typeof q.topic !== "string" || q.topic.length === 0) err(file, id, "missing topic");
