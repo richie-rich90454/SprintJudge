@@ -4,6 +4,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
+const SCHEMA = JSON.parse(fs.readFileSync("contracts/question-schema.json", "utf8"));
+const REQUIRED = SCHEMA.required;
+
 const ROOTS = process.argv.slice(2).length > 0 ? process.argv.slice(2) : ["src/main/resources/bank"];
 const SUBJECTS = new Set(["JAVA_PROGRAMMING", "COMPUTING_FOUNDATIONS", "CHEMISTRY", "CALCULUS_I",
   "CALCULUS_II", "PHYSICS_I", "PHYSICS_II", "PHYSICS_MECHANICS", "PHYSICS_EM", "EUROPEAN_HISTORY",
@@ -45,6 +48,12 @@ function err(file, id, msg) {
 function checkQuestion(file, q, index) {
   const id = q.id ?? `index-${index}`;
   const tag = `${file}#${id}`;
+  // Drive the required-field floor from the contract so the gate cannot drift
+  // behind the schema: `practice: undefined` and a missing `answer` both slip
+  // past hand-maintained checks.
+  for (const field of REQUIRED) {
+    if (q[field] === undefined || q[field] === null) err(file, id, `required field ${field} is missing`);
+  }
   if (typeof q.id !== "string" || !/^[a-z0-9]+-[0-9]+\.[0-9]+-(?!0000)[0-9]{4}$/.test(q.id)) err(file, id, "bad id shape");
   if (ids.has(q.id)) err(file, id, "duplicate id");
   else ids.add(q.id);
