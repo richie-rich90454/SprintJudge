@@ -1,0 +1,3580 @@
+{
+  "questions": [
+    {
+      "id": "int2-8.1-0001",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why decimal fractions are not exact in binary floating point",
+      "learningObjective": "explain why adding two small decimals does not give the expected third",
+      "practice": "diagnosing a failed decimal sum in floating point",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In double precision, 0.1 + 0.2 comes out as 0.30000000000000004 rather than 0.3. Why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither 0.1 nor 0.2 is stored exactly, so the sum inherits both rounding errors",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The additions are carried out in a fixed point format keeping only a few digits",
+          "misconception": "believes the arithmetic silently drops to a low precision format"
+        },
+        {
+          "id": "C",
+          "text": "The exponent range of double precision is too small for numbers this close to zero",
+          "misconception": "blames the exponent range for a loss of significant digits"
+        },
+        {
+          "id": "D",
+          "text": "The sum is exact and only the comparison with 0.3 rounds the two sides differently",
+          "misconception": "believes the arithmetic is exact and the equality test is at fault"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Double precision stores values as binary fractions, and one tenth has no finite binary expansion, so it is stored as the nearest available binary value, which is slightly under one tenth. Two tenths is stored slightly over two tenths. The addition of those two stored values is carried out exactly, but it inherits both storage errors, giving 0.30000000000000004, whose distance from the true three tenths is about 5.55 times 10 to the minus 17. Nothing to do with the exponent range is involved, since these numbers sit comfortably inside it, and the error is already baked in before any comparison is made.",
+      "hint": "Ask what the stored value of each decimal fraction actually is.",
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "floating-point",
+        "representation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0002",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What the machine epsilon of a format measures",
+      "learningObjective": "state what the machine epsilon of a format tells you",
+      "practice": "interpreting the resolution of a format",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What does the machine epsilon of a floating point format tell you?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The gap from 1 to the next representable value, and so the finest relative resolution",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The largest magnitude the format can hold before an overflow occurs",
+          "misconception": "confuses the resolution of a format with its range"
+        },
+        {
+          "id": "C",
+          "text": "The smallest positive value the format can represent at all",
+          "misconception": "confuses the relative resolution with the subnormal limit"
+        },
+        {
+          "id": "D",
+          "text": "The number of bits spent on the sign and the exponent together",
+          "misconception": "believes epsilon reports the layout of the format"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The machine epsilon is defined as the distance from 1 to the next larger representable number, which for double precision is 2.22 times 10 to the minus 16. That is the finest relative resolution available near 1, and it is what sets the smallest relative change a stored number can register. It is not the range, which runs up to about 1.8 times 10 to the 308, and it is not the smallest representable positive value, which is a subnormal many orders of magnitude smaller than epsilon.",
+      "hint": "Ask how many representable values sit between 1 and the next one up.",
+      "difficulty": 0.26,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 28,
+        "p25Sec": 14,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "floating-point",
+        "precision"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0003",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why catastrophic cancellation destroys significant digits",
+      "learningObjective": "explain why subtracting nearly equal quantities is dangerous",
+      "practice": "reasoning about a subtraction that loses accuracy",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why is subtracting two nearly equal computed quantities especially dangerous?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The rounding errors stay fixed while the answer shrinks, so the relative error explodes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Two large numbers of opposite sign always produce a negative zero result",
+          "misconception": "believes cancellation always returns a negative zero"
+        },
+        {
+          "id": "C",
+          "text": "It only happens when the two numbers carry different exponents in the format",
+          "misconception": "restricts cancellation to a particular case in the format"
+        },
+        {
+          "id": "D",
+          "text": "It changes the exponent of the result without disturbing the stored digits",
+          "misconception": "believes cancellation corrupts the exponent field only"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each of the two quantities arrives with an absolute rounding error of order epsilon times its own size. Subtracting cancels the leading digits, so the difference is much smaller than either input, while the two absolute errors do not shrink at all. Their ratio, and therefore the relative error of the difference, is the ratio of the input size to the result size, which can be enormous: computing (1 + 10 to the minus 10) minus 1 leaves about 8 correct digits out of the sixteen available. Nothing special happens to the exponent or the sign; the damage is entirely in the relative accuracy of a small result.",
+      "hint": "Ask how the rounding error compares with the size of the answer.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "cancellation",
+        "stability"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0004",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What a condition number measures",
+      "learningObjective": "state what the condition number of a problem measures",
+      "practice": "interpreting a condition number",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What does the condition number of a mathematical problem measure?",
+      "options": [
+        {
+          "id": "A",
+          "text": "How far a relative perturbation of the input can be amplified in the output",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "How many arithmetic steps an algorithm needs to reach a given tolerance",
+          "misconception": "confuses the difficulty of a problem with its sensitivity"
+        },
+        {
+          "id": "C",
+          "text": "How close the computed answer lies to the true answer in absolute terms",
+          "misconception": "confuses a worst case bound with an achieved error"
+        },
+        {
+          "id": "D",
+          "text": "How badly a set of data degrades when stored in a coarser number format",
+          "misconception": "confuses a property of the data with a property of the problem"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The condition number is the largest factor by which a relative change in the data can be magnified in the answer, so a condition number of 10 to the 12 says that an input known to 16 digits can leave only about 4 correct digits in the output. It is a property of the problem, not of the algorithm used, and it is a worst case: it bounds how bad things could be rather than reporting what actually happened. That distinction is why a large condition number is a warning about the problem rather than a measurement of the error already committed.",
+      "hint": "Ask how large a relative output error a small relative input error can produce.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "condition-number",
+        "stability"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0005",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why Newton's method needs a derivative",
+      "learningObjective": "explain the role of the derivative in a Newton step",
+      "practice": "reasoning about the failure of a Newton step",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Newton's method divides by the derivative at each step. Why is that division a source of danger?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Near a stationary point the derivative is tiny, so the step throws the iterate far away",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The derivative is needed only to confirm that the function is increasing there",
+          "misconception": "believes the derivative is a monotonicity check"
+        },
+        {
+          "id": "C",
+          "text": "Newton's method converges only when the function happens to be a polynomial",
+          "misconception": "believes the method is restricted to polynomials"
+        },
+        {
+          "id": "D",
+          "text": "The derivative supplies the starting value, so no separate choice of start is needed",
+          "misconception": "believes the derivative determines the starting point"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The step is the function value divided by the derivative, so wherever the graph is flat the denominator is small and the step becomes enormous, throwing the iterate far from the region where the linear approximation was any good. The standard example is the cubic with a single root near minus 1.769: started at 0 the method jumps to 1, then back to 0, then to 1 again, cycling forever. The derivative is required to form the tangent line, so it cannot be dropped, which is exactly why a method that needs no derivative, such as bisection, is preferred when no guarantee is wanted.",
+      "hint": "Look at what happens to the step size when the derivative is near zero.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "newton",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0006",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why bisection carries a guaranteed bound",
+      "learningObjective": "explain why bisection guarantees progress and a bounded error",
+      "practice": "reasoning about a bracketing method",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why does bisection keep a guaranteed bound on the error, when faster methods do not?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A sign change is preserved at every step, so the bracket halves and always holds a root",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It converges quadratically, because each step is a full Newton step by another name",
+          "misconception": "believes bisection inherits the fast local rate of Newton"
+        },
+        {
+          "id": "C",
+          "text": "It applies only to polynomials of low degree, where halving stays exact",
+          "misconception": "restricts bisection to a class of functions it does not need"
+        },
+        {
+          "id": "D",
+          "text": "It requires the derivative, which is what makes the bound rigorous",
+          "misconception": "believes a derivative is needed to prove a bracket shrinks"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Bisection needs only that the two endpoints straddle a sign change. Each step replaces the half of the interval that does not contain the crossing with the midpoint, so a sign change survives and the interval length is exactly halved, whatever the shape of the function. The root is therefore trapped between the endpoints at all times, and the error is at most half the interval length, giving the bound (b minus a) over 2 to the n plus 1 after n halvings. No smoothness, no derivative and no second crossing are needed, and that is why the guarantee is unconditional even though the rate is only linear.",
+      "hint": "Think about what happens to the bracket when the answer is discarded.",
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "bisection",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0007",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why Horner's method is cheaper than a full expansion",
+      "learningObjective": "state the computational advantage of Horner's method",
+      "practice": "comparing two ways of evaluating a polynomial",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What makes Horner's method cheaper than expanding a polynomial before evaluating it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It forms one intermediate result per coefficient instead of a whole power at each stage",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It avoids addition altogether, using multiplication alone to reach the value",
+          "misconception": "believes Horner trades additions for extra multiplications"
+        },
+        {
+          "id": "C",
+          "text": "It keeps the same operation count but rounds each intermediate result differently",
+          "misconception": "believes Horner is the same work with different rounding"
+        },
+        {
+          "id": "D",
+          "text": "It squares the leading power repeatedly, reaching the value in a logarithmic count",
+          "misconception": "confuses Horner with repeated squaring"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Expanding a degree n polynomial touches every power at every stage, needing n times n plus 1 over 2 multiplications, so 45 for degree 9. Horner rewrites the same expression as a single pass, needing n multiplications and n additions, so 9 for degree 9. The structural point is that Horner never forms any power of the variable at all; it keeps one running value and folds in the next coefficient each time, so the large intermediate quantities that the expanded form produces never appear. The savings are in work, and the extra accuracy is a separate and weaker claim.",
+      "hint": "Count the multiplications in each arrangement of the same terms.",
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "horner",
+        "polynomial-evaluation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0008",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What partial pivoting achieves in elimination",
+      "learningObjective": "describe the role of partial pivoting in Gaussian elimination",
+      "practice": "justifying a pivoting step",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What does partial pivoting do when solving a linear system by Gaussian elimination?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It swaps in the largest available entry in the column, which keeps every multiplier small",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It rearranges the rows so the matrix becomes diagonal before any elimination",
+          "misconception": "believes pivoting performs the elimination itself"
+        },
+        {
+          "id": "C",
+          "text": "It selects the largest entries of the right hand side to become the new pivots",
+          "misconception": "confuses the unknowns with the right hand side"
+        },
+        {
+          "id": "D",
+          "text": "It solves for the largest unknown first and back-substitutes for the rest",
+          "misconception": "confuses a pivoting scheme with an ordering of unknowns"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each multiplier is a ratio of an entry below the pivot to the pivot itself, so choosing the largest available entry in the column makes every such ratio at most 1 in size. Small multipliers mean the updated entries cannot blow up during elimination, which is what keeps the rounding errors introduced along the way from being amplified into the answer. The scheme is called partial because it picks the best candidate only within the current column, not across the whole remaining submatrix, which is a weaker but far cheaper choice.",
+      "hint": "Ask what happens to the multipliers when the pivot is tiny.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pivoting",
+        "elimination"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0009",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What a large growth factor warns about",
+      "learningObjective": "interpret the growth factor of an elimination step",
+      "practice": "reading a diagnostic from an elimination run",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Elimination produces intermediate entries much larger than the original matrix. What does that warn you?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rounding errors in those large entries are amplified into the solution, so the bound is weak",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The matrix is singular, since no pivot could be found in that column",
+          "misconception": "believes growth is a symptom of singularity"
+        },
+        {
+          "id": "C",
+          "text": "The elimination was carried out with no rounding at all, hence the large values",
+          "misconception": "believes growth implies exact arithmetic"
+        },
+        {
+          "id": "D",
+          "text": "The system has a condition number below one, which no matrix can have",
+          "misconception": "believes growth implies a condition number under one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The growth factor is the ratio of the largest entry appearing anywhere during elimination to the largest entry of the original matrix. Entries that grow mean that every rounding error made while those entries were being formed is itself large, and the back substitution then divides by pivots of comparable size, so those errors survive into the answer nearly undiminished. A growth factor near 1, which partial pivoting usually delivers, means the intermediate entries stayed in the original range and the error bound is correspondingly tight. Growth alone says nothing about whether the system has a solution.",
+      "hint": "Compare the largest intermediate entry with the largest original entry.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "growth-factor",
+        "stability"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0010",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What the power method converges to",
+      "learningObjective": "state what the power method converges to and when",
+      "practice": "describing the limit of repeated matrix multiplication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Repeatedly multiplying a starting vector by a matrix, and rescaling each time, converges to what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The eigenvector of largest eigenvalue magnitude, provided that one clearly dominates",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The eigenvector of smallest magnitude, since that direction grows most slowly",
+          "misconception": "believes the slowest growing direction is the limit"
+        },
+        {
+          "id": "C",
+          "text": "The sum of all the eigenvalues, which is the trace of the matrix",
+          "misconception": "believes repeated multiplication accumulates a trace"
+        },
+        {
+          "id": "D",
+          "text": "The dominant eigenvector only when the matrix is negative definite throughout",
+          "misconception": "believes the method needs negative definiteness"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A matrix splits any vector into components along its eigenvectors, and each component is multiplied at every step by the eigenvalue along that direction. The component with the largest eigenvalue magnitude therefore grows fastest relative to the others, and after normalisation it swallows the rest, leaving the direction of that eigenvector. The catch is that the dominance must be clear: if two eigenvalues are nearly equal in magnitude, or the largest is negative and close in size to the second largest, the direction keeps swinging and the iteration does not settle. The rate of approach is governed by the ratio of the second largest eigenvalue to the largest.",
+      "hint": "Ask which eigenvalue survives when a vector is multiplied by a matrix repeatedly.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "power-method",
+        "eigenvalues"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0011",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What the Rayleigh quotient gives",
+      "learningObjective": "state the property that makes the Rayleigh quotient a cheap eigenvalue estimate",
+      "practice": "reasoning about a Rayleigh quotient",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "For a real symmetric matrix, what can be said about the Rayleigh quotient of a vector?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It lies between the smallest and largest eigenvalues and equals them at eigenvectors",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It always equals the trace of the matrix divided by the dimension of the matrix",
+          "misconception": "believes the quotient is independent of the vector"
+        },
+        {
+          "id": "C",
+          "text": "It is the largest eigenvalue whenever the vector has any nonzero entry at all",
+          "misconception": "believes any usable vector reveals the top eigenvalue"
+        },
+        {
+          "id": "D",
+          "text": "It equals the determinant of the matrix, whatever vector is put into it",
+          "misconception": "believes the quotient depends only on the matrix"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "For a symmetric matrix the Rayleigh quotient is a weighted average of the eigenvalues, with weights set by how much of the vector lies along each eigenvector, and the weights are non-negative and sum to one. That is why it can never leave the interval spanned by the extreme eigenvalues, and why it lands on an eigenvalue exactly when the vector is an eigenvector. This is what makes the quotient a cheap and safe estimate: combined with the power method, which improves the direction, each iterate yields a value that is at least as good as the direction warrants.",
+      "hint": "Try it on an eigenvector, then on a vector that is not one.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "rayleigh-quotient",
+        "eigenvalues"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0012",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why forming the normal equations loses accuracy",
+      "learningObjective": "explain why forming the normal equations squares a condition number",
+      "practice": "justifying a reformulation of a least squares problem",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why is solving a least squares problem by forming the normal equations numerically risky?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The new matrix has the squares of the original condition number, so twice the digits go",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The new matrix has the same condition number as the original system",
+          "misconception": "believes the conditioning survives the reformulation unchanged"
+        },
+        {
+          "id": "C",
+          "text": "The new matrix is always singular whenever the original matrix is square",
+          "misconception": "believes squaring a matrix always destroys invertibility"
+        },
+        {
+          "id": "D",
+          "text": "The right hand side grows by exactly the dimension of the original matrix",
+          "misconception": "believes the reformulation inflates the right hand side"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The normal equations replace the design matrix by its transpose times itself, and the singular values of that product are the squares of the original singular values, so the condition number is squared. A problem with a condition number of 10 to the 8 becomes one of 10 to the 16, which in double precision consumes the entire sixteen digit budget, while a condition number of 10 to the 6 becomes 10 to the 12 and leaves only four good digits. The reformulation is attractive because the matrix becomes square and symmetric, but the price is paid in exactly the digits the computation was supposed to deliver.",
+      "hint": "Compare the singular values of a matrix with those of its transpose product.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "normal-equations",
+        "conditioning"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0013",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What the standard error of a Monte Carlo estimate is",
+      "learningObjective": "state the formula and meaning of a Monte Carlo standard error",
+      "practice": "reasoning about the precision of a sampled estimate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What is the standard error of an average computed from many independent sampled trials?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The sample standard deviation of the trials divided by the square root of their number",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The sample standard deviation of the trials, which shrinks as trials accumulate",
+          "misconception": "confuses the spread of the data with the spread of the mean"
+        },
+        {
+          "id": "C",
+          "text": "The square root of the variance of the underlying distribution on its own",
+          "misconception": "drops the dependence on the number of trials"
+        },
+        {
+          "id": "D",
+          "text": "The difference between the largest and the smallest of the sampled values",
+          "misconception": "confuses a range with a standard error"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The individual trials scatter around the true value with a spread given by the standard deviation, but the average of many of them is far steadier than any single trial, by a factor of the square root of the number of trials. That divisor is the whole content of the standard error, and it is what makes the error fall off slowly, so gaining a factor of ten in precision costs a hundred times the work. Reading the standard deviation as the standard error is the common slip, and it overstates the uncertainty of the mean by exactly the square root of the trial count.",
+      "hint": "Divide the spread of the individual trials by the square root of how many there are.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "monte-carlo",
+        "standard-error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0014",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why the last coordinate is divided out after a projection",
+      "learningObjective": "state the role of the last coordinate in a projected point",
+      "practice": "reasoning about the final divide in a projection",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "After a perspective matrix is applied, why is the point divided by its last coordinate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That coordinate records the distance along the viewing direction, so the divide applies the foreshortening",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It counts how many times the matrix has been applied, which must be divided out",
+          "misconception": "believes the last coordinate is an iteration counter"
+        },
+        {
+          "id": "C",
+          "text": "It carries the shading of the point, which the division then normalises",
+          "misconception": "believes the last coordinate holds shading information"
+        },
+        {
+          "id": "D",
+          "text": "It is fixed at 1 for every point, so the division has no effect at all",
+          "misconception": "believes the last coordinate is constant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Points further from the eye must be pulled towards the centre of the image, and points nearer must stay spread out, so the amount of scaling differs from one ray to the next. The matrix records that scale in the last coordinate as a multiple of the distance along the viewing direction, and dividing the other three by it performs the foreshortening in one step. Without the divide, every point would be displaced by a fixed proportion and depth would be ignored, which is exactly the parallel projection a three by three matrix already gives.",
+      "hint": "Ask what happens to points at different distances along the same ray.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "homogeneous-coordinates",
+        "perspective"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0015",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Absolute error of a decimal sum in double precision",
+      "learningObjective": "measure the absolute error of a floating point addition",
+      "practice": "computing a floating point error",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In double precision, what is the absolute error of the computed sum 0.1 + 0.2, measured against the true value one third of one?",
+      "options": [],
+      "answer": {
+        "value": 5.551115123125783e-17,
+        "tolerance": 0.001
+      },
+      "explanation": "The stored sum is 0.30000000000000004, so the error is that minus 0.3, which is 5.551115123125783 times 10 to the minus 17. It is also exactly one unit in the last place at 0.3, since the spacing of double precision doubles there is 2 to the minus 54, which is 5.55 times 10 to the minus 17. The error is tiny in absolute terms, which is why the failure looks inexplicable until one counts digits: the stored value differs from 0.3 in the seventeenth place.",
+      "hint": "Add the two numbers as double precision does, then subtract the exact sum.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "floating-point",
+        "error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0016",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Machine epsilon of double precision",
+      "learningObjective": "recall the machine epsilon of double precision",
+      "practice": "recalling a format constant",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the machine epsilon of double precision, that is the gap from 1 to the next representable value?",
+      "options": [],
+      "answer": {
+        "value": 2.220446049250313e-16,
+        "tolerance": 0.000001
+      },
+      "explanation": "Double precision has 53 bits of significand, so near 1 the representable values are spaced by 2 to the minus 52, which is 2.220446049250313 times 10 to the minus 16. The unit roundoff, which is half of that, is 1.1102230246251565 times 10 to the minus 16, and the two are easily confused. Since 1 plus half of epsilon rounds back to exactly 1, adding anything below epsilon to a number near 1 has no effect at all.",
+      "hint": "It is the distance from 1 to the next representable value above 1.",
+      "difficulty": 0.2,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 22,
+        "p25Sec": 11,
+        "p75Sec": 35
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "floating-point",
+        "precision"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0017",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Relative error from cancelling subtraction",
+      "learningObjective": "measure the relative error caused by cancelling subtraction",
+      "practice": "quantifying a cancellation error",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In double precision, the expression (1 + 1e-10) - 1 returns 1.000000082740371e-10. What is the relative error of that result, measured against the exact value of the same expression?",
+      "options": [],
+      "answer": {
+        "value": 8.264037e-8,
+        "tolerance": 0.001
+      },
+      "explanation": "The exact value of the expression is 1e-10 plus 1e-20, since the square of 1e-10 is not negligible in principle, so the difference between the computed and the exact value divided by the exact value is about 8.26 times 10 to the minus 8. A relative error of that size means roughly 8 of the 16 available digits have gone, even though the arithmetic used nothing but one add and one subtract, both of which are correctly rounded. The loss is entirely due to the two numbers being nearly equal, which is the definition of a cancelling subtraction.",
+      "hint": "Compare the computed difference with the difference you would get in exact arithmetic.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 21,
+        "p75Sec": 67
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "cancellation",
+        "error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0018",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Cancellation when differencing a transcendental function",
+      "learningObjective": "measure the error in a cancellation-prone function evaluation",
+      "practice": "quantifying the error of a naive function evaluation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In double precision, the ratio (e raised to 1e-8 minus 1) divided by 1e-8 is evaluated directly. Its exact value is 1. What is the relative error of the computed result?",
+      "options": [],
+      "answer": {
+        "value": -6.077471e-9,
+        "tolerance": 0.01
+      },
+      "explanation": "The exponential of 1e-8 is 1.00000001 to within a rounding error of order 10 to the minus 16, so subtracting 1 leaves a difference of order 10 to the minus 8 whose own relative error is of order 10 to the minus 16 divided by 10 to the minus 8, that is 10 to the minus 8. Dividing by 1e-8 does not help, being an exact scaling, and the computed ratio comes out near 0.9999999939, a relative error of about minus 6.08 times 10 to the minus 9. A function written to evaluate this directly, which computes the exponential of a number minus 1 in one step, avoids the subtraction and is exact to full precision.",
+      "hint": "The function value and 1 agree to many digits, so the subtraction cannot resolve what is left.",
+      "difficulty": 0.44,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 22,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "cancellation",
+        "function-evaluation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0019",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Condition number of a symmetric matrix in the two-norm",
+      "learningObjective": "compute a matrix condition number from its eigenvalues",
+      "practice": "computing a two-norm condition number",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "For the symmetric matrix with rows (2, 1) and (1, 2), what is its condition number in the two-norm?",
+      "options": [],
+      "answer": {
+        "value": 3,
+        "tolerance": 0.001
+      },
+      "explanation": "The eigenvalues are 3 and 1, since the trace is 5 and the determinant is 3, and for a symmetric matrix the two-norm is the largest eigenvalue in absolute value while the norm of the inverse is the reciprocal of the smallest. The condition number is therefore 3 over 1, which is 3. The same value comes from the one-norm, which is 3 for the matrix and 1 for its inverse, but the Frobenius norm gives 10 over 3, so a stated condition number is always tied to the norm it was measured in.",
+      "hint": "For a symmetric matrix the two-norm condition number is the ratio of the extreme eigenvalues.",
+      "difficulty": 0.36,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "condition-number",
+        "matrix"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0020",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Condition number of the normal equations",
+      "learningObjective": "compute how forming the normal equations changes a condition number",
+      "practice": "computing a squared condition number",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The symmetric matrix with rows (2, 1) and (1, 2) is used to build a least squares system, so the normal equation matrix is its transpose times itself. What is the two-norm condition number of that matrix?",
+      "options": [],
+      "answer": {
+        "value": 9,
+        "tolerance": 0.001
+      },
+      "explanation": "The transpose product has rows (5, 4) and (4, 5), and its eigenvalues are 9 and 1, being the squares of the original 3 and 1. The condition number is therefore 9 over 1, which is 9, exactly the square of the original 3. As a check its determinant is 9 while the original determinant is 3, so the determinant has been squared as well, which is the same statement. Six of the sixteen digits double precision offers have therefore been spent before the arithmetic even begins.",
+      "hint": "Compare the eigenvalues of a matrix with those of its transpose product.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "normal-equations",
+        "condition-number"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0021",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "How many halvings shrink a bracket enough",
+      "learningObjective": "find how many halvings of a bracket reach a target width",
+      "practice": "counting bisection steps against a target",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Starting from the bracket with endpoints 0 and 1, how many halvings are needed before the bracket is shorter than 1e-6?",
+      "options": [],
+      "answer": {
+        "value": 20,
+        "tolerance": 0.001
+      },
+      "explanation": "After n halvings the bracket is 1 over 2 to the n wide, and 2 to the 20 is 1048576, which is above 1e6, while 2 to the 19 is 524288, which is below it. So 20 halvings give a width of 9.5367 times 10 to the minus 7, under the target, and 19 do not. Since halving is exact in binary for an initial width of 1, the count needs no rounding allowance, and the error is then at most half the width, that is under 5 times 10 to the minus 7.",
+      "hint": "Solve 2 to the n for n, then take the ceiling.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "bisection",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0022",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Halvings needed for a given guaranteed error",
+      "learningObjective": "find how many halvings of a bracket meet a target error bound",
+      "practice": "counting bisection steps against an error target",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Halving the bracket with endpoints 0 and 1 repeatedly, how many halvings are needed before the guaranteed error bound of 1 divided by 2 to the n plus 1 falls below 1e-5?",
+      "options": [],
+      "answer": {
+        "value": 16,
+        "tolerance": 0.001
+      },
+      "explanation": "The bound is 1 over 2 to the n plus 1, and it is under 1e-5 once 2 to the n plus 1 exceeds 1e5. Now 2 to the 16 is 65536, below 1e5, and 2 to the 17 is 131072, above it, so n plus 1 must be 17 and n must be 16. That gives a bound of 7.6294 times 10 to the minus 6, while 15 halvings would give 1.5259 times 10 to the minus 5, which is too large. The extra halving beyond the width condition is where the factor of two comes from.",
+      "hint": "The bound after n halvings is (b minus a) divided by 2 to the n plus 1.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "bisection",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0023",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "The first Newton iterate from a poor starting value",
+      "learningObjective": "compute one Newton iterate from a starting value",
+      "practice": "running a Newton step by hand",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Newton's method is applied to the function f of x equal to x cubed minus 2x plus 2, starting from x equal to 0. What is the first iterate x1?",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0.001
+      },
+      "explanation": "The function at 0 is 2 and the derivative 3x squared minus 2 is minus 2 there, so the first step is 0 minus 2 over minus 2, which is 1. Carrying on, the step from 1 uses the value 1 and the derivative 1, giving 0, and from 0 the method returns to 1, so the iterates cycle between 0 and 1 and never approach the real root near minus 1.769. The failure is not a rounding effect; it is what happens when the tangent at the starting point crosses the axis far from the root.",
+      "hint": "Subtract the function value from the starting point after dividing by the derivative.",
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "newton",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0024",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "The real root of a cubic with one real solution",
+      "learningObjective": "locate the real root of a cubic",
+      "practice": "finding a root of a cubic numerically",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The function f of x equal to x cubed minus 2x plus 2 has exactly one real root, and it lies between minus 2 and 0. What is that root?",
+      "options": [],
+      "answer": {
+        "value": -1.769292,
+        "tolerance": 0.0005
+      },
+      "explanation": "Bisecting the bracket from minus 2 to 0 and keeping the sign change converges to minus 1.769292, and substituting back gives a residual of about 10 to the minus 13, so the digits quoted are sound. The discriminant of the depressed cubic with p equal to minus 2 and q equal to 2 is minus 4p cubed minus 27q squared, which is 32 minus 108, that is minus 76, and a negative discriminant is exactly the signal that there is one real root and a conjugate pair. That is why Newton's failure from a poor start is not evidence that no root exists.",
+      "hint": "The function is negative at minus 2 and positive at 0, so the root is bracketed there.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "root-finding",
+        "polynomial"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0025",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Convergence order of the secant method",
+      "learningObjective": "recall the convergence order of the secant method",
+      "practice": "recalling a convergence rate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "To what order does the secant method converge on a simple root of a smooth function?",
+      "options": [],
+      "answer": {
+        "value": 1.618034,
+        "tolerance": 0.0005
+      },
+      "explanation": "The secant method replaces the derivative by a difference quotient built from the two most recent points, and the resulting order solves the equation that the order squared equals the order plus 1, whose positive root is the golden ratio, 1.618034. That is faster than the linear rate of bisection but slower than the quadratic rate of 2 for Newton's method, which is the price of dropping the derivative. Run on the square root of 2 from 1 and 2, the errors fall 0.0809, 0.0142, 4.206 times 10 to the minus 4 and 2.124 times 10 to the minus 6.",
+      "hint": "The order solves a quadratic, so the answer is one of the roots of that quadratic.",
+      "difficulty": 0.24,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 26,
+        "p25Sec": 13,
+        "p75Sec": 42
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "secant",
+        "convergence-order"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0026",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Multiplication count for Horner's method",
+      "learningObjective": "count the multiplications Horner's method needs",
+      "practice": "counting operations in an evaluation scheme",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "How many multiplications does Horner's method use to evaluate a polynomial of degree 9?",
+      "options": [],
+      "answer": {
+        "value": 9,
+        "tolerance": 0.001
+      },
+      "explanation": "Horner's method carries a single running value and folds in one coefficient at a time, so a degree 9 polynomial with 10 coefficients needs 9 multiplications and 9 additions. The fully expanded form would need 45 multiplications, being 9 times 10 over 2, because each power has to be built from scratch at every term. The saving is a factor of five here and grows linearly with the degree, while the additions are unchanged at one per coefficient in both arrangements.",
+      "hint": "One multiplication per coefficient, and there are n plus 1 coefficients.",
+      "difficulty": 0.24,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 30,
+        "p25Sec": 15,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "horner",
+        "operation-count"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0027",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Growth factor during a pivoted elimination",
+      "learningObjective": "compute the growth factor of a Gaussian elimination",
+      "practice": "measuring intermediate growth during elimination",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The system with rows (0, 1, 2), (1, 1, 1) and (2, 0, 1) and right hand side (0, 2, 1) is solved by Gaussian elimination with partial pivoting. What is the growth factor of that elimination?",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0.001
+      },
+      "explanation": "The largest original entry is 2, and partial pivoting swaps the first and third rows, giving rows (2, 0, 1), (1, 1, 1) and (0, 1, 2), with the right hand side swapped alongside them. Eliminating below the first pivot uses a multiplier of one half, and eliminating below the second uses a multiplier of 1, leaving rows (2, 0, 1), (0, 1, 0.5) and (0, 0, 1.5). The largest entry is still 2, so the growth factor is 1, and a factor of 1 is the best that can happen: it says no intermediate value left the range of the original entries.",
+      "hint": "Compare the largest entry after elimination with the largest entry before it.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "growth-factor",
+        "elimination"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0028",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "A linear system solved by elimination and by Cramer's rule",
+      "learningObjective": "solve a small linear system with pivoting and cross-check the answer",
+      "practice": "solving a three by three system",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Solve the system with rows (0, 1, 2), (1, 1, 1) and (2, 0, 1) and right hand side (0, 2, 1). What is the second component of the solution?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0.001
+      },
+      "explanation": "Swapping the first and third rows gives the upper triangular rows (2, 0, 1), (0, 1, 0.5) and (0, 0, 1.5) with right hand side (1, 1.5, -1.5), the swap having carried the right hand side along with the rows. Back substitution gives the third component as minus 1, then the second as 2, then the first as 1, and substituting into the original rows gives (0, 2, 1) again. Cramer's rule agrees: the determinant of the matrix with the second column replaced by the right hand side, over the determinant of the matrix, is also 2.",
+      "hint": "Eliminate with pivoting, then confirm with a determinant ratio.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "elimination",
+        "pivoting"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0029",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "An iterate of the power method",
+      "learningObjective": "compute iterates of the power method",
+      "practice": "running power method iterations by hand",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The matrix with rows (3, 1) and (1, 3) is applied repeatedly to the starting vector (1, 2). What is the first component of the second iterate?",
+      "options": [],
+      "answer": {
+        "value": 22,
+        "tolerance": 0.001
+      },
+      "explanation": "The first application gives 3 plus 2 and 1 plus 6, that is (5, 7), and the second gives 15 plus 7 and 5 plus 21, that is (22, 26). The ratio of the entries of the second iterate, 26 over 5, is 5.2, already close to the dominant eigenvalue of 4, and the third iterate (92, 100) is closer still. A Rayleigh quotient of the second iterate is 3.9862, which is a better estimate than the raw entry ratio because it uses the whole vector.",
+      "hint": "Multiply by the matrix twice, keeping the intermediate result.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "power-method",
+        "eigenvalues"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0030",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Rayleigh quotient of a trial vector",
+      "learningObjective": "compute a Rayleigh quotient and locate it in the eigenvalue range",
+      "practice": "computing a Rayleigh quotient",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the Rayleigh quotient of the vector (1, 2) for the symmetric matrix with rows (3, 1) and (1, 3)?",
+      "options": [],
+      "answer": {
+        "value": 3.8,
+        "tolerance": 0.001
+      },
+      "explanation": "The matrix times the vector is (5, 7), so the numerator is 1 times 5 plus 2 times 7, which is 19, and the denominator is 1 plus 4, which is 5, giving 3.8. The matrix has eigenvalues 4 and 2, so 3.8 lies strictly between them, as any Rayleigh quotient must. The endpoints are attained only at eigenvectors: the vector (1, 1) gives exactly 4 and the vector (1, -1) gives exactly 2, which is the check that the quotient is not a weighted average of the wrong things.",
+      "hint": "Multiply the vector by the matrix, then form the quotient of two dot products.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "rayleigh-quotient",
+        "eigenvalues"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0031",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Slope of a least squares line",
+      "learningObjective": "fit a least squares line to four data points",
+      "practice": "least squares regression by hand",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A least squares line is fitted to the four points with coordinates (0, 1), (1, 3), (2, 2) and (3, 6). What is the slope of the fitted line?",
+      "options": [],
+      "answer": {
+        "value": 1.4,
+        "tolerance": 0.001
+      },
+      "explanation": "With n equal to 4, the sum of x equal to 6, the sum of y equal to 12, the sum of xy equal to 25 and the sum of x squared equal to 14, the slope is (4 times 25 minus 6 times 12) over (4 times 14 minus 36), which is 28 over 20, that is 1.4, and the intercept is (12 minus 1.4 times 6) over 4, which is 0.9. Solving the two normal equations, with rows (4, 6) and (6, 14) against the vector (12, 25), gives the same pair, and the residuals (0.1, 0.7, -1.7, 0.9) sum to zero and are orthogonal to x, as they must be.",
+      "hint": "Solve the two normal equations for the intercept and the slope together.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "least-squares",
+        "regression"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0032",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Residual sum of squares of a least squares fit",
+      "learningObjective": "compute the residual sum of squares of a fitted line",
+      "practice": "measuring the quality of a fit",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The line y equal to 0.9 plus 1.4x is the least squares fit to the four points with coordinates (0, 1), (1, 3), (2, 2) and (3, 6). What is the residual sum of squares?",
+      "options": [],
+      "answer": {
+        "value": 4.2,
+        "tolerance": 0.001
+      },
+      "explanation": "The residuals are 0.1, 0.7, -1.7 and 0.9, and squaring and adding gives 0.01 plus 0.49 plus 2.89 plus 0.81, that is 4.2. The total sum of squares about the mean of 3 is 14, so the fit explains 9.8 of it and the coefficient of determination is 0.7. The residuals summing to zero and their weighted sum against x also vanishing are the cheaper consistency checks, and both hold here.",
+      "hint": "Subtract the fitted value at each point, then square and add.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "least-squares",
+        "regression"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0033",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Composite trapezoid rule on a quadratic",
+      "learningObjective": "apply the composite trapezoid rule to an integral",
+      "practice": "trapezoid quadrature by hand",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The composite trapezoid rule with four equal panels is used to approximate the integral of x squared from 0 to 2. What approximation does it produce?",
+      "options": [],
+      "answer": {
+        "value": 2.75,
+        "tolerance": 0.001
+      },
+      "explanation": "The panel width is 0.5 and the values at the five nodes are 0, 0.25, 1, 2.25 and 4, so the rule gives 0.5 times the half sum of the endpoints, which is 2, plus the three interior values, which sum to 3.5, that is 0.5 times 5.5, which is 2.75. The exact integral is 8 over 3, so the rule overestimates by 1 over 12. A smoother or finer panel set would narrow that gap, since the error falls with the square of the panel width.",
+      "hint": "Average the end values, add the interior values, and multiply by the panel width.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "trapezoid",
+        "quadrature"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0034",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Error of the trapezoid rule on a quadratic",
+      "learningObjective": "compute the error of a trapezoid approximation",
+      "practice": "comparing an approximation with an exact integral",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "The composite trapezoid rule with four equal panels gives 2.75 for the integral of x squared from 0 to 2, whose exact value is 8 over 3. What is the absolute error?",
+      "options": [],
+      "answer": {
+        "value": 0.0833333,
+        "tolerance": 0.0005
+      },
+      "explanation": "The exact value is 2.666667, so the absolute error is 2.75 minus 8 over 3, which is 1 over 12, that is 0.0833333. The error formula predicts the same number, being the interval length times the panel width squared times the largest second derivative, divided by 12, and here the second derivative of x squared is the constant 2, giving 2 times 0.25 times 2 over 12, that is 1 over 12. The formula is exact rather than a bound here only because the second derivative never varies.",
+      "hint": "Compare the rule's value with the exact value of the integral.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "trapezoid",
+        "error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0035",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Simpson's rule on a quartic",
+      "learningObjective": "apply Simpson's rule to an integral",
+      "practice": "Simpson quadrature by hand",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Simpson's rule with a single panel of width 1, using the nodes 0, 1 and 2, is used to approximate the integral of x to the fourth from 0 to 2. What approximation does it produce?",
+      "options": [],
+      "answer": {
+        "value": 6.666667,
+        "tolerance": 0.001
+      },
+      "explanation": "The three values are 0, 1 and 16, so the rule gives one third of the width times the first value plus 4 times the middle value plus the last, which is one third of 0 plus 4 plus 16, that is 20 over 3, that is 6.666667. The exact integral is 32 over 5, which is 6.4, so the rule overestimates by 4 over 15. The error formula agrees, being the interval length times the panel width to the fourth times the largest fourth derivative over 180, and the fourth derivative of x to the fourth is the constant 24, giving 2 times 24 over 180.",
+      "hint": "Weight the middle node by 4 and the two ends by 1, then divide the panel width by 3.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "simpson",
+        "quadrature"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0036",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Standard error of a Monte Carlo estimate of pi",
+      "learningObjective": "compute the standard error of a Monte Carlo estimate",
+      "practice": "sizing a Monte Carlo estimate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Pi is estimated by throwing a million uniform points into the unit square and counting the fraction that land inside the quarter circle, then multiplying by 4. What is the standard error of that estimate?",
+      "options": [],
+      "answer": {
+        "value": 0.001642183,
+        "tolerance": 0.001
+      },
+      "explanation": "The hit indicator is 1 with probability pi over 4 and 0 otherwise, so its variance is (pi over 4) times (1 minus pi over 4), which is 0.1685479, and its standard deviation is 0.4105458. The standard error of the sampled fraction is that divided by the square root of a million, giving 4.1055 times 10 to the minus 4, and multiplying by 4 to reach the estimate of pi gives 1.6422 times 10 to the minus 3. The standard deviation of a single trial, 0.4105, is 250 times larger and says nothing about the precision of the mean.",
+      "hint": "The hit indicator takes the values 0 and 1, so its variance is the probability of a hit times its complement.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "monte-carlo",
+        "standard-error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0037",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Trials needed for a target Monte Carlo precision",
+      "learningObjective": "size a Monte Carlo estimate to a target standard error",
+      "practice": "choosing a sample size for a sampled estimate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "How many uniform points in the unit square must be thrown so that 4 times the fraction landing inside the quarter circle has a standard error of at most 0.001?",
+      "options": [],
+      "answer": {
+        "value": 2696767,
+        "tolerance": 0.001
+      },
+      "explanation": "The variance of the hit indicator is 0.1685479, so the variance of 4 times the sampled mean is 16 times that, which is 2.696766, and the standard error is the square root of that over the number of trials. Setting the square root of 2.696766 over n at most 0.001 gives n at least 2696767, and one point fewer leaves the standard error at 1.0000000395 times 10 to the minus 3, just over the target. The cost is brutal: ten times the precision needs a hundred times the points.",
+      "hint": "The variance of the estimate falls as one over the number of trials.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 21,
+        "p75Sec": 67
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "monte-carlo",
+        "standard-error"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0038",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Relative condition number of a square root",
+      "learningObjective": "compute the relative condition number of a scalar function",
+      "practice": "computing a function condition number",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the relative condition number of the function f of x equal to the square root of x, evaluated at x equal to 4?",
+      "options": [],
+      "answer": {
+        "value": 0.5,
+        "tolerance": 0.001
+      },
+      "explanation": "The relative condition number of a function is the size of x times the derivative divided by the size of the function, and here the derivative is 1 over 2 times the square root of x, which is a quarter at x equal to 4. So 4 times a quarter divided by 2 is one half. The value is 0.5 at every positive x, which is the statement that the square root halves every relative error rather than amplifying it, in sharp contrast with 1 minus x near 1, whose condition number reaches 10 to the 12. A condition number below 1 is a sign the problem is well behaved, not that something has gone wrong.",
+      "hint": "Use the relative condition number of a function, which is x times f prime over f.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "condition-number",
+        "function"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0039",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "How many bins a discrete transform of N samples has",
+      "learningObjective": "state the number of bins a discrete transform produces and their range",
+      "practice": "reading off the output size of a transform",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "A discrete transform is taken of 8 real samples. How many frequency bins does the result contain, and how many of them cover the range from zero up to the half sample rate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 bins in all, of which 5 cover the range up to the half rate",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "8 bins in all, of which 4 cover the range up to the half rate",
+          "misconception": "counts the bins above the half rate as if they were below it"
+        },
+        {
+          "id": "C",
+          "text": "4 bins in all, of which 3 cover the range up to the half rate",
+          "misconception": "halves the total bin count by confusing it with a one-sided spectrum"
+        },
+        {
+          "id": "D",
+          "text": "16 bins in all, of which 9 cover the range up to the half rate",
+          "misconception": "doubles the total bin count by adding an unpaired mirror image"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The transform of N samples has N outputs, one per frequency, so 8 bins here. Because the samples are real, the spectrum is symmetric about the half rate, so only the bins from 0 up to and including the half rate carry independent information: that is 4 divided by 2 plus 1, which is 5. The remaining 3 bins are determined by the first 5 and are usually not stored, which is why a real transform is quoted as giving 5 useful outputs. The half rate itself is included because it is its own mirror image.",
+      "hint": "Count the bins, then ask how many sit on one side of the half rate.",
+      "difficulty": 0.3,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 32,
+        "p25Sec": 16,
+        "p75Sec": 51
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "fourier",
+        "dft"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0040",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Speedup of the fast transform over the direct one",
+      "learningObjective": "compute the speedup of a fast transform at a given size",
+      "practice": "comparing operation counts at a given size",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "A direct transform of 1024 samples costs about 1024 squared operations, while the fast version costs about 1024 times the base-two logarithm of 1024. What is the speedup?",
+      "options": [
+        {
+          "id": "A",
+          "text": "About 102 times faster, since 1048576 divided by 10240 is 102.4",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "About 10 times faster, since the base-two logarithm of 1024 is 10",
+          "misconception": "reports the logarithm as though it were the whole ratio"
+        },
+        {
+          "id": "C",
+          "text": "About 1024 times faster, since one factor of 1024 cancels entirely",
+          "misconception": "cancels a factor that does not appear in the denominator"
+        },
+        {
+          "id": "D",
+          "text": "About 2 times faster, since the two methods differ only in a constant",
+          "misconception": "guesses from the fact that both are transforms of the same data"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The direct count is 1024 squared, which is 1048576, and the fast count is 1024 times 10, which is 10240, and the ratio is 102.4. The saving comes from the fact that the fast algorithm reuses partial sums, so the work per output falls from about 1024 to about 10, the logarithm rather than the length. The advantage therefore grows with the size of the transform: at 16 samples the speedup is only 4, while at a million samples it is about 50000.",
+      "hint": "Compute both counts and divide one by the other.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "fourier",
+        "fft"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0041",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Padding length before a convolution by transform",
+      "learningObjective": "choose the transform length for a convolution of two short sequences",
+      "practice": "sizing a transform for a convolution",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "The sequences (1, 2) and (3, 4) are to be convolved by taking a transform of each. How long must that transform be?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At least 3, the sum of the two lengths less one, so no output wraps around",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "At least 2, the longer of the two lengths, since such a transform exists",
+          "misconception": "uses the longer input length and so lets the output tail wrap"
+        },
+        {
+          "id": "C",
+          "text": "At least 4, twice the longer length, since a transform doubles its own size",
+          "misconception": "doubles the length for no reason and misremembers the sizing rule"
+        },
+        {
+          "id": "D",
+          "text": "At least 1, because a transform of length 1 leaves every sample untouched",
+          "misconception": "ignores the requirement that both sequences fit at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A transform computes a circular convolution, in which output index n reads input indices modulo the transform length, so any output that would fall outside the true answer is folded back onto an index it does not belong to. The true linear convolution of sequences of lengths 2 and 2 has length 2 plus 2 minus 1, which is 3, so a transform of length 3 or more leaves nothing to fold. Here the answer is (3, 10, 8); transforming at length 2 instead would give (10, 7), which is the circular convolution and disagrees with the direct answer.",
+      "hint": "Add the two lengths and subtract one, so nothing wraps around.",
+      "difficulty": 0.36,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "convolution",
+        "fourier"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0042",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What Horner's method actually guarantees",
+      "learningObjective": "judge which claim about Horner's method is justified",
+      "practice": "assessing a claim about an evaluation scheme",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "Which of these claims about Horner's method is actually justified?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It performs one rounding per coefficient and never forms a power, so the error grows with n",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It returns more correct digits than the expanded form on every ill conditioned input",
+          "misconception": "believes efficiency implies accuracy on hard inputs"
+        },
+        {
+          "id": "C",
+          "text": "It needs the same number of operations as the expanded form but rounds them differently",
+          "misconception": "believes the two arrangements cost the same"
+        },
+        {
+          "id": "D",
+          "text": "It is stable only for polynomials whose coefficients all carry the same sign",
+          "misconception": "believes stability depends on the signs of the coefficients"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Horner holds a single running value and folds in one coefficient per step, so it commits n roundings and never forms a power of the variable, whose magnitude could be far larger than the answer. That is a genuine structural saving in both work and error growth, and it is why Horner is the standard way to evaluate a polynomial. What it does not do is beat the conditioning: on a polynomial whose value is a small difference of large terms, both arrangements lose the same digits, since the rounding is not the binding constraint. That is a property of the expression, not of the algorithm.",
+      "hint": "Separate the claim about operation count from the claim about digits.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "horner",
+        "stability"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0043",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "How the elimination error bound grows with the size of a system",
+      "learningObjective": "predict how an elimination error bound scales with system size",
+      "practice": "scaling a bound with the dimension",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "For Gaussian elimination the error in the computed solution is bounded by something of order n times the machine epsilon times the condition number. If the number of equations n grows by a factor of 100, what happens to the bound?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It grows by about 100, so 100 fewer of the available digits remain correct",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is unchanged, because the precision per operation never depends on the size",
+          "misconception": "believes fixed precision survives any system size"
+        },
+        {
+          "id": "C",
+          "text": "It falls by about 100, since more equations constrain the unknowns more tightly",
+          "misconception": "believes more equations always sharpen the bound"
+        },
+        {
+          "id": "D",
+          "text": "It grows by about 10, since only the square root of n enters the bound",
+          "misconception": "believes the growth is the square root rather than linear"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The bound is linear in n, so multiplying the number of equations by 100 multiplies it by 100. In double precision the machine epsilon is about 2.22 times 10 to the minus 16, so 100 equations give a bound factor of about 2.2 times 10 to the minus 14 and 10000 equations give about 2.2 times 10 to the minus 12, a clear loss of 2 further digits. The reason is that elimination performs a growing chain of updates, each contributing a rounding error that can then be amplified by the condition number.",
+      "hint": "The bound is linear in the number of equations, so scale that factor.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "elimination",
+        "roundoff"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0044",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "The multiplier that pivoting prevents",
+      "learningObjective": "identify the multiplier a pivoting step avoids",
+      "practice": "reasoning about an elimination step",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "A matrix has a pivot of 1 in its first column with an entry of 1e-20 directly beneath it. What multiplier does elimination form, and what does that do to the answer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A multiplier of 1e20, so 1e20 times the pivot row is subtracted and accuracy is lost",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A multiplier of 1e-20, so a negligible amount is subtracted and nothing is lost",
+          "misconception": "inverts the ratio and so makes the multiplier look harmless"
+        },
+        {
+          "id": "C",
+          "text": "A multiplier of 1, so the entry is left alone and the step costs nothing at all",
+          "misconception": "assumes the entry is treated as equal to the pivot"
+        },
+        {
+          "id": "D",
+          "text": "A multiplier of 0, so an entry that small is regarded as already eliminated",
+          "misconception": "believes tiny entries are silently rounded to zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The multiplier is the entry below the pivot divided by the pivot, so 1e-20 over 1 is 1e20, and the row below has 1e20 times the pivot row subtracted from it. That turns a second entry of 1 into minus 1e20 and destroys the answer: the system with rows (1e-20, 1) and (1, 1) and right hand side (1, 2) is solved by hand as (1, 1) exactly, yet elimination without pivoting reports a first component of 1e40. Partial pivoting would have swapped the rows and used a multiplier of 1 instead, which is the whole point of the step.",
+      "hint": "The multiplier is the ratio of the entry below the pivot to the pivot itself.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pivoting",
+        "elimination"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0045",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Choosing a numerically sound route for a least squares fit",
+      "learningObjective": "choose a numerically preferable method for solving a least squares problem",
+      "practice": "comparing methods for a least squares problem",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "A least squares fit has to be computed to high accuracy. Which of these routes is numerically preferable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A factored or orthogonal route on the design matrix, which avoids squaring the conditioning",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The normal equations, since they make the matrix square and symmetric again",
+          "misconception": "values symmetry over the loss of digits"
+        },
+        {
+          "id": "C",
+          "text": "Solving the normal equations in single precision, which is far cheaper and nearly as good",
+          "misconception": "trades away precision, which is the one thing that was scarce"
+        },
+        {
+          "id": "D",
+          "text": "Adding a small ridge term to the diagonal, which sharpens the solution at no cost",
+          "misconception": "changes the problem being solved rather than the method"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A factored or orthogonal route never forms the product of the transpose with the matrix, so the singular values of the original are worked with directly and the condition number is not squared. The normal equations are attractive because the matrix becomes square and symmetric, but the square is paid for in digits: a design matrix with condition number 1e8 becomes one with condition number 1e16, which consumes the entire budget of double precision before any work is done. Single precision throws away half the digits that were the point, and a ridge term fits a different problem altogether, biasing the answer deliberately.",
+      "hint": "Ask what happens to the conditioning under each option.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "least-squares",
+        "normal-equations"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0046",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What the fourth power in the Simpson error means",
+      "learningObjective": "interpret the order of a quadrature error term",
+      "practice": "interpreting a convergence rate for quadrature",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "FORMULA_APPLICATION",
+      "stimulus": null,
+      "stem": "The error of the composite Simpson rule is proportional to the panel width raised to the fourth power. What does that mean when the panels are refined?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Halving the width cuts the error by about sixteen, so each refinement is very cheap",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Halving the width cuts the error by about two, the same as the trapezoid rule",
+          "misconception": "assumes a linear rate for a rule that fits a cubic"
+        },
+        {
+          "id": "C",
+          "text": "Halving the width leaves the error unchanged, since the bound is already saturated",
+          "misconception": "believes the bound cannot be improved by refining"
+        },
+        {
+          "id": "D",
+          "text": "Halving the width cuts the error by about four, which is the square of the ratio",
+          "misconception": "assumes the second order rate of the trapezoid rule"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A fourth power term means the error scales with the width raised to 4, so halving the width multiplies the error by 1 over 16, while doubling the number of panels buys a sixteenfold reduction. The trapezoid rule fits a straight line through the panel endpoints and so carries a squared term, giving only a fourfold reduction for the same work, and that difference is the practical reason Simpson is preferred when the integrand is smooth. The rate comes from the cubic interpolant, whose fourth derivative is the first one not fitted exactly.",
+      "hint": "Compare a quarter of the previous work with the fourth power of the new width.",
+      "difficulty": 0.32,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 34,
+        "p25Sec": 17,
+        "p75Sec": 54
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "simpson",
+        "quadrature"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0047",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing a bisection bound that forgets the factor of two",
+      "learningObjective": "diagnose a misstated bisection error bound",
+      "practice": "checking an error bound against a bracket",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student bisects the bracket with endpoints 0 and 1 twenty times and reports the error as at most 2 to the minus 20, that is 9.5367e-7. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The root is at most half the interval away, so the bound is 2 to the minus 21",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The interval was halved twenty times, so the bound of 2 to the minus 20 is right",
+          "misconception": "accepts a bound stated as the whole width rather than half of it"
+        },
+        {
+          "id": "C",
+          "text": "The error is measured from the midpoint, so no halving factor applies at all",
+          "misconception": "believes the midpoint of the final bracket is the root"
+        },
+        {
+          "id": "D",
+          "text": "The interval needed twenty-one halvings before the width fell that far",
+          "misconception": "insists on an extra halving without a reason"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The width of the final bracket is 1 over 2 to the 20, which is 9.5367 times 10 to the minus 7, and that is a statement about the width, not about the distance from the root. The root is somewhere inside, so the most it can be from the midpoint is half the width, giving 1 over 2 to the 21, which is 4.77 times 10 to the minus 7. The bound 1 over 2 to the n plus 1 rather than 1 over 2 to the n is the standard form, and losing the plus one is the whole content of this slip.",
+      "hint": "Ask where inside the final bracket the root can be.",
+      "difficulty": 0.34,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "bisection",
+        "error-diagnosis"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0048",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing a condition number read as an achieved error",
+      "learningObjective": "diagnose a condition number being reported as an achieved error",
+      "practice": "separating a bound from a measurement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student reports that a matrix with a condition number of 1e12 produced an answer wrong in the twelfth decimal place, as though the condition number had measured the error. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The condition number bounds how bad the error could be and does not report what happened",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The condition number is exactly the achieved error, so the claim is right as stated",
+          "misconception": "believes a worst case bound is a measurement"
+        },
+        {
+          "id": "C",
+          "text": "The condition number counts arithmetic steps, so it says nothing about error at all",
+          "misconception": "misreads the quantity as a complexity measure"
+        },
+        {
+          "id": "D",
+          "text": "The condition number depends on the data alone, so the algorithm cannot affect it",
+          "misconception": "believes only the data can influence the error"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A condition number of 1e12 says that a relative perturbation of the data of size 1e-16 could be amplified into a relative error of size 1e-4 in the worst case, so at most about 12 of the 16 available digits are at risk. It does not say that any particular run lost them, and the achieved error is usually far smaller, often limited by ordinary rounding at the 1e-16 level. Concluding a specific error from the condition number mistakes a ceiling for a measurement, which is the same error as reading a worst case as an average.",
+      "hint": "Ask whether a worst case bound is the same statement as a measurement.",
+      "difficulty": 0.36,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 36,
+        "p25Sec": 18,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "condition-number",
+        "error-diagnosis"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0049",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing a Monte Carlo spread confused with a standard error",
+      "learningObjective": "diagnose a Monte Carlo precision claim that uses the wrong statistic",
+      "practice": "choosing the right uncertainty measure for a sampled estimate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student runs a million trials to estimate pi, finds the sample standard deviation of the hit indicator to be 0.4105, and concludes that only two correct decimals are guaranteed. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That is the spread of one trial; the mean has standard error 4.1055e-4, not 0.4105",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The standard deviation is the right statistic, so two correct decimals is the conclusion",
+          "misconception": "accepts the spread of the data as the precision of the mean"
+        },
+        {
+          "id": "C",
+          "text": "The spread should be taken on the scaled estimate, giving 1.6422e-3 as the error",
+          "misconception": "rescales the wrong quantity and still mixes up the two statistics"
+        },
+        {
+          "id": "D",
+          "text": "A million trials are too few, so the trial count rather than the statistic is at fault",
+          "misconception": "blames the sample size when the statistic is the problem"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The standard deviation of 0.4105 describes how far a single trial can sit from its mean, and the mean of a million such trials is far steadier, by a factor of the square root of a million, that is 1000. Its standard error is therefore 4.1055 times 10 to the minus 4, and after the factor of 4 that turns the fraction into an estimate of pi it is 1.6422 times 10 to the minus 3, so about three correct decimals rather than two. Nothing about the trial count was wrong; the statistic chosen to describe it was.",
+      "hint": "Ask how the uncertainty of a mean differs from the spread of its terms.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 38,
+        "p25Sec": 19,
+        "p75Sec": 61
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "monte-carlo",
+        "error-diagnosis"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0050",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing an elimination run with no pivoting",
+      "learningObjective": "diagnose a catastrophic elimination result caused by skipping pivoting",
+      "practice": "tracing an unpivoted elimination",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student eliminates on the system with rows (1e-20, 1) and (1, 1) and right hand side (1, 2) without pivoting, and reports the first component as 1e40. The true value is 1. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The multiplier formed is 1e20, and pivoting would have chosen the entry 1 instead",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The multiplier formed is 1e-20, so the first component should be 1e-20, not 1e40",
+          "misconception": "inverts the multiplier and so blames the wrong quantity"
+        },
+        {
+          "id": "C",
+          "text": "The arithmetic is correct, and the system is simply too ill conditioned to solve",
+          "misconception": "accepts a result that is wrong in 40 orders of magnitude"
+        },
+        {
+          "id": "D",
+          "text": "The determinant is zero, so no solution exists and the value 1 is also wrong",
+          "misconception": "claims singularity when the determinant is a clean 1"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The multiplier is the entry below the pivot divided by the pivot, so 1 over 1e-20, which is 1e20, and the row below has 1e20 times the first row subtracted from it, turning its second entry into 1 minus 1e20. The back substitution then divides by that enormous entry, and the first component comes out as 1e40 instead of 1. The determinant of the matrix is 1 times 1 minus 1 times 1e-20, which is 1, so the system is perfectly well conditioned and a partial pivoting step would have used a multiplier of 1 and given the answer immediately.",
+      "hint": "Compute the ratio of the entry below the pivot to the pivot itself.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 21,
+        "p75Sec": 67
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "pivoting",
+        "error-diagnosis"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0051",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing digits lost by forming the normal equations",
+      "learningObjective": "diagnose a digit loss caused by forming the normal equations",
+      "practice": "attributing a loss of digits to the right cause",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student fits data whose design matrix has a condition number of 1e8 by forming the normal equations, and is surprised that only 8 of 16 available digits come out correct. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The normal equations square the condition number to 1e16, so 16 digits are already gone",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Nothing is wrong, since 1e8 times the machine epsilon accounts for the 8 lost digits",
+          "misconception": "attributes the loss to the design matrix rather than the reformulation"
+        },
+        {
+          "id": "C",
+          "text": "The condition number should have been cubed, losing 24 digits rather than 8",
+          "misconception": "invents a cubing rule that no linear algebra supports"
+        },
+        {
+          "id": "D",
+          "text": "The digits are lost in the back substitution, which is the badly behaved step",
+          "misconception": "blames the last step rather than the squaring"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The normal equation matrix is the transpose product of the design matrix with itself, so its singular values are the squares of the originals and its condition number is the square, 1e16. Multiplying that by the machine epsilon of about 2.22 times 10 to the minus 16 already exceeds 1, which is the formal statement that no digits survive. Working with the design matrix itself, through a factored or orthogonal route, leaves the condition number at 1e8 and about 8 digits of headroom, so the fix is to change the method and not the data.",
+      "hint": "Compare the condition number of the design matrix with that of its transpose product.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "normal-equations",
+        "error-diagnosis"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0052",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Diagnosing a claim that Horner rescues an ill conditioned evaluation",
+      "learningObjective": "diagnose a claim that a cheaper evaluation method also gives more digits",
+      "practice": "separating cost from accuracy in a numerical claim",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A student replaces the expanded evaluation of the product (x minus 1.000001)(x minus 1.000002) at x equal to 1.0000015 with Horner's method and reports that the two now agree to fifteen correct digits. In fact both give a relative error of about 8.9e-5. What is the error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Horner changes the operation count, but the conditioning of the evaluation set the error",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Horner must have been applied wrongly, since two routes cannot both be so poor",
+          "misconception": "believes two correct methods must give different accuracies"
+        },
+        {
+          "id": "C",
+          "text": "The relative error of 8.9e-5 is correct, so the claim of 15 digits is the error",
+          "misconception": "blames the measurement instead of the claim it contradicts"
+        },
+        {
+          "id": "D",
+          "text": "Agreement to 15 digits is expected, and the 8.9e-5 figure must be in the data",
+          "misconception": "assumes a better method implies a better result"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The value of the polynomial there is about minus 2.5 times 10 to the minus 13, while its individual terms are of order 2, so about 13 of the 16 available digits are consumed by cancellation before any rounding of the arithmetic is counted. Both arrangements inherit that loss, giving a relative error near 8.9 times 10 to the minus 5, and switching to Horner changes only how many operations and roundings are involved, not how much cancellation there is. The cure for cancellation is a reformulated expression, such as evaluating the product as a difference centred on its root, not a better evaluation scheme.",
+      "hint": "Separate what the algorithm changes from what the conditioning fixes.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 40,
+        "p25Sec": 20,
+        "p75Sec": 64
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "horner",
+        "conditioning"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0053",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Cancellation belongs to the data and the formula, not the algorithm",
+      "learningObjective": "explain why cancellation is a property of an expression rather than a coding fault",
+      "practice": "explaining the limits of an algorithm against the limits of a problem",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a cancelling subtraction is a property of the data and of the formula being evaluated, and not a fault in the algorithm that evaluates them.",
+      "options": [],
+      "answer": {
+        "exemplar": "The two quantities being subtracted each arrive with an absolute rounding error of order epsilon times their own size, and those errors are unrelated to each other, so they do not cancel. Subtracting nearly equal numbers produces a result much smaller than either input, while the two errors stay at the size of the inputs, so the relative error of the result is roughly the size of the inputs divided by the size of the result. That ratio is a property of the numbers themselves: no choice of algorithm changes it, because a correctly rounded subtraction of two stored values is already the best any algorithm can do with those two stored values. The classic illustration is forming the exponential of a small number minus one, where the function value and 1 agree to some number of digits and the subtraction throws those shared digits away, so the result of order 10 to the minus 8 keeps only about 8 of the 16 available digits. Working in a higher precision, or rescaling the argument, or using a function written to compute the small quantity directly all recover the digits, and all of them change the arithmetic being performed rather than the data. The distinction worth keeping is between a backward error, which is what the algorithm is allowed to introduce, and a forward error, which is amplified by the problem: when the problem is ill conditioned the forward error is large no matter how careful the algorithm, and the honest response is to reformulate or to state the limitation rather than to write more careful code."
+      },
+      "explanation": "A model answer has to argue that correctly rounded operations cannot help, quantify the amplification as the input size over the result size, and name reformulating the expression or raising the working precision as the actual remedies.",
+      "hint": "Compare the size of the rounding error with the size of the answer it lands in.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 36,
+        "p75Sec": 115
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "cancellation",
+        "explanation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0054",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why the normal equations square a condition number",
+      "learningObjective": "explain the squaring of the condition number under the normal equations",
+      "practice": "explaining why a reformulation loses digits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why forming the normal equations squares the condition number of a least squares problem, and what to do instead.",
+      "options": [],
+      "answer": {
+        "exemplar": "The condition number measures how far the solution can move when the data move, and it is built from the singular values of the design matrix, which record how much the matrix stretches in different directions. Forming the normal equations replaces that matrix by its transpose times itself, and the singular values of a product are the products of the singular values, so the new singular values are the squares of the old ones. Ratios of singular values are therefore squared too, and the condition number comes out squared. Since a condition number is a decimal exponent in the number of digits lost, squaring it doubles the loss: a design matrix with a condition number of 1e8 gives normal equations with one of 1e16, which in double precision spends the entire budget of 16 digits before the arithmetic begins, leaving nothing. The alternative is never to form the product. Applying a factored or orthogonal transformation to the design matrix, then solving the triangular system and transforming back, uses the original singular values throughout, so the conditioning is unchanged and 8 digits of headroom remain. The normal equations are tempting because they turn a rectangular system into a square symmetric one, but the symmetry is not worth the digits it costs."
+      },
+      "explanation": "A model answer must connect the squared condition number to the squared singular values, translate that into a concrete loss of digits, and then name the factored or orthogonal route as the alternative that avoids forming the product.",
+      "hint": "Ask what the singular values of a matrix times its transpose are.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 72,
+        "p25Sec": 36,
+        "p75Sec": 115
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "normal-equations",
+        "explanation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0055",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Why bisection is guaranteed and Newton is not",
+      "learningObjective": "explain the contrast in guarantees between a bracketing and a tangent method",
+      "practice": "explaining convergence guarantees and orders",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why bisection carries an unconditional error bound while Newton's method does not, and what the order of convergence of a method means.",
+      "options": [],
+      "answer": {
+        "exemplar": "Bisection carries a piece of information that cannot be lost: that a sign change is still bracketed between its two endpoints. Whatever the shape of the function, the half of the interval that does not contain the crossing can be discarded, so the interval shrinks by exactly a factor of 2 at every step and the root stays inside it. The error is therefore at most half the interval width at all times, which is a guarantee about every possible function with a sign change and no smoothness required. Newton carries no such certificate. It replaces the function by its tangent at the current iterate, and the tangent's intercept can land anywhere at all: if the derivative is small the step is huge, and if the tangent is a poor local approximation the step can move away from the root entirely. The cubic with a single root near minus 1.769, started at 0, cycles between 0 and 1 forever. The order of convergence describes how the error shrinks, and a method has order p with constant c if the next error is about c times the current error raised to the p. Bisection has order 1 with c equal to one half, which is why the halving is exact. Newton has order 2, so each step roughly squares the current error and the number of correct digits doubles each time, but only once the iterates are close enough for the tangent to be a good approximation. The secant method drops the derivative in favour of a difference quotient and settles at order 1.618, between the two. So a higher order is a statement about speed near the root, and a bound is a statement about safety everywhere, and a method can have one without the other."
+      },
+      "explanation": "A model answer should distinguish the invariant that bisection preserves, a bracketed sign change, from the local approximation Newton relies on, and should define the order of convergence before comparing the rates 1, 1.618 and 2.",
+      "hint": "Ask what information each method carries from one step to the next.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 35,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "bisection",
+        "newton"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0056",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "What a condition number says and does not say about accuracy",
+      "learningObjective": "state the scope and the limits of what a condition number reports",
+      "practice": "explaining the reach of a conditioning diagnostic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what a condition number does and does not tell you about the accuracy of a computed answer.",
+      "options": [],
+      "answer": {
+        "exemplar": "A condition number is the largest factor by which a small relative change in the data can be magnified in the answer, so it tells you how much of the accuracy present in the input can survive. Multiplying it by the size of the perturbation in the data bounds the relative error of the answer, and that is the number to quote when asked how many digits are at risk. Three things it does not tell you are worth naming. It is a worst case, so the error actually achieved is usually far smaller, and quoting the condition number as the error overstates the damage. It says nothing about the algorithm: the same problem solved carefully and solved carelessly can both be governed by the same condition number, which is why a stable algorithm and a fragile one give visibly different answers from the same data. And it is a property of the problem, not of the data alone, so no amount of extra data precision rescues an ill conditioned formulation: doubling the input precision buys at most one digit when the condition number is 1e12. The practical consequence is that a large condition number is a reason to change the formulation, for instance to avoid forming a product that squares the conditioning, or to report an interval of uncertainty rather than a single misleading digit string. What it cannot do is certify an answer as accurate, because a small condition number permits large errors from a badly chosen algorithm and a large one does not force them."
+      },
+      "explanation": "A model answer must state that a condition number amplifies input perturbations, then separate the three things it does not report: the achieved error, the quality of the algorithm, and any rescue from higher input precision.",
+      "hint": "Separate a ceiling on amplification from a measurement of what happened.",
+      "difficulty": 0.4,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 70,
+        "p25Sec": 35,
+        "p75Sec": 112
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "condition-number",
+        "explanation"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0057",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Trapezoid value first, then its error",
+      "learningObjective": "apply the trapezoid rule and then measure its error",
+      "practice": "two-stage quadrature and error",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "First apply the composite trapezoid rule with four equal panels to the integral of x squared from 0 to 2. Then report the absolute error of the result you obtained.",
+      "options": [
+        {
+          "id": "A",
+          "text": "0.0833333",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2.7500000",
+          "misconception": "reports the approximation from the first stage as if it were the error"
+        },
+        {
+          "id": "C",
+          "text": "2.6666667",
+          "misconception": "reports the exact value rather than the difference of the two"
+        },
+        {
+          "id": "D",
+          "text": "0.2500000",
+          "misconception": "borrows the error of the trapezoid rule on a different function"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The panel width is 0.5 and the five values are 0, 0.25, 1, 2.25 and 4, so the rule gives 0.5 times 2 plus 3.5, which is 2.75. The exact integral of x squared from 0 to 2 is 8 over 3, that is 2.666667, so the absolute error is 2.75 minus 8 over 3, which is 1 over 12, that is 0.0833333. The error formula predicts the same figure, being the interval length times the panel width squared times the largest second derivative over 12, and it is an equality rather than a bound here only because the second derivative is the constant 2.",
+      "hint": "Compute the rule's value, then compare with the exact integral.",
+      "difficulty": 0.36,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 42,
+        "p25Sec": 21,
+        "p75Sec": 67
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "trapezoid",
+        "quadrature"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0058",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Simpson value first, then its error",
+      "learningObjective": "apply Simpson's rule and then measure its error",
+      "practice": "two-stage quadrature and error",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "First apply Simpson's rule with a single panel of width 1, using the nodes 0, 1 and 2, to the integral of x to the fourth from 0 to 2. Then report the absolute error of the result you obtained.",
+      "options": [
+        {
+          "id": "A",
+          "text": "0.2666667",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "6.6666667",
+          "misconception": "reports the approximation from the first stage as if it were the error"
+        },
+        {
+          "id": "C",
+          "text": "6.4000000",
+          "misconception": "reports the exact value rather than the difference of the two"
+        },
+        {
+          "id": "D",
+          "text": "0.0833333",
+          "misconception": "borrows the trapezoid error for a different integrand"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The three values are 0, 1 and 16, so the rule gives one third of 0 plus 4 times 1 plus 16, which is 20 over 3, that is 6.666667. The exact integral of x to the fourth from 0 to 2 is 32 over 5, that is 6.4, so the absolute error is 20 over 3 minus 32 over 5, which is 4 over 15, that is 0.2666667. The error formula gives the interval length times the panel width to the fourth times the largest fourth derivative over 180, and with a constant fourth derivative of 24 that is also 4 over 15, confirming the figure.",
+      "hint": "Weight the middle node by 4, then compare with the exact integral.",
+      "difficulty": 0.38,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 44,
+        "p25Sec": 22,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "simpson",
+        "quadrature"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0059",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Newton iterates first, then a verdict on convergence",
+      "learningObjective": "run two Newton steps and judge whether the iteration is converging",
+      "practice": "two-stage Newton iteration and diagnosis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Beginning at x equal to 0, Newton's method is applied to the function f of x equal to x cubed minus 2x plus 2. Take two steps, reaching x1 and then x2. What is x2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0.000000",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1.000000",
+          "misconception": "reports the first iterate and stops one step early"
+        },
+        {
+          "id": "C",
+          "text": "-1.76929",
+          "misconception": "reports the true root, which the iteration never reaches from this start"
+        },
+        {
+          "id": "D",
+          "text": "2.000000",
+          "misconception": "adds the two function values instead of dividing by the derivative"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The function at 0 is 2 and the derivative there is minus 2, so the first step gives 0 minus 2 over minus 2, which is 1. The function at 1 is 1 and the derivative at 1 is 1, so the second step gives 1 minus 1, which is 0. The iterates have therefore returned to the starting value, and the next step repeats the first one exactly, so the method cycles between 0 and 1 indefinitely. The true root is near minus 1.769, and bisection on the bracket from minus 2 to 0 finds it without any of this.",
+      "hint": "Take two steps in turn and see where the second one lands.",
+      "difficulty": 0.44,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 24,
+        "p75Sec": 77
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "newton",
+        "root-finding"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    },
+    {
+      "id": "int2-8.1-0060",
+      "subject": "INTEGRATED_2",
+      "unit": "Unit 8",
+      "topic": "Rayleigh quotient first, then the eigenvalue it bounds",
+      "learningObjective": "compute a Rayleigh quotient and then bound it by the extreme eigenvalues",
+      "practice": "two-stage Rayleigh quotient and eigenvalue",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "First compute the Rayleigh quotient of the vector (1, 2) for the symmetric matrix with rows (3, 1) and (1, 3). Then report the largest eigenvalue of that matrix.",
+      "options": [
+        {
+          "id": "A",
+          "text": "3.8 then 4",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "4 then 3.8",
+          "misconception": "reports the eigenvalue first and the quotient second"
+        },
+        {
+          "id": "C",
+          "text": "2 then 3.8",
+          "misconception": "gives the smallest eigenvalue in place of the largest"
+        },
+        {
+          "id": "D",
+          "text": "3.8 then 2",
+          "misconception": "bounds the quotient on the wrong side"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The matrix times the vector is (5, 7), so the quotient is the dot product of the vector with that, which is 19, over the squared length of the vector, which is 5, giving 3.8. The trace is 6 and the determinant is 8, so the eigenvalues are 4 and 2, and the largest is 4. The quotient 3.8 lies between them, as it must, and it is an underestimate of the largest eigenvalue that improves as the vector improves, which is exactly what the power method supplies.",
+      "hint": "Compute the quotient for the given vector, then find the extreme eigenvalues.",
+      "difficulty": 0.42,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "medianSec": 48,
+        "p25Sec": 24,
+        "p75Sec": 77
+      },
+      "provenance": {
+        "author": "bank-team-int2",
+        "reviewer": "bank-review-int2",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "unit-8",
+        "rayleigh-quotient",
+        "eigenvalues"
+      ],
+      "prerequisiteQuestionIds": [],
+      "relatedQuestionIds": [],
+      "version": 1
+    }
+  ]
+}
