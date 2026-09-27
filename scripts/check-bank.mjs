@@ -50,6 +50,13 @@ function checkQuestion(file, q, index) {
   else ids.add(q.id);
   if (!SUBJECTS.has(q.subject)) err(file, id, "unknown subject");
   if (typeof q.unit !== "string" || q.unit.length === 0) err(file, id, "missing unit");
+  // Quality floor: the unit label must agree with the unit number in the id,
+  // or per-unit coverage silently reports on the wrong content.
+  const idUnit = typeof q.id === "string" ? /^[a-z0-9]+-(\d+)\.\d+-\d{4}$/.exec(q.id) : null;
+  const labelUnit = /^(?:unit|domain)\s+(\d+)$/i.exec(q.unit ?? "");
+  if (idUnit && labelUnit && idUnit[1] !== labelUnit[1]) {
+    err(file, id, `unit label "${q.unit}" disagrees with the unit number in the id`);
+  }
   if (typeof q.topic !== "string" || q.topic.length === 0) err(file, id, "missing topic");
   if (!SCOPES.has(q.scope)) err(file, id, "bad scope");
   const cd = q.cognitiveDemand ?? {};
