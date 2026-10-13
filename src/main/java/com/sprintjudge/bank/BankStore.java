@@ -17,8 +17,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * Classpath JSON question bank, loaded once at construction.
- * Answer-free headers cross the wire: id, subject, unit, topic, scope,
- * format, difficulty, stem. Correct answers never leave this store.
+ * Only answer-free headers are retained: id, subject, unit, topic, scope,
+ * format, difficulty, stem. Options, answers, explanations, and every other
+ * field are dropped at load, so a 150000-question bank fits in a small heap.
+ * Correct answers never leave this store.
  */
 @Component
 public class BankStore {
@@ -35,15 +37,27 @@ public class BankStore {
     }
 
     BankStore(PathMatchingResourcePatternResolver resolver, ObjectMapper mapper) throws IOException {
-        List<Map<String, Object>> all = new ArrayList<>();
-        for (Resource resource : resolver.getResources("classpath*:bank/**/*.json")) {
-            all.addAll(recordsOf(mapper.readTree(resource.getInputStream()), mapper));
-        }
-        this.questions = List.copyOf(all);
+        this(recordsOfAll(resources(resolver), mapper));
     }
 
     BankStore(List<Map<String, Object>> seed) {
-        this.questions = List.copyOf(seed);
+        List<Map<String, Object>> headers = new ArrayList<>(seed.size());
+        for (Map<String, Object> record : seed) {
+            headers.add(header(record));
+        }
+        this.questions = List.copyOf(headers);
+    }
+
+    private static Resource[] resources(PathMatchingResourcePatternResolver resolver) throws IOException {
+        return resolver.getResources("classpath*:bank/**/*.json");
+    }
+
+    private static List<Map<String, Object>> recordsOfAll(Resource[] resources, ObjectMapper mapper) throws IOException {
+        List<Map<String, Object>> all = new ArrayList<>();
+        for (Resource resource : resources) {
+            all.addAll(recordsOf(mapper.readTree(resource.getInputStream()), mapper));
+        }
+        return all;
     }
 
     @SuppressWarnings("unchecked")
