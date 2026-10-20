@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The waiting, because a thread blocked outside the interpreter holds no lock at all",
-          "misconception": ""
+          "text": "The arithmetic, because the lock lets any one thread run several steps at once",
+          "misconception": "believes the lock lets a single thread take more than one step at a time"
         },
         {
           "id": "B",
-          "text": "The arithmetic, because the lock lets any one thread run several steps at once",
-          "misconception": "believes the lock lets a single thread take more than one step at a time"
+          "text": "The waiting, because a thread blocked outside the interpreter holds no lock at all",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The lock is released for the whole time a thread is inside the operating system, so a thread waiting on a reply holds nothing and another thread runs in its place, which is why a fan-out of slow network calls finishes in about the time of the slowest one rather than their sum. The arithmetic is the opposite case, because every one of those steps needs the interpreter, so the threads take turns and no amount of extra threads makes that chain shorter. The answer covering both is the belief to rule out first, because the lock's whole purpose is to serialise the interpreter's own steps and nothing else.",
       "hint": "Ask where each of the two spends its time: inside the interpreter, or outside it.",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The callable and its values are turned into bytes, written across, and read back on the far side",
-          "misconception": ""
+          "text": "The callable and its values are copied field by field into a table the far side can read",
+          "misconception": "believes objects travel as structured field copies rather than as bytes"
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "The callable and its values are copied field by field into a table the far side can read",
-          "misconception": "believes objects travel as structured field copies rather than as bytes"
+          "text": "The callable and its values are turned into bytes, written across, and read back on the far side",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A separate process has its own memory and its own interpreter, so the only thing that can cross between them is a stream of bytes, and the callable together with everything it needs has to be written as one and read as one. That is why a callable defined inside another function cannot be sent, because there is no way to write down where it lives, and it is also why anything a task passes back comes back as a rebuilt copy rather than the same object. The answer passing by reference is the belief to rule out first, because a reference is an address in one process's memory and means nothing in another.",
       "hint": "Ask what a second process can receive, and what would have to happen to an object to become that.",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The read, the addition and the write together, so no other thread slips in between them",
-          "misconception": ""
+          "text": "Nothing, because the interpreter's lock already makes that sequence indivisible",
+          "misconception": "believes the interpreter's lock makes a read-add-write sequence atomic"
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "Nothing, because the interpreter's lock already makes that sequence indivisible",
-          "misconception": "believes the interpreter's lock makes a read-add-write sequence atomic"
+          "text": "The read, the addition and the write together, so no other thread slips in between them",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The guarded region is exactly the lines between taking the lock and letting it go, and the whole point is that no other thread can run in between, so the value read is still the value written. The read matters as much as the write, because a read that happens between another thread's read and its write sees a value that is about to change, and it is that interleaving rather than any single step that loses updates. The answer claiming the whole function is covered is the belief to rule out first, because anything the guarded lines call runs while the lock is held and will serialise too, which is one of the ways a lock turns into a bottleneck.",
       "hint": "Ask which lines are between taking the lock and letting it go, and what a read there can collide with.",
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It promised only that the state may have changed, so the waiter must test its own condition again",
-          "misconception": ""
+          "text": "It promised that the condition is now true, so the waiter may proceed without testing it",
+          "misconception": "believes a signal carries the new state and removes the need to re-test"
         },
         {
           "id": "B",
-          "text": "It promised that the condition is now true, so the waiter may proceed without testing it",
-          "misconception": "believes a signal carries the new state and removes the need to re-test"
+          "text": "It promised only that the state may have changed, so the waiter must test its own condition again",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A signal says only that something relevant may have changed, which is why the canonical shape of a wait is a test inside a loop rather than a single test before it. Another waiter can be woken by the same signal, and can be the thread that takes the item first, which is precisely the case the loop defends against. The answer promising the condition is now true is the belief to rule out first, because the signalling thread may have signalled for a reason that its own waiters then found insufficient, and the only safe reading is to look again.",
       "hint": "Ask what information a signal actually carries, and what another woken waiter might do first.",
@@ -363,8 +363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The work's result or its fault, readable once the work has finished, and asking early waits for it",
-          "misconception": ""
+          "text": "A promise of a result that may be anything, because the work has not been given a value to return",
+          "misconception": "believes a handle carries a guess rather than the work's own outcome"
         },
         {
           "id": "B",
@@ -373,8 +373,8 @@
         },
         {
           "id": "C",
-          "text": "A promise of a result that may be anything, because the work has not been given a value to return",
-          "misconception": "believes a handle carries a guess rather than the work's own outcome"
+          "text": "The work's result or its fault, readable once the work has finished, and asking early waits for it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The handle stands in for the work rather than for its answer, and it will hold either what the work returned or the fault that ended it, so a caller can treat success and failure through the same object. The value becomes readable when the work has finished, and a caller that asks too early is made to wait rather than being given something provisional, which is what makes the handle safe to hand to a caller that does not know whether the work is quick. The answer guessing at a value is the belief to rule out first, because nothing is known about the result until the work has actually produced it.",
       "hint": "Ask whether the handle holds the answer or the work, and what happens if a caller asks before the work is done.",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The one waiting, because waiting happens outside the interpreter and so lets other threads run",
-          "misconception": ""
+          "text": "Neither, because threads only help when the work can be written as one long chain",
+          "misconception": "believes threads need a single chain of work rather than independent pieces"
         },
         {
           "id": "B",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "Neither, because threads only help when the work can be written as one long chain",
-          "misconception": "believes threads need a single chain of work rather than independent pieces"
+          "text": "The one waiting, because waiting happens outside the interpreter and so lets other threads run",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The useful question is where the time goes. Time spent waiting belongs to the operating system and not to the interpreter, so another thread takes over while it is spent and the fan-out costs about as much as the slowest reply. Time spent multiplying belongs to the interpreter, so the threads take turns over it and the wall-clock cost is unchanged however many there are, and the answer there is separate processes because each gets its own interpreter and its own memory. The answer dividing work because a pool was asked for a count is the belief to rule out first, because a pool is a way of handing out work, not a way of making the interpreter do two things at once.",
       "hint": "Ask where each task spends its time, inside the interpreter or outside it.",
@@ -501,13 +501,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Each gets its own directory of installed libraries, so the two versions can both be present",
-          "misconception": ""
+          "text": "Each gets its own copy of the interpreter, so the two projects cannot share a runtime",
+          "misconception": "believes an environment ships a second copy of the interpreter"
         },
         {
           "id": "B",
-          "text": "Each gets its own copy of the interpreter, so the two projects cannot share a runtime",
-          "misconception": "believes an environment ships a second copy of the interpreter"
+          "text": "Each gets its own directory of installed libraries, so the two versions can both be present",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -521,7 +521,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "An environment is an ordinary directory holding the installed libraries for one project, and which directory is searched is decided by which interpreter runs, so two projects can hold different versions of one library and neither sees the other's. It does not bring its own interpreter, which is why the same runtime serves both, and it does not lock anything either, so a library left out of the environment is simply not found. The answer claiming a record rather than a separation is the belief to rule out first, because the two installed copies genuinely sit side by side in two directories.",
       "hint": "Ask which directory the running interpreter searches, and whether a second interpreter comes with it.",
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A later install gets the same versions again, and says nothing about whether they are right",
-          "misconception": ""
+          "text": "A later install gets the same versions again, and never needs changing once it is written",
+          "misconception": "believes a pinned set is permanent and can never need revisiting"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "A later install gets the same versions again, and never needs changing once it is written",
-          "misconception": "believes a pinned set is permanent and can never need revisiting"
+          "text": "A later install gets the same versions again, and says nothing about whether they are right",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Pinning removes one source of variation: a machine set up from that file months later gets the same versions, so a failure can be reproduced and a fix can be reasoned about. It says nothing about whether those versions are the ones the code works with, and a pinned set does go stale, so it needs revisiting when a security fix or a compatibility change arrives. The answer claiming correctness is the belief to rule out first, because a version number records what was installed and no judgement about whether it is suitable, and the whole reason a range is written in the first place is that the project has not settled on a single version.",
       "hint": "Ask what a version number records, and what still has to be decided by a person.",
@@ -639,8 +639,8 @@
       "options": [
         {
           "id": "A",
-          "text": "To name a callable so a runner can find it without the package being imported first",
-          "misconception": ""
+          "text": "To publish the callable so it can be called over the network by another machine",
+          "misconception": "believes the entry point exposes a callable as a network service"
         },
         {
           "id": "B",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "To publish the callable so it can be called over the network by another machine",
-          "misconception": "believes the entry point exposes a callable as a network service"
+          "text": "To name a callable so a runner can find it without the package being imported first",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The record is a mapping from a name to a location inside the package, written where the package was installed, and its purpose is discovery: a runner that is told the name can find and import the callable without knowing which module inside the package happens to hold it. That is what lets a tool, a test runner or a script's command line be configured by name rather than by a hard-wired import. The answer setting an import order is the belief to rule out first, because nothing about the record affects how the language imports anything; it is read by a tool, not by the interpreter.",
       "hint": "Ask who reads the record, and what the tool does with the name it finds there.",
@@ -708,13 +708,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Whether this instance can still do its own work, and leave the whole system to separate checks",
-          "misconception": ""
+          "text": "Whether every service it depends on answers, so one check covers the whole system",
+          "misconception": "believes one instance's check should trace the whole dependency graph"
         },
         {
           "id": "B",
-          "text": "Whether every service it depends on answers, so one check covers the whole system",
-          "misconception": "believes one instance's check should trace the whole dependency graph"
+          "text": "Whether this instance can still do its own work, and leave the whole system to separate checks",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The endpoint answers one narrow question: can this instance take a request and finish it, which usually means its own critical pieces are alive. It should not reach out to everything it depends on, because a dependency's trouble would then take this instance out of service too and the last one standing would go with it, turning a partial outage into a total one. It should also be cheap and frequent, because a slow check is a check the supervisor cannot act on in time, and it should not fail on the last request, because one bad request is a fact about that request. The answer tracing the whole graph is the belief to rule out first, because a check that can be failed by something outside the instance has stopped being a statement about the instance.",
       "hint": "Ask who acts on the answer, and whether a dependency's trouble should be able to remove this instance.",
@@ -777,8 +777,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Refusing new work while finishing the work it already accepted, up to a set limit",
-          "misconception": ""
+          "text": "Waiting for its dependencies to restart before it reports that it has stopped",
+          "misconception": "believes a shutdown depends on the rest of the system coming back up"
         },
         {
           "id": "B",
@@ -787,8 +787,8 @@
         },
         {
           "id": "C",
-          "text": "Waiting for its dependencies to restart before it reports that it has stopped",
-          "misconception": "believes a shutdown depends on the rest of the system coming back up"
+          "text": "Refusing new work while finishing the work it already accepted, up to a set limit",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -797,7 +797,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The window exists so that work already in hand is not cut in half: the instance stops advertising itself, finishes what it accepted, and only then exits. That window has to be bounded, because a work item that never finishes would otherwise keep the process alive forever, so a limit is set and anything still running at the limit is abandoned. The answer keeping new work is the belief to rule out first, because taking new work while shutting down is how an instance ends up with an unbounded queue at the moment it is least able to serve it.",
       "hint": "Ask what the instance should do with work that arrives after the stop signal, and what stops the wait.",
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A version of the service is always being served, at the cost of holding two versions at once",
-          "misconception": ""
+          "text": "A version of the service is always being served, provided the new one never needs the old one's data",
+          "misconception": "believes availability depends on the two versions sharing no stored data"
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "A version of the service is always being served, provided the new one never needs the old one's data",
-          "misconception": "believes availability depends on the two versions sharing no stored data"
+          "text": "A version of the service is always being served, at the cost of holding two versions at once",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The property is that there is always something serving, because a fresh instance is brought up and checked before an old one is removed, and if the new one fails its check it is simply never put into service. The cost is that two versions are live at the same moment, which is exactly when a change that reads or writes data written by the other version causes trouble, so a rolling deploy demands that the two versions can live together. The answer claiming no cost is the belief to rule out first, because the overlap is not an implementation detail to be avoided but the very thing the technique creates.",
       "hint": "Ask what is true of the service during the change, and what both versions have to tolerate at the same time.",
@@ -915,13 +915,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It names each field the same way every time, so a query can select on the names",
-          "misconception": ""
+          "text": "It is written as one readable sentence, so a person can skim the whole day's output",
+          "misconception": "believes a line has to be read as prose to be usable later"
         },
         {
           "id": "B",
-          "text": "It is written as one readable sentence, so a person can skim the whole day's output",
-          "misconception": "believes a line has to be read as prose to be usable later"
+          "text": "It names each field the same way every time, so a query can select on the names",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -935,7 +935,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A line is findable when its fields are named consistently, because a query selects on the names and a query cannot select on a name that changes from one line to the next or is written differently in two places in the same line. The value inside a field can be in any shape at all, including a message with spaces in it, because only the name is what is matched on. The answer asking for readable prose is the belief to rule out first, because a reader at the time is served by a line written for a machine to parse and only then shown to a person, and a line that is pleasant to read is no easier to query.",
       "hint": "Ask what a query matches on, and whether it can match on prose.",
@@ -984,8 +984,8 @@
       "options": [
         {
           "id": "A",
-          "text": "200, because the lock made each read-and-write of the counter one indivisible step",
-          "misconception": ""
+          "text": "somewhere between 100 and 200, because writes can still be lost with a lock in place",
+          "misconception": "believes a lock can still lose an update to a shared counter"
         },
         {
           "id": "B",
@@ -994,8 +994,8 @@
         },
         {
           "id": "C",
-          "text": "somewhere between 100 and 200, because writes can still be lost with a lock in place",
-          "misconception": "believes a lock can still lose an update to a shared counter"
+          "text": "200, because the lock made each read-and-write of the counter one indivisible step",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1004,7 +1004,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each thread adds one hundred times and the lock keeps the read, the addition and the write of each of those in one piece, so no addition can be overwritten between another thread's read and its write, and the total is both threads' work added together. This was executed with the interpreter, and the answer crediting the interpreter's lock is the belief to rule out first, because that lock keeps the interpreter's own state safe and does nothing for a read-then-write sequence in your own code, which is exactly the sequence that loses updates.",
       "hint": "Ask which lines are between taking the lock and letting it go, and how many additions each thread makes.",
@@ -1053,8 +1053,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the four tagged items in order and 4, because every item put was taken by some consumer",
-          "misconception": ""
+          "text": "the four tagged items in order and 0, because items are taken before they are collected",
+          "misconception": "believes a taken item is consumed and so never reaches the collected list"
         },
         {
           "id": "B",
@@ -1068,12 +1068,12 @@
         },
         {
           "id": "D",
-          "text": "the four tagged items in order and 0, because items are taken before they are collected",
-          "misconception": "believes a taken item is consumed and so never reaches the collected list"
+          "text": "the four tagged items in order and 4, because every item put was taken by some consumer",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each item put in the queue is taken by exactly one of the consumers and appended to the shared list, and each stop marker ends whichever consumer draws it, so all four tagged items are collected and no item is delivered twice. Sorting the list makes the printout independent of which consumer took which item, which is the whole reason for sorting it in a program where the order genuinely is not fixed. This was executed with the interpreter, and the answer having one consumer take everything is the belief to rule out first, because a queue is shared by every thread drawing from it, and the sorting in this program is the acknowledgement of that.",
       "hint": "Ask how many consumers a single item can reach, and which consumer a stop marker ends.",
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Future and False, then 49, then True, because the handle knows the work is not finished",
-          "misconception": ""
+          "text": "Future and True, then 49, then True, because a handle is only made after the work finishes",
+          "misconception": "believes the handle appears only once the submitted work has completed"
         },
         {
           "id": "B",
-          "text": "Future and True, then 49, then True, because a handle is only made after the work finishes",
-          "misconception": "believes the handle appears only once the submitted work has completed"
+          "text": "Future and False, then 49, then True, because the handle knows the work is not finished",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The handle comes back as soon as the work is accepted, and the work then spends its time waiting, so the first report shows the handle's kind and that it is not yet finished. Asking for the value makes the caller wait for the work to finish and then hands back the square, and once finished the handle stays finished, so the last report says so. This was executed with the interpreter, and the answer saying the value is not there yet is the belief to rule out first, because asking a handle for its value is defined to wait rather than to give a partial answer.",
       "hint": "Ask when the handle is handed back, and what happens to a caller that asks for the value too early.",
@@ -1191,8 +1191,8 @@
       "options": [
         {
           "id": "A",
-          "text": "waiting, added, woke and an empty list, because a signal only says the state may have moved",
-          "misconception": ""
+          "text": "added, woke and an empty list, because the wait report is skipped when an item is there",
+          "misconception": "believes the waiting report is left out when the item arrived before the wait"
         },
         {
           "id": "B",
@@ -1201,8 +1201,8 @@
         },
         {
           "id": "C",
-          "text": "added, woke and an empty list, because the wait report is skipped when an item is there",
-          "misconception": "believes the waiting report is left out when the item arrived before the wait"
+          "text": "waiting, added, woke and an empty list, because a signal only says the state may have moved",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The waiting thread finds the list empty, records that it is about to wait and blocks, and the pause guarantees it really is blocked before the other thread runs. That thread appends the item, records the addition and signals, which wakes the waiter, which re-tests its own condition, finds the list no longer empty, records that it woke and takes the item, leaving the list empty. This was executed with the interpreter, and the answer leaving the item behind is the belief to rule out first, because the wait is a signal to look again rather than a promise of the value, and the taking is the waiter's own work once it wakes.",
       "hint": "Ask what the woken thread does first, and whether the item it finds is still there afterwards.",
@@ -1260,8 +1260,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[10, 20, 30], because the results line up with the order they were asked for",
-          "misconception": ""
+          "text": "[30, 20, 10], because the pool always serves the most recently submitted task first",
+          "misconception": "believes a pool hands work out from the newest submission backwards"
         },
         {
           "id": "B",
@@ -1275,12 +1275,12 @@
         },
         {
           "id": "D",
-          "text": "[30, 20, 10], because the pool always serves the most recently submitted task first",
-          "misconception": "believes a pool hands work out from the newest submission backwards"
+          "text": "[10, 20, 30], because the results line up with the order they were asked for",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The three tasks overlap and the shortest one finishes first, but the collection call is given the tasks in a known order and hands the results back aligned to that order, so the printed list is in the order the work was asked for rather than the order it completed. That is the useful property: a caller can pair each result with the input it belongs to without keeping track of which finished when. This was executed with the interpreter, and the answer reporting the finishing order is the belief to rule out first, because the collection call is defined to keep the two orders lined up.",
       "hint": "Ask whether the order of the results follows the order of the work or the order it finished.",
@@ -1329,13 +1329,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the blocking pair, then the task's two lines, then the waiting line and the task's two lines inside it",
-          "misconception": ""
+          "text": "the task's two lines, then the blocking pair, then the waiting line after the task's lines",
+          "misconception": "believes creating a task starts it at once on the same thread"
         },
         {
           "id": "B",
-          "text": "the task's two lines, then the blocking pair, then the waiting line after the task's lines",
-          "misconception": "believes creating a task starts it at once on the same thread"
+          "text": "the blocking pair, then the task's two lines, then the waiting line and the task's two lines inside it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1349,7 +1349,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The task is created but nothing runs until the current coroutine gives the runner a chance, and a blocking call never does, so in the first variant the task's two lines come only after the blocking pair has printed and finished, and the thread was pinned for the whole of it. In the second variant the waiting call does hand the runner back, so the runner starts the task, the task's own wait gives the runner back again, and the waiting line prints only once the task has finished. This was executed with the interpreter, and the answer starting the task at once is the belief to rule out first, because scheduling a task records where to start it rather than running it.",
       "hint": "Ask which of the two calls tells the runner it may run something else, and when each gives that chance.",
@@ -1398,8 +1398,8 @@
       "options": [
         {
           "id": "A",
-          "text": "PicklingError, then True and 6, because a callable defined inside has no name to import",
-          "misconception": ""
+          "text": "None, then True and 6, because turning a callable into bytes always succeeds",
+          "misconception": "believes serialisation never refuses an object it cannot name"
         },
         {
           "id": "B",
@@ -1408,8 +1408,8 @@
         },
         {
           "id": "C",
-          "text": "None, then True and 6, because turning a callable into bytes always succeeds",
-          "misconception": "believes serialisation never refuses an object it cannot name"
+          "text": "PicklingError, then True and 6, because a callable defined inside has no name to import",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1418,7 +1418,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Writing an object as bytes means recording how to find it again, which for a callable means recording a module name and a name inside it, and a callable defined inside another function has neither, so the write is refused and the refusal is named. That has nothing to do with whether the object works, so it is still callable and still triples the value it is given. This was executed with the interpreter, and the answer saying serialisation never refuses is the belief to rule out first, because the whole design of writing as bytes rests on being able to name what is written.",
       "hint": "Ask how a callable would be found again on the far side of a write, and whether a nested one has a name.",
@@ -1467,8 +1467,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 4, 9] then 16, because each task was written across and run in a process of its own",
-          "misconception": ""
+          "text": "[1, 4, 9] then a fault, because a callable may not be used both by a pool and directly",
+          "misconception": "believes handing a callable to a pool stops the module calling it itself"
         },
         {
           "id": "B",
@@ -1482,12 +1482,12 @@
         },
         {
           "id": "D",
-          "text": "[1, 4, 9] then a fault, because a callable may not be used both by a pool and directly",
-          "misconception": "believes handing a callable to a pool stops the module calling it itself"
+          "text": "[1, 4, 9] then 16, because each task was written across and run in a process of its own",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each of the three values is written across, run in a process of its own and written back, so the results come back in the order they were asked for and the direct call afterwards simply squares the fourth value in this process. The guard around the pool's use is not decoration: a worker process re-imports the module it was started from, so anything at the top level of that module would run again in every worker. This was executed with the interpreter, and the answer saying the pool ran the work locally is the belief to rule out first, because the whole point of processes rather than threads is that the work happens somewhere with its own interpreter and its own memory.",
       "hint": "Ask where the three tasks actually ran, and why the pool's use is written under a guard.",
@@ -1605,13 +1605,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1 2, then no z, then False, because the object had no room left for a third name",
-          "misconception": ""
+          "text": "1 2, then 3, then False, because the declaration is a hint and any name may still be added",
+          "misconception": "believes the declaration of allowed names is advisory rather than enforced"
         },
         {
           "id": "B",
-          "text": "1 2, then 3, then False, because the declaration is a hint and any name may still be added",
-          "misconception": "believes the declaration of allowed names is advisory rather than enforced"
+          "text": "1 2, then no z, then False, because the object had no room left for a third name",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1625,7 +1625,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two declared names are stored where the object can find them without a general table, so a name that was never declared has nowhere to go and the assignment is refused and caught. That refusal is the point of the declaration rather than a limitation of it, because not carrying a table is what makes each object smaller, and the last report confirms there is no table at all. This was executed with the interpreter, and the answer adding the third name anyway is the belief to rule out first, because the declaration is checked on assignment and not merely used to save space.",
       "hint": "Ask where an unlisted name would be stored, and whether the object has a general table to put it in.",
@@ -1674,8 +1674,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3 and the name three times, because reading a local name never reaches the object",
-          "misconception": ""
+          "text": "0 and an empty list, because the recording hook only fires for names the class declares",
+          "misconception": "believes the recording hook fires only for declared names"
         },
         {
           "id": "B",
@@ -1684,8 +1684,8 @@
         },
         {
           "id": "C",
-          "text": "0 and an empty list, because the recording hook only fires for names the class declares",
-          "misconception": "believes the recording hook fires only for declared names"
+          "text": "3 and the name three times, because reading a local name never reaches the object",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1694,7 +1694,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each of the three reads of the attribute goes through the object and is recorded, and each of the three uses of a local name is a lookup in a table that belongs to the call itself and involves no object at all, so nothing more is recorded. That difference is the reason a tight loop that works on a local runs faster than the same loop working on an attribute, and it is also the reason a hook of this kind is a useful thing to leave in place while hunting a slowdown. This was executed with the interpreter, and the answer counting the local reads as well is the belief to rule out first, because a local is found before the language ever considers an object.",
       "hint": "Ask which of the two kinds of name read involves the object at all.",
@@ -1743,8 +1743,8 @@
       "options": [
         {
           "id": "A",
-          "text": "10, then 10, then 50, because the cached copy was never compared with the store",
-          "misconception": ""
+          "text": "10, then 50, then 10, because a cleared cache returns the first value it ever held",
+          "misconception": "believes a cleared cache falls back on the value it first stored"
         },
         {
           "id": "B",
@@ -1758,12 +1758,12 @@
         },
         {
           "id": "D",
-          "text": "10, then 50, then 10, because a cleared cache returns the first value it ever held",
-          "misconception": "believes a cleared cache falls back on the value it first stored"
+          "text": "10, then 10, then 50, because the cached copy was never compared with the store",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The second call finds the key already in the cache and hands back the copy taken on the first call, so the change to the store is invisible, and only clearing the cache makes the next call go back to the store and copy the new value. That is the whole bargain of a cache: it is fast because it stops looking, and it is wrong until something tells it to look again. This was executed with the interpreter, and the answer reporting the fresh value is the belief to rule out first, because nothing in the helper compares the two, and a cache that checked on every read would not be saving anything.",
       "hint": "Ask what the helper does on the second call, and what it would have to do for the change to show up.",
@@ -1812,13 +1812,13 @@
       "options": [
         {
           "id": "A",
-          "text": "0, then 1, then the four remaining values doubled twice, then 5, because one pull reaches the source once",
-          "misconception": ""
+          "text": "0, then 5, then the four remaining values, then 5, because one pull drains the whole chain",
+          "misconception": "believes a single pull runs every stage of the chain to completion"
         },
         {
           "id": "B",
-          "text": "0, then 5, then the four remaining values, then 5, because one pull drains the whole chain",
-          "misconception": "believes a single pull runs every stage of the chain to completion"
+          "text": "0, then 1, then the four remaining values doubled twice, then 5, because one pull reaches the source once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1832,7 +1832,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "One pull travels down the chain asking each stage for a value, so the source produces exactly one value and both stages double it, which is why the first report is zero and only one value has been recorded. Draining the chain then asks for the rest, each pull producing the next value from the source, so the recorded count reaches the source's whole length and the remaining values come back doubled twice. This was executed with the interpreter, and the answer claiming one pull drains the chain is the belief to rule out first, because laziness is exactly the property that makes a long source usable at all.",
       "hint": "Ask how many values the source must produce for the chain to hand back one value.",
@@ -1881,8 +1881,8 @@
       "options": [
         {
           "id": "A",
-          "text": "4, 0 and True, because the loop asks the list to add and the comprehension does not",
-          "misconception": ""
+          "text": "0, 0 and True, because the counting method is never reached by either form",
+          "misconception": "believes a loop adds a value without going through the list's method"
         },
         {
           "id": "B",
@@ -1891,8 +1891,8 @@
         },
         {
           "id": "C",
-          "text": "0, 0 and True, because the counting method is never reached by either form",
-          "misconception": "believes a loop adds a value without going through the list's method"
+          "text": "4, 0 and True, because the loop asks the list to add and the comprehension does not",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1901,7 +1901,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The loop asks the list to add each of the four values, and the comprehension builds a list of the same four values without ever asking a list to do anything, which is the whole reason it runs faster: there is no method call, no name lookup and no work per value beyond the calculation itself. The two lists still hold equal values, so a subclass of a list compares equal to a plain one holding the same values. This was executed with the interpreter, and the answer counting the comprehension's adds is the belief to rule out first, because a comprehension is not a loop written more briefly, it is a different construct with its own machinery.",
       "hint": "Ask how a comprehension puts a value into its result, and whether a list method is involved.",
@@ -1950,8 +1950,8 @@
       "options": [
         {
           "id": "A",
-          "text": "heavy and True, because the helper with the greatest self time is where the work is",
-          "misconception": ""
+          "text": "heavy and False, because a helper that loops reports no self time of its own",
+          "misconception": "believes a loop hides the time it spends from the profile"
         },
         {
           "id": "B",
@@ -1965,12 +1965,12 @@
         },
         {
           "id": "D",
-          "text": "heavy and False, because a helper that loops reports no self time of its own",
-          "misconception": "believes a loop hides the time it spends from the profile"
+          "text": "heavy and True, because the helper with the greatest self time is where the work is",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The profile charges each helper with the time its own steps took, and the helper whose loop runs half a million times has far more of that than the one called five hundred times for a single multiplication, so the greatest self time belongs to the heavy helper. The entry point is small precisely because it only calls things, which is why a profile is worth reading before changing anything: the most-called helper and the entry point are both poor guides. This was executed with the interpreter, and the answer naming the most-called helper is the belief to rule out first, because call count and self time are two different columns and only one of them says where the work was done.",
       "hint": "Ask which helper's own steps run the most, rather than which one is called most.",
@@ -2019,13 +2019,13 @@
       "options": [
         {
           "id": "A",
-          "text": "False, then True, then True, because the module is loaded the first time the helper runs",
-          "misconception": ""
+          "text": "False, then True, then False, because the module is discarded when the helper returns",
+          "misconception": "believes a module is unloaded when the function that imported it returns"
         },
         {
           "id": "B",
-          "text": "False, then True, then False, because the module is discarded when the helper returns",
-          "misconception": "believes a module is unloaded when the function that imported it returns"
+          "text": "False, then True, then True, because the module is loaded the first time the helper runs",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2039,7 +2039,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A module named inside a helper is loaded when that line runs, not when the file is read, so the first question finds nothing and the second, asked from inside the helper after the import line, finds it, and the third finds it too because a loaded module stays loaded. That is the whole point of putting the import inside the helper: a path through the program that never calls the helper never pays for the module. This was executed with the interpreter, and the answer saying every named module loads at start-up is the belief to rule out first, because the interpreter only follows the import statements it actually reaches.",
       "hint": "Ask when the import line is reached, and whether a loaded module is ever unloaded.",
@@ -2088,8 +2088,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the fallback, then live, then True, because the environment is read at the moment of the call",
-          "misconception": ""
+          "text": "the fallback, then live, then False, because a setting put in later is not really present",
+          "misconception": "believes a setting set after start-up does not count as being set"
         },
         {
           "id": "B",
@@ -2098,8 +2098,8 @@
         },
         {
           "id": "C",
-          "text": "the fallback, then live, then False, because a setting put in later is not really present",
-          "misconception": "believes a setting set after start-up does not count as being set"
+          "text": "the fallback, then live, then True, because the environment is read at the moment of the call",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2108,7 +2108,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first call finds nothing and hands back the helper's own text, the second call finds the value that was put there and hands that back, and the last question asks a different thing, which is whether the name is present at all, and it is. Reading at call time is what makes one program able to run against two settings in the same process, and it is also why a value read at import time is a different and riskier thing. This was executed with the interpreter, and the answer reading the setting once at definition time is the belief to rule out first, because the helper's body is where the read happens and that is once per call.",
       "hint": "Ask when the helper's body, and therefore the read inside it, actually runs.",
@@ -2157,8 +2157,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the stand-in text and then the later value, because the loader took its value when it ran",
-          "misconception": ""
+          "text": "the stand-in text and the later value, then a fault, because the two disagreeing values are refused",
+          "misconception": "believes two disagreeing readings of one setting cause a fault"
         },
         {
           "id": "B",
@@ -2172,12 +2172,12 @@
         },
         {
           "id": "D",
-          "text": "the stand-in text and the later value, then a fault, because the two disagreeing values are refused",
-          "misconception": "believes two disagreeing readings of one setting cause a fault"
+          "text": "the stand-in text and then the later value, because the loader took its value when it ran",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The loader ran before the setting existed and copied the stand-in text into the configuration, and a plain value already copied into a structure is not re-read, so the configuration keeps what it was given while a direct read of the same setting now returns the value that was set. That difference is the whole hazard of a secret read while a module is being imported, because a later rotation of the value is not seen by anything that already captured it, and every worker that started before the rotation keeps the old one. This was executed with the interpreter, and the answer claiming the configuration re-reads the setting is the belief to rule out first, because the copy was made once into a structure that holds values rather than references to where they came from.",
       "hint": "Ask whether the configuration holds the value or a place the value can be read from again.",
@@ -2226,13 +2226,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the line with its fields in name order, then 3, because the line carries every field once",
-          "misconception": ""
+          "text": "the line with its fields in the order they were written, then 3, because that is the order a reader sees",
+          "misconception": "believes the order fields were written in is what the line must show"
         },
         {
           "id": "B",
-          "text": "the line with its fields in the order they were written, then 3, because that is the order a reader sees",
-          "misconception": "believes the order fields were written in is what the line must show"
+          "text": "the line with its fields in name order, then 3, because the line carries every field once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Ordering the fields by name is what makes two lines about the same event line up under each other, and dropping the spaces makes the line cheaper to store, and neither change affects the fact that all three fields are there to be read back. That is the shape a searchable log wants: one line per event, the same field names every time, and the values free to contain anything at all. This was executed with the interpreter, and the answer counting the line as one field is the belief to rule out first, because the names are what a query selects on and dropping them would leave nothing to select on.",
       "hint": "Ask what a query selects on, and whether the spacing between parts affects what can be read back.",
@@ -2295,8 +2295,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, 3 and True, because accepted work was finished and later work was refused",
-          "misconception": ""
+          "text": "4, 4 and True, because the late request was accepted after the stop and then finished",
+          "misconception": "believes work arriving after a stop is still taken on"
         },
         {
           "id": "B",
@@ -2305,8 +2305,8 @@
         },
         {
           "id": "C",
-          "text": "4, 4 and True, because the late request was accepted after the stop and then finished",
-          "misconception": "believes work arriving after a stop is still taken on"
+          "text": "3, 3 and True, because accepted work was finished and later work was refused",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2315,7 +2315,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The flag only stops new work being accepted, and the three requests that were already accepted go on to their end and are all recorded as finished, while the late request finds the flag and returns without being accepted at all. The flag stays up because nothing in the program lowers it, which is what makes the refusal permanent rather than a pause. This was executed with the interpreter, and the answer cancelling work in progress is the belief to rule out first, because cancelling a request halfway is exactly the cut in the middle that a graceful stop exists to avoid.",
       "hint": "Ask which side of the flag the three accepted requests are on, and what the late request does.",
@@ -2364,8 +2364,8 @@
       "options": [
         {
           "id": "A",
-          "text": "28, 8, 4 and 4, because the second pass does one step per value and finds the same pairs",
-          "misconception": ""
+          "text": "28, 28, 4 and 4, because a table lookup costs as much as a pair comparison",
+          "misconception": "believes the second pass still compares every pair against every other"
         },
         {
           "id": "B",
@@ -2379,12 +2379,12 @@
         },
         {
           "id": "D",
-          "text": "28, 28, 4 and 4, because a table lookup costs as much as a pair comparison",
-          "misconception": "believes the second pass still compares every pair against every other"
+          "text": "28, 8, 4 and 4, because the second pass does one step per value and finds the same pairs",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first search walks every unordered pair once, which for eight values is twenty-eight comparisons, and the second does one step per value, so the work falls by a factor of the number of values. Both find the same four pairs, because the second adds the number of earlier values that match rather than one, which is what makes it count a repeated value's pairs correctly. This was executed with the interpreter, and the answer claiming the work is unchanged is the belief to rule out first, because the second search never compares two values with each other at all, it only asks a table what it has already seen.",
       "hint": "Ask how many comparisons each pass makes, and how the second pass counts a value that has appeared twice.",
@@ -2433,13 +2433,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3 and 0, because the work was spent waiting and so all three were active at once",
-          "misconception": ""
+          "text": "1 and 0, because the interpreter's lock keeps a thread from being active while it waits",
+          "misconception": "believes the interpreter's lock stops a thread from counting as busy while it waits"
         },
         {
           "id": "B",
-          "text": "1 and 0, because the interpreter's lock keeps a thread from being active while it waits",
-          "misconception": "believes the interpreter's lock stops a thread from counting as busy while it waits"
+          "text": "3 and 0, because the work was spent waiting and so all three were active at once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2453,7 +2453,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each thread records itself as active and then spends its time waiting, which is time spent outside the interpreter, so all three are recorded as active at the same moment and the peak is three. By the end every thread has taken its own entry back out, so nothing is left active. This was executed with the interpreter, and the answer capping the peak at one is the belief to rule out first, because the interpreter's lock is released for the whole of a wait and a thread that is waiting is precisely the case the lock exists to let happen.",
       "hint": "Ask where each thread spends the time it is not holding the interpreter.",
@@ -2502,8 +2502,8 @@
       "options": [
         {
           "id": "A",
-          "text": "both reported giving up, because each was holding exactly what the other was waiting for",
-          "misconception": ""
+          "text": "one holding both and one giving up, because the short limit makes the waiters take turns",
+          "misconception": "believes a time limit turns two threads into a queue for the second lock"
         },
         {
           "id": "B",
@@ -2512,8 +2512,8 @@
         },
         {
           "id": "C",
-          "text": "one holding both and one giving up, because the short limit makes the waiters take turns",
-          "misconception": "believes a time limit turns two threads into a queue for the second lock"
+          "text": "both reported giving up, because each was holding exactly what the other was waiting for",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2522,7 +2522,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The barrier makes both threads hold one lock at the same moment, and each then reaches for the lock the other is holding, so neither can get it and both give up when the limit runs out. The limit is what keeps the program from stopping for good, and it is also what makes this a demonstration rather than a hang. The rule the pair of threads breaks is that all threads should take several locks in one agreed order, because then no thread can be holding a later one while another holds an earlier one. This was executed with the interpreter, and the answer claiming one got in is the belief to rule out first, because with both holding one lock there is no order in which either could take the second.",
       "hint": "Ask what each thread is holding at the moment it reaches for the other lock.",
@@ -2571,8 +2571,8 @@
       "options": [
         {
           "id": "A",
-          "text": "three live, then two of three live, then none live, because the loop's own name held the last block",
-          "misconception": ""
+          "text": "three live, then two of three live, then two of three live, because removing a name does not collect",
+          "misconception": "believes deleting a name has no effect once a collection pass has already run"
         },
         {
           "id": "B",
@@ -2586,12 +2586,12 @@
         },
         {
           "id": "D",
-          "text": "three live, then two of three live, then two of three live, because removing a name does not collect",
-          "misconception": "believes deleting a name has no effect once a collection pass has already run"
+          "text": "three live, then two of three live, then none live, because the loop's own name held the last block",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Clearing the list drops the holding reference but the loop's own name still points at the last block, so two blocks have no name left and the collection pass reclaims their cycles while the third survives on that name. Deleting that last name leaves the last block in a cycle with nothing outside it, so the next pass reclaims it too. This was executed with the interpreter, and the answer reclaiming everything at once is the belief to rule out first, because a loop's own name outlives the loop and quietly keeps its final value alive, which is the single most common way a long-running process grows when nobody is holding anything on purpose.",
       "hint": "Ask which name still points at one of the blocks after the list is cleared.",
@@ -2640,13 +2640,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the slow thread's two lines and then the quick thread's two, because the lock was held across the wait",
-          "misconception": ""
+          "text": "the slow thread's first line, then the quick thread's two, then the slow thread's second line",
+          "misconception": "believes a lock is released while the thread holding it is waiting"
         },
         {
           "id": "B",
-          "text": "the slow thread's first line, then the quick thread's two, then the slow thread's second line",
-          "misconception": "believes a lock is released while the thread holding it is waiting"
+          "text": "the slow thread's two lines and then the quick thread's two, because the lock was held across the wait",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first thread holds the lock for the whole of its wait, and the second thread cannot take it until that wait is over, so its two lines come last even though it does almost no work. Nothing is wrong with the program, it is just slower than it looks, and the cost grows with the wait inside the lock rather than with the work. This was executed with the interpreter, and the answer letting the quick thread through in the middle is the belief to rule out first, because a lock that is held is held, and no amount of the second thread's own speed changes that.",
       "hint": "Ask how long the first thread keeps the lock, and what that means for the second thread.",
@@ -2709,8 +2709,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1 and 3, then after with True and True, because a failure waits on the handle until it is read",
-          "misconception": ""
+          "text": "1 and 3, then after with True and False, because a failure leaves nothing on the handle",
+          "misconception": "believes a handle that failed holds nothing and no record of the failure"
         },
         {
           "id": "B",
@@ -2719,8 +2719,8 @@
         },
         {
           "id": "C",
-          "text": "1 and 3, then after with True and False, because a failure leaves nothing on the handle",
-          "misconception": "believes a handle that failed holds nothing and no record of the failure"
+          "text": "1 and 3, then after with True and True, because a failure waits on the handle until it is read",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2729,7 +2729,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The failure of the middle task is caught by the handle rather than by the caller, so the pool carries on and the third task runs and the two values that were asked for both come back. The middle handle is finished, because the work is finished whether or not anybody is watching, and it does hold the failure, which is exactly why a program that submits work and never reads the handles can lose a failure entirely. This was executed with the interpreter, and the answer saying the pool stops is the belief to rule out first, because a pool runs the work it was given and reports each outcome on the handle for that work.",
       "hint": "Ask who is told about a task that fails, and whether the pool stops running the rest.",
@@ -2778,8 +2778,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the failed line, the two good lines and 3, because a handled failure still leaves a record",
-          "misconception": ""
+          "text": "the two good lines and 2, then a fault, because a fault inside a thread stops the whole program",
+          "misconception": "believes a fault in a thread thread ends the run even when it is handled"
         },
         {
           "id": "B",
@@ -2793,12 +2793,12 @@
         },
         {
           "id": "D",
-          "text": "the two good lines and 2, then a fault, because a fault inside a thread stops the whole program",
-          "misconception": "believes a fault in a thread thread ends the run even when it is handled"
+          "text": "the failed line, the two good lines and 3, because a handled failure still leaves a record",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The failing worker catches its own fault and records it, so all three workers leave exactly one line and the count is three, and the program finishes normally. That is the quiet part: a thread that handles its own failure gives the thread that joined it nothing to notice, so a supervisor that only checks that its workers came back sees a healthy pool no matter how many of them are broken. This was executed with the interpreter, and the answer saying a handled failure leaves no record is the belief to rule out first, because the handler ran and wrote its own line, and the only thing missing is the signal the joining thread never asked for.",
       "hint": "Ask what the thread that waits on the workers can observe about whether they worked.",
@@ -2847,13 +2847,13 @@
       "options": [
         {
           "id": "A",
-          "text": "live True, then not ready and the missing name, because the two checks ask different questions",
-          "misconception": ""
+          "text": "live True, then not ready and the missing name, because both checks were really one check",
+          "misconception": "believes a live check and a ready check can never report different things"
         },
         {
           "id": "B",
-          "text": "live True, then not ready and the missing name, because both checks were really one check",
-          "misconception": "believes a live check and a ready check can never report different things"
+          "text": "live True, then not ready and the missing name, because the two checks ask different questions",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2867,7 +2867,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The live check only asks about the database and is answered, so the instance reports itself running, and the ready check asks about the cache as well and finds it missing, so the instance reports itself not ready to be sent work. Keeping the two apart is what stops a dependency's trouble from taking every instance out of service at once, because a supervisor that only saw the ready check would pull the last instance out and leave nothing serving. This was executed with the interpreter, and the answer having one check answer for both questions is the belief to rule out first, because the whole reason there are two is that they fail for different reasons and are acted on differently.",
       "hint": "Ask what each of the two checks actually reaches, and who acts on each answer.",
@@ -2916,8 +2916,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 and the one original entry, because the worker grew a copy of the list, not the list itself",
-          "misconception": ""
+          "text": "1 and the one original entry, because a copy cannot be appended to at all",
+          "misconception": "believes a rebuilt copy is frozen against change"
         },
         {
           "id": "B",
@@ -2926,8 +2926,8 @@
         },
         {
           "id": "C",
-          "text": "1 and the one original entry, because a copy cannot be appended to at all",
-          "misconception": "believes a rebuilt copy is frozen against change"
+          "text": "2 and the one original entry, because the worker grew a copy of the list, not the list itself",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2936,7 +2936,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The list was written as bytes and read back in the worker, so what the worker appended to was its own copy, which is why its report of two comes back while the caller's list still has only the one entry it started with. The write-back is also a copy, so a value the worker returns is a rebuilt value rather than the same object. This was executed with the interpreter, and the answer showing two entries on the caller's side is the belief to rule out first, because the two lists are in different memories and nothing links them after the write.",
       "hint": "Ask whether the worker and the caller are holding the same list or two of them.",
@@ -2985,8 +2985,8 @@
       "options": [
         {
           "id": "A",
-          "text": "waiting, took x, and an empty list, because the limit let the consumer look again and find it",
-          "misconception": ""
+          "text": "waiting, took x, and the list still holding x, because taking reads the item without removing it",
+          "misconception": "believes taking a value out of a list leaves the list unchanged"
         },
         {
           "id": "B",
@@ -3000,12 +3000,12 @@
         },
         {
           "id": "D",
-          "text": "waiting, took x, and the list still holding x, because taking reads the item without removing it",
-          "misconception": "believes taking a value out of a list leaves the list unchanged"
+          "text": "waiting, took x, and an empty list, because the limit let the consumer look again and find it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The consumer blocks, and the producer's write never releases it because no signal was sent, so the only thing that ends the wait is the limit running out, and the second test then finds the item and takes it. The program works here only because the limit is there, which is the thing to notice: the wait and the test are two separate steps and something has to bridge them. This was executed with the interpreter, and the answer saying the consumer never sees the item is the belief to rule out first, because a timed wait returns whether or not it was signalled and the test after it is what decides.",
       "hint": "Ask what ends the consumer's wait when nothing signals it.",
@@ -3054,13 +3054,13 @@
       "options": [
         {
           "id": "A",
-          "text": "an empty list and 1, because the consumer stopped and left the real work still in the queue",
-          "misconception": ""
+          "text": "an empty list and 0, because a queue refuses to hold anything after a stop marker",
+          "misconception": "believes a queue stops accepting items once a stop marker has gone in"
         },
         {
           "id": "B",
-          "text": "an empty list and 0, because a queue refuses to hold anything after a stop marker",
-          "misconception": "believes a queue stops accepting items once a stop marker has gone in"
+          "text": "an empty list and 1, because the consumer stopped and left the real work still in the queue",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3074,7 +3074,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The consumer draws the absent value first, reads it as the signal to stop, and returns before it ever reaches the real work, which is why the collected list is empty and the queue still reports one item waiting inside it. Nothing was lost, it is still there, but nobody in this program is left to take it, which is the shape of the bug: the marker has to be a value the data can never legitimately be. This was executed with the interpreter, and the answer reporting the work as collected is the belief to rule out first, because the consumer returned on its first draw and never asked for a second one.",
       "hint": "Ask what the consumer does on its very first draw, and where the second item ends up.",
@@ -3123,8 +3123,8 @@
       "options": [
         {
           "id": "A",
-          "text": "200, 20000 and True, because collecting the chain materialised every value at once",
-          "misconception": ""
+          "text": "200, 40000 and True, because each stage hands on one value for every value it took",
+          "misconception": "believes a stage that doubles its values also doubles the number of values"
         },
         {
           "id": "B",
@@ -3133,8 +3133,8 @@
         },
         {
           "id": "C",
-          "text": "200, 40000 and True, because each stage hands on one value for every value it took",
-          "misconception": "believes a stage that doubles its values also doubles the number of values"
+          "text": "200, 20000 and True, because collecting the chain materialised every value at once",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3143,7 +3143,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The chain is lazy, but collecting it asks for every value and keeps them all, so the large collection really does hold twenty thousand strings and the measured peak is genuinely taken. The laziness is what makes the chain usable over a source that will not fit in memory, and it is discarded the moment somebody asks for the whole result at once, which is the trade the choice is really about. This was executed with the interpreter, and the answer reporting no peak is the belief to rule out first, because a list has to contain everything it was given and the values it holds are the chain's own strings.",
       "hint": "Ask what a list has to do with the values a chain hands it.",
@@ -3676,8 +3676,8 @@
       "options": [
         {
           "id": "A",
-          "text": "loaded then reused, because a module is loaded once and putting it on the path again does nothing",
-          "misconception": ""
+          "text": "loaded then reused, then a fault, because a module may not be asked about twice",
+          "misconception": "believes asking whether a module is loaded a second time is an error"
         },
         {
           "id": "B",
@@ -3691,12 +3691,12 @@
         },
         {
           "id": "D",
-          "text": "loaded then reused, then a fault, because a module may not be asked about twice",
-          "misconception": "believes asking whether a module is loaded a second time is an error"
+          "text": "loaded then reused, because a module is loaded once and putting it on the path again does nothing",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first call finds nothing loaded, imports the module and records it, and the second call finds the name already in the table of loaded modules and stops there, so the second project's directory never gets a look-in even though it was put at the front. That is exactly why a program sets up its search path before any of its own imports run, because an import that has already happened cannot be redirected. This was executed with the interpreter, and the answer loading it twice is the belief to rule out first, because a loaded module is recorded once and later offers of the same name are not consulted.",
       "hint": "Ask what a name in the table of loaded modules does to a later import of the same name.",
@@ -3745,13 +3745,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3 and all ones, then 3 and all ones, because the checker accepts both versions at once",
-          "misconception": ""
+          "text": "3 and all ones, then 2 and two ones, because only the old version is being served",
+          "misconception": "believes traffic may only be given to one version during a change"
         },
         {
           "id": "B",
-          "text": "3 and all ones, then 2 and two ones, because only the old version is being served",
-          "misconception": "believes traffic may only be given to one version during a change"
+          "text": "3 and all ones, then 3 and all ones, because the checker accepts both versions at once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3765,7 +3765,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The checker accepts either version, so all three instances pass before the change and all three pass afterwards, and the total never drops. That is the property the rolling arrangement is for: at no point is there a moment with nothing to serve, and the only cost is that both versions are live at once. This was executed with the interpreter, and the answer dropping the total is the belief to rule out first, because the checker is written to accept both versions precisely so that the overlap is a normal state rather than an accident.",
       "hint": "Ask which versions the checker is willing to give traffic to, and when either of them is in service.",
@@ -3814,8 +3814,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the finished quick line and the refused line, with the slow one still in flight, because only new work is turned away",
-          "misconception": ""
+          "text": "the finished quick line and the refused line, with nothing in flight, because the slow one finished inside the wait",
+          "misconception": "believes a long request finishes within the length of the program's final wait"
         },
         {
           "id": "B",
@@ -3824,8 +3824,8 @@
         },
         {
           "id": "C",
-          "text": "the finished quick line and the refused line, with nothing in flight, because the slow one finished inside the wait",
-          "misconception": "believes a long request finishes within the length of the program's final wait"
+          "text": "the finished quick line and the refused line, with the slow one still in flight, because only new work is turned away",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3834,7 +3834,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The quick request finishes well inside the program's final wait and records itself, the flag goes up while the slow one is still sleeping, and the third request finds the flag and records a refusal without being accepted, so the only entry still in flight is the slow one. This is the shape of a graceful stop: stop taking work, finish what was taken, and have a limit after which the rest is abandoned, and a request that is refused is a decision rather than a failure. This was executed with the interpreter, and the answer stopping the slow request is the belief to rule out first, because the flag is only consulted at the moment work is taken on and nothing in this program revokes work that is already under way.",
       "hint": "Ask when each of the two requests was accepted, and which of them is still running at the end.",
@@ -3883,8 +3883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "read_config and True, because the loop of arithmetic is where the work is, not the row splitting",
-          "misconception": ""
+          "text": "read_config and False, because a helper that only adds numbers is never charged",
+          "misconception": "believes arithmetic work is not charged as self time by a profile"
         },
         {
           "id": "B",
@@ -3898,12 +3898,12 @@
         },
         {
           "id": "D",
-          "text": "read_config and False, because a helper that only adds numbers is never charged",
-          "misconception": "believes arithmetic work is not charged as self time by a profile"
+          "text": "read_config and True, because the loop of arithmetic is where the work is, not the row splitting",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The profile charges each helper with its own steps, and the helper that loops twenty thousand times through an addition has far more of that than the one that splits fifty short strings, so the greatest self time belongs to the configuration reader. That is the whole point of profiling before changing anything: the team would have spent its effort on the row splitting and moved nothing, and the number of calls is a separate column that says nothing about where the time was spent. This was executed with the interpreter, and the answer naming the suspected helper is the belief to rule out first, because a suspicion about where the time is needs to be measured rather than acted on.",
       "hint": "Ask which helper's own steps run the most, rather than which one the team has a theory about.",

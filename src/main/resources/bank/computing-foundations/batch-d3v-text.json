@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1|22|333, because the scan resumes after each match, so every run of digits is taken once and the pieces keep the order they were found in",
-          "misconception": ""
+          "text": "1|2|2|3|3|3, because a run of digits is captured one character at a time rather than as a whole run",
+          "misconception": "believes a repeated-digit quantifier captures single characters"
         },
         {
           "id": "B",
-          "text": "1|2|2|3|3|3, because a run of digits is captured one character at a time rather than as a whole run",
-          "misconception": "believes a repeated-digit quantifier captures single characters"
+          "text": "1|22|333, because the scan resumes after each match, so every run of digits is taken once and the pieces keep the order they were found in",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The pattern asks for one or more digits, so it takes the whole run at each stop rather than one digit, and a repeated scan resumes where the last match finished, which is what keeps the runs from being found twice. Running it gave 1, 22, then 333, in that order. The rule that does the work here is the resume position: a scan that restarted from the beginning would report the first run over and over, and one that resumed at the character after the run would slice the next match in half.",
       "hint": "Ask how many digits one match takes, and where the scan looks next.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "<B>BOLD</B> then <B>, because the greedy quantifier stretches as far as it can while the reluctant one stops at the first closing bracket it can",
-          "misconception": ""
+          "text": "<B>BOLD</B> then <B>BOLD</B>, because the two quantifiers differ only in how much time they take and not in what they return",
+          "misconception": "believes the two quantifiers agree on the matched text"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "<B>BOLD</B> then <B>BOLD</B>, because the two quantifiers differ only in how much time they take and not in what they return",
-          "misconception": "believes the two quantifiers agree on the matched text"
+          "text": "<B>BOLD</B> then <B>, because the greedy quantifier stretches as far as it can while the reluctant one stops at the first closing bracket it can",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Both patterns open with a bracket, so both must end with one, and that is the only place they differ: the greedy form takes every character it can up to the last bracket in the text, while the reluctant form takes the fewest that still lets the pattern finish, which is the first bracket it meets. Running both gave <B>BOLD</B> and then <B>. Choosing between them is not a matter of taste, because the greedy form returns the outermost pair, and code that wants each tag separately needs the reluctant one or a pattern that stops at a bracket.",
       "hint": "Ask which closing bracket each form is willing to settle for.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One piece, REPORT.TXT-2026, and then two pieces, REPORT.TXT and 2026, because a hyphen listed inside a class is an ordinary member and so welds the halves together",
-          "misconception": ""
+          "text": "Two pieces, REPORT.TXT and -2026, because the hyphen is skipped and left to start the following piece",
+          "misconception": "believes a listed character is treated as a separator to be skipped"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "Two pieces, REPORT.TXT and -2026, because the hyphen is skipped and left to start the following piece",
-          "misconception": "believes a listed character is treated as a separator to be skipped"
+          "text": "One piece, REPORT.TXT-2026, and then two pieces, REPORT.TXT and 2026, because a hyphen listed inside a class is an ordinary member and so welds the halves together",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Inside a class, a hyphen with nothing after it is a plain character, so the wide class accepts letters, digits, underscores, full stops and hyphens alike, and the whole name qualifies as one run. Running both routines gave one piece and then two, which is the tell that the hyphen is doing membership work rather than splitting work. The trap is that the wide class looks like it describes filenames and so seems harmless, and it is, until the name is expected to come apart at the hyphen and does not.",
       "hint": "Ask whether a hyphen written last inside a class is a member or a separator.",
@@ -286,13 +286,13 @@
       "options": [
         {
           "id": "A",
-          "text": "TRUE and then TRUE, because an unescaped full stop stands for any one character, so a letter sitting in the separator position passes the check",
-          "misconception": ""
+          "text": "TRUE and then FALSE, because the two digit groups still have to be digits whichever character separates them",
+          "misconception": "believes the digit groups constrain the separator positions"
         },
         {
           "id": "B",
-          "text": "TRUE and then FALSE, because the two digit groups still have to be digits whichever character separates them",
-          "misconception": "believes the digit groups constrain the separator positions"
+          "text": "TRUE and then TRUE, because an unescaped full stop stands for any one character, so a letter sitting in the separator position passes the check",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -306,7 +306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The digit groups are strict but the separators are not, because a full stop written without its escape is a wildcard standing for exactly one character, and a letter is one character. Running the routine gave TRUE for the well-formed value and TRUE for the one with letters where hyphens belong, which is exactly the failure a validator must not have. The repair is to write the separator as a literal, either escaped or placed inside a class, and the general lesson is that a pattern has to be checked against the values it is supposed to refuse, not only against the one it was written for.",
       "hint": "Ask what a full stop means in a pattern when it is not written as a literal.",
@@ -353,8 +353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "TRUE and then FALSE, because an alternation at the top level divides the pattern in two so each half carries only one anchor, and grouping the two halves puts both anchors back",
-          "misconception": ""
+          "text": "TRUE and then TRUE, because a space is an ordinary character that neither half of the pattern needs to forbid",
+          "misconception": "believes grouping an alternation changes nothing about which values pass"
         },
         {
           "id": "B",
@@ -363,8 +363,8 @@
         },
         {
           "id": "C",
-          "text": "TRUE and then TRUE, because a space is an ordinary character that neither half of the pattern needs to forbid",
-          "misconception": "believes grouping an alternation changes nothing about which values pass"
+          "text": "TRUE and then FALSE, because an alternation at the top level divides the pattern in two so each half carries only one anchor, and grouping the two halves puts both anchors back",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -373,7 +373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An alternation is the lowest-binding operator, so a bar with nothing around it divides the whole pattern into two independent patterns, and the anchors are carried along by whichever half they were written next to. The first routine therefore reads as letters-at-the-start, or digits-at-the-end, and a space in the middle is in neither half, so TRUE comes back. Running both gave TRUE and then FALSE, and the grouped form is the correct one because the brackets make the two alternatives a single unit that both anchors can hold. This is the reason a bar in a long pattern is nearly always a mistake unless the alternatives are scoped.",
       "hint": "Ask how many separate patterns a bar with nothing around it creates.",
@@ -420,8 +420,8 @@
       "options": [
         {
           "id": "A",
-          "text": "FALSE and then TRUE, because the first group takes every digit it can, the end anchor is then reached too early, and the engine hands digits back one at a time until nothing fits",
-          "misconception": ""
+          "text": "TRUE and then FALSE, because the greedy first group swallows the first separator and leaves nothing for the pattern to match",
+          "misconception": "believes a digit group can capture a separator character"
         },
         {
           "id": "B",
@@ -435,12 +435,12 @@
         },
         {
           "id": "D",
-          "text": "TRUE and then FALSE, because the greedy first group swallows the first separator and leaves nothing for the pattern to match",
-          "misconception": "believes a digit group can capture a separator character"
+          "text": "FALSE and then TRUE, because the first group takes every digit it can, the end anchor is then reached too early, and the engine hands digits back one at a time until nothing fits",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first group is greedy, so it takes 12 and then 34, and the end anchor is then tested while 56 is still unread, which fails. The engine responds by giving back characters one at a time, shortening the first group, then the second, and finally trying a different starting position, and none of those attempts satisfies the anchor either. Running it gave FALSE and then TRUE, and the interesting part is the giving-back: it is why a pattern that looks short can cost far more work than its written length suggests, and why a pattern full of unbounded groups over a long text can stall.",
       "hint": "Ask what the engine does with the digits it already took once the end of the text arrives early.",
@@ -487,13 +487,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The routine never finishes, because the pattern is allowed to match nothing, so every pass adds zero to the position and the loop keeps restarting on the first character",
-          "misconception": ""
+          "text": "The routine finishes after two passes, because the digits are taken in one run and the position then steps past the end of the text",
+          "misconception": "believes a zero-digit pattern still consumes the digits it meets"
         },
         {
           "id": "B",
-          "text": "The routine finishes after two passes, because the digits are taken in one run and the position then steps past the end of the text",
-          "misconception": "believes a zero-digit pattern still consumes the digits it meets"
+          "text": "The routine never finishes, because the pattern is allowed to match nothing, so every pass adds zero to the position and the loop keeps restarting on the first character",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -507,7 +507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The pattern asks for zero or more digits, and at the first character, which is a letter, zero digits is a perfectly good answer, so the match is empty and the length added is zero. Because the position is the only thing the loop condition depends on, and it never moves, the routine runs forever on the same character. Running an instrumented copy confirmed the position stayed at 1 while the pass count climbed without limit, and the fix is either a pattern that must consume at least one character or a rule that steps past the position when the match is empty.",
       "hint": "Ask how many digits the pattern takes when the character under it is a letter.",
@@ -554,8 +554,8 @@
       "options": [
         {
           "id": "A",
-          "text": "FALSE and then TRUE, because a word boundary requires that the letters are not flanked by other word characters, and the same letters inside a longer word are flanked",
-          "misconception": ""
+          "text": "FALSE and then FALSE, because a pattern is never found inside a longer word under any form",
+          "misconception": "believes a search cannot look inside a word at all"
         },
         {
           "id": "B",
@@ -564,8 +564,8 @@
         },
         {
           "id": "C",
-          "text": "FALSE and then FALSE, because a pattern is never found inside a longer word under any form",
-          "misconception": "believes a search cannot look inside a word at all"
+          "text": "FALSE and then TRUE, because a word boundary requires that the letters are not flanked by other word characters, and the same letters inside a longer word are flanked",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -574,7 +574,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A word boundary is a claim about the neighbours, not about the letters themselves: it holds where a word character meets a non-word character or the edge of the text. Inside CONCATENATE the letters cat are followed by another letter, so the trailing boundary cannot hold and the whole-word test says no, while the bare pattern never asked about neighbours and says yes. Running both gave FALSE and then TRUE, and the practical consequence is that a search over a name list will report catalogue as a hit on cat unless the boundary is asked for on both sides.",
       "hint": "Ask what stands either side of the letters where the match is claimed.",
@@ -621,8 +621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "FALSE and then TRUE, because the first pattern insists on upper-case letters while the second compares letters without regard to case, so a lower-case tag now passes",
-          "misconception": ""
+          "text": "TRUE and then FALSE, because ignoring case narrows a pattern down to a single case instead of widening it",
+          "misconception": "believes case-insensitivity restricts rather than widens"
         },
         {
           "id": "B",
@@ -636,12 +636,12 @@
         },
         {
           "id": "D",
-          "text": "TRUE and then FALSE, because ignoring case narrows a pattern down to a single case instead of widening it",
-          "misconception": "believes case-insensitivity restricts rather than widens"
+          "text": "FALSE and then TRUE, because the first pattern insists on upper-case letters while the second compares letters without regard to case, so a lower-case tag now passes",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first pattern names upper-case letters, so a lower-case value cannot satisfy it, and the second applies the same pattern with the comparison made without regard to case, which the lower-case value does satisfy. Running both gave FALSE and then TRUE, and the point is that this is not a rounding difference, it is a different set of accepted values. Case-insensitivity is a real decision with real consequences: it helps when a person types a tag in any case and hurts when the case is part of what the value means, such as two records that differ only in case.",
       "hint": "Ask which pattern states a requirement about the case of the letters.",
@@ -688,13 +688,13 @@
       "options": [
         {
           "id": "A",
-          "text": "16, because the two line breaks each contributed a carriage return as well as a line feed, and the carriage returns are dropped while both line feeds survive",
-          "misconception": ""
+          "text": "18, because normalising the line endings changes the characters without changing how many there are",
+          "misconception": "believes normalisation preserves the length"
         },
         {
           "id": "B",
-          "text": "18, because normalising the line endings changes the characters without changing how many there are",
-          "misconception": "believes normalisation preserves the length"
+          "text": "16, because the two line breaks each contributed a carriage return as well as a line feed, and the carriage returns are dropped while both line feeds survive",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -708,7 +708,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A two-character line break is a carriage return followed by a line feed, so the text as it stands is longer than the same text with one-character breaks, and the routine removes only the carriage return from each line, leaving the line feed as the single break character. Running it gave 16 against an original length of 18, and the second line reads exactly as it should, which is the second thing worth checking. This is the step that lets two files written on different systems be compared as text rather than reported as different for no reason anyone can see.",
       "hint": "Count the line breaks, then ask how many characters each one contributes before and after.",
@@ -755,8 +755,8 @@
       "options": [
         {
           "id": "A",
-          "text": "4, and then RED, GREEN, BLUE and an empty piece, because a delimiter at the very end still separates one more piece and that piece holds nothing",
-          "misconception": ""
+          "text": "4, and then an empty piece followed by RED, GREEN and BLUE, because empty pieces are placed at the front of the list",
+          "misconception": "believes an empty piece is inserted at the start"
         },
         {
           "id": "B",
@@ -765,8 +765,8 @@
         },
         {
           "id": "C",
-          "text": "4, and then an empty piece followed by RED, GREEN and BLUE, because empty pieces are placed at the front of the list",
-          "misconception": "believes an empty piece is inserted at the start"
+          "text": "4, and then RED, GREEN, BLUE and an empty piece, because a delimiter at the very end still separates one more piece and that piece holds nothing",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -775,7 +775,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A split answers the question of how many pieces lie between the delimiters, and after the final comma there is one more of those, which happens to contain nothing, so the list is longer than the number of names a reader would say. Running it gave 4 with an empty last piece, and joining those pieces back reproduces the original text exactly, which is the check that makes the empty piece correct rather than an error. The practical consequence is that a reader expecting three names gets four entries, and a routine that refuses empty values has to decide deliberately whether that last one is a missing value or a trailing comma.",
       "hint": "Ask how many pieces lie between the commas when the text ends with one.",
@@ -822,8 +822,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1 and then FALSE, because packing joined the two names with a semicolon, so splitting on a comma finds no separator and hands back the whole packed text as a single field",
-          "misconception": ""
+          "text": "2 and then FALSE, because the two fields are ALPHA and BETA with the semicolon quietly treated as a comma",
+          "misconception": "believes a split recognises any separator character"
         },
         {
           "id": "B",
@@ -837,12 +837,12 @@
         },
         {
           "id": "D",
-          "text": "2 and then FALSE, because the two fields are ALPHA and BETA with the semicolon quietly treated as a comma",
-          "misconception": "believes a split recognises any separator character"
+          "text": "1 and then FALSE, because packing joined the two names with a semicolon, so splitting on a comma finds no separator and hands back the whole packed text as a single field",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A join and a split are inverses only when they are given the same separator, because the split has to be told what to look for and the semicolon is not a comma. Running the routines gave a single field holding the whole packed text, and the round-trip check reported FALSE, which is the honest answer and the reason such a check is worth writing. The trap is that the two routines look like a matched pair because they take a list and give a list, and it is only the argument that differs, which is exactly the sort of detail a round-trip assertion is designed to catch.",
       "hint": "Ask what separator the packed text actually contains, and what the split is looking for.",
@@ -889,13 +889,13 @@
       "options": [
         {
           "id": "A",
-          "text": "RED GREEN BLUE, and then 19, because tidying also collapses the runs inside the text while removing the outer spaces alone leaves every one of them",
-          "misconception": ""
+          "text": "RED    GREEN   BLUE, and then 19, because tidying leaves the inner runs alone and only the outer spaces are removed",
+          "misconception": "believes trimming also collapses internal runs"
         },
         {
           "id": "B",
-          "text": "RED    GREEN   BLUE, and then 19, because tidying leaves the inner runs alone and only the outer spaces are removed",
-          "misconception": "believes trimming also collapses internal runs"
+          "text": "RED GREEN BLUE, and then 19, because tidying also collapses the runs inside the text while removing the outer spaces alone leaves every one of them",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -909,7 +909,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Removing spaces from both ends is a local operation on two boundaries and leaves everything between them exactly as it was, which is why the trimmed text is still nineteen characters long with its four-space and three-space runs intact. Collapsing runs is a different operation that reaches the whole text, and the two produce visibly different results: three words separated by one space each. Running both gave RED GREEN BLUE and nineteen, and the reason to know the difference is that a display which needs single spaces between words needs the collapse, while a value that must be preserved exactly needs only the trim.",
       "hint": "Ask whether the operation reaches the runs of spaces between the words.",
@@ -956,8 +956,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 and then 1, because the two occurrences overlap, so testing every starting place sees both while a scan that steps over the letters it just used sees one",
-          "misconception": ""
+          "text": "2 and then 2, because the number of occurrences is a property of the text alone and cannot depend on the scan",
+          "misconception": "believes a count is independent of how the scan resumes"
         },
         {
           "id": "B",
@@ -966,8 +966,8 @@
         },
         {
           "id": "C",
-          "text": "2 and then 2, because the number of occurrences is a property of the text alone and cannot depend on the scan",
-          "misconception": "believes a count is independent of how the scan resumes"
+          "text": "2 and then 1, because the two occurrences overlap, so testing every starting place sees both while a scan that steps over the letters it just used sees one",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -976,7 +976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two occurrences of ANA in BANANA share their last character, so they overlap, and a routine that tests each starting place in turn finds both of them. The advancing routine jumps past the whole piece it just matched, which means it steps over the letter the second occurrence needs in order to begin, and so it reports one. Running both gave 2 and then 1, and this is why a count of what a text contains has to state its rule: counting every place the piece begins and counting every disjoint piece are different questions that give different answers on the same text.",
       "hint": "Ask whether the two occurrences in the text share any character.",
@@ -1023,8 +1023,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 and then 1, because the overlap only exists once case is ignored, and a whole-match pass that resumes after each hit steps over the letters the second hit needs",
-          "misconception": ""
+          "text": "1 and then 2, because the routine that examines every starting place is the one that reports the whole overlap",
+          "misconception": "believes the every-place routine counts fewer occurrences"
         },
         {
           "id": "B",
@@ -1038,12 +1038,12 @@
         },
         {
           "id": "D",
-          "text": "1 and then 2, because the routine that examines every starting place is the one that reports the whole overlap",
-          "misconception": "believes the every-place routine counts fewer occurrences"
+          "text": "2 and then 1, because the overlap only exists once case is ignored, and a whole-match pass that resumes after each hit steps over the letters the second hit needs",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "With case respected, the lower-case needle never matches this text at all, and it is only when case is ignored that a second overlapping occurrence appears, one that begins on the middle letter of the first. The every-place routine therefore finds two, while a whole-match pass takes the first hit, resumes after its three characters, and finds no second hit because what remains no longer lines up. Running both gave 2 and then 1, and the lesson is that adding case-insensitivity can change a count in two ways at once, by adding hits and by making overlaps possible that the case-sensitive text did not contain.",
       "hint": "Ask whether an overlap exists at all before the comparison stops caring about case.",
@@ -1090,13 +1090,13 @@
       "options": [
         {
           "id": "A",
-          "text": "AA and then A, because the first pass leaves a pair of adjacent letters behind, so a second pass over the same text finds work to do and the routine is not safe to run twice",
-          "misconception": ""
+          "text": "A and then A, because replacing every pair at once always leaves nothing behind for a second pass to find",
+          "misconception": "believes one pass removes every occurrence of the pair"
         },
         {
           "id": "B",
-          "text": "A and then A, because replacing every pair at once always leaves nothing behind for a second pass to find",
-          "misconception": "believes one pass removes every occurrence of the pair"
+          "text": "AA and then A, because the first pass leaves a pair of adjacent letters behind, so a second pass over the same text finds work to do and the routine is not safe to run twice",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1110,7 +1110,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "One pass over four adjacent letters takes the first pair and the second pair, because those are the two pairs it finds, and the two single letters it leaves are themselves adjacent, which is the whole difficulty. The output is therefore still a pair, and a second pass shortens it again to a single letter. Running both gave AA and then A, and the general point is that a replacement is only safe to repeat when the text it produces contains no further occurrence of the pattern it replaces, which is why writing the pattern to require one or more of the letter fixes it in one pass.",
       "hint": "Ask whether the letters the first pass leaves are themselves adjacent.",
@@ -1157,8 +1157,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2026/09-26 and then 2026/09/26, because a replacement told to change only the first occurrence leaves every later separator exactly where it was",
-          "misconception": ""
+          "text": "2026-09/26 and then 2026-09/26, because a replacement starts from the right-hand end of a text and works leftwards",
+          "misconception": "believes replacement proceeds from the end of the text"
         },
         {
           "id": "B",
@@ -1167,8 +1167,8 @@
         },
         {
           "id": "C",
-          "text": "2026-09/26 and then 2026-09/26, because a replacement starts from the right-hand end of a text and works leftwards",
-          "misconception": "believes replacement proceeds from the end of the text"
+          "text": "2026/09-26 and then 2026/09/26, because a replacement told to change only the first occurrence leaves every later separator exactly where it was",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1177,7 +1177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two routines differ only in how many occurrences they are told to act on, and that single word is the whole behaviour: the first swaps the one separator that comes earliest and leaves the other two alone, while the second swaps all of them. Running both gave the two dates, and the practical point is that the choice is a statement of intent rather than a detail. Rewriting a date for display usually wants every separator changed, while changing only the first is the right move when a text holds several similar things and exactly one of them is the target.",
       "hint": "Ask how many separators each routine was told to change, and count them in the text.",
@@ -1694,8 +1694,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Every value that contains the described piece somewhere, at any position and with any amount of text before and after it, because a match is a piece of a text and not a description of the whole",
-          "misconception": ""
+          "text": "The values whose length equals the length of the described piece, because a match of a different length is not a match at all",
+          "misconception": "believes the length of a match must equal the length of the pattern"
         },
         {
           "id": "B",
@@ -1709,12 +1709,12 @@
         },
         {
           "id": "D",
-          "text": "The values whose length equals the length of the described piece, because a match of a different length is not a match at all",
-          "misconception": "believes the length of a match must equal the length of the pattern"
+          "text": "Every value that contains the described piece somewhere, at any position and with any amount of text before and after it, because a match is a piece of a text and not a description of the whole",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A pattern describes a language, and a match is one member of it occurring inside a larger text, so surrounding text is irrelevant to whether the match happened. That is what makes a pattern a convenient search tool and a poor acceptance test at the same time, since a value carrying the right piece among others is accepted along with a value that is nothing but the piece. The fix for a checker that means to accept only well-formed values is to require the match to reach both ends of the value, which is what anchors are for, and the piece to look for is then whether the pattern is anchored at the start, at the end, or at both.",
       "hint": "Ask what a match is: the whole value, or one piece of it.",
@@ -1761,13 +1761,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Every character lying between the two named ones in the code ordering, which includes the upper-case letters, five punctuation symbols, and the lower-case letters, so the class is far wider than it looks",
-          "misconception": ""
+          "text": "Nothing at all, because a range names only the two characters written at its ends and the ordering between them is irrelevant",
+          "misconception": "believes a range covers only its two endpoints"
         },
         {
           "id": "B",
-          "text": "Nothing at all, because a range names only the two characters written at its ends and the ordering between them is irrelevant",
-          "misconception": "believes a range covers only its two endpoints"
+          "text": "Every character lying between the two named ones in the code ordering, which includes the upper-case letters, five punctuation symbols, and the lower-case letters, so the class is far wider than it looks",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1781,7 +1781,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A range is a shorthand for every character whose code lies between the two ends, so the symbols for the square bracket, the backslash, the caret, the underscore and the grave accent sit between Z and a in the usual ordering and are admitted without anyone naming them. Checking the class against every printable character returned 58 members, of which only 52 are letters, which is the six extra symbols in one line of code. This is the reason a validator that must accept letters only should list the ranges separately rather than join them, because a joined range admits characters nobody thought about.",
       "hint": "Ask what lies between the two named characters in the code ordering.",
@@ -1828,8 +1828,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The bar has the lowest precedence, so it divides the entire pattern and the prefix and suffix drift into separate alternatives; the fix is to bracket the alternatives so the pattern is prefix, then one of the two, then suffix",
-          "misconception": ""
+          "text": "The bar must be removed entirely, because a pattern can name only one thing at a time and alternatives are never permitted",
+          "misconception": "believes a pattern cannot offer alternatives"
         },
         {
           "id": "B",
@@ -1838,8 +1838,8 @@
         },
         {
           "id": "C",
-          "text": "The bar must be removed entirely, because a pattern can name only one thing at a time and alternatives are never permitted",
-          "misconception": "believes a pattern cannot offer alternatives"
+          "text": "The bar has the lowest precedence, so it divides the entire pattern and the prefix and suffix drift into separate alternatives; the fix is to bracket the alternatives so the pattern is prefix, then one of the two, then suffix",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1848,7 +1848,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The bar is the loosest thing in a pattern, so with nothing around it the pattern reads as one alternative between the prefix and the first alternative and a second alternative after it, and the suffix is attached to only half the pattern. Running the unbracketed form showed a value with a space in the middle being accepted, which the bracketed form correctly refused. Brackets are therefore not decoration, they are how a pattern says which part the bar is allowed to divide, and the habit worth building is to bracket every bar by reflex so the question never has to be asked again.",
       "hint": "Ask how many separate patterns a bar with nothing bracketed around it creates.",
@@ -1895,8 +1895,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Because a boundary asks whether the letters are flanked by non-word characters, and the same letters inside THEATRE are flanked by a letter, so the boundary-aware count finds 2 while the bare count finds 3",
-          "misconception": ""
+          "text": "Because a bare count cannot be repeated on the same line, so the two figures are computed by different rules rather than by the same search",
+          "misconception": "believes a search cannot be run twice"
         },
         {
           "id": "B",
@@ -1910,12 +1910,12 @@
         },
         {
           "id": "D",
-          "text": "Because a bare count cannot be repeated on the same line, so the two figures are computed by different rules rather than by the same search",
-          "misconception": "believes a search cannot be run twice"
+          "text": "Because a boundary asks whether the letters are flanked by non-word characters, and the same letters inside THEATRE are flanked by a letter, so the boundary-aware count finds 2 while the bare count finds 3",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The line holds the word three times as a whole word and once more as the opening of another word, and the question asked is which of those a report means. A boundary on both sides answers that by requiring the letters to be free of neighbouring word characters, which the letters inside THEATRE are not, so the two counts come apart. Running both confirmed 2 and then 3, and the reporting habit that follows is to say which of the two questions the figure answers, because a count of a word that quietly includes part of a longer word will disagree with a reader's own count every time.",
       "hint": "Ask whether the same letters appear anywhere else in the line as part of a longer word.",
@@ -1962,13 +1962,13 @@
       "options": [
         {
           "id": "A",
-          "text": "An unbounded group takes as much as it can and then gives characters back one at a time when a later part of the pattern fails, and a text with many nearly-matching stretches multiplies those attempts at every starting place",
-          "misconception": ""
+          "text": "Every character of the text is compared against every character of the pattern, so the work is the product of the two lengths rather than a single pass",
+          "misconception": "believes matching compares every character of a text with every character of a pattern"
         },
         {
           "id": "B",
-          "text": "Every character of the text is compared against every character of the pattern, so the work is the product of the two lengths rather than a single pass",
-          "misconception": "believes matching compares every character of a text with every character of a pattern"
+          "text": "An unbounded group takes as much as it can and then gives characters back one at a time when a later part of the pattern fails, and a text with many nearly-matching stretches multiplies those attempts at every starting place",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1982,7 +1982,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The number of attempts is driven by how often a partial match is built and then undone, and an unbounded group is exactly the construct that builds them: it takes a long run, discovers the next element cannot follow, and shortens the run one character at a time. On a text full of nearly-matching stretches, that sequence of build-and-undo happens at very many starting places, which is why the cost is governed by the text and not by the length of the pattern. The practical response is to make the pattern more specific, since a pattern that fails early at each starting place does far fewer of these attempts than one that fails late.",
       "hint": "Ask what happens to characters a group has already taken when the next part of the pattern fails.",
@@ -2029,8 +2029,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It must require every match to consume at least one character, or advance explicitly when the match is empty, because a zero-length match adds nothing to the position and the loop then repeats the same step forever",
-          "misconception": ""
+          "text": "It must count the matches as it goes, because the danger is a scan that returns fewer matches than the reader expected",
+          "misconception": "believes the risk is a wrong count rather than a stall"
         },
         {
           "id": "B",
@@ -2039,8 +2039,8 @@
         },
         {
           "id": "C",
-          "text": "It must count the matches as it goes, because the danger is a scan that returns fewer matches than the reader expected",
-          "misconception": "believes the risk is a wrong count rather than a stall"
+          "text": "It must require every match to consume at least one character, or advance explicitly when the match is empty, because a zero-length match adds nothing to the position and the loop then repeats the same step forever",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2049,7 +2049,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The warning is about loops whose progress is derived from the match, because an empty match is a legitimate result that carries no length, and a position that grows by nothing never leaves the place it started. An instrumented copy of such a scan showed the position sitting at its first character while the pass count climbed without limit, which is the whole failure in one observation. The two ways out are to write a pattern that must consume something, such as asking for one or more rather than zero or more, or to keep the rule that an empty match still advances the position by one so the scan can make progress.",
       "hint": "Ask what a loop does when the thing it adds to its position is zero.",
@@ -2096,8 +2096,8 @@
       "options": [
         {
           "id": "A",
-          "text": "45-13-2026, because the pattern fixes the shape of the value and says nothing about which months exist or how long they are, so a month of 13 and a day of 45 both pass",
-          "misconception": ""
+          "text": "None of them, because a value of exactly eight digits and two hyphens always names a date that exists",
+          "misconception": "believes the right shape implies a real value"
         },
         {
           "id": "B",
@@ -2111,12 +2111,12 @@
         },
         {
           "id": "D",
-          "text": "None of them, because a value of exactly eight digits and two hyphens always names a date that exists",
-          "misconception": "believes the right shape implies a real value"
+          "text": "45-13-2026, because the pattern fixes the shape of the value and says nothing about which months exist or how long they are, so a month of 13 and a day of 45 both pass",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A pattern is a statement about shape, and the shape of 45-13-2026 is exactly right, so the check passes it while the calendar rule is nowhere in the pattern. Confirming this showed the pattern accepting that value and also 31-02-2026, a day that does not exist in a year that is not a leap year, and both being refused by a rule that actually knows the month lengths. The lesson generalises past dates: a pattern is the right tool for the part of validity that is about shape, and a second check that knows the range of each piece is what turns shape into validity.",
       "hint": "Ask which part of validity a pattern is able to express at all.",
@@ -2163,13 +2163,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The two files mark the ends of their lines differently, so the raw texts differ in characters that carry no meaning; the fix is to normalise the line endings on both copies before comparing, and to compare the originals as well when the difference itself matters",
-          "misconception": ""
+          "text": "One of the files is corrupt, so the fix is to discard it and keep whichever copy a reader recognises as correct",
+          "misconception": "believes a reported difference means one copy is damaged"
         },
         {
           "id": "B",
-          "text": "One of the files is corrupt, so the fix is to discard it and keep whichever copy a reader recognises as correct",
-          "misconception": "believes a reported difference means one copy is damaged"
+          "text": "The two files mark the ends of their lines differently, so the raw texts differ in characters that carry no meaning; the fix is to normalise the line endings on both copies before comparing, and to compare the originals as well when the difference itself matters",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2183,7 +2183,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The same text can be written with one-character breaks or two-character breaks, and comparing those byte for byte reports a difference that no reader would ever call a difference in the report. Normalising the line endings on both copies first makes the two compare equal, which is what a check for change wants to know. The second half of the fix is the part people leave out: normalisation is a decision about what counts as the same text, so a place where a stray carriage return is itself meaningful should keep both comparisons and say which one it is reporting.",
       "hint": "Ask whether the characters that differ carry any meaning to a reader of the report.",
@@ -2230,8 +2230,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Remove the spaces at both ends and collapse the runs between words, so the stored value reads as one address rather than as a layout, and keep the value the person typed available for anything where the spacing mattered",
-          "misconception": ""
+          "text": "Collapse every run of spaces and keep the outer ones, because a display that indents its first line is rendering the value as it was entered",
+          "misconception": "believes outer spaces should be kept and inner runs removed"
         },
         {
           "id": "B",
@@ -2240,8 +2240,8 @@
         },
         {
           "id": "C",
-          "text": "Collapse every run of spaces and keep the outer ones, because a display that indents its first line is rendering the value as it was entered",
-          "misconception": "believes outer spaces should be kept and inner runs removed"
+          "text": "Remove the spaces at both ends and collapse the runs between words, so the stored value reads as one address rather than as a layout, and keep the value the person typed available for anything where the spacing mattered",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2250,7 +2250,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A free-text field is typed by a person, and the spacing that arrives is a consequence of the keyboard rather than an intention, so both the outer spaces and the runs between words are noise for anything that reads the value later. Collapsing both is what makes two people who typed the same address produce the same stored text. The cost is that a value which genuinely depends on its spacing, such as a piece of code laid out in columns, must not go through this route, which is why the answer keeps the original alongside the tidied copy rather than quietly replacing it.",
       "hint": "Ask whether the spacing in the value was chosen or produced by the keyboard.",
@@ -2297,8 +2297,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Because the split only reports what lay between the delimiters, and between two delimiters with nothing in between there is a piece of length zero in both cases, so the record has to carry some other sign that the field was omitted",
-          "misconception": ""
+          "text": "Because the two cases differ only in the delimiter used, so reading with the wrong separator is what makes them look alike",
+          "misconception": "believes the confusion is caused by the choice of separator"
         },
         {
           "id": "B",
@@ -2312,12 +2312,12 @@
         },
         {
           "id": "D",
-          "text": "Because the two cases differ only in the delimiter used, so reading with the wrong separator is what makes them look alike",
-          "misconception": "believes the confusion is caused by the choice of separator"
+          "text": "Because the split only reports what lay between the delimiters, and between two delimiters with nothing in between there is a piece of length zero in both cases, so the record has to carry some other sign that the field was omitted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A blank value and an omitted value are two different facts about the record, and the line as written encodes only one of them, because in both cases the characters between the delimiters are simply absent. A split is therefore a faithful reader of the line and an unfaithful reader of the record, which is why the encoding has to be changed if the distinction matters, for instance by writing a named marker for an omitted field. This matters in practice wherever a reader is asked to distinguish an empty answer from no answer, because the two call for different follow-up.",
       "hint": "Ask what the line actually contains between the two delimiters in each case.",
@@ -2364,13 +2364,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The separator has to be a character the values cannot contain, and the writing and reading halves have to name the same one, so a value carrying the separator would otherwise split into pieces that were never there",
-          "misconception": ""
+          "text": "The separator has to be the first character of the alphabet, so that no value can begin with it and hide a field boundary",
+          "misconception": "believes a separator is only safe if no value can start with it"
         },
         {
           "id": "B",
-          "text": "The separator has to be the first character of the alphabet, so that no value can begin with it and hide a field boundary",
-          "misconception": "believes a separator is only safe if no value can start with it"
+          "text": "The separator has to be a character the values cannot contain, and the writing and reading halves have to name the same one, so a value carrying the separator would otherwise split into pieces that were never there",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2384,7 +2384,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A delimited format carries no other structure, so the only thing marking a field boundary is the separator itself, and a value containing that character is indistinguishable from two values. Choosing a separator the values cannot contain, and using the same choice on both sides, is what keeps the pair of routines compatible as the data changes, and it is why formats with richer structure exist for values that may hold anything. Running a join and a split that disagreed on the separator produced a single field where two were expected, which is the failure in its smallest form.",
       "hint": "Ask what a value containing the separator would look like to the routine that reads it.",
@@ -2431,8 +2431,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Only in the check that refuses a code typed in the wrong case, so the person is helped, and never in the check that decides whether two codes are the same record, since case-blind there would merge two records into one",
-          "misconception": ""
+          "text": "In neither check, because a code is a code and the case it was typed in is part of the value",
+          "misconception": "believes case is never worth forgiving"
         },
         {
           "id": "B",
@@ -2441,8 +2441,8 @@
         },
         {
           "id": "C",
-          "text": "In neither check, because a code is a code and the case it was typed in is part of the value",
-          "misconception": "believes case is never worth forgiving"
+          "text": "Only in the check that refuses a code typed in the wrong case, so the person is helped, and never in the check that decides whether two codes are the same record, since case-blind there would merge two records into one",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2451,7 +2451,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two checks answer different questions, and only one of them is about a person's typing habits. Being forgiving on entry is generous and loses nothing, while being forgiving about identity silently merges two records that the system was told to keep apart, and the merge is invisible because both codes still look plausible. This is the general shape of the decision: case-blindness belongs where the case is incidental, such as a search a person types, and not where it is a claim about identity, such as a key that must be unique.",
       "hint": "Ask which of the two checks is about a person's typing and which is about what the record is.",
@@ -2498,8 +2498,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The writing half must mark each of those two characters so they cannot be read as syntax, and the reading half must undo the marking in one left-to-right pass, because a mark followed by another mark has to be read as one escaped mark rather than as two instructions",
-          "misconception": ""
+          "text": "Nothing is needed, because a value already sitting inside a larger text is not itself re-read, so nothing can be confused with syntax",
+          "misconception": "believes an embedded value is never read back"
         },
         {
           "id": "B",
@@ -2513,12 +2513,12 @@
         },
         {
           "id": "D",
-          "text": "Nothing is needed, because a value already sitting inside a larger text is not itself re-read, so nothing can be confused with syntax",
-          "misconception": "believes an embedded value is never read back"
+          "text": "The writing half must mark each of those two characters so they cannot be read as syntax, and the reading half must undo the marking in one left-to-right pass, because a mark followed by another mark has to be read as one escaped mark rather than as two instructions",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Embedding a value inside a text that carries its own meaning means the value's own characters can collide with that syntax, so writing has to mark them and reading has to remove the marks. The part that is easy to get wrong is the reading pass: an escaped backslash is two characters in the embedded form, and a reading routine that removes the backslashes first and the quotation marks afterwards will read an escaped backslash as the start of an escape for whatever follows it. One left-to-right pass that looks at each mark together with the single character after it is what makes the pair round-trip, and running a round trip on a value holding both characters returned it unchanged.",
       "hint": "Ask what a routine that strips marks one kind at a time does to a doubled backslash.",
@@ -2565,13 +2565,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The text it produces must contain no further occurrence of the piece it replaces, because a second run changes the result only if there is still something there for it to change",
-          "misconception": ""
+          "text": "The piece it replaces must be the first character of the text, so a second run always begins where the first one finished",
+          "misconception": "believes a repeat is safe only at the start"
         },
         {
           "id": "B",
-          "text": "The piece it replaces must be the first character of the text, so a second run always begins where the first one finished",
-          "misconception": "believes a repeat is safe only at the start"
+          "text": "The text it produces must contain no further occurrence of the piece it replaces, because a second run changes the result only if there is still something there for it to change",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2585,7 +2585,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A second run differs from the first only if there is something left for it to act on, so the condition for a harmless repeat is that the first run left no copy of the pattern behind. Replacing a pair of adjacent letters with a single one fails that test, because the two single letters the first run leaves are themselves a pair, and running it on four letters gave AA and then A. Writing the pattern to ask for one or more of the letter instead fixes it in a single pass, and a round-trip assertion of the form apply-twice-equals-apply-once is the cheap way to keep the property from being lost by a later edit.",
       "hint": "Ask whether the first pass can leave behind another copy of what it was looking for.",
@@ -2632,8 +2632,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Change only the first occurrence, because the routine was told about one occurrence and the rest of the text is not its business; a routine that changes everything is a decision about content, not tidying",
-          "misconception": ""
+          "text": "Change every occurrence and then tell the reader which ones were changed, because a silent partial change is worse than a complete one",
+          "misconception": "believes a full change needs to be reported"
         },
         {
           "id": "B",
@@ -2642,8 +2642,8 @@
         },
         {
           "id": "C",
-          "text": "Change every occurrence and then tell the reader which ones were changed, because a silent partial change is worse than a complete one",
-          "misconception": "believes a full change needs to be reported"
+          "text": "Change only the first occurrence, because the routine was told about one occurrence and the rest of the text is not its business; a routine that changes everything is a decision about content, not tidying",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2652,7 +2652,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The instruction names one occurrence, and a routine that follows its instruction exactly is one whose behaviour can be predicted from the instruction alone, which is what makes it testable. Changing every occurrence turns a formatting fix into a rewrite of the note, and the fact that the two mentions name the same thing is a claim about content that the routine cannot verify. The general rule is that the scope of a change belongs to whoever decides what should change, and the routine's job is to honour that scope precisely rather than to improve on it.",
       "hint": "Ask how many occurrences the routine was told to change.",
@@ -2699,8 +2699,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The whole line as the name and nothing at all as the value, so a value is silently missing and the setting it belonged to takes on whatever the routine uses for an absent value",
-          "misconception": ""
+          "text": "The two words as the name and the value, because a parser that finds no equals sign looks for the first space instead",
+          "misconception": "believes a parser substitutes a space for a missing separator"
         },
         {
           "id": "B",
@@ -2714,12 +2714,12 @@
         },
         {
           "id": "D",
-          "text": "The two words as the name and the value, because a parser that finds no equals sign looks for the first space instead",
-          "misconception": "believes a parser substitutes a space for a missing separator"
+          "text": "The whole line as the name and nothing at all as the value, so a value is silently missing and the setting it belonged to takes on whatever the routine uses for an absent value",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A split with no separator to find returns the whole text as a single piece, so the parser reads the name correctly and reaches past the end for the value, and a routine that does not check for that will substitute whatever it holds for an absent value. The result is a setting that appears to have been written down and has not, which is the hardest kind of fault to notice later. Confirming the behaviour showed one piece where two were expected, and the fix is at the parser: check the number of pieces before reading the second, and report the line rather than inventing a value for it.",
       "hint": "Ask how many pieces a split returns when the separator it was given is not present.",
@@ -2766,13 +2766,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Because the figure is computed and the threshold decides: the same two names give 83.3 percent and are accepted at 80 but refused at 90, so every decision that hangs near the boundary is settled by where the cut was drawn rather than by the text",
-          "misconception": ""
+          "text": "Because the figure is rounded before the comparison, so a threshold written as a whole number is compared against an exact fraction and the rounding decides the outcome",
+          "misconception": "believes rounding rather than the cut settles a near miss"
         },
         {
           "id": "B",
-          "text": "Because the figure is rounded before the comparison, so a threshold written as a whole number is compared against an exact fraction and the rounding decides the outcome",
-          "misconception": "believes rounding rather than the cut settles a near miss"
+          "text": "Because the figure is computed and the threshold decides: the same two names give 83.3 percent and are accepted at 80 but refused at 90, so every decision that hangs near the boundary is settled by where the cut was drawn rather than by the text",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2786,7 +2786,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The similarity figure is a fact about two texts and can be computed and argued over separately, but nothing happens until it is compared with a cut, and at the boundary the cut is the only thing left deciding. COLOUR against COLOR scores 83.3, which is inside a cut at 80 and outside a cut at 90, so the same measurement gives opposite answers. That is why choosing the threshold is a decision about what the system is for: a lenient cut at 80 will also let through pairs that are only loosely similar, and a strict cut at 90 will refuse the near misses a person would have accepted.",
       "hint": "Ask whether the same measured figure can be accepted by one cut and refused by another.",
@@ -2833,8 +2833,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It has settled that every position either agrees or differs and that the two cancel out, and it has left open which pairs agreed, since half a dozen positions can agree in many different places and all of them score zero",
-          "misconception": ""
+          "text": "It has settled nothing at all, because a score computed without knowing the scoring rule cannot be interpreted by anyone reading the result",
+          "misconception": "believes a score is uninterpretable without the rule"
         },
         {
           "id": "B",
@@ -2843,8 +2843,8 @@
         },
         {
           "id": "C",
-          "text": "It has settled nothing at all, because a score computed without knowing the scoring rule cannot be interpreted by anyone reading the result",
-          "misconception": "believes a score is uninterpretable without the rule"
+          "text": "It has settled that every position either agrees or differs and that the two cancel out, and it has left open which pairs agreed, since half a dozen positions can agree in many different places and all of them score zero",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2853,7 +2853,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A score is a single number summarising a lining-up, and the summary loses the lining-up, so a zero can come from a short identical run, from two very different sequences of the same length, or from anything between. What the number does settle is arithmetic: how many positions agreed and how many differed, and their balance, which for AB against BA showed a score of minus one from one agreement and two gaps rather than from two mismatches. Reading a score without the lining-up behind it is therefore reading a total without its parts, and the honest habit is to report the lining-up when the decision matters.",
       "hint": "Ask how many different lining-ups can produce one and the same score.",
@@ -2900,8 +2900,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It replaces the whole-file walk with a lookup in one short list per term, so the work becomes reading the documents once while building the lists and then only examining the documents a term actually appears in",
-          "misconception": ""
+          "text": "It replaces the whole-file walk with a longer build that pays for itself only once the number of terms exceeds the number of documents",
+          "misconception": "believes an index pays off only when terms outnumber documents"
         },
         {
           "id": "B",
@@ -2915,12 +2915,12 @@
         },
         {
           "id": "D",
-          "text": "It replaces the whole-file walk with a longer build that pays for itself only once the number of terms exceeds the number of documents",
-          "misconception": "believes an index pays off only when terms outnumber documents"
+          "text": "It replaces the whole-file walk with a lookup in one short list per term, so the work becomes reading the documents once while building the lists and then only examining the documents a term actually appears in",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The work before indexing is proportional to the number of terms times the size of the collection, because each term needs its own walk, and the work after is proportional to the size of the collection once plus the size of the lists that have to be read. On a small worked example with three documents, the list for one term held two of them, so the answer came from two documents rather than from all three, and the lists were built by reading each document once. The trade is space and the cost of keeping the lists current, and that cost is why an index has to be rebuilt when the documents change.",
       "hint": "Ask what has to be read once to answer many terms, rather than once per term.",
@@ -2967,13 +2967,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Because a pattern decides what a piece of text looks like and cannot remember an earlier piece, so the check has to read the list into a structure that holds what it has already seen and refuse a word already in it",
-          "misconception": ""
+          "text": "Because a pattern cannot be applied more than once to the same text, so the rule has to be written as a different pattern for each possible list length",
+          "misconception": "believes a pattern may be applied to a text only once"
         },
         {
           "id": "B",
-          "text": "Because a pattern cannot be applied more than once to the same text, so the rule has to be written as a different pattern for each possible list length",
-          "misconception": "believes a pattern may be applied to a text only once"
+          "text": "Because a pattern decides what a piece of text looks like and cannot remember an earlier piece, so the check has to read the list into a structure that holds what it has already seen and refuse a word already in it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2987,7 +2987,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A pattern answers a question about one piece of text at a time, and every position in the pattern is decided by the characters at or near that position, so nothing in it can refer back to a word that appeared earlier. Repeats are exactly that kind of claim, which is why they need something that remembers, and the smallest such thing is a set of the words already seen. This is the general boundary: patterns handle shape, repetition and alternation within a bounded window, and any rule that depends on history has to be handed to a structure that can hold the history.",
       "hint": "Ask whether a pattern can refer to a part of the text it has already passed.",
@@ -3034,8 +3034,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Print the matched text beside the name that was searched for on the first twenty hits: if the matched text equals the name in a different case, candidate one holds, and if it is a longer name containing those letters, candidate two holds",
-          "misconception": ""
+          "text": "Check whether the 900 entries include any name held twice, because a duplicated entry would inflate the count without either candidate being at fault",
+          "misconception": "believes duplicated entries can inflate a search result"
         },
         {
           "id": "B",
@@ -3044,8 +3044,8 @@
         },
         {
           "id": "C",
-          "text": "Check whether the 900 entries include any name held twice, because a duplicated entry would inflate the count without either candidate being at fault",
-          "misconception": "believes duplicated entries can inflate a search result"
+          "text": "Print the matched text beside the name that was searched for on the first twenty hits: if the matched text equals the name in a different case, candidate one holds, and if it is a longer name containing those letters, candidate two holds",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3054,7 +3054,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two candidates differ in one observable respect, which is the text the search actually matched, and the only way to see which it is to print that text next to the term that was asked for. A case-blind hit shows the term in a different case, while a boundary-blind hit shows a strictly longer name containing the term, and no amount of counting will distinguish them. Repeating the search with case made significant is suggestive rather than decisive, because a boundary-blind search will also report fewer hits when the case is fixed, and that overlap is exactly why the matched text is the thing to print.",
       "hint": "Ask what the two candidates disagree about, and print that.",
@@ -3101,8 +3101,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Print the number of pieces the split produced for each of twenty affected lines: the lines that came apart in more places than the format allows are candidate one, and the ones that came apart in fewer are candidate two",
-          "misconception": ""
+          "text": "Count how many lines the report found acceptable, because the proportion of good lines settles which candidate holds",
+          "misconception": "believes the good-line count identifies the cause"
         },
         {
           "id": "B",
@@ -3116,12 +3116,12 @@
         },
         {
           "id": "D",
-          "text": "Count how many lines the report found acceptable, because the proportion of good lines settles which candidate holds",
-          "misconception": "believes the good-line count identifies the cause"
+          "text": "Print the number of pieces the split produced for each of twenty affected lines: the lines that came apart in more places than the format allows are candidate one, and the ones that came apart in fewer are candidate two",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A line that contains the separator inside a value yields more pieces than the format allows, while a line with no separator yields fewer, so the count of pieces is the measurement that separates the two candidates. Printing the affected lines alone does not settle it, because a wrong-looking row can look wrong in both cases for different reasons, and choosing a different separator tests a third thing. The probe is one number per line, and it works because both candidates make a different and opposite prediction about that number, which is the property a useful probe needs.",
       "hint": "Ask which quantity the two candidates make opposite predictions about.",
@@ -3168,13 +3168,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Run the cleanup twice on one value inside a fresh session that has no earlier result to reuse, and compare the two lengths: if the second is still shorter the replacement is at fault, and if it matches then the routine was reusing something it should not have",
-          "misconception": ""
+          "text": "Print the number of records already processed in this run, because a growing count is what makes a cleanup shorten its own output",
+          "misconception": "believes a running count shortens a cleanup's output"
         },
         {
           "id": "B",
-          "text": "Print the number of records already processed in this run, because a growing count is what makes a cleanup shorten its own output",
-          "misconception": "believes a running count shortens a cleanup's output"
+          "text": "Run the cleanup twice on one value inside a fresh session that has no earlier result to reuse, and compare the two lengths: if the second is still shorter the replacement is at fault, and if it matches then the routine was reusing something it should not have",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3188,7 +3188,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Both candidates are claims about state, and the way to separate them is to remove the state that one of them relies on. Running the cleanup twice with nothing carried over between the calls keeps the replacement's own behaviour in play and takes the cache out of the picture, and the two candidates then make opposite predictions: a shorter second result means the replacement left another match behind, while equal results mean the routine was handing back something it had already computed. The habit being tested is to strip the shared state before concluding anything about the operation itself.",
       "hint": "Ask what state one candidate needs, and remove it before testing the other.",
@@ -3235,8 +3235,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Submit two values: one with letters where the separators belong, and one with the right shape but an impossible month and day; a value of the first kind points to the wildcard, and one of the second kind points to the missing calendar rule",
-          "misconception": ""
+          "text": "Read the pattern aloud character by character, because a wildcard is audible and a missing rule is not, so the pattern settles the question by itself",
+          "misconception": "believes reading the pattern is a diagnostic probe"
         },
         {
           "id": "B",
@@ -3245,8 +3245,8 @@
         },
         {
           "id": "C",
-          "text": "Read the pattern aloud character by character, because a wildcard is audible and a missing rule is not, so the pattern settles the question by itself",
-          "misconception": "believes reading the pattern is a diagnostic probe"
+          "text": "Submit two values: one with letters where the separators belong, and one with the right shape but an impossible month and day; a value of the first kind points to the wildcard, and one of the second kind points to the missing calendar rule",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3255,7 +3255,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two candidates fail on different inputs, and the cheapest way to tell them apart is to feed each of those inputs. Letters standing where the separators belong can only be accepted if the separator is a wildcard, while a value of perfect shape carrying month 13 can only be accepted if no calendar rule is being applied, and a well-formed separator passes a value of either kind. Both faults are real and they are independent, so a check that only tests one leaves the other in place, which is why the probe deliberately uses one value for each candidate.",
       "hint": "Ask which value each candidate cannot refuse, and submit both.",
@@ -3302,8 +3302,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Count the characters the scan has examined after one second and again after two: a count that does not move at all is a stalled scan on an empty match, while a count that keeps climbing in proportion to the file size is a repeated whole-file read",
-          "misconception": ""
+          "text": "Halve the pattern, keeping the same meaning, because a shorter pattern always costs less whatever the scan does with the match",
+          "misconception": "believes pattern length is what determines the running time"
         },
         {
           "id": "B",
@@ -3317,12 +3317,12 @@
         },
         {
           "id": "D",
-          "text": "Halve the pattern, keeping the same meaning, because a shorter pattern always costs less whatever the scan does with the match",
-          "misconception": "believes pattern length is what determines the running time"
+          "text": "Count the characters the scan has examined after one second and again after two: a count that does not move at all is a stalled scan on an empty match, while a count that keeps climbing in proportion to the file size is a repeated whole-file read",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two candidates make opposite predictions about progress, and progress is the cheapest thing to measure. A scan that adds the length of each match to its position cannot finish when the match is empty, so its examined-character count stands still while its pass count climbs, whereas a job that re-reads the whole file for every name keeps making progress and simply needs far more passes than the file can justify. Watching one number twice is enough to separate a stall from slowness, and that distinction matters because the two faults need opposite repairs rather than a bigger machine.",
       "hint": "Ask whether the amount of work done is still increasing.",
@@ -3369,13 +3369,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Print each stored value between brackets: a value that already contains a doubled space points to the second candidate, while values that are clean and still print with gaps point to the first",
-          "misconception": ""
+          "text": "Print the joined text alone, because a gap in the joined text is the only place the fault can be visible",
+          "misconception": "believes the fault is visible only after joining"
         },
         {
           "id": "B",
-          "text": "Print the joined text alone, because a gap in the joined text is the only place the fault can be visible",
-          "misconception": "believes the fault is visible only after joining"
+          "text": "Print each stored value between brackets: a value that already contains a doubled space points to the second candidate, while values that are clean and still print with gaps point to the first",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3389,7 +3389,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Printing the values with brackets visible shows the difference the candidates predict: a value holding its own doubled space is the second candidate, and a value that is clean while the joined text still shows a gap is the first. The joined text alone cannot settle it, because both faults produce a gap in the output and neither is distinguishable there. Both faults are also worth fixing rather than papering over, since the first leaves any comparison of two values disagreeing and the second means a value is being stored with a leading space that a search will not find.",
       "hint": "Ask where the two candidates predict the doubled space will be found.",
@@ -3620,8 +3620,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Pattern: two digits, a hyphen, two digits, a hyphen, four digits, and nothing else. Second check: read the three numbers and confirm the month is one of the twelve, the day is within that month, and the year is inside the range the form allows",
-          "misconception": ""
+          "text": "Pattern: any eight digits with a hyphen anywhere among them. Second check: refuse any value whose year is earlier than the current one, because a date in the past is the only value a form cannot accept",
+          "misconception": "believes the only rule worth adding concerns the year"
         },
         {
           "id": "B",
@@ -3630,8 +3630,8 @@
         },
         {
           "id": "C",
-          "text": "Pattern: any eight digits with a hyphen anywhere among them. Second check: refuse any value whose year is earlier than the current one, because a date in the past is the only value a form cannot accept",
-          "misconception": "believes the only rule worth adding concerns the year"
+          "text": "Pattern: two digits, a hyphen, two digits, a hyphen, four digits, and nothing else. Second check: read the three numbers and confirm the month is one of the twelve, the day is within that month, and the year is inside the range the form allows",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3640,7 +3640,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The pattern is responsible for shape and the second check is responsible for range, and the pairing works only when each does the half it is able to do. A pattern can say two digits followed by a hyphen, and it cannot say that the number it just matched is one of the twelve months, because that is a statement about the value of a piece rather than about its shape. The pairing in the second option adds nothing because a pattern is not a coin, and the pairing in the fourth relies on a conversion that will quietly apply some arbitrary rule to a value like 45-13-2026 rather than refuse it.",
       "hint": "Ask which half of validity a pattern can express, and which half it cannot.",
@@ -3687,8 +3687,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It is comparing without regard to case, so differently cased spellings are counted, and it is asking for the letters anywhere rather than as a whole word, so a longer name is counted as well; the fix is to make the comparison case-sensitive and to require a word boundary on both sides",
-          "misconception": ""
+          "text": "It is asking for the letters anywhere rather than as a whole word, and it is counting the letters of the word as well as the word; the fix is to require a word boundary and to count the match rather than its length",
+          "misconception": "believes a count of a word should include its letters"
         },
         {
           "id": "B",
@@ -3702,12 +3702,12 @@
         },
         {
           "id": "D",
-          "text": "It is asking for the letters anywhere rather than as a whole word, and it is counting the letters of the word as well as the word; the fix is to require a word boundary and to count the match rather than its length",
-          "misconception": "believes a count of a word should include its letters"
+          "text": "It is comparing without regard to case, so differently cased spellings are counted, and it is asking for the letters anywhere rather than as a whole word, so a longer name is counted as well; the fix is to make the comparison case-sensitive and to require a word boundary on both sides",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A count five higher than a careful count has to come from a rule that is admitting things it should not, and the two rules that admit extra hits are the case-blind comparison and the absence of a word boundary, which is why they are the pair named here. The count does not depend on the direction a text is read in, and resuming after every starting place changes which occurrences are seen but not the number of words a reader would count, so the third option is ruled out. The honest fix is to state both rules in the report, because a figure of eleven is not wrong by itself, it is wrong with respect to a rule the reader has not been told.",
       "hint": "Ask which two rules would let a search report a word that the text does not hold as a word.",

@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The inner quote is doubled, so a pair inside quotes is one literal quote and a lone one closes",
-          "misconception": ""
+          "text": "A backslash escapes it, which is the same trick a programming language uses",
+          "misconception": "believes record files reuse programming-language escape rules"
         },
         {
           "id": "B",
-          "text": "A backslash escapes it, which is the same trick a programming language uses",
-          "misconception": "believes record files reuse programming-language escape rules"
+          "text": "The inner quote is doubled, so a pair inside quotes is one literal quote and a lone one closes",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Once quotes are the escape mechanism, a quote inside a quoted field has to be distinguishable from the quote that ends the field, and doubling it is the choice that needs no extra character and no new rule: the reader reads a doubled pair as one literal quote and a single quote as the end. A backslash would drag the rules of a programming language into a data file and would itself need escaping whenever a real backslash appeared. Dropping the character loses information, and leaving the field unquoted only works until the value happens to contain the delimiter.",
       "hint": "Ask how the reader tells the quote that closes the field from one inside it.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, because the scanner only treats a comma as a separator outside the quotes",
-          "misconception": ""
+          "text": "2, because the quoted run also swallows the plain field that follows it",
+          "misconception": "believes the closing quote ends the scan instead of the field"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "2, because the quoted run also swallows the plain field that follows it",
-          "misconception": "believes the closing quote ends the scan instead of the field"
+          "text": "3, because the scanner only treats a comma as a separator outside the quotes",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The scanner takes the quoted branch at the second character, so the comma inside the quotes never reaches the separator test, and it appends one field for the run between the quotes rather than one per comma. Running it returned 3, and the fields were 7, Doe, Jane and 42, which is what the writer meant. The answer of 4 is the count a plain cut-at-every-comma routine produces, and it is tempting because that routine is far shorter; the other two counts come from placing the closing quote wrongly.",
       "hint": "Follow the branch taken at the second character, where a quote opens the field.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It cuts the record in two, so the note’s second line is read as the start of a new record",
-          "misconception": ""
+          "text": "It reads the note as one field, since the quotes are still open across the two lines",
+          "misconception": "believes an open quote is enough to make a line-based reader continue"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "It reads the note as one field, since the quotes are still open across the two lines",
-          "misconception": "believes an open quote is enough to make a line-based reader continue"
+          "text": "It cuts the record in two, so the note’s second line is read as the start of a new record",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A reader that finds records by looking for line breaks has already made its decision before it looks at any quote, so the break inside the field ends the record exactly as if the field had ended there, and the second line arrives as a fresh record with the note's tail in its first field. Quoting tells a scanner that tracks quotes, not one that tracks lines. Repairing the split means a reader built to track quotes, and simply stopping turns a formatting problem into a data loss.",
       "hint": "Ask whether the reader finds its records by line breaks or by quotes.",
@@ -380,13 +380,13 @@
       "options": [
         {
           "id": "A",
-          "text": "R3 and R5, since a count of three loses a field and a count of five invents one",
-          "misconception": ""
+          "text": "R3 alone, because only a missing field breaks a reader while an extra one is harmless",
+          "misconception": "believes an unexpected extra field causes no misalignment"
         },
         {
           "id": "B",
-          "text": "R3 alone, because only a missing field breaks a reader while an extra one is harmless",
-          "misconception": "believes an unexpected extra field causes no misalignment"
+          "text": "R3 and R5, since a count of three loses a field and a count of five invents one",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -400,7 +400,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The report is a list of counts and the specification supplies the number to compare them against, so the two rows whose counts are not four are the two rows with something to explain. A count of three means a value is missing and the columns after it are read from the wrong place, while a count of five means a value has arrived early and pushed everything along. Treating the extra as harmless is the tempting reading, and it is the one that lets a shifted column through; the report is evidence about particular records, not a verdict on the file.",
       "hint": "Compare each printed count against the number the specification names.",
@@ -447,8 +447,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It names the offending row on the spot and stops that row from reaching the columns",
-          "misconception": ""
+          "text": "It re-reads the file under a different delimiter, so the short row parses correctly",
+          "misconception": "believes a wrong field count is cured by changing the delimiter"
         },
         {
           "id": "B",
@@ -457,8 +457,8 @@
         },
         {
           "id": "C",
-          "text": "It re-reads the file under a different delimiter, so the short row parses correctly",
-          "misconception": "believes a wrong field count is cured by changing the delimiter"
+          "text": "It names the offending row on the spot and stops that row from reaching the columns",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -467,7 +467,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A field-count check is a comparison against the number the layout promises, and it is worth exactly as much as the point at which it runs: on every row, as it is read, it names the row that disagrees and stops that row's values before they are written into columns that do not belong to them. The check supplies nothing, since a missing value is not derivable from the count, and changing the delimiter would only invent a different set of problems. Checking one row proves nothing about the rest, which is why a whole file scanned once would leave the same fault invisible.",
       "hint": "Ask at what point in the read the count is compared, and what happens next.",
@@ -514,8 +514,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Every record keeping the same offsets, because a field is found by position not by content",
-          "misconception": ""
+          "text": "Every field being quoted, so a delimiter inside a value cannot move the fields after it",
+          "misconception": "believes quoting is what makes a fixed-width layout safe"
         },
         {
           "id": "B",
@@ -529,12 +529,12 @@
         },
         {
           "id": "D",
-          "text": "Every field being quoted, so a delimiter inside a value cannot move the fields after it",
-          "misconception": "believes quoting is what makes a fixed-width layout safe"
+          "text": "Every record keeping the same offsets, because a field is found by position not by content",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A positional read never asks what a byte means, only where it is, so the only thing that keeps it honest is every record laying its fields out at the same places. Right-aligning the text is about how a value looks printed and changes nothing about where the next field starts, and a fixed record length is a separate property that lets the reader step to the next record without reading a separator. Quoting belongs to the delimited layout, where the delimiter is a character that can appear inside a value; in a fixed-width record the same accident simply pushes every later field one byte along.",
       "hint": "Ask what the reader looks at when it wants the quantity field.",
@@ -581,13 +581,13 @@
       "options": [
         {
           "id": "A",
-          "text": "007 then J00, because the extra character in the name pushes the quantity one byte right",
-          "misconception": ""
+          "text": "007 then 007, because a positional read always lands on the quantity field",
+          "misconception": "believes fixed offsets ignore a value that is too long"
         },
         {
           "id": "B",
-          "text": "007 then 007, because a positional read always lands on the quantity field",
-          "misconception": "believes fixed offsets ignore a value that is too long"
+          "text": "007 then J00, because the extra character in the name pushes the quantity one byte right",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -601,7 +601,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Both records are read at the same byte positions, so the extra character in the second record's name lands inside the three bytes the layout calls the quantity. Running it printed 007 and then J00, and the price field in the same row read 709.7 where the stored value was 09.75, which is the same one-byte shift seen from the other side. Nothing failed and nothing was flagged: the offsets were honoured exactly as written, which is the trap, since a positional read has no way to notice that the data moved.",
       "hint": "Count the bytes before the quantity field in each record before taking three of them.",
@@ -648,8 +648,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Its name ran one byte long, so the quantity field reads across the boundary as J00",
-          "misconception": ""
+          "text": "Its offsets are all correct, because a byte dump always shows the true field boundaries",
+          "misconception": "believes a positional dump cannot misstate a boundary"
         },
         {
           "id": "B",
@@ -658,8 +658,8 @@
         },
         {
           "id": "C",
-          "text": "Its offsets are all correct, because a byte dump always shows the true field boundaries",
-          "misconception": "believes a positional dump cannot misstate a boundary"
+          "text": "Its name ran one byte long, so the quantity field reads across the boundary as J00",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -668,7 +668,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Row 1 read cleanly, which fixes the layout, and every field of row 2 after the name is wrong in a way one byte explains: the seventh byte of the name lands where the quantity begins, so the reader takes that byte with the first two of the quantity and produces J00, and the price then starts one byte late and reads 709.7 instead of 09.75. A stored value of J00 is not a possibility, because the quantity field is numeric, and a short row would leave blanks rather than digits from the next field. The diagnostic rule is that a run of fields that is right up to one point and wrong from there on marks a value that overran its slot.",
       "hint": "Find the first field that stops matching, then check whether one byte explains everything after it.",
@@ -762,8 +762,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A reader taking those bytes for the first characters of the first field’s value",
-          "misconception": ""
+          "text": "A record being read with its fields shifted, since the marker fills the first field’s offsets",
+          "misconception": "confuses a file-level marker with a field-length shift"
         },
         {
           "id": "B",
@@ -777,12 +777,12 @@
         },
         {
           "id": "D",
-          "text": "A record being read with its fields shifted, since the marker fills the first field’s offsets",
-          "misconception": "confuses a file-level marker with a field-length shift"
+          "text": "A reader taking those bytes for the first characters of the first field’s value",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first field is the one field with nothing in front of it, so anything placed at the front of the file lands inside it, and a reader that does not know the marker is there will take three bytes of a declaration as three bytes of a value and everything derived from that field is wrong from the first record. Marking the start does not order the bytes within a value, and it does not name a character encoding, both of which are properties of the data rather than of its position in a file. A fixed-width reader is shifted by the marker's length only if the marker is not accounted for, which is a separate fault from the one this prevents.",
       "hint": "Ask which field has nothing in front of it that the marker could be mistaken for.",
@@ -829,13 +829,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The second file opens with a leading marker, and only the record at byte zero can see it",
-          "misconception": ""
+          "text": "The second file is unsound throughout, so a bad first field condemns every record",
+          "misconception": "believes one bad field condemns every record in the file"
         },
         {
           "id": "B",
-          "text": "The second file is unsound throughout, so a bad first field condemns every record",
-          "misconception": "believes one bad field condemns every record in the file"
+          "text": "The second file opens with a leading marker, and only the record at byte zero can see it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -849,7 +849,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The fault appears on the first record and on no other, and that pattern fits one explanation and rules the others out. A marker at the front of a file is seen only by whatever reads from byte zero, and every later record begins after it, so records two onward are clean exactly as the report shows. A wider character set would alter the digits themselves rather than prepend bytes, a file-wide corruption would show on later records too, and a file with no first record would have nothing to print at all.",
       "hint": "Ask which records show the fault, and what sits in front of only one of them.",
@@ -896,8 +896,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The naming line is read as a record, and its length is not a multiple of the record size, so every later read is offset",
-          "misconception": ""
+          "text": "The naming line is read twice, once as names and once as the first row of values",
+          "misconception": "believes a header is duplicated into the data"
         },
         {
           "id": "B",
@@ -906,8 +906,8 @@
         },
         {
           "id": "C",
-          "text": "The naming line is read twice, once as names and once as the first row of values",
-          "misconception": "believes a header is duplicated into the data"
+          "text": "The naming line is read as a record, and its length is not a multiple of the record size, so every later read is offset",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -916,7 +916,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A positional read commits to a stride at byte zero, so the first stride swallows the naming line and part of the first real record, and from there every stride is out by however many bytes the naming line ran to. Because that count is not a whole number of records, the reader never lands on a real boundary again and the damage continues to the end of the file. Only a reader that was told where the data starts, or that checks the first line for names, avoids it; a positional read has no way to recognise a naming line as anything other than data.",
       "hint": "Ask whether the naming line's length is a whole number of records, and what follows if it is not.",
@@ -1010,8 +1010,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It must open a container to reach each value, where a flat record is read in one pass",
-          "misconception": ""
+          "text": "It makes partial reads easy, since one nested value can be fetched without the rest",
+          "misconception": "believes nesting lets a reader skip the surrounding data"
         },
         {
           "id": "B",
@@ -1025,12 +1025,12 @@
         },
         {
           "id": "D",
-          "text": "It makes partial reads easy, since one nested value can be fetched without the rest",
-          "misconception": "believes nesting lets a reader skip the surrounding data"
+          "text": "It must open a container to reach each value, where a flat record is read in one pass",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A flat record puts every value at a known place in one run of bytes, so reaching one costs a slice; a nested document puts each value inside a container that must be entered first, and reaching the same eight values means opening the order, the lines array and each line object along the way. That is a real cost on every read and it grows with the depth of the nesting rather than with the number of values. Storing a name beside a value is not smaller than a column, does not remove the need to declare what the values mean, and does not let a reader skip what it does not want.",
       "hint": "Ask how many things a reader must step into before it reaches a value.",
@@ -1124,13 +1124,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A reader can interpret the file from the file alone, without the separate description",
-          "misconception": ""
+          "text": "A smaller file, since the names need not be repeated on every record",
+          "misconception": "believes a self-describing header replaces the per-record field data"
         },
         {
           "id": "B",
-          "text": "A smaller file, since the names need not be repeated on every record",
-          "misconception": "believes a self-describing header replaces the per-record field data"
+          "text": "A reader can interpret the file from the file alone, without the separate description",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1144,7 +1144,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The self-describing header carries the description inside the file, so a reader handed the file and nothing else can work out what each piece is, and that is the whole difference: the file travels without the document that explains it. It does not shrink the file, because the per-record values are still there whether or not a header names them, and it does not make parsing cheaper, since reading the header is itself work. It also validates nothing, because a header saying a field holds a number says nothing about whether the bytes after it do.",
       "hint": "Ask what a reader is given when it is handed the file and nothing else.",
@@ -1191,8 +1191,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The self-describing one, which reports a field it does not recognise instead of dropping it",
-          "misconception": ""
+          "text": "The self-describing one, which drops the new field and carries on with the ones it knows",
+          "misconception": "believes a self-describing header makes an unknown field harmless"
         },
         {
           "id": "B",
@@ -1201,8 +1201,8 @@
         },
         {
           "id": "C",
-          "text": "The self-describing one, which drops the new field and carries on with the ones it knows",
-          "misconception": "believes a self-describing header makes an unknown field harmless"
+          "text": "The self-describing one, which reports a field it does not recognise instead of dropping it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An inserted field shifts everything after it, so the question is whether the reader can tell. A self-describing reader reads the field names in the record and finds one it was not expecting, which it can report as unknown; a schema-driven reader is looking up a value by offset and has nothing to compare that offset against, so it reads the new field's value as the old one and says nothing. Dropping the unknown field is the wrong answer because the count of fields has risen, and the last option is wrong for the same reason stated in the wrong place.",
       "hint": "Ask what the reader can compare the field it found against, and whether anything shifted.",
@@ -1258,8 +1258,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nothing visible: it stops at the expected field and never reaches the extra one at the end",
-          "misconception": ""
+          "text": "It reads the new field as the last known one, since offsets slide when a record grows",
+          "misconception": "believes appending a field shifts the offsets of the fields before it"
         },
         {
           "id": "B",
@@ -1273,12 +1273,12 @@
         },
         {
           "id": "D",
-          "text": "It reads the new field as the last known one, since offsets slide when a record grows",
-          "misconception": "believes appending a field shifts the offsets of the fields before it"
+          "text": "Nothing visible: it stops at the expected field and never reaches the extra one at the end",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The reader was told how many fields to take and it takes exactly that many, so the appended field sits beyond the last byte it looks at and is never examined. There is no failure to notice because nothing failed: the record is longer than the layout, the layout says nothing about how long a record may be, and no comparison is made. Appending is precisely the change a positional reader cannot detect, which is why an insertion or a reordering is caught as wrong data while an addition is passed over in silence.",
       "hint": "Ask how far into the record the reader goes before it stops.",
@@ -1371,13 +1371,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Reads id correctly, then reads the currency as the amount, because the offsets have moved",
-          "misconception": ""
+          "text": "Reports a field it does not recognise and stops, rather than storing a wrong amount",
+          "misconception": "believes a positional reader reports unknown fields"
         },
         {
           "id": "B",
-          "text": "Reports a field it does not recognise and stops, rather than storing a wrong amount",
-          "misconception": "believes a positional reader reports unknown fields"
+          "text": "Reads id correctly, then reads the currency as the amount, because the offsets have moved",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1391,7 +1391,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The insertion is the change that a positional reader cannot survive, because the field the reader wants is no longer where the reader looks. The id is the first field in both versions so it reads correctly, and then the reader takes the currency text into a field it believes holds an amount, so the file's own data is intact while the reader's output is not. Nothing in the read compares the field count with the layout, so there is no refusal and no report. Version three is the safer one to hand such a reader, because appending leaves every offset the reader uses unchanged.",
       "hint": "Ask which of the two versions moves the byte the reader is about to read.",
@@ -1438,8 +1438,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Damage anywhere in the values, because the bytes it sums do not change when the data does",
-          "misconception": ""
+          "text": "Two records in the wrong order, because each header sums correctly on its own",
+          "misconception": "believes a per-record header check detects record order"
         },
         {
           "id": "B",
@@ -1448,8 +1448,8 @@
         },
         {
           "id": "C",
-          "text": "Two records in the wrong order, because each header sums correctly on its own",
-          "misconception": "believes a per-record header check detects record order"
+          "text": "Damage anywhere in the values, because the bytes it sums do not change when the data does",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1458,7 +1458,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A checksum detects change by depending on the bytes it covers, and a header check covers only the header, so every difference in the values leaves the sum exactly where it was. A corrupted price, a rewritten name and a swapped-out amount all pass it. The check is still worth running on the header, which is where truncation shows up and where a record that is not a record at all first becomes visible, and the two checks together cover the record in full; the mistake is treating a passing header check as a passing record.",
       "hint": "Ask which bytes the summed ones are, and what changing the values does to that sum.",
@@ -1505,8 +1505,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One record’s values changed while its header stayed intact, so a header-only check would pass it",
-          "misconception": ""
+          "text": "The verifier is broken, since a sound header cannot accompany a failed payload",
+          "misconception": "believes header and payload checks must always agree"
         },
         {
           "id": "B",
@@ -1520,12 +1520,12 @@
         },
         {
           "id": "D",
-          "text": "The verifier is broken, since a sound header cannot accompany a failed payload",
-          "misconception": "believes header and payload checks must always agree"
+          "text": "One record’s values changed while its header stayed intact, so a header-only check would pass it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each line pairs two checks over different bytes of the same record, so the report is read one line at a time. Three lines agree on both checks and one disagrees on the payload while its header still passes, which narrows the damage to the values of that record and tells you the header was not touched. The count of unsound records is one rather than three, because a header that passes is a header that is intact. The trap is reading a column of passes as a verdict on the whole file, which is exactly the mistake a header-only check would make.",
       "hint": "Read the lines one at a time and see which check failed on which record.",
@@ -1572,13 +1572,13 @@
       "options": [
         {
           "id": "A",
-          "text": "4940, because every cell yielded a number once its non-digits were dropped",
-          "misconception": ""
+          "text": "6020, because a cell with a separator contributes its digits twice",
+          "misconception": "believes stripping a separator duplicates the digits beside it"
         },
         {
           "id": "B",
-          "text": "6020, because a cell with a separator contributes its digits twice",
-          "misconception": "believes stripping a separator duplicates the digits beside it"
+          "text": "4940, because every cell yielded a number once its non-digits were dropped",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1592,7 +1592,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The loop strips everything that is not a digit from every cell before converting, so each of the five cells produces a number: four of them give 1204 and the one with a letter in it gives 124, and 1204 times four plus 124 is 4940, which the run printed. The failure is that stripping is not reading. Two of the cells really are 1204, and 4816 is the total with the malformed cell dropped, which is still not right because the cell with a comma in it is a real amount that was merely written with a separator. 2408 is the sum of the two genuine amounts, and a reader that produced it would be discarding three valid rows rather than cleaning them.",
       "hint": "Write down what each cell becomes once its non-digits are gone, then add them.",
@@ -1686,8 +1686,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Refuse any cell that is not a bare run of digits, leaving 1204 and 1204 for a total of 2408",
-          "misconception": ""
+          "text": "Treat the cleaned digits as the amount, since a separator never changes the figure",
+          "misconception": "believes a cleaned value is the value that was written"
         },
         {
           "id": "B",
@@ -1696,8 +1696,8 @@
         },
         {
           "id": "C",
-          "text": "Treat the cleaned digits as the amount, since a separator never changes the figure",
-          "misconception": "believes a cleaned value is the value that was written"
+          "text": "Refuse any cell that is not a bare run of digits, leaving 1204 and 1204 for a total of 2408",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1706,7 +1706,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Cleaning cannot be undone after the fact, because the reader no longer knows which digits came from the value and which came from something that should never have been there, so the only safe rule is to accept a cell that is already the right shape and refuse the rest. That leaves 1204 and 1204 and a total of 2408. Flagging the cleaned cells still publishes a wrong number, treating the cleaned digits as the amount accepts a value nobody wrote, and dropping the flagged cell loses a real amount while keeping two wrong ones, since the comma and space cells are as malformed as the letter cell even though they look reasonable.",
       "hint": "Ask whether the reader could tell afterwards which digits came from the value itself.",
@@ -1800,8 +1800,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A against B, because they share a starting value and differ only in where the rounding falls",
-          "misconception": ""
+          "text": "B against D, because the two differ only in the size of the input",
+          "misconception": "believes a difference in input size shows a rounding effect"
         },
         {
           "id": "B",
@@ -1815,12 +1815,12 @@
         },
         {
           "id": "D",
-          "text": "B against D, because the two differ only in the size of the input",
-          "misconception": "believes a difference in input size shows a rounding effect"
+          "text": "A against B, because they share a starting value and differ only in where the rounding falls",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Holding the input fixed is what turns a pair of results into evidence about the method, and A and B are the only two rows that share a starting value of 250 cm. Between them the only difference is where the rounding happens: A rounds to whole feet before converting, B rounds once at the end, and the two inches between them are the whole cost. C and D differ in their input, so any gap between them is mostly the input and only partly the rounding, and the same is true of B against D. A against C confuses the divisor with the rounding, since neither row rounds part-way through.",
       "hint": "Find the two rows that start from the same number and differ only in the method.",
@@ -1867,13 +1867,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The longest branch gives depth, the widest row gives breadth, and the total counts every node",
-          "misconception": ""
+          "text": "The longest branch gives breadth, the widest row gives depth, and the total counts the leaves",
+          "misconception": "believes breadth is measured along the longest branch"
         },
         {
           "id": "B",
-          "text": "The longest branch gives breadth, the widest row gives depth, and the total counts the leaves",
-          "misconception": "believes breadth is measured along the longest branch"
+          "text": "The longest branch gives depth, the widest row gives breadth, and the total counts every node",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1887,7 +1887,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The three measurements answer three different questions, and confusing them is the usual first mistake. Depth is a distance, counted along the longest branch, so it says how far the worst-placed node sits from the root and is what bounds the work a search does. Breadth is a width, counted across the widest row, so it says how much of the tree sits at one distance. The total counts nodes, and the two can be wildly different: a chain of a hundred nodes has a depth of a hundred and a breadth of one, while a balanced tree of the same hundred has a depth of about seven.",
       "hint": "Ask which of the three is a distance along a branch, a width across a row, and a count of everything.",
@@ -1981,8 +1981,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, because the longest branch runs root, its left child, then a leaf",
-          "misconception": ""
+          "text": "2, because the deepest split sits two levels below the root’s children",
+          "misconception": "believes depth starts counting at the children of the root"
         },
         {
           "id": "B",
@@ -1991,8 +1991,8 @@
         },
         {
           "id": "C",
-          "text": "2, because the deepest split sits two levels below the root’s children",
-          "misconception": "believes depth starts counting at the children of the root"
+          "text": "3, because the longest branch runs root, its left child, then a leaf",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2001,7 +2001,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A leaf returns zero because there is nothing below it, and every other node returns one more than the larger of its two children, so the count is the number of gaps on the longest branch. Following the tree: the two nodes one level down give one and one, the left one gives two because its left child gives one, and the root gives one more than the larger of two and one, which is three. Running it printed 3, and the same tree has ten nodes in levels of 1, 2, 4 and 3. The answer four is the level count rather than the depth, which differ by exactly one in every tree.",
       "hint": "Work up from the leaves, adding one at each node above them.",
@@ -2048,8 +2048,8 @@
       "options": [
         {
           "id": "A",
-          "text": "For every node, everything in its left branch is smaller and everything in its right branch is larger",
-          "misconception": ""
+          "text": "Every leaf sits at the same depth, since each key is placed against the far edge",
+          "misconception": "believes insertion always balances the tree"
         },
         {
           "id": "B",
@@ -2063,12 +2063,12 @@
         },
         {
           "id": "D",
-          "text": "Every leaf sits at the same depth, since each key is placed against the far edge",
-          "misconception": "believes insertion always balances the tree"
+          "text": "For every node, everything in its left branch is smaller and everything in its right branch is larger",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The property is about everything reachable, not just the immediate children, and that is what makes a search possible: once a key is compared with a node, an answer smaller than it can never be in that node's right branch, so a search may discard the whole branch at each step. Checking only the children would be useless, because a misplaced key three levels down would go unnoticed. The split is made on order rather than on parity, and nothing in insertion balances the shape, which is exactly why the order of the keys decides how deep the tree gets.",
       "hint": "Ask how much of a node's branch a comparison lets the reader rule out.",
@@ -2162,13 +2162,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first is a chain, while the second’s depth grows with the logarithm of the key count",
-          "misconception": ""
+          "text": "The first holds more keys, because a chain can hold a key the second one discards",
+          "misconception": "believes balancing discards keys to gain depth"
         },
         {
           "id": "B",
-          "text": "The first holds more keys, because a chain can hold a key the second one discards",
-          "misconception": "believes balancing discards keys to gain depth"
+          "text": "The first is a chain, while the second’s depth grows with the logarithm of the key count",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2182,7 +2182,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Both trees hold all fifteen keys and both satisfy the ordering property, so the difference is entirely in shape. Inserting in ascending order sends every key to the right, giving a chain whose depth is the number of keys and whose worst-case search costs fifteen comparisons. Halving the sorted list puts the middle key at the root and repeats on each half, so the depth grows as the count of keys grows multiplied by itself, which for fifteen keys is a depth of four. Balancing discards nothing, and the key set does not fix the shape, since insertion order does.",
       "hint": "Ask how deep each shape goes as the key count rises.",
@@ -2229,8 +2229,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first is a chain, so its worst case is the key count and its average is half that",
-          "misconception": ""
+          "text": "The second is a chain, so a worst case of 4 means a key was left out of it",
+          "misconception": "believes a small worst case means keys are missing"
         },
         {
           "id": "B",
@@ -2239,8 +2239,8 @@
         },
         {
           "id": "C",
-          "text": "The second is a chain, so a worst case of 4 means a key was left out of it",
-          "misconception": "believes a small worst case means keys are missing"
+          "text": "The first is a chain, so its worst case is the key count and its average is half that",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2249,7 +2249,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A chain of fifteen nodes costs between one and fifteen comparisons, and the mean of that run is eight, so tree one's pair of figures is exactly what a chain produces. Tree two has fifteen nodes in four levels, so its worst case is four, and the average over all fifteen keys works out near three, which is what the report gives. The average of a chain is not its largest cost, the two figures cannot describe one tree because a tree has one shape, and a small worst case says the keys are spread shallowly rather than that any of them is missing.",
       "hint": "Check whether one reported worst case equals the number of keys, and whether the average sits halfway up its range.",
@@ -2342,8 +2342,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It returns to a node it has already stood on and can go round the cycle for ever",
-          "misconception": ""
+          "text": "It turns back at A and takes the other edge, since A can tell it has been there",
+          "misconception": "believes a node remembers being visited"
         },
         {
           "id": "B",
@@ -2357,12 +2357,12 @@
         },
         {
           "id": "D",
-          "text": "It turns back at A and takes the other edge, since A can tell it has been there",
-          "misconception": "believes a node remembers being visited"
+          "text": "It returns to a node it has already stood on and can go round the cycle for ever",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Stepping to a neighbour is a local rule and says nothing about history, so on a cycle the walk keeps choosing edges that lead back into the cycle and will do so indefinitely. In the example the walk goes A to B to C to A and then repeats the same three steps, and the branch to D is never reached at all, so it is not even the case that the walk gets stuck after seeing everything. Only a record of what has been visited stops it, and a node cannot supply that record by itself. This is the difference between a structure with no cycles and one that has them.",
       "hint": "Ask what the step rule knows about the walk's earlier steps.",
@@ -2409,13 +2409,13 @@
       "options": [
         {
           "id": "A",
-          "text": "BCABCABCAB, because the walk re-enters the cycle at C and never takes the edge to D",
-          "misconception": ""
+          "text": "BCBCBCBCBC, because every node leaves by the edge that closes the cycle",
+          "misconception": "believes the walk takes the closing edge at every node"
         },
         {
           "id": "B",
-          "text": "BCBCBCBCBC, because every node leaves by the edge that closes the cycle",
-          "misconception": "believes the walk takes the closing edge at every node"
+          "text": "BCABCABCAB, because the walk re-enters the cycle at C and never takes the edge to D",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2429,7 +2429,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The inner loop takes the first edge leaving the current node and the outer one repeats it ten times, so the walk never looks back. Running it printed BCABCABCAB: the walk goes A to B, B to C, C back to A and then repeats those three steps for the rest of the ten. The node D sits one edge from C and is never reached, because at C the closing edge to A comes first in the list and is taken every time. Ten landings include three returns to A, and no output anywhere in the run says the walk is going nowhere.",
       "hint": "Write down where each step lands and look for the repeating group.",
@@ -2523,8 +2523,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Reaching a node by following the links in order, and leaving a node that has no way back",
-          "misconception": ""
+          "text": "Counting the links out of a node, since each ordered pair is one outgoing step",
+          "misconception": "confuses how a link is stored with what it lets a walk reach"
         },
         {
           "id": "B",
@@ -2533,8 +2533,8 @@
         },
         {
           "id": "C",
-          "text": "Counting the links out of a node, since each ordered pair is one outgoing step",
-          "misconception": "confuses how a link is stored with what it lets a walk reach"
+          "text": "Reaching a node by following the links in order, and leaving a node that has no way back",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2543,7 +2543,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An ordered pair says the first node can reach the second and not the other way round, so reachability becomes a question about the direction of each link and a node can have a way in without any way out. That is the whole difference, and it is why the two kinds answer different questions: the first answers who is connected to whom, the second answers who can get where. The number of links out of a node is a count and not a reach, and a one-way link is still a link that a walk uses whenever it is in the right direction.",
       "hint": "Ask what a walk standing on the second node is allowed to do with the link.",
@@ -2637,8 +2637,8 @@
       "options": [
         {
           "id": "A",
-          "text": "4, because E is never reached while every node downstream of A is",
-          "misconception": ""
+          "text": "2, because only B and D sit one step from A without passing through C",
+          "misconception": "believes reachability stops after the first hop"
         },
         {
           "id": "B",
@@ -2652,12 +2652,12 @@
         },
         {
           "id": "D",
-          "text": "2, because only B and D sit one step from A without passing through C",
-          "misconception": "believes reachability stops after the first hop"
+          "text": "4, because E is never reached while every node downstream of A is",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The walk adds a node to the set only when it stands on the first end of a link and the other end is new, so it expands strictly forwards. Running it printed 4, and the set is A, B, C and D. The link from E to A points the wrong way for a walk starting at A, so E is never added even though it is in the same graph. Reaching C along two separate links adds it once because the second test finds it already in the set, and stopping at the first hop would have found only B and C from A directly.",
       "hint": "Follow the links forwards from A and stop adding once a node is already in the set.",
@@ -2704,13 +2704,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A, C and D, and removing any one of them leaves the graph in separate pieces",
-          "misconception": ""
+          "text": "D and E, because each of them is a node with nothing beyond it to fall back on",
+          "misconception": "believes every leaf node is a cut vertex"
         },
         {
           "id": "B",
-          "text": "D and E, because each of them is a node with nothing beyond it to fall back on",
-          "misconception": "believes every leaf node is a cut vertex"
+          "text": "A, C and D, and removing any one of them leaves the graph in separate pieces",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2724,7 +2724,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A cut vertex is one whose removal leaves parts of the graph with no route to each other, and testing each node by removing it and re-counting what stays connected gives A, C and D. Removing A strands F, which had no other link; removing C separates the D, E and F side from the A and B side; removing D strands E. The three nodes on the ring A, B and C are not cut vertices, because the ring gives each of them a second way round, and a leaf is not a cut vertex either, because removing it only removes itself and leaves everything else joined.",
       "hint": "Remove each node in turn and ask whether what is left stays in one piece.",
@@ -2818,8 +2818,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, because E is picked up when D is expanded and D sits at distance two",
-          "misconception": ""
+          "text": "4, because each of A, B, D and E must be counted as a step of its own",
+          "misconception": "believes the distance counts nodes visited rather than links taken"
         },
         {
           "id": "B",
@@ -2828,8 +2828,8 @@
         },
         {
           "id": "C",
-          "text": "4, because each of A, B, D and E must be counted as a step of its own",
-          "misconception": "believes the distance counts nodes visited rather than links taken"
+          "text": "3, because E is picked up when D is expanded and D sits at distance two",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2838,7 +2838,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A node's distance is one more than the distance of the node it was reached from, and the first node to be given a distance is the one on the shortest route to it, because the queue holds nodes in the order they were reached. Running it gave A 0, B 1, C 1, D 2 and E 3, so dist[E] is 3. D is reached from B and again from C, and the second attempt finds it already in the table and is ignored, which is why D sits at 2 rather than being pushed twice. E's own lack of outgoing links says nothing about how far away it is.",
       "hint": "Fill the table one node at a time, adding one to the node you reached each from.",
@@ -2885,8 +2885,8 @@
       "options": [
         {
           "id": "A",
-          "text": "D is one link past B and C, and E is one further, so E sits at distance three from A",
-          "misconception": ""
+          "text": "D and E are the same distance away, since they print in consecutive rounds",
+          "misconception": "believes consecutive printing rounds are one distance"
         },
         {
           "id": "B",
@@ -2900,12 +2900,12 @@
         },
         {
           "id": "D",
-          "text": "D and E are the same distance away, since they print in consecutive rounds",
-          "misconception": "believes consecutive printing rounds are one distance"
+          "text": "D is one link past B and C, and E is one further, so E sits at distance three from A",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A breadth-first walk prints a whole distance before moving to the next, so each round of the log is one link further from the start. A is at 0, B and C are at 1, D is at 2 and E is at 3, which gives a shortest route to E of three links. The log cannot show a chain, because B and C print in the same round and a chain has one node per round. Consecutive rounds are different distances rather than the same one, and the last node printed is the last one reached rather than the first.",
       "hint": "Count the rounds, and give the start node a distance of nothing.",
@@ -3045,13 +3045,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The one that keeps the cheapest cost to each node so far, reporting 6 by going S to A to T",
-          "misconception": ""
+          "text": "The one that always takes the cheapest link next, reporting 6 by going S to A to T",
+          "misconception": "believes the greedy choice happens to find the cheapest route"
         },
         {
           "id": "B",
-          "text": "The one that always takes the cheapest link next, reporting 6 by going S to A to T",
-          "misconception": "believes the greedy choice happens to find the cheapest route"
+          "text": "The one that keeps the cheapest cost to each node so far, reporting 6 by going S to A to T",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3065,7 +3065,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Keeping the cheapest cost found so far to each node is what makes a method correct on a weighted graph, because it compares whole routes to the same node rather than one link at a time, and here it settles on 6 by going S to A to T. Taking the cheapest link next happens to reach the destination on this graph and reports 8, so it is wrong here while looking reasonable, and the first option pairs the right answer with the wrong method, which is the trap worth naming. Trying every route is correct but is not a method anyone would choose over keeping the running costs, and on this graph it would find 6 as well rather than 8.",
       "hint": "Ask whether the method compares whole routes to a node or single links out of it.",
@@ -3112,8 +3112,8 @@
       "options": [
         {
           "id": "A",
-          "text": "8, because the walk took S to A, then A to B, then B to T rather than straight to T",
-          "misconception": ""
+          "text": "9, because the walk left by the S to B link, which it never considered",
+          "misconception": "believes the walk starts from the more expensive first link"
         },
         {
           "id": "B",
@@ -3122,8 +3122,8 @@
         },
         {
           "id": "C",
-          "text": "9, because the walk left by the S to B link, which it never considered",
-          "misconception": "believes the walk starts from the more expensive first link"
+          "text": "8, because the walk took S to A, then A to B, then B to T rather than straight to T",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3132,7 +3132,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The loop compares only the links leaving the node the walk stands on, so it picks the cheapest local move rather than the cheapest route. Running it printed 8, and the moves were S to A at 1, A to B at 2 and B to T at 5, giving 1 + 2 + 5. At A the link to B costs 2 and the link to T costs 5, so the walk takes the one that leads away from the destination. The route S to A to T costs 6, so the walk overpays by 2 without ever comparing the two, which is what makes the choice on this graph wrong rather than merely unlucky.",
       "hint": "Record which link is taken at each node, then add the three costs.",
@@ -3272,8 +3272,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The list stays small when links are few, and the table answers a link test in one step",
-          "misconception": ""
+          "text": "The table grows with the links, and the list answers a link test by scanning",
+          "misconception": "believes the table grows with the link count"
         },
         {
           "id": "B",
@@ -3287,12 +3287,12 @@
         },
         {
           "id": "D",
-          "text": "The table grows with the links, and the list answers a link test by scanning",
-          "misconception": "believes the table grows with the link count"
+          "text": "The list stays small when links are few, and the table answers a link test in one step",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The table has one entry for every pair of nodes whether or not a link exists, so its size follows the square of the node count and is large on a sparse graph, but answering whether two nodes are linked is a single lookup. The list stores only the links that exist, so its size follows the number of links, but a link test means walking the list until the name turns up. Neither is better outright: a graph walked many times over pays for the table, and a large sparse graph pays for the list, which is why real designs often keep the list and add a set when tests become frequent.",
       "hint": "Ask what each representation's size depends on, and what a link test costs in each.",
@@ -3480,13 +3480,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Hash the whole key, and give each slot a list so the few remaining collisions sit together",
-          "misconception": ""
+          "text": "Hash the whole key, and probe the next slot on collision, so each key still has one home slot",
+          "misconception": "believes open addressing needs no change once the hash is spread"
         },
         {
           "id": "B",
-          "text": "Hash the whole key, and probe the next slot on collision, so each key still has one home slot",
-          "misconception": "believes open addressing needs no change once the hash is spread"
+          "text": "Hash the whole key, and give each slot a list so the few remaining collisions sit together",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3500,7 +3500,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A hash that ignores most of a key puts nearly everything in one slot, so a lookup has to look through that slot's contents, and no arrangement of collision handling repairs it, because the list in the third option is exactly the thing already holding the whole pile. Hashing the whole key spreads the keys out, and then a list per slot is a good choice because collisions become rare and a list absorbs any that remain without the keys having to move at all. Probing the next slot works too once the keys are spread, but it turns every collision into a key sitting somewhere other than where its own hash put it, which is a cost paid on every later lookup.",
       "hint": "Ask whether the list would be holding one key or the whole pile in the failing case.",

@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "2, 2, 2, 3, 3, 10, because the cap sits far above every one of these subtotals",
-          "misconception": ""
+          "text": "2, 2, 2, 3, 3, 25, because the cap of 25 applies to the smaller subtotals",
+          "misconception": "believes the cap is the smaller of the computed value and the percentage"
         },
         {
           "id": "B",
-          "text": "2, 2, 2, 3, 3, 25, because the cap of 25 applies to the smaller subtotals",
-          "misconception": "believes the cap is the smaller of the computed value and the percentage"
+          "text": "2, 2, 2, 3, 3, 10, because the cap sits far above every one of these subtotals",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Ten percent of each subtotal is 1.999, 2, 2.499, 2.5, 2.501 and 10, and rounding those to nearest gives 2, 2, 2, 3, 3 and 10. The interesting case is 25, where the exact value 2.5 rounds up to 3, so a suite that only tests 24.99 and 25.01 misses the tie. The cap never fires in this run: the computed value has to exceed 25, which needs a subtotal of 245 or more, so a test list chosen around the cap rather than around the rounding boundary would prove nothing about these six values.",
       "hint": "Compute ten percent of each subtotal, round each one, and check separately whether the cap can ever be the smaller number here.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "75 percent, because no call reaches the expedited branch and statement c is never hit",
-          "misconception": ""
+          "text": "50 percent, because the filter and the map each count as a statement of their own",
+          "misconception": "believes a multi-call expression is counted once per call it contains"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "50 percent, because the filter and the map each count as a statement of their own",
-          "misconception": "believes a multi-call expression is counted once per call it contains"
+          "text": "75 percent, because no call reaches the expedited branch and statement c is never hit",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Running the three calls marks a, b and d, and never c, so three of the four statements are covered and the figure is 75 percent. The empty list is the trap in the distractor: the filter still runs on an empty array and still marks b, so a missing call would be a test that passes without checking anything. This is also the shape of a coverage number worth distrusting: all three calls take the same branch, so the number is high and tells you almost nothing about the expedited path, which is the one that costs money.",
       "hint": "Trace the labels each call marks, then divide the marked statements by the total, and check whether the empty-list call still reaches the filter.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Five of six, because the third call evaluates the address check as true and never as false",
-          "misconception": ""
+          "text": "Three of six, because one outcome per condition is counted however many times it repeats",
+          "misconception": "believes repeated outcomes of the same condition do not add to the total"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "Three of six, because one outcome per condition is counted however many times it repeats",
-          "misconception": "believes repeated outcomes of the same condition do not add to the total"
+          "text": "Five of six, because the third call evaluates the address check as true and never as false",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The three calls mark paid false, paid true, stock false, stock true and address true, which is five of the six possible outcomes, so branch coverage reads 83 percent while line coverage on the same suite reads higher. The missing outcome is the address check coming back false, the only path that returns hold, and no input in the suite produces it. Counting conditions instead of outcomes is the common way to get this number wrong: three conditions are named in the source, but each one has two outcomes and only one of the six is untested.",
       "hint": "List the outcome each call records, count the distinct outcomes, and compare that with twice the number of conditions.",
@@ -286,13 +286,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Both pass in the declared order, and both fail in the reversed order with lengths 1 and 2",
-          "misconception": ""
+          "text": "Both pass in either order, because each test pushes exactly one item before asserting",
+          "misconception": "believes the assertion is insulated from whatever ran before it"
         },
         {
           "id": "B",
-          "text": "Both pass in either order, because each test pushes exactly one item before asserting",
-          "misconception": "believes the assertion is insulated from whatever ran before it"
+          "text": "Both pass in the declared order, and both fail in the reversed order with lengths 1 and 2",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -306,7 +306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The array is created once when the module loads and lives for the whole file, so the first push leaves length 1 and the second leaves length 2, which is what both assertions expect when they run in order. Reversed, test two runs first, sees length 1 and fails, and test one then sees length 2 and fails. The failure is not about the cart, it is about the runner, and that is what makes this class of failure so expensive: a green suite can be one reorder away from red, and the reorder usually arrives as part of an unrelated change to a different file.",
       "hint": "Work out how many times the module is initialised, then run the two calls in the stated order and in the reverse.",
@@ -353,8 +353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It passes, and it would keep passing with any change made to decorate at all",
-          "misconception": ""
+          "text": "It passes now and fails once decorate is corrected, because the fix changes both sides",
+          "misconception": "believes a test that shares its implementation fails when the bug is fixed"
         },
         {
           "id": "B",
@@ -363,8 +363,8 @@
         },
         {
           "id": "C",
-          "text": "It passes now and fails once decorate is corrected, because the fix changes both sides",
-          "misconception": "believes a test that shares its implementation fails when the bug is fixed"
+          "text": "It passes, and it would keep passing with any change made to decorate at all",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -373,7 +373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Both sides are produced by the same call on the same input, so they are equal whatever the function does, and the run reports a pass while the labels come out as 'a!' and '!'. A comparison is only evidence when the two sides come from different places, one from the implementation and one written by a person or taken from a specification. This is the shape of a test that can never fail, and it is common precisely because it looks thorough: someone derived the expected value programmatically to avoid typing a large fixture, and in doing so removed the only part of the test that could have disagreed with the code.",
       "hint": "Ask where each side of the comparison comes from, and what would have to change for them to differ.",
@@ -420,8 +420,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, because the holder is module level so the substitution outlives the process that made it",
-          "misconception": ""
+          "text": "300, because the analytics module is only loaded when previews are switched on",
+          "misconception": "believes a bundled module is excluded from production builds by default"
         },
         {
           "id": "B",
@@ -435,12 +435,12 @@
         },
         {
           "id": "D",
-          "text": "300, because the analytics module is only loaded when previews are switched on",
-          "misconception": "believes a bundled module is excluded from production builds by default"
+          "text": "3, because the holder is module level so the substitution outlives the process that made it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The holder lives in the module scope of the pricing module, so the moment useTestDouble runs in the same process, every later call to price reads the substituted object and 3 times a quantity of 1 comes back, in production, with no error and no log line. The fix is not to be careful with the helper, it is to remove the ability to swap the dependency: pass the implementation in as an argument, so a test can supply a double and production cannot. A double that is installed by a code path reachable in production is not a test artefact, it is a latent discount of ninety nine percent.",
       "hint": "Ask how long the mutable holder lives and whether anything in the code path decides which environment it is in.",
@@ -487,13 +487,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first fails the stored snapshot with identical data, and the second fails it with a real change",
-          "misconception": ""
+          "text": "Both fail, because a stored text comparison notices any difference in the characters produced",
+          "misconception": "believes a character level comparison is sensitive to meaning"
         },
         {
           "id": "B",
-          "text": "Both fail, because a stored text comparison notices any difference in the characters produced",
-          "misconception": "believes a character level comparison is sensitive to meaning"
+          "text": "The first fails the stored snapshot with identical data, and the second fails it with a real change",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -507,7 +507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A stored snapshot is a string, so it fails on any difference in the characters and only then on any difference in the data. Reordering the keys changes the characters and not the data, so the refactor is reported as a failure the writer has to read and approve for no reason, and that habit of approving without reading is the real cost. Adding a field is a genuine change, but the snapshot cannot say so, which is why a reviewer learns to treat a red snapshot as routine. The narrow fix is a structural comparison or a normaliser that sorts keys and drops fields nobody is asserting on.",
       "hint": "Compare the stored string with each new string, then compare the values the two strings describe once key order is ignored.",
@@ -554,8 +554,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The same list totals 642.6 in order and 635.6 reversed, so the discount depends on position",
-          "misconception": ""
+          "text": "The reversed total is higher, so the case shows the discount being applied twice to one item",
+          "misconception": "believes the counter shows a larger total after reversing the list"
         },
         {
           "id": "B",
@@ -564,8 +564,8 @@
         },
         {
           "id": "C",
-          "text": "The reversed total is higher, so the case shows the discount being applied twice to one item",
-          "misconception": "believes the counter shows a larger total after reversing the list"
+          "text": "The same list totals 642.6 in order and 635.6 reversed, so the discount depends on position",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -574,7 +574,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Discounting the first item of [104, 375, 174] gives 93.6, and 93.6 plus 375 plus 174 is 642.6. Reverse the list and the discount lands on 174, giving 156.6 plus 375 plus 104, which is 635.6. The same basket is therefore worth two different amounts depending on the order the rows arrived in, which is the property that broke: the total after a coupon must not depend on the order of the input. The easier property, that a discount never raises the total, holds across the whole generated run, so a suite built on it alone reports nothing at all.",
       "hint": "Apply the discount to the first item of each ordering and add up the three prices both ways.",
@@ -621,8 +621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Each seed reproduces its own case exactly, and changing it explores a different part of the input space",
-          "misconception": ""
+          "text": "Both seeds found a failure at trial 1, so the generator is not really exploring the input space",
+          "misconception": "believes an early first failure means the search is not searching"
         },
         {
           "id": "B",
@@ -636,12 +636,12 @@
         },
         {
           "id": "D",
-          "text": "Both seeds found a failure at trial 1, so the generator is not really exploring the input space",
-          "misconception": "believes an early first failure means the search is not searching"
+          "text": "Each seed reproduces its own case exactly, and changing it explores a different part of the input space",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The seed fixes the whole sequence of generated inputs, so replaying 1234 gives the identical list and replaying 99 gives a different one, which is exactly what makes a recorded seed worth storing. What the seed does not do is make the property true: the run still fails, and the same bug is found through a different input. That is the point of generating inputs rather than writing them, since the hand-written case is the one already in the author's head, and a record of the seed turns an unreproducible red build into a single command.",
       "hint": "Decide what the seed controls, then check whether replaying a seed can change the outcome rather than only the input.",
@@ -688,13 +688,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Two, and the other three would still be reported as passing if the code they call were deleted",
-          "misconception": ""
+          "text": "Four, because a test that calls a function has checked that the call did not throw",
+          "misconception": "believes calling a function is an assertion about what it returned"
         },
         {
           "id": "B",
-          "text": "Four, because a test that calls a function has checked that the call did not throw",
-          "misconception": "believes calling a function is an assertion about what it returned"
+          "text": "Two, and the other three would still be reported as passing if the code they call were deleted",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -708,7 +708,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Only the two tests that compare a value with something can fail, and one of those two compares two things that were true before the code under test existed, so in practice the file is guarding very little. The three tests with no assertion pass by construction: a renderer that returned nothing, or returned the wrong element, or threw, changes nothing about the report unless the throw is what fails the run. Counting this way is cheap and catches the most common way a suite grows large and stays empty, which is by adding tests that exercise a path without checking its result.",
       "hint": "Ask test by test what value is compared with what, and treat a call with no comparison as unchecked.",
@@ -755,8 +755,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The test fails and the function still refuses a negative age, because the return value did not change",
-          "misconception": ""
+          "text": "The test passes, because the assertion was written on the prefix and the prefix is unchanged",
+          "misconception": "believes an exact string assertion tolerates a changed ending"
         },
         {
           "id": "B",
@@ -765,8 +765,8 @@
         },
         {
           "id": "C",
-          "text": "The test passes, because the assertion was written on the prefix and the prefix is unchanged",
-          "misconception": "believes an exact string assertion tolerates a changed ending"
+          "text": "The test fails and the function still refuses a negative age, because the return value did not change",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -775,7 +775,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The behaviour under test is the refusal, and that is unchanged: both versions return false for a negative age. The assertion was written on the whole line, so the reword trips it, and a developer now has to decide whether a message change deserves to break a build. The logging case is a special kind of this, because the log line is usually written for a person reading a dashboard rather than for a machine, so pinning it in a test makes the wording load bearing. Assert the return value or the state change, and leave the sentence to the people who read it.",
       "hint": "Separate the return value from the line the test captured, then change only the wording and see which of them moved.",
@@ -822,8 +822,8 @@
       "options": [
         {
           "id": "A",
-          "text": "83 percent, and beta is the one to look at, because its unmarked branch is the one nobody called",
-          "misconception": ""
+          "text": "100 percent, because the file as a whole was entered by every test that ran",
+          "misconception": "believes per function marking adds up to whole file marking"
         },
         {
           "id": "B",
@@ -837,12 +837,12 @@
         },
         {
           "id": "D",
-          "text": "100 percent, because the file as a whole was entered by every test that ran",
-          "misconception": "believes per function marking adds up to whole file marking"
+          "text": "83 percent, and beta is the one to look at, because its unmarked branch is the one nobody called",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Five of the six statements are marked, which is 83 percent, and the single unmarked statement is b3, the one beta takes when it is given a zero. Alpha is fully covered, so the whole gap in the file sits in one branch of one function, which is exactly the kind of thing a percentage hides. The figure is also a reminder that averaging hides concentration: a file at 83 percent can be one function at 100 and another at 67, and the second is where the untested behaviour is.",
       "hint": "Count the marked statements across both functions, divide by the total, then look at which function holds the unmarked statement.",
@@ -889,13 +889,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The dropped term survives, and a 20 year old who is not verified must be ineligible",
-          "misconception": ""
+          "text": "The disjunction survives, and a 20 year old who is not verified must be ineligible",
+          "misconception": "believes a disjunction still returns false when only one side is true"
         },
         {
           "id": "B",
-          "text": "The disjunction survives, and a 20 year old who is not verified must be ineligible",
-          "misconception": "believes a disjunction still returns false when only one side is true"
+          "text": "The dropped term survives, and a 20 year old who is not verified must be ineligible",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -909,7 +909,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two existing cases both supply verified as true, so removing the term changes nothing they can see and the mutant survives; the mutation score is two killed out of three, and the surviving one is the interesting one. The disjunction and the lowered constant are both caught by the 17 year old case, which is why that case earns its place. A mutation score is a sharper instrument than coverage precisely because it reports the assertions that failed to discriminate, and a survivor is a request for one more case rather than a defect in the code.",
       "hint": "Run all three mutants against both cases, then find the input for which the surviving mutant and the original disagree.",
@@ -956,8 +956,8 @@
       "options": [
         {
           "id": "A",
-          "text": "About one run in three, because the sampled index lands on the last element that often",
-          "misconception": ""
+          "text": "Exactly one run in two, because an index of two is as likely as any other value",
+          "misconception": "believes three elements give two equally likely outcomes"
         },
         {
           "id": "B",
@@ -966,8 +966,8 @@
         },
         {
           "id": "C",
-          "text": "Exactly one run in two, because an index of two is as likely as any other value",
-          "misconception": "believes three elements give two equally likely outcomes"
+          "text": "About one run in three, because the sampled index lands on the last element that often",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -976,7 +976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A count of 998,924 out of three million is 33.3 percent, so the test fails on roughly one run in three, and the reason is that the assertion is about a single sample rather than about the function. The code under test is not intermittent; the input is. The fix is to stop asserting on one draw, for example to assert that the result is one of the members, or to seed the generator with a value recorded in the failure so the exact draw can be replayed. A test that depends on chance cannot be debugged from its own output, because the output changes every time.",
       "hint": "Divide the seeded failure count by the number of trials, then work out how often one index out of three lands on the value the assertion rejects.",
@@ -1023,8 +1023,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The mean rises to about 118 ms and the ninety fifth percentile goes to 400 ms, so the tail moved and the mean partly followed",
-          "misconception": ""
+          "text": "Both figures stay at 80 ms and 260 ms, because a repeatable latency list cannot change",
+          "misconception": "believes cycling a fixed list produces a different distribution when edited"
         },
         {
           "id": "B",
@@ -1038,12 +1038,12 @@
         },
         {
           "id": "D",
-          "text": "Both figures stay at 80 ms and 260 ms, because a repeatable latency list cannot change",
-          "misconception": "believes cycling a fixed list produces a different distribution when edited"
+          "text": "The mean rises to about 118 ms and the ninety fifth percentile goes to 400 ms, so the tail moved and the mean partly followed",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Replacing ten values of the list with 900 adds 7000 ms to a total of 16000 ms spread over 200 calls, so the mean moves from 80 to about 118. The ninety fifth percentile moves to 400 because the slow calls now occupy the top five percent of the sorted list. Both numbers move, which is the point: a mean can absorb a tail problem for a long time, ten bad calls in two hundred barely dent it, while a percentile taken near the top reports the tail directly. That is why a latency budget is written against a percentile and an alert is set on one.",
       "hint": "Add the difference the ten slow calls make to the total and divide by the request count, then re-sort and read the position five percent from the end.",
@@ -1090,13 +1090,13 @@
       "options": [
         {
           "id": "A",
-          "text": "B is genuinely slower, because its median is 45 percent above A while either range spans about 19 percent",
-          "misconception": ""
+          "text": "A2 is genuinely slower than A, because its median is higher by three and a half percent",
+          "misconception": "believes a higher median is a result even when the ranges overlap"
         },
         {
           "id": "B",
-          "text": "A2 is genuinely slower than A, because its median is higher by three and a half percent",
-          "misconception": "believes a higher median is a result even when the ranges overlap"
+          "text": "B is genuinely slower, because its median is 45 percent above A while either range spans about 19 percent",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1110,7 +1110,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The spread within each candidate is about 19 percent of its median, so any difference smaller than that cannot be told apart from the jitter. A against A2 is a difference of three and a half percent with heavily overlapping ranges, so the honest reading is that the two are indistinguishable and no conclusion is available. B sits 45 percent above A, which is more than twice the spread, so the difference is larger than the noise and B is genuinely the slower of the two. Reporting a median without the spread is how a three and a half percent wobble gets promoted into a performance regression.",
       "hint": "Compare each gap between medians with the width of the ranges around them, and ask which gap is bigger than the noise it has to survive.",
@@ -1157,8 +1157,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One hit and three real uses, so the job would clear two modules that still call it",
-          "misconception": ""
+          "text": "One hit and one real use, so the job is right to refuse the other three modules",
+          "misconception": "believes a bound reference and a table entry stop the function being called"
         },
         {
           "id": "B",
@@ -1167,8 +1167,8 @@
         },
         {
           "id": "C",
-          "text": "One hit and one real use, so the job is right to refuse the other three modules",
-          "misconception": "believes a bound reference and a table entry stop the function being called"
+          "text": "One hit and three real uses, so the job would clear two modules that still call it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1177,7 +1177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The bracket search matches only the first module, so the job reports one hit, while three of the four modules genuinely reach the retired function: the direct call, the bound name and the table entry all end up calling it, and the run time lookup usually does too. The failure mode is the dangerous direction, because a removal job that reports one hit invites the change to go ahead and leave two live paths behind. A scan is a way to find candidates for a person to check, and the number it reports is a lower bound rather than a count.",
       "hint": "Apply the bracket pattern to each of the four modules, then follow each reference to see whether it can still reach the call.",
@@ -1224,8 +1224,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The bracket rule reports one false positive and misses two real uses; the name rule reports two and still misses one",
-          "misconception": ""
+          "text": "The name rule is the better rule, because a rule that never misses anything is worth a false positive",
+          "misconception": "believes completeness is worth an unbounded false positive rate"
         },
         {
           "id": "B",
@@ -1239,12 +1239,12 @@
         },
         {
           "id": "D",
-          "text": "The name rule is the better rule, because a rule that never misses anything is worth a false positive",
-          "misconception": "believes completeness is worth an unbounded false positive rate"
+          "text": "The bracket rule reports one false positive and misses two real uses; the name rule reports two and still misses one",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The bracket rule flags the real call and the commented-out call, so one of its two flags is a false positive, and it misses the registration and the aliased call, so two real uses go unreported. The name rule flags the call, the comment, the registration and the string, so two of its four flags are false positives, and it still misses the aliased call because that line never spells the name. Neither shape finds everything, and the difference between them is that the narrower rule under-reports while the broader one over-reports. A rule that is going to block a merge needs an allow list as well, because a name that appears in a comment is not a use.",
       "hint": "Apply each pattern to the five lines, then sort the findings into real calls, real references that are not calls, and text that merely mentions the name.",
@@ -1291,13 +1291,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It refuses the third insert with a constraint failure, and the table still holds the two valid rows",
-          "misconception": ""
+          "text": "It accepts all three rows and the test has to filter out the negative quantity afterwards",
+          "misconception": "believes a check constraint records a bad row rather than refusing it"
         },
         {
           "id": "B",
-          "text": "It accepts all three rows and the test has to filter out the negative quantity afterwards",
-          "misconception": "believes a check constraint records a bad row rather than refusing it"
+          "text": "It refuses the third insert with a constraint failure, and the table still holds the two valid rows",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1311,7 +1311,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The check runs as part of the statement and the third insert fails, while the two rows written by the earlier statements stand, because each statement is its own unit of work and a later failure does not reach back over them. This is the cheapest boundary test there is: the rule lives in the schema, so it holds for every writer rather than only for the code the test happens to call, and no amount of application code can route around it. The zero case is the one worth keeping next to it, because it is the value that distinguishes a boundary from a range.",
       "hint": "Insert the three rows one at a time and see which statement reports the failure and what the row count is afterwards.",
@@ -1358,8 +1358,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The checkout check, because it is the only one that crosses a process boundary and cannot be faked away",
-          "misconception": ""
+          "text": "The receipt totals check, because a printed total is the only output a customer ever actually sees",
+          "misconception": "believes the visible output decides the layer rather than the boundary crossed"
         },
         {
           "id": "B",
@@ -1368,8 +1368,8 @@
         },
         {
           "id": "C",
-          "text": "The receipt totals check, because a printed total is the only output a customer ever actually sees",
-          "misconception": "believes the visible output decides the layer rather than the boundary crossed"
+          "text": "The checkout check, because it is the only one that crosses a process boundary and cannot be faked away",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1378,7 +1378,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The layers differ in what they can see, not in how important the behaviour is. A unit check sees the discount function and nothing else, so it is fast and cheap but says nothing about whether the request ever reached it. The checkout check is the one that proves the pieces are wired to each other, because a mock cannot manufacture the agreement between two services, only a run through both can. That is also why it is the most expensive: it needs a running provider, a database and a clock, and it fails for reasons that have nothing to do with the code under change.",
       "hint": "Ask which of the four checks could be written at all without something outside the process running.",
@@ -1425,8 +1425,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Evidence that the handler passes what pricing expects and stores what pricing returned, across the real seam",
-          "misconception": ""
+          "text": "A check that the handler rejects a malformed body, which the pricing module cannot see at all",
+          "misconception": "believes a body check belongs to the module rather than the handler"
         },
         {
           "id": "B",
@@ -1440,12 +1440,12 @@
         },
         {
           "id": "D",
-          "text": "A check that the handler rejects a malformed body, which the pricing module cannot see at all",
-          "misconception": "believes a body check belongs to the module rather than the handler"
+          "text": "Evidence that the handler passes what pricing expects and stores what pricing returned, across the real seam",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "An integration test is defined by the seam it crosses, and here the seam is between the handler and the two things it depends on. What only this level can show is the agreement: that the arguments the handler builds are the shape pricing expects, that the value pricing returns is the one written to the repository, and that a failure from either side becomes the response the caller sees. Repeating the pricing cases at this level buys nothing, because the stubbed unit test already covered that logic, and it costs a great deal more to run.",
       "hint": "Ask which of the four obligations cannot be observed from inside either module on its own.",
@@ -1492,13 +1492,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It needs a browser, a server, seeded data and a clock, so a failure often names a symptom rather than a cause",
-          "misconception": ""
+          "text": "It runs the same code as the unit tests, so its only extra cost is the assertion that was added to it",
+          "misconception": "believes a longer path through the code adds no new cost"
         },
         {
           "id": "B",
-          "text": "It runs the same code as the unit tests, so its only extra cost is the assertion that was added to it",
-          "misconception": "believes a longer path through the code adds no new cost"
+          "text": "It needs a browser, a server, seeded data and a clock, so a failure often names a symptom rather than a cause",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1512,7 +1512,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The assertion is trivial; everything around it is not. The test needs a browser, a server, a seeded database and a real clock, so it is slow, it is the first thing to break when an unrelated dependency moves, and when it does break the message names a symptom, because a missing order row is what a payment timeout, a bad selector and a broken migration all look like from the outside. That is the trade the layer exists to make: a small number of tests that prove the pieces are joined, at a price per test of tens of seconds and a diagnosis cost that grows with the number of layers involved.",
       "hint": "Count everything that has to be running before the single assertion can be evaluated, and consider what a failure report contains.",
@@ -1559,8 +1559,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A dummy, a stub, and a mock, in that order, each replacing behaviour further than the last",
-          "misconception": ""
+          "text": "A mock, a stub, and a dummy, in that order, each asserting on more calls than the last",
+          "misconception": "believes the object that records calls substitutes the most behaviour"
         },
         {
           "id": "B",
@@ -1569,8 +1569,8 @@
         },
         {
           "id": "C",
-          "text": "A mock, a stub, and a dummy, in that order, each asserting on more calls than the last",
-          "misconception": "believes the object that records calls substitutes the most behaviour"
+          "text": "A dummy, a stub, and a mock, in that order, each replacing behaviour further than the last",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1579,7 +1579,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A dummy exists so the signature is satisfied and is never called, a stub answers with a chosen value so the code under test can proceed, and a mock additionally records how it was used so the test can assert on that. The scale running through all three is how much of the collaborator's behaviour the double supplies, and each step up costs more to maintain, because a mock turns the test's expectations into a description of the implementation. Most tests want a stub, and a test that reaches for a mock has usually decided it wants to know how rather than what.",
       "hint": "Order the three by how much behaviour the double supplies, from none to answers to recorded answers.",
@@ -1626,8 +1626,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The stub test would still pass if the code asked for the orders once or four times, and the mock test would not",
-          "misconception": ""
+          "text": "The stub test is stronger, because a fixed answer leaves the caller free to be written any way at all",
+          "misconception": "believes a test that ignores how a value was obtained is the stronger check"
         },
         {
           "id": "B",
@@ -1641,12 +1641,12 @@
         },
         {
           "id": "D",
-          "text": "The stub test is stronger, because a fixed answer leaves the caller free to be written any way at all",
-          "misconception": "believes a test that ignores how a value was obtained is the stronger check"
+          "text": "The stub test would still pass if the code asked for the orders once or four times, and the mock test would not",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "What the mock adds is a claim about how the code used the collaborator, and that is exactly what the stub withholds. A stub answers the question and stays quiet, so a caller that fetches the list once and a caller that fetches it in a loop both look identical to it, which is usually what you want because the loop may be a real defect and is not this test's business. The cost of the mock is that its expectations become a second copy of the implementation, so renaming a parameter or reordering two calls turns a behaviour-preserving refactor into a red build.",
       "hint": "Ask what the recorded calls add that the returned value does not, and what a refactor does to each kind of expectation.",
@@ -1693,13 +1693,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It proves the wiring precisely, and it makes the handler impossible to refactor without editing the test",
-          "misconception": ""
+          "text": "It proves the wiring precisely, and it costs nothing, because a test may change as the code changes",
+          "misconception": "believes a test that tracks the implementation carries no maintenance cost"
         },
         {
           "id": "B",
-          "text": "It proves the wiring precisely, and it costs nothing, because a test may change as the code changes",
-          "misconception": "believes a test that tracks the implementation carries no maintenance cost"
+          "text": "It proves the wiring precisely, and it makes the handler impossible to refactor without editing the test",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1713,7 +1713,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Every assertion about how a collaborator was used is a copy of a decision in the handler, and decisions are meant to change. Renaming a field, splitting a method or reordering two writes all leave the behaviour identical and the test red, so the team learns to change the test and re-run rather than to read it, and the test stops being evidence. The test bought precision about wiring, which is a real thing to want, but it is the wrong precision: asserting the order of two writes is a claim about the code, while asserting the response the caller receives is a claim about the contract.",
       "hint": "For each assertion, ask whether the handler's behaviour changed when it was written and whether the caller could tell.",
@@ -1760,8 +1760,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One input per class, the two class boundaries, and the last whole kilogram before the free limit",
-          "misconception": ""
+          "text": "The two boundaries and six random weights, since a random draw is the only unbiased way to sample a range",
+          "misconception": "believes a random sample can be relied on to include the boundary cases"
         },
         {
           "id": "B",
@@ -1770,8 +1770,8 @@
         },
         {
           "id": "C",
-          "text": "The two boundaries and six random weights, since a random draw is the only unbiased way to sample a range",
-          "misconception": "believes a random sample can be relied on to include the boundary cases"
+          "text": "One input per class, the two class boundaries, and the last whole kilogram before the free limit",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1780,7 +1780,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two ideas answer different questions and both are needed. Equivalence classes say which behaviours exist, so one input per class establishes that each path is reachable and correct. Boundary values say where a path is most likely to be wrong, because that is where the code compares rather than computes, and a comparison is written with an inclusive or an exclusive operator that is easy to get backwards. Weight is a good example because the input is quantised: 29.9 and 30 behave the same, while 30.0001 does not, so the interesting pair is the last accepted value and the first rejected one.",
       "hint": "Count how many distinct behaviours the function can produce, then add the values where the test of that behaviour is decided.",
@@ -1827,8 +1827,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The same object, carrying the changed address, because the fixture was built once and handed out by reference",
-          "misconception": ""
+          "text": "Whatever the changed test last set, which depends on the order the runner chose to execute them in",
+          "misconception": "believes the value depends on order when it depends on reference sharing"
         },
         {
           "id": "B",
@@ -1842,12 +1842,12 @@
         },
         {
           "id": "D",
-          "text": "Whatever the changed test last set, which depends on the order the runner chose to execute them in",
-          "misconception": "believes the value depends on order when it depends on reference sharing"
+          "text": "The same object, carrying the changed address, because the fixture was built once and handed out by reference",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A fixture built once and passed around is one object with many references, so a write through any of those references is visible to every later holder. That makes the file's tests depend on each other in a way no declaration records, and the dependency is invisible in the source, which is why it is so hard to find. The two clean arrangements are a builder called inside each test, so each test owns a fresh object, or a builder that hands out a copy every time it is called, so sharing becomes harmless. Either way the fixture is per test rather than per file.",
       "hint": "Ask how many objects exist after the fixture is declared once and given to five tests.",
@@ -1894,13 +1894,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That the test is asserting on an arrangement another test produced, so it measures the pair rather than itself",
-          "misconception": ""
+          "text": "That the report writer has a defect, because it does not run when the reader runs alone",
+          "misconception": "believes the missing file is a fault in the code that writes the file"
         },
         {
           "id": "B",
-          "text": "That the report writer has a defect, because it does not run when the reader runs alone",
-          "misconception": "believes the missing file is a fault in the code that writes the file"
+          "text": "That the test is asserting on an arrangement another test produced, so it measures the pair rather than itself",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1914,7 +1914,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The isolated run is the diagnostic, not a nuisance: it separates what the test is actually asserting from what the earlier test left lying around. A test that needs a predecessor has two results instead of one, and which of them appears depends on an execution order that is not written down anywhere in the test. The repair is to give the reader its own input, built the same way the writer built its own, so the assertion is about the reader and nothing else. A test that can only pass inside a particular sequence is a test of the sequence.",
       "hint": "Ask what the reader would have to be given if no other test had ever run in that process.",
@@ -1961,8 +1961,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Coverage counts execution, not discrimination, so it cannot say whether an assertion would notice a wrong result",
-          "misconception": ""
+          "text": "Ninety four percent is below any reasonable target, so the service cannot be called adequately tested",
+          "misconception": "believes adequacy is a threshold on a percentage rather than a judgement"
         },
         {
           "id": "B",
@@ -1971,8 +1971,8 @@
         },
         {
           "id": "C",
-          "text": "Ninety four percent is below any reasonable target, so the service cannot be called adequately tested",
-          "misconception": "believes adequacy is a threshold on a percentage rather than a judgement"
+          "text": "Coverage counts execution, not discrimination, so it cannot say whether an assertion would notice a wrong result",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1981,7 +1981,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "All three figures describe how much code ran, and none of them describes whether running it told anyone anything. A test can execute a branch, compare the result with the same expression the code computed, and pass; the line is covered and the assertion is worthless. That is why the third figure is the most misleading of the three, because it adds a condition that sounds like evidence and is not one. The question a percentage cannot answer is what would fail if the code were wrong in a way nobody thought of, and only mutation testing or a written list of expected failures speaks to it.",
       "hint": "Ask what each of the three numbers would report if every assertion in the file were replaced with a comparison of a value against itself.",
@@ -2028,8 +2028,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A mutant the tool cannot build, in code it cannot parse or in behaviour that depends on timing, is never counted",
-          "misconception": ""
+          "text": "The score is a proportion, so a large number of trivial mutants can raise it without adding a single useful case",
+          "misconception": "believes the number of trivial mutants cannot outweigh the number of hard ones"
         },
         {
           "id": "B",
@@ -2043,12 +2043,12 @@
         },
         {
           "id": "D",
-          "text": "The score is a proportion, so a large number of trivial mutants can raise it without adding a single useful case",
-          "misconception": "believes the number of trivial mutants cannot outweigh the number of hard ones"
+          "text": "A mutant the tool cannot build, in code it cannot parse or in behaviour that depends on timing, is never counted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A mutation score is a ratio over the mutants that were built, and the set that could be built is a property of the tool and the code, not of the tests. Code reached through reflection, generated at run time, or spread across a callback that only fires under a particular timing will produce few or no mutants, and the score stays high while the risk sits untouched in exactly those places. So the number is worth reading as a measure of how much the suite discriminates over the lines the tool could reach, and the report of which mutants were not built is more informative than the score itself.",
       "hint": "Ask what the denominator of the score contains, and what happens to code from which no mutant can be produced.",
@@ -2095,13 +2095,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first, because it checks what the caller receives, and the second fails when the rounding is done differently",
-          "misconception": ""
+          "text": "Neither, because a rounding change alters the returned value as well as the helper that was called",
+          "misconception": "believes any change to how rounding is done must change the result"
         },
         {
           "id": "B",
-          "text": "Neither, because a rounding change alters the returned value as well as the helper that was called",
-          "misconception": "believes any change to how rounding is done must change the result"
+          "text": "The first, because it checks what the caller receives, and the second fails when the rounding is done differently",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2115,7 +2115,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first test asks the question the caller cares about and is indifferent to how the answer is produced, so replacing a helper with an arithmetic expression, or moving the rounding into the caller, leaves it green. The second test has taken the implementation and written it down a second time, so any change to that structure has to be copied into the test, and a developer who does that without thinking has lost the check. The useful discipline is to ask what a caller could observe, and to assert only that, however tempting it is to pin the mechanism that produced it.",
       "hint": "Write down the two questions the tests ask, then apply a refactor that keeps the answers the same and see which test notices.",
@@ -2162,8 +2162,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A failing build when a released payload stops matching, so the break is found by the side that will suffer it",
-          "misconception": ""
+          "text": "Coverage of the billing service's own parsing, which the unit tests cannot reach at all",
+          "misconception": "believes a consumer cannot test its own parsing without a producer"
         },
         {
           "id": "B",
@@ -2172,8 +2172,8 @@
         },
         {
           "id": "C",
-          "text": "Coverage of the billing service's own parsing, which the unit tests cannot reach at all",
-          "misconception": "believes a consumer cannot test its own parsing without a producer"
+          "text": "A failing build when a released payload stops matching, so the break is found by the side that will suffer it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2182,7 +2182,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A shared document records an intention; a contract test records an observation, and only the observation fails a build. The billing side writes down the payloads it can actually handle, keeps those examples, and replays them against every checkout build, so a rename of a field or a new required property is caught by the consumer that would have broken rather than by a user. The limit is worth stating: the test pins the examples the consumer knows about, so a payload shape nobody has written down is still unguarded, which is why the examples have to grow as real traffic is seen.",
       "hint": "Ask which side is able to fail its own build, and what a document does when reality diverges from it.",
@@ -2229,8 +2229,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It is far inside the run to run spread, so ordinary variation will fail builds and real regressions will hide in it",
-          "misconception": ""
+          "text": "It measures only the ninety fifth percentile, so a regression that moves the whole distribution is invisible",
+          "misconception": "believes a tail percentile fails to respond when everything shifts"
         },
         {
           "id": "B",
@@ -2244,12 +2244,12 @@
         },
         {
           "id": "D",
-          "text": "It measures only the ninety fifth percentile, so a regression that moves the whole distribution is invisible",
-          "misconception": "believes a tail percentile fails to respond when everything shifts"
+          "text": "It is far inside the run to run spread, so ordinary variation will fail builds and real regressions will hide in it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The spread of 150 to 240 is about 60 percent of the median, so a five percent threshold sits far inside the noise: a build with nothing wrong will trip it often enough that the team learns to re-run, and once re-running is normal, a real twenty percent regression is treated the same way as a flake. A budget has to be set against the variation, and it is usually set with a comparison to a baseline measured the same way in the same conditions, repeated enough times to know its own spread. Failing on the median of a quiet run is easier to defend than failing on a percentile of a noisy one.",
       "hint": "Compare the proposed threshold with the range the same measurement has already taken across thirty builds.",
@@ -2296,13 +2296,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The changed default, because it only alters the shape of a value that crosses the whole request and back",
-          "misconception": ""
+          "text": "The tightened type check, because it rejects inputs that the unit tests hand over directly",
+          "misconception": "believes a stricter input check is only visible to a unit test"
         },
         {
           "id": "B",
-          "text": "The tightened type check, because it rejects inputs that the unit tests hand over directly",
-          "misconception": "believes a stricter input check is only visible to a unit test"
+          "text": "The changed default, because it only alters the shape of a value that crosses the whole request and back",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2316,7 +2316,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A change to a default is the kind that hides. A unit test that passes options explicitly never sees it, and a test that calls the parser directly is looking at one side of the boundary, so a value that comes out slightly different is not obviously wrong until it has travelled through a handler, been stored, and come back in a response. That is the argument for keeping at least a few tests that cross the whole path, not because they are better tests but because they are the only ones positioned to notice a change whose signature is the same and whose values are not.",
       "hint": "Ask which of the three changes alters a value without altering the call that produced it.",
@@ -2363,8 +2363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The third, because a suite that has not failed has not yet been shown to detect anything it did not already expect",
-          "misconception": ""
+          "text": "The first only, since having a test per endpoint is the one claim the coverage report can confirm",
+          "misconception": "believes the presence of a test is the same as the coverage of the endpoint"
         },
         {
           "id": "B",
@@ -2373,8 +2373,8 @@
         },
         {
           "id": "C",
-          "text": "The first only, since having a test per endpoint is the one claim the coverage report can confirm",
-          "misconception": "believes the presence of a test is the same as the coverage of the endpoint"
+          "text": "The third, because a suite that has not failed has not yet been shown to detect anything it did not already expect",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2383,7 +2383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The three statements sit at three different levels and the evidence only reaches the first one. Having a test per endpoint is a count of tests against a count of endpoints, and says nothing about whether the test would fail. Running under four minutes is a fact about the runner. Never having been red is a fact about the history of the branch, and it is compatible with a suite in which every assertion compares a value against itself. What would support the assurance is a set of deliberately broken versions that the suite is shown to catch, which is the one piece of evidence none of the three statements provides.",
       "hint": "For each sentence, ask what would have to be false for the sentence to be a reliable signal.",
@@ -2430,8 +2430,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Because the substitution is reachable in production and no assertion anywhere in the product would notice the wrong result",
-          "misconception": ""
+          "text": "Because the cheap object is slower in production, so preview and real runs would see different timings",
+          "misconception": "believes a substituted dependency is a performance problem in production"
         },
         {
           "id": "B",
@@ -2445,12 +2445,12 @@
         },
         {
           "id": "D",
-          "text": "Because the cheap object is slower in production, so preview and real runs would see different timings",
-          "misconception": "believes a substituted dependency is a performance problem in production"
+          "text": "Because the substitution is reachable in production and no assertion anywhere in the product would notice the wrong result",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A test artefact is one whose reach is decided by something that is false in production, such as a flag the deployment sets differently or a file the build excludes. Here nothing decides anything, so the code path is live in every environment, and the result is a product that quietly reports a different number from the one it computed. The absence of a complaint is what makes it dangerous: there is no log line, no exception and no failing test, because the test suite is where the double belongs and it is the only place anyone looks. The repair is structural, by passing the dependency in rather than by remembering not to call the switch.",
       "hint": "Ask what, in a production run, is different about the call path that installs the cheap object.",
@@ -2497,13 +2497,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The assertion compares against a count that was itself produced by running the same code under test",
-          "misconception": ""
+          "text": "The runner treats a test that throws inside a callback as skipped rather than failed",
+          "misconception": "believes a runner downgrades a thrown error to a skip"
         },
         {
           "id": "B",
-          "text": "The runner treats a test that throws inside a callback as skipped rather than failed",
-          "misconception": "believes a runner downgrades a thrown error to a skip"
+          "text": "The assertion compares against a count that was itself produced by running the same code under test",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2517,7 +2517,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "When the expected value is computed by the same code path as the actual one, an inversion cannot be seen: the wrong answer and the expectation move together, and the comparison succeeds. The suite has one assertion and no independent statement of what the answer should be, so it is checking that the code is consistent with itself, which is a much weaker property and one no defect can violate on its own. This is the failure mode behind the claim that a green suite proves nothing, and the remedy is unglamorous: write the expected value down, by hand or from a specification, rather than deriving it.",
       "hint": "Find where the expected number came from and ask whether it came from the same function that produced the result.",
@@ -2564,8 +2564,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The test asserted the call rather than the outcome, so restate the expectation against the new argument shape and keep the outcome assertion",
-          "misconception": ""
+          "text": "The mock was too strict, so the fix is to make it accept any arguments and let the outcome assertion carry the test",
+          "misconception": "believes dropping the argument check is the same as fixing the expectation"
         },
         {
           "id": "B",
@@ -2574,8 +2574,8 @@
         },
         {
           "id": "C",
-          "text": "The mock was too strict, so the fix is to make it accept any arguments and let the outcome assertion carry the test",
-          "misconception": "believes dropping the argument check is the same as fixing the expectation"
+          "text": "The test asserted the call rather than the outcome, so restate the expectation against the new argument shape and keep the outcome assertion",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2584,7 +2584,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The failure is the cost of asserting on a call: the argument shape is part of how the code is written rather than what it produces, so a refactor that preserves every result still breaks the test. The fix keeps the meaning and drops the incidental part, which means restating the expectation in the new shape and making sure the test still asserts the value the caller ends up with. Replacing the mock with a stub, or loosening the matcher, would also stop the failure and would also stop the test noticing if the handler asked the rate table about the wrong country, which is exactly the bug the assertion was there for.",
       "hint": "Decide what the test was trying to catch, then check whether the new version of the test would still catch it.",
@@ -2631,8 +2631,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The array is shared and never reset, so each test is asserting on a count that includes the other test's write",
-          "misconception": ""
+          "text": "The first test is wrong, because asserting an exact length of a growing array is never a valid check",
+          "misconception": "believes a length assertion is invalid on any array a test may add to"
         },
         {
           "id": "B",
@@ -2646,12 +2646,12 @@
         },
         {
           "id": "D",
-          "text": "The first test is wrong, because asserting an exact length of a growing array is never a valid check",
-          "misconception": "believes a length assertion is invalid on any array a test may add to"
+          "text": "The array is shared and never reset, so each test is asserting on a count that includes the other test's write",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "One array is created when the file loads and both tests write into it, so the second assertion is really asserting on one plus however much the first test left behind, and it happens to hold only in the order that was declared. Neither assertion is wrong on its own, and the runner is behaving normally: the defect is that the fixture is shared where the tests needed separate copies, which makes the result of each test a function of the others. Building the array inside a factory that each test calls, or resetting it before each test, turns two independent results back into one.",
       "hint": "Count how many arrays exist and how many writes reach it, then check the length each assertion sees.",
@@ -2698,13 +2698,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The stub answered a question the test should have asked the real table, so the missing key was never a possibility",
-          "misconception": ""
+          "text": "The real table is slow, so returning a fixed value is the only way to keep the test under a second",
+          "misconception": "believes a substitute answer is required to meet a runtime budget"
         },
         {
           "id": "B",
-          "text": "The real table is slow, so returning a fixed value is the only way to keep the test under a second",
-          "misconception": "believes a substitute answer is required to meet a runtime budget"
+          "text": "The stub answered a question the test should have asked the real table, so the missing key was never a possibility",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2718,7 +2718,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The stub made the missing key unrepresentable: any key returns 10, so the situation that exists in production cannot arise in the test, and the assertion is aimed at the total rather than at the lookup that produces it. This is the deep problem with a double that answers more than it should, and it is not visible from the test alone, because the test reads as a reasonable statement about totals. The repair is a case that asks the real table what it does with a key it does not have, and a test that asserts the service's behaviour for that case rather than asserting the number it happened to get.",
       "hint": "Ask which question the substituted object answered, and whether the situation that occurs in production can occur in the test.",
@@ -2765,8 +2765,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A ritual whose signal has decayed; compare structurally, or normalise key order and drop unasserted fields",
-          "misconception": ""
+          "text": "A flaky test, since it failed on a change that was not a behaviour change, so the repair is to retry the comparison",
+          "misconception": "believes a comparison that disagrees with the change is a flake"
         },
         {
           "id": "B",
@@ -2775,8 +2775,8 @@
         },
         {
           "id": "C",
-          "text": "A flaky test, since it failed on a change that was not a behaviour change, so the repair is to retry the comparison",
-          "misconception": "believes a comparison that disagrees with the change is a flake"
+          "text": "A ritual whose signal has decayed; compare structurally, or normalise key order and drop unasserted fields",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2785,7 +2785,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each approval teaches the reviewer that a red snapshot is noise, and once that has been learned a real change to a rendered value is approved in the same breath, so the cost of the text comparison is paid back as a missed defect. The narrow repair is not to stop taking snapshots, which is genuinely useful for large outputs, but to make the comparison structural or to normalise what nobody is asserting on: sort the keys, fix the order of any list whose order is not part of the contract, and drop fields the test does not claim to check. A snapshot that changes for a stated reason is evidence, and one that changes for an unstated one is noise.",
       "hint": "Ask what the reviewer learned from six consecutive red builds that described no change in behaviour.",
@@ -2832,8 +2832,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two of the five are not uses and one real use is invisible, so the rule needs to read syntax and an allow list",
-          "misconception": ""
+          "text": "The rule is fine, and the cost is only the reviewer time, so the fix is to batch the findings into one report",
+          "misconception": "believes a blocking rule with wrong findings is only a time cost"
         },
         {
           "id": "B",
@@ -2847,12 +2847,12 @@
         },
         {
           "id": "D",
-          "text": "The rule is fine, and the cost is only the reviewer time, so the fix is to batch the findings into one report",
-          "misconception": "believes a blocking rule with wrong findings is only a time cost"
+          "text": "Two of the five are not uses and one real use is invisible, so the rule needs to read syntax and an allow list",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A rule that blocks a merge has to be right in both directions, and this one is wrong in both: a commented-out call and a string constant are not uses, so a developer learns to dismiss the finding or to disable the rule for the file, and either response removes the check for the real calls too. Meanwhile the aliased call is never seen, so the one thing the migration needs to find is the thing it cannot. The change is to match the syntax rather than the characters, to skip comments and strings, and to allow the identifier where it is a plain reference rather than a call, with each exemption written down so a reviewer can see what the rule now misses.",
       "hint": "Sort the five findings into calls, references and mentions, then check what each category costs the rule.",
@@ -2899,13 +2899,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It passes, because the call still returns; the missing check is on the response body the caller receives",
-          "misconception": ""
+          "text": "It fails, because returning an empty list makes the handler throw when the body is serialised",
+          "misconception": "believes an empty result is an error the handler must raise"
         },
         {
           "id": "B",
-          "text": "It fails, because returning an empty list makes the handler throw when the body is serialised",
-          "misconception": "believes an empty result is an error the handler must raise"
+          "text": "It passes, because the call still returns; the missing check is on the response body the caller receives",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2919,7 +2919,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The suite reports a pass because the handler still returns without throwing, and the caller receives an empty list where it expected two items, which is a defect no assertion in the file can see. The missing assertion is on the thing the caller actually consumes: the status, the body, and the count of items in it. A test that only checks the absence of an exception is a smoke test, which has a place in a suite as a cheap canary, but it is not a check of behaviour and should not be counted as one when someone asks how much of the handler is tested.",
       "hint": "Ask what the caller can observe that this test never looks at.",
@@ -2966,8 +2966,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Make the dependency an argument so no substitution is possible without a caller, then check what price now returns",
-          "misconception": ""
+          "text": "Change the preview environment variable so the start-up file stops calling the hook at all",
+          "misconception": "believes one environment can be configured to avoid a code path it cannot see"
         },
         {
           "id": "B",
@@ -2976,8 +2976,8 @@
         },
         {
           "id": "C",
-          "text": "Change the preview environment variable so the start-up file stops calling the hook at all",
-          "misconception": "believes one environment can be configured to avoid a code path it cannot see"
+          "text": "Make the dependency an argument so no substitution is possible without a caller, then check what price now returns",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2986,7 +2986,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The useful step is the one that removes the possibility, not the one that describes it. The holder is module state, the hook is reachable from a start-up path that runs in every environment, and nothing in the product distinguishes the two cases, so the wrong number is a live code path rather than a misconfiguration. Making the dependency an argument means a test can still pass a double while production has no line that swaps the value, and checking the result afterwards is how you confirm the repair rather than assume it. Logging and output checks are worth having, but they leave a wrong number in place and only tell someone after the fact.",
       "hint": "Ask which change makes the wrong result impossible rather than merely visible.",
@@ -3033,8 +3033,8 @@
       "options": [
         {
           "id": "A",
-          "text": "More lines executed and no more behaviour checked, because a test with no assertion cannot fail on a wrong result",
-          "misconception": ""
+          "text": "A weaker suite, because the nine new tests displaced assertions that were in the file before",
+          "misconception": "believes adding tests to a file can remove assertions already present"
         },
         {
           "id": "B",
@@ -3048,12 +3048,12 @@
         },
         {
           "id": "D",
-          "text": "A weaker suite, because the nine new tests displaced assertions that were in the file before",
-          "misconception": "believes adding tests to a file can remove assertions already present"
+          "text": "More lines executed and no more behaviour checked, because a test with no assertion cannot fail on a wrong result",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The eight point rise is real and it measures nothing useful, because the nine tests exercise lines without comparing anything, so each of them would pass with the function returning nonsense or with its internals deleted. The figure now describes how much of the file has been walked rather than how much of it has been checked, and a reader who trusts the number will draw the wrong conclusion about where to look next. The honest response is to report the assertions rather than the lines, and to make the runner fail a test with no assertion so the number cannot be raised this way again.",
       "hint": "Ask what each of the nine new tests would do if the function it calls returned a wrong value.",
@@ -3100,13 +3100,13 @@
       "options": [
         {
           "id": "A",
-          "text": "82 percent, and a test that calls beta with the input its suite never uses, because it alone can add a statement",
-          "misconception": ""
+          "text": "90 percent, and one more test in each of the three functions, because coverage is averaged per function",
+          "misconception": "believes the file figure is the mean of three per function figures"
         },
         {
           "id": "B",
-          "text": "90 percent, and one more test in each of the three functions, because coverage is averaged per function",
-          "misconception": "believes the file figure is the mean of three per function figures"
+          "text": "82 percent, and a test that calls beta with the input its suite never uses, because it alone can add a statement",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3120,7 +3120,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Nine of the eleven statements are marked, which is 81.8 percent and reads as 82 when rounded. Only beta has an unmarked statement, so only a test that takes beta's other branch can add anything, and a new case in alpha or gamma adds execution of lines that are already counted and no coverage at all. The second half is the part worth carrying away: once a function is fully covered, more tests in it buy redundancy rather than coverage, and a figure that is dragged upward is not the same as a suite that checks more behaviour.",
       "hint": "Add the marked statements across the three functions, divide by the total, then look for the only function with a statement nobody reached.",
@@ -3167,8 +3167,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2, 2, 2, 3, 3, 10, and 255, where the uncapped value would first round to 26",
-          "misconception": ""
+          "text": "2, 2, 2, 3, 3, 10, and 245, where the percentage first reaches the cap exactly",
+          "misconception": "confuses the cap binding with the cap reducing the answer"
         },
         {
           "id": "B",
@@ -3177,8 +3177,8 @@
         },
         {
           "id": "C",
-          "text": "2, 2, 2, 3, 3, 10, and 245, where the percentage first reaches the cap exactly",
-          "misconception": "confuses the cap binding with the cap reducing the answer"
+          "text": "2, 2, 2, 3, 3, 10, and 255, where the uncapped value would first round to 26",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3187,7 +3187,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Ten percent of the six subtotals is 1.999, 2, 2.499, 2.5, 2.501 and 10, and rounding to nearest gives the six values in the keyed answer, with the tie at 25 rounding up to 3. The cap starts to reduce an answer when the rounded percentage would exceed 25, and the first whole cent where that happens is 255, where the percentage rounds to 26 and the cap holds it at 25. At 245 the two are equal rather than the cap winning, which is the distinction the third distractor misses, and it is exactly the kind of off-by-one a boundary pair of tests exists to catch.",
       "hint": "Round ten percent of each subtotal, then find the first subtotal whose rounded percentage is greater than 25.",
@@ -3234,8 +3234,8 @@
       "options": [
         {
           "id": "A",
-          "text": "66.7 percent, and a 20 year old who is not verified, because the survivor ignores the flag entirely",
-          "misconception": ""
+          "text": "33.3 percent, and a verified 16 year old, because the survivor rejects an adult who is verified",
+          "misconception": "believes the survivor rejects adults rather than ignoring the flag"
         },
         {
           "id": "B",
@@ -3249,12 +3249,12 @@
         },
         {
           "id": "D",
-          "text": "33.3 percent, and a verified 16 year old, because the survivor rejects an adult who is verified",
-          "misconception": "believes the survivor rejects adults rather than ignoring the flag"
+          "text": "66.7 percent, and a 20 year old who is not verified, because the survivor ignores the flag entirely",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Both existing cases supply verified as true, so the disjunction and the lowered constant are each caught by the seventeen year old case, giving two of three killed and a score of 66.7 percent. The surviving mutant ignores the flag, so it is killed by the one case the suite lacks: a twenty year old who is not verified, which the original rejects and the mutant accepts. That new case also kills the disjunction, since a disjunction returns true whenever the age test alone is true, and it leaves the lowered constant alive, which needs a sixteen or seventeen year old to distinguish.",
       "hint": "Divide the killed mutants by the total, then find an input where the dropped term changes the answer.",
@@ -3301,13 +3301,13 @@
       "options": [
         {
           "id": "A",
-          "text": "About 118 ms and 400 ms, and the ninety fifth, because it moves when only a few calls are slow",
-          "misconception": ""
+          "text": "80 ms and 260 ms, and the mean, because an average is the figure a caller experiences",
+          "misconception": "believes the average of the calls is what a single caller waits"
         },
         {
           "id": "B",
-          "text": "80 ms and 260 ms, and the mean, because an average is the figure a caller experiences",
-          "misconception": "believes the average of the calls is what a single caller waits"
+          "text": "About 118 ms and 400 ms, and the ninety fifth, because it moves when only a few calls are slow",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3321,7 +3321,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The ten replacements add 7000 ms to a total of 16000 ms, so the mean becomes 118.1 ms, while the ninety fifth percentile becomes 400 ms because the slow calls now fill the top of the sorted list. The alert belongs on the ninety fifth because that is the figure which moves when a small fraction of calls go slow, which is the failure mode a service actually has: a slow query on one route, a cold cache, a lock. A mean barely moved here, and a maximum would have been dominated by a single call from the beginning, so neither would have given a team a usable signal.",
       "hint": "Recompute the total and the mean, then re-sort and read the position five percent from the end.",
@@ -3368,8 +3368,8 @@
       "options": [
         {
           "id": "A",
-          "text": "About 100 runs, and assert a property of the sample rather than one draw, so no single value can fail the test",
-          "misconception": ""
+          "text": "About 100 runs, and seed the generator from the recorded time, so the same draw is produced on every run",
+          "misconception": "believes fixing the seed removes the dependence on chance"
         },
         {
           "id": "B",
@@ -3378,8 +3378,8 @@
         },
         {
           "id": "C",
-          "text": "About 100 runs, and seed the generator from the recorded time, so the same draw is produced on every run",
-          "misconception": "believes fixing the seed removes the dependence on chance"
+          "text": "About 100 runs, and assert a property of the sample rather than one draw, so no single value can fail the test",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3388,7 +3388,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A third of 300 runs is 100, so a team sees roughly a hundred red builds a week, and at that rate a red build stops being information. Changing the seed makes a given run reproduce, which is what you need once a failure is in front of you, but it does not remove the chance that a run fails, so it treats the symptom and leaves the hundred. Asserting something true of every draw, for example that the result is one of the members of the list, keeps the check and removes the flakiness, which is the only version of this fix that reduces the count.",
       "hint": "Multiply the rate by the number of runs, then ask which change makes every possible draw acceptable.",
@@ -3435,8 +3435,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Three, and they contribute execution and a canary against a thrown error, but no check of a result",
-          "misconception": ""
+          "text": "Three, and the other two raise the coverage figure, which is the reason to keep them in the file",
+          "misconception": "believes coverage is the reason to keep a test that checks nothing"
         },
         {
           "id": "B",
@@ -3450,12 +3450,12 @@
         },
         {
           "id": "D",
-          "text": "Three, and the other two raise the coverage figure, which is the reason to keep them in the file",
-          "misconception": "believes coverage is the reason to keep a test that checks nothing"
+          "text": "Three, and they contribute execution and a canary against a thrown error, but no check of a result",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Three of the five compare a value against something written down, so those three can fail and the other two cannot fail for any reason at all. What the two still do is real but small: they execute code, so a throw inside it fails the run, and they add lines to the coverage report. That is worth having as a cheap canary and worth nothing as a check, which is why a coverage number that counts them overstates what the file verifies. The distinction to carry into a review is between a test that can be wrong and a test that merely ran.",
       "hint": "Count the tests that compare a value with something, then say what remains for the ones that do not.",

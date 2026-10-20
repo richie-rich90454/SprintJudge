@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first builds a fresh walk on each pass, the second carries its place and carries on",
-          "misconception": ""
+          "text": "The first carries its place, and the second builds a fresh walk on each pass over it",
+          "misconception": "believes the two roles are the other way round from what they are"
         },
         {
           "id": "B",
-          "text": "The first carries its place, and the second builds a fresh walk on each pass over it",
-          "misconception": "believes the two roles are the other way round from what they are"
+          "text": "The first builds a fresh walk on each pass, the second carries its place and carries on",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A list is a source: asking it for a walk gives a separate walk object each time, so two passes both start at the first item. The walk itself holds the place, so a second pass over the same walk object continues rather than restarting. Being able to report a length is a separate nicety that a source may offer and a walk need not, which is why the two roles cannot be swapped. The answer reversing the roles is the belief to rule out first, because the place lives in the walk and never in the source.",
       "hint": "Ask which of the two objects holds the position, and what happens when you ask the other one for a walk again.",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A generator object that keeps the call's frame saved and has produced nothing yet",
-          "misconception": ""
+          "text": "The first value after the word yield, already computed and already returned",
+          "misconception": "believes the call runs the body up to the first suspension point"
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "The first value after the word yield, already computed and already returned",
-          "misconception": "believes the call runs the body up to the first suspension point"
+          "text": "A generator object that keeps the call's frame saved and has produced nothing yet",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Calling a function that holds a yield builds a generator and hands it back immediately; not one line of the body has run yet, because the body only starts when the generator is pulled from. That is what makes the object cheap to make and what lets it hold a place inside the body between one value and the next. The answer handing back the finished list is the belief to rule out first, since nothing in the body is touched at call time.",
       "hint": "Ask whether any line of the body has executed by the time the call returns.",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It is gone from the surrounding scope, because a comprehension runs with a scope of its own",
-          "misconception": ""
+          "text": "It is bound in neither scope, because a loop name is not a name that can be looked up",
+          "misconception": "believes a comprehension's loop name is unreachable even inside its own body"
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "It is bound in neither scope, because a loop name is not a name that can be looked up",
-          "misconception": "believes a comprehension's loop name is unreachable even inside its own body"
+          "text": "It is gone from the surrounding scope, because a comprehension runs with a scope of its own",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A comprehension compiles to its own little function, so its loop name belongs to that function and disappears when the comprehension returns. That is why a list comprehension can be used where an assignment would have leaked a name into the code around it. The answer claiming the name survives is the belief to rule out first, because the surrounding scope is never written to at all, and the old habit of a bare loop leaking its name is exactly the contrast here.",
       "hint": "Ask whether the comprehension is really a small function of its own.",
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "One expression, whose value is handed back, with no statement of any kind at all",
-          "misconception": ""
+          "text": "One expression, or any number of statements run in order before a value is returned",
+          "misconception": "believes a lambda body may hold statements like a function body does"
         },
         {
           "id": "B",
-          "text": "One expression, or any number of statements run in order before a value is returned",
-          "misconception": "believes a lambda body may hold statements like a function body does"
+          "text": "One expression, whose value is handed back, with no statement of any kind at all",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A lambda is a small function whose body is one expression, and the value of that expression is what the call hands back, which is why a lambda that ends in an assignment or a loop simply cannot be written. It does read names from the scope around it, so the limitation is on the shape of the body and not on what the body may mention. The answer allowing several statements is the belief to rule out first, because a second statement has nowhere to put its value.",
       "hint": "Ask what kind of body a lambda can hold, and where the value of that body goes.",
@@ -363,8 +363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The cell holding that name, so it sees whatever value the name has when it runs",
-          "misconception": ""
+          "text": "Nothing at all, because the scope that owned the name no longer exists once it returns",
+          "misconception": "believes a returned frame is torn down along with its names"
         },
         {
           "id": "B",
@@ -373,8 +373,8 @@
         },
         {
           "id": "C",
-          "text": "Nothing at all, because the scope that owned the name no longer exists once it returns",
-          "misconception": "believes a returned frame is torn down along with its names"
+          "text": "The cell holding that name, so it sees whatever value the name has when it runs",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A name that an inner function reads and that the outer scope also uses lives in a cell, and the inner function keeps a reference to that cell rather than a copy of the value, so it reads whatever the name holds at the moment it runs. Only the cells actually used are kept, not the entire frame, and the values the name never held are not dragged along. The answer promising a private copy is the belief to rule out first, because a copy would stop following later writes, which is the whole point of a closure.",
       "hint": "Ask whether the inner function keeps a value or keeps the place the value lives in.",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That every parameter after it be written by name, because the star starts the name-only run",
-          "misconception": ""
+          "text": "That the parameter after it be unpacked, because the star turns that name into a collection",
+          "misconception": "believes a name-only parameter must be given as a starred sequence"
         },
         {
           "id": "B",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "That the parameter after it be unpacked, because the star turns that name into a collection",
-          "misconception": "believes a name-only parameter must be given as a starred sequence"
+          "text": "That every parameter after it be written by name, because the star starts the name-only run",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A bare star on its own ends the run of parameters that may be given by position, and everything written after it has to be written by name, whatever its default is. It carries no value itself, so there is nothing for a caller to omit by naming it. The answer calling the star a default is the belief to rule out first, because the star is only a separator whose job is to say where the positional run ends.",
       "hint": "Ask which side of the star the affected parameters sit on, and what a bare star is worth on its own.",
@@ -501,13 +501,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That every parameter before it be given by position, never by name at the call site",
-          "misconception": ""
+          "text": "That every parameter before it be given by name, never by position at the call site",
+          "misconception": "believes the slash marks the parameters that must be named"
         },
         {
           "id": "B",
-          "text": "That every parameter before it be given by name, never by position at the call site",
-          "misconception": "believes the slash marks the parameters that must be named"
+          "text": "That every parameter before it be given by position, never by name at the call site",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -521,7 +521,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A slash marks the end of the run of parameters that can be given by position, so a caller who writes one of those names as a keyword is told the name is not available at the call site. Everything after the slash is unaffected and may be given either way, which is why a slash in a signature with a later name-only run is a normal and useful thing to write. The answer reversing the direction is the belief to rule out first, because the two markers sit on opposite sides of the parameters they govern.",
       "hint": "Ask which parameters the slash governs, and compare that with what a bare star governs.",
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Plain, then the extra group, then the name-only parameter, then the leftover name collector",
-          "misconception": ""
+          "text": "Plain, then the extra group, then the leftover name collector, then the name-only parameter",
+          "misconception": "believes the collector of leftover names may come before a named one"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "Plain, then the extra group, then the leftover name collector, then the name-only parameter",
-          "misconception": "believes the collector of leftover names may come before a named one"
+          "text": "Plain, then the extra group, then the name-only parameter, then the leftover name collector",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The order is forced from the outside in: the collector of leftover names has to be last because it swallows everything after it, and the name-only parameter has to sit after the extra group because the extra group would otherwise take it by position. So the plain parameter comes first, then the extra group, then the named one, then the collector. The answer putting the collector earlier is the belief to rule out first, because a collector in the middle leaves nothing for the parameters written after it.",
       "hint": "Start from the parameter that must come last and work backwards.",
@@ -639,8 +639,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It copies the name, the docstring and the other recorded details onto the new function",
-          "misconception": ""
+          "text": "It replaces the new function with the old one, so the decorated name leads to the original",
+          "misconception": "believes the helper unwraps the call and discards the decorator's work"
         },
         {
           "id": "B",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "It replaces the new function with the old one, so the decorated name leads to the original",
-          "misconception": "believes the helper unwraps the call and discards the decorator's work"
+          "text": "It copies the name, the docstring and the other recorded details onto the new function",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The helper copies the recorded details across so the wrapper presents itself as the function it stands in for, which is what keeps a documented tool from reporting every function under one name. It is a copy rather than a swap, so the wrapper is still the thing that gets called and the original is still reached through it. The answer claiming the original replaces the wrapper is the belief to rule out first, because that would remove the decorator's effect entirely.",
       "hint": "Ask whether the decorated name ends up bound to the original or still to the wrapper.",
@@ -708,13 +708,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The lower one is applied first, and the higher one ends up wrapped around its result",
-          "misconception": ""
+          "text": "The higher one is applied first, and the lower one ends up wrapped around its result",
+          "misconception": "believes decorators apply from the top down and the last one is inside"
         },
         {
           "id": "B",
-          "text": "The higher one is applied first, and the lower one ends up wrapped around its result",
-          "misconception": "believes decorators apply from the top down and the last one is inside"
+          "text": "The lower one is applied first, and the higher one ends up wrapped around its result",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Stacking reads from the inside out, so the decorator sitting directly on the function is applied first and the one above it receives that result to wrap in turn. The upper one is therefore the outer layer, and a call enters it first and the inner one last. The answer reading the stack top down is the belief to rule out first, because the lower decorator is textually closest to the function it decorates, and that closeness is what decides who wraps whom.",
       "hint": "Ask which decorator is textually closest to the function, and which layer a call enters.",
@@ -777,8 +777,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A class of its own making, or the same class with something added, since the name is rebound",
-          "misconception": ""
+          "text": "A plain function, because a class statement is a call that already hands back a function",
+          "misconception": "believes defining a class produces a function that the decorator then wraps"
         },
         {
           "id": "B",
@@ -787,8 +787,8 @@
         },
         {
           "id": "C",
-          "text": "A plain function, because a class statement is a call that already hands back a function",
-          "misconception": "believes defining a class produces a function that the decorator then wraps"
+          "text": "A class of its own making, or the same class with something added, since the name is rebound",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -797,7 +797,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A class statement binds a name to whatever object the decorator hands back, and nothing requires that object to be the class that was just defined, so a decorator may substitute a different class, register the original somewhere, or add to it and return it unchanged in identity. This is how registries, lightweight alternatives and mix-in helpers are usually written. The answer saying the name is frozen is the belief to rule out first, because the class statement is an assignment like any other.",
       "hint": "Ask what the class statement actually does to the name it binds.",
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One that runs its setup, yields exactly once, and then runs its teardown afterwards",
-          "misconception": ""
+          "text": "One that yields once on entry and once again on leaving, with a pause between them",
+          "misconception": "believes entry and exit each need a yield of their own"
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "One that yields once on entry and once again on leaving, with a pause between them",
-          "misconception": "believes entry and exit each need a yield of their own"
+          "text": "One that runs its setup, yields exactly once, and then runs its teardown afterwards",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The generator holds the whole life of the block: the lines before the yield are the setup, the yield marks the single moment the block runs, and the lines after it are the teardown that runs on the way out whether the block finished or raised. Exactly one yield is required, because the block is entered once and left once. The answer wanting a second yield is the belief to rule out first, because the helper has no second moment to give that yield to.",
       "hint": "Ask how many times the block itself runs, and therefore how many yields that allows.",
@@ -915,13 +915,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A place to run, so it is driven from now on and can stop at each of its waits",
-          "misconception": ""
+          "text": "The finished result of the coroutine, computed the moment the task is created",
+          "misconception": "believes creating a task runs the coroutine through to its return value"
         },
         {
           "id": "B",
-          "text": "The finished result of the coroutine, computed the moment the task is created",
-          "misconception": "believes creating a task runs the coroutine through to its return value"
+          "text": "A place to run, so it is driven from now on and can stop at each of its waits",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -935,7 +935,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A coroutine is a description of work, and a task is what gives that work a place to be driven from, so the scheduler can start it, let it run until its next wait, and come back to it later. Nothing is computed at creation and nothing is copied, so the coroutine and the task are two views of one piece of work. The answer promising a finished result is the belief to rule out first, because the body does not begin until the scheduler reaches the task's first wait.",
       "hint": "Ask what a bare coroutine has not yet got, and what creating the task starts.",
@@ -1053,8 +1053,8 @@
       "options": [
         {
           "id": "A",
-          "text": "list_iterator 10 2, then 20 30, then 10 20 30, because the walk reads the list as it goes",
-          "misconception": ""
+          "text": "iterator 10 2, then 20 30, then 10 20 30, because a walk reports itself by a shorter name",
+          "misconception": "believes the printed name of the walk object is simply the word iterator"
         },
         {
           "id": "B",
@@ -1063,8 +1063,8 @@
         },
         {
           "id": "C",
-          "text": "iterator 10 2, then 20 30, then 10 20 30, because a walk reports itself by a shorter name",
-          "misconception": "believes the printed name of the walk object is simply the word iterator"
+          "text": "list_iterator 10 2, then 20 30, then 10 20 30, because the walk reads the list as it goes",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1073,7 +1073,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The walk over a list holds a place rather than a copy, so the first print shows the walk's own class name, the value at the front, and a length of two because the item has not been added yet. The append then makes the added value visible to the walk, which continues from where it stopped and reports 20 and 30, while a fresh pass over the list reports all three in order. This was executed with the interpreter, and the answer claiming a frozen snapshot is the belief to rule out first, because a walk over a list is tied to the list itself.",
       "hint": "Ask whether the walk holds a copy of the list or a place inside it.",
@@ -1122,8 +1122,8 @@
       "options": [
         {
           "id": "A",
-          "text": "generator True True, then body, then 1, then after, then [2], then []",
-          "misconception": ""
+          "text": "generator True True, then body, then 1, then after, then [2], then [2]",
+          "misconception": "believes a finished generator hands its values over again on a later read"
         },
         {
           "id": "B",
@@ -1137,12 +1137,12 @@
         },
         {
           "id": "D",
-          "text": "generator True True, then body, then 1, then after, then [2], then [2]",
-          "misconception": "believes a finished generator hands its values over again on a later read"
+          "text": "generator True True, then body, then 1, then after, then [2], then []",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The call to gen only builds the generator, so the first line reports its class name, that an object is there at all, and that asking it for a walk gives the same object back. Nothing of the body has run until the first pull, and that pull runs up to the first yield, printing the body's line and handing back 1. Draining the generator then prints the second line and collects 2, and a second drain finds the body already finished, which is why the last line is empty. This was executed with the interpreter, and the answer repeating the values is the belief to rule out first, because a generator's place moves forward and never rewinds.",
       "hint": "Ask which pull starts the body, and what a drained generator has left to give.",
@@ -1191,13 +1191,13 @@
       "options": [
         {
           "id": "A",
-          "text": "caller one, A start, caller two A first, A got X, caller three A second, caller four []",
-          "misconception": ""
+          "text": "A start, caller one, caller two A first, A got X, caller three A second, caller four []",
+          "misconception": "believes building the generator runs it up to the first yield straight away"
         },
         {
           "id": "B",
-          "text": "A start, caller one, caller two A first, A got X, caller three A second, caller four []",
-          "misconception": "believes building the generator runs it up to the first yield straight away"
+          "text": "caller one, A start, caller two A first, A got X, caller three A second, caller four []",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Building the generator runs nothing, so the caller's first line prints first, and only the first pull starts the body and prints the generator's own opening line before handing back the first value. The send call resumes the body at the yield, so the generator prints that it received the sent value, and only then does the caller's third line print with the second value attached. The final walk resumes the body, finds nothing after the second yield, and reports an empty collection. This was executed with the interpreter, and the answer moving the generator's line after the caller's is the belief to rule out first, because a value is only handed back once the body has run to the yield before it.",
       "hint": "Ask what runs between the caller's first print and the first pull, and where control sits at each yield.",
@@ -1260,8 +1260,8 @@
       "options": [
         {
           "id": "A",
-          "text": "['v0', 'v1'] ['before', 'after'], then v0 ['before'], then ['v1'] ['before', 'after']",
-          "misconception": ""
+          "text": "['v0', 'v1'] ['after'], then v0 ['after'], then ['v1'] ['before', 'after'], starting at the wrong mark",
+          "misconception": "believes the line after the delegation runs before the first value is handed on"
         },
         {
           "id": "B",
@@ -1270,8 +1270,8 @@
         },
         {
           "id": "C",
-          "text": "['v0', 'v1'] ['after'], then v0 ['after'], then ['v1'] ['before', 'after'], starting at the wrong mark",
-          "misconception": "believes the line after the delegation runs before the first value is handed on"
+          "text": "['v0', 'v1'] ['before', 'after'], then v0 ['before'], then ['v1'] ['before', 'after']",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1280,7 +1280,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The delegating generator records its opening mark, then passes every value the inner generator yields straight through, and only when that inner generator runs out does the closing mark get recorded, which is why a full drain shows both marks. Pulling once from a fresh delegating generator stops as soon as the first inner value arrives, so the closing mark is not yet there, and draining the rest then records it. This was executed with the interpreter, and the answer claiming the first pull finishes the delegation is the belief to rule out first, because the delegation is driven one value at a time like any other generator.",
       "hint": "Ask how many values a single pull takes from the generator being delegated to.",
@@ -1329,8 +1329,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, then StopIteration with an empty pair, then 0, because nothing is left to add",
-          "misconception": ""
+          "text": "3, then StopIteration with an empty pair, then 3, because the values are still available",
+          "misconception": "believes values already handed out can be handed out a second time"
         },
         {
           "id": "B",
@@ -1344,12 +1344,12 @@
         },
         {
           "id": "D",
-          "text": "3, then StopIteration with an empty pair, then 3, because the values are still available",
-          "misconception": "believes values already handed out can be handed out a second time"
+          "text": "3, then StopIteration with an empty pair, then 0, because nothing is left to add",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first drain adds the two values, and the generator's place then sits past its last yield, so the extra pull finds nothing and raises the end signal with nothing attached, which the handler prints as its name and an empty pair. A later drain reports nothing at all, because a generator that has run out has no values left to give, so the sum of nothing is zero. This was executed with the interpreter, and the answer re-summing the same values is the belief to rule out first, because nothing is stored to be re-read once the body has finished.",
       "hint": "Ask what a drained generator has left, and what the end signal carries with it.",
@@ -1398,13 +1398,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[0, 2, 4], then no name, because the comprehension's scope ended with its statement",
-          "misconception": ""
+          "text": "[0, 2, 4], then 2, because the loop name stays bound after the statement finishes",
+          "misconception": "believes the loop name outlives the comprehension in the surrounding scope"
         },
         {
           "id": "B",
-          "text": "[0, 2, 4], then 2, because the loop name stays bound after the statement finishes",
-          "misconception": "believes the loop name outlives the comprehension in the surrounding scope"
+          "text": "[0, 2, 4], then no name, because the comprehension's scope ended with its statement",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1418,7 +1418,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The comprehension produces the doubled values and then goes out of scope, so the name its loop used does not exist in the code around it and the read is caught and reported. A bare loop would have left that name behind in the surrounding scope, which is exactly the contrast the item is built on. This was executed with the interpreter, and the answer reporting the last value is the belief to rule out first, because nothing ever binds that name outside the comprehension.",
       "hint": "Ask whether the comprehension is really a small function whose local names vanish with it.",
@@ -1467,8 +1467,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 2, 3] 3, then each of the three rows paired with its own length, empty one included",
-          "misconception": ""
+          "text": "[1, 2, 3] 3, then each row paired with the length of the whole joined result instead",
+          "misconception": "believes the inner name refers to the joined list rather than the current row"
         },
         {
           "id": "B",
@@ -1477,8 +1477,8 @@
         },
         {
           "id": "C",
-          "text": "[1, 2, 3] 3, then each row paired with the length of the whole joined result instead",
-          "misconception": "believes the inner name refers to the joined list rather than the current row"
+          "text": "[1, 2, 3] 3, then each of the three rows paired with its own length, empty one included",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1487,7 +1487,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The joined walk visits every row in turn, and the empty row contributes nothing, so the joined list holds three values from three rows. The second comprehension runs once per row, so the empty row is still visited and still contributes a pair, which is why its length of zero appears in the output. This was executed with the interpreter, and the answer dropping the empty row is the belief to rule out first, because a row that yields nothing is still a row the outer walk visits and reports on.",
       "hint": "Ask how many times the outer walk runs when one of the rows contributes nothing.",
@@ -1536,8 +1536,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the short word first, then the long word first, then the pair 5 and 6 in that order",
-          "misconception": ""
+          "text": "the short word first, then the long word first, then a fault, because a lambda cannot return two things",
+          "misconception": "believes a lambda may only hand back a single value and not a pair"
         },
         {
           "id": "B",
@@ -1551,12 +1551,12 @@
         },
         {
           "id": "D",
-          "text": "the short word first, then the long word first, then a fault, because a lambda cannot return two things",
-          "misconception": "believes a lambda may only hand back a single value and not a pair"
+          "text": "the short word first, then the long word first, then the pair 5 and 6 in that order",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The pair key compares length first and the word itself when the lengths tie, so the shortest word leads and the two length-four words cannot occur here, giving the order with the short word first. Reversing on length alone puts the longest word first, and the direct call adds the two arguments and multiplies them, so the pair comes out as the sum and the product in that order. This was executed with the interpreter, and the answer repeating the first order is the belief to rule out first, because reversing a sort is not the same as leaving it alone.",
       "hint": "Ask what the pair key compares first, and what reversing a sort actually does.",
@@ -1605,13 +1605,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1 2 1 3, because each counter from the factory keeps a cell of its own",
-          "misconception": ""
+          "text": "1 2 3 4, because every counter from one factory shares a single cell",
+          "misconception": "believes the cell is shared by all the counters the factory builds"
         },
         {
           "id": "B",
-          "text": "1 2 3 4, because every counter from one factory shares a single cell",
-          "misconception": "believes the cell is shared by all the counters the factory builds"
+          "text": "1 2 1 3, because each counter from the factory keeps a cell of its own",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1625,7 +1625,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each call of the factory runs a fresh body, so each one gets its own cell for the name, which is why the first counter reaches two while the second is still at one on the third report and the first then reaches three. If the two shared a cell the numbers would run 1, 2, 3, 4. This was executed with the interpreter, and the answer counting from the right is the belief to rule out first, because a call's arguments are worked out from the left, so the printed order follows the printed order of the calls.",
       "hint": "Ask how many times the factory's body runs, and where the remembered value lives.",
@@ -1674,8 +1674,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[2, 2, 2] then [0, 1, 2], because the first set shares one name and the second does not",
-          "misconception": ""
+          "text": "[3, 3, 3] then [0, 1, 2], because the loop name runs one step past where it stopped",
+          "misconception": "believes the loop name settles on the stop value rather than the last one"
         },
         {
           "id": "B",
@@ -1684,8 +1684,8 @@
         },
         {
           "id": "C",
-          "text": "[3, 3, 3] then [0, 1, 2], because the loop name runs one step past where it stopped",
-          "misconception": "believes the loop name settles on the stop value rather than the last one"
+          "text": "[2, 2, 2] then [0, 1, 2], because the first set shares one name and the second does not",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1694,7 +1694,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Every caller in the first set reads the same cell for the loop name, and by the time they are called that cell holds the value the walk stopped on, so all three report it. The second set gives each caller its own parameter whose default was worked out while the loop was on that step, so each reports its own value. This was executed with the interpreter, and the answer claiming the first set captured values is the belief to rule out first, because a cell is shared rather than copied, and a default argument is the part that does copy.",
       "hint": "Ask what the first set's callers share, and when the second set's defaults were worked out.",
@@ -1743,8 +1743,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1], then [1, 2], then True, because the default was built once at definition time",
-          "misconception": ""
+          "text": "[1], then [1, 2], then a fault, because a collection literal is not allowed as a default",
+          "misconception": "believes a default may not be written as a collection literal"
         },
         {
           "id": "B",
@@ -1758,12 +1758,12 @@
         },
         {
           "id": "D",
-          "text": "[1], then [1, 2], then a fault, because a collection literal is not allowed as a default",
-          "misconception": "believes a default may not be written as a collection literal"
+          "text": "[1], then [1, 2], then True, because the default was built once at definition time",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The default is worked out once, when the helper is defined, so both calls put their argument into that one bucket and the second call's report shows the first call's value still there. Comparing the two calls' results by identity therefore says they are the same object, which is what makes the bug dangerous rather than merely untidy. This was executed with the interpreter, and the answer saying the calls return separate buckets is the belief to rule out first, because nothing in the body ever builds a new bucket.",
       "hint": "Ask when the default is worked out, and whether anything in the body makes a new one.",
@@ -1812,13 +1812,13 @@
       "options": [
         {
           "id": "A",
-          "text": "6, then 30, then TypeError and True, then after, because the star keeps that parameter name-only",
-          "misconception": ""
+          "text": "6, then 30, then 30, then after, because a value by position still fills a name-only parameter",
+          "misconception": "believes the star is only documentation and does not bind a call"
         },
         {
           "id": "B",
-          "text": "6, then 30, then 30, then after, because a value by position still fills a name-only parameter",
-          "misconception": "believes the star is only documentation and does not bind a call"
+          "text": "6, then 30, then TypeError and True, then after, because the star keeps that parameter name-only",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1832,7 +1832,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first call uses the default factor, the second names the parameter, and the third tries to pass a value where the signature insists on a name, so the call is refused before the body runs and the caught message does talk about positions. Because the fault is caught, the last line still prints. This was executed with the interpreter, and the answer treating the star as decoration is the belief to rule out first, because the star is checked at every call rather than at definition time.",
       "hint": "Ask whether the star is checked once when the helper is defined or on every call.",
@@ -1881,8 +1881,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3, then 7, then TypeError and True, then after, because the slash bars that first name",
-          "misconception": ""
+          "text": "3, then 4, then TypeError and True, then after, because the slash discards the second parameter's value",
+          "misconception": "believes a slash stops the call from reaching the parameters after it"
         },
         {
           "id": "B",
@@ -1891,8 +1891,8 @@
         },
         {
           "id": "C",
-          "text": "3, then 4, then TypeError and True, then after, because the slash discards the second parameter's value",
-          "misconception": "believes a slash stops the call from reaching the parameters after it"
+          "text": "3, then 7, then TypeError and True, then after, because the slash bars that first name",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1901,7 +1901,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two positional calls behave as written, with the second using the default offset, and the third offers the first parameter as a keyword, which the slash forbids, so the call is refused before the body runs and the message does mention positions. Because the fault is caught, the last line still prints. This was executed with the interpreter, and the answer treating the slash as documentation is the belief to rule out first, because the marker is enforced by the call machinery on every call.",
       "hint": "Ask whether the slash is checked when the helper is defined or on every call.",
@@ -1950,8 +1950,8 @@
       "options": [
         {
           "id": "A",
-          "text": "{'a': 1}, then {'a': 1, 'b': 1}, then {'a': 2, 'b': 1}, because one dictionary serves every call",
-          "misconception": ""
+          "text": "{'a': 1}, then {'a': 1, 'b': 1}, then {'a': 1, 'b': 1}, because each call starts its count over",
+          "misconception": "believes each call resets the count for the name it was given"
         },
         {
           "id": "B",
@@ -1965,12 +1965,12 @@
         },
         {
           "id": "D",
-          "text": "{'a': 1}, then {'a': 1, 'b': 1}, then {'a': 1, 'b': 1}, because each call starts its count over",
-          "misconception": "believes each call resets the count for the name it was given"
+          "text": "{'a': 1}, then {'a': 1, 'b': 1}, then {'a': 2, 'b': 1}, because one dictionary serves every call",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The dictionary default is worked out once, so the first call leaves a count of one, the second call adds a second key to that same dictionary, and the third call finds the first key already there and raises it to two. The result therefore grows across the three reports instead of resetting. This was executed with the interpreter, and the answer resetting the count is the belief to rule out first, because nothing in the body clears or rebuilds the dictionary.",
       "hint": "Ask when the default dictionary is built, and whether anything in the body replaces it.",
@@ -2019,13 +2019,13 @@
       "options": [
         {
           "id": "A",
-          "text": "(1, 2, 3, 0), then (1, 2, 3, 4), then (1, 2, 3, 0), because the unpacked values fill from the left",
-          "misconception": ""
+          "text": "(1, 2, 3, 0), then (1, 2, 3, 4), then (1, 2, 3, 4), because the named value carries into the last call",
+          "misconception": "believes a name given in an earlier call leaks into a later one"
         },
         {
           "id": "B",
-          "text": "(1, 2, 3, 0), then (1, 2, 3, 4), then (1, 2, 3, 4), because the named value carries into the last call",
-          "misconception": "believes a name given in an earlier call leaks into a later one"
+          "text": "(1, 2, 3, 0), then (1, 2, 3, 4), then (1, 2, 3, 0), because the unpacked values fill from the left",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2039,7 +2039,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The unpacked values are laid into the leading parameters in order, then the trailing positional value takes the next free place, and the name-only parameter keeps its default unless a call names it. That is why the first and third calls agree on the fourth value and only the middle call, which names it, differs. This was executed with the interpreter, and the answer sending an unpacked value to the named parameter is the belief to rule out first, because a name-only parameter is out of reach of anything passed by position.",
       "hint": "Ask which parameters a value passed by position can reach, and in which order the unpacked ones land.",
@@ -2088,8 +2088,8 @@
       "options": [
         {
           "id": "A",
-          "text": "(1, 2, (3, 4), 'k', {'z': 9}), then (1, 2, (), 'k', {}), then (1, 2, (), None, {'z': 9})",
-          "misconception": ""
+          "text": "(1, 2, (3, 4), 'k', {'z': 9}), then (1, 2, (), None, {}), then (1, 2, (), None, {'z': 9})",
+          "misconception": "believes a supplied name-only argument is dropped from what the helper reports"
         },
         {
           "id": "B",
@@ -2098,8 +2098,8 @@
         },
         {
           "id": "C",
-          "text": "(1, 2, (3, 4), 'k', {'z': 9}), then (1, 2, (), None, {}), then (1, 2, (), None, {'z': 9})",
-          "misconception": "believes a supplied name-only argument is dropped from what the helper reports"
+          "text": "(1, 2, (3, 4), 'k', {'z': 9}), then (1, 2, (), 'k', {}), then (1, 2, (), None, {'z': 9})",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2108,7 +2108,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Values passed by position fill the positional-only parameter, then the plain one, then the group of extras, so the first call collects the two extras into a tuple and the second collects nothing. The name-only parameter keeps its default unless a call supplies it, and the collector of leftover names only holds the names a call passed that no other parameter claimed, which is why the third call's leftover is the single name given. This was executed with the interpreter, and the answer sweeping the named argument into the extras is the belief to rule out first, because a name-only parameter claims its own value before the extras are gathered.",
       "hint": "Ask in which order the parameters claim a call's values, and which of them nothing in the first call supplies.",
@@ -2157,8 +2157,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Card, then the bracketed form, then True, because a read on the class has no object to work from",
-          "misconception": ""
+          "text": "Card, then Card, then False, because a read on an object falls back to the class result",
+          "misconception": "believes a read through an object reuses the class-level answer instead of its own"
         },
         {
           "id": "B",
@@ -2172,12 +2172,12 @@
         },
         {
           "id": "D",
-          "text": "Card, then Card, then False, because a read on an object falls back to the class result",
-          "misconception": "believes a read through an object reuses the class-level answer instead of its own"
+          "text": "Card, then the bracketed form, then True, because a read on the class has no object to work from",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A read on the class has no object to pass, so the access method takes its first branch and hands back the class's own name, which the naming hook supplied. A read through an object passes that object, so the second branch builds the bracketed form from the object's own label, and comparing two such built strings by value is true even though they are separate objects. This was executed with the interpreter, and the answer passing the class in place of no object is the belief to rule out first, because an absent object is reported as nothing at all and that is the signal the first branch tests.",
       "hint": "Ask what the access method is handed when the read goes through the class rather than an object.",
@@ -2226,13 +2226,13 @@
       "options": [
         {
           "id": "A",
-          "text": "enter work, then leave work, then 6, then work, because the wrapper calls through and copies the name",
-          "misconception": ""
+          "text": "enter work, then 6, then leave work, then work, because the wrapped call reports its result first",
+          "misconception": "believes the wrapper's exit announcement precedes the result being returned"
         },
         {
           "id": "B",
-          "text": "enter work, then 6, then leave work, then work, because the wrapped call reports its result first",
-          "misconception": "believes the wrapper's exit announcement precedes the result being returned"
+          "text": "enter work, then leave work, then 6, then work, because the wrapper calls through and copies the name",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The decorated name is bound to the wrapper, so calling it runs the wrapper, which announces the wrapped helper's name, calls through to get the doubled value, and announces again before handing that value back, so the result prints after the second announcement. The copying helper is what puts the original name back on the wrapper, which is why the last line reports the helper's own name rather than the wrapper's. This was executed with the interpreter, and the answer reporting the wrapper's name is the belief to rule out first, because the copying helper is applied precisely to prevent that.",
       "hint": "Ask which name the wrapper announces, and what the copying helper did to the wrapper's own name.",
@@ -2295,8 +2295,8 @@
       "options": [
         {
           "id": "A",
-          "text": "6 wrapper None, because the name was rebound to the wrapper and nothing was copied onto it",
-          "misconception": ""
+          "text": "6 work None, because the name is copied across and the docstring is deliberately dropped",
+          "misconception": "believes the name is carried over while the docstring is not"
         },
         {
           "id": "B",
@@ -2305,8 +2305,8 @@
         },
         {
           "id": "C",
-          "text": "6 work None, because the name is copied across and the docstring is deliberately dropped",
-          "misconception": "believes the name is carried over while the docstring is not"
+          "text": "6 wrapper None, because the name was rebound to the wrapper and nothing was copied onto it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2315,7 +2315,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The decorated name is bound to whatever the decorator returned, and with nothing copied the wrapper presents its own name and no docstring, so the printed trio is the result followed by the wrapper's name and nothing. Reading those details off the decorated name reads the wrapper, because that is the object the name now points at. This was executed with the interpreter, and the answer reporting the original name is the belief to rule out first, because nothing in the wrapper forwards an attribute read to the helper it wraps.",
       "hint": "Ask which object the decorated name points at, and whether that object carries the helper's details.",
@@ -2364,8 +2364,8 @@
       "options": [
         {
           "id": "A",
-          "text": "6 work doubling the input, because the name and the docstring were copied onto the wrapper",
-          "misconception": ""
+          "text": "6 doubling the input work, because the name and the docstring changed places on the way",
+          "misconception": "believes the two recorded details trade places when copied"
         },
         {
           "id": "B",
@@ -2379,12 +2379,12 @@
         },
         {
           "id": "D",
-          "text": "6 doubling the input work, because the name and the docstring changed places on the way",
-          "misconception": "believes the two recorded details trade places when copied"
+          "text": "6 work doubling the input, because the name and the docstring were copied onto the wrapper",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The copying helper writes the wrapped helper's name and docstring onto the wrapper, so the decorated name reports both of them as if it were the original, and only the result is the wrapper's own contribution. This was executed with the interpreter, and the answer dropping the docstring is the belief to rule out first, because the docstring is one of the details the copy is there to carry, and a tool that reports the docstring as absent is the failure the helper exists to prevent.",
       "hint": "Ask which recorded details the copy carries, and whether either of them lands in the wrong place.",
@@ -2433,13 +2433,13 @@
       "options": [
         {
           "id": "A",
-          "text": "outer in, inner in, work, inner out, outer out, done, because the upper decorator is the outer layer",
-          "misconception": ""
+          "text": "inner in, outer in, work, outer out, inner out, done, because the upper decorator is the inner layer",
+          "misconception": "believes the decorator written highest ends up innermost in the call path"
         },
         {
           "id": "B",
-          "text": "inner in, outer in, work, outer out, inner out, done, because the upper decorator is the inner layer",
-          "misconception": "believes the decorator written highest ends up innermost in the call path"
+          "text": "outer in, inner in, work, inner out, outer out, done, because the upper decorator is the outer layer",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2453,7 +2453,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The decorator written lowest is applied first, so the higher one wraps the result of the lower one and ends up on the outside, and a call therefore enters the higher announcement first and the lower one second. Leaving is the mirror image, so the inner announcement comes out first, and the helper's own return value is what the last print reports. This was executed with the interpreter, and the answer reading the stack from the top is the belief to rule out first, because the decorator nearest the helper in the text is the one applied first.",
       "hint": "Ask which decorator sits closest to the helper in the text, and which layer a call enters.",
@@ -2502,8 +2502,8 @@
       "options": [
         {
           "id": "A",
-          "text": "making alpha, then call alpha, then 2, then work, because the label arrives before the helper is wrapped",
-          "misconception": ""
+          "text": "call alpha, then making alpha, then 2, then work, because the call comes before the build",
+          "misconception": "believes the wrapper is built when the helper is called rather than when it is decorated"
         },
         {
           "id": "B",
@@ -2512,8 +2512,8 @@
         },
         {
           "id": "C",
-          "text": "call alpha, then making alpha, then 2, then work, because the call comes before the build",
-          "misconception": "believes the wrapper is built when the helper is called rather than when it is decorated"
+          "text": "making alpha, then call alpha, then 2, then work, because the label arrives before the helper is wrapped",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2522,7 +2522,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Writing the factory name with a label under the helper is a call, so the build announcement happens while the helper is being defined and the wrapper is finished off then. The call announcement happens later, when the decorated name is called, and the result of the wrapped helper prints after it, and the copied name is what the last line reports. This was executed with the interpreter, and the answer putting the call first is the belief to rule out first, because the factory is called once at definition time and the wrapper is called once per use.",
       "hint": "Ask whether the factory is called when the helper is defined or when it is used.",
@@ -2571,8 +2571,8 @@
       "options": [
         {
           "id": "A",
-          "text": "open db, then body DB, then close db, then after block, because the lines after the yield run on the way out",
-          "misconception": ""
+          "text": "open db, then close db, then body DB, then after block, because the teardown runs before the block",
+          "misconception": "believes the lines after the yield run before the block body does"
         },
         {
           "id": "B",
@@ -2586,12 +2586,12 @@
         },
         {
           "id": "D",
-          "text": "open db, then close db, then body DB, then after block, because the teardown runs before the block",
-          "misconception": "believes the lines after the yield run before the block body does"
+          "text": "open db, then body DB, then close db, then after block, because the lines after the yield run on the way out",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The block helper is entered by pulling the generator, so the setup prints first, and the value handed to the block is whatever the yield produced rather than the argument, which is why the block reports the transformed text. Leaving the block pulls the generator again, which runs the lines after the yield and prints the closing line, and only then does the statement after the block run. This was executed with the interpreter, and the answer deferring the teardown to the end is the belief to rule out first, because the block's end is exactly the moment the generator is resumed for the second time.",
       "hint": "Ask when the generator is pulled a second time, and what the block receives at the yield.",
@@ -2640,13 +2640,13 @@
       "options": [
         {
           "id": "A",
-          "text": "first a, first b, then done, because the second loop found a walk that had already run out",
-          "misconception": ""
+          "text": "first a, first b, then second a, second b, then done, because each loop builds a fresh walk",
+          "misconception": "believes a loop over an object always starts a new walk over the source"
         },
         {
           "id": "B",
-          "text": "first a, first b, then second a, second b, then done, because each loop builds a fresh walk",
-          "misconception": "believes a loop over an object always starts a new walk over the source"
+          "text": "first a, first b, then done, because the second loop found a walk that had already run out",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first loop drains the generator, and the second loop asks the same object for its next value, which is past the end, so the loop body never runs and the second loop contributes nothing to the printout. That is the trap: building the generator once and naming it twice does not make two walks, it makes one walk and two readers. This was executed with the interpreter, and the answer repeating the values is the belief to rule out first, because a generator's place moves forward only and there is no rewinding of it.",
       "hint": "Ask whether the two loops hold the same object or each hold a walk of their own.",
@@ -2709,8 +2709,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 wrapper None, because the name points at the wrapper and the docstring was never copied",
-          "misconception": ""
+          "text": "2 wrapper the docs, because the docstring stays reachable from the wrapper by itself",
+          "misconception": "believes the docstring is inherited by the wrapper without being copied"
         },
         {
           "id": "B",
@@ -2719,8 +2719,8 @@
         },
         {
           "id": "C",
-          "text": "2 wrapper the docs, because the docstring stays reachable from the wrapper by itself",
-          "misconception": "believes the docstring is inherited by the wrapper without being copied"
+          "text": "2 wrapper None, because the name points at the wrapper and the docstring was never copied",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2729,7 +2729,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The call itself works, because the wrapper forwards to the wrapped helper, so the result is correct. What is lost is identity: the decorated name points at the wrapper, and the wrapper carries no name of its own beyond its own and no docstring, so the printed trio shows the wrapper's name and nothing. This was executed with the interpreter, and the answer reporting the original name is the belief to rule out first, because a wrapper does not forward attribute reads to the helper it wraps, which is precisely what the copying helper is for.",
       "hint": "Ask which object the decorated name points at, and whether a wrapper forwards attribute reads.",
@@ -2778,8 +2778,8 @@
       "options": [
         {
           "id": "A",
-          "text": "open x, body x, then RuntimeError with that message, then after, because a block runs once",
-          "misconception": ""
+          "text": "open x, then RuntimeError, then after, because the fault lands before the block body runs",
+          "misconception": "believes the second handover is refused before the block gets a turn"
         },
         {
           "id": "B",
@@ -2793,12 +2793,12 @@
         },
         {
           "id": "D",
-          "text": "open x, then RuntimeError, then after, because the fault lands before the block body runs",
-          "misconception": "believes the second handover is refused before the block gets a turn"
+          "text": "open x, body x, then RuntimeError with that message, then after, because a block runs once",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The block is entered once, so the first handover runs the body and the second handover is left over when the block ends, and the helper refuses to pretend the leftover never happened, so the fault is raised at that point and the handler reports it. Because the fault is caught, the last line still prints. This was executed with the interpreter, and the answer rerunning the block is the belief to rule out first, because a block helper is driven by entering and leaving once each, and the second yield has nothing left to hand over to.",
       "hint": "Ask how many times a with block's body runs, and therefore how many handovers the helper can use.",
@@ -2916,13 +2916,13 @@
       "options": [
         {
           "id": "A",
-          "text": "zero, then one, then many, because a value fitting no case simply leaves the statement",
-          "misconception": ""
+          "text": "zero, then one, then a fault, because a value fitting no case is refused outright",
+          "misconception": "believes a match statement insists one of its cases must fit"
         },
         {
           "id": "B",
-          "text": "zero, then one, then a fault, because a value fitting no case is refused outright",
-          "misconception": "believes a match statement insists one of its cases must fit"
+          "text": "zero, then one, then many, because a value fitting no case simply leaves the statement",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2936,7 +2936,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A match statement with no fallback simply does nothing when no case fits, so control carries on to whatever the function does next, and here that is the line returning the third text. The two values that do fit a case leave through that case instead. This was executed with the interpreter, and the answer treating a non-matching value as a fault is the belief to rule out first, because a statement that matches nothing is not an error but simply a branch that was not taken.",
       "hint": "Ask what a match statement does when none of its cases fit and there is no fallback.",
@@ -2985,8 +2985,8 @@
       "options": [
         {
           "id": "A",
-          "text": "handling b then handling b, because both handlers read the one cell the loop wrote last",
-          "misconception": ""
+          "text": "handling a then handling a, because the loop name rewinds once the loop has ended",
+          "misconception": "believes the loop name returns to its first value after the walk"
         },
         {
           "id": "B",
@@ -2995,8 +2995,8 @@
         },
         {
           "id": "C",
-          "text": "handling a then handling a, because the loop name rewinds once the loop has ended",
-          "misconception": "believes the loop name returns to its first value after the walk"
+          "text": "handling b then handling b, because both handlers read the one cell the loop wrote last",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3005,7 +3005,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Both handlers close over the same cell, and the last write to that cell was the loop's final step, so both report that name and the table of handlers is quietly wrong for every entry. Nothing is broken loudly, which is what makes this pattern worth recognising. This was executed with the interpreter, and the answer keeping the earlier name is the belief to rule out first, because a cell is shared rather than copied, so a handler built early still reads whatever the name holds when it is finally called.",
       "hint": "Ask how many cells the loop's name occupies, and what the last write to it was.",
@@ -3054,8 +3054,8 @@
       "options": [
         {
           "id": "A",
-          "text": "TypeError, then after, because the wrapper is what checks a call's arguments",
-          "misconception": ""
+          "text": "TypeError, then a fault, because catching the complaint abandons the last line",
+          "misconception": "believes a caught fault stops the statements that follow the handler"
         },
         {
           "id": "B",
@@ -3069,12 +3069,12 @@
         },
         {
           "id": "D",
-          "text": "TypeError, then a fault, because catching the complaint abandons the last line",
-          "misconception": "believes a caught fault stops the statements that follow the handler"
+          "text": "TypeError, then after, because the wrapper is what checks a call's arguments",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The decorated name points at the wrapper, so it is the wrapper's signature that a call has to satisfy, and that one requires two values while the call supplies one, so the call is refused before the helper inside ever runs. The wrapper has no default for the missing value, and because the fault is caught the last line still prints. This was executed with the interpreter, and the answer supplying a default is the belief to rule out first, because the wrapper's parameters are ordinary required parameters with no defaults written on them.",
       "hint": "Ask whose signature a call on the decorated name has to satisfy.",
@@ -3123,13 +3123,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 2], then StopIteration 99, then 0, because a return rides on the end signal itself",
-          "misconception": ""
+          "text": "[1, 2, 99], then StopIteration 99, then 102, because a return joins the yielded values",
+          "misconception": "believes a return inside a generator yields its value as one more item"
         },
         {
           "id": "B",
-          "text": "[1, 2, 99], then StopIteration 99, then 102, because a return joins the yielded values",
-          "misconception": "believes a return inside a generator yields its value as one more item"
+          "text": "[1, 2], then StopIteration 99, then 0, because a return rides on the end signal itself",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3143,7 +3143,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A return inside a generator does not yield anything; it ends the generator and its value rides along on the end signal, so a walk that collects the yielded values quietly drops it and a walk that catches the signal can read it. Once the signal has gone by, a drained generator has nothing left, so the final total is zero. This was executed with the interpreter, and the answer appending the figure to the yielded values is the belief to rule out first, because a return is not a handover and the end signal is the only carrier of that value.",
       "hint": "Ask where a return's value goes in a generator, and whether an ordinary walk looks at it.",
@@ -3676,8 +3676,8 @@
       "options": [
         {
           "id": "A",
-          "text": "one positive, two 1,2, many x, single y, other, because a guard that fails lets the next case be tried",
-          "misconception": ""
+          "text": "other, two 1,2, many x, single y, other, because a one-item list never matches a list case",
+          "misconception": "believes a list pattern only matches a list of two or more items"
         },
         {
           "id": "B",
@@ -3686,8 +3686,8 @@
         },
         {
           "id": "C",
-          "text": "other, two 1,2, many x, single y, other, because a one-item list never matches a list case",
-          "misconception": "believes a list pattern only matches a list of two or more items"
+          "text": "one positive, two 1,2, many x, single y, other, because a guard that fails lets the next case be tried",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3696,7 +3696,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A case runs only when the value fits its pattern and, if it has one, the guard also holds, so a value that fits the pattern but fails the guard is passed on to the next case rather than being reported by the one it failed. The one-item list of a positive value meets the first case, the two-item list has no match for one item so it falls to the second, the mapping with the larger count meets the guarded mapping case, the mapping with the smaller one fails that guard and is caught by the unguarded mapping case below it, and the plain text fits no pattern at all so the fallback reports it. This was executed with the interpreter, and the answer reusing the failed case is the belief to rule out first, because a guard is part of what it takes to select a case rather than something checked afterwards.",
       "hint": "Ask what happens to a value that fits a case's pattern but fails that case's guard.",
@@ -3745,8 +3745,8 @@
       "options": [
         {
           "id": "A",
-          "text": "start a, start b, end b, end a, then the two names in the order given, because a wait lets the other task run",
-          "misconception": ""
+          "text": "start a, start b, end a, end b, then the two names, because the longer wait always finishes first",
+          "misconception": "believes a longer wait somehow completes ahead of a shorter one"
         },
         {
           "id": "B",
@@ -3760,12 +3760,12 @@
         },
         {
           "id": "D",
-          "text": "start a, start b, end a, end b, then the two names, because the longer wait always finishes first",
-          "misconception": "believes a longer wait somehow completes ahead of a shorter one"
+          "text": "start a, start b, end b, end a, then the two names in the order given, because a wait lets the other task run",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Both tasks are scheduled before either reaches its wait, so the two start lines print first, and then the shorter wait is ready first so that task prints its end line and the other follows. The last print reports the two names in the order they were passed to the gathering call rather than the order they finished, which is the distinction the item turns on and the reason a caller who needs completion order has to ask for it. This was executed with the interpreter, and the answer reporting the finishing order is the belief to rule out first, because the gather is given a list of tasks and returns a list aligned to that list.",
       "hint": "Ask which order the results are aligned to, and which wait becomes ready first.",
@@ -3814,13 +3814,13 @@
       "options": [
         {
           "id": "A",
-          "text": "two and the two kinds in the order found, then after, because a group carries every failure at once",
-          "misconception": ""
+          "text": "one and the first kind only, then after, because a group raises the first failure and stops there",
+          "misconception": "believes a group of failures reports only the first one it found"
         },
         {
           "id": "B",
-          "text": "one and the first kind only, then after, because a group raises the first failure and stops there",
-          "misconception": "believes a group of failures reports only the first one it found"
+          "text": "two and the two kinds in the order found, then after, because a group carries every failure at once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3834,7 +3834,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The checker examines all three values and finds two problems, one for the negative value and one for the zero, while the value that passes both tests is not added, and because the list of problems is not empty the whole set is raised together as one group. The handler catches that group, reports how many members it holds and what kind each one is, and the statement after the handler still runs. This was executed with the interpreter, and the answer reporting only the first failure is the belief to rule out first, because the whole point of collecting them is that the caller learns about every problem in one pass rather than fixing them one run at a time.",
       "hint": "Ask how many values the checker actually finds a problem with, and what the raised object carries.",
@@ -3883,8 +3883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the one kept row and the length of the last row examined, then 5, then no name, because only a comprehension binds outwards",
-          "misconception": ""
+          "text": "the one kept row and the length of the last row examined, then 5, then a fault, because the read of the second name is not caught",
+          "misconception": "believes a read of an unbound name is not something a handler can catch"
         },
         {
           "id": "B",
@@ -3893,8 +3893,8 @@
         },
         {
           "id": "C",
-          "text": "the one kept row and the length of the last row examined, then 5, then a fault, because the read of the second name is not caught",
-          "misconception": "believes a read of an unbound name is not something a handler can catch"
+          "text": "the one kept row and the length of the last row examined, then 5, then no name, because only a comprehension binds outwards",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3903,7 +3903,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The comprehension runs with a scope of its own except that a name bound by an assignment expression inside it is deliberately allowed out to the surrounding code, which is the one exception to that rule and the reason the syntax exists at all. The test is evaluated for every row, so the surviving name holds the length of the last row examined rather than the last one that passed, and the row that passed is the only one kept. A plain function has no such exception, so its own binding stays inside it and reading that name in the surrounding code is caught and reported. This was executed with the interpreter, and the answer letting a function's local reach the caller is the belief to rule out first, because no ordinary local ever does.",
       "hint": "Ask which of the two bindings is allowed to leave the scope that made it, and how many times each test runs.",

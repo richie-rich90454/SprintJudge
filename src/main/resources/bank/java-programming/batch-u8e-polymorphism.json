@@ -86,13 +86,13 @@
       "options": [
         {
           "id": "A",
-          "text": "MB, because super.tag() runs Base's body directly.",
-          "misconception": ""
+          "text": "MM, because super still dispatches on the runtime type.",
+          "misconception": "believes every call goes through the override chain"
         },
         {
           "id": "B",
-          "text": "MM, because super still dispatches on the runtime type.",
-          "misconception": "believes every call goes through the override chain"
+          "text": "MB, because super.tag() runs Base's body directly.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -106,7 +106,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "super.tag() is bound to Base at compile time, so it runs Base's body even though the object is a Mid, and concatenating the results gives MB. Expecting the override to fire inside a super call is the tempting belief because almost everything else dispatches dynamically, and this rule is the deliberate exception: super opts out of dispatch for that single call.",
       "hint": "super names a compile-time bound call.",
@@ -155,8 +155,8 @@
       "options": [
         {
           "id": "A",
-          "text": "base, because a static call binds to the reference's type.",
-          "misconception": ""
+          "text": "basesub, because both bodies run in turn.",
+          "misconception": "believes hidden methods chain like overrides"
         },
         {
           "id": "B",
@@ -165,8 +165,8 @@
         },
         {
           "id": "C",
-          "text": "basesub, because both bodies run in turn.",
-          "misconception": "believes hidden methods chain like overrides"
+          "text": "base, because a static call binds to the reference's type.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -175,7 +175,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "name is static, so the compiler binds the call to Base using the reference's declared type, and Sub's method only hides it for calls written against Sub. Runtime dispatch is the tempting assumption, and it is right for instance methods, but a static method lives on the class rather than on instances, which is exactly why it can be hidden but never overridden.",
       "hint": "Which keyword is on name in each class?",
@@ -223,8 +223,8 @@
       "options": [
         {
           "id": "A",
-          "text": "base, because Base.id() is private and not overridden.",
-          "misconception": ""
+          "text": "It fails to compile, because Sub.id() conflicts.",
+          "misconception": "believes declaring the same signature is illegal in a subclass"
         },
         {
           "id": "B",
@@ -238,12 +238,12 @@
         },
         {
           "id": "D",
-          "text": "It fails to compile, because Sub.id() conflicts.",
-          "misconception": "believes declaring the same signature is illegal in a subclass"
+          "text": "base, because Base.id() is private and not overridden.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A private method is not inherited, so the id() call inside Base.show is bound to Base's private method and Sub.id() is simply an unrelated new method that happens to share the name. Matching signature and name is the tempting belief, but an override requires an inherited visible instance method, and private members are excluded along with static and final ones.",
       "hint": "Which methods is a subclass actually allowed to override?",
@@ -291,13 +291,13 @@
       "options": [
         {
           "id": "A",
-          "text": "public final void commit()",
-          "misconception": ""
+          "text": "public void commit()",
+          "misconception": "believes a missing modifier still prevents overriding"
         },
         {
           "id": "B",
-          "text": "public void commit()",
-          "misconception": "believes a missing modifier still prevents overriding"
+          "text": "public final void commit()",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -311,7 +311,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "final forbids replacement, so a subclass declaring the same signature fails to compile. An absent modifier is the tempting near-miss because the four declarations look interchangeable on paper, and the difference only shows up when the compiler rejects a subclass; static is also non-overridable, but for the opposite reason, since a static method is not inherited in the first place.",
       "hint": "Look for the modifier that closes the method to subclasses.",
@@ -359,8 +359,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, since Animal declares only who(String).",
-          "misconception": ""
+          "text": "It prints A, since the widest applicable overload wins.",
+          "misconception": "believes an int argument selects the base String version"
         },
         {
           "id": "B",
@@ -369,8 +369,8 @@
         },
         {
           "id": "C",
-          "text": "It prints A, since the widest applicable overload wins.",
-          "misconception": "believes an int argument selects the base String version"
+          "text": "It fails to compile, since Animal declares only who(String).",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -379,7 +379,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Overload selection happens at compile time from the reference's declared type, so the compiler looks for who(int) in Animal, finds only who(String), and the int argument cannot be converted to that String, so the program does not compile. Runtime type winning is the tempting carryover from overriding, but the two decisions are asked at different moments: which signature, decided early against the declared type; which body, decided late against the object.",
       "hint": "Is the declared reference type enough to find this signature?",
@@ -427,8 +427,8 @@
       "options": [
         {
           "id": "A",
-          "text": "generic, because the field read is fixed at compile time.",
-          "misconception": ""
+          "text": "rex, because Dog's field initializer runs before the call.",
+          "misconception": "believes the newest initializer wins at the call site"
         },
         {
           "id": "B",
@@ -442,12 +442,12 @@
         },
         {
           "id": "D",
-          "text": "rex, because Dog's field initializer runs before the call.",
-          "misconception": "believes the newest initializer wins at the call site"
+          "text": "generic, because the field read is fixed at compile time.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The name inside report is resolved during compilation against Animal, and a field read has no run-time step at all, so the Animal field is printed even though the object is a Dog and even though Dog's initializer did run. A field hiding another field is the tempting trap because the code looks like an ordinary method call, and the two behave differently on purpose: methods dispatch, while fields bind to the reference type.",
       "hint": "Are field reads virtual in Java?",
@@ -495,13 +495,13 @@
       "options": [
         {
           "id": "A",
-          "text": "woof meow, because each element dispatches on its own type.",
-          "misconception": ""
+          "text": "woof woof, because the array's type fixes the method.",
+          "misconception": "believes one container type chooses a single body"
         },
         {
           "id": "B",
-          "text": "woof woof, because the array's type fixes the method.",
-          "misconception": "believes one container type chooses a single body"
+          "text": "woof meow, because each element dispatches on its own type.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -515,7 +515,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Both elements are stored in an Animal[], but the dispatch decision is made per invocation, so the first call finds a Dog and the second finds a Cat, printing woof then meow. Expecting one type to win for the whole array is the tempting reading, and it would hold if a single bound variable were reused, but the call site is evaluated again for each element.",
       "hint": "Decide dispatch separately for each call.",
@@ -563,8 +563,8 @@
       "options": [
         {
           "id": "A",
-          "text": "An abstract class with a concrete describe() and an abstract speak().",
-          "misconception": ""
+          "text": "An interface where speak() is a default and describe() is abstract.",
+          "misconception": "believes defaults belong to the subtype rather than the type"
         },
         {
           "id": "B",
@@ -573,8 +573,8 @@
         },
         {
           "id": "C",
-          "text": "An interface where speak() is a default and describe() is abstract.",
-          "misconception": "believes defaults belong to the subtype rather than the type"
+          "text": "An abstract class with a concrete describe() and an abstract speak().",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -583,7 +583,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A shared concrete body needs a home, and an abstract class supplies one while still forcing subclasses to implement speak(). A bare interface declaration is the tempting wrong choice, and it was correct before Java 8; default methods do exist, but a default sits in the implementing class's own hierarchy, which puts the shared text in the wrong place for a requirement that every subclass must inherit.",
       "hint": "Which construct can carry an inherited implementation?",
@@ -631,8 +631,8 @@
       "options": [
         {
           "id": "A",
-          "text": "hello, because the class method wins over the default.",
-          "misconception": ""
+          "text": "hihello, because both bodies run in order.",
+          "misconception": "believes an override prepends the inherited body"
         },
         {
           "id": "B",
@@ -646,12 +646,12 @@
         },
         {
           "id": "D",
-          "text": "hihello, because both bodies run in order.",
-          "misconception": "believes an override prepends the inherited body"
+          "text": "hello, because the class method wins over the default.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The class is searched before any interface, so Formal.hi is selected and the inherited default is never consulted; there is no ambiguity because a class in the hierarchy outranks every interface default. The interface always winning is the tempting belief, and that rule does apply when two interface defaults compete, but only until a class supplies its own implementation.",
       "hint": "Which of the two candidates comes first in the search order?",
@@ -699,13 +699,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, because neither default is more specific.",
-          "misconception": ""
+          "text": "It prints A, because A is listed first in the implements clause.",
+          "misconception": "believes declaration order breaks a default-method tie"
         },
         {
           "id": "B",
-          "text": "It prints A, because A is listed first in the implements clause.",
-          "misconception": "believes declaration order breaks a default-method tie"
+          "text": "It fails to compile, because neither default is more specific.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -719,7 +719,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Neither A.tag nor B.tag is a subtype of the other, so no most-specific default exists and the compiler rejects the class until tag() is overridden. Source order deciding is the tempting guess, and it would be reasonable if conflicts behaved like overloads, but default-method ties are settled by subtyping, not by the order the interfaces appear in the implements clause.",
       "hint": "Nothing in the hierarchy makes one default more specific.",
@@ -767,8 +767,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Square becomes concrete, since the body supplies the implementation.",
-          "misconception": ""
+          "text": "It fails to compile, because the keyword is required to restate.",
+          "misconception": "believes abstract is mandatory on any restatement"
         },
         {
           "id": "B",
@@ -777,8 +777,8 @@
         },
         {
           "id": "C",
-          "text": "It fails to compile, because the keyword is required to restate.",
-          "misconception": "believes abstract is mandatory on any restatement"
+          "text": "Square becomes concrete, since the body supplies the implementation.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -787,7 +787,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A restatement that carries a body is an implementation of the inherited abstract method, so the subclass is no longer abstract and new Square() is allowed. Abstractness flowing down is the tempting belief, and it does hold while some method is genuinely unimplemented, but a method with a body is implemented, and the compiler keeps a class abstract only while an abstract method from a supertype has no implementation anywhere in the hierarchy.",
       "hint": "Does the restated method still have an implementation?",
@@ -835,8 +835,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, because the static method is not inherited.",
-          "misconception": ""
+          "text": "It fails to compile, because Util.of is private to the interface.",
+          "misconception": "believes interface static methods are inaccessible elsewhere"
         },
         {
           "id": "B",
@@ -850,12 +850,12 @@
         },
         {
           "id": "D",
-          "text": "It fails to compile, because Util.of is private to the interface.",
-          "misconception": "believes interface static methods are inaccessible elsewhere"
+          "text": "It fails to compile, because the static method is not inherited.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A static interface method belongs to the interface itself and is not inherited, so the unqualified call inside MyUtil does not resolve and the class fails to compile. Inheriting it is the tempting belief, and the instance-method rules of interfaces make that look consistent, but interface statics exist precisely so that adding a helper does not force every implementer to expose it.",
       "hint": "Which members does an implementing class actually inherit?",
@@ -903,13 +903,13 @@
       "options": [
         {
           "id": "A",
-          "text": "5, because the class field hides the inherited constant.",
-          "misconception": ""
+          "text": "100, because a final constant cannot be shadowed.",
+          "misconception": "believes a final constant cannot be shadowed by a field"
         },
         {
           "id": "B",
-          "text": "100, because a final constant cannot be shadowed.",
-          "misconception": "believes a final constant cannot be shadowed by a field"
+          "text": "5, because the class field hides the inherited constant.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -923,7 +923,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The class's own field shadows the interface constant for reads made through A, so an A instance reports 5, while Limits.MAX still reports 100 for anyone holding the interface. Being unable to change an inherited constant is the tempting belief, and MAX in Limits really is final, but shadowing only decides which name wins at each reference; it does not rewrite the constant that other references still see.",
       "hint": "Read MAX twice, once through an A and once through Limits.",
@@ -971,8 +971,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, because the object is not built yet.",
-          "misconception": ""
+          "text": "It compiles and passes 5, since initializers run before super().",
+          "misconception": "believes the initializer runs before the superclass body"
         },
         {
           "id": "B",
@@ -981,8 +981,8 @@
         },
         {
           "id": "C",
-          "text": "It compiles and passes 5, since initializers run before super().",
-          "misconception": "believes the initializer runs before the superclass body"
+          "text": "It fails to compile, because the object is not built yet.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -991,7 +991,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An explicit super call runs before the subclass has any state of its own, so the compiler refuses the read and reports that size cannot be referenced before the supertype constructor has been called. Defaulting to 0 is the tempting assumption, and a field really does hold 0 until its initializer runs, but that initializer runs after the superclass constructor, which is precisely why the value is unavailable to pass.",
       "hint": "Compare when the super call runs with when the initializer runs.",
@@ -1039,8 +1039,8 @@
       "options": [
         {
           "id": "A",
-          "text": "ABCgo, because each superclass constructor runs first.",
-          "misconception": ""
+          "text": "ABgoC, because go() runs inside the constructor.",
+          "misconception": "believes a called method joins the constructor output"
         },
         {
           "id": "B",
@@ -1054,12 +1054,12 @@
         },
         {
           "id": "D",
-          "text": "ABgoC, because go() runs inside the constructor.",
-          "misconception": "believes a called method joins the constructor output"
+          "text": "ABCgo, because each superclass constructor runs first.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Constructing a C must run A's body before B's and B's before C's, so A, B, and C print in that order and only then does go() print. Running the subclass body first is the tempting picture, and it matches the order a reader meets the classes in the file, but a superclass constructor cannot be skipped, so execution climbs the hierarchy before it descends again.",
       "hint": "A superclass constructor can never be skipped.",
@@ -1107,13 +1107,13 @@
       "options": [
         {
           "id": "A",
-          "text": "0 then 5, because Base runs before the initializer.",
-          "misconception": ""
+          "text": "5 then 5, because initializers run before super().",
+          "misconception": "believes field initializers precede the superclass body"
         },
         {
           "id": "B",
-          "text": "5 then 5, because initializers run before super().",
-          "misconception": "believes field initializers precede the superclass body"
+          "text": "0 then 5, because Base runs before the initializer.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1127,7 +1127,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Instance field initializers run after the superclass constructor finishes, so when Base's body reads x it finds the default 0, and by the time Derived's body runs its initializer has set y to 5. Initializers running before super is the tempting belief, and it matches the visual order of the source file, but the actual sequence is superclass construction, then this class's initializers, then this constructor's own body.",
       "hint": "When exactly do instance initializers run relative to super()?",
@@ -1175,8 +1175,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, since no no-argument super exists.",
-          "misconception": ""
+          "text": "It prints 9, because the implicit super call is skipped.",
+          "misconception": "believes an unsatisfiable super call is silently dropped"
         },
         {
           "id": "B",
@@ -1185,8 +1185,8 @@
         },
         {
           "id": "C",
-          "text": "It prints 9, because the implicit super call is skipped.",
-          "misconception": "believes an unsatisfiable super call is silently dropped"
+          "text": "It fails to compile, since no no-argument super exists.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1195,7 +1195,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The compiler's implicit super() is only available when the superclass declares a no-argument constructor, and Base declares only Base(int), so Sub() has nothing to call and the class fails to compile. Some default value is the tempting assumption, and it holds whenever a no-argument constructor exists, but Java provides no default argument and no synthetic zero, so the missing call becomes a compile error instead.",
       "hint": "Is there a superclass constructor that Sub() can reach?",
@@ -1243,8 +1243,8 @@
       "options": [
         {
           "id": "A",
-          "text": "this(5); first, with no explicit super() call in this constructor.",
-          "misconception": ""
+          "text": "super(5); first, then this(5); on the next line.",
+          "misconception": "believes the two calls can be combined in either order"
         },
         {
           "id": "B",
@@ -1258,12 +1258,12 @@
         },
         {
           "id": "D",
-          "text": "super(5); first, then this(5); on the next line.",
-          "misconception": "believes the two calls can be combined in either order"
+          "text": "this(5); first, with no explicit super() call in this constructor.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A constructor body allows one explicit invocation, and javac reports a second one as redundant; this(5) hands the whole job to a sibling constructor that is itself responsible for calling super, so the chain is already complete. Chaining twice is the tempting plan, and it reads like composing two independent actions, but the JVM builds a single chain and the second invocation of either kind is rejected.",
       "hint": "A constructor body allows exactly one explicit invocation.",
@@ -1311,13 +1311,13 @@
       "options": [
         {
           "id": "A",
-          "text": "sub:null, because Sub.label is not yet assigned.",
-          "misconception": ""
+          "text": "base:B, because the superclass body uses Base.tag().",
+          "misconception": "believes a constructor's call site is bound to its own class"
         },
         {
           "id": "B",
-          "text": "base:B, because the superclass body uses Base.tag().",
-          "misconception": "believes a constructor's call site is bound to its own class"
+          "text": "sub:null, because Sub.label is not yet assigned.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1331,7 +1331,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The tag() call inside Base's constructor is an ordinary virtual call, so Sub.tag runs, but Sub's field initializer has not executed yet and label is still the default null, giving sub:null. A super-bound call is the tempting explanation, and it would be true for an explicit super.tag(), but the unqualified call here dispatches normally while the initialized-looking sub:S is what people expect when fields are pictured as existing from the start.",
       "hint": "Dispatch still happens; the question is when subclass initializers run.",
@@ -1380,8 +1380,8 @@
       "options": [
         {
           "id": "A",
-          "text": "public Dog",
-          "misconception": ""
+          "text": "static Dog",
+          "misconception": "believes static can replace an inherited instance method"
         },
         {
           "id": "B",
@@ -1390,8 +1390,8 @@
         },
         {
           "id": "C",
-          "text": "static Dog",
-          "misconception": "believes static can replace an inherited instance method"
+          "text": "public Dog",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1400,7 +1400,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A covariant override narrows the reference return type to a subtype while keeping the method an ordinary public instance method, and Dog is a subtype of Animal, so the declaration is legal. A narrower return type cannot rescue the other modifiers: private would drop visibility below the inherited public method, static would stop it being an override at all, and abstract cannot be attached here because the superclass version already provides an implementation to inherit.",
       "hint": "Narrowing the type is allowed; changing the method's kind is not.",
@@ -1448,8 +1448,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails, because long and int are unrelated types.",
-          "misconception": ""
+          "text": "It fails, because the method must be marked static.",
+          "misconception": "believes a primitive return requires a static method"
         },
         {
           "id": "B",
@@ -1463,12 +1463,12 @@
         },
         {
           "id": "D",
-          "text": "It fails, because the method must be marked static.",
-          "misconception": "believes a primitive return requires a static method"
+          "text": "It fails, because long and int are unrelated types.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Covariance needs a subtype relationship, and primitive types form no hierarchy: int and long are siblings whose only connection is widening, which points the wrong way for a return type. Widening automatically is the tempting belief because assigning an int to a long is always legal, but an override's declared return type must match exactly for primitives and only reference types may be narrowed.",
       "hint": "Subtype is not the same thing as assignable.",
@@ -1516,13 +1516,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile, since a.spawn() is typed as Animal.",
-          "misconception": ""
+          "text": "It prints AD, because the call returns the narrowed type.",
+          "misconception": "believes the runtime object rewrites the declared return type"
         },
         {
           "id": "B",
-          "text": "It prints AD, because the call returns the narrowed type.",
-          "misconception": "believes the runtime object rewrites the declared return type"
+          "text": "It fails to compile, since a.spawn() is typed as Animal.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1536,7 +1536,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The static type of a.spawn() comes from the reference's declared type, Animal, so the compiler sees an Animal expression and rejects assigning it to a Dog variable even though the stored object is a Dog. Believing the covariant return reaches the caller is the tempting mistake, and it is the exact mirror image of dispatch: the body is chosen at run time, while the signature the caller compiles against is fixed by the reference type.",
       "hint": "Which signature does the compiler use for a.spawn()?",
@@ -1584,8 +1584,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It compiles, because String is a subtype of Object.",
-          "misconception": ""
+          "text": "It compiles, but every caller still receives a static Object.",
+          "misconception": "believes narrowing is ignored for all callers of the class"
         },
         {
           "id": "B",
@@ -1594,8 +1594,8 @@
         },
         {
           "id": "C",
-          "text": "It compiles, but every caller still receives a static Object.",
-          "misconception": "believes narrowing is ignored for all callers of the class"
+          "text": "It compiles, because String is a subtype of Object.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1604,7 +1604,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A class may implement an interface method with a covariant return, and String narrows Object, so Impl is valid and its own callers see String. Callers receiving a static Object is the tempting companion belief, and it is true for someone holding a Source-typed reference, but that reference is a separate declaration whose static type is fixed at compile time rather than rewritten by the implementing class.",
       "hint": "Is String a subtype of Object?",
@@ -1652,8 +1652,8 @@
       "options": [
         {
           "id": "A",
-          "text": "String, because the bridge method calls the covariant override.",
-          "misconception": ""
+          "text": "Object, because the bridge method discards the value.",
+          "misconception": "believes the synthetic bridge throws the result away"
         },
         {
           "id": "B",
@@ -1667,12 +1667,12 @@
         },
         {
           "id": "D",
-          "text": "Object, because the bridge method discards the value.",
-          "misconception": "believes the synthetic bridge throws the result away"
+          "text": "String, because the bridge method calls the covariant override.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The compiler adds a synthetic bridge in Impl that casts the result to Object for callers compiled against the interface, and that bridge forwards to the covariant String fetch, so the value's real class is String. The declared type naming the runtime class is the tempting belief, and getClass reports the object rather than the variable, so the interface's Object return type cannot be what it prints.",
       "hint": "getClass reports the object's real class, and the object is a String.",
@@ -1720,13 +1720,13 @@
       "options": [
         {
           "id": "A",
-          "text": "true,false, because equals must work in both directions.",
-          "misconception": ""
+          "text": "true,true, because the two indices differ by one.",
+          "misconception": "believes the comparison ignores the direction it runs in"
         },
         {
           "id": "B",
-          "text": "true,true, because the two indices differ by one.",
-          "misconception": "believes the comparison ignores the direction it runs in"
+          "text": "true,false, because equals must work in both directions.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1740,7 +1740,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The body uses a less-than test, so Row(1) reports Row(2) as equal while Row(2) does not report Row(1), and the pair prints true,false. An ordering test is the tempting shortcut because it does establish some relation between objects, but equals must be an equivalence, meaning reflexive, symmetric, transitive, and consistent, or sets and maps built on it quietly misbehave.",
       "hint": "Evaluate the call in both directions before answering.",
@@ -1788,8 +1788,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Symmetric and transitive, so equality chains agree both ways.",
-          "misconception": ""
+          "text": "Fast and cached, so repeated calls avoid recomputation.",
+          "misconception": "believes performance requirements belong to the contract"
         },
         {
           "id": "B",
@@ -1798,8 +1798,8 @@
         },
         {
           "id": "C",
-          "text": "Fast and cached, so repeated calls avoid recomputation.",
-          "misconception": "believes performance requirements belong to the contract"
+          "text": "Symmetric and transitive, so equality chains agree both ways.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1808,7 +1808,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The contract requires reflexivity, symmetry, transitivity, and consistency with hashCode, so a chain of objects that compare equal must compare equal at every step. Making equals final is the tempting extra, and good practice often does it, but the contract does not demand it, since what must hold is that a redefined equals stays symmetric and transitive for the class that declares it.",
       "hint": "Think about x.equals(y) and y.equals(x) together, then chains.",
@@ -1924,8 +1924,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It returns false immediately, before any field is touched.",
-          "misconception": ""
+          "text": "It returns false only when the classes happen to differ.",
+          "misconception": "believes the class test is what rejects a null argument"
         },
         {
           "id": "B",
@@ -1939,12 +1939,12 @@
         },
         {
           "id": "D",
-          "text": "It returns false only when the classes happen to differ.",
-          "misconception": "believes the class test is what rejects a null argument"
+          "text": "It returns false immediately, before any field is touched.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The o == null test short-circuits ahead of the getClass comparison, so the call returns false and no dereference happens. Throwing is the tempting worry, and the concern is well founded because writing the conditions in the other order would indeed throw on null, but || evaluates its left operand first and a true left operand skips the right one entirely.",
       "hint": "|| evaluates left to right and can skip the right side.",
@@ -1992,13 +1992,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Equal objects can hash differently, so the set keeps both copies.",
-          "misconception": ""
+          "text": "It fails to compile, because hashCode must be overridden too.",
+          "misconception": "believes the compiler enforces the pairing of the two methods"
         },
         {
           "id": "B",
-          "text": "It fails to compile, because hashCode must be overridden too.",
-          "misconception": "believes the compiler enforces the pairing of the two methods"
+          "text": "Equal objects can hash differently, so the set keeps both copies.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2012,7 +2012,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The contract says equal objects must have equal hash codes, and the inherited identity hash violates that, so two Items with the same name land in different buckets and a set can hold both. Duplicates being collapsed is the tempting reversal, and it matches the intuition that hashing decides membership, but the hash only selects a bucket while the equals call inside that bucket decides the match.",
       "hint": "The hash picks the bucket; equals decides the match.",

@@ -487,13 +487,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3, since the declaration, the field read and the parameter read are three separate references",
-          "misconception": ""
+          "text": "2, since the two references in the condition are the only ones that name the value",
+          "misconception": "counts only the uses and forgets the declaration"
         },
         {
           "id": "B",
-          "text": "2, since the two references in the condition are the only ones that name the value",
-          "misconception": "counts only the uses and forgets the declaration"
+          "text": "3, since the declaration, the field read and the parameter read are three separate references",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -507,7 +507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Executed against the snippet, the identifier occurs three times as a whole word: once where the parameter is declared, once as the field being read on the order, and once as the parameter being read on the right of the comparison. The count matters because it is the size of the step, and the three references fail differently: miss the declaration and the parameter becomes undeclared, miss the field and the comparison reads a different thing. The subtlety worth carrying away is that a rename of this shape can look finished and still be wrong, because renaming the parameter alone leaves the code comparing the same field to the same value, so every check still passes and the intent has been lost. A case-only rename like this one is also invisible to a compiler in languages where the two spellings differ only in case, which is why a search for the old spelling is part of the work rather than an afterthought.",
       "hint": "Find every whole-word occurrence of the identifier and say what each one is.",
@@ -889,8 +889,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The single caller is a loop body that reads the name as part of its own description, so inlining deletes the explanation",
-          "misconception": ""
+          "text": "The caller lives in another file, since a name cannot carry any meaning across a file boundary in any language",
+          "misconception": "believes file boundaries strip meaning from names"
         },
         {
           "id": "B",
@@ -899,8 +899,8 @@
         },
         {
           "id": "C",
-          "text": "The caller lives in another file, since a name cannot carry any meaning across a file boundary in any language",
-          "misconception": "believes file boundaries strip meaning from names"
+          "text": "The single caller is a loop body that reads the name as part of its own description, so inlining deletes the explanation",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -909,7 +909,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The call-site count answers how far a reader has to travel, and it says nothing about whether the name is carrying weight at the point of use. A call that reads processEachOrder(rows) tells the reader what the loop is for; the same six lines pasted in leave a loop that does arithmetic with no statement of intent, and the reader has to reconstruct the purpose from the body. That is the case the rule has to yield to: one caller, but a caller for which the name is the documentation. Options B and D both substitute a property that is irrelevant to the decision, and C is simply false, since names are used across files precisely because they travel. A single-caller helper with a meaningless name and a caller that reads fine without it should still be inlined.",
       "hint": "Ask what the call site says before the reader reaches the body, and whether the name is that sentence.",
@@ -1090,8 +1090,8 @@
       "options": [
         {
           "id": "A",
-          "text": "0, because the absent key yields 0 and the conversion removed the fall-through that used to answer 120",
-          "misconception": ""
+          "text": "80, because the table keeps the rate stored for the key one place before the missing one",
+          "misconception": "reads a table as if a missing key resolved to its neighbour"
         },
         {
           "id": "B",
@@ -1105,12 +1105,12 @@
         },
         {
           "id": "D",
-          "text": "80, because the table keeps the rate stored for the key one place before the missing one",
-          "misconception": "reads a table as if a missing key resolved to its neighbour"
+          "text": "0, because the absent key yields 0 and the conversion removed the fall-through that used to answer 120",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Verified by executing both versions on the same input. The chain tests A, tests B, and for anything else falls through to 30 * 4, which is 120. The table has three keys and D is not one of them, so the absent-key rule gives rate 0, and 0 * 4 is 0. The same routine on a listed key still works: charge(\"B\", 4) takes rate 20 from the table and returns 20 times 4, which is 80, exactly what the chain returned for that key. The lesson is that the final return in a chain is usually doing real work, answering every key the author did not enumerate, and a table that lists only the enumerated keys silently gives those answers a different value. A conversion is behaviour-preserving only when the old fall-through is reproduced explicitly, which means the table needs a default entry rather than an absent-key rule.",
       "hint": "Run the chain first for D, then run the table for D, and compare the two answers.",
@@ -1157,13 +1157,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The value belongs to one category, not to the routine, so one constant would present one category's rule as the rule",
-          "misconception": ""
+          "text": "The value belongs to the routine, so naming it would hide the fact that three categories use different rates",
+          "misconception": "reverses the ownership and blames the name for the difference"
         },
         {
           "id": "B",
-          "text": "The value belongs to the routine, so naming it would hide the fact that three categories use different rates",
-          "misconception": "reverses the ownership and blames the name for the difference"
+          "text": "The value belongs to one category, not to the routine, so one constant would present one category's rule as the rule",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1177,7 +1177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A constant is a claim that one value holds for the whole routine, and here the claim is false: the same method prices three categories at 0.20, 0.05 and 0.12, so the literal is a property of the call rather than of the routine. Hoisting it produces a routine that reads RATE and returns minutes times RATE, which is tidier and wrong, and the diff will show only that a number moved. The alternative is not a better constant but a different shape: pass the rate in, or move the dispatch up so the routine is told which category it is pricing. That is the general rule behind the objection, and it is worth stating broadly: a literal that differs by caller is data, and naming it turns a parameter into a lie.",
       "hint": "Ask how many different values the routine needs for that literal across its callers.",
@@ -1224,8 +1224,8 @@
       "options": [
         {
           "id": "A",
-          "text": "20, because the constant survives from the branch that was hoisted, so premium is now charged the basic rate",
-          "misconception": ""
+          "text": "2, because the constant replaces both the multiplication and the number of minutes",
+          "misconception": "believes the constant absorbs the whole calculation"
         },
         {
           "id": "B",
@@ -1234,8 +1234,8 @@
         },
         {
           "id": "C",
-          "text": "2, because the constant replaces both the multiplication and the number of minutes",
-          "misconception": "believes the constant absorbs the whole calculation"
+          "text": "20, because the constant survives from the branch that was hoisted, so premium is now charged the basic rate",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1244,7 +1244,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Verified by running both versions. Before the change, the plan is PREMIUM, the first test fails, and the routine returns 10 times 1, which is 10. After the change, the plan argument is no longer read at all, the routine returns 10 times RATE, and RATE is 2, so it returns 20. The premium customer is now billed at the basic rate and nothing reports it, because the rewrite is a single line in the diff and the two functions still agree on the basic plan. That is what makes this class of tidy-up dangerous: the change is small, looks like a naming improvement, and doubles a price for one of two customer groups. The correct response is not to leave the magic number alone but to make the rate a parameter, so the routine that prices minutes is told what a minute costs by whoever knows the plan.",
       "hint": "Decide whether the plan argument is read at all in the rewritten routine, then multiply.",
@@ -1358,8 +1358,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Every method now depends on when the object was built, because a value fixed at construction cannot be re-established",
-          "misconception": ""
+          "text": "The ability to validate the locale, since a constructor cannot reject a value a caller might once have supplied",
+          "misconception": "believes validation moves out of reach once a value is set internally"
         },
         {
           "id": "B",
@@ -1373,12 +1373,12 @@
         },
         {
           "id": "D",
-          "text": "The ability to validate the locale, since a constructor cannot reject a value a caller might once have supplied",
-          "misconception": "believes validation moves out of reach once a value is set internally"
+          "text": "Every method now depends on when the object was built, because a value fixed at construction cannot be re-established",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A parameter is a value each call re-establishes, and a field is a value the object holds from one moment to the next. Every method that reads the field now depends on the object having been built with the right one, which means a caller who needs a different locale can no longer simply pass it: they need a second object, or a way to change the field that the class does not offer. That is the real trade, and it is a trade rather than a free improvement, so the change is worth making when the value genuinely does not vary for a given object. The two methods that dropped the parameter are the clearest evidence the parameter was never theirs. The general form is that state is cheaper to pass and more expensive to vary, and the count of callers who need a different value is what decides.",
       "hint": "Ask what a caller does now who needs a different value than the one the object was built with.",
@@ -2028,13 +2028,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1, because the flag latches after the first call, so later callers leave no trace at all",
-          "misconception": ""
+          "text": "4, because every call reaches the warning and each of them writes its own line",
+          "misconception": "ignores the flag that makes the warning fire only once"
         },
         {
           "id": "B",
-          "text": "4, because every call reaches the warning and each of them writes its own line",
-          "misconception": "ignores the flag that makes the warning fire only once"
+          "text": "1, because the flag latches after the first call, so later callers leave no trace at all",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2048,7 +2048,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Verified by execution: the first call finds warned false, writes one line and sets the flag, and each of the next three calls finds the flag true and writes nothing, so the log holds exactly 1 line. The trace is correct and the design is the problem, because a single line cannot distinguish a system with one remaining caller from one with two hundred, and the log is what the team would look at when asking whether the old path can be removed. The same run with 200 calls also holds 1 line, which is the whole argument: the instrument collapses to the same reading whether the migration is finished or has barely started, so it cannot be the thing that ends a deprecation. A count that is emitted on every call, grouped by caller, is what turns a warning into evidence.",
       "hint": "Follow the flag through all four calls, and ask what the log would show for two hundred calls instead.",
@@ -2363,8 +2363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The number of reads, which now scales with the rows rather than staying at one, and no output revealed it",
-          "misconception": ""
+          "text": "The return type, since a named routine cannot return the same type the loop body produced",
+          "misconception": "believes extracting a call changes what the method returns"
         },
         {
           "id": "B",
@@ -2373,8 +2373,8 @@
         },
         {
           "id": "C",
-          "text": "The return type, since a named routine cannot return the same type the loop body produced",
-          "misconception": "believes extracting a call changes what the method returns"
+          "text": "The number of reads, which now scales with the rows rather than staying at one, and no output revealed it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2383,7 +2383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Extraction moves a call, and where the call sits decides how often it runs, so the same two-line refactor can be free or can turn one read into one read per row. Nothing about the returned number changes, which is precisely why a review that compares outputs passes, and the cost appears only under load where the multiplied reads start to show. The fix is small once seen: read the rate into a local before the loop and pass that local to the loop body, keeping the name for the reader while restoring one read per call. The general form is that a call's cost belongs to its position, and a refactor that improves legibility can quietly change a cost that was measured once and now is measured per row.",
       "hint": "Ask how many times the new routine runs for a call with n rows, before and after.",
@@ -2497,8 +2497,8 @@
       "options": [
         {
           "id": "A",
-          "text": "41 reads became 1, paid for with a value that is only correct under a stated condition and read in nine places",
-          "misconception": ""
+          "text": "41 reads became 9, paid for with a field that all nine methods must each keep up to date themselves",
+          "misconception": "assumes the read count settles at the number of reading methods"
         },
         {
           "id": "B",
@@ -2512,12 +2512,12 @@
         },
         {
           "id": "D",
-          "text": "41 reads became 9, paid for with a field that all nine methods must each keep up to date themselves",
-          "misconception": "assumes the read count settles at the number of reading methods"
+          "text": "41 reads became 1, paid for with a value that is only correct under a stated condition and read in nine places",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The gain is real and large, forty reads removed from every call, and the charge is specific: the object now holds a value that goes stale, it is correct only while the object was built during the current second, and nine methods read it without nine of them being responsible for it. That combination is what makes the change worth a comment rather than a revert, because a reader who finds the field six months later has no way to know that a long-lived object will read a value that was correct when it was built. The alternative is to give the object a way to refresh the value, or to keep the read where it is, and the decision between them depends on the lifetime of the object rather than on the read count alone.",
       "hint": "Ask how long the object lives compared with the second in which its field was set.",
@@ -2832,13 +2832,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3, because the routine cannot tell a lost write from a successful one now, and it reports success anyway",
-          "misconception": ""
+          "text": "1, because the driver no longer loses writes so the very first attempt always succeeds",
+          "misconception": "believes the routine can detect a lost write and so will stop"
         },
         {
           "id": "B",
-          "text": "1, because the driver no longer loses writes so the very first attempt always succeeds",
-          "misconception": "believes the routine can detect a lost write and so will stop"
+          "text": "3, because the routine cannot tell a lost write from a successful one now, and it reports success anyway",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2852,7 +2852,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Verified by execution. The first call makes attempts 1 and writes the row, and 1 is less than 3, so it calls itself; the second call makes attempts 2 and writes the row again, and 2 is less than 3, so it calls itself again; the third call makes attempts 3, writes the row, and the test fails, so it returns ok. Three rows reach the database for one call. The retry is unconditional, so the health of the driver is irrelevant to the count: what the routine reacts to is its own attempt counter and nothing else. That is exactly why the workaround outlived the bug, because while the driver lost writes the second and third attempts were harmless, and now every ordinary transient error produces three rows while the routine reports success. The remediation is to remove the retry and let a genuine failure be reported, which is safe only once the driver cannot half-succeed.",
       "hint": "Follow the attempt counter through the three calls and count the write statements, not the returns.",

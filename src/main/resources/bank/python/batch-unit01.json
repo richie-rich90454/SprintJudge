@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "is, which asks whether both names reach one shared object",
-          "misconception": ""
+          "text": "==, which asks whether both names reach one shared object",
+          "misconception": "believes the equality operator compares object addresses rather than values"
         },
         {
           "id": "B",
-          "text": "==, which asks whether both names reach one shared object",
-          "misconception": "believes the equality operator compares object addresses rather than values"
+          "text": "is, which asks whether both names reach one shared object",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The identity operator compares whether two references land on the very same object without inspecting the contents. The equality operator asks whether the values are indistinguishable, which two separately built lists of matching contents can be while occupying different storage. The tempting pairing swaps the two, and that swap causes most identity bugs: asking for identity with equality reports a shared object as distinct, and asking for equality with identity reports two equal values as different.",
       "hint": "One operator compares storage, the other compares what is stored. Decide which the question needs.",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "True False",
-          "misconception": ""
+          "text": "False False",
+          "misconception": "believes a run-time join cannot reproduce the characters of a literal"
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "False False",
-          "misconception": "believes a run-time join cannot reproduce the characters of a literal"
+          "text": "True False",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Joining builds a fresh string object at run time, so the two names hold equal contents in different storage. Equality compares contents and therefore succeeds, while identity fails because nothing is shared. The tempting answer assumes the interpreter searches for an existing object whenever a string is produced, which would make identity testing useless for exactly the run-time values a program most needs to tell apart.",
       "hint": "Trace where each name's storage came from, then ask whether the two names share it.",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 2, 3] [1, 2, 3]",
-          "misconception": ""
+          "text": "[1, 2] [1, 2]",
+          "misconception": "believes growth affects only the name it is called on and no other"
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "[1, 2] [1, 2]",
-          "misconception": "believes growth affects only the name it is called on and no other"
+          "text": "[1, 2, 3] [1, 2, 3]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A list is a mutable object, and binding a second name to it attaches that name to the same object rather than to a copy of its contents, so any change made through either name shows through the other. The tempting answer imagines a snapshot taken at binding time, but a plain assignment never inspects or duplicates the object, which is also why a function handed a list can change the caller's list without being asked to.",
       "hint": "Ask whether the assignment duplicated the object or only attached another name to it.",
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "it prints the word no",
-          "misconception": ""
+          "text": "it prints the word yes",
+          "misconception": "believes a name that was assigned something at all is automatically true"
         },
         {
           "id": "B",
-          "text": "it prints the word yes",
-          "misconception": "believes a name that was assigned something at all is automatically true"
+          "text": "it prints the word no",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A condition does not require a boolean; it requires a value the interpreter can rate as true or false, and the absent marker rates as false, so the second branch runs. The tempting answer treats assignment as a promise of truth, but a condition asks what the name holds now, and a name that has been set and a name that holds something usable are different things.",
       "hint": "A condition asks how the value rates, not whether the name was ever assigned.",
@@ -363,8 +363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the non-empty string holding the character zero",
-          "misconception": ""
+          "text": "the empty string with no characters in it",
+          "misconception": "believes a string is truthy for its type regardless of length"
         },
         {
           "id": "B",
@@ -373,8 +373,8 @@
         },
         {
           "id": "C",
-          "text": "the empty string with no characters in it",
-          "misconception": "believes a string is truthy for its type regardless of length"
+          "text": "the non-empty string holding the character zero",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Strings rate by length, so the empty string is false and a string holding even one character is true, and the character zero counts as a character like any other. Numbers rate by whether they are zero and containers rate by whether they hold anything, so the bare zero and the empty list are both false. The misconception behind the wrong answers is that a value's type settles the question, when it is the value inside the type that counts, which is also why a digit inside a string never becomes a number on its own.",
       "hint": "For strings and containers ask whether anything is inside; for numbers ask whether it is zero.",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False False False True",
-          "misconception": ""
+          "text": "False True False True",
+          "misconception": "believes an empty string still rates as true because it holds a type"
         },
         {
           "id": "B",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "False True False True",
-          "misconception": "believes an empty string still rates as true because it holds a type"
+          "text": "False False False True",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Conversion asks the value whether it is empty rather than asking its type, so the bare zero and the empty string and the empty list all convert to false while the string holding one character converts to true. The tempting answer with the digit string as false is the important trap: quoting the zero changes what the value is, because a string is rated by length and never by whether its text looks like a number.",
       "hint": "Rate each value by what it holds, not by how its text is written.",
@@ -501,13 +501,13 @@
       "options": [
         {
           "id": "A",
-          "text": "7 0",
-          "misconception": ""
+          "text": "7 1",
+          "misconception": "believes or evaluates both operands and keeps the truthy left value"
         },
         {
           "id": "B",
-          "text": "7 1",
-          "misconception": "believes or evaluates both operands and keeps the truthy left value"
+          "text": "7 0",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -521,7 +521,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The left operand is already truthy, so it can serve as the whole answer and the interpreter never reaches the right operand, which is why the counter stays at zero. The tempting answer that counts one call assumes both operands always run, and the answer that returns the right value is worse, because it reports a value from a call that never happened.",
       "hint": "Ask whether the left operand is already good enough to be the answer.",
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 1",
-          "misconception": ""
+          "text": "5 0",
+          "misconception": "believes a truthy left operand lets and stop before the right call"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "5 0",
-          "misconception": "believes a truthy left operand lets and stop before the right call"
+          "text": "5 1",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A truthy left operand cannot stand alone as the answer for this operator, so the right operand is evaluated and its value becomes the result, while the counter shows that the right call did run. The tempting answers mirror or, which short-circuits on exactly the opposite condition: and stops when the left is falsy, because a falsy left already settles the answer.",
       "hint": "Ask whether the left operand could serve as the whole answer by itself.",
@@ -639,8 +639,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the lookup is skipped when the guard is falsy, so the guard protects it",
-          "misconception": ""
+          "text": "both sides must return one object, and the two are compared",
+          "misconception": "believes and is an identity test that requires matching return values"
         },
         {
           "id": "B",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "both sides must return one object, and the two are compared",
-          "misconception": "believes and is an identity test that requires matching return values"
+          "text": "the lookup is skipped when the guard is falsy, so the guard protects it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The operator stops as soon as the left operand rates as false, and a false left side is the signal that the right side has nothing useful to offer, so the right side is never reached. That is what turns a check and a risky operation into one expression in which the risky operation cannot run in the wrong state. The tempting answers either reverse the operand order or assume both sides always run, and both destroy the property the pattern exists to provide.",
       "hint": "Ask what happens to the right operand when the left one turns out falsy.",
@@ -708,13 +708,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the word odd",
-          "misconception": ""
+          "text": "the word even",
+          "misconception": "believes the value written after the if is what the conditional supplies"
         },
         {
           "id": "B",
-          "text": "the word even",
-          "misconception": "believes the value written after the if is what the conditional supplies"
+          "text": "the word odd",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The tested remainder is one, which does not equal zero, so the condition is false and the value after the else is chosen. The tempting answer takes the first listed value on sight, but a conditional expression hands back one of two values depending on the test, and the order of those two values is part of what the expression means rather than an incidental detail of how it reads.",
       "hint": "Evaluate the test first, then read off the value that the test selects.",
@@ -777,8 +777,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints even, because a nonzero remainder is truthy so the first value is skipped",
-          "misconception": ""
+          "text": "It prints even, because a zero remainder is falsy so the first value is chosen",
+          "misconception": "reads the test as holding when the remainder is nonzero and pairs it with the wrong side"
         },
         {
           "id": "B",
@@ -787,8 +787,8 @@
         },
         {
           "id": "C",
-          "text": "It prints even, because a zero remainder is falsy so the first value is chosen",
-          "misconception": "reads the test as holding when the remainder is nonzero and pairs it with the wrong side"
+          "text": "It prints even, because a nonzero remainder is truthy so the first value is skipped",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -797,7 +797,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A conditional expression is written as the value to use when the test holds, then the test, then the value to use when it fails. A remainder of one is a real value and therefore rates as true, so the first value is used and the second is never reached. The tempting answer reads the test as a question about the remainder being zero, which reverses it, and a second trap is treating the first listed value as the fallback rather than the preferred one.",
       "hint": "Decide first what the test asks, then decide which of the two values answers true.",
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "C",
-          "misconception": ""
+          "text": "A",
+          "misconception": "believes the first test is an upper bound that every score must satisfy"
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "A",
-          "misconception": "believes the first test is an upper bound that every score must satisfy"
+          "text": "C",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The chain is examined from the top and stops at the first test that holds, so the ninety test and the eighty test both fail while the seventy test succeeds, and its branch is the one that runs. The tempting answers come from two habits: reading the chain as a set of independent statements rather than a first-match search, and assuming the final branch is a default that any failure reaches, when it is reached only when every test fails.",
       "hint": "The chain stops at the first test that holds, so check the tests in written order.",
@@ -964,13 +964,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1, 3, 5, 7, and 9",
-          "misconception": ""
+          "text": "1, 3, 5, 7, and 10",
+          "misconception": "believes the stop value is produced when the step would overshoot it"
         },
         {
           "id": "B",
-          "text": "1, 3, 5, 7, and 10",
-          "misconception": "believes the stop value is produced when the step would overshoot it"
+          "text": "1, 3, 5, 7, and 9",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -984,7 +984,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A range includes its start and keeps adding the step while the value stays below the stop, so the step of two yields the odd values up to nine, and the stop value itself is never produced. The tempting answer that includes ten comes from thinking a range is inclusive at both ends like some other language's counting forms, and the answer that includes two comes from treating the start as exclusive, which would make it impossible to ask for a range of one value from that number.",
       "hint": "Count upward from the start and stop as soon as you reach the stop value.",
@@ -1033,8 +1033,8 @@
       "options": [
         {
           "id": "A",
-          "text": "-1 4",
-          "misconception": ""
+          "text": "1 3",
+          "misconception": "believes the last pass is skipped once the measure nears the guard"
         },
         {
           "id": "B",
@@ -1043,8 +1043,8 @@
         },
         {
           "id": "C",
-          "text": "1 3",
-          "misconception": "believes the last pass is skipped once the measure nears the guard"
+          "text": "-1 4",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1053,7 +1053,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The guard is checked before each pass, and the measure goes seven, five, three, one, then minus one, so the fourth pass still began with a positive value and ran, and only then did the test fail. The tempting answer stops the measure at zero, which would require the step to land there exactly, and a step that does not divide the starting value will always overshoot, so any program relying on a clean landing must test the arithmetic rather than assume it.",
       "hint": "Check the guard before each pass, not after the subtraction has been applied.",
@@ -1102,8 +1102,8 @@
       "options": [
         {
           "id": "A",
-          "text": "10",
-          "misconception": ""
+          "text": "4",
+          "misconception": "believes the loop counts qualifying values rather than adding them"
         },
         {
           "id": "B",
@@ -1117,12 +1117,12 @@
         },
         {
           "id": "D",
-          "text": "4",
-          "misconception": "believes the loop counts qualifying values rather than adding them"
+          "text": "10",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The squares one, four, nine, and sixteen all stay within the bound and are added, then the value five has a square of twenty-five and abandons the loop before its own contribution, so the total is one plus two plus three plus four. The tempting answers either ignore that abandoning the loop discards everything unvisited or count the value that triggered the exit, which was never added because the test precedes the addition.",
       "hint": "Decide whether the value that triggers the exit is added before or after the test runs.",
@@ -1171,13 +1171,13 @@
       "options": [
         {
           "id": "A",
-          "text": "continue, which ends the current pass and starts the next one",
-          "misconception": ""
+          "text": "break, which ends the current pass and starts the next one",
+          "misconception": "believes abandoning the loop resumes at the following value"
         },
         {
           "id": "B",
-          "text": "break, which ends the current pass and starts the next one",
-          "misconception": "believes abandoning the loop resumes at the following value"
+          "text": "continue, which ends the current pass and starts the next one",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1191,7 +1191,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Continue abandons the rest of the current pass and hands control straight to the next value, which is exactly the skip-one-kind-of-value behaviour. Break abandons the loop entirely, so the remaining values are never visited, and pass does nothing at all, so the rest of the body still runs. The tempting answers all describe stopping rather than skipping, and a student who reaches for break in a filtering loop silently truncates their data.",
       "hint": "One of these statements ends the loop and one does nothing; find the third option.",
@@ -1240,8 +1240,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the number 5",
-          "misconception": ""
+          "text": "the word none",
+          "misconception": "believes the else block overwrites the message once the loop ends"
         },
         {
           "id": "B",
@@ -1250,8 +1250,8 @@
         },
         {
           "id": "C",
-          "text": "the word none",
-          "misconception": "believes the else block overwrites the message once the loop ends"
+          "text": "the number 5",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1260,7 +1260,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The attached else block belongs to the loop as a whole rather than to a pass, and it runs only when the loop reaches its natural end without a break, so the break on the second pass skips it and the message assigned inside the body survives. The tempting answer that keeps the else value assumes the block is just another statement placed after the loop, when its whole purpose is to report the case where nothing was found.",
       "hint": "The attached else block and the break are two ways of answering the same question.",
@@ -1309,8 +1309,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the words no hit",
-          "misconception": ""
+          "text": "the number 4",
+          "misconception": "believes the loop hands back the last value it visited"
         },
         {
           "id": "B",
@@ -1324,12 +1324,12 @@
         },
         {
           "id": "D",
-          "text": "the number 4",
-          "misconception": "believes the loop hands back the last value it visited"
+          "text": "the words no hit",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "No pass sets the hit message, and because no break ever fired the loop reached its natural end, which is the one condition under which the attached else block runs, so it replaces the earlier value. The tempting answer keeps the value assigned before the loop, which would only survive if the else block did not run, and that is precisely the case the attached else is built to report.",
       "hint": "Ask whether the loop reached its end on its own or left early.",
@@ -1378,13 +1378,13 @@
       "options": [
         {
           "id": "A",
-          "text": "when the loop reaches its end on its own without a break",
-          "misconception": ""
+          "text": "when the loop reaches its end on its own with at least one break",
+          "misconception": "believes a break leads into the else block rather than away from it"
         },
         {
           "id": "B",
-          "text": "when the loop reaches its end on its own with at least one break",
-          "misconception": "believes a break leads into the else block rather than away from it"
+          "text": "when the loop reaches its end on its own without a break",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1398,7 +1398,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The attached else block belongs to the loop as a whole and runs only on normal completion, so a break routes around it. That placement is what makes it useful: the block answers the question the loop was asking, namely whether a search finished without finding anything, and it stays silent in the case the body already handled. The tempting answer about emptiness confuses an empty sequence with a completed one, and an empty sequence still completes normally, so its else block does run.",
       "hint": "Ask whether the loop left early or ran all the way through.",
@@ -1447,8 +1447,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[0, 1, 0, 1, 0, 1]",
-          "misconception": ""
+          "text": "[0, 0, 0, 0, 0, 0]",
+          "misconception": "believes the inner variable is frozen at its starting value"
         },
         {
           "id": "B",
@@ -1457,8 +1457,8 @@
         },
         {
           "id": "C",
-          "text": "[0, 0, 0, 0, 0, 0]",
-          "misconception": "believes the inner variable is frozen at its starting value"
+          "text": "[0, 1, 0, 1, 0, 1]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1467,7 +1467,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The inner loop is re-entered from the top for each outer pass, so its variable is reinitialised to zero every time and the pair of values repeats identically. The tempting answer treats the inner variable as a counter that continues where it left off, but a for loop over a range builds its own sequence on each entry, so nothing carries over between passes.",
       "hint": "Ask what happens to the inner variable when the inner loop is entered again.",
@@ -1516,8 +1516,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3",
-          "misconception": ""
+          "text": "9",
+          "misconception": "believes the exit only skips one pass of the inner loop"
         },
         {
           "id": "B",
@@ -1531,12 +1531,12 @@
         },
         {
           "id": "D",
-          "text": "9",
-          "misconception": "believes the exit only skips one pass of the inner loop"
+          "text": "3",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A break abandons only the loop it appears directly inside, so each outer pass contributes the single addition that happens at the inner value zero and then restarts, giving three outer passes times one addition. The tempting answer that stops everything is the most common misreading of nested loops, and the answers that keep counting assume the exit merely skips one pass rather than ending the whole inner loop.",
       "hint": "Count the loop that the exit statement is written inside.",
@@ -1585,13 +1585,13 @@
       "options": [
         {
           "id": "A",
-          "text": "TypeError, then the unchanged triple",
-          "misconception": ""
+          "text": "IndexError, then a triple whose first slot is nine",
+          "misconception": "believes an out-of-range slot is what a tuple reports on assignment"
         },
         {
           "id": "B",
-          "text": "IndexError, then a triple whose first slot is nine",
-          "misconception": "believes an out-of-range slot is what a tuple reports on assignment"
+          "text": "TypeError, then the unchanged triple",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1605,7 +1605,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A tuple is fixed, so overwriting a slot is a category error rather than a bad index, and the write never lands, leaving the triple intact. The tempting answer that changes the value assumes the fault is detected after the assignment, but the interpreter refuses the operation itself, which is why the original survives; the answer naming an index fault is right about the value but wrong about the reason, since the slot is well within range.",
       "hint": "The slot is well within range, so the fault cannot be about position.",
@@ -1654,8 +1654,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the tuple refuses item assignment while the list accepts it",
-          "misconception": ""
+          "text": "both refuse item assignment because both hold a fixed value set",
+          "misconception": "believes every sequence type is immutable once its values are chosen"
         },
         {
           "id": "B",
@@ -1664,8 +1664,8 @@
         },
         {
           "id": "C",
-          "text": "both refuse item assignment because both hold a fixed value set",
-          "misconception": "believes every sequence type is immutable once its values are chosen"
+          "text": "the tuple refuses item assignment while the list accepts it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1674,7 +1674,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A tuple is designed as a fixed record of values, so it refuses to have a slot replaced, while a list is a growable collection and accepts both replacement and growth. The tempting answer that reverses the two comes from reading the bracket notation as the restrictive form, and the answer claiming both are fixed is contradicted by any code that appends to a list, which is the single most common operation in the language.",
       "hint": "One of these two types is the usual target of an append call.",
@@ -1772,8 +1772,8 @@
       "options": [
         {
           "id": "A",
-          "text": "three values, at positions 1, 2, and 3 with the end left out",
-          "misconception": ""
+          "text": "two values, the ones sitting strictly between the two bounds",
+          "misconception": "believes a slice keeps only what lies between the bounds and drops both ends"
         },
         {
           "id": "B",
@@ -1787,12 +1787,12 @@
         },
         {
           "id": "D",
-          "text": "two values, the ones sitting strictly between the two bounds",
-          "misconception": "believes a slice keeps only what lies between the bounds and drops both ends"
+          "text": "three values, at positions 1, 2, and 3 with the end left out",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A slice names the half-open span from the start position up to but not including the stop position, so three values come back and the difference between the two numbers is exactly how many. The tempting answer that includes the stop position is the most widespread slice bug, and it usually shows up as an off-by-one that duplicates a boundary element, which is also why clearing a span with a stop value leaves the last element in place.",
       "hint": "Subtract the start from the stop and the answer is the number of values returned.",
@@ -1841,13 +1841,13 @@
       "options": [
         {
           "id": "A",
-          "text": "fedcba bd",
-          "misconception": ""
+          "text": "fedcba bdf",
+          "misconception": "believes a strided forward slice runs to the end of the string"
         },
         {
           "id": "B",
-          "text": "fedcba bdf",
-          "misconception": "believes a strided forward slice runs to the end of the string"
+          "text": "fedcba bd",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1861,7 +1861,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A step of minus one with no bounds walks the string from the last character to the first, while the second slice is a forward span from position one up to position five taking every second character, which gives the second and fourth letters. The tempting answer that runs to the end ignores the stop position, and a slice with a stop value always stops short of it regardless of the step.",
       "hint": "Both bounds still apply when a step is given, in the direction the step sets.",
@@ -1959,8 +1959,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 4, because the stop position is excluded so three slots became two",
-          "misconception": ""
+          "text": "It prints 4, because the stop position is included so four slots became two",
+          "misconception": "reads the stop position as part of the replaced span, giving the wrong count of removed slots"
         },
         {
           "id": "B",
@@ -1969,8 +1969,8 @@
         },
         {
           "id": "C",
-          "text": "It prints 4, because the stop position is included so four slots became two",
-          "misconception": "reads the stop position as part of the replaced span, giving the wrong count of removed slots"
+          "text": "It prints 4, because the stop position is excluded so three slots became two",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1979,7 +1979,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The span covers positions one, two, and three because the stop is excluded, and replacing three values with two shortens the list by one, so it ends up four long. The tempting answers split the failure in two ways: keeping the length while getting the rule right, or applying the length correctly from a span that was miscounted, and either way the printed figure no longer describes the list that was built.",
       "hint": "Count the slots the span covers, then compare that count with the size of the replacement.",
@@ -2028,8 +2028,8 @@
       "options": [
         {
           "id": "A",
-          "text": "it prints the word missing",
-          "misconception": ""
+          "text": "it reports a key fault uncaught",
+          "misconception": "believes a key fault passes straight through the handler that names it"
         },
         {
           "id": "B",
@@ -2043,12 +2043,12 @@
         },
         {
           "id": "D",
-          "text": "it reports a key fault uncaught",
-          "misconception": "believes a key fault passes straight through the handler that names it"
+          "text": "it prints the word missing",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The subscript form demands that the key already exist and raises a key fault when it does not, and the handler naming that exact fault intercepts it, so the program reports the miss instead of stopping. The tempting answers describe the method form, which does supply a default for a missing key, and confusing the two forms is the whole hazard: a program that expects a fallback from the subscript will stop the first time a key is genuinely absent.",
       "hint": "Ask whether the subscript form takes a fallback value when the key is absent.",
@@ -2097,13 +2097,13 @@
       "options": [
         {
           "id": "A",
-          "text": "None 0 1",
-          "misconception": ""
+          "text": "0 0 1",
+          "misconception": "believes a bare miss returns the type's zero value rather than the absent marker"
         },
         {
           "id": "B",
-          "text": "0 0 1",
-          "misconception": "believes a bare miss returns the type's zero value rather than the absent marker"
+          "text": "None 0 1",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2117,7 +2117,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "With no fallback the method reports the absent marker, which is how a caller detects a genuine miss, while a supplied fallback replaces that marker, and a present key is always returned as stored. The tempting answer that gives zero for a bare miss invents a numeric default that was never supplied, and the answer that applies the fallback to a stored value would make the stored data unreachable, which defeats the purpose of storing it.",
       "hint": "Separate the case where a fallback was supplied from the case where it was not.",
@@ -2166,8 +2166,8 @@
       "options": [
         {
           "id": "A",
-          "text": "counts.get(name, 0), which uses the fallback only when the key is absent",
-          "misconception": ""
+          "text": "counts.get(name, 0), which uses the fallback for every stored value too",
+          "misconception": "believes the fallback overrides a stored value and the stored value is lost"
         },
         {
           "id": "B",
@@ -2176,8 +2176,8 @@
         },
         {
           "id": "C",
-          "text": "counts.get(name, 0), which uses the fallback for every stored value too",
-          "misconception": "believes the fallback overrides a stored value and the stored value is lost"
+          "text": "counts.get(name, 0), which uses the fallback only when the key is absent",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2186,7 +2186,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The fallback is used only when the key is absent, so a stored zero is returned as the genuine zero it is while a missing key reports the fallback, and the two cases stay distinguishable. The tempting answer that always applies the fallback erases the difference entirely, and the argument confusion behind the last option is common because the same call shape is used elsewhere with a key as its only argument, and there it means something entirely different.",
       "hint": "Ask what the method does when the key is present and holds a falsy value.",
@@ -2235,8 +2235,8 @@
       "options": [
         {
           "id": "A",
-          "text": "one key per pass, in the order the keys were first inserted",
-          "misconception": ""
+          "text": "one key per pass, in alphabetical order rather than insertion order",
+          "misconception": "believes a bare loop sorts the keys before yielding them"
         },
         {
           "id": "B",
@@ -2250,12 +2250,12 @@
         },
         {
           "id": "D",
-          "text": "one key per pass, in alphabetical order rather than insertion order",
-          "misconception": "believes a bare loop sorts the keys before yielding them"
+          "text": "one key per pass, in the order the keys were first inserted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Iterating a dictionary directly walks its keys, and the interpreter remembers insertion order for exactly this reason, so the passes come out in the order the keys were first added. The tempting answers describe what a different construct yields: a loop that asks for both parts at once gives pairs, and asking for the values alone gives values, while sorting is something the program must request rather than something the bare loop does on its own.",
       "hint": "Decide whether the values are requested anywhere in the loop header.",
@@ -2353,13 +2353,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the three distinct values, since a set keeps one entry per value",
-          "misconception": ""
+          "text": "all five entries, since building a set copies the list unchecked",
+          "misconception": "believes converting a list to a set preserves order and duplicates alike"
         },
         {
           "id": "B",
-          "text": "all five entries, since building a set copies the list unchecked",
-          "misconception": "believes converting a list to a set preserves order and duplicates alike"
+          "text": "the three distinct values, since a set keeps one entry per value",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2373,7 +2373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A set stores at most one entry per distinct value, so every repeat is dropped on the way in and only the three distinct values survive. The tempting answer that keeps all five comes from treating the conversion as a copy, which would make the type change pointless, and the notion that a set tracks frequency belongs to a counting structure rather than to a set, which is why a duplicate simply disappears without being recorded anywhere.",
       "hint": "Ask what happens to a value the set already holds when it arrives again.",
@@ -2665,8 +2665,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1] then [1, 2]",
-          "misconception": ""
+          "text": "[1] then []",
+          "misconception": "believes the list is cleared once it has been read back to the caller"
         },
         {
           "id": "B",
@@ -2675,8 +2675,8 @@
         },
         {
           "id": "C",
-          "text": "[1] then []",
-          "misconception": "believes the list is cleared once it has been read back to the caller"
+          "text": "[1] then [1, 2]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2685,7 +2685,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The default list is created once when the declaration runs, so the first call appends into an empty list and prints one entry, and the second call appends into that same list and prints two. The tempting answer that gives one entry on each call assumes a fresh default per call, and the answer that leaks forward into the first call assumes the list is read out only after both calls have run, when in fact the first value is printed as soon as the first call returns.",
       "hint": "Decide whether the list literal in the declaration runs once or once per call.",
@@ -2734,8 +2734,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 1 then 2, and the fix is to default to None and build inside",
-          "misconception": ""
+          "text": "It prints 1 then 2, and the fix is to pass an empty list at every call",
+          "misconception": "accepts the lengths but calls the fix a discipline rather than a change to the declaration"
         },
         {
           "id": "B",
@@ -2749,12 +2749,12 @@
         },
         {
           "id": "D",
-          "text": "It prints 1 then 2, and the fix is to pass an empty list at every call",
-          "misconception": "accepts the lengths but calls the fix a discipline rather than a change to the declaration"
+          "text": "It prints 1 then 2, and the fix is to default to None and build inside",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first call appends into the one list built at declaration time and reports a length of one, and the second appends into that same list and reports two, and defaulting the parameter to the absent marker and constructing a list inside the body makes that construction happen per call so nothing is shared. The tempting repair that switches to a tuple would not even accept the append, and clearing at the end of the body leaves the value already returned to the caller intact, so neither removes the sharing.",
       "hint": "The repair has to make the list construction happen inside the body, not at the declaration.",
@@ -2803,13 +2803,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Ann-Lee then Ann+Lee",
-          "misconception": ""
+          "text": "Ann-Lee then Ann-Lee",
+          "misconception": "believes naming an argument makes the declared default win over it"
         },
         {
           "id": "B",
-          "text": "Ann-Lee then Ann-Lee",
-          "misconception": "believes naming an argument makes the declared default win over it"
+          "text": "Ann-Lee then Ann+Lee",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2823,7 +2823,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first call leaves the separator at its declared default, while the second call names the separator and so overrides that default, which is why the two results differ. The tempting answers that repeat one answer assume a named value in one call leaks into another, but each call resolves its own arguments, and that independence is what makes named arguments safe to use for readability.",
       "hint": "Each call resolves its own arguments, so a value named in one call cannot reach another.",
@@ -2872,8 +2872,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a named argument is matched by its parameter name, not by position",
-          "misconception": ""
+          "text": "only the final parameter of a definition may be named in a call",
+          "misconception": "believes naming is confined to the last declared parameter"
         },
         {
           "id": "B",
@@ -2882,8 +2882,8 @@
         },
         {
           "id": "C",
-          "text": "only the final parameter of a definition may be named in a call",
-          "misconception": "believes naming is confined to the last declared parameter"
+          "text": "a named argument is matched by its parameter name, not by position",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2892,7 +2892,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Writing a parameter's name in a call turns that argument into a keyword argument, and it is matched against the declaration by name rather than by counting, so the two named arguments can appear in any order and need not be adjacent. The tempting answers all reduce to position playing a part it no longer plays, and that restriction is exactly what named arguments remove, which is why they are the usual remedy when a call has several values of the same type.",
       "hint": "Ask what the name in the call is being matched against in the declaration.",
@@ -2941,8 +2941,8 @@
       "options": [
         {
           "id": "A",
-          "text": "10 20 30",
-          "misconception": ""
+          "text": "20 10 30",
+          "misconception": "believes a two-name assignment binds the values in reverse order"
         },
         {
           "id": "B",
@@ -2956,12 +2956,12 @@
         },
         {
           "id": "D",
-          "text": "20 10 30",
-          "misconception": "believes a two-name assignment binds the values in reverse order"
+          "text": "10 20 30",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A single assignment with several targets on the left unpacks the right side position by position, so the first name takes the first value and the second takes the second, and adding them gives thirty. The tempting answer that gives the whole list to one name treats a multi-target assignment like an ordinary one, and the reversed answer misreads the order, which is significant enough that an odd-length right side is rejected outright rather than padded.",
       "hint": "Count the values on the right and hand them to the targets in written order.",
@@ -3059,13 +3059,13 @@
       "options": [
         {
           "id": "A",
-          "text": "['a', 'b']",
-          "misconception": ""
+          "text": "['b', 'a']",
+          "misconception": "believes the names keep the order the caller wrote them in"
         },
         {
           "id": "B",
-          "text": "['b', 'a']",
-          "misconception": "believes the names keep the order the caller wrote them in"
+          "text": "['a', 'b']",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3079,7 +3079,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The variadic keyword parameter gathers each named argument into a mapping keyed by the name the caller used, and the call asks for the names in sorted order, which puts a before b. The tempting answer that keeps the written order ignores the explicit sort, and the answer that lists each name twice would describe a structure that keeps both the key and the value in one list, whereas a mapping keeps each name once with its value attached.",
       "hint": "Ask whether the call sorts what it collects or simply lists it.",
@@ -3128,8 +3128,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a starred parameter for the values, a double-starred one for the names",
-          "misconception": ""
+          "text": "a single starred parameter that collects both kinds in written order",
+          "misconception": "believes one parameter absorbs both positional and named arguments"
         },
         {
           "id": "B",
@@ -3138,8 +3138,8 @@
         },
         {
           "id": "C",
-          "text": "a single starred parameter that collects both kinds in written order",
-          "misconception": "believes one parameter absorbs both positional and named arguments"
+          "text": "a starred parameter for the values, a double-starred one for the names",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3148,7 +3148,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A starred parameter collects the extra positional values as a tuple and a double-starred parameter collects the extra named arguments as a mapping, so the two kinds never mix and a wrapper can forward them separately. The tempting answer that swaps the markers would try to gather positional values into a mapping, which the interpreter refuses outright, and the single-parameter answer fails on the very first named argument because a starred parameter has no way to receive one.",
       "hint": "Ask which of the two collects a name written with an equals sign at the call site.",
@@ -3197,8 +3197,8 @@
       "options": [
         {
           "id": "A",
-          "text": "checked, then positive and the absent marker",
-          "misconception": ""
+          "text": "positive, then checked and the absent marker",
+          "misconception": "believes the printed line is emitted before the returned value is shown"
         },
         {
           "id": "B",
@@ -3212,12 +3212,12 @@
         },
         {
           "id": "D",
-          "text": "positive, then checked and the absent marker",
-          "misconception": "believes the printed line is emitted before the returned value is shown"
+          "text": "checked, then positive and the absent marker",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The second call reaches the print statement on its way off the end of the function, so that line is emitted first, and then both calls are shown with the first returning its string while the second returns nothing at all. The tempting answer that keeps the two on one line assumes the print is suppressed because the other path returns, but the two calls are entirely separate and the print belongs to the second one.",
       "hint": "A print inside a body happens when that call runs, regardless of what another call returns.",
@@ -3266,13 +3266,13 @@
       "options": [
         {
           "id": "A",
-          "text": "None [3]",
-          "misconception": ""
+          "text": "[] [3]",
+          "misconception": "believes a missing return produces an empty collection rather than the absent marker"
         },
         {
           "id": "B",
-          "text": "[] [3]",
-          "misconception": "believes a missing return produces an empty collection rather than the absent marker"
+          "text": "None [3]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3286,7 +3286,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A function that reaches its end without meeting a return hands back the absent marker automatically, so the first call contributes that marker while the second meets its guard and returns the list holding three. The tempting answer that expects an empty collection assumes a default return value of some kind, but the language supplies exactly one thing in that situation, and a program that needs a collection on every path has to construct one itself.",
       "hint": "Ask what a function hands back when it runs out of body without returning anything.",
@@ -3335,8 +3335,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the absent marker, because the body ran out without a return",
-          "misconception": ""
+          "text": "zero, because a function with no value of its own answers zero",
+          "misconception": "believes numeric results are the default when nothing is returned"
         },
         {
           "id": "B",
@@ -3345,8 +3345,8 @@
         },
         {
           "id": "C",
-          "text": "zero, because a function with no value of its own answers zero",
-          "misconception": "believes numeric results are the default when nothing is returned"
+          "text": "the absent marker, because the body ran out without a return",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3355,7 +3355,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Reaching the end of a body without meeting a return yields the absent marker, which is the one value the language supplies for that situation, and it is distinct from zero or an empty collection so a caller can tell the two cases apart. The tempting answers each invent a typed default, and inventing one is exactly what a program must do deliberately, because a function that can fall off the end silently reports something different from a function that returns an empty list on purpose.",
       "hint": "Ask what the language guarantees is returned when no return statement is reached.",
@@ -3404,8 +3404,8 @@
       "options": [
         {
           "id": "A",
-          "text": "True False",
-          "misconception": ""
+          "text": "False True",
+          "misconception": "believes the second list is the same object and the values somehow differ"
         },
         {
           "id": "B",
@@ -3419,12 +3419,12 @@
         },
         {
           "id": "D",
-          "text": "False True",
-          "misconception": "believes the second list is the same object and the values somehow differ"
+          "text": "True False",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two lists were built by separate statements, so they occupy separate storage and the identity test fails, while their contents match exactly so the equality test succeeds. The tempting answer that reports identity as well assumes the interpreter hunts for an existing object whenever a list is constructed, which would make the identity operator useless for the run-time values a program most needs to distinguish, such as two independently fetched results that happen to agree.",
       "hint": "Ask whether the two lists were built by one statement or by two.",
@@ -3473,13 +3473,13 @@
       "options": [
         {
           "id": "A",
-          "text": "32",
-          "misconception": ""
+          "text": "52",
+          "misconception": "believes the skip does nothing so both additions run on every pass"
         },
         {
           "id": "B",
-          "text": "52",
-          "misconception": "believes the skip does nothing so both additions run on every pass"
+          "text": "32",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3493,7 +3493,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "For the two values below two the loop adds one and then abandons the rest of the body, so the larger addition never happens on those passes, and the three remaining values each add ten, giving thirty-two. The tempting answer that treats the skip as a no-op lets both additions run on the two small passes as well, which is exactly the belief the statement exists to correct, and a loop body that does not need the skip is usually better without one.",
       "hint": "Ask which of the two additions is reached on a pass that issues the skip.",
@@ -3542,8 +3542,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 2, 3]",
-          "misconception": ""
+          "text": "[10, 2, 3]",
+          "misconception": "believes the change outlives the pass in which it was made"
         },
         {
           "id": "B",
@@ -3552,8 +3552,8 @@
         },
         {
           "id": "C",
-          "text": "[10, 2, 3]",
-          "misconception": "believes the change outlives the pass in which it was made"
+          "text": "[1, 2, 3]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3562,7 +3562,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The loop variable is rebound to a new value on each pass, and rebinding a name is not the same as storing into the list, so the list is left exactly as it was. The tempting answer that shows the scaled values confuses the name with the slot it was read from, and the way to change a list in place is to assign to an indexed position, because that form names the container directly rather than only the name holding the current value.",
       "hint": "Ask whether the assignment names a position in the list or only the name holding the value.",
@@ -3611,8 +3611,8 @@
       "options": [
         {
           "id": "A",
-          "text": "-1 4",
-          "misconception": ""
+          "text": "0 4",
+          "misconception": "believes four passes from three land on zero rather than one below it"
         },
         {
           "id": "B",
@@ -3626,12 +3626,12 @@
         },
         {
           "id": "D",
-          "text": "0 4",
-          "misconception": "believes four passes from three land on zero rather than one below it"
+          "text": "-1 4",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The guard is checked before each pass, so the measure goes three, two, one, zero, and a measure of zero still satisfies the inclusive test, so one more pass runs and drives it to minus one, giving four turns. The tempting answer that stops at zero describes the exclusive form of the guard, and this off-by-one is invisible for any measure that never lands exactly on the boundary, which is why the bug survives in loops whose step does not divide the starting value.",
       "hint": "Check the guard before the pass runs, and ask whether zero still satisfies it.",
@@ -3680,13 +3680,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints KeyError, because the subscript form has no fallback",
-          "misconception": ""
+          "text": "It prints zero, because the subscript form supplies a default value",
+          "misconception": "believes the subscript quietly falls back to the type's zero value"
         },
         {
           "id": "B",
-          "text": "It prints zero, because the subscript form supplies a default value",
-          "misconception": "believes the subscript quietly falls back to the type's zero value"
+          "text": "It prints KeyError, because the subscript form has no fallback",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3700,7 +3700,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The subscript form has no fallback to supply, so a key that was never stored raises a key fault and the handler prints the fault's name. The tempting answers describe the method form, which does take a fallback, and the rewrite looks harmless precisely because it reads as a tidier spelling of the same call; what it actually changes is that a key absent today stops the program rather than producing a value the program can go on with.",
       "hint": "Ask whether the form used can produce a value for a key that was never stored.",
@@ -3749,8 +3749,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints three values, because the stop position is left out of the span",
-          "misconception": ""
+          "text": "It prints three values, because the start position is left out of the span",
+          "misconception": "treats the start position as excluded rather than the stop position"
         },
         {
           "id": "B",
@@ -3759,8 +3759,8 @@
         },
         {
           "id": "C",
-          "text": "It prints three values, because the start position is left out of the span",
-          "misconception": "treats the start position as excluded rather than the stop position"
+          "text": "It prints three values, because the stop position is left out of the span",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3769,7 +3769,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The span runs from position one up to position four with the stop left out, so it holds the second, third, and fourth values and its length is the difference between the two numbers. The tempting answer that includes the stop position is the most widespread slice bug, and it usually shows up not as a wrong count but as a duplicated boundary element, which is also why clearing a span this way leaves the final value still in place.",
       "hint": "Subtract the two bounds to get the length, and the second value is the first one returned.",

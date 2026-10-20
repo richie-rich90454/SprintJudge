@@ -86,13 +86,13 @@
       "options": [
         {
           "id": "A",
-          "text": "2, false, 0, then 0: two rows exist and each of them has width zero.",
-          "misconception": ""
+          "text": "It throws NullPointerException on the second line, because no cells were allocated at all.",
+          "misconception": "believes a zero inner dimension leaves the row references null"
         },
         {
           "id": "B",
-          "text": "It throws NullPointerException on the second line, because no cells were allocated at all.",
-          "misconception": "believes a zero inner dimension leaves the row references null"
+          "text": "2, false, 0, then 0: two rows exist and each of them has width zero.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -106,7 +106,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the two-index form always creates the rows it promises, so new int[2][0] produces two non-null references to zero-length arrays: g.length is 2, g[0] == null is false, g[0].length is 0, and the loop adds nothing, so cells is 0. Expecting a null reference is tempting because new int[2][] does leave both slots null, and a zero reads like nothing was created, but a zero inner dimension still allocates an array object, and an array that exists with no cells is a different state from a slot that was never filled.",
       "hint": "The two-index form creates the rows; the one-index form only reserves the slots.",
@@ -154,8 +154,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 0 0 0 7 8 and then throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It throws ArrayIndexOutOfBoundsException before printing anything, because the assignment shrank the grid.",
+          "misconception": "believes replacing a row invalidates the rows that were already printed"
         },
         {
           "id": "B",
@@ -164,8 +164,8 @@
         },
         {
           "id": "C",
-          "text": "It throws ArrayIndexOutOfBoundsException before printing anything, because the assignment shrank the grid.",
-          "misconception": "believes replacing a row invalidates the rows that were already printed"
+          "text": "It prints 0 0 0 7 8 and then throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -174,7 +174,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that the inner loop bound comes from g[0].length, which is still 3, while the replaced row 1 now has length 2, so the first five values print and the sixth read asks for g[1][2] and throws with length 2 in the message. Reading a missing cell as zero is tempting because every freshly allocated int[] starts zero-filled, but that fill describes the cells the array owns; an index past the end is an error rather than a default read, and a grid's shape is only as wide as the row the loop measured.",
       "hint": "The bound was taken from row 0, and row 0 did not change.",
@@ -222,8 +222,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it: an array initializer may only appear in a declaration, so this is not a statement.",
-          "misconception": ""
+          "text": "It compiles and prints 1, because the compiler keeps the first listed value and drops the rest.",
+          "misconception": "believes the compiler stores only the first element of a brace list"
         },
         {
           "id": "B",
@@ -237,12 +237,12 @@
         },
         {
           "id": "D",
-          "text": "It compiles and prints 1, because the compiler keeps the first listed value and drops the rest.",
-          "misconception": "believes the compiler stores only the first element of a brace list"
+          "text": "The compiler rejects it: an array initializer may only appear in a declaration, so this is not a statement.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that the shorthand array initializer exists only in a declaration or field initializer, where the compiler already knows the target type, so on the right of an assignment javac reports an illegal start of expression and a missing semicolon. Treating it as a normal value is tempting because the same brace list works so neatly in int[][] g = {{1, 2}}; on an assignment there is no declaration for the compiler to size, and the fix is to write the allocation out, g[0] = new int[]{1, 2};.",
       "hint": "The shorthand is tied to the place where a variable is being declared.",
@@ -290,13 +290,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It fails to compile with \"incompatible types: double[] cannot be converted to int[]\" and never starts.",
-          "misconception": ""
+          "text": "It compiles and throws ArrayStoreException on that line, because the row type is checked as it runs.",
+          "misconception": "believes array element types are verified when the statement executes"
         },
         {
           "id": "B",
-          "text": "It compiles and throws ArrayStoreException on that line, because the row type is checked as it runs.",
-          "misconception": "believes array element types are verified when the statement executes"
+          "text": "It fails to compile with \"incompatible types: double[] cannot be converted to int[]\" and never starts.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -310,7 +310,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that every slot of an int[][] holds an int[], and double[] is not an int[], so the compiler rejects the store with incompatible types before any code runs. Expecting a run-time check is tempting because Object[] really does defer its check: storing an int[] into a String[] declared as Object[] throws ArrayStoreException at that line, but a grid of primitives has no such escape hatch, because the compiler already knows the exact row type it must hold.",
       "hint": "Ask what type each slot of an int[][] is declared to hold.",
@@ -358,8 +358,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it: \"variable a might not have been initialized\", because only b got the initializer.",
-          "misconception": ""
+          "text": "It prints 2 and then 2, because the initializer applies to every name in the declaration.",
+          "misconception": "believes one initializer covers all the names declared beside it"
         },
         {
           "id": "B",
@@ -368,8 +368,8 @@
         },
         {
           "id": "C",
-          "text": "It prints 2 and then 2, because the initializer applies to every name in the declaration.",
-          "misconception": "believes one initializer covers all the names declared beside it"
+          "text": "The compiler rejects it: \"variable a might not have been initialized\", because only b got the initializer.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -378,7 +378,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that in int[] a, b = {5, 6} the declaration introduces two variables and the initializer binds to the last one, b, so a is declared and never given a value and javac stops at a.length with variable a might not have been initialized. Expecting zero is tempting because a new int[0] really is length zero, but that is an allocated array, whereas a here is a reference the compiler can prove was never set, and a NullPointerException could only appear if the compiler let the read through.",
       "hint": "Read the declaration as two separate declarations sharing one type.",
@@ -426,8 +426,8 @@
       "options": [
         {
           "id": "A",
-          "text": "grid[0] = new int[]{9, 9};  final freezes the outer reference, not the row slots inside it.",
-          "misconception": ""
+          "text": "grid[0][0] = 9; grid[0][1] = 9;  both cells of the caller's row can be assigned in place.",
+          "misconception": "believes filling the old row's cells makes the old row object unreachable"
         },
         {
           "id": "B",
@@ -441,12 +441,12 @@
         },
         {
           "id": "D",
-          "text": "grid[0][0] = 9; grid[0][1] = 9;  both cells of the caller's row can be assigned in place.",
-          "misconception": "believes filling the old row's cells makes the old row object unreachable"
+          "text": "grid[0] = new int[]{9, 9};  final freezes the outer reference, not the row slots inside it.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that final blocks reassignment of the variable grid itself, but grid[0] is a mutable slot inside the array grid points at, so storing a new array there is legal and the caller sees the new row while the old row object is left unreferenced. Believing a final parameter is frozen all the way down is tempting because the compiler does reject grid = new int[1][2]; with final parameter grid may not be assigned, but that protection is about the one reference the modifier decorates and says nothing about the cells behind it.",
       "hint": "Ask which reference the final modifier actually decorates.",
@@ -494,13 +494,13 @@
       "options": [
         {
           "id": "A",
-          "text": "false, true, then 4: the rows hold equal values but are separate arrays, so the edit is local.",
-          "misconception": ""
+          "text": "true, true, then 1: the literal stored one row twice, so both slots name that same array.",
+          "misconception": "believes listing equal values twice in a literal shares one array"
         },
         {
           "id": "B",
-          "text": "true, true, then 1: the literal stored one row twice, so both slots name that same array.",
-          "misconception": "believes listing equal values twice in a literal shares one array"
+          "text": "false, true, then 4: the rows hold equal values but are separate arrays, so the edit is local.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -514,7 +514,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that == asks whether two references name the same array object while Arrays.equals walks the cells and compares values, so the two independently created rows are not the same array yet compare equal, and because they are separate arrays the write to g[0][0] leaves g[1][0] at 4. The tempting error is to read equal contents as shared storage, but a literal builds a fresh array for every row it lists, and equal data is a statement about values, not about which cells a row owns.",
       "hint": "One comparison asks who the array is, the other asks what it holds.",
@@ -562,8 +562,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 [7, 8], then 1 [3], then 0 [], because trailing empty fields are dropped from the result.",
-          "misconception": ""
+          "text": "3 [7, 8, ], then 2 [3, ], then 1 [ ], because split returns one field per separator plus one.",
+          "misconception": "believes the field count is always the separator count plus one"
         },
         {
           "id": "B",
@@ -572,8 +572,8 @@
         },
         {
           "id": "C",
-          "text": "3 [7, 8, ], then 2 [3, ], then 1 [ ], because split returns one field per separator plus one.",
-          "misconception": "believes the field count is always the separator count plus one"
+          "text": "2 [7, 8], then 1 [3], then 0 [], because trailing empty fields are dropped from the result.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -582,7 +582,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that the one-argument split drops empty fields that fall at the end of the result, so \"7,8\" gives two fields, \"3,\" loses its empty tail and gives one, and \",\" is nothing but empty fields so nothing survives and the row has length 0. Expecting a field per separator is tempting because the separator count looks like a field count, but the default limit throws away trailing empties, which is why a ragged row built this way can arrive shorter than the file's columns suggest, and why the limit -1 is the form that keeps them.",
       "hint": "Trailing empty fields are removed unless the limit says otherwise.",
@@ -630,8 +630,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 8 and then throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 0.",
-          "misconception": ""
+          "text": "It prints 8 and then throws NullPointerException, because the empty row was never allocated.",
+          "misconception": "believes an empty brace row is a null reference"
         },
         {
           "id": "B",
@@ -645,12 +645,12 @@
         },
         {
           "id": "D",
-          "text": "It prints 8 and then throws NullPointerException, because the empty row was never allocated.",
-          "misconception": "believes an empty brace row is a null reference"
+          "text": "It prints 8 and then throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 0.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that the last index of a row is length - 1, which for the empty row is 0 - 1 = -1, and no array has a cell at -1, so the second read throws with Index -1 out of bounds for length 0. Treating the missing field as zero or as an absent row is tempting because an empty row contributes nothing anywhere else in a traversal, but this idiom asks for a specific cell rather than counting cells, and a length check has to come before the subtraction rather than after it.",
       "hint": "Compute the index before you decide the read is safe.",
@@ -698,13 +698,13 @@
       "options": [
         {
           "id": "A",
-          "text": "line.split(\",\", -1)  a negative limit keeps the empty fields that end the result.",
-          "misconception": ""
+          "text": "line.split(\",\", 0)  a limit of zero is what preserves the trailing empty field.",
+          "misconception": "believes the limit of zero is the call that keeps trailing empties"
         },
         {
           "id": "B",
-          "text": "line.split(\",\", 0)  a limit of zero is what preserves the trailing empty field.",
-          "misconception": "believes the limit of zero is the call that keeps trailing empties"
+          "text": "line.split(\",\", -1)  a negative limit keeps the empty fields that end the result.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -718,7 +718,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that trailing empty fields are dropped unless the limit says otherwise, and only a negative limit says otherwise, so \"3,\".split(\",\", -1) returns 3 and the empty field for a length of 2 while a limit of 0 or 1 returns just 3 and the plain one-argument call does the same. Reaching for a limit of 0 is tempting because zero is the value already implied by the default behaviour, but zero is the limit that discards the tail, and the sign is the part that flips the rule and keeps the column the file actually contains.",
       "hint": "One limit value means keep the tail and another means drop it.",
@@ -766,8 +766,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"3 26\": the widest row measures 3, and the guard skips column 2 of the one-cell row on the way.",
-          "misconception": ""
+          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2, because 3 is not a bound every row shares.",
+          "misconception": "believes the widest row's width is a safe inner bound for all of the rows"
         },
         {
           "id": "B",
@@ -776,8 +776,8 @@
         },
         {
           "id": "C",
-          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2, because 3 is not a bound every row shares.",
-          "misconception": "believes the widest row's width is a safe inner bound for all of the rows"
+          "text": "\"3 26\": the widest row measures 3, and the guard skips column 2 of the one-cell row on the way.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -786,7 +786,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a width measured from the widest row bounds a sweep only when each row is also checked, and here the first pass settles on 3 from the middle row while the guard inside the sweep protects row 0 and row 2, whose lengths are 2 and 1, so the total is 5 + 6 + 1 + 2 + 3 + 9 = 26. Treating the widest width as a universal bound is the tempting shortcut because it removes the inner test, but this same grid proves why it cannot be removed: dropping the guard fails immediately on row 0 at column 2, since that row never grew with the middle one.",
       "hint": "Two rows of this grid are narrower than the row that set the width.",
@@ -834,8 +834,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"[1, 2, 3, 0, 0]\", then false, then 3: the wider row is a new array padded with zeros.",
-          "misconception": ""
+          "text": "\"[1, 2, 3]\", then false, then 5: the requested length is ignored when the copy is made.",
+          "misconception": "believes copyOf keeps the source length whatever length is requested"
         },
         {
           "id": "B",
@@ -849,12 +849,12 @@
         },
         {
           "id": "D",
-          "text": "\"[1, 2, 3]\", then false, then 5: the requested length is ignored when the copy is made.",
-          "misconception": "believes copyOf keeps the source length whatever length is requested"
+          "text": "\"[1, 2, 3, 0, 0]\", then false, then 3: the wider row is a new array padded with zeros.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that Arrays.copyOf builds a new array of exactly the length asked for, copying the values that exist and zero-filling the rest, so the new row holds 1, 2, 3, 0, 0, it is a different object from row, and row itself is still length 3. Expecting the original to grow is tempting because the call reads like a resize, but the method name says copy: the padding belongs to the new array, which is exactly what makes this the safe way to hand a module a wider row without disturbing the caller's data.",
       "hint": "The method's second argument is the length of the result, not of the source.",
@@ -902,13 +902,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"[1, 2, 3] [9, 2, 3]\": an array's clone is typed as that array, and it copies the row's cells.",
-          "misconception": ""
+          "text": "It fails to compile: \"incompatible types: Object cannot be converted to int[]\" at the return.",
+          "misconception": "believes clone on an array is typed Object just as Object.clone is"
         },
         {
           "id": "B",
-          "text": "It fails to compile: \"incompatible types: Object cannot be converted to int[]\" at the return.",
-          "misconception": "believes clone on an array is typed Object just as Object.clone is"
+          "text": "\"[1, 2, 3] [9, 2, 3]\": an array's clone is typed as that array, and it copies the row's cells.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -922,7 +922,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that every array type declares a clone that returns that same array type, so row.clone() can be returned straight from a method whose result is int[] with no cast, and the clone is a separate row with its own cells, which is why the edit to snap[0] leaves row[0] at 1. Expecting Object is tempting because Object.clone is declared as returning Object and every ordinary class inherits that shape, but arrays are the special case the language carves out, and assigning the result to an Object variable first is exactly what would produce the rejected conversion.",
       "hint": "An array's clone is a covariant special case, not the inherited Object.clone.",
@@ -970,8 +970,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints \"[3, 4]\": the zero was written into a new array that nothing holds a reference to.",
-          "misconception": ""
+          "text": "It prints \"[3, 0]\", because the zero is written into the second cell of the row instead.",
+          "misconception": "believes the zero lands in the row's second cell"
         },
         {
           "id": "B",
@@ -980,8 +980,8 @@
         },
         {
           "id": "C",
-          "text": "It prints \"[3, 0]\", because the zero is written into the second cell of the row instead.",
-          "misconception": "believes the zero lands in the row's second cell"
+          "text": "It prints \"[3, 4]\": the zero was written into a new array that nothing holds a reference to.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -990,7 +990,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that copyOf hands back a new array, so writing into the result of the call writes into that new array, and because the value is never stored back into g the grid still points at the untouched original and prints [3, 4]. Believing the copy writes through is tempting because the copy is made from g[1] and looks attached to it, but the whole point of copying a row is to get an array that is independent, so a change to it has to be stored with g[1] = ... to be visible in the grid.",
       "hint": "Ask who holds a reference to the array that was just written to.",
@@ -1038,8 +1038,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"Ben true\": the copy has its own array, and the untouched cell still names the same String.",
-          "misconception": ""
+          "text": "\"Zed false\", because a row of references is deep-copied one element at a time.",
+          "misconception": "believes copyOf deep-copies the objects a row references"
         },
         {
           "id": "B",
@@ -1053,12 +1053,12 @@
         },
         {
           "id": "D",
-          "text": "\"Zed false\", because a row of references is deep-copied one element at a time.",
-          "misconception": "believes copyOf deep-copies the objects a row references"
+          "text": "\"Ben true\": the copy has its own array, and the untouched cell still names the same String.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that Arrays.copyOf duplicates the row's array but copies only the references stored in it, so assigning copy[0] replaces a reference in the copy's own array and leaves names[1][0] as Ben, while the cell nobody reassigned still names the very same String, which is why copy[1] == names[1][1] is true. Believing a copy is deep is tempting because the values look like data rather than addresses, but Strings are immutable here so a deep copy would look identical, and the identity comparison is what exposes which copy actually happened.",
       "hint": "Compare what the copy did to the array with what it did to the objects in it.",
@@ -1106,13 +1106,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"[1, 1, 2, 3]\", because the copy behaves as if the values were staged before being written back.",
-          "misconception": ""
+          "text": "\"[1, 1, 1, 1]\", because each write overwrites the value the next write wants to read.",
+          "misconception": "believes an overlapping copy shifts by repeating the first value"
         },
         {
           "id": "B",
-          "text": "\"[1, 1, 1, 1]\", because each write overwrites the value the next write wants to read.",
-          "misconception": "believes an overlapping copy shifts by repeating the first value"
+          "text": "\"[1, 1, 2, 3]\", because the copy behaves as if the values were staged before being written back.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1126,7 +1126,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that arraycopy behaves as if the source range were first copied to a temporary array and then copied into the destination, so the three values 1, 2, 3 are taken from the original row before any of them is written, landing at indexes 1, 2, 3 and giving [1, 1, 2, 3]. Expecting repeated values is tempting because a hand-written forward loop really does smear the first value across the row, giving [1, 1, 1, 1], but arraycopy is specified in terms of a staged copy, which is why it is the safe choice for overlapping ranges.",
       "hint": "The specification describes the copy as if the values were staged first.",
@@ -1174,8 +1174,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints \"a!\" and then \"b\": the new row array holds the same builder, so appending reaches the grid.",
-          "misconception": ""
+          "text": "It prints \"a! b\", because the copied builder is now shared with the other row of the grid.",
+          "misconception": "believes copying a row also shares its cells with the other rows"
         },
         {
           "id": "B",
@@ -1184,8 +1184,8 @@
         },
         {
           "id": "C",
-          "text": "It prints \"a! b\", because the copied builder is now shared with the other row of the grid.",
-          "misconception": "believes copying a row also shares its cells with the other rows"
+          "text": "It prints \"a!\" and then \"b\": the new row array holds the same builder, so appending reaches the grid.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1194,7 +1194,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that copyOf duplicates the row array and copies the references in it, so cells[0][0] and copy[0] are the same StringBuilder and the append lands in the original grid, while row 1 holds a different builder and is untouched at b. Believing the copy protects the data is tempting because assigning a new row array is a genuinely independent step, but independence stops at one level: a mutable cell has to be replaced with a fresh object, such as copy[0] = new StringBuilder(cells[0][0].toString());, before editing it can be private to the copy.",
       "hint": "Ask whether the copied row holds the same builder object or a new one.",
@@ -1242,8 +1242,8 @@
       "options": [
         {
           "id": "A",
-          "text": "copy[r] = Arrays.copyOf(g[r], g[r].length);  each slot then holds a row of its own.",
-          "misconception": ""
+          "text": "copy[r][0] = g[r][0];  the slot's first cell is filled in from the source row directly.",
+          "misconception": "believes writing a cell into a slot allocates the row for it"
         },
         {
           "id": "B",
@@ -1257,12 +1257,12 @@
         },
         {
           "id": "D",
-          "text": "copy[r][0] = g[r][0];  the slot's first cell is filled in from the source row directly.",
-          "misconception": "believes writing a cell into a slot allocates the row for it"
+          "text": "copy[r] = Arrays.copyOf(g[r], g[r].length);  each slot then holds a row of its own.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that copying a grid means giving every row a new array, and Arrays.copyOf(g[r], g[r].length) is the line that both sizes the new row to match and fills it with the values, so the later write to copy[1][0] leaves g[1] at [3, 4, 5] and the copy at [99, 4, 5]. Naming the row in a fresh outer array is tempting because the outer array is new, but it copies only the outer level and every slot would still point at g's own rows, and writing into copy[r][0] is not an alternative either because that slot is still null.",
       "hint": "A new outer array copies the outer level only; each row needs its own copy.",
@@ -1310,13 +1310,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Sort a copy, so call Arrays.sort on Arrays.copyOf(row, row.length) and the caller's row is untouched.",
-          "misconception": ""
+          "text": "Sort the row directly, because a method that receives a reference owns the array it was given.",
+          "misconception": "believes receiving a reference transfers ownership of the array"
         },
         {
           "id": "B",
-          "text": "Sort the row directly, because a method that receives a reference owns the array it was given.",
-          "misconception": "believes receiving a reference transfers ownership of the array"
+          "text": "Sort a copy, so call Arrays.sort on Arrays.copyOf(row, row.length) and the caller's row is untouched.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1330,7 +1330,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that Arrays.sort rearranges the array it is given rather than returning a new one, so the only way to protect the caller's grid is to sort a copy, and a zero-filled new array of the right length would throw the values away rather than order them. Sorting the received row in place is tempting because the row is a local variable inside the method, but the variable is local while the array behind it belongs to whoever built the grid, and that ownership is exactly what a well-behaved utility respects.",
       "hint": "Ask whether the sort call hands back a new array or rearranges the one it was given.",
@@ -1378,8 +1378,8 @@
       "options": [
         {
           "id": "A",
-          "text": "0,0 then 0,1, 1,1, 2,1, 2,2 and finally \"steps 4 last 9\": the below cell beat the right one at 1,1.",
-          "misconception": ""
+          "text": "0,0 then 1,0, 1,1, 1,2, 2,2, 3,2, 3,3 and finally \"steps 6 last 10\": the climb finds the best cell.",
+          "misconception": "believes a greedy ascent always reaches the largest cell in the grid"
         },
         {
           "id": "B",
@@ -1388,8 +1388,8 @@
         },
         {
           "id": "C",
-          "text": "0,0 then 1,0, 1,1, 1,2, 2,2, 3,2, 3,3 and finally \"steps 6 last 10\": the climb finds the best cell.",
-          "misconception": "believes a greedy ascent always reaches the largest cell in the grid"
+          "text": "0,0 then 0,1, 1,1, 2,1, 2,2 and finally \"steps 4 last 9\": the below cell beat the right one at 1,1.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1398,7 +1398,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that each step takes the larger of the two rising neighbours, and at 1,1 the cell below holds 8 against 7 on the right, so the walk goes down rather than right, which is why the sequence is 0,0 then 0,1, 1,1, 2,1, 2,2 and it halts there with 4 steps and a last value of 9. Expecting the climb to reach the 10 at 3,3 is tempting because a maximum looks reachable, but the walk is greedy rather than exhaustive: it commits to the larger neighbour each time and can stop while a larger cell sits behind a smaller one, which is a different question from asking for the largest cell overall.",
       "hint": "At each cell, compare the two candidates before deciding to move.",
@@ -1446,8 +1446,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"6 100\": the walk stopped at 6, because the 100 hides behind a neighbour of 1.",
-          "misconception": ""
+          "text": "\"100 6\": the scan finds the 100 first in row-major order and the walk never improves on it.",
+          "misconception": "believes the two printed values follow the order the maxima were found in"
         },
         {
           "id": "B",
@@ -1461,12 +1461,12 @@
         },
         {
           "id": "D",
-          "text": "\"100 6\": the scan finds the 100 first in row-major order and the walk never improves on it.",
-          "misconception": "believes the two printed values follow the order the maxima were found in"
+          "text": "\"6 100\": the walk stopped at 6, because the 100 hides behind a neighbour of 1.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a walk which only steps to a larger neighbour can be trapped by a low cell in front of a high one, and here the walk reaches 6 at 1,1, where the cell below holds 1 and the cell right holds 3, so it stops even though 100 sits at 2,0, giving \"6 100\". Expecting the climb to find the tallest peak is tempting because the walk is a search for a maximum, but greedy ascent only promises a local result, and a maximum over a whole grid needs the full scan, which is the very loop sitting right beside the walk in this program.",
       "hint": "Look at the two neighbours of the cell where the walk gave up.",
@@ -1514,13 +1514,13 @@
       "options": [
         {
           "id": "A",
-          "text": "0,0 then 0,1, 0,2, 1,2 and \"steps 3\": an equal neighbour counts as rising, so the walk steps onto the tied 5.",
-          "misconception": ""
+          "text": "0,0 then 0,1 and \"steps 1\": >= still refuses to move, because a tie is not a rise in value.",
+          "misconception": "believes >= behaves like > when the two values are equal"
         },
         {
           "id": "B",
-          "text": "0,0 then 0,1 and \"steps 1\": >= still refuses to move, because a tie is not a rise in value.",
-          "misconception": "believes >= behaves like > when the two values are equal"
+          "text": "0,0 then 0,1, 0,2, 1,2 and \"steps 3\": an equal neighbour counts as rising, so the walk steps onto the tied 5.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1534,7 +1534,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that >= treats an equal value as satisfying the test, so from 0,1 the tied 5 to the right now counts as a rise, the walk steps onto 0,2, and from there the 9 below is larger still, giving the route 0,0, 0,1, 0,2, 1,2 in 3 steps where the strict version stopped after one. Reading >= as harmless is tempting because the two operators look like a stylistic choice, but a walk defined as strictly rising uses that strictness to decide where it ends, and loosening it lets the walk wander across plateaus it was meant to refuse.",
       "hint": "Compare the value at the cell to the right with the value under the walk.",
@@ -1582,8 +1582,8 @@
       "options": [
         {
           "id": "A",
-          "text": "r + 1 < g.length  the test asks whether the row below exists before that row is read.",
-          "misconception": ""
+          "text": "r < g.length  the test asks about the current row rather than the row underneath it.",
+          "misconception": "believes the bound for row r + 1 is the bound that belongs to row r"
         },
         {
           "id": "B",
@@ -1592,8 +1592,8 @@
         },
         {
           "id": "C",
-          "text": "r < g.length  the test asks about the current row rather than the row underneath it.",
-          "misconception": "believes the bound for row r + 1 is the bound that belongs to row r"
+          "text": "r + 1 < g.length  the test asks whether the row below exists before that row is read.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1602,7 +1602,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a row index is legal when it is smaller than the row count, so the row that is about to be read is r + 1 and its test is r + 1 < g.length, which is false here and leaves nr at 1 for the printed 1,0 best 5. Using <= is tempting because it looks like the familiar off-by-one guard, but a bound equal to the length names the row just past the end, so the guard lets the read through and the program dies with Index 2 out of bounds for length 2, and testing r instead of r + 1 fails in the same way one step too early.",
       "hint": "The read uses r + 1, so the guard has to be about r + 1.",
@@ -1650,8 +1650,8 @@
       "options": [
         {
           "id": "A",
-          "text": "p / cols  integer division by the width counts whole rows, and the remainder is the column.",
-          "misconception": ""
+          "text": "p - cols  subtracting one row's width from the index gives the row of the cell.",
+          "misconception": "believes the row is the index minus a single row width"
         },
         {
           "id": "B",
@@ -1665,12 +1665,12 @@
         },
         {
           "id": "D",
-          "text": "p - cols  subtracting one row's width from the index gives the row of the cell.",
-          "misconception": "believes the row is the index minus a single row width"
+          "text": "p / cols  integer division by the width counts whole rows, and the remainder is the column.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a row-major index is the row times the width plus the column, so integer division by the width recovers the row and the remainder recovers the column, which is why 5 divided by 3 gives row 1 and 5 mod 3 gives column 2, the cell holding 6. Subtracting the width is tempting because one subtraction looks like one row down, but it only works for the second row and drifts for every later one, and dividing the width by the index makes no sense at all once the index reaches the width, where it truncates to zero.",
       "hint": "An index counts whole rows first, then columns within the row.",
@@ -1888,13 +1888,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The walk stops there, and the largest value it has seen is the 5 it is standing on, since a tie is no rise.",
-          "misconception": ""
+          "text": "The walk steps onto the equal neighbour, so the largest value it has seen becomes that tied 5.",
+          "misconception": "believes a neighbour of equal value counts as a rise"
         },
         {
           "id": "B",
-          "text": "The walk steps onto the equal neighbour, so the largest value it has seen becomes that tied 5.",
-          "misconception": "believes a neighbour of equal value counts as a rise"
+          "text": "The walk stops there, and the largest value it has seen is the 5 it is standing on, since a tie is no rise.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1908,7 +1908,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that every step strictly increases the value, so the sequence of values along the walk rises all the way to the cell where it stops, which makes that final cell the maximum of the path; with a neighbour of 5 beside a current 5 the strict test is false, so no step is taken and the walk ends on 5. Stepping onto the tie is tempting because 5 is not smaller, but strictly larger is the whole condition, and a walk that allowed equal steps could wander over a plateau forever without ever gaining height, which is why the test is written with > rather than >=.",
       "hint": "Every accepted step raises the current value, so the last one is the highest.",
@@ -1956,8 +1956,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 4, because the loop starts at index 1 and never looks at path[0], which held the 9.",
-          "misconception": ""
+          "text": "It throws ArrayIndexOutOfBoundsException, because path[0] is never validated before the loop.",
+          "misconception": "believes skipping the first cell makes the path read leave the grid"
         },
         {
           "id": "B",
@@ -1966,8 +1966,8 @@
         },
         {
           "id": "C",
-          "text": "It throws ArrayIndexOutOfBoundsException, because path[0] is never validated before the loop.",
-          "misconception": "believes skipping the first cell makes the path read leave the grid"
+          "text": "It prints 4, because the loop starts at index 1 and never looks at path[0], which held the 9.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1976,7 +1976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a maximum over a path has to consider every cell on it, and this loop begins at i = 1, so the starting cell is never read and the largest value it does see is 4, even though the path begins on 9. Trusting the seed is tempting because Integer.MIN_VALUE is the safest possible starting value, but the seed only guarantees a correct answer if the first cell is actually compared against it, and starting the loop at 1 means the 9 is not in the comparison set at all rather than being lost to a bad initial value.",
       "hint": "Count how many of the path's cells the loop body ever reads.",

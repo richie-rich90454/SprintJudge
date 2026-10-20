@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Two retries, and it gives up on the third response because the resource is permanently gone",
-          "misconception": ""
+          "text": "Three retries, because the fourth response is also a 404 and the loop never stops",
+          "misconception": "believes a loop that breaks still counts the responses that follow it"
         },
         {
           "id": "B",
-          "text": "Three retries, because the fourth response is also a 404 and the loop never stops",
-          "misconception": "believes a loop that breaks still counts the responses that follow it"
+          "text": "Two retries, and it gives up on the third response because the resource is permanently gone",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A 404 says this address does not hold that thing right now, which for a report that is still being generated is a normal answer and worth retrying, and a client that keeps retrying it forever is the usual mistake. A 410 says the thing was there and has been removed on purpose, so retrying cannot succeed and the client stops at the third response having recorded two retries. The distinction is the whole reason both statuses exist, and a client that treats them the same either gives up too early on work still in progress or loops forever on work that is finished.",
       "hint": "Count the retries as you go and stop at the first response the client treats as final.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "None of them, and the alert does not fire, because every response was counted as a success",
-          "misconception": ""
+          "text": "None of them, and the alert fires, because forty is more than half a percent of a thousand",
+          "misconception": "believes the alert counts failures the counter never recorded"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "None of them, and the alert fires, because forty is more than half a percent of a thousand",
-          "misconception": "believes the alert counts failures the counter never recorded"
+          "text": "None of them, and the alert does not fire, because every response was counted as a success",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The counter keys on the status and nothing else, so a failure that returns 200 is recorded as a success, and the dashboard shows a clean run of 1,000 with an error rate of zero. The alert reads that same zero, so it does not fire even though four percent of what the endpoint actually did was a failed write. This is the reason a failing response must carry a failing status: the body is a description of what happened, while the status is the part every piece of infrastructure reads, and a client that only checks the status is exactly as blind as the dashboard is.",
       "hint": "The counter only ever sees the status, so ask what the status was for each of the forty.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Four requests, and only the 307, because it is the one that keeps the method and the body",
-          "misconception": ""
+          "text": "Four requests, and the 301 is the one, because it is the status the platform recommends",
+          "misconception": "believes the oldest redirect status is the most faithful one"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "Four requests, and the 301 is the one, because it is the status the platform recommends",
-          "misconception": "believes the oldest redirect status is the most faithful one"
+          "text": "Four requests, and only the 307, because it is the one that keeps the method and the body",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The loop makes the original request and then follows each of the three redirects, so four requests in total, and the fifth response is the 200 that ends it. What the statuses differ on is the method: a 301 and a 302 have historically been followed by rewriting a post as a get, which drops the body, while 307 and 308 are defined to be followed with the same method and the same body. That is why a body-carrying write should be redirected with 307 or 308, and why a chain of older statuses is a frequent explanation for a create endpoint that mysteriously creates an empty order.",
       "hint": "Count the first request as well as the follows, then look for the status defined to preserve the method.",
@@ -286,13 +286,13 @@
       "options": [
         {
           "id": "A",
-          "text": "105, 106 and 107, and the cursor returns 104, 105 and 106, so offset skips 104 entirely",
-          "misconception": ""
+          "text": "104, 105 and 106 either way, because both address the same window of the table",
+          "misconception": "believes the two schemes cannot disagree about which rows come next"
         },
         {
           "id": "B",
-          "text": "104, 105 and 106 either way, because both address the same window of the table",
-          "misconception": "believes the two schemes cannot disagree about which rows come next"
+          "text": "105, 106 and 107, and the cursor returns 104, 105 and 106, so offset skips 104 entirely",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -306,7 +306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Offset paging is a count of positions, so the insert pushes every later row one place forward and the window that used to start at 104 now starts at 105. The consequence is the row at 104, which was never on a page the client saw and is now behind the window, so it never appears at all. A cursor records a position in the ordering rather than a number of rows to skip, so resuming after 103 means everything after 103, which is 104, 105 and 106, and the insert does not affect it. This is why a list that changes while it is being read needs a cursor, and why the offset is cheap to implement and expensive to get right.",
       "hint": "Work out the list after the insert, then count five positions into it and compare with resuming after 103.",
@@ -353,8 +353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two charges, and the repeated request gets back the result recorded for its key",
-          "misconception": ""
+          "text": "One charge, because the second key is ignored once a key has been seen",
+          "misconception": "believes the store holds a single key rather than one entry per key"
         },
         {
           "id": "B",
@@ -363,8 +363,8 @@
         },
         {
           "id": "C",
-          "text": "One charge, because the second key is ignored once a key has been seen",
-          "misconception": "believes the store holds a single key rather than one entry per key"
+          "text": "Two charges, and the repeated request gets back the result recorded for its key",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -373,7 +373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The store is keyed by whatever the client sent, so the two requests that share a key collapse into one recorded charge and the third, with a different key, is a different charge: two in total. The repeated request does not get refused, which matters more than it looks, because a client that cannot tell a repeat from a rejection has no safe way to retry: it would either pay twice or give up on a payment that had already gone through. The key has to be generated per intended operation rather than per attempt, and the recorded result has to be returned unchanged, or the retry is not doing its job.",
       "hint": "Ask how many distinct keys arrive and what the map does with the second one.",
@@ -420,8 +420,8 @@
       "options": [
         {
           "id": "A",
-          "text": "500, 502 and 503, so three, because the rest describe what the caller did wrong",
-          "misconception": ""
+          "text": "Only 500, so one, because 502 and 503 describe the network rather than the service",
+          "misconception": "believes a gateway status describes something other than the service itself"
         },
         {
           "id": "B",
@@ -435,12 +435,12 @@
         },
         {
           "id": "D",
-          "text": "Only 500, so one, because 502 and 503 describe the network rather than the service",
-          "misconception": "believes a gateway status describes something other than the service itself"
+          "text": "500, 502 and 503, so three, because the rest describe what the caller did wrong",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The five hundred range means the server failed to do what was asked: the request was understood and the answer could not be produced, which is what should wake somebody. The four hundred range means the request itself was the problem, whether it was unauthenticated, aimed at something that is not there, or refused on its content, and paging a service because a caller sent a bad token is the alert crying wolf until the real page is ignored. A gateway status is still a failure of the service to answer, so 502 and 503 count, and the run here gives three against four.",
       "hint": "Read the class of each status, and ask who is at fault for it.",
@@ -487,13 +487,13 @@
       "options": [
         {
           "id": "A",
-          "text": "GET is safe because it changes nothing, and PUT is idempotent because a repeat is the same",
-          "misconception": ""
+          "text": "GET is idempotent and PUT is safe, because the second is the one that carries a body",
+          "misconception": "believes the two words describe the same property with the methods reversed"
         },
         {
           "id": "B",
-          "text": "GET is idempotent and PUT is safe, because the second is the one that carries a body",
-          "misconception": "believes the two words describe the same property with the methods reversed"
+          "text": "GET is safe because it changes nothing, and PUT is idempotent because a repeat is the same",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -507,7 +507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two words answer different questions. Safety is about intent: a safe method is one whose whole point is to read, and a server that honours that will not let a get change anything. Idempotence is about repetition: an idempotent method can be called several times and the effect is the same as calling it once, which is what makes a client or a network free to retry it. A get is both, and a put is idempotent without being safe, and a post is neither, which is why a client that loses the response to a post has a problem a retry cannot solve by itself.",
       "hint": "Ask separately what a repeat does and what the method is meant to do.",
@@ -554,8 +554,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The version is part of the address, so a wrong version is a different resource to everything",
-          "misconception": ""
+          "text": "A path can name two versions at once, so a client can compare them in a single request",
+          "misconception": "believes one address can carry two versions for comparison"
         },
         {
           "id": "B",
@@ -564,8 +564,8 @@
         },
         {
           "id": "C",
-          "text": "A path can name two versions at once, so a client can compare them in a single request",
-          "misconception": "believes one address can carry two versions for comparison"
+          "text": "The version is part of the address, so a wrong version is a different resource to everything",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -574,7 +574,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A version in the path makes the version part of the resource's identity, so a request to the old version and a request to the new one are simply different resources and everything downstream can tell them apart: a log line, a cache key, an access rule, a dashboard of which clients are still on the old one. A version header is equally capable of working, but it is separate from the address, so anything that keys on the address, which is nearly everything, cannot see it. The arguments against paths are about tidiness rather than function, and they are outweighed by being able to answer the question of who is still using the old version.",
       "hint": "Ask what a log line or a cache key can tell you when the version is in the address.",
@@ -621,8 +621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One place to parse and one set of rules to follow, so no outcome is left unhandled",
-          "misconception": ""
+          "text": "A guarantee that a failed request still leaves the client holding the previous valid data",
+          "misconception": "believes an error response repairs the client's state for it"
         },
         {
           "id": "B",
@@ -636,12 +636,12 @@
         },
         {
           "id": "D",
-          "text": "A guarantee that a failed request still leaves the client holding the previous valid data",
-          "misconception": "believes an error response repairs the client's state for it"
+          "text": "One place to parse and one set of rules to follow, so no outcome is left unhandled",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The value is that there is one thing to learn and one place to get it wrong, so a client that has handled one response from this endpoint has handled the shape of all of them, and a new outcome cannot arrive as a surprise the client has no branch for. The error field is what makes it work, because it gives a failure somewhere to go without inventing a second body format. It is worth being clear about what it does not do: a shape cannot make a refusal into a success, and it cannot tell a client whether to retry, which is what the status and any retry advice are for.",
       "hint": "Ask what a client has to implement once, rather than once per outcome.",
@@ -688,13 +688,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The key acts for the integration itself, and the token acts for one user and can be narrowed",
-          "misconception": ""
+          "text": "The key acts for the user, and the token acts for the whole integration for every caller",
+          "misconception": "believes the longer lived secret is the more specific of the two"
         },
         {
           "id": "B",
-          "text": "The key acts for the user, and the token acts for the whole integration for every caller",
-          "misconception": "believes the longer lived secret is the more specific of the two"
+          "text": "The key acts for the integration itself, and the token acts for one user and can be narrowed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -708,7 +708,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two identify different things. A key identifies a caller that is a program rather than a person, it is usually shared by everyone using that integration, and it is revoked by being replaced, so it cannot express much about which person is doing what. A token is issued to a user, carries a claim about who they are, and is normally narrowed to a set of operations and a short lifetime, so it can be thrown away when it leaks. Treating the key as the user's credential is the mistake that produces an integration which can do anything to anybody, because every holder of it is the same caller as far as the service is concerned.",
       "hint": "Ask who each credential is standing in for at the far end of the request.",
@@ -755,8 +755,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Which operations that token's holder may perform, checked by the service on each request",
-          "misconception": ""
+          "text": "How long the token stays valid, since a narrower scope is issued with a shorter lifetime",
+          "misconception": "believes scope and lifetime are one setting chosen together"
         },
         {
           "id": "B",
@@ -765,8 +765,8 @@
         },
         {
           "id": "C",
-          "text": "How long the token stays valid, since a narrower scope is issued with a shorter lifetime",
-          "misconception": "believes scope and lifetime are one setting chosen together"
+          "text": "Which operations that token's holder may perform, checked by the service on each request",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -775,7 +775,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A scope is a statement about what may be done with the token, and it is enforced at the resource server on every request, which is the only place where enforcing it means anything. Two tokens for the same user with different scopes are the normal result of asking for less, and it is what lets a read-only client be issued without discussion. The enforcement point is the part worth being clear about, because a scope checked in the browser is a preference rather than a control, and a scope applied to the shape of the response would be a data minimisation idea rather than an authorisation one.",
       "hint": "Ask where a check has to happen for it to be worth anything.",
@@ -822,8 +822,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A total for the whole period, so an allowance cannot be spent in a minute and then be gone",
-          "misconception": ""
+          "text": "A count of failed requests, so a caller is refused once it has failed that many times",
+          "misconception": "believes the day figure counts failures rather than everything"
         },
         {
           "id": "B",
@@ -837,12 +837,12 @@
         },
         {
           "id": "D",
-          "text": "A count of failed requests, so a caller is refused once it has failed that many times",
-          "misconception": "believes the day figure counts failures rather than everything"
+          "text": "A total for the whole period, so an allowance cannot be spent in a minute and then be gone",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two limits answer different questions and each catches what the other misses. A rate limit is about smoothness: it stops one caller from taking the whole capacity in one burst, and it protects the service and everyone else using it. A quota is about the total: it stops a caller from consuming a day's work in ten minutes, which a per-minute limit allows perfectly happily. A service with only a rate limit can be asked for a million requests spread over a day, so a quota with no rate limit lets a single caller flatten the service in one burst, and the pair together is what makes a shared service survivable.",
       "hint": "Ask which question each number answers, and what the other one lets through.",
@@ -889,13 +889,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Return a failing status with the body, since the status is the part clients already read",
-          "misconception": ""
+          "text": "Keep the status and add the reason to a header, so a client can read it without the body",
+          "misconception": "believes a new header will be picked up by clients that ignore the body"
         },
         {
           "id": "B",
-          "text": "Keep the status and add the reason to a header, so a client can read it without the body",
-          "misconception": "believes a new header will be picked up by clients that ignore the body"
+          "text": "Return a failing status with the body, since the status is the part clients already read",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -909,7 +909,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The status is the channel every client already reads, and a body is something a client has to be written to understand, so moving the failure from the body into the status reaches clients that were never changed. It also reaches everything else that reads the status without knowing anything about this endpoint, which is why the same fix repairs the dashboard at the same time. Logging the reason is worth doing but it is for the people debugging afterwards, and a client that has to tell its user the card was declined has to be told in the response.",
       "hint": "Ask which part of the response the existing clients are guaranteed to look at.",
@@ -956,8 +956,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Validate the body in the endpoint and refuse anything that fails, since the page can be skipped",
-          "misconception": ""
+          "text": "Make the field read-only on the page, so no other value can be typed into it",
+          "misconception": "believes a read-only field stops a value being sent by anything else"
         },
         {
           "id": "B",
@@ -966,8 +966,8 @@
         },
         {
           "id": "C",
-          "text": "Make the field read-only on the page, so no other value can be typed into it",
-          "misconception": "believes a read-only field stops a value being sent by anything else"
+          "text": "Validate the body in the endpoint and refuse anything that fails, since the page can be skipped",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -976,7 +976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A check that only runs in the page is a courtesy to the user, not a control, because the page is not the only way to reach the endpoint: a script, another client, a replayed request or a modified form all skip it entirely. Validation has to happen where the value is used, on the server, and the page's check stays as a way of avoiding a round trip and giving immediate feedback. The other three do nothing to the value: a signature says the request came from someone holding a key rather than that the number in it is right, a read-only attribute is a hint to the browser, and a rate limit bounds how often rather than what.",
       "hint": "Ask where the value is finally used, and who can reach it without the page.",
@@ -1023,8 +1023,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Run the exchange on a server that holds the secret, and have the browser prove itself instead",
-          "misconception": ""
+          "text": "Issue a new secret for every release, so a bundle that was copied is quickly out of date",
+          "misconception": "believes rotating a leaked secret quickly is the same as never shipping it"
         },
         {
           "id": "B",
@@ -1038,12 +1038,12 @@
         },
         {
           "id": "D",
-          "text": "Issue a new secret for every release, so a bundle that was copied is quickly out of date",
-          "misconception": "believes rotating a leaked secret quickly is the same as never shipping it"
+          "text": "Run the exchange on a server that holds the secret, and have the browser prove itself instead",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Anything the browser can execute or fetch, a reader can read, so a secret in a bundle or in a file the bundle loads is a published secret, and encoding it or moving it changes only how much effort it takes. The structure of the flow is what has to change: a client that cannot keep a secret is a public client, and the flow designed for one uses a proof key, where the browser starts the exchange by sending a value it can prove it generated without the secret ever leaving the page. A server that holds the secret does the same exchange with a code it received and a key the browser proves it holds.",
       "hint": "Ask what a reader of the page is able to obtain, and what the flow uses instead of a secret.",
@@ -1090,13 +1090,13 @@
       "options": [
         {
           "id": "A",
-          "text": "About 99.6 percent, so roughly 40 of the 10,000 requests fail",
-          "misconception": ""
+          "text": "About 99.9 percent, so roughly 10 of the 10,000 requests fail",
+          "misconception": "believes a chain of independent services is as available as its best member"
         },
         {
           "id": "B",
-          "text": "About 99.9 percent, so roughly 10 of the 10,000 requests fail",
-          "misconception": "believes a chain of independent services is as available as its best member"
+          "text": "About 99.6 percent, so roughly 40 of the 10,000 requests fail",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1110,7 +1110,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A request succeeds only if every step succeeds, so the chances multiply rather than add, and four chances of 0.999 give 0.996006, which is about 99.6 percent. The failures are what is left, which is 0.003994 of the traffic, so of 10,000 requests roughly 40 fail. The habit worth building is to multiply first and round last, because a chain of individually excellent services is what quietly produces an endpoint nobody trusts, and it is why removing a hop from a request path is often a better availability move than improving any one of the hops.",
       "hint": "Multiply the four chances together, then subtract the product from one and apply it to 10,000.",
@@ -1157,8 +1157,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Four, and then three",
-          "misconception": ""
+          "text": "Four, and then seven",
+          "misconception": "believes every non-success response counts as a server failure"
         },
         {
           "id": "B",
@@ -1167,8 +1167,8 @@
         },
         {
           "id": "C",
-          "text": "Four, and then seven",
-          "misconception": "believes every non-success response counts as a server failure"
+          "text": "Four, and then three",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1177,7 +1177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The four hundreds are 400, 401, 404 and 422, and the five hundreds are 500, 502 and 503, so four and three. Keeping the two apart is what lets the two questions be asked separately: which callers are sending requests the service cannot accept, and is the service failing to answer requests it should have accepted. A dashboard that adds them together answers neither, and a page that fires on the total is a page that fires on an unauthenticated integration, which is a decision somebody made in a configuration file rather than a fault worth waking anyone for.",
       "hint": "Split the ten statuses by their hundreds digit and count each group.",
@@ -1348,8 +1348,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two succeed, and the refusal means a second copy of the token exists somewhere",
-          "misconception": ""
+          "text": "Two succeed, and the refusal is routine, since a client often presents a stale token once",
+          "misconception": "believes a replaced token being presented again is an ordinary event"
         },
         {
           "id": "B",
@@ -1363,12 +1363,12 @@
         },
         {
           "id": "D",
-          "text": "Two succeed, and the refusal is routine, since a client often presents a stale token once",
-          "misconception": "believes a replaced token being presented again is an ordinary event"
+          "text": "Two succeed, and the refusal means a second copy of the token exists somewhere",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Rotation works because each token is good exactly once: r2 becomes r3, so the copy of r2 is spent, and the holder carrying r3 carries on normally, which is two successes out of three. The third exchange is the signal, because a client that only ever holds one token cannot present a spent one unless there are two of them, so the refusal is the detection mechanism rather than a fault. That is also the reason a rotation scheme is worth the extra store: a non-rotating refresh token stays a long-lived credential with no way to notice that it leaked, whereas here the leak announces itself the first time the thief uses it.",
       "hint": "Count the presentations of a token that has already been replaced, and ask who else could hold one.",
@@ -1415,13 +1415,13 @@
       "options": [
         {
           "id": "A",
-          "text": "sid=abc; Path=/; HttpOnly; SameSite=Lax, and the cookie can still travel over plain http",
-          "misconception": ""
+          "text": "sid=abc; Path=/; HttpOnly; Secure; SameSite=Lax, and nothing about it is left unprotected",
+          "misconception": "believes a flag that was set to false is still written into the header"
         },
         {
           "id": "B",
-          "text": "sid=abc; Path=/; HttpOnly; Secure; SameSite=Lax, and nothing about it is left unprotected",
-          "misconception": "believes a flag that was set to false is still written into the header"
+          "text": "sid=abc; Path=/; HttpOnly; SameSite=Lax, and the cookie can still travel over plain http",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1435,7 +1435,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The filter drops any flag whose value is false, so a flag that was not requested is not written, which leaves the header with the path, the restriction on script and the same-site rule. The gap is the missing Secure, which is what would have required the cookie to travel only over an encrypted connection; without it the browser will attach the session to a plain http request to the same host, so anyone on the path can read it. The other three answers all assume the builder produced something other than what its own code does, and it is worth reading the helper rather than assuming which flags a session cookie usually carries.",
       "hint": "Work down the array and keep only the parts whose flag is true.",
@@ -1482,8 +1482,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Only the second, because a scope has to name the operation in exactly that order",
-          "misconception": ""
+          "text": "The second and third, because a broader scope covers every operation beneath it",
+          "misconception": "believes a general scope implies the specific ones that sit under it"
         },
         {
           "id": "B",
@@ -1492,8 +1492,8 @@
         },
         {
           "id": "C",
-          "text": "The second and third, because a broader scope covers every operation beneath it",
-          "misconception": "believes a general scope implies the specific ones that sit under it"
+          "text": "Only the second, because a scope has to name the operation in exactly that order",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1502,7 +1502,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A scope string is a set of exact names and the check is set membership, so only the second pair matches: its string contains orders:write as one whole token. The third is refused because orders is not orders:read, and the fourth is refused because read:orders and orders:read are different strings, which is why the vocabulary has to be fixed and documented rather than improvised. The third answer is the one worth guarding against, because a prefix looks like a covering but is only a covering if the service is written to say so, and a service that treats it as a covering has handed every holder of orders:read a way to write.",
       "hint": "Split each scope string on spaces and ask whether the needed name is one of the whole words.",
@@ -1549,8 +1549,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nine, because the two retry counts multiply, so a small policy becomes a large one",
-          "misconception": ""
+          "text": "Nine, but only because the client also retried, so the three layers together did it",
+          "misconception": "believes the number requires a retry at the client as well as at both services"
         },
         {
           "id": "B",
@@ -1564,12 +1564,12 @@
         },
         {
           "id": "D",
-          "text": "Nine, but only because the client also retried, so the three layers together did it",
-          "misconception": "believes the number requires a retry at the client as well as at both services"
+          "text": "Nine, because the two retry counts multiply, so a small policy becomes a large one",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A's three attempts each become three attempts at B, and each of those reaches the store, so the store sees nine attempts from a single call the client made once. The store is already down, so nine attempts buy nothing at all, and they cost exactly what a struggling service can least afford, because the retries arrive at the moment its connections are already exhausted. This is why a retry policy is only safe in one place in a chain, and why the layer that knows what the caller can tolerate should own it, with the rest either passing the call through or refusing quickly.",
       "hint": "Multiply the attempts at each layer rather than adding them, since every attempt nests inside the one above.",
@@ -1616,13 +1616,13 @@
       "options": [
         {
           "id": "A",
-          "text": "2,000 ms and then 1,000 ms, because each service caps the time the one below may take",
-          "misconception": ""
+          "text": "2,600 ms and then 1,700 ms, because the whole budget is passed on and the caps are ignored",
+          "misconception": "believes a service's own limit does not reduce what the one below it is given"
         },
         {
           "id": "B",
-          "text": "2,600 ms and then 1,700 ms, because the whole budget is passed on and the caps are ignored",
-          "misconception": "believes a service's own limit does not reduce what the one below it is given"
+          "text": "2,000 ms and then 1,000 ms, because each service caps the time the one below may take",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1636,7 +1636,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A has 2,600 ms left when it calls B, but its own limit is 2,000, so B gets 2,000. B then has 1,700 left against its own 1,000, so C gets 1,000, and C's 500 is the least of the three anyway. Passing the smaller of the remaining time and the service's own limit is what keeps the whole chain inside the caller's budget: a service that passed on all 2,600 would let B take 2,600 and C take 1,700 within it, which is over three seconds for a caller who allowed three, and is why a chain of unpropagated timeouts is a common way to produce a latency that no single service's configuration explains.",
       "hint": "At each hop take the smaller of the time left and that service's own limit.",
@@ -1683,8 +1683,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Six reached it, three were refused, and the breaker was closed at the end",
-          "misconception": ""
+          "text": "Three reached it and six were refused, because the trial call is never allowed to succeed",
+          "misconception": "believes a successful trial leaves the breaker where it was"
         },
         {
           "id": "B",
@@ -1693,8 +1693,8 @@
         },
         {
           "id": "C",
-          "text": "Three reached it and six were refused, because the trial call is never allowed to succeed",
-          "misconception": "believes a successful trial leaves the breaker where it was"
+          "text": "Six reached it, three were refused, and the breaker was closed at the end",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1703,7 +1703,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first three calls fail and the breaker opens, so calls four, five and six are refused without touching the dependency. The trial call is the seventh: it reaches the dependency, succeeds, and closes the breaker, and the last two calls are then passed straight through, which is six reaching it and three refused, with the breaker closed. The point of the whole arrangement is the three refused calls, because a breaker is a way of stopping a service from spending its remaining capacity on calls that are already known to fail, and a breaker that forwards while open has given up the only thing it was for.",
       "hint": "Count the calls refused before the trial, then add the trial and everything after it.",
@@ -1750,8 +1750,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One order and no event, while the outbox gives one order and one relayed event",
-          "misconception": ""
+          "text": "Two orders and no event, because the store and the bus are each written once independently",
+          "misconception": "believes two separate stores each record the order for themselves"
         },
         {
           "id": "B",
@@ -1765,12 +1765,12 @@
         },
         {
           "id": "D",
-          "text": "Two orders and no event, because the store and the bus are each written once independently",
-          "misconception": "believes two separate stores each record the order for themselves"
+          "text": "One order and no event, while the outbox gives one order and one relayed event",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The insert completed and the publish never started, so the order exists and the event does not, and nothing in either system will notice: the order is a real row and the event is simply absent. That is the dual write problem, and no ordering of the two lines fixes it, because the failure is between them rather than around them. Writing the event as a row in the same transaction as the order makes the two atomic, so the process can die anywhere and both survive together, and a separate relay then reads the outbox and publishes, retrying until it succeeds, which converts one unwritable pair of systems into one that has already committed and one that catches up.",
       "hint": "Ask which of the two statements completed before the process was killed, then apply that to both arrangements.",
@@ -1817,13 +1817,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The browser proves it started the exchange with a value it generated, so no secret is needed",
-          "misconception": ""
+          "text": "The browser keeps the secret in a script that is only loaded after the user signs in",
+          "misconception": "believes loading a secret later keeps it from the person it was loaded for"
         },
         {
           "id": "B",
-          "text": "The browser keeps the secret in a script that is only loaded after the user signs in",
-          "misconception": "believes loading a secret later keeps it from the person it was loaded for"
+          "text": "The browser proves it started the exchange with a value it generated, so no secret is needed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1837,7 +1837,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "An application with no server is a public client, and the flow designed for one replaces the secret with a proof: the application generates a random value before the user is sent away, keeps it, and later sends it alongside the code, so the authorisation server can check that whoever is redeeming the code is the one who started it. A stolen code on its own is then useless. The other three do not remove the secret, they only move who has to type it, and the last one changes where the code is redeemed without changing who is redeeming it, which is the part the proof key is there to establish.",
       "hint": "Ask what the authorisation server can check when the client holds nothing secret.",
@@ -1884,8 +1884,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Script access allows reading the session, encryption allows sending it, and same-site stops other sites sending it",
-          "misconception": ""
+          "text": "Path allows reading the session, lifetime allows encrypting it, and same-site allows creating it",
+          "misconception": "believes a scope and a lifetime are forms of protection against disclosure"
         },
         {
           "id": "B",
@@ -1894,8 +1894,8 @@
         },
         {
           "id": "C",
-          "text": "Path allows reading the session, lifetime allows encrypting it, and same-site allows creating it",
-          "misconception": "believes a scope and a lifetime are forms of protection against disclosure"
+          "text": "Script access allows reading the session, encryption allows sending it, and same-site stops other sites sending it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1904,7 +1904,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The three address three different routes out. A session that script can read is a session that any injected script can steal, so the restriction on script access is what makes an injection into the page a smaller problem. A session sent without encryption is a session anyone on the path can copy, so requiring encryption protects it in transit. The same-site rule is about who else may cause it to be sent, which is what limits a form on another site from riding the user's session. None of the three protects a session that has already been taken, which is why the value itself is signed and short-lived.",
       "hint": "Ask for each flag whether it stops reading, sending, or someone else sending.",
@@ -1951,8 +1951,8 @@
       "options": [
         {
           "id": "A",
-          "text": "End a session early, because the token stays valid until it expires and nothing can say otherwise",
-          "misconception": ""
+          "text": "Accept the token twice, because a self contained token can only be used for one request",
+          "misconception": "believes a token is consumed when it is presented"
         },
         {
           "id": "B",
@@ -1966,12 +1966,12 @@
         },
         {
           "id": "D",
-          "text": "Accept the token twice, because a self contained token can only be used for one request",
-          "misconception": "believes a token is consumed when it is presented"
+          "text": "End a session early, because the token stays valid until it expires and nothing can say otherwise",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Checking the token alone means the server holds no session to mark as ended, so the only lever is the expiry, and a token stolen an hour before it expires is good for the rest of that hour. That is the trade the design makes in exchange for not looking anything up on every request, and it is why the expiry is kept short, why the token is signed so it cannot be edited, and why the sensitive operations ask for something else. A revocation list or a server side record puts the lookup back for the cases where ending a session early matters more than not looking it up.",
       "hint": "Ask what the server would have to change in order to end one user's session before its time.",
@@ -2018,13 +2018,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A contract between two separately deployable things, so a change on one side can break the other",
-          "misconception": ""
+          "text": "A copy of the data, so the two sides now have to be told about every change either makes",
+          "misconception": "believes a split duplicates state rather than defining an interface"
         },
         {
           "id": "B",
-          "text": "A copy of the data, so the two sides now have to be told about every change either makes",
-          "misconception": "believes a split duplicates state rather than defining an interface"
+          "text": "A contract between two separately deployable things, so a change on one side can break the other",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2038,7 +2038,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The value of a boundary is that the two halves can change, deploy and fail independently, and the price is that they can now change in ways the other cannot see coming. Inside one process a renamed field is a compile error; across a boundary it is a runtime surprise for whichever version happens to be deployed, which is why the contract has to be explicit and why a boundary wants a version of its own. The coupling does not go away when the boundary is drawn, it changes shape: from a reference the compiler checks to an agreement two deployments have to keep.",
       "hint": "Ask what a change on one side can do to the other that it could not do before.",
@@ -2085,8 +2085,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the same event can arrive more than once, so each one has to be safe to apply again",
-          "misconception": ""
+          "text": "That every event produced is delivered, so the handler can assume nothing is lost in transit",
+          "misconception": "believes delivery is guaranteed and only duplication needs handling"
         },
         {
           "id": "B",
@@ -2095,8 +2095,8 @@
         },
         {
           "id": "C",
-          "text": "That every event produced is delivered, so the handler can assume nothing is lost in transit",
-          "misconception": "believes delivery is guaranteed and only duplication needs handling"
+          "text": "That the same event can arrive more than once, so each one has to be safe to apply again",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2105,7 +2105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A consumer has to assume the same event can arrive twice, and it has to be written so that applying it twice is the same as applying it once, which is what a check on the event's own identifier buys. The other three are the properties a queue gives up in exchange for not blocking a publisher: delivery is at least once rather than exactly once, ordering is per partition rather than global, and a consumer that was stopped is handed everything it missed. Designs that assume exactly-once delivery across a network end up with handlers that are not safe to repeat, and duplicates then turn into double charges.",
       "hint": "Ask what happens to a handler that ran successfully and then has its work redelivered.",
@@ -2152,8 +2152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One caller cannot occupy every worker, so a slow caller stops being able to starve the others",
-          "misconception": ""
+          "text": "One caller's data cannot be read by another, so the pools also enforce authorisation",
+          "misconception": "believes a worker pool is a security boundary between callers"
         },
         {
           "id": "B",
@@ -2167,12 +2167,12 @@
         },
         {
           "id": "D",
-          "text": "One caller's data cannot be read by another, so the pools also enforce authorisation",
-          "misconception": "believes a worker pool is a security boundary between callers"
+          "text": "One caller cannot occupy every worker, so a slow caller stops being able to starve the others",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The problem is exhaustion. With one shared pool, a caller that sends slow work occupies workers that everyone else needs, and because those workers are blocked rather than busy, the whole service degrades while the offending caller is still being served. Giving each caller its own pool caps how much of the service any one of them can hold, and refusing beyond that is the right answer, because queueing unboundedly only converts a refusal into a timeout that every caller eventually experiences. The pools are not a security boundary and they are not a way of hiding failures, they are a way of bounding the damage one caller can do to everyone else.",
       "hint": "Ask what a slow caller does to a pool that every other caller is also waiting on.",
@@ -2219,13 +2219,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The caller waits on a connection that will never answer, so a timeout on that call has to be set",
-          "misconception": ""
+          "text": "The caller fails immediately, because an unanswered call is treated as a refused one",
+          "misconception": "believes a hung connection is reported as a refusal straight away"
         },
         {
           "id": "B",
-          "text": "The caller fails immediately, because an unanswered call is treated as a refused one",
-          "misconception": "believes a hung connection is reported as a refusal straight away"
+          "text": "The caller waits on a connection that will never answer, so a timeout on that call has to be set",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2239,7 +2239,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A request with no timeout and a connection that is never closed is a caller that has given up nothing, and since it is holding a worker, a request and often a transaction while it waits, one hung dependency turns into a service that is up and answering nothing. The single change is a deadline on the call, propagated from the caller's own budget so the whole chain fits inside it, and a caller that hits it gets a real error it can act on. This is the failure the propagation rule exists to prevent: a service that waits forever cannot be timed out from above, because there is nothing above it willing to.",
       "hint": "Ask what a request with no deadline does while the far end holds the connection open.",
@@ -2286,8 +2286,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Let only one layer retry, so the attempts do not nest inside one another on the way down",
-          "misconception": ""
+          "text": "Add a delay between the retries, so the store has time to come back between them",
+          "misconception": "believes spacing the retries out reduces how many of them arrive"
         },
         {
           "id": "B",
@@ -2296,8 +2296,8 @@
         },
         {
           "id": "C",
-          "text": "Add a delay between the retries, so the store has time to come back between them",
-          "misconception": "believes spacing the retries out reduces how many of them arrive"
+          "text": "Let only one layer retry, so the attempts do not nest inside one another on the way down",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2306,7 +2306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The cost comes from the attempts nesting, so one client's call becomes nine at the bottom, and the fix is to have the retries happen in one place. Reducing the count or spacing them out only changes the size of the pile, and preferring timeouts does not help because a store that is unavailable produces plenty of those. Choosing the layer matters as much as the count: the layer that knows what its caller can tolerate should own the retries, and the ones below it should fail fast so the layer above can decide, which is also what makes a slow dependency produce a fast answer rather than a slow one.",
       "hint": "Ask where in the chain the retries should live so that they do not nest.",
@@ -2353,8 +2353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Check the event's own identifier before applying it, so a second delivery does nothing",
-          "misconception": ""
+          "text": "Deduplicate the events in memory, so the same identifier is only processed once per run",
+          "misconception": "believes a handler that forgets on restart cannot be given the same event twice"
         },
         {
           "id": "B",
@@ -2368,12 +2368,12 @@
         },
         {
           "id": "D",
-          "text": "Deduplicate the events in memory, so the same identifier is only processed once per run",
-          "misconception": "believes a handler that forgets on restart cannot be given the same event twice"
+          "text": "Check the event's own identifier before applying it, so a second delivery does nothing",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The check has to be against something that survives, and the event's identifier recorded in the same place as the effect is the thing that does: the handler asks whether it has already applied this event, and if so returns without charging, which makes the operation idempotent rather than merely careful. Acknowledging first makes things worse, since it promises the work is done before it is. One transaction per batch does not help either, because the redelivery is of a batch that already committed, and in-memory deduplication forgets precisely when it is needed, which is after a restart.",
       "hint": "Ask what record of what has been applied would still be there after a restart.",
@@ -2420,13 +2420,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Six running, and four refused",
-          "misconception": ""
+          "text": "Ten running, and none refused, because a pool grows to meet the work it is given",
+          "misconception": "believes a bounded pool accepts any amount of arriving work"
         },
         {
           "id": "B",
-          "text": "Ten running, and none refused, because a pool grows to meet the work it is given",
-          "misconception": "believes a bounded pool accepts any amount of arriving work"
+          "text": "Six running, and four refused",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2440,7 +2440,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each pool runs up to its own three places, so six pieces of work run at once across the two callers, and everything beyond a pool's capacity is refused rather than queued: three for the first caller and one for the second, four in total. Refusing promptly is the design, and it is what distinguishes a bulkhead from a queue, since a queue with no bound converts the refusal into a wait that every caller in front of the backlog also pays. The second caller's work is unaffected by the first caller's burst, which is the whole reason the pools are separate.",
       "hint": "Fill each pool to its capacity, then count whatever is left over in each.",
@@ -2487,8 +2487,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Ten rows, then six, because the check turns each event into at most one row",
-          "misconception": ""
+          "text": "Ten rows, then ten, because a check inside the handler still writes before it looks",
+          "misconception": "believes a dedupe check cannot prevent the write it precedes"
         },
         {
           "id": "B",
@@ -2497,8 +2497,8 @@
         },
         {
           "id": "C",
-          "text": "Ten rows, then ten, because a check inside the handler still writes before it looks",
-          "misconception": "believes a dedupe check cannot prevent the write it precedes"
+          "text": "Ten rows, then six, because the check turns each event into at most one row",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2507,7 +2507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Ten deliveries means ten writes with no check, and six distinct identifiers means six writes once the handler asks whether it has already applied the event before inserting. The difference of four is exactly the number of redeliveries, which is the number of times the effect would have been applied twice. The check only works if the record of what has been applied is written in the same step as the effect, since a check that records afterwards still has a window in which the same event arrives and passes, and a consumer that keeps the record in memory loses it on the restart that made the redelivery necessary.",
       "hint": "Count the deliveries for the first number and the distinct identifiers for the second.",
@@ -2646,8 +2646,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It rejects qty and price, and accepts sku, because 1.5 is not an integer and -2 is negative",
-          "misconception": ""
+          "text": "It accepts qty and rejects the other two, because an integer is the only type a quantity needs",
+          "misconception": "believes a price is not something the endpoint has to check"
         },
         {
           "id": "B",
@@ -2661,12 +2661,12 @@
         },
         {
           "id": "D",
-          "text": "It accepts qty and rejects the other two, because an integer is the only type a quantity needs",
-          "misconception": "believes a price is not something the endpoint has to check"
+          "text": "It rejects qty and price, and accepts sku, because 1.5 is not an integer and -2 is negative",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each rule is asked about its own field, so the failures are independent: qty arrives as 1.5, which is a number but not an integer, and price is a number but below the minimum the rule sets. sku is a non-empty string and passes. The reason this check has to happen here rather than in a page is that the type of a value in a body is whatever the body says it is: the sender decides, a script can send anything, and a body of strings is normal. Reporting the failing fields by name, rather than one refusal for the whole body, is what lets a client point at the field the user has to fix.",
       "hint": "Apply each rule to its own field and keep the ones whose rule returns false.",
@@ -2713,13 +2713,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Old, then old, then new, so one of the three reads sees the write",
-          "misconception": ""
+          "text": "New, then old, then new, so the read model is consulted before the event is applied",
+          "misconception": "believes a read model is updated by the read that follows the write"
         },
         {
           "id": "B",
-          "text": "New, then old, then new, so the read model is consulted before the event is applied",
-          "misconception": "believes a read model is updated by the read that follows the write"
+          "text": "Old, then old, then new, so one of the three reads sees the write",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2733,7 +2733,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The read model changes when the event is applied, and that happens at 120 ms, so the reads at 10 and 30 ms are answered from the old value and the read at 200 ms is answered from the new one. The reads after the write are not promised the write, and that gap between a completed write and a read that reflects it is the definition of the arrangement. The design is usually worth it, because the read model can be shaped for the query and rebuilt from the event log, but the interface has to be honest about it: either a read is sent to the store that took the write, or the product accepts a short delay and says so.",
       "hint": "Compare each read's time with the time the event is applied, and answer from whichever is later.",
@@ -2780,8 +2780,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first three match their own routes and the fourth matches nothing at all",
-          "misconception": ""
+          "text": "The third matches `/v1/orders` because the identifier is not part of the comparison",
+          "misconception": "believes a parameterised route is matched by dropping its last segment"
         },
         {
           "id": "B",
@@ -2790,8 +2790,8 @@
         },
         {
           "id": "C",
-          "text": "The third matches `/v1/orders` because the identifier is not part of the comparison",
-          "misconception": "believes a parameterised route is matched by dropping its last segment"
+          "text": "The first three match their own routes and the fourth matches nothing at all",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2800,7 +2800,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The comparison is exact for a route with no parameter and prefix-based for one with, so `/v1/orders` and `/v2/orders` match themselves and `/v1/orders/7` matches the parameterised route by its prefix. `/v3/orders` matches nothing, and that is the important case: a version that does not exist has to fall through to a refusal rather than to a neighbouring version, because a client asking for a version the service does not have should be told so instead of being quietly served something it cannot read. The same fall-through is what makes it possible to retire a version without a client noticing until it is refused rather than silently mishandled.",
       "hint": "Compare each address with each route using the rule the helper applies, and see which one matches.",
@@ -2847,8 +2847,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Instances 1 and 3, so about two thirds of the previous capacity is serving traffic",
-          "misconception": ""
+          "text": "Instances 1 and 2, because the newest instance is the one still starting up",
+          "misconception": "believes a starting instance is the one excluded while a ready one is not"
         },
         {
           "id": "B",
@@ -2862,12 +2862,12 @@
         },
         {
           "id": "D",
-          "text": "Instances 1 and 2, because the newest instance is the one still starting up",
-          "misconception": "believes a starting instance is the one excluded while a ready one is not"
+          "text": "Instances 1 and 3, so about two thirds of the previous capacity is serving traffic",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A readiness report is the one piece of information a sender acts on, so an instance that reports not ready is simply not chosen and the traffic goes to the other two, which is about two thirds of the previous capacity. The fact that instance 2 would still answer if something called it is exactly why the report exists: a process can be running, holding its port and answering, and still not be ready, because it has not finished warming or is out of connections. This is the difference between the two questions a service has to answer about itself, and confusing them is how a rollout takes out a third of the fleet for no reason other than that the new instances were asked to serve too early.",
       "hint": "Apply the sender's rule to each instance's report, then divide by the number of instances.",
@@ -2981,13 +2981,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Version 5 applies and version 3 is ignored, and either way the record ends at version 5",
-          "misconception": ""
+          "text": "Both apply, and the record ends at version 3 because the later delivery wins",
+          "misconception": "believes the order of arrival decides the order of application"
         },
         {
           "id": "B",
-          "text": "Both apply, and the record ends at version 3 because the later delivery wins",
-          "misconception": "believes the order of arrival decides the order of application"
+          "text": "Version 5 applies and version 3 is ignored, and either way the record ends at version 5",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3001,7 +3001,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The comparison is what makes the handler safe to deliver out of order: version 5 raises the record's version and applies, then version 3 fails the comparison and is ignored, so a late duplicate cannot undo a newer state. With the two the other way round, 3 applies and raises the version to 3, and then 5 still passes, so the record ends at 5 either way. That property is worth having even though a broker usually preserves order within a partition, because a redelivery, a retry after a timeout and a second consumer all produce the arrival the handler was not designed around.",
       "hint": "Apply each event in turn and keep only those that raise the version.",
@@ -3048,8 +3048,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A bad request from any caller raises the page, so the alert fires for traffic it cannot act on",
-          "misconception": ""
+          "text": "The service is paged less often, because callers stop sending bodies that are rejected",
+          "misconception": "believes a page encourages callers to change what they send"
         },
         {
           "id": "B",
@@ -3058,8 +3058,8 @@
         },
         {
           "id": "C",
-          "text": "The service is paged less often, because callers stop sending bodies that are rejected",
-          "misconception": "believes a page encourages callers to change what they send"
+          "text": "A bad request from any caller raises the page, so the alert fires for traffic it cannot act on",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3068,7 +3068,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The status class is what tells a monitoring system whose problem it is, so returning 500 for a body that failed its check says the service broke when the caller sent something the service understood perfectly well. Every integration with a bug, every script and every form with a stale version becomes a page, and once the alert is noisy enough the real one is dismissed, which is worse than not having the alert at all. The right status for a well formed request the server will not act on is in the four hundreds, and the body is where the reason belongs.",
       "hint": "Ask what the status class tells a monitoring system about who is at fault.",
@@ -3115,8 +3115,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A page that says the thing was saved and then a list that does not yet contain it",
-          "misconception": ""
+          "text": "A page that shows the new item and then a list that has lost it again",
+          "misconception": "believes a read model can remove what was most recently written"
         },
         {
           "id": "B",
@@ -3130,12 +3130,12 @@
         },
         {
           "id": "D",
-          "text": "A page that shows the new item and then a list that has lost it again",
-          "misconception": "believes a read model can remove what was most recently written"
+          "text": "A page that says the thing was saved and then a list that does not yet contain it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The write has happened and the read model has not caught up, so a list built from it is briefly behind what the user has just been told, and the gap shows as something the user did to themselves. Three things make it bearable and all three are choices rather than luck: the write response can point at the store that took the write, the read can be sent to the same place, or the interface can acknowledge that it is showing something slightly older and offer a refresh. What is not available is pretending the two are the same moment, because the user will be right every time about what they saw.",
       "hint": "Ask which of the two systems has been updated at the moment the user is looking.",
@@ -3182,13 +3182,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Only that the process is running, which says nothing about whether it can answer requests",
-          "misconception": ""
+          "text": "That the service is healthy, since anything that cannot reach a database cannot answer",
+          "misconception": "believes a running process is necessarily a working service"
         },
         {
           "id": "B",
-          "text": "That the service is healthy, since anything that cannot reach a database cannot answer",
-          "misconception": "believes a running process is necessarily a working service"
+          "text": "Only that the process is running, which says nothing about whether it can answer requests",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3202,7 +3202,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The check answers one question, and the question is whether the process is running, which is a real question: it is what a sender should use to decide whether to restart a process that has hung rather than to decide whether to send it work. Everything a service needs in order to answer requests is outside it, and a process with a full connection pool, a dependency that is refusing or a cache that has failed to load will answer that check perfectly. Keeping the two questions apart is the point: one asks whether to restart the process, the other asks whether to send it traffic.",
       "hint": "Ask what the handler touches, and then what it therefore cannot know.",
@@ -3249,8 +3249,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Whether this instance should be given new work while it is reporting that way",
-          "misconception": ""
+          "text": "Whether the instance's code is correct, since a correct instance always reports ready",
+          "misconception": "believes the report is an assertion about the software rather than the state"
         },
         {
           "id": "B",
@@ -3259,8 +3259,8 @@
         },
         {
           "id": "C",
-          "text": "Whether the instance's code is correct, since a correct instance always reports ready",
-          "misconception": "believes the report is an assertion about the software rather than the state"
+          "text": "Whether this instance should be given new work while it is reporting that way",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3269,7 +3269,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The report is a single bit that the sender acts on, and what it acts on is the choice of which instance to use. Not ready means use the others, which is what makes it the right signal during a rollout, during a warm-up and when a dependency has gone away, because in all three cases the process is running and should keep running while it is not sent work. It is not a verdict on the code and not a restart instruction; a service that reports not ready because its connections are exhausted is exactly the service that must be left alone long enough to drain them.",
       "hint": "Ask what the sender does differently once it has read the report.",
@@ -3316,8 +3316,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The timeout bounds one call in wall clock time, and the breaker stops the calls that are failing now",
-          "misconception": ""
+          "text": "The timeout decides whether to retry, and the breaker decides how long to wait before retrying",
+          "misconception": "believes the two settings describe the retry policy between them"
         },
         {
           "id": "B",
@@ -3331,12 +3331,12 @@
         },
         {
           "id": "D",
-          "text": "The timeout decides whether to retry, and the breaker decides how long to wait before retrying",
-          "misconception": "believes the two settings describe the retry policy between them"
+          "text": "The timeout bounds one call in wall clock time, and the breaker stops the calls that are failing now",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "They answer different questions and are both needed. A timeout says how long this one caller is prepared to wait, which stops a slow dependency from occupying a worker for ever, and it is the only thing that bounds a call whose failure is silence rather than a refusal. A breaker looks across many calls and says whether the dependency is failing at all, which is what stops the service from spending its remaining capacity on calls already known to fail. Neither substitutes for the other: a timeout on its own turns a broken dependency into a slow one, and a breaker on its own only notices once calls have actually gone and come back.",
       "hint": "Ask what each one can observe: one call, or many calls over time.",
@@ -3383,13 +3383,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A second write with the same effect, and a key that lets the service recognise the repeat",
-          "misconception": ""
+          "text": "Nothing, because a request that timed out never reached the service at all",
+          "misconception": "believes a timeout means the request was not delivered"
         },
         {
           "id": "B",
-          "text": "Nothing, because a request that timed out never reached the service at all",
-          "misconception": "believes a timeout means the request was not delivered"
+          "text": "A second write with the same effect, and a key that lets the service recognise the repeat",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3403,7 +3403,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A timeout says the caller stopped waiting, and the write may well have happened, so a retry that arrives as an ordinary new request produces the effect twice: two charges, two rows, two emails. What makes it safe is something the service can recognise, and the usual form of that is a key the client generates once for the intended operation and sends with every attempt, so the second attempt is answered with the first attempt's result rather than performed again. This is why a client that cannot do that should surface the uncertainty to a person instead of retrying a create on its own.",
       "hint": "Ask what a timeout tells the client about what happened on the far side.",
@@ -3450,8 +3450,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Old and new instances run at once with one name missing, so the change has to be made in stages",
-          "misconception": ""
+          "text": "The migration runs first in the same release, so the code that needs it always finds the new name",
+          "misconception": "believes the order of two steps in one release is the order they happen in"
         },
         {
           "id": "B",
@@ -3460,8 +3460,8 @@
         },
         {
           "id": "C",
-          "text": "The migration runs first in the same release, so the code that needs it always finds the new name",
-          "misconception": "believes the order of two steps in one release is the order they happen in"
+          "text": "Old and new instances run at once with one name missing, so the change has to be made in stages",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3470,7 +3470,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A release replaces instances one at a time, so for a while some are running the old code and some the new one, and a rename makes the two incompatible in both directions: the old code wants a name the migration has already taken away, and the new code wants a name that only exists after the migration. The staging that avoids it is expand and contract: add the new column, release code that writes both and reads the old one, backfill, release code that reads the new one, and only then remove the old. Each step is safe in both directions, which is the property a rolling deployment needs and a rename does not have.",
       "hint": "Ask what the instances that have not been replaced yet are running during the release.",
@@ -3517,8 +3517,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Enforce the limit in the service, since only the service sees every caller at once",
-          "misconception": ""
+          "text": "Obtain a token before counting, so only an authenticated page can spend the allowance",
+          "misconception": "believes a limit is enforceable once the caller is known"
         },
         {
           "id": "B",
@@ -3532,12 +3532,12 @@
         },
         {
           "id": "D",
-          "text": "Obtain a token before counting, so only an authenticated page can spend the allowance",
-          "misconception": "believes a limit is enforceable once the caller is known"
+          "text": "Enforce the limit in the service, since only the service sees every caller at once",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A limit has to be counted where the work is accepted, and the only place every caller passes through is the service. A counter in the page measures the behaviour of one page for one user, and a user who is sent a URL, a script, another tab or a modified copy of the page does not consult it, so the number of requests the service actually receives is unrelated to the number the page believes it made. The other three address ways the page might be circumvented, when the point is that the page is not the thing being protected: the service and everyone else on it are.",
       "hint": "Ask where the work is accepted, and who can reach it without the page.",
@@ -3584,13 +3584,13 @@
       "options": [
         {
           "id": "A",
-          "text": "About 97.0 percent, and no, because three one second waits make three seconds",
-          "misconception": ""
+          "text": "About 99.0 percent, and yes, because each hop is inside the budget and so is the chain",
+          "misconception": "believes a chain is as available as one of its hops and as fast as its fastest"
         },
         {
           "id": "B",
-          "text": "About 99.0 percent, and yes, because each hop is inside the budget and so is the chain",
-          "misconception": "believes a chain is as available as one of its hops and as fast as its fastest"
+          "text": "About 97.0 percent, and no, because three one second waits make three seconds",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3604,7 +3604,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A request succeeds only if every hop does, so 0.99 cubed is 0.970299, which is about 97.0 percent, and the timeouts do not share the budget: three hops that each wait their full second take three seconds, which is over what the caller allowed. The two numbers are the same design problem seen from two sides, and the interesting conclusion is that a budget of two seconds cannot be spent on three hops of one second each unless each hop knows what is left, which is why the deadline has to be propagated rather than restated at every hop. Shortening the chain fixes both numbers at once.",
       "hint": "Multiply the three chances together, then add the three timeouts and compare with the budget.",
@@ -3651,8 +3651,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Sixty through the minute limit, and then only forty through the daily quota",
-          "misconception": ""
+          "text": "Forty through the minute limit, and then all forty, since the daily figure is the tighter one",
+          "misconception": "believes the daily quota also bounds the rate within a minute"
         },
         {
           "id": "B",
@@ -3661,8 +3661,8 @@
         },
         {
           "id": "C",
-          "text": "Forty through the minute limit, and then all forty, since the daily figure is the tighter one",
-          "misconception": "believes the daily quota also bounds the rate within a minute"
+          "text": "Sixty through the minute limit, and then only forty through the daily quota",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3671,7 +3671,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The minute limit and the daily quota are two separate gates and both have to be passed, so the burst is cut to sixty by the first and then to forty by the second, because only 40 of the day's 1,000 remain. The twenty requests that pass the minute gate and are then refused by the quota have still consumed rate allowance, which is a detail worth knowing when reading a client's own counters. Keeping the two apart is the point of having both: the first protects the service from a burst and the second stops a caller from spending a day's capacity in a minute and then being useless for the rest of it.",
       "hint": "Apply the smaller burst first, then take what is left of the day's allowance.",

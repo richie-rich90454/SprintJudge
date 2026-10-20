@@ -167,13 +167,13 @@
         },
         {
           "id": "B",
-          "text": "It is dropped or routed to a correction path, because the window it belongs to has already been reported",
-          "misconception": ""
+          "text": "It starts a new 14:00 window containing only itself, so the totals become two partial windows",
+          "misconception": "assumes a late event opens a second window for the same period"
         },
         {
           "id": "C",
-          "text": "It starts a new 14:00 window containing only itself, so the totals become two partial windows",
-          "misconception": "assumes a late event opens a second window for the same period"
+          "text": "It is dropped or routed to a correction path, because the window it belongs to has already been reported",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -182,7 +182,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A window is closed because something downstream has already consumed its total, and putting a late event back into it would mean a figure changed after it was read, which is the failure mode windows exist to prevent. The event therefore goes to a correction path, a late-data side output, or nowhere, and the choice is a business decision about how much a late arrival is worth rather than a technical detail. What makes this uncomfortable in practice is that the late event is not wrong, and a pipeline that discards it is discarding real activity, which is why the correction path and its reconciliation against the raw stream are worth the extra work.",
       "hint": "Ask what downstream has already done with the window by the time the late event arrives.",
@@ -234,8 +234,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Writing under the event's own id so that a repeat replaces the row it already wrote",
-          "misconception": ""
+          "text": "Writing only the fields that changed, so a repeat sends an empty update and alters nothing",
+          "misconception": "believes a partial write is the same operation as a full one"
         },
         {
           "id": "B",
@@ -249,12 +249,12 @@
         },
         {
           "id": "D",
-          "text": "Writing only the fields that changed, so a repeat sends an empty update and alters nothing",
-          "misconception": "believes a partial write is the same operation as a full one"
+          "text": "Writing under the event's own id so that a repeat replaces the row it already wrote",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Idempotence means the second attempt leaves the same state as the first, and the only way to get that with duplicated deliveries is to give each event a key the sink can recognise, so a repeat overwrites its own row instead of adding another. The other three are versions of hoping rather than deciding: a row count cannot say which rows are new, a new table per attempt trades duplicates for an unbounded number of tables to reconcile, and a partial write leaves the first attempt's values in place only if every field happens to be unchanged, which is exactly the assumption that failed. The event id has to come from the producer for this to work, which is why an identifier in the contract is worth as much as a schema.",
       "hint": "Ask what the sink can recognise about a repeat, and whether anything it can see identifies the event.",
@@ -306,8 +306,8 @@
       "options": [
         {
           "id": "A",
-          "text": "How late an event may still arrive before its window is treated as complete and closed",
-          "misconception": ""
+          "text": "Which events will arrive late, so the ones already seen can be discarded before their window opens",
+          "misconception": "believes the watermark predicts which specific events will be late"
         },
         {
           "id": "B",
@@ -316,8 +316,8 @@
         },
         {
           "id": "C",
-          "text": "Which events will arrive late, so the ones already seen can be discarded before their window opens",
-          "misconception": "believes the watermark predicts which specific events will be late"
+          "text": "How late an event may still arrive before its window is treated as complete and closed",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -326,7 +326,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A watermark is a promise about the future made by the pipeline's own state: no event older than this point is still expected. That is precisely what a windowing decision needs, because a window can only be closed once it is safe, and safety here means nobody will add to it later. A larger watermark tolerates more disorder and closes windows later, so there is a direct trade between completeness and latency, and choosing it is a business decision about how much lateness the reporting can absorb. What the watermark never does is predict which events will be late or count the ones that already were, so an event beyond the bound is a genuine surprise and needs a correction path rather than an assumption that it cannot happen.",
       "hint": "Ask what the watermark asserts about events that have not arrived yet.",
@@ -378,8 +378,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The consumer's contract named the old column, and a consumer may only read what its contract promised",
-          "misconception": ""
+          "text": "The producer deleted the old column, so the consumer's query is now invalid against the table",
+          "misconception": "believes a rename is a deletion of the column it replaced"
         },
         {
           "id": "B",
@@ -393,12 +393,12 @@
         },
         {
           "id": "D",
-          "text": "The producer deleted the old column, so the consumer's query is now invalid against the table",
-          "misconception": "believes a rename is a deletion of the column it replaced"
+          "text": "The consumer's contract named the old column, and a consumer may only read what its contract promised",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A consumer that was written against a contract is entitled to assume the names in it, and a rename is a change to that contract whether or not the values are identical, so the consumer's read fails and the break is total rather than gradual. The type of change matters less than its declaration: a renamed column delivered under a version bump is a legitimate new version, and the consumer's obligation is to move to it, which is why a contract that states versions and a deprecation window turns this from an outage into a scheduled piece of work. A change delivered without either is the same event as far as production is concerned, an unannounced break, and no amount of identical values prevents it.",
       "hint": "Ask what the consumer was promised, and whether the change was declared against that promise.",
@@ -450,13 +450,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A data contract, since it states what consumers may rely on and how that reliance will be broken",
-          "misconception": ""
+          "text": "A schema dump, since a list of columns and types is what the consumers actually read from",
+          "misconception": "reduces a contract to the part that a schema file already records"
         },
         {
           "id": "B",
-          "text": "A schema dump, since a list of columns and types is what the consumers actually read from",
-          "misconception": "reduces a contract to the part that a schema file already records"
+          "text": "A data contract, since it states what consumers may rely on and how that reliance will be broken",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -470,7 +470,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A contract is the part of a schema a consumer may build on, plus the rules for taking it away, and those two halves are what make it different from a description. The types and names are the easy half and are often recorded anyway; the deprecation window is the half that changes behaviour, because it converts a breaking change from an event into a scheduled piece of work that a consumer can plan for. What a contract does not do is describe the data's meaning in prose, guarantee that values are correct, or promise anything about volume, and a document that claims those things will be believed and then relied upon in exactly the ways it cannot support.",
       "hint": "Ask what the document permits a consumer to assume, and how that assumption may be withdrawn.",
@@ -522,8 +522,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the key column holds no duplicates, the amounts are all positive, and no value is outside its stated range",
-          "misconception": ""
+          "text": "That the rows describe real events, since a row passing every rule is by definition a true record",
+          "misconception": "assumes a row satisfying declared rules is therefore factually right"
         },
         {
           "id": "B",
@@ -532,8 +532,8 @@
         },
         {
           "id": "C",
-          "text": "That the rows describe real events, since a row passing every rule is by definition a true record",
-          "misconception": "assumes a row satisfying declared rules is therefore factually right"
+          "text": "That the key column holds no duplicates, the amounts are all positive, and no value is outside its stated range",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -542,7 +542,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A data test can only decide questions whose answers are already written down somewhere: a uniqueness rule, a sign rule, an allowed range, a required field, a referential rule. Those are worth having because they catch the failure that actually happens most often, a column that quietly changes shape between runs, and a test that fails is a signal worth waking somebody for. What no test can do is confirm that a value is the right value, because correctness lives in the world the pipeline observes and the test has no access to it, which is why every one of the three wrong options involves a jump from a declared rule to a real-world fact. A test suite nobody trusts is worse than none, so the discipline is to state plainly what each rule proves.",
       "hint": "Ask which of these questions has its answer recorded somewhere the test can read.",
@@ -594,8 +594,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The table is older than agreed, whether the cause is a late start, a slow step or a job that never ran",
-          "misconception": ""
+          "text": "The schedule is wrong, since the agreed time was set before the table's volume was known",
+          "misconception": "treats a missed target as evidence the target was badly chosen"
         },
         {
           "id": "B",
@@ -609,12 +609,12 @@
         },
         {
           "id": "D",
-          "text": "The schedule is wrong, since the agreed time was set before the table's volume was known",
-          "misconception": "treats a missed target as evidence the target was badly chosen"
+          "text": "The table is older than agreed, whether the cause is a late start, a slow step or a job that never ran",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Freshness measures the age of the data as a reader experiences it, and it is deliberately indifferent to the cause: a job that started late, a step that ran long, and a job that failed outright all show up as the same symptom, a table older than promised. That indifference is the strength, because the check answers the question a consumer actually has, which is whether they can trust what they are reading now, and it does so without needing to understand the pipeline well enough to diagnose it. What freshness cannot tell you is whether the rows are right, so it belongs beside a content check rather than instead of one, and a table can be perfectly fresh and perfectly wrong.",
       "hint": "Ask what the age of the table looks like from the outside under each of the possible causes.",
@@ -666,13 +666,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The 18,000 surplus rows could be duplicates of rows already written, offset by 18,000 rows that never arrived",
-          "misconception": ""
+          "text": "Nothing, since a total inside tolerance is a direct measure of how much data arrived",
+          "misconception": "treats a passing count as proof of completeness"
         },
         {
           "id": "B",
-          "text": "Nothing, since a total inside tolerance is a direct measure of how much data arrived",
-          "misconception": "treats a passing count as proof of completeness"
+          "text": "The 18,000 surplus rows could be duplicates of rows already written, offset by 18,000 rows that never arrived",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -686,7 +686,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A count is one number, and two errors of opposite sign add up to a number that looks fine, so a duplicated day and a missing day can pass a tolerance check while the table is wrong in both directions at once. This is the specific blind spot that makes a count check necessary and not sufficient, and it is why the useful additions are all cheap and specific: a count of distinct keys against a count of rows catches duplication, and a count of the key values present yesterday but absent today catches loss. Both are single numbers, both can be run on every load, and both catch the class of failure the total cannot see.",
       "hint": "Ask what two different mistakes could add up to, and whether the check can tell them apart.",
@@ -738,8 +738,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The column's missingness has shifted, which usually means the source changed shape rather than that rows went missing",
-          "misconception": ""
+          "text": "The load has failed, since a partial load is the ordinary cause of a rising blank rate",
+          "misconception": "assumes a distribution shift is always a load failure"
         },
         {
           "id": "B",
@@ -748,8 +748,8 @@
         },
         {
           "id": "C",
-          "text": "The load has failed, since a partial load is the ordinary cause of a rising blank rate",
-          "misconception": "assumes a distribution shift is always a load failure"
+          "text": "The column's missingness has shifted, which usually means the source changed shape rather than that rows went missing",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -758,7 +758,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A null rate is a description of a column's shape, and a move in it is a signal that something upstream changed: a new source system, a field that began arriving empty for one region, a parser that stopped filling a default. Its real value is as a drift detector rather than as a data-quality rule, because the blanks may be entirely legitimate and the check is still reporting something that matters, namely that the population the model was fitted on no longer describes the population it is serving. The cost of the check is that it says nothing about which rows are affected, so it is a trigger for investigation rather than a diagnosis, and a team that pages on it without a follow-up ends up muting it.",
       "hint": "Ask what a change in the share of blanks says about the column, and what it does not identify.",
@@ -810,8 +810,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Have the job report its own success or failure to the alerting system, and page when it reports neither",
-          "misconception": ""
+          "text": "Have the dashboard read from a backup of the previous day's table, so the page never goes empty",
+          "misconception": "treats hiding the symptom as detecting the failure"
         },
         {
           "id": "B",
@@ -825,12 +825,12 @@
         },
         {
           "id": "D",
-          "text": "Have the dashboard read from a backup of the previous day's table, so the page never goes empty",
-          "misconception": "treats hiding the symptom as detecting the failure"
+          "text": "Have the job report its own success or failure to the alerting system, and page when it reports neither",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A job that never ran leaves no bad rows for any content check to find, because the table still holds yesterday's correct data, and every check that inspects the table therefore passes on the most serious failure there is. The only signal that distinguishes did not run from ran and produced nothing is a report from the job itself, which is why a success or failure signal from the scheduler, and an alert on the absence of that signal, is the check that closes this gap. Adding a third content check to a pipeline that did not execute buys nothing at all, which is a useful reminder that the checks guarding a pipeline are not interchangeable.",
       "hint": "Ask what a check inspecting the table can conclude when the table was never written.",
@@ -882,13 +882,13 @@
       "options": [
         {
           "id": "A",
-          "text": "95,000 rows, because the retry adds a second copy of the 45,000 already written",
-          "misconception": ""
+          "text": "50,000 rows, because the retry overwrites the rows it wrote the first time",
+          "misconception": "assumes a plain write replaces existing rows rather than adding to them"
         },
         {
           "id": "B",
-          "text": "50,000 rows, because the retry overwrites the rows it wrote the first time",
-          "misconception": "assumes a plain write replaces existing rows rather than adding to them"
+          "text": "95,000 rows, because the retry adds a second copy of the 45,000 already written",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -902,7 +902,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A retry that starts from the beginning re-does the work the first attempt had already completed, and a write that appends does not notice, so the 45,000 rows that succeeded are now present twice and the table holds 95,000. The two properties that make a retry safe are both about what happens before it runs: either the step replaces the whole target, or it is written so that repeating it changes nothing, which is the same idempotence that protects a stream from redelivery. Retrying is usually the right response to a transient failure, so the fix is not to stop retrying but to make the destination tolerate being written twice, because the next failure will be retried too.",
       "hint": "Ask what a plain append does to rows that are already there.",
@@ -954,8 +954,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It must read a different range of the source and write over existing rows, while the daily job must not touch what is already there",
-          "misconception": ""
+          "text": "It must skip its quality checks, because historical data is known to be worse than the current day's",
+          "misconception": "assumes older data should be exempt from the checks that protect current data"
         },
         {
           "id": "B",
@@ -964,8 +964,8 @@
         },
         {
           "id": "C",
-          "text": "It must skip its quality checks, because historical data is known to be worse than the current day's",
-          "misconception": "assumes older data should be exempt from the checks that protect current data"
+          "text": "It must read a different range of the source and write over existing rows, while the daily job must not touch what is already there",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -974,7 +974,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A backfill differs from a daily run in the direction of its writes: the daily job appends one new day and must leave the rest alone, while a backfill rewrites days that already hold rows and must produce the same result the daily job would have produced. That is a different contract with the destination table, and the difference shows up as duplicated rows, stale rows left behind a corrected change, and a run that reads far more than a day and therefore needs a different set of timeouts. It also needs its own reconciliation, because the evidence that a backfill worked is a per-day comparison against what the pipeline would have produced, not a single total at the end.",
       "hint": "Ask in which direction each run writes, and what that implies about rows that are already there.",
@@ -2066,8 +2066,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The run completed inside its target, and the absence of later entries is not itself evidence of success",
-          "misconception": ""
+          "text": "The load stage failed silently, because no entry appears after 01:21 to confirm that the table was published",
+          "misconception": "treats a missing confirmation as a positive report of a failure"
         },
         {
           "id": "B",
@@ -2081,12 +2081,12 @@
         },
         {
           "id": "D",
-          "text": "The load stage failed silently, because no entry appears after 01:21 to confirm that the table was published",
-          "misconception": "treats a missing confirmation as a positive report of a failure"
+          "text": "The run completed inside its target, and the absence of later entries is not itself evidence of success",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The log shows the four stages finishing, 01:04, 01:06, 01:15 and 01:21, and 01:21 is before the 01:30 target, so the run met its promise on time. What the log does not contain is any statement about the contents of what was written, and a stage that recorded a finish time and wrote nothing at all would produce exactly the same four lines. That is the argument for a job that reports its own outcome, in the log or to the scheduler, rather than for a reader inferring success from the absence of complaints, because absence of evidence is what a failed silent job looks like from the outside.",
       "hint": "Compare the last recorded finish time with the target, then ask what the log never says.",
@@ -2138,13 +2138,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The orders table missed its freshness promise while the other two met theirs, since each is measured against its own target",
-          "misconception": ""
+          "text": "The whole pipeline is behind, because the orders table is the first stage and everything after it waits",
+          "misconception": "assumes the stage order forces the same lateness on every later table"
         },
         {
           "id": "B",
-          "text": "The whole pipeline is behind, because the orders table is the first stage and everything after it waits",
-          "misconception": "assumes the stage order forces the same lateness on every later table"
+          "text": "The orders table missed its freshness promise while the other two met theirs, since each is measured against its own target",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2158,7 +2158,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Freshness is a comparison between a table's age and that table's own promise, so the panel supports exactly one conclusion: the orders table is 17 minutes past a target it was given, the other two are inside theirs, and the products table's twelve hours is fine if its target says twelve hours. The instinct to read a breach as a pipeline-wide problem is reasonable and wrong, because the three tables are produced by different paths with different schedules, and a single late stage rarely delays everything that follows it. What the panel should also show, and does not, is the reason: age tells you the promise was missed and nothing about which step missed it.",
       "hint": "Ask what each figure is compared against, and whether the three tables share a schedule.",
@@ -2210,8 +2210,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The source changed shape for part of the population, since a step change with no volume change is not a partial load",
-          "misconception": ""
+          "text": "The pipeline is slower than before, since a step change in blanks is what a slower load looks like from here",
+          "misconception": "reads a distribution change as a timing change"
         },
         {
           "id": "B",
@@ -2220,8 +2220,8 @@
         },
         {
           "id": "C",
-          "text": "The pipeline is slower than before, since a step change in blanks is what a slower load looks like from here",
-          "misconception": "reads a distribution change as a timing change"
+          "text": "The source changed shape for part of the population, since a step change with no volume change is not a partial load",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2230,7 +2230,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The shape of the change is the diagnosis: a blank rate that sits flat and then steps up and stays up, while the row count is unmoved, is a change in what the source is sending rather than a change in how much it sends. A partial load would show both a smaller row count and a rise in blanks at the same time, so the fact that the count is stable rules that explanation out, and the likeliest cause is a new source system, a new region, or a field that has begun arriving empty for part of the population. The reason it matters for a model is that the population it was fitted on has changed underneath it, and the panels that show a rate rather than a raw count are the only ones that make this visible at all.",
       "hint": "Ask whether the row count moved with the blank rate, and what a stable count rules out.",
@@ -2282,8 +2282,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The candidate is measurably worse on errors and slightly worse on latency, so promoting it needs a stated reason",
-          "misconception": ""
+          "text": "Nothing can be concluded, because the two models were measured on different request volumes and are not comparable",
+          "misconception": "believes comparable metrics require equal sample sizes to be compared"
         },
         {
           "id": "B",
@@ -2297,12 +2297,12 @@
         },
         {
           "id": "D",
-          "text": "Nothing can be concluded, because the two models were measured on different request volumes and are not comparable",
-          "misconception": "believes comparable metrics require equal sample sizes to be compared"
+          "text": "The candidate is measurably worse on errors and slightly worse on latency, so promoting it needs a stated reason",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A canary result is a measurement on a real sample, and what it licenses depends on how large the sample is and how the difference compares with it: 620 failures against 100,000 requests is enough evidence to treat 0.62 against 0.5 as a real difference rather than noise, so the candidate is genuinely a little worse on errors and 40 milliseconds worse at the tail of latency. That does not make it unusable, since a candidate may be worth its cost for a reason the table does not contain, which is why the honest conclusion names the reason rather than declaring a verdict. The sample-size objection in the fourth option is worth dismissing explicitly, because unequal volumes are normal in a canary and only the precision of each figure depends on its own denominator.",
       "hint": "Ask how much evidence each figure rests on, and whether a real difference is the same as a disqualifying one.",
@@ -2354,13 +2354,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Its limits, since a card that cannot say who should not rely on it invites use exactly where it is weakest",
-          "misconception": ""
+          "text": "Its training time, since a reader cannot judge currency without knowing when the fit happened",
+          "misconception": "assumes the training period and the training time are the same disclosure"
         },
         {
           "id": "B",
-          "text": "Its training time, since a reader cannot judge currency without knowing when the fit happened",
-          "misconception": "assumes the training period and the training time are the same disclosure"
+          "text": "Its limits, since a card that cannot say who should not rely on it invites use exactly where it is weakest",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2374,7 +2374,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A model card is read by somebody deciding whether to rely on a prediction, and the decision that matters most is the one where the answer is no, so the disclosure that belongs in it above all others is where the model should not be used. The sections a card already has here describe the model well, and the gap is the one that transfers a decision nobody has made yet: which populations, which decisions and which conditions are outside what the fit can support. Stating those in advance is not pessimism, since an unstated limit is not a limit respected but a limit discovered in production by the first person who depends on the model and is hurt by it.",
       "hint": "Ask what a reader is deciding when they read the card, and which answer to that decision is missing.",
@@ -2426,8 +2426,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The metric has no stated definition, so the two totals may be answering different questions and neither can be called wrong",
-          "misconception": ""
+          "text": "One of the two teams made an error, since two computations of the same metric must agree",
+          "misconception": "presumes a single definition exists before checking whether one does"
         },
         {
           "id": "B",
@@ -2436,8 +2436,8 @@
         },
         {
           "id": "C",
-          "text": "One of the two teams made an error, since two computations of the same metric must agree",
-          "misconception": "presumes a single definition exists before checking whether one does"
+          "text": "The metric has no stated definition, so the two totals may be answering different questions and neither can be called wrong",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2446,7 +2446,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Two teams computing different totals for a metric whose definition was never written down are not in conflict, because there is no single quantity for them to have computed, and the disagreement is the only evidence anybody has that the label has been standing for more than one thing. The repair is unglamorous and cheap: write down the entity, the event, the window and the filter, and attach that definition to the dashboard rather than to a wiki page, so the definition travels with the number. Until it exists, the honest description of the dashboard is that it shows two metrics wearing one label, and a figure that cannot be defined cannot be improved by choosing a better tool to display it.",
       "hint": "Ask what quantity the label names, and whether anyone has written it down.",
@@ -2498,8 +2498,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A three-quarter fall is drawn as a collapse, because a truncated axis magnifies the visible change without changing the data",
-          "misconception": ""
+          "text": "The error rate is overstated, because a panel that begins above zero can only exaggerate a fall",
+          "misconception": "believes truncating an axis inflates a decreasing series specifically"
         },
         {
           "id": "B",
@@ -2513,12 +2513,12 @@
         },
         {
           "id": "D",
-          "text": "The error rate is overstated, because a panel that begins above zero can only exaggerate a fall",
-          "misconception": "believes truncating an axis inflates a decreasing series specifically"
+          "text": "A three-quarter fall is drawn as a collapse, because a truncated axis magnifies the visible change without changing the data",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A fall from 4.0 to 1.0 percent is a reduction of three quarters of the errors, which is a serious improvement, and a panel whose axis begins just below the final value draws that improvement as a cliff, so a reader glancing at it infers a collapse and a reader glancing at the volume panel infires modest growth. Nothing in the data has been altered; only the picture has, which is what makes axis truncation the easiest deception in a report to commit by accident and among the hardest for a reader to detect. The two habits that prevent it are to start a bar chart's axis at zero always and to label a truncated line panel's axis range prominently, so the shape can be read as a decision rather than a fact.",
       "hint": "Ask what the same data would look like on a panel starting at zero, and what the reader concluded instead.",
@@ -2570,13 +2570,13 @@
       "options": [
         {
           "id": "A",
-          "text": "An association between using the button and converting, with the direction of causation still unestablished",
-          "misconception": ""
+          "text": "The causation, since the group that used the button converted at a higher rate in the same period",
+          "misconception": "believes a difference observed in the same period must be an effect"
         },
         {
           "id": "B",
-          "text": "The causation, since the group that used the button converted at a higher rate in the same period",
-          "misconception": "believes a difference observed in the same period must be an effect"
+          "text": "An association between using the button and converting, with the direction of causation still unestablished",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2590,7 +2590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The comparison establishes that the two groups differ, and the groups were not assigned, so anything that made some customers more likely to press the button and more likely to convert is a live alternative explanation of the same 11 against 8. A larger sample would make the difference more precisely measured and would not touch that problem at all, which is the single most common misunderstanding in this area: precision and identification are different achievements. The honest conclusion names the association, states the plausible confounder, and either designs the next analysis to address it or asks a reader to hold the causal claim loosely until it is tested.",
       "hint": "Ask whether the two groups were assigned to their behaviour or chose it, and what else could differ between them.",
@@ -2642,8 +2642,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Proceed under a versioned rename with the remaining 2 consumers given notice, since the report bounds the blast radius",
-          "misconception": ""
+          "text": "Proceed immediately without notice, because 3 of the 5 affected consumers already know and the rest will read the report",
+          "misconception": "assumes awareness of a report substitutes for a change to the code that reads it"
         },
         {
           "id": "B",
@@ -2652,8 +2652,8 @@
         },
         {
           "id": "C",
-          "text": "Proceed immediately without notice, because 3 of the 5 affected consumers already know and the rest will read the report",
-          "misconception": "assumes awareness of a report substitutes for a change to the code that reads it"
+          "text": "Proceed under a versioned rename with the remaining 2 consumers given notice, since the report bounds the blast radius",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2662,7 +2662,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The report's value is that it turns an unbounded worry into a finite list: 14 consumers, 5 affected, 3 already informed, so the remaining work is a conversation with two named teams rather than a search of the organisation. That is what makes a versioned rename with notice a reasonable next step instead of a decision deferred forever, and it is also what makes the report worth keeping, since a change whose reach is written down can be reviewed and a change whose reach is unknown can only be argued about. The trap in the third option is treating awareness as action: a team that has read about a rename still has code pointing at the old name until somebody changes it.",
       "hint": "Ask how much of the affected set is already accounted for, and what remains to be done about the rest.",
@@ -2714,8 +2714,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the jobs ran, and not that the days they rebuilt match what the pipeline would have produced then",
-          "misconception": ""
+          "text": "That 21,904,000 rows is the expected total, since a figure of that size is implausibly large to be wrong",
+          "misconception": "judges a total by whether it seems reasonable rather than by comparison"
         },
         {
           "id": "B",
@@ -2729,12 +2729,12 @@
         },
         {
           "id": "D",
-          "text": "That 21,904,000 rows is the expected total, since a figure of that size is implausibly large to be wrong",
-          "misconception": "judges a total by whether it seems reasonable rather than by comparison"
+          "text": "That the jobs ran, and not that the days they rebuilt match what the pipeline would have produced then",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A completion report is evidence about execution and silence about content: 182 successful day-jobs and a total row count say that the work finished, and a backfill that ran a changed transform over old data can finish perfectly while producing rows that differ from what the pipeline would have produced at the time. The missing comparison is the only thing that would close the gap, and it is cheap in the sense that matters here, being a per-day row count and key sum against the source for each of the 182 days, reported as a list of days that disagree rather than as a single averaged number. Without it, a backfill's success is a claim about the runner rather than about the data.",
       "hint": "Ask what a report of completed jobs tells you about the rows those jobs produced.",
@@ -2786,13 +2786,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Retrain when a monitored feature's distribution has moved beyond a stated threshold, and record the value that fired it",
-          "misconception": ""
+          "text": "Retrain whenever accuracy dips on any single day, since any dip is evidence the model has degraded",
+          "misconception": "treats day-to-day variation in a measured rate as proof of degradation"
         },
         {
           "id": "B",
-          "text": "Retrain whenever accuracy dips on any single day, since any dip is evidence the model has degraded",
-          "misconception": "treats day-to-day variation in a measured rate as proof of degradation"
+          "text": "Retrain when a monitored feature's distribution has moved beyond a stated threshold, and record the value that fired it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2806,7 +2806,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A trigger earns its place by naming a signal that moved, a threshold it crossed, and the recorded value at the moment it fired, because those three are what let somebody reconstruct the decision months later. Daily accuracy is the worst available signal, since it moves for reasons that have nothing to do with the model, and a schedule, while tidy, is a decision to replace a model on a date rather than a response to anything. The reason this pairing matters is not the retraining but the audit: a model that changed without a recorded reason is a model whose current version nobody can account for, which is the failure the registry exists to prevent.",
       "hint": "Ask what a trigger must be able to show afterwards to justify having fired.",
@@ -2858,8 +2858,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One stored definition of the feature, used by both the batch fit and the online lookup, so the two cannot drift apart",
-          "misconception": ""
+          "text": "One definition plus a monthly reconciliation, since drift is inevitable and can only be measured after the fact",
+          "misconception": "accepts a known divergence in exchange for measuring it later"
         },
         {
           "id": "B",
@@ -2868,8 +2868,8 @@
         },
         {
           "id": "C",
-          "text": "One definition plus a monthly reconciliation, since drift is inevitable and can only be measured after the fact",
-          "misconception": "accepts a known divergence in exchange for measuring it later"
+          "text": "One stored definition of the feature, used by both the batch fit and the online lookup, so the two cannot drift apart",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2878,7 +2878,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Skew of this kind comes from two copies of a rule drifting apart, and the only durable fix is one copy of the rule, written once and applied by both the batch fit and the online lookup, so that a change to the definition moves both sides together. Storing values without the definition leaves the rule in two places where it was before, and a monthly reconciliation tells you how far the two have diverged without preventing the next divergence. Tuning them separately is worse than either, because it makes the divergence intentional and hard to argue about, since each side looks locally reasonable.",
       "hint": "Ask how many copies of the definition of the feature exist, and what happens to both when it changes.",
@@ -2930,8 +2930,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Comparing a candidate against the current model on identical requests, paired with shadow; affecting real users on a small share, paired with canary",
-          "misconception": ""
+          "text": "Neither, since a candidate must be tested on a large share to be trusted, and a small share proves nothing",
+          "misconception": "assumes statistical power can only come from a large share rather than from a large count"
         },
         {
           "id": "B",
@@ -2945,12 +2945,12 @@
         },
         {
           "id": "D",
-          "text": "Neither, since a candidate must be tested on a large share to be trusted, and a small share proves nothing",
-          "misconception": "assumes statistical power can only come from a large share rather than from a large count"
+          "text": "Comparing a candidate against the current model on identical requests, paired with shadow; affecting real users on a small share, paired with canary",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two mechanisms differ in what they change, and the goal decides which one is wanted. A shadowed candidate computes predictions that are thrown away, so the same request is answered by the current model and the pair of outcomes can be compared directly, which is what makes it the cleanest way to see a difference at all. A canary candidate answers real requests, so it measures what users actually experience at the cost of exposing a few of them to the risk, and that exposure is the reason the share is small and the rollback condition is written down beforehand. A share can also be plenty of evidence, since 100,000 requests is a large count, so the objection in the fourth option confuses sample size with exposure.",
       "hint": "Ask whether the candidate's answer is used or discarded, and what each choice exposes a user to.",
@@ -3002,13 +3002,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Roll back when the candidate's error rate exceeds the baseline by more than a stated margin for a stated run of minutes",
-          "misconception": ""
+          "text": "Roll back when someone on the team judges the candidate to be behaving oddly, since judgement catches what a threshold misses",
+          "misconception": "trusts an unquantified impression to be a better trigger than a stated one"
         },
         {
           "id": "B",
-          "text": "Roll back when someone on the team judges the candidate to be behaving oddly, since judgement catches what a threshold misses",
-          "misconception": "trusts an unquantified impression to be a better trigger than a stated one"
+          "text": "Roll back when the candidate's error rate exceeds the baseline by more than a stated margin for a stated run of minutes",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3022,7 +3022,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "An automatic rollback needs its condition written before the release, in the two forms that matter: how far the candidate must depart from the baseline, and how long that departure must persist, because without the second a single noisy minute reverses a healthy release. The judgement variant is worse than useless at three in the morning, because the person awake then has the least information and the most pressure to act; the proof-of-improvement variant makes the release depend on a difference the canary may not be able to resolve; and the last variant inverts the logic, since a candidate performing badly during a broadly bad afternoon is exactly the case that most needs reversing. The condition should name a metric, a margin, a duration and an action, and it should be written down where the release can read it.",
       "hint": "Ask what the trigger names, and whether it was agreed before the release or after the first bad minute.",
@@ -3074,8 +3074,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Each version's training data, code, resolved dependencies and evaluation figures, linked to the predictions it served",
-          "misconception": ""
+          "text": "Each version's evaluation score, so the team can pick the version with the best recorded performance",
+          "misconception": "equates identifying a version with choosing the best one"
         },
         {
           "id": "B",
@@ -3084,8 +3084,8 @@
         },
         {
           "id": "C",
-          "text": "Each version's evaluation score, so the team can pick the version with the best recorded performance",
-          "misconception": "equates identifying a version with choosing the best one"
+          "text": "Each version's training data, code, resolved dependencies and evaluation figures, linked to the predictions it served",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3094,7 +3094,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The question asked is which version produced a specific figure, and answering it requires the link from a version to the predictions it served plus the record of what it was built from, because a version nobody can reproduce is a version nobody can explain when its behaviour is questioned. A date and a name narrow the search without answering it, a score helps choose rather than identify, and keeping only the current version is what creates the failure in the first place, since last quarter's figure was served by a version that is no longer current. The registry is worth its upkeep only if superseded versions are kept with the same care as the live one, which is a decision about disk and about habit rather than about tooling.",
       "hint": "Ask what would be needed to trace one historical figure back to the exact model and inputs behind it.",
@@ -3146,8 +3146,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The environment was rebuilt without the pinned dependencies, and recording resolved versions with the outputs would have shown the drift",
-          "misconception": ""
+          "text": "The code changed, and recording the repository's commit would have shown that the code was different",
+          "misconception": "assumes a commit identifies the inputs the code was given"
         },
         {
           "id": "B",
@@ -3161,12 +3161,12 @@
         },
         {
           "id": "D",
-          "text": "The code changed, and recording the repository's commit would have shown that the code was different",
-          "misconception": "assumes a commit identifies the inputs the code was given"
+          "text": "The environment was rebuilt without the pinned dependencies, and recording resolved versions with the outputs would have shown the drift",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Reproducibility fails at a specific link in the chain, and the chain has four: the code, the dependencies, the inputs and the random seed. Naming one link and pairing it with the record that would have revealed the change is what turns an unrepeatable number into a diagnosable one, and here the dependencies are the link that broke, which a set of resolved versions recorded beside the outputs would have shown at the time rather than a year later. Each wrong option pairs a real kind of change with a record that cannot detect it: a date does not describe a fit's behaviour, a row count does not say what changed inside a table, and a commit does not record the data or the environment the code was handed.",
       "hint": "Ask which link in the chain from code to output changed, and whether the record named could detect that change.",

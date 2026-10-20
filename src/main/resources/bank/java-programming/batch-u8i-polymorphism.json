@@ -145,13 +145,13 @@
       "options": [
         {
           "id": "A",
-          "text": "true:false - a Dog[] is an Animal[] by covariance, but the array itself is not a Dog.",
-          "misconception": ""
+          "text": "true:true - the array holds Dogs, so it is an instance of Dog as well as of Animal[].",
+          "misconception": "believes an array is an instance of its element type"
         },
         {
           "id": "B",
-          "text": "true:true - the array holds Dogs, so it is an instance of Dog as well as of Animal[].",
-          "misconception": "believes an array is an instance of its element type"
+          "text": "true:false - a Dog[] is an Animal[] by covariance, but the array itself is not a Dog.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -165,7 +165,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the type of an array expression is the array type itself and not the element type, so new Dog[2] has type Dog[] and a Dog[] is a subtype of Animal[], which is why the first test passes. It is unrelated to Dog, so the second test fails, and that asymmetry is the reason a method handed an array cannot assume anything about the elements beyond the array's own element type. The answer true:true is the most common wrong reading, since holding Dogs and being a Dog feel like the same statement, and only one of them is about the array.",
       "hint": "An array is an object of the array type, never of the element type.",
@@ -271,8 +271,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3:true:true - the reference is widened, the object is not, so both type tests see a Dog array.",
-          "misconception": ""
+          "text": "1:false:false - the length comes from the supertype declaration rather than the array.",
+          "misconception": "believes a widened array reports the supertype's length"
         },
         {
           "id": "B",
@@ -281,8 +281,8 @@
         },
         {
           "id": "C",
-          "text": "1:false:false - the length comes from the supertype declaration rather than the array.",
-          "misconception": "believes a widened array reports the supertype's length"
+          "text": "3:true:true - the reference is widened, the object is not, so both type tests see a Dog array.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -291,7 +291,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a reference conversion changes only what the compiler is told, while the object behind the reference keeps its own type, so length is 3 from the actual array and both tests succeed: a Dog[] really is a Dog[] and also an Object[]. A narrowing test to a subtype array type is legal precisely because the two array types are related, which is what makes the instanceof form compile. The answer 3:false:true is the tempting one, treating the declared type as if it were the object's type, which is the opposite of how a virtual call behaves.",
       "hint": "Widening a reference does not change the object it points at.",
@@ -399,8 +399,8 @@
       "options": [
         {
           "id": "A",
-          "text": "runtime:bad - the thrown value is a RuntimeException subtype, so the first matching clause handles it.",
-          "misconception": ""
+          "text": "Compile error - a catch clause must name the exact type that is thrown.",
+          "misconception": "believes catch clauses require an exact type match"
         },
         {
           "id": "B",
@@ -414,12 +414,12 @@
         },
         {
           "id": "D",
-          "text": "Compile error - a catch clause must name the exact type that is thrown.",
-          "misconception": "believes catch clauses require an exact type match"
+          "text": "runtime:bad - the thrown value is a RuntimeException subtype, so the first matching clause handles it.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a catch clause is selected by assignability, not by equality, so an IllegalArgumentException satisfies a clause declared for RuntimeException, and the first such clause in source order is the one that runs while the later clause is simply never reached. Exactly one clause handles the throw, which is why the two prints cannot both appear. The exception hierarchy is an ordinary subtype hierarchy, so the same reasoning as overriding applies: a wider declared type accepts more values.",
       "hint": "Clauses are tried in order, and the first one the value fits wins.",
@@ -462,13 +462,13 @@
       "options": [
         {
           "id": "A",
-          "text": "catch (RuntimeException e) { System.out.println(\"io\"); }  an unchecked type needs no declaration from the body.",
-          "misconception": ""
+          "text": "catch (java.io.IOException e) { System.out.println(\"io\"); }  keeps the checked type, which the body cannot raise.",
+          "misconception": "believes a checked clause is legal without a matching throw"
         },
         {
           "id": "B",
-          "text": "catch (java.io.IOException e) { System.out.println(\"io\"); }  keeps the checked type, which the body cannot raise.",
-          "misconception": "believes a checked clause is legal without a matching throw"
+          "text": "catch (RuntimeException e) { System.out.println(\"io\"); }  an unchecked type needs no declaration from the body.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -482,7 +482,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the compiler demands a justification for a catch clause naming a checked type, and the justification works in either direction: the body must be able to throw that type or a subclass of it, or something it is a superclass of, which is why catching Exception or Throwable is always allowed while catching IOException or SQLException from a body that only prints is a compile error. Unchecked types are exempt entirely because they may arise anywhere. That asymmetry is the price of forcing checked exceptions to be declared or caught, and it is the reason the keyed clause is the unchecked one.",
       "hint": "Checked types must be justified by the body; unchecked types need no justification.",
@@ -525,8 +525,8 @@
       "options": [
         {
           "id": "A",
-          "text": "IllegalArgumentException:a - the variable is typed as the common supertype, yet the value keeps its own class.",
-          "misconception": ""
+          "text": "Compile error - two alternatives in a multi-catch must share a common supertype.",
+          "misconception": "believes unrelated alternatives are rejected"
         },
         {
           "id": "B",
@@ -535,8 +535,8 @@
         },
         {
           "id": "C",
-          "text": "Compile error - two alternatives in a multi-catch must share a common supertype.",
-          "misconception": "believes unrelated alternatives are rejected"
+          "text": "IllegalArgumentException:a - the variable is typed as the common supertype, yet the value keeps its own class.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -545,7 +545,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a multi-catch parameter is declared with the closest common supertype of the alternatives, which here is RuntimeException, and a wider declaration is exactly why a method only RuntimeException declares is callable on it; getClass() still reports the object, so the caught value names itself as IllegalArgumentException. Unrelated alternatives are perfectly legal, and what the language forbids is listing a type together with one of its own supertypes, since one of them would be dead weight.",
       "hint": "The variable gets the common supertype; the object keeps its own class.",
@@ -1284,8 +1284,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It inherits both members unchanged, so the added field takes no part in equality at all.",
-          "misconception": ""
+          "text": "Only hashCode changes, since it is inherited separately from equals and may be specialized.",
+          "misconception": "believes hashCode is re-derived per subclass automatically"
         },
         {
           "id": "B",
@@ -1299,12 +1299,12 @@
         },
         {
           "id": "D",
-          "text": "Only hashCode changes, since it is inherited separately from equals and may be specialized.",
-          "misconception": "believes hashCode is re-derived per subclass automatically"
+          "text": "It inherits both members unchanged, so the added field takes no part in equality at all.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that equals and hashCode are ordinary inherited members, so a subclass that adds a field inherits the base implementations unchanged and the new field is invisible to them, which means two instances differing only in that field are still equal. Nothing about subclassing triggers a re-derivation. The answer that sounds responsible, checking that the subclass agrees with its base about equality, is exactly the concern, and the cure is deliberate rather than automatic: the subclass must override both members and include its own field in each.",
       "hint": "Inherited means unchanged, and no compiler notices the new field.",
@@ -1793,13 +1793,13 @@
       "options": [
         {
           "id": "A",
-          "text": "true:true - the wildcard promises an element type of Animal or narrower, and queries are allowed.",
-          "misconception": ""
+          "text": "Compile error - a wildcard may not appear on the left of an assignment.",
+          "misconception": "believes a wildcard type cannot be declared"
         },
         {
           "id": "B",
-          "text": "Compile error - a wildcard may not appear on the left of an assignment.",
-          "misconception": "believes a wildcard type cannot be declared"
+          "text": "true:true - the wildcard promises an element type of Animal or narrower, and queries are allowed.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1813,7 +1813,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that an upper-bounded wildcard promises only that the element type is Animal or something narrower, which is enough to answer questions about the collection and to read elements out as Animal, and both of those calls work here on an empty list. What the promise deliberately withholds is the ability to add, since a Dog could not be stored into a list whose elements are only known to be Cats. That asymmetry is the point of the wildcard: it makes a method accept any list of a suitable type while refusing to pretend it knows the concrete element type.",
       "hint": "Ask what the wildcard guarantees, then which operations that supports.",
@@ -3583,8 +3583,8 @@
       "options": [
         {
           "id": "A",
-          "text": "woof - the call is made on the argument, so dispatch follows the argument's runtime type.",
-          "misconception": ""
+          "text": "Compile error - a base class may not call an overridable method on a parameter.",
+          "misconception": "believes calling an overridable method on a parameter is illegal"
         },
         {
           "id": "B",
@@ -3593,8 +3593,8 @@
         },
         {
           "id": "C",
-          "text": "Compile error - a base class may not call an overridable method on a parameter.",
-          "misconception": "believes calling an overridable method on a parameter is illegal"
+          "text": "woof - the call is made on the argument, so dispatch follows the argument's runtime type.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3603,7 +3603,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a call on a reference dispatches on the runtime type of whatever that reference designates, and here the reference is the parameter, which holds a Dog, so the override runs. This is the deliberate contrast with the previous item, where the call had no receiver to examine beyond the class the body was written in. A base class is therefore free to pass a reference along and let the subtype decide, which is the mechanism behind most designs that keep the base ignorant of its subclasses.",
       "hint": "Identify the receiver of the call before deciding anything.",

@@ -81,13 +81,13 @@
       "options": [
         {
           "id": "A",
-          "text": "8 - super.measure() runs the base body and returns 3, and the addition uses the subclass field 5.",
-          "misconception": ""
+          "text": "5 - super.measure() dispatches back to the override, so only the subclass field is added once.",
+          "misconception": "believes a super call re-enters dynamic dispatch"
         },
         {
           "id": "B",
-          "text": "5 - super.measure() dispatches back to the override, so only the subclass field is added once.",
-          "misconception": "believes a super call re-enters dynamic dispatch"
+          "text": "8 - super.measure() runs the base body and returns 3, and the addition uses the subclass field 5.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -101,7 +101,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that super.m() invokes the superclass implementation directly, with no dynamic lookup, and that a field name inside a method body resolves to the field of the class that body was written in. So super.measure() runs Base.measure, whose size is the base field worth 3, while the size in Sub.measure is the subclass field worth 5, giving 3 + 5 = 8. The answer 5 is the tempting one because a super call looks like an ordinary call and ordinary calls dispatch; the whole purpose of the qualified form is to opt out of that dispatch, so the base body runs exactly as written and reads its own field.",
       "hint": "super.measure() picks the implementation, and each body reads its own field.",
@@ -144,8 +144,8 @@
       "options": [
         {
           "id": "A",
-          "text": "int count = super.count;  copies the base slot after the superclass constructor has filled it in.",
-          "misconception": ""
+          "text": "int count = super.count + 100;  reads the base slot but then offsets it by the subclass constant.",
+          "misconception": "believes the base value must be adjusted after it is copied"
         },
         {
           "id": "B",
@@ -154,8 +154,8 @@
         },
         {
           "id": "C",
-          "text": "int count = super.count + 100;  reads the base slot but then offsets it by the subclass constant.",
-          "misconception": "believes the base value must be adjusted after it is copied"
+          "text": "int count = super.count;  copies the base slot after the superclass constructor has filled it in.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -164,7 +164,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a subclass field initializer runs after the superclass constructor completes, so by the time it executes the base slot already holds 7 and reading super.count yields 7. The original line is a bug because the declaration creates a second slot that the base constructor never touches, and the initializer then fills that second slot with 100, which is what the call in main reads. Copying with super.count is what preserves the value the superclass was given; the arithmetic variant is tempting because it also mentions the base slot, but it answers a question nobody asked, and the untyped variant is not a declaration at all.",
       "hint": "Order decides this: the superclass constructor finishes before the subclass initializer.",
@@ -208,8 +208,8 @@
       "options": [
         {
           "id": "A",
-          "text": "8 - the base loop adds its own level four times to reach 4, and the override adds 4.",
-          "misconception": ""
+          "text": "9 - the loop starts from the subclass field 5 and then adds its own 4 exactly once.",
+          "misconception": "believes the loop initialises total from the subclass field"
         },
         {
           "id": "B",
@@ -223,12 +223,12 @@
         },
         {
           "id": "D",
-          "text": "9 - the loop starts from the subclass field 5 and then adds its own 4 exactly once.",
-          "misconception": "believes the loop initialises total from the subclass field"
+          "text": "8 - the base loop adds its own level four times to reach 4, and the override adds 4.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a super call runs the base body against the base class's own fields, so inside Tank.drain the name level is 1 on every one of the four reads: the initial assignment to total and the three loop additions, giving 4. The override then adds its own field, 4, for a total of 8. The answer 16 is the trap that makes this item worth the trouble: it assumes the base body somehow sees the subclass field, but field names are resolved lexically by the class that contains them, so the number of times the loop runs matters and the value it adds does not follow the object.",
       "hint": "Count the reads of level inside the base body: one before the loop, one per pass.",
@@ -470,13 +470,13 @@
       "options": [
         {
           "id": "A",
-          "text": "111 - C adds 100 to the result B produced, and B added 10 to the result A produced.",
-          "misconception": ""
+          "text": "101 - a super call inside C jumps straight to the root, so B's contribution is skipped.",
+          "misconception": "believes super skips to the topmost declaring class"
         },
         {
           "id": "B",
-          "text": "101 - a super call inside C jumps straight to the root, so B's contribution is skipped.",
-          "misconception": "believes super skips to the topmost declaring class"
+          "text": "111 - C adds 100 to the result B produced, and B added 10 to the result A produced.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -490,7 +490,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that each super call runs exactly the next implementation up, so the most derived override is the entry point and the chain unwinds from there: C.step asks B.step, which asks A.step, and the return values accumulate as 1, then 11, then 111. Answer 101 is the tempting one because the reference is typed as A and people expect super to respect that, but the reference type only chooses the entry point for dynamic dispatch, and every qualified call inside a body moves exactly one step up regardless of how the object was referenced.",
       "hint": "Write the call chain from the most derived class downwards.",
@@ -598,8 +598,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Item+Special - the qualified call returns the base text and the override appends its own.",
-          "misconception": ""
+          "text": "+Special - the base version returns an empty string that is then extended.",
+          "misconception": "believes an unoverridden toString returns nothing"
         },
         {
           "id": "B",
@@ -608,8 +608,8 @@
         },
         {
           "id": "C",
-          "text": "+Special - the base version returns an empty string that is then extended.",
-          "misconception": "believes an unoverridden toString returns nothing"
+          "text": "Item+Special - the qualified call returns the base text and the override appends its own.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -618,7 +618,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that super.toString() runs the superclass body directly, so it returns the literal Item, and the subclass body concatenates its own suffix onto that result, giving Item+Special. The answer Special is the tempting one because a subclass override is usually described as replacing the inherited behaviour, and here it does replace it, just with a body that deliberately delegates first. That is the whole point of the qualified call: the override is in charge of the final text and has to ask for the base text if it wants to keep it.",
       "hint": "The override builds its text from two pieces: the base text and its own.",
@@ -661,8 +661,8 @@
       "options": [
         {
           "id": "A",
-          "text": "B - getClass describes the actual object, so the inherited method reports the subclass.",
-          "misconception": ""
+          "text": "null - a method that was not redeclared has no class of its own to report.",
+          "misconception": "believes an inherited method has no runtime class"
         },
         {
           "id": "B",
@@ -676,12 +676,12 @@
         },
         {
           "id": "D",
-          "text": "null - a method that was not redeclared has no class of its own to report.",
-          "misconception": "believes an inherited method has no runtime class"
+          "text": "B - getClass describes the actual object, so the inherited method reports the subclass.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that getClass is a method on Object that is final, so no subclass can change what it reports and it always describes the actual object rather than the class that happens to contain the running code. Because the object really is a B, the inherited who method returns B even though the code doing the asking sits in A. This is the mirror image of a field read, where the declaring class wins, and the contrast is the reason the item is worth doing: fields are resolved by the class you can see in the source, while getClass is resolved by the object you are actually on.",
       "hint": "One of these two is decided by the object, the other by the source.",
@@ -852,13 +852,13 @@
       "options": [
         {
           "id": "A",
-          "text": "true:true - the default text is the class name, an at-sign and a hash, so both checks hold.",
-          "misconception": ""
+          "text": "false:false - an inherited toString returns null because Object has nothing to report.",
+          "misconception": "believes the default toString returns null"
         },
         {
           "id": "B",
-          "text": "false:false - an inherited toString returns null because Object has nothing to report.",
-          "misconception": "believes the default toString returns null"
+          "text": "true:true - the default text is the class name, an at-sign and a hash, so both checks hold.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -872,7 +872,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that Object.toString builds its text from the runtime class name, a dollar sign for a nested class, an at-sign and an unsigned hexadecimal identity hash, so the prefix and the at-sign are fixed even though the digits after it are not. That is why the program can assert two stable properties without depending on the hash. The tempting wrong answers all come from treating toString as optional decoration: it is inherited like any other method, and a class that adds no override simply gets Object's version, which is why the class name does appear.",
       "hint": "Only the hash digits vary between runs; the class name and separator do not.",
@@ -978,8 +978,8 @@
       "options": [
         {
           "id": "A",
-          "text": "redgreen - each constant is its own object, so label() runs once per constant reference.",
-          "misconception": ""
+          "text": "red - the first constant runs label() and the second reuses the same one-shot result.",
+          "misconception": "believes an enum method executes only for the first constant"
         },
         {
           "id": "B",
@@ -988,8 +988,8 @@
         },
         {
           "id": "C",
-          "text": "red - the first constant runs label() and the second reuses the same one-shot result.",
-          "misconception": "believes an enum method executes only for the first constant"
+          "text": "redgreen - each constant is its own object, so label() runs once per constant reference.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -998,7 +998,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that an enum declaration always implies an extends of java.lang.Enum and may not name any other superclass, while implements is still available, so a capability interface is a legal addition. Because each constant is a distinct object, label() is an ordinary instance method that runs again for each constant it is called on, producing red and then green. The answer that treats the enum as a single object is the tempting one: a common early design is one static field holding a shared value, and forgetting that constants are separate instances of the enum class leads straight to it.",
       "hint": "Constants are objects of the enum type, so a method call runs per constant.",
@@ -1041,8 +1041,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Enum - every enum implicitly extends java.lang.Enum, which supplies name() and ordinal().",
-          "misconception": ""
+          "text": "Enum<E> - the simple name of a parameterised superclass keeps its type argument.",
+          "misconception": "believes getSimpleName keeps the type argument of a generic type"
         },
         {
           "id": "B",
@@ -1056,12 +1056,12 @@
         },
         {
           "id": "D",
-          "text": "Enum<E> - the simple name of a parameterised superclass keeps its type argument.",
-          "misconception": "believes getSimpleName keeps the type argument of a generic type"
+          "text": "Enum - every enum implicitly extends java.lang.Enum, which supplies name() and ordinal().",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that the compiler writes an implicit extends java.lang.Enum<E> into every enum declaration, which is where the final name(), ordinal() and compareTo come from and why an enum can never extend a class of your own. The answer Object is the tempting one because the source says nothing about a superclass, and a class with no extends clause normally means Object; for an enum that inference is switched off because the superclass is mandatory and fixed. The single-argument type is also what keeps the constants comparable to one another without a shared comparable interface.",
       "hint": "An enum declaration is shorthand for a class declaration that names a superclass.",
@@ -1104,13 +1104,13 @@
       "options": [
         {
           "id": "A",
-          "text": "GREEN 1 3 - values() lists the constants in declaration order and ordinal() counts from zero.",
-          "misconception": ""
+          "text": "GREEN 2 3 - ordinal() is one-based, so the second constant reports the position 2.",
+          "misconception": "believes ordinal starts counting at one"
         },
         {
           "id": "B",
-          "text": "GREEN 2 3 - ordinal() is one-based, so the second constant reports the position 2.",
-          "misconception": "believes ordinal starts counting at one"
+          "text": "GREEN 1 3 - values() lists the constants in declaration order and ordinal() counts from zero.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1124,7 +1124,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the compiler generates a values() method returning a fresh array of the constants in declaration order, plus a name() that returns the declared spelling and an ordinal() that gives the zero-based position, all inherited from Enum. Index 1 is therefore GREEN, its ordinal is 1, and the array holds all three constants. The one-based reading of ordinal is the classic slip, and it survives because a switch over an enum is written with case labels that look like names rather than numbers, which quietly teaches the impression that positions start at one.",
       "hint": "The array index and the ordinal are the same number, and both count from zero.",
@@ -1167,8 +1167,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5:6 - the abstract declaration is the contract and each constant body is its own implementation.",
-          "misconception": ""
+          "text": "6:5 - the constant bodies are attached to the constants before the ones declared earlier.",
+          "misconception": "believes constant bodies are matched in reverse order"
         },
         {
           "id": "B",
@@ -1177,8 +1177,8 @@
         },
         {
           "id": "C",
-          "text": "6:5 - the constant bodies are attached to the constants before the ones declared earlier.",
-          "misconception": "believes constant bodies are matched in reverse order"
+          "text": "5:6 - the abstract declaration is the contract and each constant body is its own implementation.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1187,7 +1187,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that an enum may declare an abstract method as its type-level contract, and each constant with a body forms an anonymous subclass that supplies the implementation, so every constant carries a different version of the same signature. ADD therefore adds and MUL multiplies, giving 5 and 6 from the same two arguments. The answer 5:5 is the tempting one because the declaration appears once and looks shared, but the bodies are compiled into separate subclasses, one per constant, which is what makes a family of operations a natural fit for a single enum type.",
       "hint": "Each constant with a body is really its own anonymous subclass of the enum.",
@@ -1293,8 +1293,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3 - the first call gives 6, and the second call subtracts 3 from that running total.",
-          "misconception": ""
+          "text": "-3 - only the final element is applied, because the earlier running total is discarded.",
+          "misconception": "believes each loop pass replaces the accumulated total"
         },
         {
           "id": "B",
@@ -1308,12 +1308,12 @@
         },
         {
           "id": "D",
-          "text": "-3 - only the final element is applied, because the earlier running total is discarded.",
-          "misconception": "believes each loop pass replaces the accumulated total"
+          "text": "3 - the first call gives 6, and the second call subtracts 3 from that running total.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that the array is declared as Op[], so each element is an interface reference and the call dispatches to the body belonging to the constant actually stored there, which means the two iterations run different code. The total starts at 0, becomes 6 after DOUBLE, and becomes 6 - 3 = 3 after NEGATE, because the loop adds each result to the running total rather than replacing it. The answer 9 is the tempting one because both constants look interchangeable in the source, and an enum read as a single switch-like type invites the belief that the shared abstract declaration chooses the behaviour.",
       "hint": "The array holds interface references, so each element brings its own body.",
@@ -1419,13 +1419,13 @@
       "options": [
         {
           "id": "A",
-          "text": "2 - every constant has its own arm, so the matching case returns before the default is reached.",
-          "misconception": ""
+          "text": "0 - a default arm is evaluated first whenever a switch contains one at all.",
+          "misconception": "believes a default arm runs before the constant arms"
         },
         {
           "id": "B",
-          "text": "0 - a default arm is evaluated first whenever a switch contains one at all.",
-          "misconception": "believes a default arm runs before the constant arms"
+          "text": "2 - every constant has its own arm, so the matching case returns before the default is reached.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1439,7 +1439,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the constant list of an enum is fixed at compile time, so a switch covering every constant is already total and the default arm is present only as unreachable insurance, which is exactly why it is legal to keep. Suit.SPADE matches its own arm and returns 2 without ever considering the default. The tempting answer is 0, which comes from treating default as a fallback that runs first or a mandatory trailing case; a default arm is only consulted when no case label matches, and here one always does.",
       "hint": "A default arm is a fallback, not a starting point.",
@@ -1734,8 +1734,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 - a final record may implement an interface, and the body computes 2 plus 3 characters.",
-          "misconception": ""
+          "text": "2 - size() counts the components rather than the characters inside them.",
+          "misconception": "believes size() counts the number of components"
         },
         {
           "id": "B",
@@ -1744,8 +1744,8 @@
         },
         {
           "id": "C",
-          "text": "2 - size() counts the components rather than the characters inside them.",
-          "misconception": "believes size() counts the number of components"
+          "text": "5 - a final record may implement an interface, and the body computes 2 plus 3 characters.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1754,7 +1754,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that finality forbids extension, not implementation, so a record can implement any number of interfaces as long as it supplies the members, and the body here is free to derive a value from the components. ab has length 2 and cde has length 3, so size() returns 5. The answer that counts components is the tempting one because the interface is called Sized and the record has exactly two of something, but a size measured in characters is the whole point of writing the method, and the record contributes data rather than an opinion about how to count it.",
       "hint": "Final blocks subclassing, not interface implementation.",
@@ -1797,8 +1797,8 @@
       "options": [
         {
           "id": "A",
-          "text": "7 - the permits clause closes the subtype set, and the two pattern tests cover 3 and then 4.",
-          "misconception": ""
+          "text": "0 - a sealed type offers no subtypes at run time, so the array elements are discarded.",
+          "misconception": "believes sealing prevents instances of the permitted types"
         },
         {
           "id": "B",
@@ -1812,12 +1812,12 @@
         },
         {
           "id": "D",
-          "text": "0 - a sealed type offers no subtypes at run time, so the array elements are discarded.",
-          "misconception": "believes sealing prevents instances of the permitted types"
+          "text": "7 - the permits clause closes the subtype set, and the two pattern tests cover 3 and then 4.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a permits clause fixes the set of direct subtypes at compile time, so the compiler knows the hierarchy is closed and a type test against it is meaningful to reason about, while the instances themselves are ordinary objects that behave normally. The circle contributes 3 times 1 squared and the square contributes 2 squared, and the compound assignment narrows each double result into the int total, giving 7. The sealed-hierarchy detail is worth noticing precisely because sealing is a compile-time promise: it buys exhaustiveness checking, not any change to what the objects do at run time.",
       "hint": "Sealing constrains the compiler's view of the hierarchy, not the objects' behaviour.",
@@ -1923,13 +1923,13 @@
       "options": [
         {
           "id": "A",
-          "text": "stop:b - the variable holds a Stop, so the record's own describe() body is the one that runs.",
-          "misconception": ""
+          "text": "Event - a sealed interface supplies a default describe(), so the record's version is never used.",
+          "misconception": "believes sealing implies a default implementation"
         },
         {
           "id": "B",
-          "text": "Event - a sealed interface supplies a default describe(), so the record's version is never used.",
-          "misconception": "believes sealing implies a default implementation"
+          "text": "stop:b - the variable holds a Stop, so the record's own describe() body is the one that runs.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1943,7 +1943,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a method called through an interface reference dispatches to the implementation of the object actually stored there, and a record that implements the interface may supply that implementation in its own body, so describe() runs Stop's version and builds stop plus the id. Sealing contributes only the compile-time promise about which subtypes exist; it changes nothing about dispatch. The answer that prints the record's own text is the tempting one because a record does have a generated toString, but printing the variable calls the static type's method name, and describe is not toString.",
       "hint": "The reference type names the method; the stored object supplies the body.",
@@ -2050,8 +2050,8 @@
       "options": [
         {
           "id": "A",
-          "text": "9 - the branch cases add their two subtrees, so 2 plus 3 plus 4 reaches the top.",
-          "misconception": ""
+          "text": "5 - only the outer branch is counted, and the nested leaves are skipped entirely.",
+          "misconception": "believes a case arm does not recurse into its subtrees"
         },
         {
           "id": "B",
@@ -2060,8 +2060,8 @@
         },
         {
           "id": "C",
-          "text": "5 - only the outer branch is counted, and the nested leaves are skipped entirely.",
-          "misconception": "believes a case arm does not recurse into its subtrees"
+          "text": "9 - the branch cases add their two subtrees, so 2 plus 3 plus 4 reaches the top.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2070,7 +2070,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a pattern switch over a sealed type is checked against the permits list, so when every permitted subtype has a case the compiler treats the switch as exhaustive and no default is required, which is the main reason to seal a hierarchy in the first place. The recursion then does ordinary work: the outer branch sums 2 and the inner branch's 3 plus 4, giving 9. The answer that a default is mandatory is the tempting one because a switch over a general reference type does need one, and carrying that habit into a sealed selector is exactly the mistake sealing is designed to prevent.",
       "hint": "The compiler knows the full set of subtypes, so it can prove coverage.",
@@ -2178,8 +2178,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 - the chain runs 1, then 2, then 4, then 5, once per element in list order.",
-          "misconception": ""
+          "text": "Compile error - a final subclass may not appear in an array of its sealed base type.",
+          "misconception": "believes final subclasses cannot be held in a base array"
         },
         {
           "id": "B",
@@ -2193,12 +2193,12 @@
         },
         {
           "id": "D",
-          "text": "Compile error - a final subclass may not appear in an array of its sealed base type.",
-          "misconception": "believes final subclasses cannot be held in a base array"
+          "text": "5 - the chain runs 1, then 2, then 4, then 5, once per element in list order.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that an array of the base type holds references to whatever the elements really are, and each call dispatches to that element's own body, so the three elements apply their operations in list order: 1 plus 1, then 2 times 2, then 4 plus 1, leaving 5. The sealed and final modifiers here are about who may extend the hierarchy, not about how the loop behaves, and a final subclass is a perfectly good element of a base-typed array. The answer 2 is the tempting one because the abstract class appears to own no code, yet every element supplies it.",
       "hint": "Track the running value element by element in list order.",
@@ -2242,13 +2242,13 @@
       "options": [
         {
           "id": "A",
-          "text": "B - widening access is legal in an override, and the more visible version is what callers get.",
-          "misconception": ""
+          "text": "Compile error - an override must repeat the access modifier of the method it replaces.",
+          "misconception": "believes an override must keep identical access"
         },
         {
           "id": "B",
-          "text": "Compile error - an override must repeat the access modifier of the method it replaces.",
-          "misconception": "believes an override must keep identical access"
+          "text": "B - widening access is legal in an override, and the more visible version is what callers get.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2262,7 +2262,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that an override may widen access, so protected can be redeclared public, and the rule exists because widening cannot break any existing caller: everyone who could reach the protected method can still reach a public one. The reference here is typed as A, yet the call still runs B's body and prints B, since access modifiers restrict who may call a method and never select which body runs. The answer claiming a compile error is the tempting one because override is usually taught as a signature-for-signature copy, but the access level is the one part that is allowed to move, and only upwards.",
       "hint": "Think about which callers could break if the access level changed.",
@@ -2368,8 +2368,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2:3:3 - all three reads reach the one protected field, since B never redeclares it.",
-          "misconception": ""
+          "text": "2:3:2 - super.count reaches the subclass slot while this.count reaches the base slot.",
+          "misconception": "believes super and this name the same field in reverse"
         },
         {
           "id": "B",
@@ -2378,8 +2378,8 @@
         },
         {
           "id": "C",
-          "text": "2:3:2 - super.count reaches the subclass slot while this.count reaches the base slot.",
-          "misconception": "believes super and this name the same field in reverse"
+          "text": "2:3:3 - all three reads reach the one protected field, since B never redeclares it.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2388,7 +2388,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a protected field is inherited, so there is only one slot here and the qualifier merely chooses which declaration of the name applies, not which storage. The base method reads the inherited field as 2, and both this.count and super.count name that same slot because B never shadows it, giving 2:3:3. The answer 0:1:1 is the trap that treats super as a separate copy, and it is worth testing because the identical situation with a redeclared field really does produce different values, which makes the memory of that case actively misleading here.",
       "hint": "One field, three ways to name it; nothing here is redeclared.",
@@ -2494,8 +2494,8 @@
       "options": [
         {
           "id": "A",
-          "text": "AB - a private method is not inherited, so each call reaches the one written in its own class.",
-          "misconception": ""
+          "text": "AA - the subclass declaration is ignored because the base method already has that name.",
+          "misconception": "believes a subclass cannot declare a method that a base declares"
         },
         {
           "id": "B",
@@ -2509,12 +2509,12 @@
         },
         {
           "id": "D",
-          "text": "AA - the subclass declaration is ignored because the base method already has that name.",
-          "misconception": "believes a subclass cannot declare a method that a base declares"
+          "text": "AB - a private method is not inherited, so each call reaches the one written in its own class.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that private is not part of the inherited interface at all, so a subclass method of the same name is a fresh declaration with no override relationship, and the two methods coexist without conflict. The base call() can only see A's tag because that is the only tag visible inside class A, and B's callSub can only see B's tag, giving AB. The answer BB is the tempting one because the signatures match exactly and everything else about override is satisfied, but override needs the base method to be visible, which private deliberately is not.",
       "hint": "Ask whether the base method is part of what the subclass inherits.",
@@ -2557,13 +2557,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A-int - candidates come from the reference's type, so the subclass overload is not considered.",
-          "misconception": ""
+          "text": "B-String - the object is a B, so the most specific method in the runtime class is chosen.",
+          "misconception": "believes overload resolution looks at the runtime class"
         },
         {
           "id": "B",
-          "text": "B-String - the object is a B, so the most specific method in the runtime class is chosen.",
-          "misconception": "believes overload resolution looks at the runtime class"
+          "text": "A-int - candidates come from the reference's type, so the subclass overload is not considered.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2577,7 +2577,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a method call is resolved against the static type of the reference, and only the methods visible in that type are candidates, so ref.go(1) can see A's go(int) and nothing else; B's go(String) is not an overload of the same signature but a different method with a different parameter type. Overload resolution happens before any object is involved, which is why the runtime type is irrelevant here. The answer that the most specific method in the runtime class wins is the central trap, and it is reasonable to hold because that is exactly how a single overridden method behaves.",
       "hint": "Method lookup for a call uses the reference's type, not the object's type.",
@@ -2621,8 +2621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3 - the accessor is inherited normally, and it is the only legal route to the private field.",
-          "misconception": ""
+          "text": "0 - an inherited accessor sees the field before the base initializer has run for the subclass.",
+          "misconception": "believes the base initializer has not run when the accessor is called"
         },
         {
           "id": "B",
@@ -2631,8 +2631,8 @@
         },
         {
           "id": "C",
-          "text": "0 - an inherited accessor sees the field before the base initializer has run for the subclass.",
-          "misconception": "believes the base initializer has not run when the accessor is called"
+          "text": "3 - the accessor is inherited normally, and it is the only legal route to the private field.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2641,7 +2641,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that private limits name access from other classes, not the visibility of values that already flow out through a method, and get() is a package-visible member of A that B inherits, so calling it is perfectly legal and returns the field's value of 3 after the base initializer has run. The answer claiming a compile error is the tempting one because the field is private, and the useful habit is to separate the two questions: can I name the field, and can I call a method that reads it. The second question is answered by the method's own modifier, not the field's.",
       "hint": "Two separate questions: naming the field, and calling a method that reads it.",
@@ -2939,8 +2939,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[s][B] - the shared template runs twice, once per element, with each subclass's own body.",
-          "misconception": ""
+          "text": "[s] - only the first subclass runs, because render() is declared once in the base class.",
+          "misconception": "believes a base method body executes only once per hierarchy"
         },
         {
           "id": "B",
@@ -2954,12 +2954,12 @@
         },
         {
           "id": "D",
-          "text": "[s] - only the first subclass runs, because render() is declared once in the base class.",
-          "misconception": "believes a base method body executes only once per hierarchy"
+          "text": "[s][B] - the shared template runs twice, once per element, with each subclass's own body.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that render() is written once in the base class and calls the abstract body() without knowing which class it is on, so each element supplies its own text at the moment the shared template runs. The loop visits Small first and Big second, giving [s] then [B] and the concatenation [s][B]. The answer that only the first subclass runs is the tempting one because declaring a method once in a base class genuinely does mean one copy of the code, and it is easy to extend that to the mistaken belief that the loop body only ever executes the first implementation.",
       "hint": "The brackets come from the base class; the text comes from the element.",
@@ -3191,13 +3191,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1 - a static member type is inherited, so B.Box names the very class A declared.",
-          "misconception": ""
+          "text": "Compile error - a nested type belongs to one class and may not be named through another.",
+          "misconception": "believes a static nested type is not inherited"
         },
         {
           "id": "B",
-          "text": "Compile error - a nested type belongs to one class and may not be named through another.",
-          "misconception": "believes a static nested type is not inherited"
+          "text": "1 - a static member type is inherited, so B.Box names the very class A declared.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3211,7 +3211,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a static nested type is an inheritable member, so the name B.Box resolves to the single class A declared, and the object created is an ordinary Box with v initialised to 1. Writing the subclass name in front is a convenience of inheritance, not a copy: there is still exactly one Box class, which is why the value is 1 rather than a default. The answer claiming a compile error is the tempting one because nesting looks like pure scoping, and it is a good reminder that a nested class lives inside a class without being private to it.",
       "hint": "Members are inherited; naming them through the subclass still reaches one class.",
@@ -3254,8 +3254,8 @@
       "options": [
         {
           "id": "A",
-          "text": "11 - the call is bound in A, where the body was written, so the hiding version in B is unused.",
-          "misconception": ""
+          "text": "10 - a hidden static method is not callable from the base class at all, so the term vanishes.",
+          "misconception": "believes hiding makes the base method uncallable"
         },
         {
           "id": "B",
@@ -3264,8 +3264,8 @@
         },
         {
           "id": "C",
-          "text": "10 - a hidden static method is not callable from the base class at all, so the term vanishes.",
-          "misconception": "believes hiding makes the base method uncallable"
+          "text": "11 - the call is bound in A, where the body was written, so the hiding version in B is unused.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3274,7 +3274,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a static call inside a method body is resolved at compile time using the class whose source contains the body, so total() is written in A and unqualified bonus() means A.bonus, giving 10 + 1. The object happens to be a B, but static calls are precisely the case where the runtime class is irrelevant, and B.bonus hides rather than overrides, so it is simply never consulted here. The answer 15 is the single most common wrong reading in this area, because dynamic dispatch is such a strong habit that applying it to a static call feels like correctness.",
       "hint": "Static calls are decided by where they are written, not by the object.",
@@ -3380,8 +3380,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1:2 - B's declaration hides the inherited name, so each class reads its own slot.",
-          "misconception": ""
+          "text": "2:1 - the initializer order makes the subclass declaration run before the base one.",
+          "misconception": "believes a subclass initializes before its superclass"
         },
         {
           "id": "B",
@@ -3395,12 +3395,12 @@
         },
         {
           "id": "D",
-          "text": "2:1 - the initializer order makes the subclass declaration run before the base one.",
-          "misconception": "believes a subclass initializes before its superclass"
+          "text": "1:2 - B's declaration hides the inherited name, so each class reads its own slot.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a subclass may declare a member with a name the superclass already uses, and for a static field the effect is hiding: B.n is a different slot from A.n, each initialised by its own class, so the reads give 1 and 2. Nothing overwrites anything, which is why 2:2 is the tempting answer, since the two names do look like they address the same thing. The order of class initialisation also runs the superclass first, so even the last option's reasoning about timing could not produce that result.",
       "hint": "Redeclaring a static field creates a second slot and hides the first.",
@@ -3443,13 +3443,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3 - the constructor assigns the blank final field once, and the accessor reads that value.",
-          "misconception": ""
+          "text": "0 - a final field left blank at the declaration keeps the type's default value.",
+          "misconception": "believes a blank final field falls back to zero"
         },
         {
           "id": "B",
-          "text": "0 - a final field left blank at the declaration keeps the type's default value.",
-          "misconception": "believes a blank final field falls back to zero"
+          "text": "3 - the constructor assigns the blank final field once, and the accessor reads that value.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3463,7 +3463,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a blank final field of a primitive type must be definitely assigned exactly once before the constructor completes, and assignment inside the constructor is the normal place for that, so the accessor sees 3. The answer 0 is the tempting one because a field left blank in an ordinary class really does hold the default, and the instinct that blanks mean default is strong; final plus definite assignment is what removes the default-value escape hatch and makes the compiler insist instead.",
       "hint": "Blank final means assigned exactly once, and the constructor is that place.",

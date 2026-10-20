@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "NullPointerException",
-          "misconception": ""
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value in the list is reported as an illegal argument"
         },
         {
           "id": "B",
-          "text": "IllegalArgumentException",
-          "misconception": "a missing value in the list is reported as an illegal argument"
+          "text": "NullPointerException",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The factory refuses missing values on purpose, and the way it refuses them is by rejecting the call itself, which surfaces as a failure through a reference that points at nothing. The tempting answers reuse exception types from other refusals, but an unsupported operation is about a capability and an illegal argument is about a value handed in, whereas here the list is built to hold values that are definitely present, so a missing one is a contradiction at construction time.",
       "hint": "Ask what the list promises about its contents, and how it enforces that promise.",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "NullPointerException",
-          "misconception": ""
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value in the source is reported as an illegal argument"
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "IllegalArgumentException",
-          "misconception": "a missing value in the source is reported as an illegal argument"
+          "text": "NullPointerException",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The copy factory guarantees that the list it hands back contains no missing values, and it keeps that guarantee by refusing to copy a source that breaks it, so the call fails rather than quietly carrying the problem across. The tempting answer reads the guarantee as applying to the copy operation itself, but the guarantee is about the contents, which is why a list that permits missing values cannot be copied into this one without being cleaned first.",
       "hint": "Ask what the copy factory promises about the contents of the list it returns.",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[a, b]",
-          "misconception": ""
+          "text": "[b]",
+          "misconception": "the read-only list shows only the element that was added after it was created"
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "[b]",
-          "misconception": "the read-only list shows only the element that was added after it was created"
+          "text": "[a, b]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The wrapper adds a restriction, not a copy, so it keeps pointing at the same list of values and a later addition to that list is visible through the wrapper. The tempting answer assumes a defensive copy, but that reading contradicts the point of the wrapper, which is to stop callers from changing a list somebody else owns; if it had copied, changes on either side would drift apart and the wrapper would protect nothing.",
       "hint": "Ask whether the wrapper restricted the original list or duplicated it.",
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "UnsupportedOperationException",
-          "misconception": ""
+          "text": "IllegalArgumentException",
+          "misconception": "the wrapper reports an illegal argument for a forbidden change"
         },
         {
           "id": "B",
-          "text": "IllegalArgumentException",
-          "misconception": "the wrapper reports an illegal argument for a forbidden change"
+          "text": "UnsupportedOperationException",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The wrapper implements the same list type but declines every mutating call, so an addition is refused as a capability the wrapper does not offer. The tempting answers name failures that report a bad value, a bad state or a bad position, and none of those applies: the element is a perfectly good string, the list is in a perfectly good state, and the position is the valid end position, so the only thing wrong is that this object refuses to make the change.",
       "hint": "Ask what is wrong with the request, as opposed to what is missing from the wrapper.",
@@ -363,8 +363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Integer",
-          "misconception": ""
+          "text": "Object",
+          "misconception": "every element of a list has the broad reference type regardless of what was passed"
         },
         {
           "id": "B",
@@ -373,8 +373,8 @@
         },
         {
           "id": "C",
-          "text": "Object",
-          "misconception": "every element of a list has the broad reference type regardless of what was passed"
+          "text": "Integer",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A list holds references, so the values written as primitives are boxed on the way in and each element is a wrapper object of the matching type. The tempting answers keep the primitive type or widen it, but a primitive cannot be stored in a list at all, so the conversion to a reference happens before the list ever sees the value, and the type that appears at run time is the wrapper type rather than the primitive or any shared supertype.",
       "hint": "Ask what a list can actually store, and what the compiler must do to a primitive before storing it.",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "UnsupportedOperationException",
-          "misconception": ""
+          "text": "OutOfMemoryError",
+          "misconception": "the addition is reported as a failure to obtain more storage"
         },
         {
           "id": "B",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "OutOfMemoryError",
-          "misconception": "the addition is reported as a failure to obtain more storage"
+          "text": "UnsupportedOperationException",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A fixed-size list has no array it could hand a longer one to, because the array behind it was already allocated at its current length, so growing the list is a capability it simply does not have and says so. The tempting answers report a bad position, a bad argument or a lack of memory, but the position is the valid end position, the value is a perfectly good string, and no allocation was even attempted.",
       "hint": "Ask which array the list would have to grow, and whether one exists.",
@@ -501,13 +501,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[z, b]",
-          "misconception": ""
+          "text": "[a, b]",
+          "misconception": "the window took a snapshot of the two elements at the moment it was created"
         },
         {
           "id": "B",
-          "text": "[a, b]",
-          "misconception": "the window took a snapshot of the two elements at the moment it was created"
+          "text": "[z, b]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -521,7 +521,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A window holds positions rather than values, so it keeps reading the same two positions of the original list and the replacement at the first position is what it now reports. The tempting answer assumes a copy of the two values, but then the window would be useless for watching a list change, and a window that invalidated itself on any change would make the common pattern of filtering while scanning impossible to write.",
       "hint": "Ask whether the window stores values or stores positions in the original list.",
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[a, b, z, c]",
-          "misconception": ""
+          "text": "[z, a, b, c]",
+          "misconception": "a value added to a window is pushed in front of the whole list"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "[z, a, b, c]",
-          "misconception": "a value added to a window is pushed in front of the whole list"
+          "text": "[a, b, z, c]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The window is a window, so inserting into it inserts into the original list at the window's own position, which shifts the following element along and leaves the rest untouched. The tempting answers each put the new value somewhere a window cannot reach: before the window, at the end of the whole list, or in a private copy, and the copy answer also contradicts the fact that the window reports changes made to the original list.",
       "hint": "Ask at which position of the original list the window's positions begin.",
@@ -639,8 +639,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[c, a, b]",
-          "misconception": ""
+          "text": "throws",
+          "misconception": "rotating a fixed-size list is refused as an unsupported operation"
         },
         {
           "id": "B",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "throws",
-          "misconception": "rotating a fixed-size list is refused as an unsupported operation"
+          "text": "[c, a, b]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Rotating changes no lengths, it only moves values between positions the list already has, and the helper does that by replacing values, which a fixed-size list does allow, so the last value moves to the front and everything else shifts back one place. The tempting answers either rotate the wrong way or assume the helper needs to change the size, and it does not: a rotation is a permutation of the existing positions and nothing more.",
       "hint": "Ask whether a rotation changes how many positions the list has.",
@@ -708,13 +708,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[c, b, a]",
-          "misconception": ""
+          "text": "[b, a, c]",
+          "misconception": "a swap exchanges the first two positions rather than the two given"
         },
         {
           "id": "B",
-          "text": "[b, a, c]",
-          "misconception": "a swap exchanges the first two positions rather than the two given"
+          "text": "[c, b, a]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A swap exchanges the values at two positions the list already has, and the helper does it by replacing values, which a fixed-size list does allow, so the first and last elements trade places and the middle one is untouched. The tempting answers confuse a swap with a rotation or with a different pair of positions, and the refusal answer is wrong because no length change is involved anywhere in a swap.",
       "hint": "Ask which two positions a swap touches and whether either position is new.",
@@ -777,8 +777,8 @@
       "options": [
         {
           "id": "A",
-          "text": "true 0",
-          "misconception": ""
+          "text": "true 1",
+          "misconception": "the shared empty list reports a size of one because it is never null"
         },
         {
           "id": "B",
@@ -787,8 +787,8 @@
         },
         {
           "id": "C",
-          "text": "true 1",
-          "misconception": "the shared empty list reports a size of one because it is never null"
+          "text": "true 0",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -797,7 +797,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "There is nothing to store in an empty list, so the implementation can hand back one shared instance every time, which means the two references are the same object and the size is zero. The tempting answers assume each call allocates, but a zero-length structure is free to share, and this is a common trick for returning a safe nothing instead of a missing value, precisely because the shared object cannot be changed.",
       "hint": "Ask what there would be for a fresh empty list to store that would justify allocating one.",
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "UnsupportedOperationException",
-          "misconception": ""
+          "text": "NoSuchElementException",
+          "misconception": "replacing the element is reported as a missing element"
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "NoSuchElementException",
-          "misconception": "replacing the element is reported as a missing element"
+          "text": "UnsupportedOperationException",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The factory hands back a list that is fixed in both size and content, so the replacement is refused as a capability the list does not offer, even though the position and the value are both perfectly legal. The tempting answers report a bad index, an illegal argument or a missing element, and each of those describes a different failure entirely; here nothing is out of range, nothing is malformed and nothing is absent.",
       "hint": "Ask whether the position and the value are both acceptable, leaving only the capability in question.",
@@ -915,13 +915,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[z, z, z] 3",
-          "misconception": ""
+          "text": "[z, z, z] 1",
+          "misconception": "repeating one value produces a list of size one holding it"
         },
         {
           "id": "B",
-          "text": "[z, z, z] 1",
-          "misconception": "repeating one value produces a list of size one holding it"
+          "text": "[z, z, z] 3",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -935,7 +935,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The count says how many positions to build and the value says what to put in each of them, so the list holds three positions and all three show the same value. The tempting answers confuse the number of positions with the number of distinct values, and a list has no notion of distinct values at all; the size is a count of positions, which is why a list of three identical entries still reports three.",
       "hint": "Ask what the size of a list counts and whether the values have to differ.",
@@ -984,8 +984,8 @@
       "options": [
         {
           "id": "A",
-          "text": "bbb",
-          "misconception": ""
+          "text": "b",
+          "misconception": "the extreme is chosen by the first letter of each value"
         },
         {
           "id": "B",
@@ -994,8 +994,8 @@
         },
         {
           "id": "C",
-          "text": "b",
-          "misconception": "the extreme is chosen by the first letter of each value"
+          "text": "bbb",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1004,7 +1004,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The helper takes the extreme with respect to the comparison it is given, and this comparison says the longer word is the greater one, so the three-letter word wins even though it sorts after the one-letter word alphabetically. The tempting answers assume the helper falls back on its own ordering, but supplying a comparison replaces the ordering entirely, which is what makes the call useful for a list of objects that has no natural order at all.",
       "hint": "Ask which value the supplied comparison calls greater.",
@@ -1053,8 +1053,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2",
-          "misconception": ""
+          "text": "0",
+          "misconception": "the count reports nothing because the target only appears in a set"
         },
         {
           "id": "B",
@@ -1068,12 +1068,12 @@
         },
         {
           "id": "D",
-          "text": "0",
-          "misconception": "the count reports nothing because the target only appears in a set"
+          "text": "2",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The helper walks the list and counts every position whose value is equal to the target, and the letter a occupies two of the three positions, so the answer is two. The tempting answer counts distinct values, but that is a set's job, and a list happily holds the same value twice, so counting positions is the only reading consistent with the type it was handed.",
       "hint": "Ask whether the same value may occupy more than one position in a list.",
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "shared",
-          "misconception": ""
+          "text": "disjoint",
+          "misconception": "the test only compares the first position of each list"
         },
         {
           "id": "B",
-          "text": "disjoint",
-          "misconception": "the test only compares the first position of each list"
+          "text": "shared",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The test looks for any value present in both, and the letter b appears in each list, so the two are not disjoint and the shared answer is correct. The tempting answer reads the test as a position-by-position comparison, but it is a membership test that ignores order and position entirely, and the size objection is irrelevant because a list's contents are what matter, not how they are distributed.",
       "hint": "Ask whether any single value occurs in both lists, whatever its position.",
@@ -1191,8 +1191,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[a, b, d, c]",
-          "misconception": ""
+          "text": "[d, c, b, a]",
+          "misconception": "a fixed seed always produces the reverse of the original order"
         },
         {
           "id": "B",
@@ -1201,8 +1201,8 @@
         },
         {
           "id": "C",
-          "text": "[d, c, b, a]",
-          "misconception": "a fixed seed always produces the reverse of the original order"
+          "text": "[a, b, d, c]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The generator's sequence is fully determined by its seed, and the shuffle consumes that sequence to decide swaps, so a fixed seed produces the same permutation on every run while a different run without a seed would produce a different one. The tempting answers assume a seed forces no change, a forced reversal, or a fixed partial swap, and none of those follows: the seed fixes the sequence of random numbers, not the arrangement that results from using them.",
       "hint": "Ask what a seed fixes, and remember the arrangement follows from the numbers the generator produces.",
@@ -1260,8 +1260,8 @@
       "options": [
         {
           "id": "A",
-          "text": "q,p,true",
-          "misconception": ""
+          "text": "p,q,false",
+          "misconception": "values come back in order and the deque still holds something afterwards"
         },
         {
           "id": "B",
@@ -1275,12 +1275,12 @@
         },
         {
           "id": "D",
-          "text": "p,q,false",
-          "misconception": "values come back in order and the deque still holds something afterwards"
+          "text": "q,p,true",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Pushing adds to the front of the deque and popping removes from the front, so the last value pushed is the first one removed, and once both pushes have been matched by two pops nothing is left and the emptiness check reports true. The tempting answers read a stack like a queue, where values would come back in the order they went in, or evaluate the emptiness check at the wrong moment, and both of those mistakes come from forgetting which end the deque operates on.",
       "hint": "Ask which end of the deque a push and a pop both work at.",
@@ -1329,13 +1329,13 @@
       "options": [
         {
           "id": "A",
-          "text": "NullPointerException",
-          "misconception": ""
+          "text": "IllegalArgumentException",
+          "misconception": "a missing value is reported as an illegal argument to the deque"
         },
         {
           "id": "B",
-          "text": "IllegalArgumentException",
-          "misconception": "a missing value is reported as an illegal argument to the deque"
+          "text": "NullPointerException",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1349,7 +1349,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A deque deliberately refuses missing values, because its removal operations report emptiness by handing back a missing value and a stored missing value would make that report ambiguous. The tempting answers borrow exception types from other refusals, but the failure here is not a bad argument and not a missing capability: the operation is one the deque offers, and it declines this particular input for a reason internal to its own design.",
       "hint": "Ask what a removal on this structure returns when there is nothing to remove.",
@@ -1398,8 +1398,8 @@
       "options": [
         {
           "id": "A",
-          "text": "NoSuchElementException",
-          "misconception": ""
+          "text": "IllegalStateException",
+          "misconception": "removing from an empty deque is reported as a misuse of the state"
         },
         {
           "id": "B",
@@ -1408,8 +1408,8 @@
         },
         {
           "id": "C",
-          "text": "IllegalStateException",
-          "misconception": "removing from an empty deque is reported as a misuse of the state"
+          "text": "NoSuchElementException",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1418,7 +1418,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "This removal is the one that promises a value or a failure, and with nothing to remove it fails with a name that says there was no element to take. The tempting answer reaches for the missing-reference failure, but a deque that is empty holds nothing to dereference, and the structure is in a perfectly legal state; the design deliberately pairs this call with a second removal that reports emptiness by returning nothing instead.",
       "hint": "Ask what this particular removal method promises when the structure has nothing to give.",
@@ -1467,8 +1467,8 @@
       "options": [
         {
           "id": "A",
-          "text": "nothing",
-          "misconception": ""
+          "text": "empty",
+          "misconception": "the call hands back an empty string rather than nothing"
         },
         {
           "id": "B",
@@ -1482,12 +1482,12 @@
         },
         {
           "id": "D",
-          "text": "empty",
-          "misconception": "the call hands back an empty string rather than nothing"
+          "text": "nothing",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "This removal is the one that reports emptiness in its return value, so an empty deque simply produces nothing and the check for nothing succeeds. The tempting answers assume every removal shares the same contract, but the structure offers both behaviours on purpose, so a loop can drain a deque without a guard and a program that treats emptiness as an error can use the other call instead.",
       "hint": "Ask which of the two removal calls was chosen and what it promises when there is nothing there.",
@@ -1536,13 +1536,13 @@
       "options": [
         {
           "id": "A",
-          "text": "apple",
-          "misconception": ""
+          "text": "pear",
+          "misconception": "the head is the value that was queued first"
         },
         {
           "id": "B",
-          "text": "pear",
-          "misconception": "the head is the value that was queued first"
+          "text": "apple",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1556,7 +1556,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The head of a queue ordered by natural order is the smallest value, and among the three words apple is the smallest, so it is what the peek reports without removing anything. The tempting answers treat the structure like a plain list of arrival order, but the whole point of this structure is that the next value out is the extreme one rather than the earliest one, and a peek shows that value while leaving the queue unchanged.",
       "hint": "Ask which value the natural order calls smallest, not which arrived first.",
@@ -1605,8 +1605,8 @@
       "options": [
         {
           "id": "A",
-          "text": "9",
-          "misconception": ""
+          "text": "1",
+          "misconception": "inverting the comparison makes the middle value the first one out"
         },
         {
           "id": "B",
@@ -1615,8 +1615,8 @@
         },
         {
           "id": "C",
-          "text": "1",
-          "misconception": "inverting the comparison makes the middle value the first one out"
+          "text": "9",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1625,7 +1625,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The head is whichever value the supplied comparison calls smallest, and inverting the comparison makes the largest value the one it calls smallest, so 9 sits at the head. The tempting answers keep the original meaning of smallest and so describe a queue that was never inverted, which is the trap here: the structure has no opinion of its own about which direction is ascending, it only follows the comparison it is given.",
       "hint": "Ask which value the inverted comparison now treats as the first one out.",
@@ -1674,8 +1674,8 @@
       "options": [
         {
           "id": "A",
-          "text": "unsorted",
-          "misconception": ""
+          "text": "empty",
+          "misconception": "copying a queue into a list produces an empty list"
         },
         {
           "id": "B",
@@ -1689,12 +1689,12 @@
         },
         {
           "id": "D",
-          "text": "empty",
-          "misconception": "copying a queue into a list produces an empty list"
+          "text": "unsorted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The structure only guarantees that the head is the extreme value; the rest sit in whatever arrangement keeps the head reachable, so walking the whole thing does not visit values in order and the ascending comparison fails. The tempting answer reasons from the removal order to the stored order, but the two are different things: draining the queue does produce ascending values, and that is the only ordering this structure promises.",
       "hint": "Ask what the structure promises about its head as opposed to about its whole contents.",
@@ -1743,13 +1743,13 @@
       "options": [
         {
           "id": "A",
-          "text": "empty",
-          "misconception": ""
+          "text": "full",
+          "misconception": "a queue with no values still reports a head that can be read"
         },
         {
           "id": "B",
-          "text": "full",
-          "misconception": "a queue with no values still reports a head that can be read"
+          "text": "empty",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1763,7 +1763,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Peeking asks for the head without taking it, and on an empty queue there is no head, so the call hands back nothing and the check for nothing succeeds without any failure. The tempting answers assume a peek must produce a value or a failure, but this call is the non-destructive one and it is defined to report an empty queue through its return value, which is what makes it safe to use as a loop condition.",
       "hint": "Ask whether this call removes anything, and how it signals that there is nothing to remove.",
@@ -1812,8 +1812,8 @@
       "options": [
         {
           "id": "A",
-          "text": "-1",
-          "misconception": ""
+          "text": "1",
+          "misconception": "an absent key reports the value stored under some other key"
         },
         {
           "id": "B",
@@ -1822,8 +1822,8 @@
         },
         {
           "id": "C",
-          "text": "1",
-          "misconception": "an absent key reports the value stored under some other key"
+          "text": "-1",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1832,7 +1832,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The lookup finds nothing under the key that was never stored, so it hands back exactly the fallback the caller supplied, which is minus one here rather than anything derived from the map. The tempting answers substitute the type's own default or a neighbouring entry's value, and neither is what a fallback is for: the caller chose that number precisely because it is meaningful in the surrounding calculation, which the map knows nothing about.",
       "hint": "Ask where the returned number came from when the key is not in the map.",
@@ -1881,8 +1881,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 2",
-          "misconception": ""
+          "text": "9 9",
+          "misconception": "the offered value replaces the stored value and is returned"
         },
         {
           "id": "B",
@@ -1896,12 +1896,12 @@
         },
         {
           "id": "D",
-          "text": "9 9",
-          "misconception": "the offered value replaces the stored value and is returned"
+          "text": "2 2",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The call only stores when the key is absent, and the key is present, so the stored value stays at 2 and the call hands back that same 2 as the previous value. The tempting answers mix up which number describes the map before and which describes the offer, and the fourth answer describes a plain overwrite; a conditional put is defined precisely so a caller can offer a default without risking clobbering a value that already exists.",
       "hint": "Ask whether the key was present, and what the call returns in each of the two cases.",
@@ -1950,13 +1950,13 @@
       "options": [
         {
           "id": "A",
-          "text": "7",
-          "misconception": ""
+          "text": "0",
+          "misconception": "an absent key is given the default value of the stored type"
         },
         {
           "id": "B",
-          "text": "0",
-          "misconception": "an absent key is given the default value of the stored type"
+          "text": "7",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1970,7 +1970,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The key is not in the map, so the supplied function is called with that key and its result is both stored and returned, which here is the number 7 the function produced. The tempting answers substitute a value derived from the map or from the function's own body rather than from its result, but the contract is that the function's return value is what gets stored, which is what makes this call the compact way to fill in a default exactly once.",
       "hint": "Ask what the supplied function returns and what happens to that value.",
@@ -2019,8 +2019,8 @@
       "options": [
         {
           "id": "A",
-          "text": "6",
-          "misconception": ""
+          "text": "1",
+          "misconception": "the first offer is kept and the second one is discarded"
         },
         {
           "id": "B",
@@ -2029,8 +2029,8 @@
         },
         {
           "id": "C",
-          "text": "1",
-          "misconception": "the first offer is kept and the second one is discarded"
+          "text": "6",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2039,7 +2039,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first merge finds no stored value, so the offer of 1 is stored as it stands, and the second merge finds 1 and hands both it and the offer of 5 to the combining function, which returns 6, so 6 is stored and printed. The tempting answers read merge as an overwrite or as a first-one-wins rule, and counting up repeated appearances of a key is exactly the job this call exists to do, which is why it is the usual way to tally items in one pass.",
       "hint": "Ask what the combining function receives on the second call and what it returns.",
@@ -2088,8 +2088,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 true",
-          "misconception": ""
+          "text": "1 false",
+          "misconception": "the missing key replaces the ordinary key rather than adding to it"
         },
         {
           "id": "B",
@@ -2103,12 +2103,12 @@
         },
         {
           "id": "D",
-          "text": "1 false",
-          "misconception": "the missing key replaces the ordinary key rather than adding to it"
+          "text": "2 true",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "This map permits a missing key and stores it as an ordinary entry of its own, so the map holds two entries and a lookup under that key finds one. The tempting answers treat the missing key as a synonym for the other key or as something that cannot be looked up, and both of those describe a different implementation; the design point is that a missing key is a legal key here, which is why a lookup that uses a computed key cannot blow up on the first absent one.",
       "hint": "Ask whether a missing key is a legal key for this kind of map.",
@@ -2157,13 +2157,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[c, a, b]",
-          "misconception": ""
+          "text": "[a, b, c]",
+          "misconception": "the keys come out in ascending order whatever order they arrived in"
         },
         {
           "id": "B",
-          "text": "[a, b, c]",
-          "misconception": "the keys come out in ascending order whatever order they arrived in"
+          "text": "[c, a, b]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2177,7 +2177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "This map keeps its entries in a list as well as a lookup table, so walking the keys follows the order the entries were added, and re-storing an existing key leaves its position alone. The tempting answers impose alphabetical order, reverse order or a partial reordering, and each of those describes a different guarantee: a sorted map gives alphabetical order and an ordinary hash map gives no order at all, which is the problem this variant exists to solve.",
       "hint": "Ask what extra structure the map maintains alongside the lookup table.",
@@ -2226,8 +2226,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 9",
-          "misconception": ""
+          "text": "6 6",
+          "misconception": "a key that is not stored is still reported by both probes"
         },
         {
           "id": "B",
@@ -2236,8 +2236,8 @@
         },
         {
           "id": "C",
-          "text": "6 6",
-          "misconception": "a key that is not stored is still reported by both probes"
+          "text": "5 9",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Keeping the keys in ascending order lets the map jump straight to the neighbours of a value, so the greatest stored key that does not exceed 6 is 5 and the least that does not fall short is 9. The tempting answers swap the two probes, invent a key that was never stored, or report both as missing, and the middle one is the mistake worth naming: these probes return stored keys, not the number that was asked about.",
       "hint": "Ask which stored keys sit on either side of the value that was probed.",
@@ -2295,8 +2295,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 5]",
-          "misconception": ""
+          "text": "[9]",
+          "misconception": "the view keeps only the key the bound was taken from"
         },
         {
           "id": "B",
@@ -2310,12 +2310,12 @@
         },
         {
           "id": "D",
-          "text": "[9]",
-          "misconception": "the view keeps only the key the bound was taken from"
+          "text": "[1, 5]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The view keeps every key that is strictly below the bound, so the 1 and the 5 are in it and the 9 is not, and the keys still come out in ascending order because the view shares the ordering. The tempting answers include the bound itself, which this call excludes unless asked for the inclusive form, or keep the wrong side of the bound entirely, and either way the resulting set of keys is not the one the call promises.",
       "hint": "Ask whether the bound key itself belongs in a view of the keys below it.",
@@ -2364,13 +2364,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1 2",
-          "misconception": ""
+          "text": "2 1",
+          "misconception": "the map that compares by value keeps both while the map that compares by reference merges them"
         },
         {
           "id": "B",
-          "text": "2 1",
-          "misconception": "the map that compares by value keeps both while the map that compares by reference merges them"
+          "text": "1 2",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2384,7 +2384,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The ordinary map asks the keys whether they are equal, and two strings with the same characters are equal, so the second put lands on the first entry and the map holds one; the identity map asks whether the references are the same object, and they are not, so it holds two. The tempting answers confuse which comparison each map uses, and picking the right map is the whole point: identity keys are what you want when two equal keys must stay distinguishable.",
       "hint": "Ask each map which question it asks of a key before deciding they are the same entry.",
@@ -2433,8 +2433,8 @@
       "options": [
         {
           "id": "A",
-          "text": "different",
-          "misconception": ""
+          "text": "throws",
+          "misconception": "comparing two lists that differ in order is a failure"
         },
         {
           "id": "B",
@@ -2443,8 +2443,8 @@
         },
         {
           "id": "C",
-          "text": "throws",
-          "misconception": "comparing two lists that differ in order is a failure"
+          "text": "different",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2453,7 +2453,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "List equality walks both lists together and stops at the first disagreement, and the very first positions disagree here, so the lists are not equal even though the same two values are present. The tempting answer imports the idea of a set, where order does not matter, but a list is a sequence and a sequence is not the same sequence when its elements are rearranged, which is exactly what makes a list the right structure when position carries meaning.",
       "hint": "Ask whether the first position of one list matches the first position of the other.",
@@ -2502,8 +2502,8 @@
       "options": [
         {
           "id": "A",
-          "text": "different",
-          "misconception": ""
+          "text": "empty",
+          "misconception": "lists in different orders report the same code as an empty list"
         },
         {
           "id": "B",
@@ -2517,12 +2517,12 @@
         },
         {
           "id": "D",
-          "text": "empty",
-          "misconception": "lists in different orders report the same code as an empty list"
+          "text": "different",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The code is built from the elements in order, so reversing the elements reverses the combination and the two codes differ, which is exactly what is required because the two lists are also not equal to each other. The tempting answer wants the code to be set-like, but that would break the rule that equal things must share a code, since the lists here are not equal and so are under no obligation to agree.",
       "hint": "Ask whether the two lists count as equal, and what that obliges their codes to do.",
@@ -2571,13 +2571,13 @@
       "options": [
         {
           "id": "A",
-          "text": "same",
-          "misconception": ""
+          "text": "different",
+          "misconception": "the inner lists are separate objects so the outer lists cannot be equal"
         },
         {
           "id": "B",
-          "text": "different",
-          "misconception": "the inner lists are separate objects so the outer lists cannot be equal"
+          "text": "same",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2591,7 +2591,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Equality of the outer lists asks whether corresponding elements are equal, and asking an inner list whether it equals another inner list is itself a deep comparison that finds the same two numbers in the same order, so the two outer lists are equal. The tempting answer stops at reference identity of the inner lists, but an element is compared with the rule for the element's own type, and for a list that rule is a recursive walk rather than a reference check.",
       "hint": "Ask what rule is used to compare two elements that are themselves lists.",
@@ -2640,8 +2640,8 @@
       "options": [
         {
           "id": "A",
-          "text": "found",
-          "misconception": ""
+          "text": "throws",
+          "misconception": "searching a list of lists with a fresh list is a failure"
         },
         {
           "id": "B",
@@ -2650,8 +2650,8 @@
         },
         {
           "id": "C",
-          "text": "throws",
-          "misconception": "searching a list of lists with a fresh list is a failure"
+          "text": "found",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Searching asks each stored element whether it equals the target, and the stored row equals the fresh row because both hold 1 and then 2 in that order, so the search succeeds even though the two row objects are different. The tempting answer makes membership a reference question, but a search that only found identical objects would be useless for the ordinary case of looking something up by value, which is what a list of rows is nearly always for.",
       "hint": "Ask what the search compares, and whether equal contents are enough.",
@@ -2709,8 +2709,8 @@
       "options": [
         {
           "id": "A",
-          "text": "-1",
-          "misconception": ""
+          "text": "-2",
+          "misconception": "the search reports minus one for every value of a different type"
         },
         {
           "id": "B",
@@ -2724,12 +2724,12 @@
         },
         {
           "id": "D",
-          "text": "-2",
-          "misconception": "the search reports minus one for every value of a different type"
+          "text": "-1",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Wrapping a primitive produces an object, and the two wrapper types compare equal only to their own kind, so a whole number and a long holding 1 are not equal and the search finds nothing and reports minus one. The tempting answer applies numeric intuition across types, and that intuition is what makes this such a reliable trap: the values look identical on paper, but the list asked each stored wrapper whether it equals the wrapper it was handed, and it does not.",
       "hint": "Ask whether the stored object and the searched object are of the same type as well as the same value.",
@@ -2778,13 +2778,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[a, b, c]",
-          "misconception": ""
+          "text": "[b, a, c]",
+          "misconception": "the new value is placed in front of every existing value"
         },
         {
           "id": "B",
-          "text": "[b, a, c]",
-          "misconception": "the new value is placed in front of every existing value"
+          "text": "[a, b, c]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2798,7 +2798,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Inserting at a position puts the new value at that position and shifts everything from there onwards one place along, so b lands between a and c and nothing is lost. The tempting answers place the value at the front, at the end, or in place of an existing element, and each of those mistakes comes from ignoring what the position argument means: it names where the new value goes, not which old value survives.",
       "hint": "Ask which existing value ends up one place further along than before.",
@@ -2847,8 +2847,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[5, 30] | [20, 30]",
-          "misconception": ""
+          "text": "[20, 30] | [5, 30]",
+          "misconception": "the index form removes the value and the value form removes the position"
         },
         {
           "id": "B",
@@ -2857,8 +2857,8 @@
         },
         {
           "id": "C",
-          "text": "[20, 30] | [5, 30]",
-          "misconception": "the index form removes the value and the value form removes the position"
+          "text": "[5, 30] | [20, 30]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2867,7 +2867,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two calls share a name but not a meaning: one takes a position and deletes whatever sits there, which is 20, while the other takes a value and deletes the first element equal to it, which is the 5 at position 0, so the two lists end up different. The tempting answers assume one call delegates to the other, and the reason that assumption is so tempting is that the names are identical; the deciding factor is the static type of the argument, which is what the compiler uses to pick the overload.",
       "hint": "Ask what each argument means: a position or a value.",
@@ -2916,8 +2916,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 3]",
-          "misconception": ""
+          "text": "[3, 4]",
+          "misconception": "the first element is always removed along with the tested ones"
         },
         {
           "id": "B",
@@ -2931,12 +2931,12 @@
         },
         {
           "id": "D",
-          "text": "[3, 4]",
-          "misconception": "the first element is always removed along with the tested ones"
+          "text": "[1, 3]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The test asks whether each element should go, and the two even numbers answer yes, so they are removed and the odd numbers stay in their original relative order. The tempting answer keeps the elements that pass the test, which inverts the meaning of the call, and the answer that removes the first element as well is wrong because nothing in this call has any special treatment for the head of the list.",
       "hint": "Ask what a true result from the test means for that element.",
@@ -2985,13 +2985,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[AA, B]",
-          "misconception": ""
+          "text": "[aa, b]",
+          "misconception": "the rewrite produces new values that are not stored back into the list"
         },
         {
           "id": "B",
-          "text": "[aa, b]",
-          "misconception": "the rewrite produces new values that are not stored back into the list"
+          "text": "[AA, B]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3005,7 +3005,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rewrite is applied once to each element and each result replaces the element it came from, so the two-letter value grows to two capitals and the one-letter value to one, and the list still has two positions. The tempting answers leave the originals in place, apply the rewrite until it stops changing, or truncate each value, and each of those misreads a single substitution as something iterative or destructive.",
       "hint": "Ask how many times the rewrite runs on one element and where its result is stored.",
@@ -3054,8 +3054,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[apple, pear]",
-          "misconception": ""
+          "text": "[fig, kiwi]",
+          "misconception": "the sort fills the list with values the caller never supplied"
         },
         {
           "id": "B",
@@ -3064,8 +3064,8 @@
         },
         {
           "id": "C",
-          "text": "[fig, kiwi]",
-          "misconception": "the sort fills the list with values the caller never supplied"
+          "text": "[apple, pear]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3074,7 +3074,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Sorting reorders the list that was handed to it rather than building a new one, and both names refer to that one list, so the second name shows the reordered values. The tempting answer believes sorting returns something, but a sort call produces no new list at all, which is exactly why a caller who wants the original order kept has to pass a copy rather than relying on the sort to leave one behind.",
       "hint": "Ask whether a sort call hands back a new list or reorders the one it was given.",
@@ -3123,8 +3123,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[fig, kiwi, apple]",
-          "misconception": ""
+          "text": "[kiwi, fig, apple]",
+          "misconception": "the words come out in the reverse of their lengths"
         },
         {
           "id": "B",
@@ -3138,12 +3138,12 @@
         },
         {
           "id": "D",
-          "text": "[kiwi, fig, apple]",
-          "misconception": "the words come out in the reverse of their lengths"
+          "text": "[fig, kiwi, apple]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The comparison asks each word for its length, so the three-letter word comes first, the four-letter word next and the five-letter word last, and words of equal length would be left to whatever the comparison does about ties. The tempting answers sort alphabetically or longest first, and both ignore which key was actually handed to the comparison, which is the only thing the sort knows anything about.",
       "hint": "Ask what value the comparison uses to decide which word comes first.",
@@ -3192,13 +3192,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Integer[]",
-          "misconception": ""
+          "text": "Object[]",
+          "misconception": "the built array takes the broad type no matter what the caller asked for"
         },
         {
           "id": "B",
-          "text": "Object[]",
-          "misconception": "the built array takes the broad type no matter what the caller asked for"
+          "text": "Integer[]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3212,7 +3212,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The array handed in tells the call what kind of array to produce, and an array of the wrapper type in means an array of the wrapper type out, with the values written into it. The tempting answers degrade the type or unbox the values, but the element type in that argument is exactly the type requested, and a list of wrappers cannot hand back primitives because each value it holds is already an object.",
       "hint": "Ask what the element type of the supplied array is and what the call promises to return.",
@@ -3261,8 +3261,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Object[]",
-          "misconception": ""
+          "text": "String",
+          "misconception": "the copy returns the only element rather than an array"
         },
         {
           "id": "B",
@@ -3271,8 +3271,8 @@
         },
         {
           "id": "C",
-          "text": "String",
-          "misconception": "the copy returns the only element rather than an array"
+          "text": "Object[]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3281,7 +3281,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "With no array supplied there is nothing to say what element type is wanted, so the call is declared to hand back an array of the broad reference type and that is what it builds. The tempting answer reads the element type off the list, and a program that wants a typed array has to say so by passing an array of that type, which is the whole difference between the two forms of this call.",
       "hint": "Ask what the declared return type of the no-argument form of the call is.",
@@ -3330,8 +3330,8 @@
       "options": [
         {
           "id": "A",
-          "text": "ab",
-          "misconception": ""
+          "text": "a",
+          "misconception": "an iterator obtained before a change can only ever report its first element"
         },
         {
           "id": "B",
@@ -3345,12 +3345,12 @@
         },
         {
           "id": "D",
-          "text": "a",
-          "misconception": "an iterator obtained before a change can only ever report its first element"
+          "text": "ab",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "This kind of list keeps its own snapshot for traversal, so the iterator was built over the two elements that existed when it was obtained and the later addition is not in that snapshot. The tempting answer watches the live list, which is the behaviour of an ordinary list and the reason that one raises a concurrent modification failure instead; choosing this kind of list trades a copy per change for iterators that never fail.",
       "hint": "Ask whether the traversal works from a snapshot or from the live contents.",
@@ -3399,13 +3399,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[A, b]",
-          "misconception": ""
+          "text": "[a, B]",
+          "misconception": "the replacement lands on the element the iterator has not reached yet"
         },
         {
           "id": "B",
-          "text": "[a, B]",
-          "misconception": "the replacement lands on the element the iterator has not reached yet"
+          "text": "[A, b]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3419,7 +3419,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The replacement applies to the element the iterator most recently returned, which is the first one, so a becomes a capital and the second element is untouched. The tempting answers aim the replacement at the next element, at the end of the list, or at every element, and all of them miss the rule that this call overwrites the last element the traversal handed back, which is what lets a loop rewrite values one at a time.",
       "hint": "Ask which element the iterator is pointing at after it has just returned one.",
@@ -3468,8 +3468,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[p, q]",
-          "misconception": ""
+          "text": "[q]",
+          "misconception": "adding to the inner list through the copy replaces the value already there"
         },
         {
           "id": "B",
@@ -3478,8 +3478,8 @@
         },
         {
           "id": "C",
-          "text": "[q]",
-          "misconception": "adding to the inner list through the copy replaces the value already there"
+          "text": "[p, q]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3488,7 +3488,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Building a new outer list copies the references it holds and those references still point at the same inner list, so adding through the copy reaches the original inner list and it now holds two values. The tempting answer believes a new outer list implies new inner lists, but only the outer structure was rebuilt; getting a genuinely independent structure means copying each element as well, which is the same lesson arrays teach one level down.",
       "hint": "Ask what the new outer list stores, and whether those are new objects or the old ones.",
@@ -3537,8 +3537,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, [2, 3]]",
-          "misconception": ""
+          "text": "[1, 2, [3]]",
+          "misconception": "only the first value of the inner list is printed inside the brackets"
         },
         {
           "id": "B",
@@ -3552,12 +3552,12 @@
         },
         {
           "id": "D",
-          "text": "[1, 2, [3]]",
-          "misconception": "only the first value of the inner list is printed inside the brackets"
+          "text": "[1, [2, 3]]",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each element is printed using the printing rule for its own type, and the second element is a list, so it prints with its own brackets inside the outer brackets, which keeps the nesting visible. The tempting answers flatten the structure or shift values across the boundary, and the reason that flattening is tempting is that a flattened form is easier to read; the cost is that nothing in the output says where one element ended and the next began.",
       "hint": "Ask how many levels of brackets the structure has.",
@@ -3606,13 +3606,13 @@
       "options": [
         {
           "id": "A",
-          "text": "it.remove();",
-          "misconception": ""
+          "text": "list.remove(current);",
+          "misconception": "the list can be asked to remove the element just as well as the iterator"
         },
         {
           "id": "B",
-          "text": "list.remove(current);",
-          "misconception": "the list can be asked to remove the element just as well as the iterator"
+          "text": "it.remove();",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3626,7 +3626,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A traversal and a structural change are two different operations on one list, and the iterator is what keeps track of the traversal, so the removal has to go through the iterator or the change count it is watching stops matching. The tempting answers go around the iterator, and each of those leaves the traversal pointing at a position that no longer means what it meant, which is exactly the situation the modification check exists to catch rather than to tolerate.",
       "hint": "Ask which object knows where the traversal currently is.",
@@ -3675,8 +3675,8 @@
       "options": [
         {
           "id": "A",
-          "text": "ids.remove(Integer.valueOf(20));",
-          "misconception": ""
+          "text": "ids.remove(20);",
+          "misconception": "a whole number argument is matched against the values in the list"
         },
         {
           "id": "B",
@@ -3685,8 +3685,8 @@
         },
         {
           "id": "C",
-          "text": "ids.remove(20);",
-          "misconception": "a whole number argument is matched against the values in the list"
+          "text": "ids.remove(Integer.valueOf(20));",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3695,7 +3695,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A whole number written directly is a position, so to remove by value the value has to arrive as a wrapper, and only then does the call mean the first element equal to 20, which leaves 5 and 30. The tempting answers all write a bare number and so ask for a position instead, and that is not a mistake the compiler catches because the position form is a perfectly valid call; it simply removes whatever sits at that index.",
       "hint": "Ask whether the argument you wrote is a position or a value, and how to say the value one.",
@@ -3744,8 +3744,8 @@
       "options": [
         {
           "id": "A",
-          "text": "List<String> frozen = new ArrayList<>(original);",
-          "misconception": ""
+          "text": "List<String> frozen = new ArrayList<>(original); frozen.add(\"z\");",
+          "misconception": "adding one more value to the copy still leaves the wrapper at two"
         },
         {
           "id": "B",
@@ -3759,12 +3759,12 @@
         },
         {
           "id": "D",
-          "text": "List<String> frozen = new ArrayList<>(original); frozen.add(\"z\");",
-          "misconception": "adding one more value to the copy still leaves the wrapper at two"
+          "text": "List<String> frozen = new ArrayList<>(original);",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The wrapper only forbids changes, it does not remember anything, so the size it reports can only stay at two if it was built from a copy taken before the caller's change rather than from the live list. The tempting answers wrap the original, or disturb the original instead, and each of those leaves the reported size describing whatever the caller's list happens to hold, which is the trap in treating a restriction as a snapshot.",
       "hint": "Ask whether the wrapper holds the live list or a copy of it, and when that copy has to be taken.",
@@ -3813,13 +3813,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Collections.sort(seen);",
-          "misconception": ""
+          "text": "Collections.reverse(seen);",
+          "misconception": "reversing the values puts them in the order the queue handed out"
         },
         {
           "id": "B",
-          "text": "Collections.reverse(seen);",
-          "misconception": "reversing the values puts them in the order the queue handed out"
+          "text": "Collections.sort(seen);",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3833,7 +3833,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Copying the queue into a list gives a list in whatever arrangement the queue happened to use, so the ascending order has to be imposed on that list, and sorting it is what produces it. The tempting answers reverse the values, sort them the other way, or empty the source, and each of those leaves the report describing an order the question did not ask for or leaves the copy unchanged, which is the trap in treating a queue as though it were already sorted.",
       "hint": "Ask what the copied list currently holds and what has to impose the order on it.",
@@ -3882,8 +3882,8 @@
       "options": [
         {
           "id": "A",
-          "text": "matches + 1",
-          "misconception": ""
+          "text": "matches + 0",
+          "misconception": "a match should leave the count exactly as it was"
         },
         {
           "id": "B",
@@ -3892,8 +3892,8 @@
         },
         {
           "id": "C",
-          "text": "matches + 0",
-          "misconception": "a match should leave the count exactly as it was"
+          "text": "matches + 1",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3902,7 +3902,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A tally adds one for each element that passes the test, and two of the three names have three letters, so the count ends at 2. The tempting answers scale the tally, leave it alone, or add the measured quantity rather than one, and none of those counts matches: a tally of how many things qualified always advances by exactly one per qualifying thing, whatever the test happened to measure.",
       "hint": "Ask what one passing element should add to a counter of passing elements.",
@@ -3951,8 +3951,8 @@
       "options": [
         {
           "id": "A",
-          "text": "values.stream().mapToInt(Integer::intValue).sum()",
-          "misconception": ""
+          "text": "values.stream().mapToInt(v -> v + 1).sum()",
+          "misconception": "totalling a stream adds one to every value first"
         },
         {
           "id": "B",
@@ -3966,12 +3966,12 @@
         },
         {
           "id": "D",
-          "text": "values.stream().mapToInt(v -> v + 1).sum()",
-          "misconception": "totalling a stream adds one to every value first"
+          "text": "values.stream().mapToInt(Integer::intValue).sum()",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A list of wrappers has to be mapped to a stream of plain values before it can be totalled, and mapping each element to the value it wraps is exactly what leaves the numbers unchanged, so the total is ten. The tempting answers produce a stream of ones, of squares, or of values raised by one, and each of those sums something other than the list, which is the quiet failure mode of a stream pipeline: it runs happily and reports a number that answers a different question.",
       "hint": "Ask what each element should be mapped to before the values are added up.",
@@ -4020,13 +4020,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A growable list backed by an array, because it keeps arrival order and allows changes at any position",
-          "misconception": ""
+          "text": "A fixed-size list backed by an array, because it keeps arrival order and allows changes at any position",
+          "misconception": "a list that cannot grow still satisfies a requirement to insert at any position"
         },
         {
           "id": "B",
-          "text": "A fixed-size list backed by an array, because it keeps arrival order and allows changes at any position",
-          "misconception": "a list that cannot grow still satisfies a requirement to insert at any position"
+          "text": "A growable list backed by an array, because it keeps arrival order and allows changes at any position",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -4040,7 +4040,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The requirements are arrival order, duplicates and positional changes, and a growable array-backed list is the type that offers all three: it appends new values at the end, holds the same value in as many positions as it likes, and inserts or removes at any position it is given. The tempting answers each break one requirement, and a fixed-size list cannot gain a position, an unchangeable list cannot lose one, and a set both discards duplicates and has no positions to insert at.",
       "hint": "Check each requirement against what the type actually allows, one at a time.",
@@ -4089,8 +4089,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Peek asks for the head without removing it, so the loop can test before it commits to a removal",
-          "misconception": ""
+          "text": "Reading the first position always fails on a queue, because positions belong to lists only",
+          "misconception": "a queue has no positions and so cannot be read by position at all"
         },
         {
           "id": "B",
@@ -4099,8 +4099,8 @@
         },
         {
           "id": "C",
-          "text": "Reading the first position always fails on a queue, because positions belong to lists only",
-          "misconception": "a queue has no positions and so cannot be read by position at all"
+          "text": "Peek asks for the head without removing it, so the loop can test before it commits to a removal",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -4109,7 +4109,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A draining loop has to know whether anything is left before it takes anything, and a non-destructive test is what makes that possible, because a destructive call would empty the queue on the very first check. The tempting answers make peek destructive or make it merely quick, and both of those would leave the loop unable to stop cleanly, which is why the library provides a testing call and a taking call as a deliberate pair.",
       "hint": "Ask what happens to the queue when the loop makes its testing call.",

@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "london, three units in two items, and a scan of orders, because the nesting is inside a value rather than a column",
-          "misconception": ""
+          "text": "london, two items but no total, and a search on an index, because the item list is a keyed column",
+          "misconception": "believes an array inside a text value is addressable by an index"
         },
         {
           "id": "B",
-          "text": "london, two items but no total, and a search on an index, because the item list is a keyed column",
-          "misconception": "believes an array inside a text value is addressable by an index"
+          "text": "london, three units in two items, and a scan of orders, because the nesting is inside a value rather than a column",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The path read returns london for the first document, and the second document simply has nothing at that path, so a query that asks for the city across both rows returns one value and one null rather than failing. The item walk finds two items totalling three units, which is the strength of the document shape: the structure can vary per row and a read that navigates it still works. The cost is the plan, which is a scan of every order, because the path is an expression inside a value and there is no structure a planner can index on. A query that must find orders by that path reads the whole table, however many rows it holds.",
       "hint": "Read the path for the first document, walk the item array and add the quantities, then ask what a planner can do with an expression inside a text value.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The new read returns both names, and the old read fails with no such column, because the column is now called full_name",
-          "misconception": ""
+          "text": "The new read works and the old read returns null, because a missing column reads as an empty value",
+          "misconception": "believes an unknown column yields null rather than an error"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "The new read works and the old read returns null, because a missing column reads as an empty value",
-          "misconception": "believes an unknown column yields null rather than an error"
+          "text": "The new read returns both names, and the old read fails with no such column, because the column is now called full_name",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rename succeeds on a table that holds rows, and after it the column exists only under its new name, so the new read returns the two names in key order and the old read is rejected outright with no such column. This is why a rename is a breaking change for a running system rather than a cosmetic one: any query, report or saved view written against the old name stops working at the instant the change lands, and nothing in the schema says which of those exist. The safe sequence adds the new column, moves the data, moves the callers, and only then drops the old one, so there is a point where both names answer.",
       "hint": "Run the rename, then the new query, then the old one, and read the error message rather than guessing it.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Five, seven rows, and the write lock is released between batches so other traffic still gets through",
-          "misconception": ""
+          "text": "Five, seven rows, and the batching guarantees the whole table is consistent at every point during the run",
+          "misconception": "believes a partially applied backfill leaves the table consistent throughout"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "Five, seven rows, and the batching guarantees the whole table is consistent at every point during the run",
-          "misconception": "believes a partially applied backfill leaves the table consistent throughout"
+          "text": "Five, seven rows, and the write lock is released between batches so other traffic still gets through",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Seven rows taken two at a time need four updating statements, and the loop runs once more to discover that nothing is left, so the script issues five statements in total. The reason to write it this way rather than as one statement is the lock: a single update over every row holds the write lock for the whole table until it commits, and on a table with traffic behind it that is a queue of requests waiting for the run to finish. Taken in batches, the lock is taken and released repeatedly, so the cost of the backfill is spread over time and an unlucky row that makes the update slow holds the lock for one batch rather than for all of them.",
       "hint": "Divide the rows by the batch size, add the statement that discovers the end, then ask what a single statement would hold while it ran.",
@@ -286,13 +286,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Three then two, and the insert is refused with a unique failure, because the index still holds the deleted row's address",
-          "misconception": ""
+          "text": "Three then two, and the insert succeeds, because a soft deleted row is treated as absent by every constraint",
+          "misconception": "believes a soft delete removes the row from the index as well as from the live set"
         },
         {
           "id": "B",
-          "text": "Three then two, and the insert succeeds, because a soft deleted row is treated as absent by every constraint",
-          "misconception": "believes a soft delete removes the row from the index as well as from the live set"
+          "text": "Three then two, and the insert is refused with a unique failure, because the index still holds the deleted row's address",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -306,7 +306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two counts differ because one of them asks for the live rows and the other does not, which is the first cost of a soft delete: every query in the system now has a clause it must remember, and the ones nobody remembers are the bug. The insert then fails, because a unique index holds an entry for every row that was ever written, including the one that was only marked as deleted, so the address cannot be given to anybody else. A user who deletes an account and later signs up again with the same address is refused, and the usual workarounds either null the address on delete, which loses it, or make the index conditional, which is a dialect feature that has to be checked.",
       "hint": "Count the rows with and without the filter, then try the insert and read what the index says about the deleted row's address.",
@@ -353,8 +353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A unique failure, a unique failure, then success with the two addresses exchanged",
-          "misconception": ""
+          "text": "A unique failure, a unique failure, then a third failure because the temporary address is also unique",
+          "misconception": "believes a temporary value that is itself unique is refused"
         },
         {
           "id": "B",
@@ -363,8 +363,8 @@
         },
         {
           "id": "C",
-          "text": "A unique failure, a unique failure, then a third failure because the temporary address is also unique",
-          "misconception": "believes a temporary value that is itself unique is refused"
+          "text": "A unique failure, a unique failure, then success with the two addresses exchanged",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -373,7 +373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The duplicate insert is refused and the table still holds two rows, which is the constraint doing its job. The two statement swap is refused as well, and this is the part that surprises people: the constraint is checked as each statement writes, so the moment the first update gives row one the address row two already holds, there is a duplicate, even though the second update would have removed it a moment later. The three step version works because the temporary address is not one anybody holds, and by the time the real addresses move, neither is duplicated. Any code that rearranges unique values has to do this, and it is worth knowing before a user hits it.",
       "hint": "Try the three steps in order and read each refusal, then check which address each row holds after the temporary step.",
@@ -420,8 +420,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first orphan insert and the delete of the referenced author; with the check off, two of the three posts point at nobody",
-          "misconception": ""
+          "text": "The orphan insert and the delete, and turning the check off also removes the not null requirement on the column",
+          "misconception": "believes disabling a check relaxes every constraint on the table"
         },
         {
           "id": "B",
@@ -435,12 +435,12 @@
         },
         {
           "id": "D",
-          "text": "The orphan insert and the delete, and turning the check off also removes the not null requirement on the column",
-          "misconception": "believes disabling a check relaxes every constraint on the table"
+          "text": "The first orphan insert and the delete of the referenced author; with the check off, two of the three posts point at nobody",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A foreign key is checked on the insert that creates the reference, so the post pointing at author 99 is refused, and it is checked on the delete that would remove the referenced row, so deleting author 1 is refused while post 1 still points at it. Turning the check off lets the two orphan posts in, and afterwards two of the three posts reference an author that does not exist, which is the state the constraint exists to prevent. The reason this is a constraint rather than application code is that the rows can be written by a migration, a repair script, or a second service, none of which will remember to check.",
       "hint": "Apply the check to the orphan insert, then to the delete, then count the posts with no matching author after the check is turned off.",
@@ -554,13 +554,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first three no, only the ones that constrain the leading column: both columns, and tenant_id alone",
-          "misconception": ""
+          "text": "All four, because an index covers both columns regardless of the order they appear in the query",
+          "misconception": "believes an index is usable from any of its columns in any order"
         },
         {
           "id": "B",
-          "text": "All four, because an index covers both columns regardless of the order they appear in the query",
-          "misconception": "believes an index is usable from any of its columns in any order"
+          "text": "The first three no, only the ones that constrain the leading column: both columns, and tenant_id alone",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -574,7 +574,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "An index on two columns is ordered by the first and then the second, so it can be entered at any point where the leading column is pinned down and then walked forward within it. That gives a seek for the query filtering on tenant_id alone and a seek for the query filtering on both, using both parts. A query that constrains only created_at cannot be served, because the entries are not grouped by that column, so the store must read the whole table. The textual order of the conditions in the fourth query changes nothing, because the planner sorts the constraints before it looks for a route through an index.",
       "hint": "Work out how the index entries are ordered, then ask which queries can name a value for the column the ordering starts with.",
@@ -621,8 +621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A search using a covering index, and then a search using the index but not a covering one, because the payload is not in it",
-          "misconception": ""
+          "text": "A covering search for the first and a scan for the second, because an index cannot be used when a column is missing",
+          "misconception": "believes a missing column forces a full table read"
         },
         {
           "id": "B",
@@ -631,8 +631,8 @@
         },
         {
           "id": "C",
-          "text": "A covering search for the first and a scan for the second, because an index cannot be used when a column is missing",
-          "misconception": "believes a missing column forces a full table read"
+          "text": "A search using a covering index, and then a search using the index but not a covering one, because the payload is not in it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -641,7 +641,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first query asks only for columns the index contains, so the planner can answer it from the index alone and says so, which is the whole point of choosing the index columns to match the query. The second query asks for the payload, which the index does not hold, so the planner still uses the index to find the ten matching entries and then visits the table for each one, and it says search using the index rather than covering. The distinction matters when reading a plan, because a covering search is fast in a way a search with a table visit is not, and a query that used to need a covering index can quietly stop being covered when someone adds a column to its select list.",
       "hint": "Compare the columns each query asks for with the columns the index stores, then read whether the plan says covering.",
@@ -688,8 +688,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first and the fourth, because a substring match has no left-hand side to order by and a function hides the column",
-          "misconception": ""
+          "text": "None of them, because a hundred rows is too few for the planner to choose anything but a scan",
+          "misconception": "believes the planner's choice depends only on the number of rows"
         },
         {
           "id": "B",
@@ -703,12 +703,12 @@
         },
         {
           "id": "D",
-          "text": "None of them, because a hundred rows is too few for the planner to choose anything but a scan",
-          "misconception": "believes the planner's choice depends only on the number of rows"
+          "text": "The first and the fourth, because a substring match has no left-hand side to order by and a function hides the column",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A substring match asks for a value in the middle of a column, and the entries in an index are ordered by the whole value, so there is no position to jump to and the store reads the table. The same is true of a function applied to the column: the index is ordered by the value of kind, and the query is about the value of lower(kind), so the store cannot tell which entries could match without computing it for each one. The second query becomes a search the moment the index exists, and the fourth does not, which is the reason an expression on an indexed column is a common and quiet cause of a slow query. Storing the lower-cased value in its own indexed column is the usual repair.",
       "hint": "Ask for each query whether the left-hand side of the comparison is the column itself and the right-hand side a single value.",
@@ -755,13 +755,13 @@
       "options": [
         {
           "id": "A",
-          "text": "e, f and d, e, f, so the offset reader silently skips d and the cursor reader does not",
-          "misconception": ""
+          "text": "d, e and d, e, f, so both readers see the same rows because the delete was outside both pages",
+          "misconception": "believes deleting a row above a page cannot change its second page"
         },
         {
           "id": "B",
-          "text": "d, e and d, e, f, so both readers see the same rows because the delete was outside both pages",
-          "misconception": "believes deleting a row above a page cannot change its second page"
+          "text": "e, f and d, e, f, so the offset reader silently skips d and the cursor reader does not",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -775,7 +775,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The offset reader asks for three rows and then skips three, and after the delete there are only five rows left, so skipping three lands on the fifth and gives e and f: d is never shown to anybody. The cursor reader asks for rows with a key greater than three, which is a statement about the key rather than about a position, so the deletion of a row before the cursor changes nothing and it still gets d, e and f. That difference is the whole argument for cursors: a position shifts when anything before it changes, and a key does not. A cursor has its own failure modes, which the next item is about, but it does not have this one.",
       "hint": "Work out which rows exist after the delete, then count the rows an offset skips against the rows a key comparison keeps.",
@@ -822,8 +822,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first cannot serve the request because the row it needs is gone, and the second pages on normally",
-          "misconception": ""
+          "text": "The first pages on using a default, and the second returns the deleted row again because it is still named",
+          "misconception": "believes an opaque cursor can resurface a row that no longer exists"
         },
         {
           "id": "B",
@@ -832,8 +832,8 @@
         },
         {
           "id": "C",
-          "text": "The first pages on using a default, and the second returns the deleted row again because it is still named",
-          "misconception": "believes an opaque cursor can resurface a row that no longer exists"
+          "text": "The first cannot serve the request because the row it needs is gone, and the second pages on normally",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -842,7 +842,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A cursor is a promise about where to resume, and a design that keeps the promise by storing the values in the cursor keeps it even when the row it was built from has gone, which is what the second design does. A design that keeps a reference to the row has quietly made row existence part of the paging contract, and the request now fails for a reason that has nothing to do with the caller: it asked for the page after a legitimate position and was refused because a row it never mentioned was deleted. The fix is to make the cursor self-contained, which is also why opaque cursors are usually encoded and signed rather than being a bare key.",
       "hint": "Ask what each design must read in order to answer, then check whether the thing it reads is still there.",
@@ -889,8 +889,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nine entries, seven distinct, and a filter on a seen set leaves seven in the order they were first received",
-          "misconception": ""
+          "text": "Nine entries, seven distinct, and a filter leaves seven but in the order the last page put them",
+          "misconception": "believes a filter reorders the entries it keeps"
         },
         {
           "id": "B",
@@ -904,12 +904,12 @@
         },
         {
           "id": "D",
-          "text": "Nine entries, seven distinct, and a filter leaves seven but in the order the last page put them",
-          "misconception": "believes a filter reorders the entries it keeps"
+          "text": "Nine entries, seven distinct, and a filter on a seen set leaves seven in the order they were first received",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Appending the three pages gives nine entries, of which the keys 3 and 5 each appear twice, so there are seven distinct ones and two duplicates. The filter leaves the seven, in the order they were first received, because a seen set skips an entry it has already accepted rather than moving anything. The duplicates are not a fault in the server: a row inserted before the cursor's position is legitimately part of both pages, and a list that renders them twice shows the same card twice with different keys, which is exactly the class of bug users report as a flickering list. A key based filter is the whole fix, and it is cheap.",
       "hint": "Count the entries after appending, count the distinct keys, then read the order a filter on a seen set produces.",
@@ -956,13 +956,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Two, and the other user's change to three is lost, because the snapshot was taken before the server had it",
-          "misconception": ""
+          "text": "Three, and nothing is lost, because the server's copy was merged over the restored snapshot",
+          "misconception": "believes a rollback keeps whatever the server returned"
         },
         {
           "id": "B",
-          "text": "Three, and nothing is lost, because the server's copy was merged over the restored snapshot",
-          "misconception": "believes a rollback keeps whatever the server returned"
+          "text": "Two, and the other user's change to three is lost, because the snapshot was taken before the server had it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -976,7 +976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The snapshot was taken when the client believed the quantity was 2, so restoring it puts 2 back on screen and the quantity of 3 that the other user had already committed is nowhere to be seen. The conflict was detected and the client's own change was rolled back correctly, and the cost was paid by a third party whose work the client has just covered with a stale value. Taking the server's copy instead of the snapshot is the better ending of the same trace, because it leaves 3 on screen and lets the user retry their own change against the current value, which is what a conflict is for.",
       "hint": "Apply the snapshot to the local state, then apply the server's copy instead, and compare the two results.",
@@ -1023,8 +1023,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The client's whole row, so stock reads 10 while 3 exist, and 7 phantom units are on sale with no error anywhere",
-          "misconception": ""
+          "text": "The warehouse's whole row, so the name edit is lost and the stock of 3 stands",
+          "misconception": "believes the earlier write wins when it arrives first"
         },
         {
           "id": "B",
@@ -1033,8 +1033,8 @@
         },
         {
           "id": "C",
-          "text": "The warehouse's whole row, so the name edit is lost and the stock of 3 stands",
-          "misconception": "believes the earlier write wins when it arrives first"
+          "text": "The client's whole row, so stock reads 10 while 3 exist, and 7 phantom units are on sale with no error anywhere",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1043,7 +1043,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The client sends the whole row, so its write carries the stock of 10 it read an hour earlier, and it arrives second, so the value stored for stock is 10. The sale is not reversed, only forgotten: the system now offers seven units that do not exist, and no component reports a problem, because both writes succeeded and the rule they follow says the last one stands. The field the client did not touch is the one that was lost, which is the argument for sending only the fields that changed, or for a rule that compares versions per field rather than per row.",
       "hint": "Apply the two writes in the order they arrive, then compare the stored stock with the three units the warehouse recorded.",
@@ -1090,8 +1090,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nothing, and the delete was dropped after one attempt because a rejected request will not succeed on a retry",
-          "misconception": ""
+          "text": "The receipt, because the third attempt is never sent once two attempts have failed",
+          "misconception": "believes an attempt limit of three means only two tries are made"
         },
         {
           "id": "B",
@@ -1105,12 +1105,12 @@
         },
         {
           "id": "D",
-          "text": "The receipt, because the third attempt is never sent once two attempts have failed",
-          "misconception": "believes an attempt limit of three means only two tries are made"
+          "text": "Nothing, and the delete was dropped after one attempt because a rejected request will not succeed on a retry",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The draft succeeds on the first attempt, the receipt fails twice with a temporary code and succeeds on the third, and the delete is answered with a rejection that says the request will not be accepted however many times it is sent, so the policy drops it after one attempt and the queue ends empty. The distinction between the two failures is the whole content of a retry policy: retrying a 503 is what recovers a queued write, while retrying a rejected body is a loop that never terminates and that a well meaning client will keep running for as long as the user is offline. A permanent failure needs to surface to the user, not to be retried quietly.",
       "hint": "Walk the three operations through the policy, and separate the failure that clears on its own from the one that never will.",
@@ -1157,13 +1157,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Fifty and thirty, and two deliveries are dropped, so the guarded total matches what was sent once",
-          "misconception": ""
+          "text": "Fifty and fifty, because recording an id does not change whether the message is applied",
+          "misconception": "believes a record of applied ids leaves the effect in place"
         },
         {
           "id": "B",
-          "text": "Fifty and fifty, because recording an id does not change whether the message is applied",
-          "misconception": "believes a record of applied ids leaves the effect in place"
+          "text": "Fifty and thirty, and two deliveries are dropped, so the guarded total matches what was sent once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1177,7 +1177,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Five deliveries of ten units each credit fifty, and the guarded consumer applies the three distinct messages once each, for thirty, having dropped the second m2 and the second m1. Thirty is the correct total here, because the producer sent three messages, and the guard is what turns at-least-once delivery into an effect that matches what was sent. The guard has to be written so the record of applied ids and the effect are committed together, since a crash between the two leaves a message marked as applied whose effect never happened, which is the same problem wearing a different hat.",
       "hint": "Count the deliveries, count the distinct ids, and multiply each by the amount the consumer credits.",
@@ -1224,8 +1224,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One and two are applied, four and five are held, and the resend of three releases all three in order",
-          "misconception": ""
+          "text": "One and two are applied, four is discarded as unusable, and five is applied against the wrong base",
+          "misconception": "believes a message after a gap can be applied to a state that skipped one"
         },
         {
           "id": "B",
@@ -1234,8 +1234,8 @@
         },
         {
           "id": "C",
-          "text": "One and two are applied, four is discarded as unusable, and five is applied against the wrong base",
-          "misconception": "believes a message after a gap can be applied to a state that skipped one"
+          "text": "One and two are applied, four and five are held, and the resend of three releases all three in order",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1244,7 +1244,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The consumer applies 1 and 2, then refuses 4 because 3 has not been seen, holding it rather than dropping it, and holds 5 for the same reason, so the state is consistent at 2 and two messages are pending. When 3 arrives it applies, and then 4 and 5 follow in order, so nothing is applied out of sequence and nothing is lost. The alternative of applying what arrives is the one that produces corruption quietly, because a consumer that applies 4 onto a state that never saw 3 is computing from a base that never existed, and the result is wrong in a way no later message can reveal.",
       "hint": "Apply each message only if it continues the run, hold the rest, then resend the missing one and continue.",
@@ -1291,8 +1291,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It rejects the upload as gone, because 11 is older than 12, and without the tombstone the row would come back",
-          "misconception": ""
+          "text": "It merges the two, because a row that was deleted and then re-created is the same row with two histories",
+          "misconception": "believes a deleted row and a recreated row can be reconciled into one"
         },
         {
           "id": "B",
@@ -1306,12 +1306,12 @@
         },
         {
           "id": "D",
-          "text": "It merges the two, because a row that was deleted and then re-created is the same row with two histories",
-          "misconception": "believes a deleted row and a recreated row can be reconciled into one"
+          "text": "It rejects the upload as gone, because 11 is older than 12, and without the tombstone the row would come back",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The tombstone is the record that the row was deleted and at which point in the sequence, so the server can compare it with the upload's sequence and see that the upload is older, and the upload is refused rather than resurrecting a row the user deleted. Without the tombstone there is nothing to compare against, the row is simply absent, and the upload creates it again, so a delete is undone by a device that was never told about it. That is the reason a deletion in a synchronising system is a write and not an absence, and the cost is that tombstones have to be kept for at least as long as any client can be offline.",
       "hint": "Compare the sequence on the tombstone with the sequence on the upload, then remove the tombstone and repeat the arrival.",
@@ -1358,13 +1358,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A row whose items carry per-item fields, added or removed per order without changing the schema",
-          "misconception": ""
+          "text": "A guarantee that two orders written at the same moment cannot both exist",
+          "misconception": "believes uniqueness of an order is a property of the storage shape"
         },
         {
           "id": "B",
-          "text": "A guarantee that two orders written at the same moment cannot both exist",
-          "misconception": "believes uniqueness of an order is a property of the storage shape"
+          "text": "A row whose items carry per-item fields, added or removed per order without changing the schema",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1378,7 +1378,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The document shape moves the shape of the data into the data, so an order can carry three items, or thirty, or an item with a field nobody anticipated, and no schema change is involved. That flexibility is the argument for it, and it is real. What it does not buy is any of the guarantees in the other three options: two orders can both be written whatever the shape, a value repeated inside documents is a copy rather than a reference, and a rule about what an order must contain is still a rule somebody has to write and enforce. Those are properties of constraints and of references, and a document store has to earn them separately.",
       "hint": "Ask which of the four would still need code written to enforce it, whichever shape is used.",
@@ -1425,8 +1425,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Every insert and every update of that column maintains a second structure, so the write pays for a read benefit it may not use",
-          "misconception": ""
+          "text": "A one-off cost to build the index, and nothing afterwards, since the structure is built once",
+          "misconception": "believes the build is the whole of the cost of an index"
         },
         {
           "id": "B",
@@ -1435,8 +1435,8 @@
         },
         {
           "id": "C",
-          "text": "A one-off cost to build the index, and nothing afterwards, since the structure is built once",
-          "misconception": "believes the build is the whole of the cost of an index"
+          "text": "Every insert and every update of that column maintains a second structure, so the write pays for a read benefit it may not use",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1445,7 +1445,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An index is a second copy of part of the data in a different order, and the only way it stays in step is for every insert, and every update that touches an indexed column, to write into it as well. So the index buys a faster read and charges for it on the write path, and at four hundred writes a second that charge is continuous rather than occasional. This is why an index on a column that is written constantly and read rarely is a net loss, and why a bulk load is faster before the indexes exist. The judgement is a comparison of two measured costs, and it should be made with both numbers rather than with a rule of thumb about how many indexes a table should have.",
       "hint": "Ask what has to happen on the write path for the index to remain correct.",
@@ -1492,8 +1492,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Every row is read; the index locates matching entries then the rows are fetched; the index holds every column asked for",
-          "misconception": ""
+          "text": "The table is read in full; the index is used for ordering only; no row fetch happens at all",
+          "misconception": "believes a covering index means rows are never fetched whatever is selected"
         },
         {
           "id": "B",
@@ -1507,12 +1507,12 @@
         },
         {
           "id": "D",
-          "text": "The table is read in full; the index is used for ordering only; no row fetch happens at all",
-          "misconception": "believes a covering index means rows are never fetched whatever is selected"
+          "text": "Every row is read; the index locates matching entries then the rows are fetched; the index holds every column asked for",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The three words describe how much work happens and where. A scan means the store reads every row and decides per row, so the cost grows with the size of the table no matter how few rows match. A plain search means the index narrowed the candidates down and each matching row was then fetched from the table, which is why a query that selects a wide row can be much slower than the same query selecting two narrow ones even though both use the same index. A covering search means the index held every column the query asked for, so the table is never visited, and that is the cheapest of the three and the one worth engineering towards when a query is hot.",
       "hint": "For each word, ask what the store had to read to produce the answer and where that read happened.",
@@ -1559,13 +1559,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The client cannot send over that connection, so acknowledgements and filters need a second channel such as a fetch",
-          "misconception": ""
+          "text": "The client can send, but only text fields, so a filter is possible and an acknowledgement is not",
+          "misconception": "believes the stream carries client messages in a limited format"
         },
         {
           "id": "B",
-          "text": "The client can send, but only text fields, so a filter is possible and an acknowledgement is not",
-          "misconception": "believes the stream carries client messages in a limited format"
+          "text": "The client cannot send over that connection, so acknowledgements and filters need a second channel such as a fetch",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1579,7 +1579,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The interface is a one-way read: the server pushes named events down an open response and the client can listen and can close, and there is no method for putting anything back. That single fact decides a lot of design questions. A client that wants to say which rows it cares about has to open a second connection, and a client that wants to acknowledge receipt has to make a request, so anything that needs both directions has to carry the traffic itself. What the stream is genuinely good at is many clients receiving the same small updates over one connection each, which is cheaper per client than a socket and needs no framing code.",
       "hint": "List the things the interface can do, then ask which of the two desired behaviours is not among them.",
@@ -1626,8 +1626,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The growing delay is what stops a thousand clients from arriving together, and a close carrying a policy code is not retried",
-          "misconception": ""
+          "text": "Giving up after three attempts is correct, because a third failure proves the server is gone for good",
+          "misconception": "believes a fixed attempt count distinguishes a restart from an outage"
         },
         {
           "id": "B",
@@ -1636,8 +1636,8 @@
         },
         {
           "id": "C",
-          "text": "Giving up after three attempts is correct, because a third failure proves the server is gone for good",
-          "misconception": "believes a fixed attempt count distinguishes a restart from an outage"
+          "text": "The growing delay is what stops a thousand clients from arriving together, and a close carrying a policy code is not retried",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1646,7 +1646,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Every client that was connected lost its connection at the same moment, so a client that reconnects immediately rejoins at the same moment, and the server meets the whole population at once while it is still starting. A delay that grows after each failure spreads them out, which is the entire reason the delay grows. The other half is that a close is not always a failure: a server that closes with a code saying the client is not permitted, or that the client version is too old, is making a decision that a retry will not change, so a well behaved client stops on those and reconnects on the rest. Three attempts with no cap on total time is a policy to choose, not a rule to inherit.",
       "hint": "Ask what a thousand clients do at the same instant, and what a deliberate close by the server means.",
@@ -1693,8 +1693,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One ordered sequence per key or per partition; two updates to the same row on different keys can still arrive reversed",
-          "misconception": ""
+          "text": "The broker's storage is ordered, so every consumer reading it sees the same global order regardless of partition",
+          "misconception": "believes ordered storage produces a single global order"
         },
         {
           "id": "B",
@@ -1708,12 +1708,12 @@
         },
         {
           "id": "D",
-          "text": "The broker's storage is ordered, so every consumer reading it sees the same global order regardless of partition",
-          "misconception": "believes ordered storage produces a single global order"
+          "text": "One ordered sequence per key or per partition; two updates to the same row on different keys can still arrive reversed",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The guarantee is per ordered sequence, and it is produced by the design decision to give each key or partition one sequence number space and route related events to the same place. The part it does not cover is two events that concern the same row but arrive through different sequences, and there is nothing in the stream that orders them relative to each other, so a consumer that applies both blindly can apply them in the wrong order and lose one. The usual repairs are to insist that a row has a single writer, so all its events share a sequence, or to carry the sequence with the event and have the consumer refuse anything that does not continue its run.",
       "hint": "Ask which events could be reordered relative to each other, and what would have to be true for them to share an order.",
@@ -1760,13 +1760,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Fewer writes against added delay of up to one window, and the user waiting on the result pays the delay",
-          "misconception": ""
+          "text": "Fewer writes against lower server load, and nobody pays because the events are already in memory",
+          "misconception": "believes holding an event in memory costs the user nothing"
         },
         {
           "id": "B",
-          "text": "Fewer writes against lower server load, and nobody pays because the events are already in memory",
-          "misconception": "believes holding an event in memory costs the user nothing"
+          "text": "Fewer writes against added delay of up to one window, and the user waiting on the result pays the delay",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1780,7 +1780,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The window is a straight exchange of per-write cost for per-event delay. While an event waits for its window to close, the thing the user asked for has not happened, so the delay is bounded by the window and is paid by whoever is waiting, which for a steady stream is every user rather than an unlucky few. A longer window is only worth it when the savings on the write side are real and the waiting is invisible, and that is why ingest paths batch happily while a path a person is watching usually does not. The other thing to notice is the shape of the input: a steady six a second gains little from batching, while a burst of six hundred a second gains a great deal.",
       "hint": "Ask how long the last event in each window waits, and who is waiting for that result.",
@@ -1827,8 +1827,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The log must still contain every change after the client's watermark, so it has to be kept longer than any client can be away",
-          "misconception": ""
+          "text": "Nothing in particular, because a client that has fallen too far behind is told to start again and nothing is lost",
+          "misconception": "believes a client falling behind costs nothing but a restart"
         },
         {
           "id": "B",
@@ -1837,8 +1837,8 @@
         },
         {
           "id": "C",
-          "text": "Nothing in particular, because a client that has fallen too far behind is told to start again and nothing is lost",
-          "misconception": "believes a client falling behind costs nothing but a restart"
+          "text": "The log must still contain every change after the client's watermark, so it has to be kept longer than any client can be away",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1847,7 +1847,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A delta is only useful if the changes it leaves out are the ones the client already has, which means the log has to reach back past the oldest watermark any client will present. That is the whole cost of the design: the log is a second copy of recent history that has to be retained, and the retention window is set by the longest absence you are willing to serve rather than by anything about the data. When a client does present a watermark older than the log, the server has to answer with a full snapshot instead of a delta, and the client has to be able to accept one, which is a second code path that is easy to leave untested until the day a user returns after a long holiday.",
       "hint": "Ask what the server must still be holding for a client that presents an old watermark.",
@@ -1894,8 +1894,8 @@
       "options": [
         {
           "id": "A",
-          "text": "How long a client can be offline and still be expected to sync, since a purge before that lets an old copy resurrect the row",
-          "misconception": ""
+          "text": "Whether the row can be recreated, since a row that is recreated makes the tombstone unnecessary at once",
+          "misconception": "believes a recreated row removes the need to remember the deletion"
         },
         {
           "id": "B",
@@ -1909,12 +1909,12 @@
         },
         {
           "id": "D",
-          "text": "Whether the row can be recreated, since a row that is recreated makes the tombstone unnecessary at once",
-          "misconception": "believes a recreated row removes the need to remember the deletion"
+          "text": "How long a client can be offline and still be expected to sync, since a purge before that lets an old copy resurrect the row",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A tombstone exists to answer one question from a client that was not there when the row went away, so the retention window is exactly as long as the longest absence the system promises to serve. Purging on a schedule chosen for tidiness, such as thirty days, silently assumes every client returns within thirty days, and the client that does not will push its old copy back and the row will reappear with the deletion nowhere in the record. The safe choices are to retain for longer than the longest supported offline period, to record a per-client acknowledgement so a tombstone can go once every known client has seen it, or to make the client re-check rather than re-push, which moves the burden to clients that have been away.",
       "hint": "Ask which client the tombstone is being kept for, and how long that client is allowed to be away.",
@@ -1961,13 +1961,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The server returns nothing every time, because the watermark is always ahead; a server issued sequence number replaces it",
-          "misconception": ""
+          "text": "The server returns everything it has, because a future watermark is treated as a request for a full history",
+          "misconception": "believes a future watermark widens the query rather than emptying it"
         },
         {
           "id": "B",
-          "text": "The server returns everything it has, because a future watermark is treated as a request for a full history",
-          "misconception": "believes a future watermark widens the query rather than emptying it"
+          "text": "The server returns nothing every time, because the watermark is always ahead; a server issued sequence number replaces it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1981,7 +1981,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A watermark the server believes is in the future describes a point it has not reached, so the set of changes after it is empty, and it will be empty on the next request and the one after that, so the client never syncs again while the skew lasts and never finds out why. Nothing errors, which is what makes it durable. The fix is to stop using a time that the client controls: the server issues the watermark as a sequence number from its own counter, the client returns that number rather than a time, and the ordering of changes is then a property of the server rather than of the two machines' agreement about the hour. Skew in the other direction is worse, because it silently skips changes the client never saw.",
       "hint": "Ask what set of changes exists after a moment the server has not reached yet.",
@@ -2028,8 +2028,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Expire after a fixed time, because a bounded staleness needs no coordination and the extra read is already being paid",
-          "misconception": ""
+          "text": "Write through, because updating the cache on write removes the window in which a reader sees the old value",
+          "misconception": "believes a short window of staleness is the dominant cost to avoid"
         },
         {
           "id": "B",
@@ -2038,8 +2038,8 @@
         },
         {
           "id": "C",
-          "text": "Write through, because updating the cache on write removes the window in which a reader sees the old value",
-          "misconception": "believes a short window of staleness is the dominant cost to avoid"
+          "text": "Expire after a fixed time, because a bounded staleness needs no coordination and the extra read is already being paid",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2048,7 +2048,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The choice is between how stale a copy may be and how much coordination the guarantee costs, and the requirement given here is loose about staleness and firm about extra reads. A fixed expiry meets it with no coordination at all: the cache is a copy that becomes wrong on its own and is discarded on schedule, so there is nothing to keep in step and no path where a write forgets to tell the cache. Invalidating on write is tighter but makes every writer responsible for the cache, which is a rule that has to hold across every writer including migrations and repair scripts, and any one of them getting it wrong leaves a stale value that nobody will clear until the process restarts.",
       "hint": "Rank the strategies by the staleness each one allows, then check which one needs no coordination with writers.",
@@ -2095,8 +2095,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Twice, so the same update is applied two times, which for a list appending an item shows a duplicate",
-          "misconception": ""
+          "text": "Not at all, because the teardown removed the only handle the channel was given",
+          "misconception": "believes a channel holds registrations the client never keeps a handle for"
         },
         {
           "id": "B",
@@ -2110,12 +2110,12 @@
         },
         {
           "id": "D",
-          "text": "Not at all, because the teardown removed the only handle the channel was given",
-          "misconception": "believes a channel holds registrations the client never keeps a handle for"
+          "text": "Twice, so the same update is applied two times, which for a list appending an item shows a duplicate",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The channel holds one registration per subscribe call and the teardown removed one of the two, so one event reaches the handler twice. A handler that appends to a list, increments a counter or sends an analytics event does its work twice, and the symptoms are the kind that get reported as a rendering fault: duplicated rows, a badge that goes up by two, a message posted twice. The cause is a handle that was not kept, so there was no way to remove the second registration, and the general rule is that every subscribe has to be paired with the specific thing returned by that call rather than with a fresh teardown that happens to remove whichever registration is first.",
       "hint": "Count the registrations the channel holds and the number the teardown removed.",
@@ -2162,13 +2162,13 @@
       "options": [
         {
           "id": "A",
-          "text": "About forty a second, and polling only while the page is visible removes most of it without changing what a user sees",
-          "misconception": ""
+          "text": "About two a second, because the requests from many tabs are shared by the browser",
+          "misconception": "believes a browser combines identical requests from several tabs"
         },
         {
           "id": "B",
-          "text": "About two a second, because the requests from many tabs are shared by the browser",
-          "misconception": "believes a browser combines identical requests from several tabs"
+          "text": "About forty a second, and polling only while the page is visible removes most of it without changing what a user sees",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2182,7 +2182,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Twelve requests a minute per tab, times two hundred tabs, is two thousand four hundred a minute, which is forty a second, for a number that changes about once an hour. The cheapest change is to stop polling a page nobody is looking at, since a background tab produces no benefit at all and the browser even throttles those timers, so gating on whether the page is visible removes the overnight cost without altering what any user sees. After that the interval itself is the lever, and the right value comes from how quickly the number actually changes rather than from a default, with a push or a stream reserved for the cases where a user genuinely needs to see a change as it happens.",
       "hint": "Multiply the requests per minute by the number of tabs, then consider which of those requests nobody is waiting for.",
@@ -2229,8 +2229,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Up to about a thousand connection-seconds, and the other thirty-nine wait out their full hold before they see it",
-          "misconception": ""
+          "text": "About six hundred connection-seconds, and the other thirty-nine pick it up on their next attempt",
+          "misconception": "believes a client retries early enough to see a change four seconds old"
         },
         {
           "id": "B",
@@ -2239,8 +2239,8 @@
         },
         {
           "id": "C",
-          "text": "About six hundred connection-seconds, and the other thirty-nine pick it up on their next attempt",
-          "misconception": "believes a client retries early enough to see a change four seconds old"
+          "text": "Up to about a thousand connection-seconds, and the other thirty-nine wait out their full hold before they see it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2249,7 +2249,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A long poll is one connection per waiting client, and the cost of a change is bounded by how long every one of them has been holding, so the worst case is the hold time times the number of waiters, which is a thousand connection-seconds here. A change releases the client whose request it answers and nothing else, so the other thirty-nine learn about it only when their own hold expires, up to twenty five seconds later. That is the cost a long poll trades away against polling: it removes the wasted requests, and it pays for it in delay and in a connection count that scales with the number of waiting users.",
       "hint": "Multiply the hold time by the number of waiting connections, then ask who is released when one change occurs.",
@@ -2296,8 +2296,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The client states its intent and the server decides the outcome, so anything the client asserts about the result is ignored",
-          "misconception": ""
+          "text": "The server should compare the two prices and accept whichever is lower, since that favours the customer",
+          "misconception": "believes resolving a disagreement by taking the client's figure is the safe choice"
         },
         {
           "id": "B",
@@ -2311,12 +2311,12 @@
         },
         {
           "id": "D",
-          "text": "The server should compare the two prices and accept whichever is lower, since that favours the customer",
-          "misconception": "believes resolving a disagreement by taking the client's figure is the safe choice"
+          "text": "The client states its intent and the server decides the outcome, so anything the client asserts about the result is ignored",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A client is a statement of intent and a server is the only party that can know the outcome, so a value the client sends about the result is a claim rather than a fact, however well signed it is. Recomputing on the server is what makes the rule hold for every writer, including a modified client, a replayed request and a script, none of which the server controls. The other three options all share a mistake: they treat a claim as reliable because it came from a party that was previously reliable, or because it was sealed. Traced through, a client that claims ninety nine of three in stock is refused three by a server that recomputes, and the next request for two is accepted as zero rather than as two.",
       "hint": "Ask which party can compute the outcome, and what a signature actually attests to.",
@@ -2363,13 +2363,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The first loses the title edit and leaves no record of it, and neither records that the two versions ever conflicted",
-          "misconception": ""
+          "text": "The first loses the note and the second loses the title, and both leave a record of the conflict",
+          "misconception": "believes a merge rule that keeps both fields still logs the clash"
         },
         {
           "id": "B",
-          "text": "The first loses the note and the second loses the title, and both leave a record of the conflict",
-          "misconception": "believes a merge rule that keeps both fields still logs the clash"
+          "text": "The first loses the title edit and leaves no record of it, and neither records that the two versions ever conflicted",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2383,7 +2383,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A whole-record rule keeps one version in full, so every field the other person changed and the winner did not is discarded, and it is discarded silently, because nothing about the write was invalid and nothing reported a conflict. A per field rule keeps edits that touch different fields, which is most of the value at no cost, and it still loses the second of two edits to the same field, so a field someone cared about can disappear without a trace. What neither rule records is that two people were editing at once, which is the piece a system that wants to show a user a conflict banner, or to count contention on a hot record, has to write down separately.",
       "hint": "List the fields each version changed, then apply each rule and note what is missing afterwards.",
@@ -2430,8 +2430,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A server-sent event stream, because many passive readers of one small value is exactly the shape it serves cheaply",
-          "misconception": ""
+          "text": "Polling every two seconds, because a ticker changes fast enough that anything slower shows stale numbers",
+          "misconception": "believes a value that changes a few times an hour needs a two second refresh"
         },
         {
           "id": "B",
@@ -2440,8 +2440,8 @@
         },
         {
           "id": "C",
-          "text": "Polling every two seconds, because a ticker changes fast enough that anything slower shows stale numbers",
-          "misconception": "believes a value that changes a few times an hour needs a two second refresh"
+          "text": "A server-sent event stream, because many passive readers of one small value is exactly the shape it serves cheaply",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2450,7 +2450,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A ticker is one producer, many passive consumers, a small payload and no traffic coming back, and a server-sent event stream is built for exactly that: one open response per reader, the server pushes named events, and there is no framing or connection upgrade code to get wrong. The alternatives each pay for something the ticker does not need. A socket is bidirectional and is the right answer for the chat, where both ends talk, but it costs more per client and gives the ticker nothing in return. Polling every two seconds spends the dashboard's problem on a value that changes a few times an hour. A long poll is a request held open, which does push, but it holds a connection per reader in the same way and adds a hold time to wait through.",
       "hint": "For the ticker, count the directions of traffic, the number of senders, and how often the value changes.",
@@ -2497,8 +2497,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The rule discards a completed write, so the first claim is not true of concurrent writes and the document contradicts itself",
-          "misconception": ""
+          "text": "The rule is irrelevant, because conflict resolution happens above the store and the store only ever holds one value",
+          "misconception": "believes the store is not involved in which value survives a conflict"
         },
         {
           "id": "B",
@@ -2512,12 +2512,12 @@
         },
         {
           "id": "D",
-          "text": "The rule is irrelevant, because conflict resolution happens above the store and the store only ever holds one value",
-          "misconception": "believes the store is not involved in which value survives a conflict"
+          "text": "The rule discards a completed write, so the first claim is not true of concurrent writes and the document contradicts itself",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A write that is accepted, reported as successful and then discarded by a conflict rule was completed, and a later read does not reflect it, so the first claim fails for exactly the case the second rule creates. The document is therefore asserting two things that cannot both hold, and the useful question for anyone reading it is which behaviour the code actually has, because a client that relied on the first claim would cache a value that a concurrent writer has already replaced. The honest version of the claim is about a single record read on one replica, with the conflict rule and its window named, which is a narrower promise but one the implementation can keep.",
       "hint": "Ask whether a write that is accepted and then discarded counts as completed, and what a read afterwards reflects.",
@@ -2564,13 +2564,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The write path never invalidates the entry, so the read is correct by the rules and the rules are wrong; clear the key on write",
-          "misconception": ""
+          "text": "The cache is too small, so the entry was evicted and refilled from an older copy still in memory",
+          "misconception": "believes an eviction can produce a value older than the store"
         },
         {
           "id": "B",
-          "text": "The cache is too small, so the entry was evicted and refilled from an older copy still in memory",
-          "misconception": "believes an eviction can produce a value older than the store"
+          "text": "The write path never invalidates the entry, so the read is correct by the rules and the rules are wrong; clear the key on write",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2584,7 +2584,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The cache is behaving exactly as written and the design is what is wrong: nothing in the write path touches the entry, so the read is stale for the whole lifetime of the copy, and the only reason it eventually looks right is that the entry expires. The smallest change is to clear the key as part of the write, and where a write is rejected partway the key has to be cleared anyway so a failed attempt does not leave a fresh value in the cache. Nothing about the read path needs to change, and nothing needs to be reported, because a design that is correct for its own rules reports no error while handing a user an old name.",
       "hint": "Follow the write and ask what it does to the copy the read will find.",
@@ -2631,8 +2631,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The second mount's handle was discarded, so the teardown removed only the first registration; keep the handle from every subscribe",
-          "misconception": ""
+          "text": "The channel dispatched the event once per connected client rather than once per registration",
+          "misconception": "believes dispatch is counted per client rather than per registration"
         },
         {
           "id": "B",
@@ -2641,8 +2641,8 @@
         },
         {
           "id": "C",
-          "text": "The channel dispatched the event once per connected client rather than once per registration",
-          "misconception": "believes dispatch is counted per client rather than per registration"
+          "text": "The second mount's handle was discarded, so the teardown removed only the first registration; keep the handle from every subscribe",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2651,7 +2651,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A channel holds one registration per subscribe call, and the teardown can only remove the one it was given, so after a second mount there are two registrations and one is unreachable. The symptom appears in the handler rather than at the registration, which is why it is usually misdiagnosed as a rendering fault: the list shows a duplicate and the developer's instinct is to look at the key or the state, both of which are innocent. The discipline is mechanical. Every subscribe returns something, that something is the only way to remove that registration, and a component that cannot hold onto it should not be able to call subscribe.",
       "hint": "Count the registrations the channel holds against the number the code is able to remove.",
@@ -2698,8 +2698,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The three rows and no index, so the duplicates have to be found and resolved before the statement is retried",
-          "misconception": ""
+          "text": "The three rows and no index, and the retry can succeed unchanged because the failure was transient",
+          "misconception": "believes a constraint failure is a temporary condition worth retrying"
         },
         {
           "id": "B",
@@ -2713,12 +2713,12 @@
         },
         {
           "id": "D",
-          "text": "The three rows and no index, and the retry can succeed unchanged because the failure was transient",
-          "misconception": "believes a constraint failure is a temporary condition worth retrying"
+          "text": "The three rows and no index, so the duplicates have to be found and resolved before the statement is retried",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Creating the index is one statement, so it either applies to the whole table or to none of it: the table keeps its three rows, no index is created, and the migration has to be rolled back or left failed. What has to happen first is that somebody decides what the two rows sharing an address mean, because the constraint is not a storage problem but a question about the data, and the answers are to merge them, to delete one, or to decide they are different and add the column that says which. Retrying the statement unchanged fails identically, and in a deployment that means the release stops, which is the right outcome as long as the failure is loud.",
       "hint": "Count the rows before and after the failed statement, and check what the index list says afterwards.",
@@ -2765,13 +2765,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Just a, so one row is shown twice and the three rows sharing 110 are never shown at all",
-          "misconception": ""
+          "text": "c, d and e, because the comparison excludes the whole group the cursor names rather than part of it",
+          "misconception": "believes an exclusive comparison drops every row that shares the value"
         },
         {
           "id": "B",
-          "text": "c, d and e, because the comparison excludes the whole group the cursor names rather than part of it",
-          "misconception": "believes an exclusive comparison drops every row that shares the value"
+          "text": "Just a, so one row is shown twice and the three rows sharing 110 are never shown at all",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2785,7 +2785,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The comparison keeps the rows below 110, which is a, and the three rows that share 110 are excluded together, so c and d never appear in any page while a is returned a second time. The design assumed a value it could resume from is unique, and a timestamp is not, so the moment two rows share it the cursor either repeats the group or skips it. A cursor has to be built from a total order, which for a timestamp means carrying the key with it and comparing the pair, so that resuming is from a position within the group rather than from its edge. The same fault appears with any non-unique column, including a rounded price or a day-level date.",
       "hint": "Apply the comparison to the four remaining rows and see which side of the boundary the tied rows fall on.",
@@ -2832,8 +2832,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The write lock is held until the statement commits, so writes queue behind it; batching takes and releases the lock repeatedly",
-          "misconception": ""
+          "text": "Reads are blocked for the duration while writes continue, because the two take different kinds of lock",
+          "misconception": "believes an update blocks readers and not writers"
         },
         {
           "id": "B",
@@ -2842,8 +2842,8 @@
         },
         {
           "id": "C",
-          "text": "Reads are blocked for the duration while writes continue, because the two take different kinds of lock",
-          "misconception": "believes an update blocks readers and not writers"
+          "text": "The write lock is held until the statement commits, so writes queue behind it; batching takes and releases the lock repeatedly",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2852,7 +2852,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An update takes a write lock and holds it until the statement commits, so one statement over seven hundred thousand rows holds that lock for as long as it takes to write them all, and every write arriving in the meantime waits. Readers are a separate question and depend on the store, so the honest statement is that the write path is the one guaranteed to queue. The batched loop takes the lock, updates a slice, commits, releases, and takes it again, so the queue drains between batches and the cost of the backfill is spread over minutes rather than imposed as one outage. The other thing a single statement loses is progress: if it fails at the end, the work is rolled back and the whole run has to start again.",
       "hint": "Ask how long the lock is held in each version, and what a failure at the end costs.",
@@ -2899,8 +2899,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The watermark is always in the server's future so the delta is always empty; the server must issue the watermark as its own sequence",
-          "misconception": ""
+          "text": "The server is returning the same cached response for every request, so the cache key should include the watermark",
+          "misconception": "believes a cached response is served for a query with a different value"
         },
         {
           "id": "B",
@@ -2914,12 +2914,12 @@
         },
         {
           "id": "D",
-          "text": "The server is returning the same cached response for every request, so the cache key should include the watermark",
-          "misconception": "believes a cached response is served for a query with a different value"
+          "text": "The watermark is always in the server's future so the delta is always empty; the server must issue the watermark as its own sequence",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A watermark four minutes ahead describes a moment the server has not reached, so the set of changes after it is empty, and it will be empty on every subsequent request, so the client never sees a change for as long as the skew lasts. Nothing fails, which is why this survives for months. The durable repair removes the client's clock from the protocol: the server issues a sequence number from its own counter as the watermark, the client returns that number rather than a time, and the two machines no longer have to agree about the hour. Retrying, re-sorting and varying a cache key all treat a request that is succeeding, so none of them can help.",
       "hint": "Ask what set of changes exists after a moment the server has not reached, and who chose the value being compared against.",
@@ -2966,13 +2966,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The window was copied from a path with no user waiting; a window of tens of milliseconds suits an interactive path",
-          "misconception": ""
+          "text": "The window is too short, because a second is not long enough to group the six events a second into a useful write",
+          "misconception": "believes a longer window produces larger batches for a steady stream"
         },
         {
           "id": "B",
-          "text": "The window is too short, because a second is not long enough to group the six events a second into a useful write",
-          "misconception": "believes a longer window produces larger batches for a steady stream"
+          "text": "The window was copied from a path with no user waiting; a window of tens of milliseconds suits an interactive path",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2986,7 +2986,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The window is a delay, and the party paying it is whoever is waiting for the result, which on this path is a person who has just submitted a form. About fifty events are waiting at any moment, so a steady six a second is spread across ten writes a second and the confirmation is delayed by up to the length of the window, which is why the change is visible to the user. An interactive path wants a window short enough that the added delay is below what a person can notice, tens of milliseconds rather than a second, and it wants to keep the batching idea for the case it is good at, which is a burst rather than a steady trickle. The overnight import has no user, so its window can be as wide as the job allows.",
       "hint": "Ask who is waiting for the result on this path, and what the window adds to that wait.",
@@ -3033,8 +3033,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It applies 1, 2, 4 and 5 in arrival order, computing 5's result from a state that never saw 3, so the dropped assumption was that arrival implies completeness",
-          "misconception": ""
+          "text": "It applies 1, 2, 4 and 5 correctly, because the numbers are ascending and the arithmetic does not depend on the gap",
+          "misconception": "believes an ascending sequence is enough for a stateful computation to be right"
         },
         {
           "id": "B",
@@ -3043,8 +3043,8 @@
         },
         {
           "id": "C",
-          "text": "It applies 1, 2, 4 and 5 correctly, because the numbers are ascending and the arithmetic does not depend on the gap",
-          "misconception": "believes an ascending sequence is enough for a stateful computation to be right"
+          "text": "It applies 1, 2, 4 and 5 in arrival order, computing 5's result from a state that never saw 3, so the dropped assumption was that arrival implies completeness",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3053,7 +3053,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "With the guard gone the consumer applies all four messages, and the fourth is computed from a state that never received the third, so the result is a number that corresponds to no point in the sequence. The number being ascending is irrelevant, because the state is a fold and a fold over a sequence with a hole is not the fold the sender intended. The dropped assumption is that arrival implies completeness, and the refactor's justification is the thing to argue with: a broker that delivers in order within a partition still does not promise that a message a consumer failed to process will not arrive later out of order, which is why the guard lived there. A gap is a fact the consumer has to represent, not a condition it can assume away.",
       "hint": "Apply the four messages in the order received and ask which of them is computed from a state that skipped one.",
@@ -3100,8 +3100,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two rows and 66.7 percent, and the unfiltered count of three, so the page shows a user who deleted the account",
-          "misconception": ""
+          "text": "Two rows and 66.7 percent, and the filtered count of two, so the page is correct and the table is not",
+          "misconception": "believes a correct page implies the count it produced was unfiltered"
         },
         {
           "id": "B",
@@ -3115,12 +3115,12 @@
         },
         {
           "id": "D",
-          "text": "Two rows and 66.7 percent, and the filtered count of two, so the page is correct and the table is not",
-          "misconception": "believes a correct page implies the count it produced was unfiltered"
+          "text": "Two rows and 66.7 percent, and the unfiltered count of three, so the page shows a user who deleted the account",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Two of the three rows have no timestamp, so the live count is two and the live share is two thirds, which is 66.7 percent. A listing that forgets the filter reads three and shows the deleted account, which is the shape of bug a soft delete makes easy: the row is still there, so nothing is missing, and only the query knows the difference. The other two figures are the ones to watch in a count that is compared over time, because a total that includes deletions and a total that excludes them move in opposite directions for the same underlying activity, and a chart built from the unfiltered count will look like growth whenever anyone leaves.",
       "hint": "Count the rows with and without the filter, divide the smaller by the total, then check which count an unfiltered query returns.",
@@ -3167,13 +3167,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Five statements, and the lock is held for the two rows of that batch rather than for all seven",
-          "misconception": ""
+          "text": "Four statements, and the lock is held for all seven rows until the loop finishes",
+          "misconception": "believes the loop commits once at the end rather than per statement"
         },
         {
           "id": "B",
-          "text": "Four statements, and the lock is held for all seven rows until the loop finishes",
-          "misconception": "believes the loop commits once at the end rather than per statement"
+          "text": "Five statements, and the lock is held for the two rows of that batch rather than for all seven",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3187,7 +3187,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Seven rows taken two at a time need four statements that update, and the loop runs once more to find that nothing is left, so five in total. Each updating statement writes two rows, commits, and releases the lock before the next statement takes it again, so the window during which a writer waits is one batch rather than the whole job. The count matters operationally as much as the arithmetic: five statements is a job that finishes in milliseconds, and the same loop over seven hundred thousand rows is a job that has to be watched, which is why the batch size is chosen so that each pass stays short enough for a commit to feel immediate.",
       "hint": "Divide the rows by the batch size, add the statement that discovers the end, then ask what each statement holds while it runs.",
@@ -3234,8 +3234,8 @@
       "options": [
         {
           "id": "A",
-          "text": "About forty a second, and about seven, since only one tab in ten is looking at the page at a given moment",
-          "misconception": ""
+          "text": "About forty a second, and none, because a visible tab still has no reason to poll in the background",
+          "misconception": "believes a visibility gate reduces polling to nothing at any time"
         },
         {
           "id": "B",
@@ -3244,8 +3244,8 @@
         },
         {
           "id": "C",
-          "text": "About forty a second, and none, because a visible tab still has no reason to poll in the background",
-          "misconception": "believes a visibility gate reduces polling to nothing at any time"
+          "text": "About forty a second, and about seven, since only one tab in ten is looking at the page at a given moment",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3254,7 +3254,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Twelve requests a minute per tab over two hundred tabs is two thousand four hundred a minute, which is forty a second. With a visibility gate, the requests come only from the tabs somebody is looking at, and if a user spends two minutes in twenty with the page in front of them then one tab in ten is visible on average, so the rate falls by a factor of ten to about four a second. The number is an estimate because it assumes tabs are independent and users are not, and the real figure comes from measuring it, but the order of magnitude is the point: the same counter, the same endpoint and no change to the data, with the cost of serving it cut by most.",
       "hint": "Multiply requests per minute by tabs and divide by sixty, then apply the share of tabs that are visible.",
@@ -3301,8 +3301,8 @@
       "options": [
         {
           "id": "A",
-          "text": "About four writes a second, about one and a half events held, and at most 250 ms of added delay",
-          "misconception": ""
+          "text": "About four writes a second and no events held, and at most 250 ms of added delay, because a window empties before it closes",
+          "misconception": "believes the window flushes continuously rather than at its close"
         },
         {
           "id": "B",
@@ -3316,12 +3316,12 @@
         },
         {
           "id": "D",
-          "text": "About four writes a second and no events held, and at most 250 ms of added delay, because a window empties before it closes",
-          "misconception": "believes the window flushes continuously rather than at its close"
+          "text": "About four writes a second, about one and a half events held, and at most 250 ms of added delay",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Six events a second inside a window of a quarter of a second is one and a half events per window, so the write rate falls from six a second to about four, and the events waiting at any moment are the one and a half that have arrived and are not yet written. The delay added to the last event in each window is bounded by the window itself, so at most 250 ms, and it is that figure which decides whether the window belongs on this path. The savings are modest here precisely because the input is a steady trickle rather than a burst: a window earns its keep when the events arrive in clumps, and costs almost nothing to hold back when they do not.",
       "hint": "Multiply the arrival rate by the window to get the events per window, divide one second by the window for the writes, and bound the wait by the window.",
@@ -3368,13 +3368,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Ten believed and three real, so seven are phantom; sending only the field the client changed, or comparing a version per field",
-          "misconception": ""
+          "text": "Three believed and ten real, so seven were lost; refusing any write whose version is behind the stored one",
+          "misconception": "believes the stale write is the one that loses the field rather than the warehouse's"
         },
         {
           "id": "B",
-          "text": "Three believed and ten real, so seven were lost; refusing any write whose version is behind the stored one",
-          "misconception": "believes the stale write is the one that loses the field rather than the warehouse's"
+          "text": "Ten believed and three real, so seven are phantom; sending only the field the client changed, or comparing a version per field",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3388,7 +3388,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The client's write arrives second and carries ten, so the store holds ten while the warehouse knows three are left, and the gap of seven is stock the system will let people buy. Nothing failed, so the only repairs are structural: send the fields that changed rather than the whole row, so a write about a name cannot carry a stock value, or put a version on each field so a write that is behind on a field it is changing is refused or merged per field. Serialising the two writes does not help, because they were already serialised and the second was simply built from an older read. Retrying does not help either, because the retry carries the same stale value.",
       "hint": "Apply the two writes in arrival order, subtract the real quantity, then ask what the second write should have contained.",
@@ -3435,8 +3435,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Twelve entries, three duplicates, and nine entries after filtering on a seen set",
-          "misconception": ""
+          "text": "Ten entries, two duplicates, and eight entries after filtering on a seen set",
+          "misconception": "believes the fourth page repeats two keys it received rather than one"
         },
         {
           "id": "B",
@@ -3445,8 +3445,8 @@
         },
         {
           "id": "C",
-          "text": "Ten entries, two duplicates, and eight entries after filtering on a seen set",
-          "misconception": "believes the fourth page repeats two keys it received rather than one"
+          "text": "Twelve entries, three duplicates, and nine entries after filtering on a seen set",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3455,7 +3455,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Four pages of three gives twelve appended entries, and the keys 3, 5 and 7 each arrive in two consecutive pages, so three are duplicates and nine are distinct. A filter that skips a key it has already accepted leaves the nine, keeping the first occurrence of each and dropping the three repeats. The pattern is worth noticing rather than treating as noise: the repeated key is always the last row of the previous page, because that is the row a new insertion displaces into the next page, so a list built this way shows a duplicate at every boundary where somebody creates a row. A filter on the key is the whole fix, and it costs a set lookup per row.",
       "hint": "Add the page lengths, count the keys that appear twice, then count the distinct keys.",

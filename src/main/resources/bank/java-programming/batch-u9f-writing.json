@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "tagList(a, i + 1)",
-          "misconception": ""
+          "text": "tagList(a, i)",
+          "misconception": "believes the step can reuse the index and still make progress"
         },
         {
           "id": "B",
-          "text": "tagList(a, i)",
-          "misconception": "believes the step can reuse the index and still make progress"
+          "text": "tagList(a, i + 1)",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The method already holds the blank in a local, so the frame owes work after the call and the shape is non-tail by construction. The subproblem must be the tail of the array, which is index i + 1, and running it gives tagList(new int[]{4, 7}, 0) = 4|7. Stepping by i + 2 skips slot 1 and returns only 4, and passing the same index i never shrinks the problem at all.",
       "hint": "The remaining work is the part of the array that follows position i.",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "if (n <= 1) return 0;",
-          "misconception": ""
+          "text": "if (n == 1) return 0;",
+          "misconception": "believes one stopping value covers both the odd and the even run"
         },
         {
           "id": "B",
@@ -235,8 +235,8 @@
         },
         {
           "id": "C",
-          "text": "if (n == 1) return 0;",
-          "misconception": "believes one stopping value covers both the odd and the even run"
+          "text": "if (n <= 1) return 0;",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -245,7 +245,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Subtracting 2 from an odd start visits 7, 5, 3, 1 and from an even start visits 4, 2, 0, so only a guard that both runs reach is safe, and n <= 1 catches 1 and 0. Checking starts 1 to 11 shows A returns for every one of them, while B spins past 0 on odd starts, C spins past 1 on even starts, and D stops the odd run and leaves even starts running.",
       "hint": "List the values an odd start and an even start actually visit.",
@@ -666,8 +666,8 @@
       "options": [
         {
           "id": "A",
-          "text": "sumTo(4, 0)",
-          "misconception": ""
+          "text": "sumTo(4, 4)",
+          "misconception": "believes the accumulator should start at the largest value folded"
         },
         {
           "id": "B",
@@ -681,12 +681,12 @@
         },
         {
           "id": "D",
-          "text": "sumTo(4, 4)",
-          "misconception": "believes the accumulator should start at the largest value folded"
+          "text": "sumTo(4, 0)",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A fold that only ever adds must start from the additive identity, so the seed is 0 and running it returns 10. Seeding with 1 returns 11 because that extra 1 is never removed, seeding with 4 in the accumulator returns 14, and calling sumTo(0, 4) never folds at all because n is already 0, so it hands back the seed unchanged.",
       "hint": "Ask which value adds nothing when the first real value arrives.",
@@ -1059,13 +1059,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The two partial results are combined with Math.max, so the largest is reported",
-          "misconception": ""
+          "text": "The base case stops at lo == hi, so a range of one slot reads a[lo] twice",
+          "misconception": "believes the base case index is what picks the wrong end of the range"
         },
         {
           "id": "B",
-          "text": "The base case stops at lo == hi, so a range of one slot reads a[lo] twice",
-          "misconception": "believes the base case index is what picks the wrong end of the range"
+          "text": "The two partial results are combined with Math.max, so the largest is reported",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1079,7 +1079,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The recursion visits all four slots correctly, so the only thing wrong is the function that merges the partial results: Math.max keeps the larger of 2 and 9 and the run reports 9, while Math.min would report 2. The base case and the step are both right, which is why options B, C and D describe real looking details that change nothing about the result.",
       "hint": "Check the base case, the step and the merge separately, in that order.",
@@ -1638,8 +1638,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The call is made before the test, so later indices are visited after a match is known",
-          "misconception": ""
+          "text": "The test uses >= where a strict comparison was wanted for the limit",
+          "misconception": "believes the comparison operator is what causes the extra visits"
         },
         {
           "id": "B",
@@ -1648,8 +1648,8 @@
         },
         {
           "id": "C",
-          "text": "The test uses >= where a strict comparison was wanted for the limit",
-          "misconception": "believes the comparison operator is what causes the extra visits"
+          "text": "The call is made before the test, so later indices are visited after a match is known",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1658,7 +1658,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The recursive call sits above the test, so the deepest index is examined first and the walk always reaches the end, touching 4 frames on {3, 90, 95} instead of the 2 a test-first shape would touch. The returned index is still correct because the ternary prefers the earlier match, which is exactly why the waste is easy to miss and why options B, C and D describe details that do not change the result.",
       "hint": "Look at which line runs before the test, not at what the method returns.",

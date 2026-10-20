@@ -85,13 +85,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Whether the package declares its modules free of side effects, so removing one is safe",
-          "misconception": ""
+          "text": "Whether the two imported modules are written with const rather than let",
+          "misconception": "believes a keyword choice decides whether a module can be dropped"
         },
         {
           "id": "B",
-          "text": "Whether the two imported modules are written with const rather than let",
-          "misconception": "believes a keyword choice decides whether a module can be dropped"
+          "text": "Whether the package declares its modules free of side effects, so removing one is safe",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -105,7 +105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A build can only omit a module it imported but never used if running that module would have changed nothing, so the package has to say whether its modules are free of side effects. A module that registers a global, patches another library, or starts a timer on import has effects even when nothing reads its exports, and dropping it changes the program, so it must stay. The declaration is what lets a build skip 298 modules; without it, silence is read as possible effect and everything is kept. Minifying changes the text, not whether running the module matters, and neither keyword choice nor the file layout changes that.",
       "hint": "Ask whether running the unused module would have changed anything at all.",
@@ -152,8 +152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Once, at 600 ms, because each keystroke replaces the wait before it",
-          "misconception": ""
+          "text": "Twice, at 0 and 300 ms, because the wait is measured from the first keystroke",
+          "misconception": "believes the wait is counted from the first keystroke rather than the last"
         },
         {
           "id": "B",
@@ -162,8 +162,8 @@
         },
         {
           "id": "C",
-          "text": "Twice, at 0 and 300 ms, because the wait is measured from the first keystroke",
-          "misconception": "believes the wait is counted from the first keystroke rather than the last"
+          "text": "Once, at 600 ms, because each keystroke replaces the wait before it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -172,7 +172,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each keystroke starts a wait and cancels the one before it, so only the wait started by the last keystroke at 300 ms survives, and it comes due at 600 ms. That is one call. The same burst under a rule that allows at most one call per 300 ms gives two calls instead, at 0 and 300 ms, so the two rules have visibly different shapes: a trailing wait only fires once the input has gone quiet, while an interval rule fires on a schedule whether or not typing has finished. The endless-reset belief is the natural one when the code cancels a timer, and the cancellation is exactly why the search does happen.",
       "hint": "Ask which pending wait is still alive once all four keystrokes have arrived.",
@@ -219,8 +219,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 are served, and the other 3 are refused with a hint to retry later",
-          "misconception": ""
+          "text": "1 is served, because the bucket holds one place however many it was given",
+          "misconception": "believes the configured capacity is a rate rather than a store of places"
         },
         {
           "id": "B",
@@ -234,12 +234,12 @@
         },
         {
           "id": "D",
-          "text": "1 is served, because the bucket holds one place however many it was given",
-          "misconception": "believes the configured capacity is a rate rather than a store of places"
+          "text": "5 are served, and the other 3 are refused with a hint to retry later",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The bucket starts with five places, and each of the eight requests that arrives inside the same second takes one if there is one left. The first five succeed and the bucket is empty, and because the whole burst lands before any second has passed there are no places back yet, so the last three are refused. A token bucket refuses rather than queues, which is what keeps a busy client from accumulating a backlog of work the server never intended to accept. The store-versus-rate confusion is common because the number 5 reads like a rate, and the difference decides whether a burst of eight is mostly served or mostly refused.",
       "hint": "Ask whether a place comes back before the last of the eight requests has arrived.",
@@ -286,13 +286,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Four, because the loop adds one statement for each order it visits",
-          "misconception": ""
+          "text": "Three, because the order statement and the customer ones share a round trip",
+          "misconception": "believes a statement inside a loop reuses the previous round trip"
         },
         {
           "id": "B",
-          "text": "Three, because the order statement and the customer ones share a round trip",
-          "misconception": "believes a statement inside a loop reuses the previous round trip"
+          "text": "Four, because the loop adds one statement for each order it visits",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -306,7 +306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "One statement gets the orders, and then the loop runs once per order with a statement of its own, so a page of three costs one plus three, which is four. The cost grows with the page, which is the whole point: a page of fifty orders costs fifty-one round trips, and most of the time is spent waiting rather than working. One joined statement, or one statement asking for every customer the page needs and matching the names afterwards, turns the growth into a constant. The batching belief is worth testing directly on a real loop, because drivers do not merge statements that were issued separately.",
       "hint": "Add the one statement before the loop to the count made inside it.",
@@ -353,8 +353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "7, 8, 9 and 10, because the deletion moved every later id one place up",
-          "misconception": ""
+          "text": "8, 9 and 10, because the deleted id is also missing from the rows after it",
+          "misconception": "believes a deletion shortens the list by more than the one row removed"
         },
         {
           "id": "B",
@@ -363,8 +363,8 @@
         },
         {
           "id": "C",
-          "text": "8, 9 and 10, because the deleted id is also missing from the rows after it",
-          "misconception": "believes a deletion shortens the list by more than the one row removed"
+          "text": "7, 8, 9 and 10, because the deletion moved every later id one place up",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -373,7 +373,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "After the deletion the list is 1, 2, 4, 5, 6, 7, 8, 9, 10, so skipping five rows lands on 7 and the page is 7, 8, 9, 10, only four rows because the list is one shorter. The row with id 6 has moved into page one, so anyone reading page one and then page two never sees it at all, and a reader who fetched page one before the deletion sees 6 twice. This is the structural weakness of paging by position: the offset names a place in a list that is changing underneath it. A cursor that names the last key of the previous page keeps pointing at the same row however many rows come and go before it.",
       "hint": "Write out the list after the deletion, then skip five entries.",
@@ -420,8 +420,8 @@
       "options": [
         {
           "id": "A",
-          "text": "No, because the host must equal the allowed host or sit directly under it",
-          "misconception": ""
+          "text": "No, because the host ends in net rather than in com at its end",
+          "misconception": "believes a host must end with the same final label as the allowed host"
         },
         {
           "id": "B",
@@ -435,12 +435,12 @@
         },
         {
           "id": "D",
-          "text": "No, because the host ends in net rather than in com at its end",
-          "misconception": "believes a host must end with the same final label as the allowed host"
+          "text": "No, because the host must equal the allowed host or sit directly under it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A host source matches when the address's host is that host exactly or a subdomain of it, judged at the label boundary, so app.example.com is under example.com and cdn.example.com.evil.net is not under cdn.example.com: the allowed name there is in the middle of a longer name owned by someone else. Comparing characters anywhere in the string is what lets that address through, and it is the most common way a policy written by hand is defeated. The same mistake in a server allowlist is a real vulnerability, so the rule worth remembering is the label boundary, not the substring.",
       "hint": "Ask whether the allowed name is followed by a dot and more of the same owner's labels.",
@@ -487,13 +487,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Only the third, because it opens a tag carrying an event handler attribute",
-          "misconception": ""
+          "text": "The second and the third, because any tag in a value becomes a live element",
+          "misconception": "believes inserting a tag always leads to the script running"
         },
         {
           "id": "B",
-          "text": "The second and the third, because any tag in a value becomes a live element",
-          "misconception": "believes inserting a tag always leads to the script running"
+          "text": "Only the third, because it opens a tag carrying an event handler attribute",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -507,7 +507,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Writing a string as markup means the string is parsed, and what runs is whatever the parser builds: the second value builds a bold element and nothing more, so it is a real defect but not script execution, while the third builds an image whose error handler is code the browser will run as soon as the source fails to load. The first is plain text and stays text. The distinction matters when choosing a fix, because the answer is to assign the value as text rather than as markup, which turns all three into text, and the mismatch between what a value is trusted to be and what the sink treats it as is the whole of the flaw.",
       "hint": "Ask which of the three parses into an element that carries code to run.",
@@ -554,8 +554,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The key in plain text, because the substitution happened before it was written",
-          "misconception": ""
+          "text": "A hashed value, because the build hashes every long string it writes in",
+          "misconception": "believes a build step automatically hashes any secret it inserts"
         },
         {
           "id": "B",
@@ -564,8 +564,8 @@
         },
         {
           "id": "C",
-          "text": "A hashed value, because the build hashes every long string it writes in",
-          "misconception": "believes a build step automatically hashes any secret it inserts"
+          "text": "The key in plain text, because the substitution happened before it was written",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -574,7 +574,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Substitution is a text replacement done before the file is written, so the shipped file contains the key as plain text and anyone who can read the file can read the key. The value being absent from the source repository does not help, because the value that ships is the one that matters, and the build machine's copy is not what runs in the browser. A value substituted this way can only ever be public: hiding it behind a name that the build then replaces is not protection, since the name is what the source holds and the value is what the file holds. Anything secret has to be fetched at run time by code that holds no secret itself.",
       "hint": "Ask what the browser receives, not what the source repository holds.",
@@ -621,8 +621,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Name that one host in the script source list, and keep the header in place",
-          "misconception": ""
+          "text": "Send the header only on the page that was broken, and omit it elsewhere",
+          "misconception": "believes applying a policy to one address protects the others"
         },
         {
           "id": "B",
@@ -636,12 +636,12 @@
         },
         {
           "id": "D",
-          "text": "Send the header only on the page that was broken, and omit it elsewhere",
-          "misconception": "believes applying a policy to one address protects the others"
+          "text": "Name that one host in the script source list, and keep the header in place",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A script source list is an allowlist of places scripts may come from, so naming the one host the report tool is served from is the smallest change that lets it work and keeps the restriction on everything else. Deleting the header removes the only thing doing the work, and an allowlist that admits any host is the same absence with extra characters. A connect source governs where a script may send requests, not what it may load, so it cannot unblock a load, and sending the header on one address leaves every other address unprotected, which is where an attacker would prefer to be.",
       "hint": "Ask which directive governs loading a script, and whether it is still present.",
@@ -688,13 +688,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Have the server refuse a second write carrying the same idempotency key",
-          "misconception": ""
+          "text": "Set the button to disabled while rendering, before the handler can be bound",
+          "misconception": "believes rendering the control as disabled stops a second submission"
         },
         {
           "id": "B",
-          "text": "Set the button to disabled while rendering, before the handler can be bound",
-          "misconception": "believes rendering the control as disabled stops a second submission"
+          "text": "Have the server refuse a second write carrying the same idempotency key",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -708,7 +708,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Disabling the control in the page is a courtesy to the person clicking, and it only helps on the path it guards; a second path, such as submitting the form with the keyboard or a script, reaches the server just the same. The server is the only place every write passes through, so the check has to be there: a key the client generates once per intended action, and a record of the keys already applied, so a repeat is answered with the first result instead of doing the work again. Delaying the response changes nothing about how many writes arrive, and removing the handler leaves the other path untouched.",
       "hint": "Ask which path the disabled control actually guards, and where every write must pass.",
@@ -755,8 +755,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Whether the service can do its work, since a running process may serve nothing useful",
-          "misconception": ""
+          "text": "Which user is asking, because the answer should differ per account",
+          "misconception": "believes a health endpoint should be scoped to the caller"
         },
         {
           "id": "B",
@@ -765,8 +765,8 @@
         },
         {
           "id": "C",
-          "text": "Which user is asking, because the answer should differ per account",
-          "misconception": "believes a health endpoint should be scoped to the caller"
+          "text": "Whether the service can do its work, since a running process may serve nothing useful",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -775,7 +775,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A check that only proves the process is running is answering a much weaker question than the one an operator is asking, which is whether this instance can serve a request. A process whose database is unreachable is alive and useless, and a readiness check that says otherwise keeps traffic going to it, so requests fail in a way that looks like an application bug. The useful check exercises the dependency the work needs, with a short timeout, and reports the reason so the difference between a slow answer and a broken one is visible. There is a separate liveness question, which is whether to restart the process, and conflating the two is how a service gets restarted for a database outage it did not cause.",
       "hint": "Ask what a request served by this instance would need in order to succeed.",
@@ -822,8 +822,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1",
-          "misconception": ""
+          "text": "16",
+          "misconception": "believes the current cost is the loop count and the fixed cost is its double"
         },
         {
           "id": "B",
@@ -837,12 +837,12 @@
         },
         {
           "id": "D",
-          "text": "16",
-          "misconception": "believes the current cost is the loop count and the fixed cost is its double"
+          "text": "1",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The current cost is one plus eight, which is nine, and the number here asked for is the cost after the fix. Once the customer names come back in the same statement as the orders there is nothing left to look up per row, so the page sends a single statement regardless of how many orders it holds. That is the point of the change: the cost stops growing with the size of the page. The answer two is the shape people reach for because it separates reading and looking up, but a join expresses both in one statement, and the eight case is a symptom of a loop rather than the correct total.",
       "hint": "The count asked for is the one after the fix, where nothing is looked up per row.",
@@ -889,13 +889,13 @@
       "options": [
         {
           "id": "A",
-          "text": "11",
-          "misconception": ""
+          "text": "1",
+          "misconception": "believes an index entry names its row directly with no searching"
         },
         {
           "id": "B",
-          "text": "1",
-          "misconception": "believes an index entry names its row directly with no searching"
+          "text": "11",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -909,7 +909,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The scan reads all 2000 rows because it has no way to skip any of them, and the number asked for is what the index costs instead. An index on owner is kept in that column's order, so a search halves the range at each step, and 2000 entries are covered in at most 11 reads because 2 to the power of 11 is 2048. So the scan reads 2000 and the index reads at most 11, and the gap grows with the table rather than staying fixed. A single read is the belief that an index entry points straight at its row, which is true of a hash index and not of an ordered one.",
       "hint": "The number wanted is the index's cost; an ordered index halves the range each step.",
@@ -1080,8 +1080,8 @@
       "options": [
         {
           "id": "A",
-          "text": "They download the first screen's code and the rest only if they go there",
-          "misconception": ""
+          "text": "They download every file at once, because the browser fetches them in parallel",
+          "misconception": "believes separate files are fetched together whether or not they are needed"
         },
         {
           "id": "B",
@@ -1090,8 +1090,8 @@
         },
         {
           "id": "C",
-          "text": "They download every file at once, because the browser fetches them in parallel",
-          "misconception": "believes separate files are fetched together whether or not they are needed"
+          "text": "They download the first screen's code and the rest only if they go there",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1100,7 +1100,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A split only helps if the extra files are not fetched until something asks for them, and a route is the natural boundary because the first screen has a clear moment at which its own file is needed and the others have none. Somebody who never leaves the first screen then pays for that screen, the shared code, and the runtime, and nothing else. The total-bytes belief is the one to watch, because a build report that sums every file still shows the same total and it takes a moment to realise the sum is not what a first visit downloads. Splitting also does not remove unreachable code; it defers it, which is why the two are complementary rather than alternatives.",
       "hint": "Ask when a file that is not needed is actually fetched.",
@@ -1147,8 +1147,8 @@
       "options": [
         {
           "id": "A",
-          "text": "How wide the picture will be in the layout, so it can pick a source to suit",
-          "misconception": ""
+          "text": "How long the browser should wait for the network before trying again",
+          "misconception": "believes the attribute sets a timeout before a further source is tried"
         },
         {
           "id": "B",
@@ -1162,12 +1162,12 @@
         },
         {
           "id": "D",
-          "text": "How long the browser should wait for the network before trying again",
-          "misconception": "believes the attribute sets a timeout before a further source is tried"
+          "text": "How wide the picture will be in the layout, so it can pick a source to suit",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The candidate sources are the same picture at different widths, and the choice is between them, but the markup is what tells the browser how wide the picture will actually be once the layout is applied, taking the viewport, any column widths and any scaling into account. With that number the browser can pick the smallest source that is still sharp enough, and describe the space to reserve so the page does not jump. Without it the browser assumes the image fills the viewport width, which on a wide screen asks for a source far larger than the one on screen. Naming a winner by hand is the thing the attribute exists to avoid, since the right answer changes with the size of the window.",
       "hint": "Ask what the browser cannot work out on its own about a laid-out picture.",
@@ -1214,13 +1214,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The text changes width and line breaks, so the page shifts under the reader",
-          "misconception": ""
+          "text": "The text is drawn twice and looks bolder, but the layout never moves",
+          "misconception": "believes a font swap changes appearance without moving anything"
         },
         {
           "id": "B",
-          "text": "The text is drawn twice and looks bolder, but the layout never moves",
-          "misconception": "believes a font swap changes appearance without moving anything"
+          "text": "The text changes width and line breaks, so the page shifts under the reader",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1234,7 +1234,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Two faces for the same string rarely have the same widths, so a heading laid out in the fallback can be a different number of lines once the real face arrives, and everything below it moves. That is the shift the loading strategy is chosen to prevent: describing the space to reserve in advance, using matched fallback metrics, or showing nothing for a moment all stop the page moving under the reader. Hiding the text is a real strategy but it is not the default behaviour, and a page that draws twice without reserving space is precisely the case people notice on a slow connection, where the move is largest because the two faces are most different.",
       "hint": "Ask what a reader sees when the width of the text changes after the first paint.",
@@ -1281,8 +1281,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Keeping any copy of the response, in the browser or in a shared cache",
-          "misconception": ""
+          "text": "Storing the response but never sending it to the same user again",
+          "misconception": "believes no-store keeps a copy that is only withheld from the user"
         },
         {
           "id": "B",
@@ -1291,8 +1291,8 @@
         },
         {
           "id": "C",
-          "text": "Storing the response but never sending it to the same user again",
-          "misconception": "believes no-store keeps a copy that is only withheld from the user"
+          "text": "Keeping any copy of the response, in the browser or in a shared cache",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1301,7 +1301,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "No-store says the response is not to be written down at all, by any cache, which is stronger than saying when it may be reused. The difference from the directives that set a lifetime is the difference between a copy that is used for a while and then revalidated and no copy existing in the first place, and the second is the only one that leaves nothing behind on a shared machine. It says nothing about the request already in flight or about the response being used while the page that asked for it stays open, since that use is not a stored copy. The directive that only names shared caches exists too, and confusing the two is how a private response ends up in a cache the user does not control.",
       "hint": "Ask whether the response is written down at all, rather than how long it is kept.",
@@ -1348,8 +1348,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The photo in a lossy format, the logo in one that keeps its edges sharp",
-          "misconception": ""
+          "text": "The logo lossily, the photo losslessly, since edges show artefacts sooner",
+          "misconception": "believes a logo tolerates loss because it has fewer pixels than a photo"
         },
         {
           "id": "B",
@@ -1363,12 +1363,12 @@
         },
         {
           "id": "D",
-          "text": "The logo lossily, the photo losslessly, since edges show artefacts sooner",
-          "misconception": "believes a logo tolerates loss because it has fewer pixels than a photo"
+          "text": "The photo in a lossy format, the logo in one that keeps its edges sharp",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Lossy compression throws away detail it judges the eye will not miss, which is a good bargain for a photograph, where the detail is noise anyway, and a bad one for a logo, whose flat areas and edges are exactly the thing the reader is looking at. A format that keeps every pixel avoids that gamble and costs more bytes for a photograph nobody could tell apart. So the choice is per image rather than per site, and the useful question is always what a reader would notice losing, not which format is newer or smaller in the abstract.",
       "hint": "Ask what kind of detail each image is made of, and what the reader notices.",
@@ -1415,13 +1415,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It waits until the work ends, because the page handles input between tasks",
-          "misconception": ""
+          "text": "It is handled at once, because input is delivered on a separate thread",
+          "misconception": "believes input events are delivered while a task is still running"
         },
         {
           "id": "B",
-          "text": "It is handled at once, because input is delivered on a separate thread",
-          "misconception": "believes input events are delivered while a task is still running"
+          "text": "It waits until the work ends, because the page handles input between tasks",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1435,7 +1435,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A page runs one piece of work at a time on its main thread, and input events are delivered in the gaps between tasks rather than during one, so a task that never yields makes the whole page unresponsive for its duration. A click is not lost, it is late, and everything the reader perceives as frozen is this one fact. The usual remedies all follow from it: doing the work in pieces that yield, moving genuinely heavy work off the main thread, and keeping the task that must run short. A separate thread for input would be a different architecture, and priority for queued input would break every task that assumed it could finish.",
       "hint": "Ask when an input event is delivered relative to the work in progress.",
@@ -1482,8 +1482,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The stored copy is served at once, and a check for a newer one runs behind it",
-          "misconception": ""
+          "text": "The stored copy is served and no check is made, since the rule forbids one",
+          "misconception": "believes serving a stored copy means never checking again"
         },
         {
           "id": "B",
@@ -1492,8 +1492,8 @@
         },
         {
           "id": "C",
-          "text": "The stored copy is served and no check is made, since the rule forbids one",
-          "misconception": "believes serving a stored copy means never checking again"
+          "text": "The stored copy is served at once, and a check for a newer one runs behind it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1502,7 +1502,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The strategy trades certainty for speed: the reader gets the stored copy immediately instead of waiting, and the check happens in the background so the next reader gets a fresher one. The reader who triggers the check is the one who sees the older bytes, which is the accepted cost and why it suits assets that change rarely. Waiting for the check is the opposite strategy, and it is the right one for anything where a stale answer would be wrong, such as a price or a permission. The no-check answer describes serving from cache without the revalidating half, and the failure answer describes a rule that only ever permits a fresh copy.",
       "hint": "Ask what the reader waits for, and what happens in the background.",
@@ -1549,8 +1549,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The page may be framed by its own origin and by no other",
-          "misconception": ""
+          "text": "The page may be framed once per origin, however many places embed it",
+          "misconception": "believes the header limits the number of frames rather than their origin"
         },
         {
           "id": "B",
@@ -1564,12 +1564,12 @@
         },
         {
           "id": "D",
-          "text": "The page may be framed once per origin, however many places embed it",
-          "misconception": "believes the header limits the number of frames rather than their origin"
+          "text": "The page may be framed by its own origin and by no other",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The value names the origins allowed to place the page in a frame, and the same-origin setting allows exactly the page's own origin and refuses everything else. It is enforced by the browser, so a site that does not want to be embedded says so in its own response and does not depend on the other site behaving. That is the clickjacking defence: a page that cannot be framed cannot be made to sit invisibly under something a reader is meant to click. A policy that lists particular allowed origins does the same job in a newer and more expressive form, and having both is normal during a transition.",
       "hint": "Ask which origins the value permits, and whether anything is only advice.",
@@ -1616,13 +1616,13 @@
       "options": [
         {
           "id": "A",
-          "text": "At 0, 205 and 700 ms, because each call opens a fresh 200 ms gap",
-          "misconception": ""
+          "text": "At 0, 205, 260 and 700 ms, because every event past the gap runs at once",
+          "misconception": "believes every event after the gap is allowed rather than the first"
         },
         {
           "id": "B",
-          "text": "At 0, 205, 260 and 700 ms, because every event past the gap runs at once",
-          "misconception": "believes every event after the gap is allowed rather than the first"
+          "text": "At 0, 205 and 700 ms, because each call opens a fresh 200 ms gap",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1636,7 +1636,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each allowed call sets the reference time, and an event is allowed when it is at least 200 ms past that reference, so 0 runs, 40 and 190 are inside the gap, 205 is just past it and runs, 260 is only 55 ms later and does not, and 700 is well past and runs. The result is a call roughly every 200 ms for as long as events keep coming, which is the shape that keeps a scroll handler bounded no matter how fast the events arrive. The trailing-edge rule produces a different curve, firing once after the stream pauses, and neither shape is right for every job: a call on the leading edge feels immediate, a call on the trailing edge only sees the final value.",
       "hint": "Ask which event is the first one at least 200 ms past the last call, then repeat.",
@@ -1682,8 +1682,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1, because the five were collected into a single outgoing call",
-          "misconception": ""
+          "text": "5, because each call still has to reach the server on its own connection",
+          "misconception": "believes grouping calls does not reduce the number of round trips"
         },
         {
           "id": "B",
@@ -1692,8 +1692,8 @@
         },
         {
           "id": "C",
-          "text": "5, because each call still has to reach the server on its own connection",
-          "misconception": "believes grouping calls does not reduce the number of round trips"
+          "text": "1, because the five were collected into a single outgoing call",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1702,7 +1702,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The cost of a request is dominated by the round trip rather than the work, and five requests issued together pay that cost five times while the page waits for all of them. Collecting them and sending one grouped call pays it once, which is the whole reason the pattern exists, and the number of results coming back is not the number of round trips. The trap is that grouping is not free in every direction: a grouped call that fails fails for all of them, and a caller that needs one result now has to wait for the rest, so it suits independent, small, frequent calls rather than anything large or urgent.",
       "hint": "Ask how many times the request leaves the page, not how many results come back.",
@@ -1750,8 +1750,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Only the first, because the token must match the one held for that session",
-          "misconception": ""
+          "text": "All four, because a same-origin request needs no token of its own",
+          "misconception": "believes a same-origin request is trusted without a token"
         },
         {
           "id": "B",
@@ -1765,12 +1765,12 @@
         },
         {
           "id": "D",
-          "text": "All four, because a same-origin request needs no token of its own",
-          "misconception": "believes a same-origin request is trusted without a token"
+          "text": "Only the first, because the token must match the one held for that session",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The token is compared against the value held for the session that made the request, so only the first matches, and the fourth fails because a token that is valid in one session is not valid in another. The second has nothing to compare and the third compares against the wrong value. This is the part of the defence that a page on another origin cannot satisfy on its own: a browser will happily attach a session cookie to a request it was talked into sending, but it will not let the other page read the session's token in order to repeat it in a header, so the header is something an attacker has to know and cannot obtain.",
       "hint": "Ask which value the check compares against, and for which session.",
@@ -1817,13 +1817,13 @@
       "options": [
         {
           "id": "A",
-          "text": "No, because the legacy value is ignored and the policy lists no partner",
-          "misconception": ""
+          "text": "Yes, because the legacy header names the partner explicitly",
+          "misconception": "believes a named origin in that header is honoured by browsers"
         },
         {
           "id": "B",
-          "text": "Yes, because the legacy header names the partner explicitly",
-          "misconception": "believes a named origin in that header is honoured by browsers"
+          "text": "No, because the legacy value is ignored and the policy lists no partner",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1837,7 +1837,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The legacy header is only implemented for the deny and same-origin values, so the named origin in it is read as a value the browser does not recognise and the header has no effect at all. What remains is the policy, whose list is the page's own origin, and the partner is not on it, so the frame is refused. The trap is entirely reasonable: the header plainly says the partner is welcome, and it works in testing on something that still honours the old value. Naming a partner is done in the policy list instead, and the fix is one line in whichever header is actually read.",
       "hint": "Ask which of the two the browser acts on, then check the partner against it.",
@@ -1884,8 +1884,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2.4.1 and 2.4.1, because the recorded list decides rather than the range",
-          "misconception": ""
+          "text": "2.5.0 and 2.5.0, because a new install always prefers the newest match",
+          "misconception": "believes a fresh install ignores a recorded list"
         },
         {
           "id": "B",
@@ -1894,8 +1894,8 @@
         },
         {
           "id": "C",
-          "text": "2.5.0 and 2.5.0, because a new install always prefers the newest match",
-          "misconception": "believes a fresh install ignores a recorded list"
+          "text": "2.4.1 and 2.4.1, because the recorded list decides rather than the range",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1904,7 +1904,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The range is a description of what would be acceptable, and it is what an install with nothing recorded has to work from, so it picks the highest match and different days can produce different builds from the same source. A recorded list names the exact version of every package, and an install that finds it uses those versions rather than resolving afresh, so both installs produce 2.4.1. That is what makes a build reproducible, and it is also why a recorded list has to be updated deliberately when a dependency is meant to move: nothing about adding a new release should change what an existing build installs.",
       "hint": "Ask what an install uses when it finds a recorded list and when it does not.",
@@ -1951,8 +1951,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first, because a stack carries the path and the function names",
-          "misconception": ""
+          "text": "Both, because any body can be read as source when it is long enough",
+          "misconception": "believes a body describing a failure always contains a file path"
         },
         {
           "id": "B",
@@ -1966,12 +1966,12 @@
         },
         {
           "id": "D",
-          "text": "Both, because any body can be read as source when it is long enough",
-          "misconception": "believes a body describing a failure always contains a file path"
+          "text": "The first, because a stack carries the path and the function names",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A stack is a list of the file paths and function names the failure passed through, so putting one in a response hands over the directory layout, the naming of the internals, and often the exact line that failed, which is a map for anyone probing further. The second body gives the reader a reference they can quote and the operator a record to find, and the failure itself is kept in the log where it belongs. This is not about hiding the fact that something broke, which is not a secret and is worse to hide, but about not publishing the inside of the system to whoever happened to trigger it.",
       "hint": "Ask which of the two values is derived from where the code lives on disk.",
@@ -2018,13 +2018,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1, because the request id occurs on exactly one of the three",
-          "misconception": ""
+          "text": "3, because the query matches every record that has a request id",
+          "misconception": "believes a query matches a field by presence rather than by value"
         },
         {
           "id": "B",
-          "text": "3, because the query matches every record that has a request id",
-          "misconception": "believes a query matches a field by presence rather than by value"
+          "text": "1, because the request id occurs on exactly one of the three",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2038,7 +2038,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The comparison is by value, and only the first record carries r-7, so the query returns one record and the operator can read the whole of that request's history rather than a wall of identical lines. This is why a request identifier is worth putting on every line of a request's work: the message alone cannot separate three failures that are the same failure, and neither can a level, since all three are errors. Choosing a field that is unique per request, and writing it as its own field rather than inside the message, is what turns a log into something that can be queried.",
       "hint": "Ask which field has a different value on each of the three records.",
@@ -2085,8 +2085,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A request that never went through the page skips the check entirely",
-          "misconception": ""
+          "text": "The check only covers typing, so pasted values skip it entirely",
+          "misconception": "believes a page check applies to typed input but not pasted input"
         },
         {
           "id": "B",
@@ -2095,8 +2095,8 @@
         },
         {
           "id": "C",
-          "text": "The check only covers typing, so pasted values skip it entirely",
-          "misconception": "believes a page check applies to typed input but not pasted input"
+          "text": "A request that never went through the page skips the check entirely",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2105,7 +2105,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A check in the page is a courtesy to the person using it, and the request it sends is just a request: anything that can send one, a script, another site, a saved copy of the form, a tool, can send one without it. So the rule has to be stated where every write passes, on the server, and the page's check stays as a way of avoiding a pointless round trip rather than as the enforcement. The value of doing both is different in kind from doing one: the page check saves the reader a wasted submission, and the server check is the only one that makes the rule true, which is why a rule that exists only in the page is a rule that is not really there.",
       "hint": "Ask what stands between the check and a request that never used the page.",
@@ -2152,8 +2152,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nothing about the risk, since the vulnerable version is still the one that ships",
-          "misconception": ""
+          "text": "The risk is contained, since the scan only read the code and changed nothing",
+          "misconception": "believes reading a value about a dependency changes what the build ships"
         },
         {
           "id": "B",
@@ -2167,12 +2167,12 @@
         },
         {
           "id": "D",
-          "text": "The risk is contained, since the scan only read the code and changed nothing",
-          "misconception": "believes reading a value about a dependency changes what the build ships"
+          "text": "Nothing about the risk, since the vulnerable version is still the one that ships",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The advisory describes a weakness in that version, and the version is decided by the recorded list, so the weakness is still in the build whatever the tooling says about it. Turning the scan off removes the only thing that was making the problem visible, and the next person to add a dependency gets no signal at all. The real choices are to move to a fixed version, to replace the package, or to record a decision not to and say why, with the scan still running so the decision stays honest. An assessment about whether the weakness is reachable is worth making, but it is a reason to document a risk rather than to delete the record of it.",
       "hint": "Ask what decides which version of the dependency the build ships.",
@@ -2219,13 +2219,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The path is absolute and is not the pipeline's, and nothing checked that it landed",
-          "misconception": ""
+          "text": "The path is relative, so the pipeline resolved it against its own working folder",
+          "misconception": "believes a path starting with a slash is resolved against the current folder"
         },
         {
           "id": "B",
-          "text": "The path is relative, so the pipeline resolved it against its own working folder",
-          "misconception": "believes a path starting with a slash is resolved against the current folder"
+          "text": "The path is absolute and is not the pipeline's, and nothing checked that it landed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2239,7 +2239,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A path beginning with a slash is absolute, so it names one place on the machine and the pipeline's machine is not that place, and the write is therefore going somewhere the pipeline does not own or inspect. The step still reporting success is the more serious half: a build that cannot say where its output went is a build that can report having produced nothing. The fix is to write relative to where the build is running, to fail loudly when the destination is not the one expected, and to treat the presence of the output at the expected address as part of the step's own success, which is what turns a silent wrong path into an error someone sees.",
       "hint": "Ask what a path starting with a slash is measured from, and who checks the result.",
@@ -2286,8 +2286,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2",
-          "misconception": ""
+          "text": "3",
+          "misconception": "gives the leading rule's count instead of the trailing rule's"
         },
         {
           "id": "B",
@@ -2296,8 +2296,8 @@
         },
         {
           "id": "C",
-          "text": "3",
-          "misconception": "gives the leading rule's count instead of the trailing rule's"
+          "text": "2",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2306,7 +2306,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The leading rule runs at 0, then at 205 because that is the first event at least 200 ms past the last call, then at 700, which is three calls, and the number asked for from it is 3. The trailing rule restarts its wait at every event, so it can only run once the stream pauses, and this stream has a pause between 260 and 700: the wait from 260 comes due at 460, and a second one from 700 comes due at 900, which is two calls. The one-call answer is the natural assumption that a stream of six events is one burst, and the gap of 440 ms in the middle is what makes it two.",
       "hint": "The leading rule opens a new 200 ms gap at each call; the trailing one fires once per pause.",
@@ -2353,8 +2353,8 @@
       "options": [
         {
           "id": "A",
-          "text": "0",
-          "misconception": ""
+          "text": "400",
+          "misconception": "adds the two readers' waits together instead of asking for the second"
         },
         {
           "id": "B",
@@ -2368,12 +2368,12 @@
         },
         {
           "id": "D",
-          "text": "400",
-          "misconception": "adds the two readers' waits together instead of asking for the second"
+          "text": "0",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first reader finds nothing stored, so it waits the full 200 ms for the file to arrive, and the number wanted first is 200. Once it is stored the second reader is answered from the copy, so it waits 0, and the second number asked for is 0. The gap between the two numbers is the entire argument for a cache header: the file is the same on both visits and only the first one pays for the network. Bytes already compressed do not change this, since compression reduces what travels rather than removing the wait for the first reader.",
       "hint": "The second number asked for is the warm reader's wait, which is not the network's.",
@@ -2544,13 +2544,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Another site causing the browser to make a write while the reader is signed in",
-          "misconception": ""
+          "text": "A reader from changing their own password by hand",
+          "misconception": "believes the token prevents a reader from changing their own details"
         },
         {
           "id": "B",
-          "text": "A reader from changing their own password by hand",
-          "misconception": "believes the token prevents a reader from changing their own details"
+          "text": "Another site causing the browser to make a write while the reader is signed in",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2564,7 +2564,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A browser attaches a session cookie to a request for the site whether or not the person asking meant to make it, so a page on another origin can cause a write to happen as the signed-in reader without ever seeing the session. The token closes that gap because the other origin cannot read the value from the page and therefore cannot put it in the header, and the server refuses a write whose header does not match. It is aimed at a forged request rather than a stolen one: a copied cookie plus a copied token is a different problem, and a reader deliberately changing their own password is not an attack at all.",
       "hint": "Ask what the browser attaches to a request it was talked into sending.",
@@ -2611,8 +2611,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The same source producing the same build on another machine and another day",
-          "misconception": ""
+          "text": "The build running with no packages at all, since they are all recorded",
+          "misconception": "believes recording a package means it no longer has to be installed"
         },
         {
           "id": "B",
@@ -2621,8 +2621,8 @@
         },
         {
           "id": "C",
-          "text": "The build running with no packages at all, since they are all recorded",
-          "misconception": "believes recording a package means it no longer has to be installed"
+          "text": "The same source producing the same build on another machine and another day",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2631,7 +2631,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A range in a manifest says what would be acceptable, so an install with nothing more precise may legitimately pick different versions on different days, and two builds from one source can then differ for reasons nobody changed. The record removes that freedom by naming the version of every package, including the ones that arrived indirectly, which is what lets a build be reproduced and a fault be reasoned about. It is a record of one particular resolution rather than a promise that the versions are good, so the checks still run, and moving a dependency still means changing the record on purpose rather than having it happen on its own.",
       "hint": "Ask what an install chooses from when it has nothing but a range to go on.",
@@ -2678,8 +2678,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Because the code is not there yet, and something has to be shown meanwhile",
-          "misconception": ""
+          "text": "Because the browser refuses to run any code that was not in the first document",
+          "misconception": "believes a browser will not run code fetched afterwards"
         },
         {
           "id": "B",
@@ -2693,12 +2693,12 @@
         },
         {
           "id": "D",
-          "text": "Because the browser refuses to run any code that was not in the first document",
-          "misconception": "believes a browser will not run code fetched afterwards"
+          "text": "Because the code is not there yet, and something has to be shown meanwhile",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Until the module arrives there is no screen to draw, and until it is confirmed to have arrived there may never be one, so the place where it is used needs to say what to show during the wait and what to show if the wait fails. That is what the surrounding boundary is for, and without it a reader who opens the screen sees an empty region, or a page that has failed in a way nobody can explain. Matching the address is a separate and earlier step that needs only the route table, and a browser will happily run code it fetches later, which is the whole basis of splitting a bundle at all.",
       "hint": "Ask what there is to draw in the first few hundred milliseconds, and what if nothing ever arrives.",
@@ -2745,13 +2745,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The list as it was beforehand, so it can be put back if the write fails",
-          "misconception": ""
+          "text": "The new row's identifier, so a failure can be reported against it",
+          "misconception": "believes an identifier is enough to reverse a change"
         },
         {
           "id": "B",
-          "text": "The new row's identifier, so a failure can be reported against it",
-          "misconception": "believes an identifier is enough to reverse a change"
+          "text": "The list as it was beforehand, so it can be put back if the write fails",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2765,7 +2765,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Showing the change before the server agrees means the screen and the server briefly disagree, and the only way back is the value the screen had before, so that is what has to be captured at the moment the change is made. An identifier tells you which row to complain about and a saved request would repeat the same failure, and neither puts the list back. Nothing reaches back to change what is on screen, which is why a screen that shows a change optimistically and cannot undo it ends up displaying a row that does not exist, and the reader has no way to tell it from a real one.",
       "hint": "Ask what the list looked like before the change, and who kept it.",
@@ -2812,8 +2812,8 @@
       "options": [
         {
           "id": "A",
-          "text": "An injected tag or handler running code from any other place",
-          "misconception": ""
+          "text": "A form on the page from sending its values to its declared address",
+          "misconception": "believes a script policy also governs where a form may post"
         },
         {
           "id": "B",
@@ -2822,8 +2822,8 @@
         },
         {
           "id": "C",
-          "text": "A form on the page from sending its values to its declared address",
-          "misconception": "believes a script policy also governs where a form may post"
+          "text": "An injected tag or handler running code from any other place",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2832,7 +2832,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is an allowlist of places scripts may be loaded from, and the injection this stops is the one where a value written into the page becomes a tag or an attribute that causes code to be fetched from somewhere the attacker chose. With the address on the list, the fetch is refused and the injected code never runs, which is why this is the directive that matters most against a stored injection. Images, form destinations and links are each governed by a directive of their own, so a script policy says nothing about them, and mistaking one for another is a common reason a policy is believed to be protecting more than it does.",
       "hint": "Ask which kind of subresource the rule is about, and what the injection needs in order to run.",
@@ -2879,8 +2879,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The value is written into a record and served again to later readers of it",
-          "misconception": ""
+          "text": "The value is written by the server, so the reader did not choose it",
+          "misconception": "believes a stored value must have been written by the server"
         },
         {
           "id": "B",
@@ -2894,12 +2894,12 @@
         },
         {
           "id": "D",
-          "text": "The value is written by the server, so the reader did not choose it",
-          "misconception": "believes a stored value must have been written by the server"
+          "text": "The value is written into a record and served again to later readers of it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The distinction is about where the value waits. Here it is written into a record and read back whenever somebody opens the page, so the person who typed it may be gone and the person who is hurt is a different reader entirely, which is what makes it worth fixing seriously rather than treating as a self-inflicted problem. A reflected value is handed straight back in the same exchange, so it hurts the person who sent it, and that is a smaller problem. Where the value came from matters less than where it rests, and the fix follows from the sink: a value assigned as text is text whichever route it arrived by.",
       "hint": "Ask who else sees the value afterwards, and when they see it.",
@@ -2946,13 +2946,13 @@
       "options": [
         {
           "id": "A",
-          "text": "`['pen','book']`, because the earlier list was kept and put back",
-          "misconception": ""
+          "text": "`['pen','book','ruler']`, because a refusal does not touch the screen",
+          "misconception": "believes a refused write leaves the shown change in place"
         },
         {
           "id": "B",
-          "text": "`['pen','book','ruler']`, because a refusal does not touch the screen",
-          "misconception": "believes a refused write leaves the shown change in place"
+          "text": "`['pen','book']`, because the earlier list was kept and put back",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2966,7 +2966,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The earlier list was captured before the change, the change was shown while the write was in flight, and the refusal means the write did not happen, so restoring the capture returns the screen to what the server actually holds. Without the capture there is no way back, because nothing else knows what the list looked like, and the reader is left looking at a row that does not exist. A row that appears and then silently disappears is also worth a message rather than nothing, so the rollback and the notice are separate jobs and both are part of doing this properly.",
       "hint": "Ask what value the list held before the change, and whether it was kept.",
@@ -3013,8 +3013,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The fallback, because the failure happened while the screen was obtained",
-          "misconception": ""
+          "text": "The previous screen, because the router holds the old one until the new is ready",
+          "misconception": "believes a router always keeps the old screen until a new one loads"
         },
         {
           "id": "B",
@@ -3023,8 +3023,8 @@
         },
         {
           "id": "C",
-          "text": "The previous screen, because the router holds the old one until the new is ready",
-          "misconception": "believes a router always keeps the old screen until a new one loads"
+          "text": "The fallback, because the failure happened while the screen was obtained",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3033,7 +3033,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The failure happens while the screen is being obtained, which is inside the region the boundary covers, so the fallback is what gets drawn in its place and the reader is told the screen is unavailable rather than being left looking at a hole. This is the case a boundary around a deferred load exists for, since the alternative is an empty region that looks like a bug in the page. Keeping the previous screen until a new one is ready is a separate pattern that needs its own arrangement, and a load that is never retried is a real possibility, which is why the fallback says what to do next rather than just apologising.",
       "hint": "Ask whether the failure happened inside the region the boundary covers.",
@@ -3080,8 +3080,8 @@
       "options": [
         {
           "id": "A",
-          "text": "10 are served, 90 refused, and the next window counts from zero",
-          "misconception": ""
+          "text": "10 are served and 90 more are served at once in the next window",
+          "misconception": "believes a new window releases the refusals as well as the count"
         },
         {
           "id": "B",
@@ -3095,12 +3095,12 @@
         },
         {
           "id": "D",
-          "text": "10 are served and 90 more are served at once in the next window",
-          "misconception": "believes a new window releases the refusals as well as the count"
+          "text": "10 are served, 90 refused, and the next window counts from zero",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The counter starts the window at zero, the first ten requests in that window take it to ten, and every request after that finds it already at the limit and is refused, so the burst of 100 produces 10 served and 90 refused, all inside the first 10 s. At the next window the counter is set back to zero, which is both what makes the limit recover and the reason a fixed window has a known weakness: a caller can send the whole allowance at the end of one window and again at the start of the next, so twice the allowance in a moment. A sliding window fixes that by looking at the recent history rather than at a clock boundary.",
       "hint": "Ask what the counter is at when the eleventh request arrives.",
@@ -3147,13 +3147,13 @@
       "options": [
         {
           "id": "A",
-          "text": "400 at plain density and 800 at twice it, since the need doubles too",
-          "misconception": ""
+          "text": "800 at both, because a slot is always measured at twice its size",
+          "misconception": "believes a slot is measured at twice its width by default"
         },
         {
           "id": "B",
-          "text": "800 at both, because a slot is always measured at twice its size",
-          "misconception": "believes a slot is measured at twice its width by default"
+          "text": "400 at plain density and 800 at twice it, since the need doubles too",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3167,7 +3167,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule takes the first source that is at least what is needed, so a need of 400 lands on 400 and a need of 800 lands on 800, which is the point of offering several: a reader on a plain screen never downloads the pixels nobody can see. The need is the slot width times the density, so a sharper screen asks for more and gets more, while the number of pixels in the element on screen stays the same. Fetching the largest in case somebody zooms later spends real bytes on a guess, and the density-has-no-effect answer is the one that comes from reading the slot width as the whole of what matters.",
       "hint": "Ask what the need is before the rule is applied, and what the density does to it.",
@@ -3214,8 +3214,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The install stops, because the bytes are not the ones being vouched for",
-          "misconception": ""
+          "text": "The install continues with a warning, since this is usually a re-pack",
+          "misconception": "believes a changed package is normally harmless"
         },
         {
           "id": "B",
@@ -3224,8 +3224,8 @@
         },
         {
           "id": "C",
-          "text": "The install continues with a warning, since this is usually a re-pack",
-          "misconception": "believes a changed package is normally harmless"
+          "text": "The install stops, because the bytes are not the ones being vouched for",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3234,7 +3234,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A checksum is a promise about the exact bytes, and the two values here are not equal, so the comparison fails and the install stops rather than building from something nobody vouched for. That check is the last thing standing between a recorded list and whatever the registry served at that moment, which is why overwriting the recorded value on the spot would remove the only evidence that something changed. A range cannot stand in for it, because a version number is chosen by whoever published the release and says nothing about the bytes that release contains.",
       "hint": "Ask what the comparison returns when the two values are different.",
@@ -3281,8 +3281,8 @@
       "options": [
         {
           "id": "A",
-          "text": "200 and 503, because one asks about restarting and the other about traffic",
-          "misconception": ""
+          "text": "200 and 503, because both read one signal and word it differently",
+          "misconception": "believes the two checks read the same thing"
         },
         {
           "id": "B",
@@ -3296,12 +3296,12 @@
         },
         {
           "id": "D",
-          "text": "200 and 503, because both read one signal and word it differently",
-          "misconception": "believes the two checks read the same thing"
+          "text": "200 and 503, because one asks about restarting and the other about traffic",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The process is running, so the liveness check answers 200, and the database is not reachable, so the readiness check answers 503, and the two are answering different questions rather than the same one twice. The questions matter because the actions taken from them differ: liveness decides whether to replace the process, and readiness decides whether to send it traffic. Reporting the dependency failure as a liveness failure would have every instance restarted in turn while the database stayed down, turning one outage into a restart loop, which is why the failure is reported in the readiness answer along with its reason.",
       "hint": "Ask what decision each check's answer is used to make.",
@@ -3348,13 +3348,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The screen and the server now disagree about a row that never existed",
-          "misconception": ""
+          "text": "The message appears too early, since the failure is only known later",
+          "misconception": "believes a message about a failure can appear before the failure"
         },
         {
           "id": "B",
-          "text": "The message appears too early, since the failure is only known later",
-          "misconception": "believes a message about a failure can appear before the failure"
+          "text": "The screen and the server now disagree about a row that never existed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3368,7 +3368,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The row is on the screen but not in the store, and it looks exactly like the ones that are, so a reader who acts on it acts on something that is not there: the row can be opened, ordered against, or shared, and every one of those fails later and further away. Telling the reader it failed does not make the row mean anything, and the screen is now describing a state the system is not in. An optimistic change has to be reversible as well as prompt, which means keeping what was there before and putting it back, and the message is what makes the reversal understandable rather than mysterious.",
       "hint": "Ask whether the row the reader can now click is one the server has agreed to.",
@@ -3415,8 +3415,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The page is left with nothing in that place, and the reason is easy to miss",
-          "misconception": ""
+          "text": "The router retries until the module arrives, so the page recovers alone",
+          "misconception": "believes a router retries a failed module load by itself"
         },
         {
           "id": "B",
@@ -3425,8 +3425,8 @@
         },
         {
           "id": "C",
-          "text": "The router retries until the module arrives, so the page recovers alone",
-          "misconception": "believes a router retries a failed module load by itself"
+          "text": "The page is left with nothing in that place, and the reason is easy to miss",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3435,7 +3435,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The place where the screen should be is filled by the module, so a module that never arrives leaves a region of the page with nothing in it, and the reader is looking at a gap rather than at a message. The failure is worth reporting because the usual reasons are things an operator can fix: a stale address left over from an earlier build, a chunk that was never written, or a service worker still holding the old list of files. Retrying until it arrives turns one visible failure into a request that never stops, and keeping the previous screen needs an arrangement that says so rather than happening by accident.",
       "hint": "Ask what is drawn in the region when the module that fills it does not arrive.",
@@ -3482,8 +3482,8 @@
       "options": [
         {
           "id": "A",
-          "text": "90",
-          "misconception": ""
+          "text": "0",
+          "misconception": "believes a limit refuses everything above it and then all of it"
         },
         {
           "id": "B",
@@ -3497,12 +3497,12 @@
         },
         {
           "id": "D",
-          "text": "0",
-          "misconception": "believes a limit refuses everything above it and then all of it"
+          "text": "90",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The window starts empty, so the first ten of the hundred requests are served and the limit is reached, and the number asked for first is 10. The other ninety all arrive after the limit was reached and are refused, which is the second number asked for and the reason a limit exists: without it one caller can send everything and the rest wait for a service that is already saturated. Both figures come from the same two facts, that the counter begins at zero for the window and that it does not rise again until the window ends.",
       "hint": "The counter starts at zero for the window, so the first requests are the ones that get through.",
@@ -3548,13 +3548,13 @@
       "options": [
         {
           "id": "A",
-          "text": "800",
-          "misconception": ""
+          "text": "400",
+          "misconception": "gives the plain-density source instead of the doubled one"
         },
         {
           "id": "B",
-          "text": "400",
-          "misconception": "gives the plain-density source instead of the doubled one"
+          "text": "800",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3568,7 +3568,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "At a plain density the need is the slot width of 400 and the smallest source that is not narrower is 400, so the first number asked for is 400. At twice the density the same slot needs 800 pixels of picture to stay sharp, and the rule then lands on 800, which is the second number asked for. What the reader sees on the element is 400 pixels wide in both cases; the difference is how many real pixels are behind it, and that is exactly why offering the three sources rather than only the largest is worth doing.",
       "hint": "The need is the slot width at a plain density, and the same width times the density otherwise.",
@@ -3864,8 +3864,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Keeping one caller from crowding out others, and waiting before retrying",
-          "misconception": ""
+          "text": "Charging the caller for the requests, so retrying is what adds cost",
+          "misconception": "believes a limit exists to bill the caller"
         },
         {
           "id": "B",
@@ -3874,8 +3874,8 @@
         },
         {
           "id": "C",
-          "text": "Charging the caller for the requests, so retrying is what adds cost",
-          "misconception": "believes a limit exists to bill the caller"
+          "text": "Keeping one caller from crowding out others, and waiting before retrying",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3884,7 +3884,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A shared service has a finite amount of capacity and no way to tell a legitimate caller from one that has stopped caring, so the limit exists to stop any one caller from using all of it, which is what makes the service unusable for everyone else. That is why a refusal carries a hint about when to come back rather than being silent, and why a caller that backs off and retries is behaving correctly while one that retries immediately is not, having turned its own refusal into extra load. The purpose is fairness between callers, and the failure it produces for the caller that ignores it is being refused, which is a cost it brought on itself.",
       "hint": "Ask what happens to the other callers when one of them sends without stopping.",
@@ -3931,8 +3931,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A reader asking for one month can be served the other month's answer",
-          "misconception": ""
+          "text": "Nothing, since a query is a hint and the two requests are one request",
+          "misconception": "believes a query never changes what is being asked for"
         },
         {
           "id": "B",
@@ -3946,12 +3946,12 @@
         },
         {
           "id": "D",
-          "text": "Nothing, since a query is a hint and the two requests are one request",
-          "misconception": "believes a query never changes what is being asked for"
+          "text": "A reader asking for one month can be served the other month's answer",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A key has to distinguish two requests that deserve different answers, and a path does not when the query is what selects the data, so whichever request came first fills the entry and everyone after it is served that answer until it expires. A report for the wrong month is the visible symptom, and the more serious one is any key of this shape that carries a permission, where one reader is handed another's answer. The query is part of what is being asked for, so it belongs in the key, and the same applies to the name of the format being asked in, which is why a key is built from the whole request rather than from its address.",
       "hint": "Ask what part of the request decides which answer is correct, and whether the key includes it.",

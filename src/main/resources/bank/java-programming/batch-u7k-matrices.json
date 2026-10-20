@@ -90,13 +90,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the column count, because the number of values per row is what fixes the shape",
-          "misconception": ""
+          "text": "nothing at all, because eight values can only be laid out one way",
+          "misconception": "believes the flat length alone determines the row and column counts"
         },
         {
           "id": "B",
-          "text": "nothing at all, because eight values can only be laid out one way",
-          "misconception": "believes the flat length alone determines the row and column counts"
+          "text": "the column count, because the number of values per row is what fixes the shape",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -110,7 +110,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A one-dimension array records only how many values there are, so the same eight values could have come from a two-by-four grid, a four-by-two grid, or an eight-by-one column. Either dimension has to come from outside the data, and once one is known the other follows by division. Expecting the array to remember its shape is the trap, because a nested grid looks like it stores that information; in truth the shape lives in the row references of the outer array, which a flat array has thrown away.",
       "hint": "Ask how many different rectangles the same eight values could have been read out of.",
@@ -162,8 +162,8 @@
       "options": [
         {
           "id": "A",
-          "text": "new[r][c] = g[c][n - 1 - r], because the old column becomes the new row",
-          "misconception": ""
+          "text": "new[r][c] = g[n - 1 - r][n - 1 - c], because both indices start from the far corner",
+          "misconception": "believes a quarter turn is the same as a half turn"
         },
         {
           "id": "B",
@@ -172,8 +172,8 @@
         },
         {
           "id": "C",
-          "text": "new[r][c] = g[n - 1 - r][n - 1 - c], because both indices start from the far corner",
-          "misconception": "believes a quarter turn is the same as a half turn"
+          "text": "new[r][c] = g[c][n - 1 - r], because the old column becomes the new row",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -182,7 +182,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A quarter turn moves a cell one step along each axis: the old column index becomes the new row index, and the old row index becomes the new column counted back from the last one, so g[c][n - 1 - r] lands the old top-right corner at the new top-left. The clockwise map looks equally reasonable because it is the same two operations in the opposite order, which is exactly why the pair is easy to confuse; the other two distractors are the half turn and the left-right mirror, neither of which changes the row count.",
       "hint": "Work out where the old top-right cell must be written, then invert that.",
@@ -234,8 +234,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a quarter turn exchanges the counts, so new int[cols][rows] leaves room for every write",
-          "misconception": ""
+          "text": "the destination needs the same cell count, so any layout with six cells works",
+          "misconception": "believes only the cell count matters and not how they are arranged"
         },
         {
           "id": "B",
@@ -249,12 +249,12 @@
         },
         {
           "id": "D",
-          "text": "the destination needs the same cell count, so any layout with six cells works",
-          "misconception": "believes only the cell count matters and not how they are arranged"
+          "text": "a quarter turn exchanges the counts, so new int[cols][rows] leaves room for every write",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Rotating a two-by-three grid leaves three rows and two columns, so the destination is allocated as three rows of two, and the write map places the old bottom-left corner at the new top-left. Sizing the destination from the row count is tempting because that is the habit a square grid rewards, and a square hides the mistake entirely; only once the counts differ does an incorrect destination run out of columns or rows and throw.",
       "hint": "Count the rows and columns the turned grid will have before you allocate anything.",
@@ -306,13 +306,13 @@
       "options": [
         {
           "id": "A",
-          "text": "three, because the columns of the first matrix meet the rows of the second there",
-          "misconception": ""
+          "text": "two, because two is the column count of the result matrix being filled",
+          "misconception": "believes the innermost loop walks the result rather than both inputs"
         },
         {
           "id": "B",
-          "text": "two, because two is the column count of the result matrix being filled",
-          "misconception": "believes the innermost loop walks the result rather than both inputs"
+          "text": "three, because the columns of the first matrix meet the rows of the second there",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -326,7 +326,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The index k appears as a column in a[i][k] and as a row in b[k][j], so it is legal only over the length those two sides share, which is three here. Reading the loop bound off the result is the tempting mistake because two and three both appear as counts in the problem, but k never touches the result array; it walks the contracted dimension, and a bound of two would drop the third term from every single product.",
       "hint": "Find the index that means a column in one input and a row in the other.",
@@ -378,8 +378,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a one on the main diagonal and zeros in all the other twelve cells",
-          "misconception": ""
+          "text": "a single one in the last cell only, because each pass overwrites the earlier one",
+          "misconception": "believes every pass writes the same cell of the diagonal"
         },
         {
           "id": "B",
@@ -388,8 +388,8 @@
         },
         {
           "id": "C",
-          "text": "a single one in the last cell only, because each pass overwrites the earlier one",
-          "misconception": "believes every pass writes the same cell of the diagonal"
+          "text": "a one on the main diagonal and zeros in all the other twelve cells",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -398,7 +398,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each pass writes the cell where the row index equals the column index, so four distinct cells receive a one and the twelve cells the loop never touches keep the zero they were given at allocation, which is the identity matrix. Reading the pair as two separate indices is the trap, because i is used twice in one subscript expression; a pass never revisits a cell, so nothing is overwritten and no second diagonal appears.",
       "hint": "Ask which cells the loop writes, and what the cells it skips already hold.",
@@ -450,8 +450,8 @@
       "options": [
         {
           "id": "A",
-          "text": "three: one array of row references plus one int array for each of the two rows",
-          "misconception": ""
+          "text": "one: a single array holding all six cells in a flattened order",
+          "misconception": "believes a nested allocation is stored as one flat block"
         },
         {
           "id": "B",
@@ -465,12 +465,12 @@
         },
         {
           "id": "D",
-          "text": "one: a single array holding all six cells in a flattened order",
-          "misconception": "believes a nested allocation is stored as one flat block"
+          "text": "three: one array of row references plus one int array for each of the two rows",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The outer part allocates one int[] whose two slots hold row references, and then a separate int[3] is allocated for each row, so three arrays exist in total. Counting one array per cell is the tempting picture because the grid holds six numbers, but a primitive cell is a slot inside its row array rather than an object of its own; that is also why the rows are independently replaceable, as swapping one row of a grid demonstrates.",
       "hint": "Count the containers, not the numbers they hold.",
@@ -522,13 +522,13 @@
       "options": [
         {
           "id": "A",
-          "text": "null, because the slots of an object grid begin as empty references",
-          "misconception": ""
+          "text": "zero, because every array slot starts out holding the primitive default",
+          "misconception": "believes an object grid reports the primitive default value"
         },
         {
           "id": "B",
-          "text": "zero, because every array slot starts out holding the primitive default",
-          "misconception": "believes an object grid reports the primitive default value"
+          "text": "null, because the slots of an object grid begin as empty references",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -542,7 +542,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The slots of a reference-typed array are filled with the null reference, so board[1][2] evaluates to null and any attempt to read a field through it throws. Expecting zero is the trap because a fresh int[][] really does read back zeros, and the two allocations look identical at the declaration; the difference is what a slot holds, a reference or the value itself, which is exactly the difference a default fill cannot paper over.",
       "hint": "Ask what a reference-typed array slot is filled with when it is allocated.",
@@ -594,8 +594,8 @@
       "options": [
         {
           "id": "A",
-          "text": "two elements, each the printed reference of one row rather than its numbers",
-          "misconception": ""
+          "text": "two elements, each the printed contents of one row of three numbers",
+          "misconception": "confuses the shallow call with the deep one that prints the numbers"
         },
         {
           "id": "B",
@@ -604,8 +604,8 @@
         },
         {
           "id": "C",
-          "text": "two elements, each the printed contents of one row of three numbers",
-          "misconception": "confuses the shallow call with the deep one that prints the numbers"
+          "text": "two elements, each the printed reference of one row rather than its numbers",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -614,7 +614,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The call treats the argument as a one-dimension array, so it walks the outer array and prints its two elements, which are the row references rendered in the usual form of an object rather than the numbers inside them. Expecting six is the natural guess from the cell count, but the method has no idea it was handed a grid: it only knows it was handed an array whose elements happen to be arrays, which is precisely the gap the deep variant of the call exists to close.",
       "hint": "Ask how many elements the argument has as a one-dimension array.",
@@ -666,8 +666,8 @@
       "options": [
         {
           "id": "A",
-          "text": "it throws, because the loop reaches row index 2 on a grid that has only two rows",
-          "misconception": ""
+          "text": "it finishes, but the third column of both rows is quietly thrown away",
+          "misconception": "believes the surplus column is dropped instead of being stored"
         },
         {
           "id": "B",
@@ -681,12 +681,12 @@
         },
         {
           "id": "D",
-          "text": "it finishes, but the third column of both rows is quietly thrown away",
-          "misconception": "believes the surplus column is dropped instead of being stored"
+          "text": "it throws, because the loop reaches row index 2 on a grid that has only two rows",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The pair-swapping loop walks the upper triangle using the column count as its bound, so with three columns it eventually asks for row 2, and a two-row grid has no such row, so the run ends in an out-of-bounds failure. Expecting the surplus to be dropped is tempting because the transposed result genuinely does have fewer columns, but the transposed result cannot be the same array: the cells have to move to positions the current shape does not have, which is why a destination is allocated for a rectangle.",
       "hint": "The swap loop is bounded by the column count; ask how many rows exist.",
@@ -738,13 +738,13 @@
       "options": [
         {
           "id": "A",
-          "text": "a half turn, new[r][c] = g[rows - 1 - r][cols - 1 - c], both axes reversed",
-          "misconception": ""
+          "text": "the original grid, because applying any flip twice returns every cell",
+          "misconception": "believes two flips cancel out rather than composing into a turn"
         },
         {
           "id": "B",
-          "text": "the original grid, because applying any flip twice returns every cell",
-          "misconception": "believes two flips cancel out rather than composing into a turn"
+          "text": "a half turn, new[r][c] = g[rows - 1 - r][cols - 1 - c], both axes reversed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -758,7 +758,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two steps touch different axes: the first counts the column back from the end, the second counts the row back from the end, so together they reverse both and nothing is left unchanged. Expecting the original grid is the trap, because cancelling is genuinely true for two identical flips; here the flips act on different axes, so they compose into the half turn, and the row and column counts stay as they were rather than being exchanged.",
       "hint": "Write down which axis each reflection changes before composing them.",
@@ -811,8 +811,8 @@
       "options": [
         {
           "id": "A",
-          "text": "six zeros, because a fresh primitive array is default filled with the zero value",
-          "misconception": ""
+          "text": "two zeros, because only the second dimension of the allocation counts",
+          "misconception": "believes the column count becomes the value stored in each cell"
         },
         {
           "id": "B",
@@ -821,8 +821,8 @@
         },
         {
           "id": "C",
-          "text": "two zeros, because only the second dimension of the allocation counts",
-          "misconception": "believes the column count becomes the value stored in each cell"
+          "text": "six zeros, because a fresh primitive array is default filled with the zero value",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -831,7 +831,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Allocating a primitive array gives every one of its slots the zero value for the element type, and the two rows are themselves primitive arrays, so all six cells read back as zero. Reading a dimension as a fill value is the tempting slip because the numbers 3 and 2 are right there in the declaration, but they describe how many cells exist and in what arrangement, never what is stored; the zero comes from the element type, which is why a loop to set zeros is redundant here.",
       "hint": "The element type decides the value a fresh slot holds, not the shape.",
@@ -883,8 +883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the length of the shortest row, because no shorter row owns a wider column",
-          "misconception": ""
+          "text": "the row count, because the columns are counted by stepping through the rows",
+          "misconception": "confuses the two dimensions and uses the row count as the width"
         },
         {
           "id": "B",
@@ -898,12 +898,12 @@
         },
         {
           "id": "D",
-          "text": "the row count, because the columns are counted by stepping through the rows",
-          "misconception": "confuses the two dimensions and uses the row count as the width"
+          "text": "the length of the shortest row, because no shorter row owns a wider column",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A column index is only meaningful for a row that owns that index, and the shortest row owns the fewest, so the shared range ends where that row ends. Taking the longest row is the tempting move because it visits more cells, but a wider row has no cell to visit in the narrower columns, so the first short row ends the run with an out-of-bounds read. Nothing pads a ragged grid, which is why the bound has to be discovered from the rows themselves.",
       "hint": "Ask how many columns every row has, not how many the widest one has.",
@@ -956,13 +956,13 @@
       "options": [
         {
           "id": "A",
-          "text": "it throws ArrayIndexOutOfBoundsException, because -1 names no column of a row",
-          "misconception": ""
+          "text": "it prints 0, because the slot before the first column reads as the default value",
+          "misconception": "believes a subscript past the end reads back a default value"
         },
         {
           "id": "B",
-          "text": "it prints 0, because the slot before the first column reads as the default value",
-          "misconception": "believes a subscript past the end reads back a default value"
+          "text": "it throws ArrayIndexOutOfBoundsException, because -1 names no column of a row",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -976,7 +976,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The row exists, but -1 is not one of the row's legal subscripts, so the read fails with an index-out-of-bounds error rather than returning a value. Expecting a zero is the trap that costs the most time, because a fresh row does read back zeros for the cells it owns, and it is easy to generalise that to cells it does not own; the default fill describes the slots inside the array and says nothing about positions outside it, and there is no wrap-around for array indices.",
       "hint": "The row is present; the question is whether that subscript is one the row owns.",
@@ -1029,8 +1029,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a value test alone cannot tell a cell that was reached from one never entered",
-          "misconception": ""
+          "text": "the record is needed because the search rewrites the values it walks over as it goes",
+          "misconception": "believes the search edits cell values and so invalidates earlier answers"
         },
         {
           "id": "B",
@@ -1039,8 +1039,8 @@
         },
         {
           "id": "C",
-          "text": "the record is needed because the search rewrites the values it walks over as it goes",
-          "misconception": "believes the search edits cell values and so invalidates earlier answers"
+          "text": "a value test alone cannot tell a cell that was reached from one never entered",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1049,7 +1049,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The value in a cell says whether it is passable, never whether the search has already stood there, so without a record of its own the search can be sent back to the same cell by two different neighbours and will loop forever on a cycle. Expecting the values to change is the tempting assumption, because a search is usually imagined as updating the board as it goes; this one deliberately does not, and the record is what distinguishes arriving somewhere new from arriving somewhere already covered.",
       "hint": "Ask what a cell's stored value tells you about the terrain versus the search.",
@@ -1101,8 +1101,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the new value, because an object cell slot holds a reference to that same cell",
-          "misconception": ""
+          "text": "the old value, because assignment on a two-dimension array is always deep",
+          "misconception": "believes nested assignment always duplicates the referenced objects"
         },
         {
           "id": "B",
@@ -1116,12 +1116,12 @@
         },
         {
           "id": "D",
-          "text": "the old value, because assignment on a two-dimension array is always deep",
-          "misconception": "believes nested assignment always duplicates the referenced objects"
+          "text": "the new value, because an object cell slot holds a reference to that same cell",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Assigning a Cell into a new grid writes the reference, not a duplicate of the object, so the two grids point at one cell and a later change shows up in both, whereas the int grid stored the value itself and is unaffected. Expecting an automatic deep copy is the trap, because the loops look exactly like the deep copy loops people write on purpose; the difference is that a copy loop over objects still has to say so, and no subscript expression in Java ever reaches through to duplicate what a reference points at.",
       "hint": "Ask what a reference-typed slot receives when a source value is assigned into it.",
@@ -1173,13 +1173,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1,2 — the index sits in row 1 of a grid four cells wide",
-          "misconception": ""
+          "text": "2,1 — the division gives the column and the remainder gives the row",
+          "misconception": "believes the quotient is the column and the remainder is the row"
         },
         {
           "id": "B",
-          "text": "2,1 — the division gives the column and the remainder gives the row",
-          "misconception": "believes the quotient is the column and the remainder is the row"
+          "text": "1,2 — the index sits in row 1 of a grid four cells wide",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1193,7 +1193,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Six divided by four leaves a quotient of one and a remainder of two, so the cell is in the second row and the third column, which is where the value 15 sits in a four-wide layout. Reading the quotient as the column is the tempting swap because division and remainder are such a familiar pair, but rows come first in a flattened grid: the quotient counts whole rows and the remainder counts position inside the row it lands in.",
       "hint": "Six is one whole row of four plus two more entries.",
@@ -1245,8 +1245,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5 — the sixth entry of the grid, which holds the value 6",
-          "misconception": ""
+          "text": "8 — the row offset uses the next row's multiplier instead of its own",
+          "misconception": "believes the row offset must use the row number plus one"
         },
         {
           "id": "B",
@@ -1255,8 +1255,8 @@
         },
         {
           "id": "C",
-          "text": "8 — the row offset uses the next row's multiplier instead of its own",
-          "misconception": "believes the row offset must use the row number plus one"
+          "text": "5 — the sixth entry of the grid, which holds the value 6",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1265,7 +1265,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "One full row of three entries sits before row 1 and the target is the third entry of that row, so the index is 3 + 2 = 5, which is where the value 6 is stored. Adding one to the result is the tempting error because counting the sixth cell aloud starts at one, but a subscript is an index and indices start at zero; the cell that the flattened form calls entry six is index five.",
       "hint": "Count the entries that come before the target, then do not add one more.",
@@ -1317,8 +1317,8 @@
       "options": [
         {
           "id": "A",
-          "text": "7 1 3 — the map reads the last row, then the top row, then the far corner",
-          "misconception": ""
+          "text": "1 3 9 — the map leaves the grid where it is because the two axes cancel out",
+          "misconception": "believes the map is an identity because it uses both subscripts"
         },
         {
           "id": "B",
@@ -1332,12 +1332,12 @@
         },
         {
           "id": "D",
-          "text": "1 3 9 — the map leaves the grid where it is because the two axes cancel out",
-          "misconception": "believes the map is an identity because it uses both subscripts"
+          "text": "7 1 3 — the map reads the last row, then the top row, then the far corner",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "rot[0][0] reads g[2][0] which is 7, rot[0][2] reads g[0][0] which is 1, and rot[2][2] reads g[0][2] which is 3, so the whole turned grid is the last row of the old grid read upwards across the top. That is what a clockwise turn does: the bottom edge becomes the left edge. The half-turn and the counter-clockwise maps read the far corner and the other edge, which is why the three wrong answers are all plausible-looking three-number lines that do not match a clockwise turn.",
       "hint": "Work out where the old bottom edge ends up in a clockwise turn.",
@@ -1390,13 +1390,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[4, 3, 2, 1] [8, 7, 6, 5] — every row reads back to front, top row first",
-          "misconception": ""
+          "text": "[8, 7, 6, 5] [4, 3, 2, 1] — the rows print in reverse because the copy is reversed",
+          "misconception": "believes mirroring each row also swaps the order of the rows"
         },
         {
           "id": "B",
-          "text": "[8, 7, 6, 5] [4, 3, 2, 1] — the rows print in reverse because the copy is reversed",
-          "misconception": "believes mirroring each row also swaps the order of the rows"
+          "text": "[4, 3, 2, 1] [8, 7, 6, 5] — every row reads back to front, top row first",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1410,7 +1410,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The column index is counted back from three, so column 0 of the result takes column 3 of the source, and each row is mirrored within itself while the row order is untouched, giving 4 3 2 1 above 8 7 6 5. Reversing the row order as well is the tempting outcome because the code does contain a subtraction from the last index, but that subtraction happens to the column, and a left-right mirror has to leave the rows where they were or it becomes a half turn.",
       "hint": "The subtraction is on the column index, so ask what happens to the row index.",
@@ -1462,8 +1462,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[[19, 22], [43, 50]] — each cell pairs a row of the first with a column of the second",
-          "misconception": ""
+          "text": "[[5, 6], [7, 8]] — the second operand is copied straight through as the answer",
+          "misconception": "believes the product cell simply holds the second operand's entry"
         },
         {
           "id": "B",
@@ -1472,8 +1472,8 @@
         },
         {
           "id": "C",
-          "text": "[[5, 6], [7, 8]] — the second operand is copied straight through as the answer",
-          "misconception": "believes the product cell simply holds the second operand's entry"
+          "text": "[[19, 22], [43, 50]] — each cell pairs a row of the first with a column of the second",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1482,7 +1482,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The top-left cell sums 1 times 5 plus 2 times 7 to reach 19, the top-right sums 1 times 6 plus 2 times 8 to reach 22, and the bottom row works the same way over the second row of the first matrix, giving 43 and 50. Adding without multiplying is the tempting shortcut because the loop looks like an ordinary running total over small numbers, and with 1 and 2 involved the sums do land close to the products; the operation sitting between the two reads is the whole content of the loop body.",
       "hint": "For each cell, multiply matching positions and add the two terms.",
@@ -1535,8 +1535,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[[0, 0], [0, 0], [0, 0]] 0 — allocation zeroed every cell the grid owns",
-          "misconception": ""
+          "text": "[null, null, null] null — the slots of a fresh grid are empty references",
+          "misconception": "believes a primitive grid's cells begin as null references"
         },
         {
           "id": "B",
@@ -1550,12 +1550,12 @@
         },
         {
           "id": "D",
-          "text": "[null, null, null] null — the slots of a fresh grid are empty references",
-          "misconception": "believes a primitive grid's cells begin as null references"
+          "text": "[[0, 0], [0, 0], [0, 0]] 0 — allocation zeroed every cell the grid owns",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Allocation of a primitive element type zero-fills every slot, the deep print walks the rows and shows the numbers, and the last cell therefore reads 0, so the line carries six zeros and then a seventh after the space. Expecting null is the natural confusion with an object grid, where the slots really are empty references; the two allocations differ only in element type, and here the element type is int, so the default is zero rather than a missing reference.",
       "hint": "Decide what a slot holds before deciding what its default value is.",
@@ -1608,13 +1608,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[[0, 0, 0], [0, 45, 0], [0, 0, 0]] — only the middle cell has a full block around it",
-          "misconception": ""
+          "text": "[[5, 12, 9], [21, 45, 33], [24, 39, 30]] — every cell is written using a clipped block",
+          "misconception": "believes the guard clips the block instead of skipping the cell"
         },
         {
           "id": "B",
-          "text": "[[5, 12, 9], [21, 45, 33], [24, 39, 30]] — every cell is written using a clipped block",
-          "misconception": "believes the guard clips the block instead of skipping the cell"
+          "text": "[[0, 0, 0], [0, 45, 0], [0, 0, 0]] — only the middle cell has a full block around it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1628,7 +1628,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The guard demands a row and a column strictly inside the edges, which only row 1 column 1 satisfies in a three-by-three grid, and that block covers all nine values so their sum is 45; every other cell keeps the zero it was allocated with. Reading the guard as a clip is the tempting mistake because a clipped block is what an edge-aware filter would usually do, but here the guard skips the write entirely, which is why eight of the nine cells stay zero rather than gaining a partial sum.",
       "hint": "Ask which cells satisfy the guard, and how many cells a full block covers.",
@@ -1681,8 +1681,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 25 6 — two shared columns over three rows give six reads and sum 25",
-          "misconception": ""
+          "text": "3 25 9 — three columns are visited because the first row is three cells wide",
+          "misconception": "believes the first row's width applies to all three rows"
         },
         {
           "id": "B",
@@ -1691,8 +1691,8 @@
         },
         {
           "id": "C",
-          "text": "3 25 9 — three columns are visited because the first row is three cells wide",
-          "misconception": "believes the first row's width applies to all three rows"
+          "text": "2 25 6 — two shared columns over three rows give six reads and sum 25",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1701,7 +1701,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The shortest row has two cells, so only columns 0 and 1 are walked, and reading them down the three rows visits 1, 4, 6 then 2, 5, 7 for six reads summing 25. Taking the widest row is the tempting bound because it visits more of the data, but the middle row owns no third cell, so the third column would read past the end of that row; the number of cells visited is rows times shared columns, not rows times the longest row.",
       "hint": "Find the shortest row first, then count rows times that width.",
@@ -1754,8 +1754,8 @@
       "options": [
         {
           "id": "A",
-          "text": "it prints 12 and then throws NullPointerException on the first read of row 1",
-          "misconception": ""
+          "text": "it throws ArrayIndexOutOfBoundsException on the third read of row 0",
+          "misconception": "confuses a missing row reference with a row that is too short"
         },
         {
           "id": "B",
@@ -1769,12 +1769,12 @@
         },
         {
           "id": "D",
-          "text": "it throws ArrayIndexOutOfBoundsException on the third read of row 0",
-          "misconception": "confuses a missing row reference with a row that is too short"
+          "text": "it prints 12 and then throws NullPointerException on the first read of row 1",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first two reads belong to row 0 and print 1 and 2, then the loop reaches row 1, whose slot in the outer array still holds null, so reading g[1][0] has no array to read from and the run ends in a missing-reference failure. Expecting zeros is the trap that a fresh int[][] sets up, because there the rows exist and are zero-filled; declaring the rows as new int[3][] allocates only the outer array, and a slot that was never assigned is an absent row rather than a zeroed one.",
       "hint": "Ask whether the middle slot of the outer array was ever assigned a row.",
@@ -1826,13 +1826,13 @@
       "options": [
         {
           "id": "A",
-          "text": "99 — the copy holds the same cell object, so the change reaches the original grid",
-          "misconception": ""
+          "text": "1 — the copy duplicated each cell, so the original keeps the value it had",
+          "misconception": "believes assigning a reference into a slot duplicates the object"
         },
         {
           "id": "B",
-          "text": "1 — the copy duplicated each cell, so the original keeps the value it had",
-          "misconception": "believes assigning a reference into a slot duplicates the object"
+          "text": "99 — the copy holds the same cell object, so the change reaches the original grid",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1846,7 +1846,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The copy loop wrote four references, so both grids point at the same four cell objects, and writing 99 through h[0][0] changes the object both grids name, which is why the original now reads 99. Expecting 1 is the mistake that comes from reading the copy loop as a deep copy, but a subscript assignment copies what the slot holds, which is a reference, and no amount of looping turns that into duplication; to separate the two grids the copy has to allocate a new object per cell.",
       "hint": "Ask whether the two grids can reach the same object.",
@@ -1898,8 +1898,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[[-1, 2], [3, 4]] — the deep form walks the rows and keeps each row in brackets",
-          "misconception": ""
+          "text": "[[1, 2], [3, 4]] — the deep form prints the magnitude of each value without its sign",
+          "misconception": "believes the printing call drops the sign of a negative entry"
         },
         {
           "id": "B",
@@ -1908,8 +1908,8 @@
         },
         {
           "id": "C",
-          "text": "[[1, 2], [3, 4]] — the deep form prints the magnitude of each value without its sign",
-          "misconception": "believes the printing call drops the sign of a negative entry"
+          "text": "[[-1, 2], [3, 4]] — the deep form walks the rows and keeps each row in brackets",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1918,7 +1918,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The deep call descends through the outer array into each row and prints them as a list of lists, so the output has an opening bracket, then the four signed values grouped two per row, with no sign lost anywhere. Expecting a reference is the mistake that comes from the shallow variant, which prints the same grid as two element references; the two calls take the same argument and differ only in how far down they walk before giving up and printing an element's own form.",
       "hint": "Ask how far the call descends before it prints an element.",
@@ -1970,8 +1970,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[[1, 2, 3], [4, 5, 6], [7, 8, 9]] — each row of three is filled before the next begins",
-          "misconception": ""
+          "text": "[[1, 1, 1], [1, 1, 1], [1, 1, 1]] — the values are copied once and reused for every cell",
+          "misconception": "believes the scatter writes the same value into all nine cells"
         },
         {
           "id": "B",
@@ -1985,12 +1985,12 @@
         },
         {
           "id": "D",
-          "text": "[[1, 1, 1], [1, 1, 1], [1, 1, 1]] — the values are copied once and reused for every cell",
-          "misconception": "believes the scatter writes the same value into all nine cells"
+          "text": "[[1, 2, 3], [4, 5, 6], [7, 8, 9]] — each row of three is filled before the next begins",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The quotient of the index divided by the width picks the row and the remainder picks the column, so 0, 1 and 2 land in row 0, 3 through 5 in row 1 and 6 through 8 in row 2, which rebuilds the original layout exactly. Swapping the two operations is the tempting slip because they look symmetric on the source line, but the row may only advance after a whole row of values has been placed, and a row holds one width of values, so the width is the divisor and not the dividend.",
       "hint": "The width tells you how many values make one row, so it is the divisor.",
@@ -2043,13 +2043,13 @@
       "options": [
         {
           "id": "A",
-          "text": "4 3 — row-major counts three entries per row, column-major counts two per column",
-          "misconception": ""
+          "text": "3 4 — the two conventions are printed in the opposite order from the code",
+          "misconception": "confuses which printed number comes from which convention"
         },
         {
           "id": "B",
-          "text": "3 4 — the two conventions are printed in the opposite order from the code",
-          "misconception": "confuses which printed number comes from which convention"
+          "text": "4 3 — row-major counts three entries per row, column-major counts two per column",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2063,7 +2063,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Under the row-major convention one whole row of three entries precedes the target, so the index is 3 + 1 = 4, while the column-major convention counts two entries per column, so the index is 2 + 1 = 3, and the two agree only when the grid is square. Expecting agreement in the middle is the tempting assumption, because the two forms differ only in which dimension is the multiplier and a middle cell looks symmetric; they diverge as soon as the counts differ, which is also why a flattened grid always needs its layout supplied from outside.",
       "hint": "Compare the two multipliers: the column count for one form, the row count for the other.",
@@ -2115,8 +2115,8 @@
       "options": [
         {
           "id": "A",
-          "text": "4 — the top row holds two, the middle row one and the bottom row one",
-          "misconception": ""
+          "text": "5 — the diagonal of the board is included as a fifth matching cell",
+          "misconception": "believes a cell on the diagonal is counted twice by the two loops"
         },
         {
           "id": "B",
@@ -2125,8 +2125,8 @@
         },
         {
           "id": "C",
-          "text": "5 — the diagonal of the board is included as a fifth matching cell",
-          "misconception": "believes a cell on the diagonal is counted twice by the two loops"
+          "text": "4 — the top row holds two, the middle row one and the bottom row one",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2135,7 +2135,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Reading the rows in order gives two matches in the first row, one in the second and one in the third, which is four, because each cell is tested exactly once by the pair of loops. Counting once per row is the tempting answer because a match in the first row is easy to spot and there are three rows, but the inner loop has no break in it, so it keeps testing the rest of that row; the counter rises once for each cell whose character matches and never for the others.",
       "hint": "Count the matching characters in each row separately, then add them up.",
@@ -2187,8 +2187,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3 6 — the corner cell, the one to its right and the one below it are the region",
-          "misconception": ""
+          "text": "1 1 — marking a cell when it is added stops the search from expanding at all",
+          "misconception": "believes marking on entry prevents the neighbours from being queued"
         },
         {
           "id": "B",
@@ -2202,12 +2202,12 @@
         },
         {
           "id": "D",
-          "text": "1 1 — marking a cell when it is added stops the search from expanding at all",
-          "misconception": "believes marking on entry prevents the neighbours from being queued"
+          "text": "3 6 — the corner cell, the one to its right and the one below it are the region",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "From the corner the search steps right to 2 and down to 3, and from the cell holding 2 every further step is blocked, so three cells leave the queue and their values 1, 2 and 3 add to 6. Expecting a smaller count is the mistake that comes from reading the loop as a stack, but both ends of a deque drain the same pending cells here, and the guard refuses anything outside the grid or already seen, so the region is exactly the corner plus its two side neighbours while the isolated 4 in the far corner stays put.",
       "hint": "List the cells that share a side with the corner and are non-zero.",
@@ -2260,13 +2260,13 @@
       "options": [
         {
           "id": "A",
-          "text": "[[9, 8, 7], [6, 5, 4], [3, 2, 1]] — both the row and the column run backwards",
-          "misconception": ""
+          "text": "[[7, 8, 9], [4, 5, 6], [1, 2, 3]] — only the row order runs backwards down the grid",
+          "misconception": "confuses a half turn with a top-to-bottom flip of the rows"
         },
         {
           "id": "B",
-          "text": "[[7, 8, 9], [4, 5, 6], [1, 2, 3]] — only the row order runs backwards down the grid",
-          "misconception": "confuses a half turn with a top-to-bottom flip of the rows"
+          "text": "[[9, 8, 7], [6, 5, 4], [3, 2, 1]] — both the row and the column run backwards",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2280,7 +2280,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The row subscript is measured back from 2 and the column from 2 as well, so the top-left of the result is the old bottom-right value 9 and the bottom row of the result is the old top row reversed, giving the full reversed reading order. Reversing only the rows is the tempting half of the map, and reversing only the columns is the other half; each of those is a single flip, and it is one flip of the same axis twice that cancels, not one flip of each axis.",
       "hint": "Apply both reversals and then read the result row by row.",
@@ -2333,8 +2333,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[140, 320] — the rows are dotted with the vector and stored by row index",
-          "misconception": ""
+          "text": "[60, 150] — the entries are added pairwise without any multiplication",
+          "misconception": "believes a matrix-vector product only adds the aligned pairs"
         },
         {
           "id": "B",
@@ -2343,8 +2343,8 @@
         },
         {
           "id": "C",
-          "text": "[60, 150] — the entries are added pairwise without any multiplication",
-          "misconception": "believes a matrix-vector product only adds the aligned pairs"
+          "text": "[140, 320] — the rows are dotted with the vector and stored by row index",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2353,7 +2353,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first row gives 1 times 10 plus 2 times 20 plus 3 times 30, which is 140, and the second row gives 4 times 10 plus 5 times 20 plus 6 times 30, which is 320, and each total lands in the slot named by the row. Storing the last multiplier is the tempting slip because the inner loop leaves k at 2 and the value 30 behind it, but the running total s is what the row produced, and the result array has one slot per row and not one per column.",
       "hint": "Take the dot product of each row with the whole vector.",
@@ -2405,8 +2405,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[6, 9, 30] — each row is summed over its own length, including all four cells",
-          "misconception": ""
+          "text": "[6, 9, 30] — the result array is indexed by column rather than by row",
+          "misconception": "confuses the row index used to store each total with a column index"
         },
         {
           "id": "B",
@@ -2420,12 +2420,12 @@
         },
         {
           "id": "D",
-          "text": "[6, 9, 30] — the result array is indexed by column rather than by row",
-          "misconception": "confuses the row index used to store each total with a column index"
+          "text": "[6, 9, 30] — each row is summed over its own length, including all four cells",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The inner loop is bounded by each row's own length, so the first row contributes 1 + 2 + 3, the second 4 + 5, and the third all four of its cells 6 + 7 + 8 + 9, giving 6, 9 and 30 in three separate slots. Truncating the last row is the tempting reading because the rows differ, but nothing pads or clips a ragged grid, and a slot in the results array keeps its own total, so every cell of a row is free to contribute without any risk of leaking into another row's total.",
       "hint": "Sum each row over its own length, then read the three totals in order.",
@@ -2478,13 +2478,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It prints [[4, 1], [5, 2], [6, 3]] because a third row is added while copying.",
+          "misconception": "believes the destination grows to fit values written past its rows"
         },
         {
           "id": "B",
-          "text": "It prints [[4, 1], [5, 2], [6, 3]] because a third row is added while copying.",
-          "misconception": "believes the destination grows to fit values written past its rows"
+          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2498,7 +2498,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The destination is declared with two rows, and the loop writes three columns into it, so the first row fills and the write to rot[0][2] has no third column to land in and the run ends there. The three-by-two printout is the trap: it is what the routine should produce, and a student who reads the map may recognise the shape and assume the code delivers it; the map and the destination are independent, so a correct map on a wrongly sized destination still cannot store the third column.",
       "hint": "Count the columns the loop writes and compare that with the columns declared.",
@@ -2550,8 +2550,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[4, 2, 3, 1] — the left pointer closes the gap the right one left behind",
-          "misconception": ""
+          "text": "[1, 2, 3, 4] — the two pointers cross on the first pass and every swap cancels",
+          "misconception": "believes the pointers cross immediately so nothing is ever swapped"
         },
         {
           "id": "B",
@@ -2560,8 +2560,8 @@
         },
         {
           "id": "C",
-          "text": "[1, 2, 3, 4] — the two pointers cross on the first pass and every swap cancels",
-          "misconception": "believes the pointers cross immediately so nothing is ever swapped"
+          "text": "[4, 2, 3, 1] — the left pointer closes the gap the right one left behind",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2570,7 +2570,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first pass swaps the outer pair, the right pointer then drops from 3 to 1 while the left pointer rises to 1, so the loop condition fails and the two middle values are never touched, leaving them in place. The fully reversed row is the tempting answer because a two-pointer reverse is a standard pattern people expect to see through; the trap is that the two pointers are not closing symmetrically, and a step of two on one side against a step of one on the other skips exactly the pairs in the middle.",
       "hint": "Write out the pointer positions after each pass and see when the condition fails.",
@@ -2622,8 +2622,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints [[15, 18], [49, 56]], scaling each row sum by one entry of b.",
-          "misconception": ""
+          "text": "It prints [[6, 8], [7, 8]], because the row of a is only used on its first pass.",
+          "misconception": "believes the inner loop overwrites a[i][k] and later passes read zero"
         },
         {
           "id": "B",
@@ -2637,12 +2637,12 @@
         },
         {
           "id": "D",
-          "text": "It prints [[6, 8], [7, 8]], because the row of a is only used on its first pass.",
-          "misconception": "believes the inner loop overwrites a[i][k] and later passes read zero"
+          "text": "It prints [[15, 18], [49, 56]], scaling each row sum by one entry of b.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "With b[i][j] the term does not change across the inner loop, so each pass adds the same value again and each result cell becomes the row sum of a times a single entry of b: row 0 sums to 3, giving 15 and 18, and row 1 sums to 7, giving 49 and 56. The correct product is the tempting answer because the arrays are small enough that the mistake is easy to overlook, but the real product needs each k to bring a different entry of b, and holding the row fixed on b removes exactly that pairing.",
       "hint": "Ask whether the value read from b changes as the inner counter k advances.",
@@ -2695,13 +2695,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It prints [[58, 64, 70], [139, 154, 169]] because the product gains a third column.",
+          "misconception": "believes the destination grows to hold the extra computed column"
         },
         {
           "id": "B",
-          "text": "It prints [[58, 64, 70], [139, 154, 169]] because the product gains a third column.",
-          "misconception": "believes the destination grows to hold the extra computed column"
+          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2715,7 +2715,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The right operand has two columns, so the result has two, but the output loop runs three passes because it was bounded by the left operand's width; the first two cells of row 0 are stored as 58 and 64, and then the store into p[0][2] has no third column to land in. The three-column printout is the trap, because 58 and 64 are genuinely computed before the failure and make it look as though the wider result is simply being produced; the store is where the shape mismatch shows up.",
       "hint": "Compare the number of columns the loop writes with the columns the result declares.",
@@ -2768,8 +2768,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It prints [[1, 2], [3, 4]], because the guard keeps every read inside the grid.",
+          "misconception": "believes an upper-bound test alone also excludes the low indices"
         },
         {
           "id": "B",
@@ -2778,8 +2778,8 @@
         },
         {
           "id": "C",
-          "text": "It prints [[1, 2], [3, 4]], because the guard keeps every read inside the grid.",
-          "misconception": "believes an upper-bound test alone also excludes the low indices"
+          "text": "It throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2788,7 +2788,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The guard admits the very first cell because 0 + 1 is still under both limits, and the body then asks for g[-1][-1], where -1 is not a row or column the grid owns, so the run fails on the first pass. A partial printout is the trap, because the eye expects the corner to be rejected; the guard tests only r + 1 and c + 1 against the limits, and a neighbourhood that reaches backwards needs a lower-bound test just as much as an upper-bound one.",
       "hint": "Check the guard on the first cell, at row 0 and column 0.",
@@ -2841,8 +2841,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It throws NullPointerException, because the length test runs before the missing-row test.",
-          "misconception": ""
+          "text": "It prints 3, because a missing row is treated as holding the value zero.",
+          "misconception": "believes the unassigned row slot reads back as a zeroed row"
         },
         {
           "id": "B",
@@ -2856,12 +2856,12 @@
         },
         {
           "id": "D",
-          "text": "It prints 3, because a missing row is treated as holding the value zero.",
-          "misconception": "believes the unassigned row slot reads back as a zeroed row"
+          "text": "It throws NullPointerException, because the length test runs before the missing-row test.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A conjunction evaluates left to right and stops at the first false, so with the length test written first the guard reaches g[1].length before it ever compares g[1] against null, and asking a missing row for its length is the failure. Expecting the guard to work is the trap, because both tests are present and the logic looks complete; short-circuiting protects the right-hand side from a false left-hand side and never the other way round, so the cheap test on the reference has to come first.",
       "hint": "Which side of the conjunction is evaluated first when it runs?",
@@ -2914,13 +2914,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 00 and then throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It prints 00 01 10 11 and 4, because every side of the corner stays in the grid.",
+          "misconception": "believes the guard is enough to keep all four steps inside the grid"
         },
         {
           "id": "B",
-          "text": "It prints 00 01 10 11 and 4, because every side of the corner stays in the grid.",
-          "misconception": "believes the guard is enough to keep all four steps inside the grid"
+          "text": "It prints 00 and then throws ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2934,7 +2934,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first pop prints 00, and the very first offset in the table moves up, so nr is -1; -1 is under both limits the guard tests, and the seen test then indexes row -1, which the grid does not have, so the run ends there. A complete walk is the trap, because the offsets list looks safe and the upper limits do hold for the corner; what they cannot do is exclude a negative index, so a lower-bound test is what a step that walks in all four directions has to carry.",
       "hint": "Which offset is tried first, and what does the guard do with a negative index?",
@@ -2987,8 +2987,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints [1, 2, 4, 5, 6, 0], because the wrong stride makes writes overlap.",
-          "misconception": ""
+          "text": "It throws ArrayIndexOutOfBoundsException, because the stride overshoots the flat array.",
+          "misconception": "believes a stride of two over six slots cannot stay inside the array"
         },
         {
           "id": "B",
@@ -2997,8 +2997,8 @@
         },
         {
           "id": "C",
-          "text": "It throws ArrayIndexOutOfBoundsException, because the stride overshoots the flat array.",
-          "misconception": "believes a stride of two over six slots cannot stay inside the array"
+          "text": "It prints [1, 2, 4, 5, 6, 0], because the wrong stride makes writes overlap.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3007,7 +3007,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Row 0 writes slots 0, 1 and 2, and row 1 computes slots 2, 3 and 4 because the stride is 2 rather than 3, so the value 4 lands on slot 2 and overwrites the 3, and slot 5 is never written and keeps its initial zero. A clean six-value printout is the trap, because the destination is correctly sized and nothing looks out of range; the stride is what decides where a cell goes, and using the row count as the stride makes the two rows share the tail of the first block.",
       "hint": "Work out the slot numbers for the second row before worrying about the values.",
@@ -3060,8 +3060,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It throws ArithmeticException, because eight cannot be split into rows of three.",
+          "misconception": "believes integer division by a non-divisor is an error in Java"
         },
         {
           "id": "B",
@@ -3075,12 +3075,12 @@
         },
         {
           "id": "D",
-          "text": "It throws ArithmeticException, because eight cannot be split into rows of three.",
-          "misconception": "believes integer division by a non-divisor is an error in Java"
+          "text": "It throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Integer division gives two rows of three, and the loop keeps going through all eight values, so after row 1 is filled the index 6 asks for row 2, which the grid does not have, and the run ends there. A clean two-row printout is the trap, because dropping the leftover values is exactly what a program that stopped at the first missing row would do; the loop condition runs to the end of the flat array, so the leftover values are read and their row index leaves the grid behind.",
       "hint": "Work out the row index for the seventh value in the flat array.",
@@ -3133,13 +3133,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 1462573 and then throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
-          "misconception": ""
+          "text": "It prints 146257389, since every row supplies a value for the third column.",
+          "misconception": "believes a row that is too short still yields a value for a wider column"
         },
         {
           "id": "B",
-          "text": "It prints 146257389, since every row supplies a value for the third column.",
-          "misconception": "believes a row that is too short still yields a value for a wider column"
+          "text": "It prints 1462573 and then throws ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3153,7 +3153,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The first column prints 1, 4 and 6 and the second prints 2, 5 and 7, so the output so far is 146257, and then the third column asks the middle row for its third cell, which a two-cell row does not have, and the run ends there. A nine-digit printout is the trap, because the loop does visit all three columns and the first row can supply all of them; what it cannot do is invent a value for a row that stops short, and nothing about a ragged grid pads the missing cells with zeros.",
       "hint": "Print the first two columns, then ask the middle row for its third cell.",
@@ -3206,8 +3206,8 @@
       "options": [
         {
           "id": "A",
-          "text": "rows * width  —  the destination holds one cell for every row and column pair",
-          "misconception": ""
+          "text": "rows + width  —  the destination is sized from the sum of the two dimensions",
+          "misconception": "believes adding the dimensions counts the cells of the grid"
         },
         {
           "id": "B",
@@ -3216,8 +3216,8 @@
         },
         {
           "id": "C",
-          "text": "rows + width  —  the destination is sized from the sum of the two dimensions",
-          "misconception": "believes adding the dimensions counts the cells of the grid"
+          "text": "rows * width  —  the destination holds one cell for every row and column pair",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3226,7 +3226,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The loops visit rows times width cells, so the destination has to be exactly that long or the last store falls off the end; the counter k reaches rows * width - 1 as its final value, which is why subtracting one is the tempting off-by-one. Sizing from the width alone is the other natural slip, and it would hold one row's worth of values with no room for the rest, so the product of the two dimensions is the only length that matches the number of stores the loops make.",
       "hint": "Count the stores the two nested loops make in total.",
@@ -3279,8 +3279,8 @@
       "options": [
         {
           "id": "A",
-          "text": "rows - 1 - r  —  the row is measured back from the last row of the grid",
-          "misconception": ""
+          "text": "r + 1  —  the next row is taken, which turns a grid read downwards",
+          "misconception": "believes stepping one row forward reverses the order that is printed"
         },
         {
           "id": "B",
@@ -3294,12 +3294,12 @@
         },
         {
           "id": "D",
-          "text": "r + 1  —  the next row is taken, which turns a grid read downwards",
-          "misconception": "believes stepping one row forward reverses the order that is printed"
+          "text": "rows - 1 - r  —  the row is measured back from the last row of the grid",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Counting back from the last row means starting one before it, so r turns into rows - 1 - r and the top row of the copy takes the bottom row of the source. Dropping the minus one is the tempting slip because rows - r looks like the same idea one step out, and for r equal to zero it names a row that does not exist at all; the count of rows is a number of steps, not a row index, so the reversal has to stop one short of it.",
       "hint": "The last row has index one less than the number of rows.",
@@ -3352,13 +3352,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Arrays.fill(m[i], 0);  —  the fill reaches the row named by i on each pass",
-          "misconception": ""
+          "text": "Arrays.fill(m, 0);  —  the fill is applied once to the outer array of rows",
+          "misconception": "believes filling the outer array also fills every row behind it"
         },
         {
           "id": "B",
-          "text": "Arrays.fill(m, 0);  —  the fill is applied once to the outer array of rows",
-          "misconception": "believes filling the outer array also fills every row behind it"
+          "text": "Arrays.fill(m[i], 0);  —  the fill reaches the row named by i on each pass",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3372,7 +3372,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The fill call needs an int[] to work on, and m[i] is the row named by the loop counter, so on each pass a different row is filled and after n passes every row has been zeroed. Filling m itself is the tempting line because the variable holding the grid is the one in scope, but m is an array of references, so passing it fills the two slots holding those references and the numbers inside the rows are untouched; the new int[n][n] was already zero anyway, so the loop is only ever belt and braces here.",
       "hint": "The fill call needs the primitive row array, not the array of rows.",
@@ -3425,8 +3425,8 @@
       "options": [
         {
           "id": "A",
-          "text": "w = Math.min(w, row.length);  —  each row can only narrow the shared width",
-          "misconception": ""
+          "text": "w = row.length;  —  the last row visited leaves the shared width behind",
+          "misconception": "believes the last row alone sets the width for the whole grid"
         },
         {
           "id": "B",
@@ -3435,8 +3435,8 @@
         },
         {
           "id": "C",
-          "text": "w = row.length;  —  the last row visited leaves the shared width behind",
-          "misconception": "believes the last row alone sets the width for the whole grid"
+          "text": "w = Math.min(w, row.length);  —  each row can only narrow the shared width",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3445,7 +3445,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The bound has to survive every row, so it can only be lowered, and taking the minimum against the running value is what lowers it: starting at the largest possible value, each pass keeps the smaller of what is held and the row in hand, so the shortest row wins. Taking the maximum is the tempting line because the widest row holds the most data, but a shared column range is limited by the row that owns the fewest columns, and no amount of reading the first row can discover a shorter row later on.",
       "hint": "The bound must end up as the smallest length any row supplies.",
@@ -3498,8 +3498,8 @@
       "options": [
         {
           "id": "A",
-          "text": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] != 0",
-          "misconception": ""
+          "text": "nr >= 0 && nr <= rows && nc >= 0 && nc <= cols && grid[nr][nc] != 0",
+          "misconception": "believes the row count is a legal row index and the width a legal column"
         },
         {
           "id": "B",
@@ -3513,12 +3513,12 @@
         },
         {
           "id": "D",
-          "text": "nr >= 0 && nr <= rows && nc >= 0 && nc <= cols && grid[nr][nc] != 0",
-          "misconception": "believes the row count is a legal row index and the width a legal column"
+          "text": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] != 0",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A step in all four directions can produce any index from minus one up to the count, so the guard has to exclude both ends: the last legal row index is rows - 1, which is what nr < rows says, and nr >= 0 removes the step off the top. Testing nr > 0 is the tempting variant, but it also throws away row 0 even though the corner is a perfectly legal cell to stand on, and the count itself is one past the end, so a test that allows nr equal to rows reaches a row that was never allocated.",
       "hint": "The last legal index in each direction is one less than the count.",
@@ -3571,13 +3571,13 @@
       "options": [
         {
           "id": "A",
-          "text": "out[i] += m[i][k] * v[k];  —  each product joins the total held for that row",
-          "misconception": ""
+          "text": "out[k] += m[i][k] * v[k];  —  the result slot is named by the inner counter",
+          "misconception": "believes the result is indexed the same way as the inner loop variable"
         },
         {
           "id": "B",
-          "text": "out[k] += m[i][k] * v[k];  —  the result slot is named by the inner counter",
-          "misconception": "believes the result is indexed the same way as the inner loop variable"
+          "text": "out[i] += m[i][k] * v[k];  —  each product joins the total held for that row",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3591,7 +3591,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "One result slot exists per row of the matrix, so out[i] is the total being built for row i, and the compound assignment both multiplies the aligned pair and folds the product into that total, giving 17 and 39. Indexing by k is the tempting slip because k is the loop variable nearest the statement, but there are only two slots and k reaches two, so that version names a third slot that was never allocated; a plain assignment would also throw away everything the inner loop had already accumulated for the row.",
       "hint": "One slot per matrix row, and the two entries aligned by k must be multiplied.",
@@ -3644,8 +3644,8 @@
       "options": [
         {
           "id": "A",
-          "text": "r > 0 && r + 1 < rows && c > 0 && c + 1 < cols",
-          "misconception": ""
+          "text": "r > 0 && r + 1 < rows && c > 0 && c + 2 < cols",
+          "misconception": "believes a three-cell block needs two cells of room past the centre"
         },
         {
           "id": "B",
@@ -3654,8 +3654,8 @@
         },
         {
           "id": "C",
-          "text": "r > 0 && r + 1 < rows && c > 0 && c + 2 < cols",
-          "misconception": "believes a three-cell block needs two cells of room past the centre"
+          "text": "r > 0 && r + 1 < rows && c > 0 && c + 1 < cols",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3664,7 +3664,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The block reaches one cell above and one cell below the centre in each direction, so the centre must be strictly inside on both sides: greater than zero to stay clear of the top and left edges, and one less than the count when a further one is added to stay clear of the bottom and right. Allowing the sum to reach the count is the tempting off-by-one, because rows and cols are the natural stopping values for a loop, but they are one past the last legal index, and a block centred there would read a row that does not exist.",
       "hint": "The centre has to be at least one in and at least one short of the last index.",
@@ -3717,8 +3717,8 @@
       "options": [
         {
           "id": "A",
-          "text": "r * cols + c  —  whole rows are skipped, then the column is added on",
-          "misconception": ""
+          "text": "r * g.length + c + 1  —  the row count is the stride and the index is one-based",
+          "misconception": "combines the wrong stride with a one-based index in one step"
         },
         {
           "id": "B",
@@ -3732,12 +3732,12 @@
         },
         {
           "id": "D",
-          "text": "r * g.length + c + 1  —  the row count is the stride and the index is one-based",
-          "misconception": "combines the wrong stride with a one-based index in one step"
+          "text": "r * cols + c  —  whole rows are skipped, then the column is added on",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Three entries make each row, so the row contributes three times its index and the column only adds its position inside that row, which makes 5 for row 1 column 2. Simply adding the two is the tempting shortcut because the numbers are small and 1 + 2 happens to be 3, but that formula only works for a one-wide row, and adding one to the end is the second half of the same trap: an index is a position and positions count from zero, so the sixth cell of the grid is index five.",
       "hint": "Ask how many entries a full row holds before the cell you want.",

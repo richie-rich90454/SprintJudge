@@ -283,13 +283,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Its sources of variation, since identical code on identical inputs must give identical outputs, and anything that moves is a source of randomness left unfixed",
-          "misconception": ""
+          "text": "The training code itself, because code that gives two different answers cannot have been the same code on both occasions",
+          "misconception": "concludes the two runs used different code"
         },
         {
           "id": "B",
-          "text": "The training code itself, because code that gives two different answers cannot have been the same code on both occasions",
-          "misconception": "concludes the two runs used different code"
+          "text": "Its sources of variation, since identical code on identical inputs must give identical outputs, and anything that moves is a source of randomness left unfixed",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -303,7 +303,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Reproducibility is the guarantee that a run can be repeated, and the guarantee is about the whole pipeline rather than about the code file: the seed for anything random, the exact rows and columns of the snapshot, the order in which they were fed in, and the version of the library doing the fitting. The colleague's controls matched, so the variation is coming from one of the unrecorded parts, and the honest first step is to record them rather than to pick a suspect. The other options each settle too early. Floating-point differences between machines are real but tiny, and they cannot explain a visible change in scores; a changed metric would change a reported number without changing the model, which is the reverse of what is described here.",
       "hint": "Ask what an identical code and an identical data snapshot still leave free to vary.",
@@ -352,8 +352,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A recent training window is still being revised upward, so a model fitted on it has been measured against labels that have not finished arriving",
-          "misconception": ""
+          "text": "Nine days is the figure to plan the cut around, since the median is the delay that half of all cases fall below",
+          "misconception": "takes a median delay as the one that sizes a window"
         },
         {
           "id": "B",
@@ -362,8 +362,8 @@
         },
         {
           "id": "C",
-          "text": "Nine days is the figure to plan the cut around, since the median is the delay that half of all cases fall below",
-          "misconception": "takes a median delay as the one that sizes a window"
+          "text": "A recent training window is still being revised upward, so a model fitted on it has been measured against labels that have not finished arriving",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -372,7 +372,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A label is not a fact about an event on the day the event happens; it is a fact recorded when some later process confirms it, and until that process runs the case looks like a negative. Any window cut at a fixed date therefore includes a tail of cases that are still unlabelled and will later be labelled positive, which inflates every performance figure computed inside it and makes the most recent data the most flattering data. The shape of the distribution matters more than its middle: planning on the median of nine days leaves a fifth of cases unsettled at 22 days and a hundredth still unsettled at 45. The practical defences are a maturation lag between the cut and the fitting, and scoring only against a window old enough to have finished moving.",
       "hint": "Ask what a case looks like during the days before its label is written.",
@@ -421,8 +421,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The training set holds no examples of the outcome being predicted, and the rows it does hold were selected precisely for still being open",
-          "misconception": ""
+          "text": "An unbiased sample, because every open account is included and the ones left out are merely unrecorded rather than chosen",
+          "misconception": "treats a census of survivors as unbiased sampling"
         },
         {
           "id": "B",
@@ -436,12 +436,12 @@
         },
         {
           "id": "D",
-          "text": "An unbiased sample, because every open account is included and the ones left out are merely unrecorded rather than chosen",
-          "misconception": "treats a census of survivors as unbiased sampling"
+          "text": "The training set holds no examples of the outcome being predicted, and the rows it does hold were selected precisely for still being open",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The selection is made on an outcome, which is the one variable the model is supposed to predict, so the training set cannot teach it anything about the state it is in. What remains is a population distinguished by survival, and a model fitted on it learns the regularities of survivors and applies them to everyone. Scoring on the same survivors is worse than useless because it rewards exactly the bias that was introduced. The direction of the resulting error is a real question but not one this table can answer, since a model with no examples of the outcome may under-call it, over-call it, or be confidently wrong in some pattern that depends on what the survivors share.",
       "hint": "Ask what the excluded rows have in common, and whether it is the thing being predicted.",
@@ -803,13 +803,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The guarantee that a feature carries the same meaning and the same missing-value rule at training and at serving, so a difference in a score cannot be blamed on a difference in the inputs",
-          "misconception": ""
+          "text": "A faster serving path, because a definition written once cannot need computing twice and so removes work from the request",
+          "misconception": "believes sharing a definition is a performance measure"
         },
         {
           "id": "B",
-          "text": "A faster serving path, because a definition written once cannot need computing twice and so removes work from the request",
-          "misconception": "believes sharing a definition is a performance measure"
+          "text": "The guarantee that a feature carries the same meaning and the same missing-value rule at training and at serving, so a difference in a score cannot be blamed on a difference in the inputs",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -823,7 +823,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Two implementations of one feature are two hypotheses about the world that happen to share a column name, and the disagreement is invisible until a model that was trained on one version meets the other in production. A shared definition makes the name and the rule a single object, so the offline table and the online path are answering the same question, and any remaining difference in a score has to be sought in the data, in the model or in the clock rather than in the definition. That is a consistency guarantee, not a speed-up, not a change-control system, and emphatically not a statement about the quality of the inputs: a shared definition of a badly measured quantity is still a bad measurement, applied twice.",
       "hint": "Ask what a difference in a production score could be mistaken for if the two paths disagreed.",
@@ -872,8 +872,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The two lookups alone can occupy 60 milliseconds of the tail, so as drawn the path cannot meet the budget and either the budget or the architecture has to change",
-          "misconception": ""
+          "text": "The path fits with room to spare, because percentiles of separate services combine by addition only for the mean and never for a tail",
+          "misconception": "believes tail latencies can never be added"
         },
         {
           "id": "B",
@@ -882,8 +882,8 @@
         },
         {
           "id": "C",
-          "text": "The path fits with room to spare, because percentiles of separate services combine by addition only for the mean and never for a tail",
-          "misconception": "believes tail latencies can never be added"
+          "text": "The two lookups alone can occupy 60 milliseconds of the tail, so as drawn the path cannot meet the budget and either the budget or the architecture has to change",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -892,7 +892,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Fetching one thing and then another makes the request wait for both, so a tail of 30 milliseconds on each leg arrives as 60 before the model's own 5 is added. The budget is missed by the lookups alone, and no amount of care in the inference step recovers it. The percentile arithmetic is the subtle part: percentiles of independent quantities do not add, and for independent legs the 99th percentile of the sum is smaller than 99 per cent of the first leg plus 99 per cent of the second, which is exactly why the figure quoted here is a conservative bound and still overruns. The fix is architectural rather than arithmetic: fetch the two lookups concurrently, cache what can be cached, or move the deadline onto the parts that can be held to it. Caching does not help a feature whose whole purpose is to be current.",
       "hint": "Ask whether the two lookups can overlap, and what the request waits for if they cannot.",
@@ -941,8 +941,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the trigger for the label is itself available as a feature, so a model can learn the rule instead of the behaviour and its offline result will not transfer",
-          "misconception": ""
+          "text": "That the two columns are redundant, since a column about recency and a label about silence describe the same underlying event",
+          "misconception": "confuses redundancy with leakage"
         },
         {
           "id": "B",
@@ -956,12 +956,12 @@
         },
         {
           "id": "D",
-          "text": "That the two columns are redundant, since a column about recency and a label about silence describe the same underlying event",
-          "misconception": "confuses redundancy with leakage"
+          "text": "That the trigger for the label is itself available as a feature, so a model can learn the rule instead of the behaviour and its offline result will not transfer",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A feature that reconstructs the label's own trigger is the same information as the label wearing a different name. Once the quietness has run past thirty days the label is already determined, and a model holding a count of quiet days can locate that boundary in the feature and read the answer off it. The resulting model scores well on any data built the same way and then meets production traffic, where the account is only just approaching the boundary and the feature carries no such information, and its accuracy collapses. Availability at prediction time is necessary for a feature to be legitimate and is nowhere near sufficient; the test is whether the feature was computed from information the label's own definition has not already consumed. Re-labelling the column more descriptively changes nothing about this.",
       "hint": "Ask whether the feature could be used to work out the label, rather than only to predict it.",
@@ -1010,13 +1010,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A schema change is also a data change, since the cast nulls 4,000 rows, which is 0.2 per cent and four times the gate's limit, so the partition is refused",
-          "misconception": ""
+          "text": "Nothing, since the declared type is metadata and a change of metadata cannot alter the values stored in the rows",
+          "misconception": "believes a type declaration leaves stored values untouched"
         },
         {
           "id": "B",
-          "text": "Nothing, since the declared type is metadata and a change of metadata cannot alter the values stored in the rows",
-          "misconception": "believes a type declaration leaves stored values untouched"
+          "text": "A schema change is also a data change, since the cast nulls 4,000 rows, which is 0.2 per cent and four times the gate's limit, so the partition is refused",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1030,7 +1030,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Reading a column under a stricter type is an operation on the values, not a relabelling of them, and the four thousand rows the cast cannot parse become nulls that were not there the day before. At 4,000 out of 2,000,000 that is 0.2 per cent, which is four times the 0.05 per cent limit, so a correctly configured gate refuses the partition and the failure is loud. The proportion is what makes this a small change with a large consequence: 0.2 per cent of rows missing one required feature means those customers receive either no score or a score built on an imputed value, and the training table built from the same day is quietly missing the same rows. The correct response is to fix the producer's format or to keep the declared type, and to decide which before the next partition arrives rather than after.",
       "hint": "Ask what a cast does to a value it cannot read, and compare the resulting null rate with the limit.",
@@ -1079,8 +1079,8 @@
       "options": [
         {
           "id": "A",
-          "text": "One shared definition, materialised offline for training and evaluated online at serving time, with a daily job checking the two agree on recent rows",
-          "misconception": ""
+          "text": "A shared definition with a shared offline table only, which guarantees the two paths agree because neither of them computes anything",
+          "misconception": "assumes a stored value needs no serving-time computation"
         },
         {
           "id": "B",
@@ -1089,8 +1089,8 @@
         },
         {
           "id": "C",
-          "text": "A shared definition with a shared offline table only, which guarantees the two paths agree because neither of them computes anything",
-          "misconception": "assumes a stored value needs no serving-time computation"
+          "text": "One shared definition, materialised offline for training and evaluated online at serving time, with a daily job checking the two agree on recent rows",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1099,7 +1099,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The guarantee worth having is that the two paths agree, and agreement has to be produced and then checked rather than asserted. A shared definition removes the most common cause of disagreement, two hand-written implementations of the same idea, and the daily comparison over recent rows turns the rest into a measurable fact instead of an assumption, because it will catch a change on either side within a day. A single table does not do it: the training materialisation may be a snapshot and the serving read may be live, so the same name covers two different moments. A stored value still needs a serving-time computation to be assembled into a scoring input, so a table alone cannot supply the online path. A promise in a runbook is a promise; the check is what makes it a guarantee.",
       "hint": "Ask what would make the two paths disagree even with one table, and what actually detects it.",
@@ -1369,8 +1369,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the scores are complete before the hour they are read, since the guarantee came from the timing and never from a check on the output",
-          "misconception": ""
+          "text": "Nothing at all, because 05:40 is still comfortably before 08:00 and the reader has three hours of margin to use",
+          "misconception": "treats margin as though it were a guarantee"
         },
         {
           "id": "B",
@@ -1384,12 +1384,12 @@
         },
         {
           "id": "D",
-          "text": "Nothing at all, because 05:40 is still comfortably before 08:00 and the reader has three hours of margin to use",
-          "misconception": "treats margin as though it were a guarantee"
+          "text": "That the scores are complete before the hour they are read, since the guarantee came from the timing and never from a check on the output",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The reader has a dependency and the job has a deadline, and what connected them was the timing rather than anything either side checked. Three hours of margin on paper is not a guarantee, because the same change that lengthened the job can lengthen it again, and the failure will arrive as a stale or partial file on the one morning when the reader needed it. The durable arrangement states the deadline as a contract with the job, has the job report completion against it, and has the reader refuse a file that arrives after the deadline or carries fewer rows than the count it expects. None of that required a failure to have happened first, which is the point: a schedule is a promise and only a check makes it one.",
       "hint": "Ask what would have had to be true for the reader to be protected, and whether anything checked it.",
@@ -1438,13 +1438,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The volume of review, since fewer events reach a person and the precision of what reaches them is higher, while the rarity of the class in the stream is untouched",
-          "misconception": ""
+          "text": "The imbalance itself, because flagging 2 per cent of events is much closer to the 0.5 per cent rate than 30 per cent was",
+          "misconception": "treats a flag rate near the class rate as a solved imbalance"
         },
         {
           "id": "B",
-          "text": "The imbalance itself, because flagging 2 per cent of events is much closer to the 0.5 per cent rate than 30 per cent was",
-          "misconception": "treats a flag rate near the class rate as a solved imbalance"
+          "text": "The volume of review, since fewer events reach a person and the precision of what reaches them is higher, while the rarity of the class in the stream is untouched",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1458,7 +1458,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A threshold decides where a ranking is cut, and the ranking is untouched by the cut, so nothing about the model's skill has changed. What changes is how much work the cut creates and how good that work is, which is why flagging 2 per cent instead of 30 is a real improvement in the operating cost of the system and a real loss of recall. The imbalance is a property of the stream and no cut point removes it; what a cut point does is choose how that rarity is charged for, and the choice should be made with the cost of a false alarm beside the cost of a miss rather than by aiming the flag rate at the prevalence. Equalising the two rates is a coincidence with no justification behind it, and it happens to sit far on the conservative side.",
       "hint": "Ask what a cut point can change about a set of scores, and what it cannot.",
@@ -1507,8 +1507,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the reported total is 300,000 against a true 210,000, so the figure overstates the day by 90,000, which is 43 per cent of the truth",
-          "misconception": ""
+          "text": "That the figure is 210,000 and therefore conservative, because adding a smaller number of large rows and more rows of small ones happens to offset the conversion",
+          "misconception": "believes the two effects offset without checking"
         },
         {
           "id": "B",
@@ -1517,8 +1517,8 @@
         },
         {
           "id": "C",
-          "text": "That the figure is 210,000 and therefore conservative, because adding a smaller number of large rows and more rows of small ones happens to offset the conversion",
-          "misconception": "believes the two effects offset without checking"
+          "text": "That the reported total is 300,000 against a true 210,000, so the figure overstates the day by 90,000, which is 43 per cent of the truth",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1527,7 +1527,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Adding the raw column gives 3,000 times 50 plus 5,000 times 30, which is 150,000 plus 150,000, or 300,000. Converting the second block at the stated rate gives 5,000 times 12, which is 60,000, so the true total is 210,000 and the report overstates it by 90,000. That 90,000 is also exactly the second block multiplied by the proportion the conversion removed, 30 minus 12 over 30, which reaches the same figure without a second full total and is a useful check on the arithmetic. The damage is worst exactly where the report looks most reliable: a single currency column, a plausible average, and a total that is not an outlier against yesterday's. The remedy is to store the rate beside the amount or to keep amounts in one unit and convert at the edge, because a mixed column cannot be repaired by a reader who does not know the split.",
       "hint": "Convert the second block at the stated rate, then compare the sum of the raw column with the sum of the converted one.",
@@ -1576,8 +1576,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the aggregate metric moved by two errors and so could not have found the candidate's doubled rate, which the per-arm comparison exposes because the candidate took 5 per cent of traffic and 10 per cent of the errors",
-          "misconception": ""
+          "text": "That the two models are equivalent, because both produced a total close to the baseline and a small difference is what equivalence looks like",
+          "misconception": "equates a small aggregate difference with equivalence"
         },
         {
           "id": "B",
@@ -1591,12 +1591,12 @@
         },
         {
           "id": "D",
-          "text": "That the two models are equivalent, because both produced a total close to the baseline and a small difference is what equivalence looks like",
-          "misconception": "equates a small aggregate difference with equivalence"
+          "text": "That the aggregate metric moved by two errors and so could not have found the candidate's doubled rate, which the per-arm comparison exposes because the candidate took 5 per cent of traffic and 10 per cent of the errors",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The candidate handled 5 per cent of the requests and produced 4 of the 42 errors, which is 9.5 per cent, so it is over-represented among the errors by roughly a factor of two, exactly matching its doubled error rate. The day's total is the metric most teams watch, and it moved from a projected 40 to 42, a change of one per cent that a daily dashboard would carry without comment. This is the whole argument for a per-arm comparison rather than a total: the dilution is what protects a bad model, and it is strongest exactly when the release is smallest. The small absolute number is not reassurance, since the reason it is small is the very thing the canary was designed to hold small, and the incumbent's larger count reflects a larger share of traffic rather than a worse model.",
       "hint": "Compare the share of traffic on each arm with the share of errors on each arm.",
@@ -1645,13 +1645,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Withhold an answer below a confidence floor and route the rest to a person, because the cases the model is unsure about are the ones where its confident errors are most expensive",
-          "misconception": ""
+          "text": "Answer every case and rank the output, because a ranked list lets the operator choose where to cut without scoring anything again",
+          "misconception": "accepts ranking as a substitute for a decision rule"
         },
         {
           "id": "B",
-          "text": "Answer every case and rank the output, because a ranked list lets the operator choose where to cut without scoring anything again",
-          "misconception": "accepts ranking as a substitute for a decision rule"
+          "text": "Withhold an answer below a confidence floor and route the rest to a person, because the cases the model is unsure about are the ones where its confident errors are most expensive",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1665,7 +1665,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Abstention buys a bounded error rate on the cases the model does answer, and the floor is set by the cost of being wrong rather than by any property of the accuracy figure. The cases near the floor are the ones the model's score distribution says it cannot separate, so those are exactly the ones where a person adds the most value. The other three pair a policy with a justification that does not support it. A ranked list is necessary for choosing a cut and useless for making a decision, since somebody still has to choose; the frequency of a class says nothing about confidence in an individual case; and feeding errors back into training changes the fit without removing the region of the space where the model is wrong, so the same uncertainty returns on the next run.",
       "hint": "Ask what the floor is protecting against, and whether the justification is about confidence or about frequency.",
@@ -2080,8 +2080,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The pressure on a user to compare two full pages against each other, since a blended list forces the comparison one position at a time and records a real preference",
-          "misconception": ""
+          "text": "The need to run the test for long, since a preference recorded on a single click reaches significance sooner than one recorded on a page",
+          "misconception": "blends click preferences with page-level significance"
         },
         {
           "id": "B",
@@ -2090,8 +2090,8 @@
         },
         {
           "id": "C",
-          "text": "The need to run the test for long, since a preference recorded on a single click reaches significance sooner than one recorded on a page",
-          "misconception": "blends click preferences with page-level significance"
+          "text": "The pressure on a user to compare two full pages against each other, since a blended list forces the comparison one position at a time and records a real preference",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2100,7 +2100,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A side-by-side test asks a user to form an overall preference between two long pages, which is a demanding judgement, easy to make from position, colour and familiarity rather than from relevance, and it produces a preference that may not survive contact with a real ranked list. Interleaving asks the same question position by position and records which system supplied the item that was chosen, so the measurement is of the thing users actually do. The bias it reduces is the one created by the comparison itself. What it does not do is change the audience, the significance arithmetic or the cost: the same users, the same number of observations and roughly the same infrastructure are involved, and the sensitivity of the resulting estimate depends on how often the click is a genuine choice between the two systems rather than a click on something both would have shown.",
       "hint": "Ask what the user is being asked to compare, and how the design changes the size of that ask.",
@@ -2149,8 +2149,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That participation cannot be inferred from the model alone, since the guarantee bounds exactly that, while the guarantee says nothing about the values of a record that is known to be in the table",
-          "misconception": ""
+          "text": "That the guarantee holds only for the exact training set and says nothing about a model fitted on a neighbouring set, which makes it a statement about one artefact",
+          "misconception": "reads a training-set guarantee as covering neighbouring models"
         },
         {
           "id": "B",
@@ -2164,12 +2164,12 @@
         },
         {
           "id": "D",
-          "text": "That the guarantee holds only for the exact training set and says nothing about a model fitted on a neighbouring set, which makes it a statement about one artefact",
-          "misconception": "reads a training-set guarantee as covering neighbouring models"
+          "text": "That participation cannot be inferred from the model alone, since the guarantee bounds exactly that, while the guarantee says nothing about the values of a record that is known to be in the table",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The guarantee is about membership, which is the question of whether a particular record was in the training set, and it is answered by bounding how much the release moves when one row is added or removed. It is not a guarantee about the values of a row, so an attacker who already knows a person is in the table can still use the model to narrow down that person's attributes, and the difference between the two attacks is the difference between what the guarantee was asked and what the attacker wants. A per-record bound does not extend to arbitrary populations, since many records together can reveal structure no single one can, and nothing about the model replaces the need to control access to the table itself. The final option is a fair observation about the artefact and is not a contradiction of the guarantee.",
       "hint": "Ask which question the bound answers, and then ask which question an attacker would rather ask.",
@@ -2218,13 +2218,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Widen the share only while the outcome metric and each named guardrail metric hold per arm, and stop on any one of them rather than on an average of them",
-          "misconception": ""
+          "text": "Widen the share once the outcome metric improves, since an improvement on the thing being optimised outweighs a guardrail that moved against it",
+          "misconception": "lets a single favourable metric override the guardrails"
         },
         {
           "id": "B",
-          "text": "Widen the share once the outcome metric improves, since an improvement on the thing being optimised outweighs a guardrail that moved against it",
-          "misconception": "lets a single favourable metric override the guardrails"
+          "text": "Widen the share only while the outcome metric and each named guardrail metric hold per arm, and stop on any one of them rather than on an average of them",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2238,7 +2238,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The guardrail metrics exist for exactly the situation in which the outcome metric improves and something else quietly gets worse, which is the ordinary consequence of a model optimising the thing it was measured on, and a rule that waits for an average of the two will not catch it. Per arm rather than in total is the second half of the requirement, since a small share dilutes its own effect in the aggregate exactly as much as it dilutes its own benefit. The other three each substitute a signal for the evidence. A clean error log records only the failures somebody thought to write down, and the failures a new model introduces are precisely the ones nobody anticipated; a fixed week replaces measurement with a date, which is how a launch arrives with a quarter of unexplained complaints attached to it.",
       "hint": "Ask what a guardrail metric is for, and whether the comparison is made per arm or in total.",
@@ -2287,8 +2287,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Raise the confidence floor and report the resulting review volume per day against the reviewer hours available, because the floor only buys a service level if the queue behind it can carry the traffic",
-          "misconception": ""
+          "text": "Keep the floor as it is and report the reviewer hours, because the volume is a property of the data and not of where the threshold sits",
+          "misconception": "denies that a threshold changes the volume"
         },
         {
           "id": "B",
@@ -2297,8 +2297,8 @@
         },
         {
           "id": "C",
-          "text": "Keep the floor as it is and report the reviewer hours, because the volume is a property of the data and not of where the threshold sits",
-          "misconception": "denies that a threshold changes the volume"
+          "text": "Raise the confidence floor and report the resulting review volume per day against the reviewer hours available, because the floor only buys a service level if the queue behind it can carry the traffic",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2307,7 +2307,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A confidence floor is a purchase of reliability with reviewer time, so the two have to be reported together and the time has to be in hours and people rather than in a share of traffic, because a share does not tell anybody whether the queue can be staffed. This is the point where a model improvement becomes an operations problem: a floor that is too permissive sends work to people that the model could have handled, and a floor that is too tight sends work to people who cannot absorb it in time, and the failure of the second is a service level breach rather than a modelling error. Accuracy on its own is not a currency here, since the reviewers are paid whether or not the model is accurate. The share is also not comparable across teams with different volumes, which is the reason a percentage gets quoted and a staffing plan does not get built.",
       "hint": "Ask what a threshold spends, and in which unit the capacity behind it has to be counted.",
@@ -2577,8 +2577,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the code ran to completion, which is a statement about the job's control flow and not about whether the data it produced is the data that was asked for",
-          "misconception": ""
+          "text": "That the source was at fault, because a job reading from a source that returned too few rows could not have written more than it received",
+          "misconception": "assigns the fault without evidence"
         },
         {
           "id": "B",
@@ -2592,12 +2592,12 @@
         },
         {
           "id": "D",
-          "text": "That the source was at fault, because a job reading from a source that returned too few rows could not have written more than it received",
-          "misconception": "assigns the fault without evidence"
+          "text": "That the code ran to completion, which is a statement about the job's control flow and not about whether the data it produced is the data that was asked for",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A success report is evidence about the path the code took and nothing about the content of what it produced, because every check the job performs is one it can perform from inside its own process. The row count it should have written came from the same code that did the writing, so a job cannot supply the independent expectation its own success condition needs. That is the structural reason a reconciliation has to come from elsewhere: a count from the source, a checksum agreed with the producer, or a total carried forward from a prior stage that used different code. The last option may turn out to be right about the cause and it is not what the success report established, which is the distinction the item is about. Silently short output is the failure mode that a schedule and an error log both look straight past.",
       "hint": "Ask whether the check the job ran could have failed, given that the job also produced the number.",
@@ -2646,13 +2646,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A group whose labels are still arriving, so those events look like non-churn and the assembled table records fewer failures than have happened",
-          "misconception": ""
+          "text": "A group whose labels are complete, since a fixed cut guarantees that every event in the window has had the same time to be observed",
+          "misconception": "believes a shared cut date equalises observation time"
         },
         {
           "id": "B",
-          "text": "A group whose labels are complete, since a fixed cut guarantees that every event in the window has had the same time to be observed",
-          "misconception": "believes a shared cut date equalises observation time"
+          "text": "A group whose labels are still arriving, so those events look like non-churn and the assembled table records fewer failures than have happened",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2666,7 +2666,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Every event in the window has a different amount of time in which to be observed, and the events nearest the cut have almost none, so their labels are not negative facts but unrecorded ones. Nothing in the table distinguishes the two, and a model fitted on it learns that a long quiet spell predicts a negative, which is true for the well-observed events and systematically wrong for the recent ones. The consequence is a training set whose failure rate falls as the window narrows, so a model tuned on it is tuned on a mixture of populations. The cure is a maturation lag: leave a gap between the last event and the cut at least as long as the label takes to arrive, so that every event in the window has had the same chance to be confirmed. Assembling later is the same idea and is easier to arrange than a shorter window.",
       "hint": "Ask how long an event near the cut has had to be observed, compared with one near the start.",
@@ -2715,8 +2715,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the two paths are nearly but not exactly consistent, since a write that completed says nothing about the value written and the comparison is the only thing measuring agreement",
-          "misconception": ""
+          "text": "That the disagreement is a rounding artefact, since 0.4 per cent is too small a figure to represent a genuine difference in a definition",
+          "misconception": "dismisses a small rate as necessarily immaterial"
         },
         {
           "id": "B",
@@ -2725,8 +2725,8 @@
         },
         {
           "id": "C",
-          "text": "That the disagreement is a rounding artefact, since 0.4 per cent is too small a figure to represent a genuine difference in a definition",
-          "misconception": "dismisses a small rate as necessarily immaterial"
+          "text": "That the two paths are nearly but not exactly consistent, since a write that completed says nothing about the value written and the comparison is the only thing measuring agreement",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2735,7 +2735,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A write count is a statement about volume and the agreement between two paths is a statement about content, and the two are independent. Thirty nights of complete writes are entirely compatible with a definition that fills a missing value differently on the two sides, since both paths then produce the right number of rows with the wrong values in a fraction of them. The comparison is the only instrument here that could see it, which is why it is run on a schedule and why its output belongs on a dashboard rather than in a one-off investigation. The third option inverts the burden of proof: the size of a rate says nothing about whether the difference is a rounding artefact or a real inconsistency, and a definition mismatch typically shows up on exactly a small fraction of rows, namely the ones with the awkward inputs. What matters operationally is that the rate is measured per feature, since a 0.4 per cent average can be one feature wrong on every row.",
       "hint": "Ask what a row count establishes, and what a value comparison establishes.",
@@ -2784,8 +2784,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Raise it on a sustained excursion of the feature distribution, and separately on a fall in accuracy that the distribution does not explain, since a trigger tied to one signal alone misses the other",
-          "misconception": ""
+          "text": "Keep it on the weekly schedule, because a trigger is a substitute for the schedule rather than an addition to it and running both doubles the cost for nothing",
+          "misconception": "treats a trigger as a replacement for a schedule"
         },
         {
           "id": "B",
@@ -2799,12 +2799,12 @@
         },
         {
           "id": "D",
-          "text": "Keep it on the weekly schedule, because a trigger is a substitute for the schedule rather than an addition to it and running both doubles the cost for nothing",
-          "misconception": "treats a trigger as a replacement for a schedule"
+          "text": "Raise it on a sustained excursion of the feature distribution, and separately on a fall in accuracy that the distribution does not explain, since a trigger tied to one signal alone misses the other",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two signals fail independently and in both directions, which is the argument for carrying both. Input distribution can move a long way while the outcome stays predictable, and retraining on that is expensive and buys nothing, so a distribution trigger needs a persistence rule and a tolerance rather than a bare comparison. Accuracy can fall while every monitored distribution looks stable, because the target has moved, a competitor has entered, or a segment the model was poor on has grown, and a trigger that watches only the inputs is blind to all three. The schedule and the trigger are complementary: the schedule bounds how stale a model can be when nothing is measurable, and the trigger catches the case the schedule was going to wait out. Running both is not waste, since the cost of a retrain is known and the cost of a quarter of stale model is not.",
       "hint": "Ask which signal can move while the other stays still, and in which direction.",
@@ -3073,13 +3073,13 @@
       "options": [
         {
           "id": "A",
-          "text": "To catch the ways a change can improve the outcome metric by making things worse elsewhere, which is a failure the outcome metric is built not to see",
-          "misconception": ""
+          "text": "To confirm the outcome metric, since two metrics that agree are a check on the measurement and one that disagrees is a measurement error",
+          "misconception": "treats a guardrail as a second reading of the same thing"
         },
         {
           "id": "B",
-          "text": "To confirm the outcome metric, since two metrics that agree are a check on the measurement and one that disagrees is a measurement error",
-          "misconception": "treats a guardrail as a second reading of the same thing"
+          "text": "To catch the ways a change can improve the outcome metric by making things worse elsewhere, which is a failure the outcome metric is built not to see",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3093,7 +3093,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "An outcome metric is a specification of what to maximise, and a specification is blind to everything it was written not to include. Pushing conversion up by contacting customers who did not want to be contacted raises the outcome metric and lowers a guardrail, and no amount of care with the outcome metric will reveal that, because a model that has found such a route is working exactly as instructed. The guardrail exists to make that route unprofitable, and it earns its place only if it is chosen before the result is seen, since a guardrail selected afterwards will be one that happened not to move. It is not a second reading of the same quantity and it is not about comparability, though fixing definitions does matter. The sample size is set by the precision the outcome metric needs, not by the number of observations any particular metric happens to accumulate.",
       "hint": "Ask what a model optimised on the outcome metric is rewarded for doing that nobody wants.",
@@ -3142,8 +3142,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The endpoint's ability to serve its legitimate traffic, since a defence that throttles the whole endpoint to the level of the attacker also throttles the customers and simply converts the attack into an outage",
-          "misconception": ""
+          "text": "The extractor's difficulty, because every additional obstacle between an attacker and a substitute model is worth more than any volume limit at all",
+          "misconception": "puts obstacle count above protecting the service"
         },
         {
           "id": "B",
@@ -3152,8 +3152,8 @@
         },
         {
           "id": "C",
-          "text": "The extractor's difficulty, because every additional obstacle between an attacker and a substitute model is worth more than any volume limit at all",
-          "misconception": "puts obstacle count above protecting the service"
+          "text": "The endpoint's ability to serve its legitimate traffic, since a defence that throttles the whole endpoint to the level of the attacker also throttles the customers and simply converts the attack into an outage",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3162,7 +3162,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The attacker's interest is in a large number of scored inputs, and the defender's first obligation is to everyone else, so the constraint has to be applied per caller and the legitimate traffic has to be measured to make sure the per-caller rule is not catching it. A global limit is the failure this avoids, and it is a common one, because a global limit is the simplest thing to implement and it protects the model at the cost of the service. Slowing a caller rather than refusing it is a reasonable middle position, since the extractor's cost rises steeply while a legitimate integration sees no effect at all, but it is a mitigation and not a defence: enough queries still get through to be worth doing, and the defence that actually holds is not publishing the scores in a form that trains a substitute. Detection and rate limiting are complements rather than substitutes, and the ordering matters, because a defence that takes the service down has not defended anything.",
       "hint": "Ask who bears the cost of the limit, and whether it is applied to the attacker or to everyone.",
@@ -3211,8 +3211,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Idempotence, so that a second run replaces or recognises its own earlier output rather than adding to it, and its absence is now doubling a fraction of the rows",
-          "misconception": ""
+          "text": "Isolation, so that the two attempts cannot see each other's writes, and its absence is why the second pass overwrote the first",
+          "misconception": "describes concurrent runs rather than sequential ones"
         },
         {
           "id": "B",
@@ -3226,12 +3226,12 @@
         },
         {
           "id": "D",
-          "text": "Isolation, so that the two attempts cannot see each other's writes, and its absence is why the second pass overwrote the first",
-          "misconception": "describes concurrent runs rather than sequential ones"
+          "text": "Idempotence, so that a second run replaces or recognises its own earlier output rather than adding to it, and its absence is now doubling a fraction of the rows",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The two problems here are separate and only one of them is fatal. Atomicity is about failure, and a job that writes in one transaction leaves nothing behind when it dies, which is worth having and is not what makes a re-run safe. What makes a re-run safe is that it can be run again without consequence, which means the output is keyed so that a second execution overwrites or recognises its own earlier rows rather than appending beside them. Without that, every manual re-run is a data quality incident, and the damage is silent because the table still contains valid rows and every aggregate over it still returns a number. This is why the partition overwrite rather than the append is the setting people choose, and why the row count is the check that catches the mistake when the key is wrong.",
       "hint": "Ask what a second execution does to the rows the first one wrote.",
@@ -3281,13 +3281,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A boundary fixed before any results were seen, since a rule chosen after the fact is a way of stopping at whatever point happens to suit the result",
-          "misconception": ""
+          "text": "A fixed sample size, because a boundary that depends on the results cannot be converted into the number of users a plan requires",
+          "misconception": "asserts that adaptive rules are impossible to plan around"
         },
         {
           "id": "B",
-          "text": "A fixed sample size, because a boundary that depends on the results cannot be converted into the number of users a plan requires",
-          "misconception": "asserts that adaptive rules are impossible to plan around"
+          "text": "A boundary fixed before any results were seen, since a rule chosen after the fact is a way of stopping at whatever point happens to suit the result",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3301,7 +3301,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The commitment is that the boundary is chosen in advance, because the moment a result is visible, every reasonable-looking stopping point becomes available and the temptation to take the best one is overwhelming. A rule fixed beforehand can be inspected, argued with and costed, and it can be a boundary or a proper sequential method; what it cannot be is a number chosen afterwards. The other three are all avoidable. An adaptive rule can be sized in advance from the smallest effect worth detecting, an unequal final count is normal in any randomised comparison and unbalances nothing provided the assignment was random, and a boundary is applied symmetrically in either direction because a test that only stops on a favourable crossing is not a test.",
       "hint": "Ask when the boundary was chosen relative to the first result being seen.",
@@ -3350,8 +3350,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Skew that is confined to a time window and a specific feature, so a model can learn from the snapshot hour and meet a different value in production for the same reason",
-          "misconception": ""
+          "text": "No skew at all, because both paths read the same source table and a difference in the moment of reading is not a difference in the value",
+          "misconception": "assumes the two paths read the same instant"
         },
         {
           "id": "B",
@@ -3360,8 +3360,8 @@
         },
         {
           "id": "C",
-          "text": "No skew at all, because both paths read the same source table and a difference in the moment of reading is not a difference in the value",
-          "misconception": "assumes the two paths read the same instant"
+          "text": "Skew that is confined to a time window and a specific feature, so a model can learn from the snapshot hour and meet a different value in production for the same reason",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3370,7 +3370,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A feature whose value depends on when it is computed is a feature that will differ between a snapshot and a live read whenever the two moments differ, and no store design removes that for such a feature. The useful conclusion is narrower and more actionable than the general one: the skew is confined to a time window and to the features that read a clock, so the two things to do are to make those features read as of a fixed reference point and to measure the comparison on the window where they can differ. Finer snapshot intervals reduce the window without closing it, and treating the arrangement as safe because both paths read the same source is the mistake, since the source is read at two different times. The general rule is that a feature's definition should name the instant it is as of, and a feature that cannot name one will not agree across paths.",
       "hint": "Ask which features depend on when they are read, and during which window the two paths can disagree.",
@@ -3419,8 +3419,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the figure is not supported by the log, since the four entries account for well over the roughly 2.2 hours a quarter at 99.9 per cent permits, and two of them are degradations a pure uptime measure would not count at all",
-          "misconception": ""
+          "text": "That the figure is supported for the uptime it measures, and the two degradations belong in a separate availability measure rather than in this one",
+          "misconception": "accepts a figure that excludes the reported degradations"
         },
         {
           "id": "B",
@@ -3434,12 +3434,12 @@
         },
         {
           "id": "D",
-          "text": "That the figure is supported for the uptime it measures, and the two degradations belong in a separate availability measure rather than in this one",
-          "misconception": "accepts a figure that excludes the reported degradations"
+          "text": "That the figure is not supported by the log, since the four entries account for well over the roughly 2.2 hours a quarter at 99.9 per cent permits, and two of them are degradations a pure uptime measure would not count at all",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Ninety-nine point nine per cent of a quarter permits about 2.2 hours of unavailability, and the log's own entries sum to more than thirty, of which the 21 hour outage alone is an order of magnitude over. The deeper problem is the third option's subject, which is that a figure defined as pure uptime excludes the two degradations entirely, and a service that served stale scores for four hours was not available in any sense a customer would recognise. That is the reason the claim has to name its conditions: rate, window and what counts as a failure, and the habit of reporting availability alongside a measure of degraded service is what makes the two comparable. The second option mistakes the granularity of the measure for its scale, and the fourth is a proposal to redefine the term in a way that makes the claim true, which is a change to the metric rather than to the service.",
       "hint": "Work out how much unavailability the stated rate permits in a quarter, and ask which entries that covers.",
@@ -3488,13 +3488,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That the alarm has fired without a consequence so far, so the question is whether the trigger should require persistence of the outcome as well as of the input",
-          "misconception": ""
+          "text": "That the model is degrading, since a stability index past its trigger is by definition a signal that the model no longer fits the data it sees",
+          "misconception": "treats an input alarm as proof of a model problem"
         },
         {
           "id": "B",
-          "text": "That the model is degrading, since a stability index past its trigger is by definition a signal that the model no longer fits the data it sees",
-          "misconception": "treats an input alarm as proof of a model problem"
+          "text": "That the alarm has fired without a consequence so far, so the question is whether the trigger should require persistence of the outcome as well as of the input",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3508,7 +3508,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A drift statistic measures the input distribution and nothing else, so an alarm is a statement that the inputs have moved rather than that the model has stopped working, and a feature can move a long way in a direction the model handles perfectly. The nine days of unchanged accuracy are the reason to ask whether the trigger is set correctly rather than to conclude that the alarm is spurious: it has persisted, which is a real change, and it has had no effect, which is also a real fact, and a trigger that requires both would have spared nine days of investigation. The detector is not broken, since the flat reading is a stable index well past its threshold and the distribution has simply stopped moving. Retraining on the strength of the alarm alone is the most expensive of the four responses, and it is the one an escalating alert structure pushes a team towards.",
       "hint": "Ask what the statistic measures, and what the outcome over the same period says about it.",

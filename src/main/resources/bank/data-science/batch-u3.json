@@ -94,13 +94,13 @@
         },
         {
           "id": "B",
-          "text": "The row is accepted but the reference is stored as text, so a later join can decide for itself what to do with it",
-          "misconception": "believes the constraint changes the stored type instead of rejecting the write"
+          "text": "The row is rejected, and any order for a customer who was never loaded cannot enter the table at all",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "The row is rejected, and any order for a customer who was never loaded cannot enter the table at all",
-          "misconception": ""
+          "text": "The row is accepted but the reference is stored as text, so a later join can decide for itself what to do with it",
+          "misconception": "believes the constraint changes the stored type instead of rejecting the write"
         },
         {
           "id": "D",
@@ -109,7 +109,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A foreign key turns a relationship between two tables into something the database itself will not let you get wrong, which means an insert naming a parent row that does not exist fails outright rather than leaving a reference that resolves to nothing. That is the whole value of declaring it: the orphan row never enters, so no later report has to wonder whether a missing parent is a real gap or a load that ran early. The cost of the guarantee is that load order starts to matter, since a customer arriving after its orders cannot be written first, and teams often respond by disabling the constraint, which is the moment the guarantee quietly stops existing.",
       "hint": "Ask what the database can do at insert time that it could not do if the relationship were only a naming convention.",
@@ -168,8 +168,8 @@
         },
         {
           "id": "B",
-          "text": "Six rows, with the three unmatched orders carrying blanks in the customer columns",
-          "misconception": ""
+          "text": "Six rows, but the three unmatched orders are moved to the end of the result by the join itself",
+          "misconception": "assumes the join sorts unmatched rows somewhere rather than discarding them"
         },
         {
           "id": "C",
@@ -178,12 +178,12 @@
         },
         {
           "id": "D",
-          "text": "Six rows, but the three unmatched orders are moved to the end of the result by the join itself",
-          "misconception": "assumes the join sorts unmatched rows somewhere rather than discarding them"
+          "text": "Six rows, with the three unmatched orders carrying blanks in the customer columns",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "An inner join keeps a row only when both sides of the condition can be satisfied, so the three orders naming customers that do not exist have nothing to pair with and disappear without a trace. The result is three rows, and the danger is not the loss itself but that the loss is invisible in the output: the report simply says three orders exist, and the count of six never appears anywhere to be contradicted. This is why an inner join is a filter as much as a lookup, and why anyone reporting a figure from one should say which side was allowed to vanish. The trap is assuming the left table is protected, which is true of a left join and false here.",
       "hint": "Ask what an unmatched row on either side has to pair with in order to survive an inner join.",
@@ -237,13 +237,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It appears with a zero in every customer column, which is why sums over those columns stay correct",
-          "misconception": "expects a missing parent to be filled with a number that behaves like a real value"
+          "text": "It appears with a blank in every column taken from the customer table, and every later calculation must decide what that means",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "It appears with a blank in every column taken from the customer table, and every later calculation must decide what that means",
-          "misconception": ""
+          "text": "It appears with a zero in every customer column, which is why sums over those columns stay correct",
+          "misconception": "expects a missing parent to be filled with a number that behaves like a real value"
         },
         {
           "id": "C",
@@ -257,7 +257,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The point of a left join is that the left row survives whether or not anything matches, and the cost of that guarantee is that the columns coming from the other side can hold no value at all. A blank is not a zero and not an empty string: it is the absence of an answer, and arithmetic that meets one either refuses to run or quietly treats the row as excluded, which changes totals in ways nobody notices until a report is wrong. The habit worth building is to ask, immediately after writing a left join, which columns can now be blank and which downstream figures assumed they never would be, because the join changed the meaning of the data rather than only its shape.",
       "hint": "Separate the guarantee the join makes about row counts from the guarantee it makes about values.",
@@ -316,13 +316,13 @@
         },
         {
           "id": "B",
-          "text": "Eight rows, because each of the three West orders is paired once with each of the two West reps",
-          "misconception": ""
+          "text": "Twenty rows, because every order is being paired with every rep and then filtered afterwards by eye",
+          "misconception": "counts the full cross product and forgets that a join condition still applies"
         },
         {
           "id": "C",
-          "text": "Twenty rows, because every order is being paired with every rep and then filtered afterwards by eye",
-          "misconception": "counts the full cross product and forgets that a join condition still applies"
+          "text": "Eight rows, because each of the three West orders is paired once with each of the two West reps",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -331,7 +331,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A join emits one row for every pair of rows that satisfies the condition, so the row count is a product taken group by group: three West orders each find two matching reps and so contribute six rows, the East order contributes one, and the North order contributes one, giving eight rows from five orders. Nothing about the join is broken; it is doing exactly what it was asked, and the mistake was asking a question the condition cannot answer, because region alone does not say which rep owns an order. Any figure taken from this result is now wrong in a way that is hard to see: the total is larger, no value looks impossible, and the only symptom is that revenue per order has quietly fallen.",
       "hint": "Multiply the number of matching right-hand rows by the number of left rows for each value of the join column, then add.",
@@ -385,8 +385,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1320, because the two West reps have each been credited with the whole West total",
-          "misconception": ""
+          "text": "790, because the report adds all three regions together and shows the same total on every region row",
+          "misconception": "reads one group's row as though it held the whole table's total"
         },
         {
           "id": "B",
@@ -400,12 +400,12 @@
         },
         {
           "id": "D",
-          "text": "790, because the report adds all three regions together and shows the same total on every region row",
-          "misconception": "reads one group's row as though it held the whole table's total"
+          "text": "1320, because the two West reps have each been credited with the whole West total",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The sum has no idea which table an amount came from, so it adds every amount row the join handed it, and the join handed it each West amount twice because two reps share the region. The West row therefore reports 1320 while the ledger says 660, and nothing in the output is malformed: the number is an honest sum over a result set that was already wrong. This is the most expensive join mistake in practice because it survives every format check and every sanity check a reader applies, and it is fixed not by adjusting the sum but by making the join return each order once, usually by aggregating the reps table to one row per region before joining or by joining on something that actually identifies a rep.",
       "hint": "Ask how many copies of each West amount the join placed in the result set, and let the sum do the rest.",
@@ -464,13 +464,13 @@
         },
         {
           "id": "B",
-          "text": "On rows that never passed the threshold but inflate a group total, which the filtered version can no longer recover",
-          "misconception": ""
+          "text": "Only on groups whose filtered total falls below the threshold, since unfiltered totals are always larger",
+          "misconception": "sees the difference only where the filtered version rejects the whole group"
         },
         {
           "id": "C",
-          "text": "Only on groups whose filtered total falls below the threshold, since unfiltered totals are always larger",
-          "misconception": "sees the difference only where the filtered version rejects the whole group"
+          "text": "On rows that never passed the threshold but inflate a group total, which the filtered version can no longer recover",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -479,7 +479,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Filtering rows first and filtering groups afterwards are different questions, and the second one cannot see the small rows at all, so anything they contributed is gone for good rather than merely excluded. If a group of six orders totalling 835 is cut to three orders totalling 620, a filter applied afterwards sees only 620 and has no way to know that 215 of the total was made of rows it would have discarded, which is exactly why a group can fail a threshold in one version and pass it in the other. The practical rule is to decide whether the condition is about rows or about groups, and to write it in the clause that matches, because the two positions are not interchangeable.",
       "hint": "Ask which version still has the discarded rows available to it when the threshold is applied.",
@@ -537,8 +537,8 @@
         },
         {
           "id": "B",
-          "text": "The subquery keeps the result at one row per order, while a join to a single figure can multiply rows if the figure is not reduced first",
-          "misconception": ""
+          "text": "The join cannot express the comparison at all, since a join matches values rather than testing them against a bound",
+          "misconception": "thinks a comparison against a constant cannot be written as a join condition"
         },
         {
           "id": "C",
@@ -547,12 +547,12 @@
         },
         {
           "id": "D",
-          "text": "The join cannot express the comparison at all, since a join matches values rather than testing them against a bound",
-          "misconception": "thinks a comparison against a constant cannot be written as a join condition"
+          "text": "The subquery keeps the result at one row per order, while a join to a single figure can multiply rows if the figure is not reduced first",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Both forms express the same test, and the difference shows up in what the result set is allowed to contain. A subquery in the filter never adds a row, so the output is one row per order whatever the subquery computed, which makes the shape of the answer predictable. A join against a derived figure is safe only while that derived side is guaranteed to be one row per match, and the moment it is not, the same duplication that inflates a sum starts inflating a list, and a report that promised one line per order delivers two or three. Knowing which form keeps the row count honest is worth more than knowing which one the planner prefers, because the planner can be asked and the row count cannot be assumed.",
       "hint": "Ask which of the two forms can add rows to the result, and under what condition.",
@@ -606,13 +606,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Once, because the database can rewrite the correlated reference into a single grouped lookup",
-          "misconception": "assumes every correlated subquery is rewritten into a plan computed once"
+          "text": "Five times, once for each outer row, because the value it depends on is not known until that row is read",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Five times, once for each outer row, because the value it depends on is not known until that row is read",
-          "misconception": ""
+          "text": "Once, because the database can rewrite the correlated reference into a single grouped lookup",
+          "misconception": "assumes every correlated subquery is rewritten into a plan computed once"
         },
         {
           "id": "C",
@@ -626,7 +626,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A correlated subquery refers to the row currently being processed on the outside, so its text cannot be turned into a single plan step decided in advance; it runs again for every outer row, which here means five executions. Some engines will rewrite a particular correlated form into a join or a grouped lookup and pay for it once, and when that happens the behaviour is an optimisation rather than a promise, so the number that should appear in a written explanation is the logical one. The practical consequence is a cost that scales with the outer table, which is why a correlated filter over a large table is one of the most reliable ways to write a query that used to be fine and is not any more.",
       "hint": "Ask when the value the inner query depends on becomes known.",
@@ -685,13 +685,13 @@
         },
         {
           "id": "B",
-          "text": "A window function partitioned by region, which computes the regional average while leaving every order in the output",
-          "misconception": ""
+          "text": "A correlated subquery in the select list, which is the only construct that can produce a per-row figure",
+          "misconception": "believes a per-row figure requires a subquery and cannot be expressed any other way"
         },
         {
           "id": "C",
-          "text": "A correlated subquery in the select list, which is the only construct that can produce a per-row figure",
-          "misconception": "believes a per-row figure requires a subquery and cannot be expressed any other way"
+          "text": "A window function partitioned by region, which computes the regional average while leaving every order in the output",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -700,7 +700,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The requirement is contradictory to a group-by and ordinary to a window function: a group-by collapses several rows into one, so the moment you ask for the regional average alongside every individual order you have asked for a figure that is attached to a group while the rows remain separate. A window function does precisely that, computing something across a set of rows while leaving those rows themselves in the result, and the partition is what says which set. The convenience is that the same query can carry several such figures at once, so a rank, a running total and a group average can all be reported without three passes and without a join that might duplicate rows.",
       "hint": "Ask which construct can compute a group-level value without removing the rows that formed the group.",
@@ -757,8 +757,8 @@
         },
         {
           "id": "B",
-          "text": "The first, second and third rows, because the current row is the upper bound of its own frame",
-          "misconception": ""
+          "text": "The third row only, because the frame covers the current row and nothing that came before it",
+          "misconception": "assumes the lower bound of a running frame is the current row rather than the partition start"
         },
         {
           "id": "C",
@@ -767,12 +767,12 @@
         },
         {
           "id": "D",
-          "text": "The third row only, because the frame covers the current row and nothing that came before it",
-          "misconception": "assumes the lower bound of a running frame is the current row rather than the partition start"
+          "text": "The first, second and third rows, because the current row is the upper bound of its own frame",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A frame says which rows a windowed function may look at, and the bounds written in it are the bounds that apply, not a hint. Between the start of the partition and the current row, stated in that order, the current row is included: the boundary is the current row, so on the third day the total covers days one, two and three, and only the final row of the partition is a whole-partition total. Reading an upper bound as exclusive is the common slip, and it produces a series that is one row short at every step, which is easy to mistake for a data problem because the shape of the line still looks like a running total. The habit that prevents it is to write the bounds out loud in words before trusting the numbers.",
       "hint": "Write the frame in words first, then ask whether the current row falls inside it.",
@@ -900,8 +900,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The set of rows that start the walk, so there is something to add to on the first pass",
-          "misconception": ""
+          "text": "An empty result, so the recursion can be tested against a case where nothing has been found yet",
+          "misconception": "thinks a recursive query must be handed an empty set to begin"
         },
         {
           "id": "B",
@@ -910,8 +910,8 @@
         },
         {
           "id": "C",
-          "text": "An empty result, so the recursion can be tested against a case where nothing has been found yet",
-          "misconception": "thinks a recursive query must be handed an empty set to begin"
+          "text": "The set of rows that start the walk, so there is something to add to on the first pass",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -920,7 +920,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A recursive query is a loop with two halves, and the first half is not optional: the anchor, the rows the walk starts from, which is the only place a value can enter the result. Without it the loop has nothing to add to and returns nothing at all, which is the usual reason a recursive query over a hierarchy returns an empty result rather than an error. The second half is the recursive step, which reads what the previous pass produced and adds a further level, and the two together are repeated until a pass adds no rows, at which point the walk is finished. What the query does not need is a description of the tree, a depth limit, or a seed row: it needs an entry point and a stopping condition.",
       "hint": "Ask where the first value in the result comes from, since a loop cannot begin without one.",
@@ -976,8 +976,8 @@
         },
         {
           "id": "B",
-          "text": "A place to name and check each step, so a wrong figure can be located in a named step rather than in a wall of joins",
-          "misconception": ""
+          "text": "A guarantee that the joins are correct, because the database validates the named steps against each other",
+          "misconception": "believes naming a step makes the logic checkable automatically"
         },
         {
           "id": "C",
@@ -986,12 +986,12 @@
         },
         {
           "id": "D",
-          "text": "A guarantee that the joins are correct, because the database validates the named steps against each other",
-          "misconception": "believes naming a step makes the logic checkable automatically"
+          "text": "A place to name and check each step, so a wrong figure can be located in a named step rather than in a wall of joins",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A named intermediate result is a label attached to a set of rows, and its value is almost entirely social: it lets the writer say what each step is meant to contain, check the count and the shape of that step on its own, and point at the one place where a figure went wrong. Six joins written inline are not wrong because they are long, they are hard to debug because every output column is a function of all six tables at once, and a miscount cannot be localised. The rewrite changes no answers and guarantees nothing about speed or correctness, which is exactly why it is worth doing: the parts of a query you can inspect are the parts you can repair.",
       "hint": "Ask what changes for the person trying to find the mistake, since the computed answers are the same.",
@@ -2072,8 +2072,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The query read every row of orders to produce 12, so the filter is doing its work after the rows are read",
-          "misconception": ""
+          "text": "The index lookups were useless, because a sequential scan had already read everything the lookups could find",
+          "misconception": "concludes the index work was wasted when it followed a full scan"
         },
         {
           "id": "B",
@@ -2082,8 +2082,8 @@
         },
         {
           "id": "C",
-          "text": "The index lookups were useless, because a sequential scan had already read everything the lookups could find",
-          "misconception": "concludes the index work was wasted when it followed a full scan"
+          "text": "The query read every row of orders to produce 12, so the filter is doing its work after the rows are read",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2092,7 +2092,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The plan states rows examined, which is the number that matters for cost, separately from rows returned, which is the number a reader of the report sees. A sequential scan has to read the whole table before the filter can reject anything, so 480,000 rows were read to leave 12, and the four index lookups add 4 more, giving 480,004 rows examined in total. Nothing about the output reveals this: the report is correct, the twelve rows are right, and the only evidence of the expense is the plan, which is why reading the plan before optimising and again before declaring a query fast is the cheapest habit in this work.",
       "hint": "Separate the number of rows the plan says were read from the number the report shows.",
@@ -2149,8 +2149,8 @@
         },
         {
           "id": "B",
-          "text": "The filter wrapped the indexed column in a function, so there is no indexed value left to seek on",
-          "misconception": ""
+          "text": "The index was used and then discarded, because the planner prefers to read rows directly in every case",
+          "misconception": "believes a planner uses an index and then throws the work away"
         },
         {
           "id": "C",
@@ -2159,12 +2159,12 @@
         },
         {
           "id": "D",
-          "text": "The index was used and then discarded, because the planner prefers to read rows directly in every case",
-          "misconception": "believes a planner uses an index and then throws the work away"
+          "text": "The filter wrapped the indexed column in a function, so there is no indexed value left to seek on",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "An index is an ordered structure over the stored values, so a lookup can only find a row by seeking on one of those values, and a function wrapped around the column changes the value the planner would have to seek on into one the index never stored. The plan therefore falls back to reading the table, and the fix is on the query's side rather than the index's: filter on the raw column, or store the function's result in its own indexed column, both of which restore the seek. The diagnosis is worth making precisely because the index is visibly present, so a reader concludes the query is indexed and stops looking.",
       "hint": "Ask whether the value the planner would seek on is one the index actually holds.",
@@ -2216,8 +2216,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The join condition is missing, so every fact row was paired with every dimension row",
-          "misconception": ""
+          "text": "The fact table was read twice, so every fact row is present but counted in two passes",
+          "misconception": "believes a duplicated read would double the rows without doubling the columns"
         },
         {
           "id": "B",
@@ -2226,8 +2226,8 @@
         },
         {
           "id": "C",
-          "text": "The fact table was read twice, so every fact row is present but counted in two passes",
-          "misconception": "believes a duplicated read would double the rows without doubling the columns"
+          "text": "The join condition is missing, so every fact row was paired with every dimension row",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2236,7 +2236,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Two tables of 1,200 and 6 rows cannot produce 7,200 through any join that actually restricts the pairing, because the number of pairs is at most the smaller table's row count times its match rate, and here it is exactly the product of the two, which is the signature of no condition at all. The fact that every value looks plausible is what makes this failure durable: each row carries a real region and a real visit, so a reader checking a sample finds nothing wrong, and the only symptom is that the totals have multiplied. The cheap guard is a row-count assertion on the join, compared against the count the join was meant to produce.",
       "hint": "Compare the returned row count with the product of the two input counts.",
@@ -2288,8 +2288,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The filter names no leading column of the index, so there is no ordered entry point to seek from",
-          "misconception": ""
+          "text": "The index is on the wrong table, so the planner had nothing to seek on for the filter it was given",
+          "misconception": "assumes a correctly defined index was attached to some other table"
         },
         {
           "id": "B",
@@ -2303,12 +2303,12 @@
         },
         {
           "id": "D",
-          "text": "The index is on the wrong table, so the planner had nothing to seek on for the filter it was given",
-          "misconception": "assumes a correctly defined index was attached to some other table"
+          "text": "The filter names no leading column of the index, so there is no ordered entry point to seek from",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A composite index is sorted by its first column and then by the second within it, so a filter that names only the second and third columns has no value to seek on: the index is ordered by date, and status is scattered throughout it. The plan's scan is therefore not a planner failing to notice an index but the correct consequence of the definition, and the repair is either a filter that leads with order_date, which this report can supply since it does have a date range, or a second index whose first column is status. Reading index definitions as ordered structures rather than as a bag of columns is the whole of this diagnosis.",
       "hint": "Ask which column the index is sorted by first, and whether the filter leads with it.",
@@ -2360,8 +2360,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The rows are being inserted between page reads, so each offset skips a different number of rows than the last",
-          "misconception": ""
+          "text": "The pages are correct and the source is duplicating rows in the table it exports from",
+          "misconception": "assumes an overlap between pages must come from duplicate data"
         },
         {
           "id": "B",
@@ -2370,8 +2370,8 @@
         },
         {
           "id": "C",
-          "text": "The pages are correct and the source is duplicating rows in the table it exports from",
-          "misconception": "assumes an overlap between pages must come from duplicate data"
+          "text": "The rows are being inserted between page reads, so each offset skips a different number of rows than the last",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2380,7 +2380,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Each page begins 2 rows earlier than the last, which is exactly the signature of rows arriving above the reader between requests: an offset names a position, and the rows occupying that position change while the reader is between pages. The overlap is 8 rows each time here, and the total of distinct rows seen across the three pages is 15 rather than 30, so an export built this way is short as well as repetitive. A cursor fixes it by naming the last value it saw rather than a count, so a row that arrives later is simply never included and no earlier row is shown twice.",
       "hint": "Compare where each page starts and ask what would have to arrive between reads to move it.",
@@ -2436,8 +2436,8 @@
         },
         {
           "id": "B",
-          "text": "The frame covered the whole partition from the first row, so the last value should have been 80",
-          "misconception": ""
+          "text": "The frame was ordered descending, so the days were accumulated in the opposite order to the one listed",
+          "misconception": "believes the order of accumulation changes the final value"
         },
         {
           "id": "C",
@@ -2446,12 +2446,12 @@
         },
         {
           "id": "D",
-          "text": "The frame was ordered descending, so the days were accumulated in the opposite order to the one listed",
-          "misconception": "believes the order of accumulation changes the final value"
+          "text": "The frame covered the whole partition from the first row, so the last value should have been 80",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The last reported value of 75 is the sum of the first three amounts, and since the last row of a partition is where a running frame reaches furthest, the final value should be the total of all four, which is 80. The series is therefore right in shape and wrong in value by one row at every step, which is what a frame whose upper bound excludes the current row produces. Because the direction of the error is uniform and the line still rises, the series passes a glance and gets believed; the check is to compare the last value against the plain total of the column, which is a comparison worth automating for every windowed series a report depends on.",
       "hint": "Compare the final value of the series with the total of the underlying amounts.",
@@ -2508,13 +2508,13 @@
         },
         {
           "id": "B",
-          "text": "Whether the rows are the right rows, since a count is blind to duplicated, missing or mis-keyed content",
-          "misconception": ""
+          "text": "Whether the columns were loaded, since a count of rows says nothing about how many columns each row carries",
+          "misconception": "believes a row count is a cell count"
         },
         {
           "id": "C",
-          "text": "Whether the columns were loaded, since a count of rows says nothing about how many columns each row carries",
-          "misconception": "believes a row count is a cell count"
+          "text": "Whether the rows are the right rows, since a count is blind to duplicated, missing or mis-keyed content",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2523,7 +2523,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A row count is a single number about how many things arrived, and it is completely silent about which things they were: a load that replaced every key with the same value, dropped the last 8,000 rows of a day and duplicated 8,000 of another can still match the expected total exactly. That is why a count is the first check and never the only one, and why the useful additions are cheap and specific, such as a count of distinct keys against the count of rows, a null rate on the key column, and a sum on a numeric column that the source can be asked to confirm. Each of those catches a class of failure the count cannot see at all.",
       "hint": "Ask what two different sets of rows could share, and whether a count could tell them apart.",
@@ -2575,8 +2575,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A per-row lookup pattern, where the number of round trips grows with the number of rows shown",
-          "misconception": ""
+          "text": "Two independent reports, since 251 statements is more than one page view could have issued",
+          "misconception": "splits one logical operation into several unrelated pieces of work"
         },
         {
           "id": "B",
@@ -2590,12 +2590,12 @@
         },
         {
           "id": "D",
-          "text": "Two independent reports, since 251 statements is more than one page view could have issued",
-          "misconception": "splits one logical operation into several unrelated pieces of work"
+          "text": "A per-row lookup pattern, where the number of round trips grows with the number of rows shown",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The shape of the log is the diagnosis: one statement returning 250 rows, then one statement per row, is the per-row lookup pattern, and its cost is a function of how many rows the page happens to show rather than of how much data is involved. The same 251 statements would be two if the customer names were fetched in the first query, and the log is the only place the difference is visible, since the page renders correctly and quickly enough on a small list. Reading a log for the repetition of the same statement with a different constant is the cheapest way to find this before it appears as a slow page.",
       "hint": "Look at the statement shapes rather than the timings, and ask how the count scales with the rows shown.",
@@ -2646,8 +2646,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The claim understates the rows read by a factor of 3,000, so it describes the result rather than the work",
-          "misconception": ""
+          "text": "The claim is correct and the plan is misreporting, since a plan never reads more rows than a query returns",
+          "misconception": "trusts the stated cost over the plan without a reason"
         },
         {
           "id": "B",
@@ -2656,8 +2656,8 @@
         },
         {
           "id": "C",
-          "text": "The claim is correct and the plan is misreporting, since a plan never reads more rows than a query returns",
-          "misconception": "trusts the stated cost over the plan without a reason"
+          "text": "The claim understates the rows read by a factor of 3,000, so it describes the result rather than the work",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2666,7 +2666,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "900,000 divided by 300 is 3,000, and the two figures cannot both be describing the same act: a plan that reports a scan of a 900,000-row table has examined all of them, whereas a figure of 300 is the size of a result or of a sample, not of the work. The disagreement is worth taking seriously in both directions, because a stated cost is often copied from a ticket written before the query changed, and a plan is often read by someone who has forgotten what the query now does. Writing the claim as rows examined, with the plan attached, removes the ambiguity at the cost of a sentence.",
       "hint": "Ask whether rows examined and rows returned have been confused for one another.",
@@ -2718,8 +2718,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The join could not find a team for those 480 rows, so the blanks are the absence of a match rather than missing data",
-          "misconception": ""
+          "text": "The team table is missing 480 rows that the join needed, so the blanks mark teams that have not been created",
+          "misconception": "blames the right-hand table for rows the left table should have kept"
         },
         {
           "id": "B",
@@ -2733,12 +2733,12 @@
         },
         {
           "id": "D",
-          "text": "The team table is missing 480 rows that the join needed, so the blanks mark teams that have not been created",
-          "misconception": "blames the right-hand table for rows the left table should have kept"
+          "text": "The join could not find a team for those 480 rows, so the blanks are the absence of a match rather than missing data",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A blank in a column that arrived from the other side of a join means the other side had nothing to give, so these 480 blanks are 480 support rows whose team could not be found, and the source is blameless because the source never claimed to hold that column. The 8 percent figure is therefore a measure of the join's coverage, not of data quality in the source, and reporting it as a null rate without saying which table the column came from invites exactly the wrong repair. The distinction matters because the two problems call for opposite responses: missing source values are a load bug, while unmatched keys are a question about which teams are absent from the team table.",
       "hint": "Ask which table the column came from, and what a blank in that column can mean.",
@@ -2790,8 +2790,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Declare the foreign key and load customers before orders, so the parent row exists before the child row names it",
-          "misconception": ""
+          "text": "Load customers first without a constraint, then add the constraint once, so no row is checked twice",
+          "misconception": "believes a single check at the end is as good as a check on every write"
         },
         {
           "id": "B",
@@ -2800,8 +2800,8 @@
         },
         {
           "id": "C",
-          "text": "Load customers first without a constraint, then add the constraint once, so no row is checked twice",
-          "misconception": "believes a single check at the end is as good as a check on every write"
+          "text": "Declare the foreign key and load customers before orders, so the parent row exists before the child row names it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2810,7 +2810,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A foreign key is checked at the moment a row is written, so the only order in which every child row passes is the one that puts each parent in place first, and declaring the constraint is what turns a naming convention into a refusal. The second pairing fails at the first order row, and the usual response to that failure is to disable the constraint, which leaves the team with the appearance of a guarantee and none of the substance. The third buys tidiness with a window in which orphans exist, and the fourth confuses a lookup structure with a rule, which is the most common of the four mistakes because an index is visible in the schema and a constraint is easy to overlook.",
       "hint": "Ask when the check happens relative to the write that triggers it.",
@@ -2863,8 +2863,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The order amount in the row filter, and the regional total in the condition on groups",
-          "misconception": ""
+          "text": "The order amount in the condition on groups, and the regional total in the row filter",
+          "misconception": "swaps the two tests, which passes on one dataset and fails on another"
         },
         {
           "id": "B",
@@ -2878,12 +2878,12 @@
         },
         {
           "id": "D",
-          "text": "The order amount in the condition on groups, and the regional total in the row filter",
-          "misconception": "swaps the two tests, which passes on one dataset and fails on another"
+          "text": "The order amount in the row filter, and the regional total in the condition on groups",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A test about an individual row and a test about a total of rows are different questions, and each has one position where it can be asked correctly: the row filter runs first and can discard rows, while the condition on groups runs after grouping and can only accept or reject whole groups. Written this way, the regional total is computed from qualifying orders only, which is what the report promised, and a region whose qualifying orders fall short is dropped without contaminating any other region's figure. Written the other way round, the two tests are evaluated against the wrong sets of numbers and the report looks reasonable while answering a different question.",
       "hint": "Decide for each test whether it is about one row or about a group, and match it to the clause.",
@@ -2935,8 +2935,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Aggregate the reps table to one row per region before joining, so each order is matched exactly once",
-          "misconception": ""
+          "text": "Take the largest single rep's total for the region, so only one copy of each order is counted",
+          "misconception": "assumes one rep's rows are a representative half of the region's orders"
         },
         {
           "id": "B",
@@ -2945,8 +2945,8 @@
         },
         {
           "id": "C",
-          "text": "Take the largest single rep's total for the region, so only one copy of each order is counted",
-          "misconception": "assumes one rep's rows are a representative half of the region's orders"
+          "text": "Aggregate the reps table to one row per region before joining, so each order is matched exactly once",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2955,7 +2955,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The clean repair makes the join one-to-one before any arithmetic touches it, and aggregating the right side to one row per join key does exactly that, so the five orders are matched five times and the West total is 660 as the ledger has it. Dividing by the number of reps only works when the duplication is uniform, which it is here and will not be tomorrow, and the moment it is not, the correction introduces an error where there was only duplication. Taking one rep's rows and dropping the other rep's rows both discard real orders, and the loss is invisible precisely because the remaining rows still look like a complete region.",
       "hint": "Fix the shape of the join rather than the number the sum produces.",
@@ -3007,8 +3007,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A window function partitioned by region, since it computes group figures without collapsing the rows they came from",
-          "misconception": ""
+          "text": "A correlated subquery per figure in the select list, since only a subquery can return a group-level value",
+          "misconception": "believes a per-row group figure can only be obtained by re-running a subquery"
         },
         {
           "id": "B",
@@ -3022,12 +3022,12 @@
         },
         {
           "id": "D",
-          "text": "A correlated subquery per figure in the select list, since only a subquery can return a group-level value",
-          "misconception": "believes a per-row group figure can only be obtained by re-running a subquery"
+          "text": "A window function partitioned by region, since it computes group figures without collapsing the rows they came from",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "All three figures are properties of a group that the report wants to see alongside the individual rows, which is the exact situation a window function exists for: it computes across a partition while leaving the partition's rows in the output, so one pass carries the average, the rank and the running total together. Three grouped queries would each return a different number of rows and have to be stitched back together, and stitching is where duplication returns. The correlated version answers the same question correctly but pays for it once per row per figure, which is fine on a hundred rows and is why a report that was fine on a sample becomes the slowest thing in the building.",
       "hint": "Ask which construct can hold a group-level figure and the individual rows at the same time.",
@@ -3079,8 +3079,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A cursor carrying the last value the reader saw, since it names a row rather than counting rows before it",
-          "misconception": ""
+          "text": "An offset with a larger page size, since fewer requests mean fewer opportunities for new rows to arrive",
+          "misconception": "believes making requests less often removes the cause of the shift"
         },
         {
           "id": "B",
@@ -3089,8 +3089,8 @@
         },
         {
           "id": "C",
-          "text": "An offset with a larger page size, since fewer requests mean fewer opportunities for new rows to arrive",
-          "misconception": "believes making requests less often removes the cause of the shift"
+          "text": "A cursor carrying the last value the reader saw, since it names a row rather than counting rows before it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3099,7 +3099,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An offset is a promise about a position, and positions are exactly what new rows disturb, so any paging scheme built on counting rows before the current one will shift under a reader that keeps reading while the table grows. A cursor instead carries the last key the reader saw and asks for what comes after it, so rows inserted above are simply never returned and nothing already shown can reappear, whatever happens to the total. The larger-page variant reduces the number of requests without touching the mechanism that fails, and the subtraction variant reuses the same unstable count in a different place, which is why the fix has to be a change of what is remembered rather than a change of how much.",
       "hint": "Ask whether the mechanism names a row or names a count of rows before it.",
@@ -3151,8 +3151,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Compare the plan for the query with and without the filter, reading rows examined in each",
-          "misconception": ""
+          "text": "Count the rows the filter excludes, since a longer filter must mean a slower query",
+          "misconception": "confuses the size of the excluded set with the cost of applying the filter"
         },
         {
           "id": "B",
@@ -3166,12 +3166,12 @@
         },
         {
           "id": "D",
-          "text": "Count the rows the filter excludes, since a longer filter must mean a slower query",
-          "misconception": "confuses the size of the excluded set with the cost of applying the filter"
+          "text": "Compare the plan for the query with and without the filter, reading rows examined in each",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The plan is the only evidence that speaks directly to the question, because rows examined is the quantity a filter changes and the only way to see it is to ask the planner what it did with the column. Timing on other hardware measures a different machine under different conditions, and a change's date says when a symptom appeared rather than what caused it. Counting excluded rows is a reasonable first guess and actively misleading here, since a highly selective filter can be the cheap case while an unselective one forces the planner to a different access path entirely.",
       "hint": "Ask which measurement reports the quantity the suspicion is about, in the environment where the problem occurs.",

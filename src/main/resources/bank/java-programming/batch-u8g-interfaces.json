@@ -86,13 +86,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"generic\": the inherited public method is the implementation of Pet.speak, so nothing is restated.",
-          "misconception": ""
+          "text": "The compiler rejects it, because only a method written in the class body can implement an interface.",
+          "misconception": "believes an inherited method can never implement an interface method"
         },
         {
           "id": "B",
-          "text": "The compiler rejects it, because only a method written in the class body can implement an interface.",
-          "misconception": "believes an inherited method can never implement an interface method"
+          "text": "\"generic\": the inherited public method is the implementation of Pet.speak, so nothing is restated.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -106,7 +106,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a class is concrete when it has no abstract requirements left, and an inherited public method with the right signature satisfies the interface just as a declared one would, so the call dispatches to Animal.speak and prints generic. Believing an inherited method does not count is tempting because the code inside Dog is empty and looks unfinished, but the implements clause is a promise about the whole type, and the promise is kept by whatever public method the type already has. Had Animal's method been package-private, the compiler would have refused, because the interface demands public.",
       "hint": "Ask which public method of the type, from anywhere in its ancestry, matches.",
@@ -154,8 +154,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects the call with \"reference to handle is ambiguous\", since neither overload is more specific.",
-          "misconception": ""
+          "text": "It compiles and prints \"right\", because the overload declared last is the one that is chosen.",
+          "misconception": "believes overload resolution takes the most recently declared method"
         },
         {
           "id": "B",
@@ -164,8 +164,8 @@
         },
         {
           "id": "C",
-          "text": "It compiles and prints \"right\", because the overload declared last is the one that is chosen.",
-          "misconception": "believes overload resolution takes the most recently declared method"
+          "text": "The compiler rejects the call with \"reference to handle is ambiguous\", since neither overload is more specific.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -174,7 +174,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that overload resolution picks the most specific applicable method, and an argument that is both a Left and a Right matches both overloads equally well, so the compiler reports the call as ambiguous instead of guessing. Expecting the first declaration to win is tempting because the argument does fit handle(Left), but specificity is decided by the types rather than by their order in the file, and Left is not a supertype of Right, so a caller has to disambiguate explicitly, for example by casting or by calling a method that takes both parameters.",
       "hint": "Neither parameter type is a supertype of the other, so neither overload is more specific.",
@@ -222,8 +222,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it with \"reference to SIZE is ambiguous\", because the name arrives from two interfaces.",
-          "misconception": ""
+          "text": "It compiles and returns 3, because a class gets a constant of its own from two interfaces.",
+          "misconception": "believes the class receives a merged constant from both interfaces"
         },
         {
           "id": "B",
@@ -237,12 +237,12 @@
         },
         {
           "id": "D",
-          "text": "It compiles and returns 3, because a class gets a constant of its own from two interfaces.",
-          "misconception": "believes the class receives a merged constant from both interfaces"
+          "text": "The compiler rejects it with \"reference to SIZE is ambiguous\", because the name arrives from two interfaces.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a simple name inherited from more than one interface is ambiguous at the point of use, so javac reports reference to SIZE is ambiguous and the fix is to say which one is meant with Left.SIZE or Right.SIZE. Expecting list order to decide is tempting because the compiler does prefer a class's own field over an inherited one, but that preference is about hiding rather than about a tie, and nothing here declares a field, so the two inherited constants stand in equal competition until the source names one of them.",
       "hint": "Nothing in the class hides either constant, so the simple name has two sources.",
@@ -290,13 +290,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"hover full\": each reference names the method its own interface declares, on its own object.",
-          "misconception": ""
+          "text": "\"hover hover\", because a Flyable reference falls back to the other interface's method.",
+          "misconception": "believes a reference may call any method of the object it holds"
         },
         {
           "id": "B",
-          "text": "\"hover hover\", because a Flyable reference falls back to the other interface's method.",
-          "misconception": "believes a reference may call any method of the object it holds"
+          "text": "\"hover full\": each reference names the method its own interface declares, on its own object.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -310,7 +310,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that the static type of the reference decides which members may be called, so f.move() is legal and runs Drone.move while ch.charge() is legal and runs Drone.charge, giving hover full. Expecting both calls to fall back to the same behaviour is tempting because the two references happen to hold objects of the same class, but a reference is a promise about a set of members rather than about the object behind it, and that is also why a Drone can be passed anywhere a Flyable is wanted without any cast at all.",
       "hint": "Look at the declared type of each variable, not at the class behind it.",
@@ -358,8 +358,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two methods, log() and log(String), because a signature includes the parameter list as well as the name.",
-          "misconception": ""
+          "text": "One method, log(String), because an implementation may drop parameters a caller never passes.",
+          "misconception": "believes an implementation may ignore part of a declared parameter list"
         },
         {
           "id": "B",
@@ -368,8 +368,8 @@
         },
         {
           "id": "C",
-          "text": "One method, log(String), because an implementation may drop parameters a caller never passes.",
-          "misconception": "believes an implementation may ignore part of a declared parameter list"
+          "text": "Two methods, log() and log(String), because a signature includes the parameter list as well as the name.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -378,7 +378,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that two methods are the same only when the name, the parameter types and the return type all match, so log() and log(String) are different requirements and a class implementing both has to supply both, overloading rather than choosing one. Treating the longer parameter list as more specific is tempting because overloading does allow one name to serve several shapes, but overloading means supplying several methods, not one method that covers them, and a method with no parameters can never stand in for a method that demands a String.",
       "hint": "Compare the full signatures rather than just the method names.",
@@ -426,8 +426,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it: Doc is not abstract and does not override describe() in Report, so the class is incomplete.",
-          "misconception": ""
+          "text": "It compiles and prints nothing, because the return types disagree so no value can be sent.",
+          "misconception": "believes mismatched return types make the call print an empty line"
         },
         {
           "id": "B",
@@ -441,12 +441,12 @@
         },
         {
           "id": "D",
-          "text": "It compiles and prints nothing, because the return types disagree so no value can be sent.",
-          "misconception": "believes mismatched return types make the call print an empty line"
+          "text": "The compiler rejects it: Doc is not abstract and does not override describe() in Report, so the class is incomplete.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that an interface method names a signature, and a signature includes the return type, so int describe() is a different method from String describe() and Doc is still missing the one it promised, which is why the compiler calls the class abstract-incomplete. Believing the name is enough is tempting because the two declarations sit on adjacent lines and read like the same method, but an implementation must return exactly what the contract promises, and a method that returns int cannot be used where a String is required because the two types share no common conversion.",
       "hint": "Ask whether the whole signature agrees, not just the method's name.",
@@ -494,13 +494,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"hi Ana\": the default body calls who(), which dispatches to the class's implementation.",
-          "misconception": ""
+          "text": "\"hi null\", because the default body runs without any state from the implementing class.",
+          "misconception": "believes a default method sees nothing of the implementing class"
         },
         {
           "id": "B",
-          "text": "\"hi null\", because the default body runs without any state from the implementing class.",
-          "misconception": "believes a default method sees nothing of the implementing class"
+          "text": "\"hi Ana\": the default body calls who(), which dispatches to the class's implementation.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -514,7 +514,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a default method supplies a body but the call it makes to who() is an ordinary virtual call, so it dispatches to the implementing class and returns Ana, giving hi Ana. Expecting the default to replace or ignore the class's contribution is tempting because the class only wrote one of the two methods, but a default is inherited rather than overridden, so both bodies are in play and the default's body is the one that runs. A default may freely call the interface's own abstract methods, since every implementer is obliged to supply them.",
       "hint": "The default's body is inherited; the call inside it is dispatched normally.",
@@ -638,8 +638,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Only p.print(), because a Printable reference exposes the members Printable declares.",
-          "misconception": ""
+          "text": "Both p.print() and p.save(), because Doc implements both interfaces at compile time.",
+          "misconception": "believes the class's interface list widens every reference to it"
         },
         {
           "id": "B",
@@ -648,8 +648,8 @@
         },
         {
           "id": "C",
-          "text": "Both p.print() and p.save(), because Doc implements both interfaces at compile time.",
-          "misconception": "believes the class's interface list widens every reference to it"
+          "text": "Only p.print(), because a Printable reference exposes the members Printable declares.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -658,7 +658,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that the compiler checks each call against the reference's declared type, so p.print() is accepted and p.save() is not, because Saveable is not part of Printable and the two interfaces are unrelated, so reaching save() needs a Saveable reference or a cast such as ((Saveable) p).save(). Expecting the object to widen what is callable is tempting because the value really is a Doc at run time, but the check is made on the static type precisely so that a caller is not surprised, and the class's own implementation of print is reached through the interface just as well.",
       "hint": "The compiler only knows the type written in the declaration.",
@@ -706,8 +706,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"beta\": where one default extends another the more specific one wins, and Gamma adds nothing.",
-          "misconception": ""
+          "text": "\"gamma\", because the interface a class implements directly supplies the method itself.",
+          "misconception": "believes the directly implemented interface contributes a default of its own"
         },
         {
           "id": "B",
@@ -721,12 +721,12 @@
         },
         {
           "id": "D",
-          "text": "\"gamma\", because the interface a class implements directly supplies the method itself.",
-          "misconception": "believes the directly implemented interface contributes a default of its own"
+          "text": "\"beta\": where one default extends another the more specific one wins, and Gamma adds nothing.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that Beta's who() overrides the one it inherits from Alpha, so Beta is the most specific declaration in the chain and its body is the one Leaf inherits, while Gamma only extends Beta without restating anything. Reading the top of the chain as the winner is tempting because Alpha is where the method was written first, but override rules run from the most specific type downwards, and there is no conflict at all here, since a redeclaration in a subinterface replaces the inherited default rather than competing with it as an unrelated default would.",
       "hint": "Work out which declaration overrides which along the extends chain.",
@@ -774,13 +774,13 @@
       "options": [
         {
           "id": "A",
-          "text": "\"alpha\": Beta restates nothing, so the single default is inherited from Alpha unchanged.",
-          "misconception": ""
+          "text": "\"beta\", because every subinterface supplies a default of its own for the same method.",
+          "misconception": "believes a subinterface always donates a default implementation"
         },
         {
           "id": "B",
-          "text": "\"beta\", because every subinterface supplies a default of its own for the same method.",
-          "misconception": "believes a subinterface always donates a default implementation"
+          "text": "\"alpha\": Beta restates nothing, so the single default is inherited from Alpha unchanged.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -794,7 +794,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a subinterface inherits every member of the interface it extends, so a default with a body is inherited as it stands and Beta's silence means Alpha's body is the one Leaf ends up with, printing alpha. Expecting a subinterface to supply its own default is tempting because the subinterface is the more specific type and the most specific usually wins, but there is nothing more specific to win here since Beta never declared who(), and an inherited default is exactly as real as a declared one, which is why Leaf compiles with an empty body.",
       "hint": "Inheritance carries the whole member along, body included.",
@@ -842,8 +842,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it with \"cannot find symbol, symbol: variable super\", because an interface names no superclass.",
-          "misconception": ""
+          "text": "It compiles and prints \"alpha\", because super is simply ignored inside an interface body.",
+          "misconception": "believes super is silently discarded in interface code"
         },
         {
           "id": "B",
@@ -852,8 +852,8 @@
         },
         {
           "id": "C",
-          "text": "It compiles and prints \"alpha\", because super is simply ignored inside an interface body.",
-          "misconception": "believes super is silently discarded in interface code"
+          "text": "The compiler rejects it with \"cannot find symbol, symbol: variable super\", because an interface names no superclass.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -862,7 +862,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that an interface declares members but has no superclass of its own, so super has nothing to name and javac reports cannot find symbol for the variable super. Believing Object is reachable is tempting because every class ultimately extends Object and toString exists on every object, but a default method belongs to the interface rather than to a class in a hierarchy, so the way to reach shared code is a static helper in the same interface or a plain call to a method the interface itself declares. Ignoring the call silently is not how the compiler treats a name it cannot resolve.",
       "hint": "Ask what superclass the interface Alpha actually has to name.",
@@ -910,8 +910,8 @@
       "options": [
         {
           "id": "A",
-          "text": "return Alpha.super.who() + \"/\" + Beta.super.who();  a class may name either default that way.",
-          "misconception": ""
+          "text": "return Alpha.who() + \"/\" + Beta.who();  a default is invoked on the interface type itself.",
+          "misconception": "believes an interface default is called on the interface name alone"
         },
         {
           "id": "B",
@@ -925,12 +925,12 @@
         },
         {
           "id": "D",
-          "text": "return Alpha.who() + \"/\" + Beta.who();  a default is invoked on the interface type itself.",
-          "misconception": "believes an interface default is called on the interface name alone"
+          "text": "return Alpha.super.who() + \"/\" + Beta.super.who();  a class may name either default that way.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that when a class inherits two unrelated defaults it must override the method, and inside that override the qualified form InterfaceName.super.who() names one of the specific defaults, so both can be combined into alpha/beta. Calling super.who() is tempting because that is the familiar way to reach a superclass version from a class body, but the two versions here live in interfaces rather than in a superclass, and this.who() would simply call the method being written, which is the infinite kind of shortcut that never produces either default's text.",
       "hint": "The conflict is resolved in the class body, where each default can be named.",
@@ -978,13 +978,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects Leaf: it is not abstract and does not override who() in Beta, so the default does not apply.",
-          "misconception": ""
+          "text": "The compiler rejects Leaf, because Alpha's default and Beta's declaration of who() conflict.",
+          "misconception": "believes a default and an abstract declaration of one method conflict"
         },
         {
           "id": "B",
-          "text": "The compiler rejects Leaf, because Alpha's default and Beta's declaration of who() conflict.",
-          "misconception": "believes a default and an abstract declaration of one method conflict"
+          "text": "The compiler rejects Leaf: it is not abstract and does not override who() in Beta, so the default does not apply.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -998,7 +998,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a subinterface or a class declaration of the same method replaces an inherited default, and Beta's abstract String who() does exactly that, so the default from Alpha is overridden rather than competing with it and Leaf is left with an unimplemented requirement. Believing the two clash is tempting because the familiar default conflict is two bodies, but here one side has no body at all, so there is nothing to choose between and the abstract declaration simply wins, leaving the class obliged to supply the method itself.",
       "hint": "Ask which side of the pair has a body; only two bodies can conflict.",
@@ -1046,8 +1046,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"alpha+beta\": the override names each interface's default explicitly and joins the two strings.",
-          "misconception": ""
+          "text": "\"beta\", because the last qualified call in the body overrides the first one.",
+          "misconception": "believes the last qualified default call in a body wins"
         },
         {
           "id": "B",
@@ -1056,8 +1056,8 @@
         },
         {
           "id": "C",
-          "text": "\"beta\", because the last qualified call in the body overrides the first one.",
-          "misconception": "believes the last qualified default call in a body wins"
+          "text": "\"alpha+beta\": the override names each interface's default explicitly and joins the two strings.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1066,7 +1066,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that both qualified calls are ordinary static-in-spirit references to specific inherited bodies, so the override runs both and concatenates alpha, the separator, and beta into alpha+beta. Reading the last call as winning is tempting because a method with one name and one body is usually the single authority, but the two qualified names are different bodies being composed deliberately, and this is the usual way to keep both behaviours when resolving a conflict rather than discarding one of them.",
       "hint": "Each qualified call runs a different inherited body, so both results appear.",
@@ -1114,8 +1114,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"beta\": naming both interfaces is not a conflict, because Beta is the more specific of the two.",
-          "misconception": ""
+          "text": "\"beta\" only because of the @Override annotation, which is what selects the body.",
+          "misconception": "believes the annotation decides which default is inherited"
         },
         {
           "id": "B",
@@ -1129,12 +1129,12 @@
         },
         {
           "id": "D",
-          "text": "\"beta\" only because of the @Override annotation, which is what selects the body.",
-          "misconception": "believes the annotation decides which default is inherited"
+          "text": "\"beta\": naming both interfaces is not a conflict, because Beta is the more specific of the two.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a conflict needs two unrelated defaults, and Beta is not unrelated to Alpha because it extends it, so the pair is resolved by specificity and Beta's body is the one Leaf inherits, printing beta. Believing the implements list itself creates a conflict is tempting because the class names two interfaces, but a class may name as many interfaces as it likes including a parent and its child, and the annotation plays no part in the decision either, since it is checked by the compiler and does not change which body runs.",
       "hint": "Ask whether the two interfaces are related by extends or completely unrelated.",
@@ -1182,13 +1182,13 @@
       "options": [
         {
           "id": "A",
-          "text": "@Override String tag();  restating the method with no body makes the requirement abstract again.",
-          "misconception": ""
+          "text": "default String tag() { return \"strict\"; }  a subinterface may restate a default with a body of its own.",
+          "misconception": "believes a subinterface can keep a default body and still force implementations"
         },
         {
           "id": "B",
-          "text": "default String tag() { return \"strict\"; }  a subinterface may restate a default with a body of its own.",
-          "misconception": "believes a subinterface can keep a default body and still force implementations"
+          "text": "@Override String tag();  restating the method with no body makes the requirement abstract again.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1202,7 +1202,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a subinterface may redeclare an inherited member, and a redeclaration with no body is abstract, so writing @Override String tag(); replaces the parent's default with a requirement and every implementer must supply it, which the compiler then reports as Impl is not abstract and does not override tag() in Strict. Writing another default is tempting because the subinterface already has a default to work from, but that would leave implementers with a body again and nothing would be forced, and the annotation is only a check on the declaration rather than something that changes what the declaration means.",
       "hint": "To force implementations, redeclare the method with no body at all.",
@@ -1250,8 +1250,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects Leaf: it inherits unrelated defaults for help() from Alpha and Beta, so the call is ambiguous.",
-          "misconception": ""
+          "text": "It prints \"b\", because the interface listed last donates the help() that Alpha's default calls.",
+          "misconception": "believes list order resolves a call made inside a default"
         },
         {
           "id": "B",
@@ -1260,8 +1260,8 @@
         },
         {
           "id": "C",
-          "text": "It prints \"b\", because the interface listed last donates the help() that Alpha's default calls.",
-          "misconception": "believes list order resolves a call made inside a default"
+          "text": "The compiler rejects Leaf: it inherits unrelated defaults for help() from Alpha and Beta, so the call is ambiguous.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1270,7 +1270,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that the compiler resolves the simple name help() at the point of the class, and there it arrives from two unrelated interfaces with two different bodies, so it reports that Alpha and Beta are incompatible and the class inherits unrelated defaults. Believing a default body stays inside its own interface is tempting because the call is written between Alpha's braces, but the inherited members of the class are what the name refers to, and list order settles nothing here, unlike the case where one default overrides another through an extends chain.",
       "hint": "Resolve the name help() as the implementing class would see it.",
@@ -1395,8 +1395,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A one-method interface declaring only read(int), so the report can be handed any reader and cannot write.",
-          "misconception": ""
+          "text": "The concrete store class, so the report reads straight from that one implementation.",
+          "misconception": "believes naming the concrete class is the way to keep a parameter narrow"
         },
         {
           "id": "B",
@@ -1410,12 +1410,12 @@
         },
         {
           "id": "D",
-          "text": "The concrete store class, so the report reads straight from that one implementation.",
-          "misconception": "believes naming the concrete class is the way to keep a parameter narrow"
+          "text": "A one-method interface declaring only read(int), so the report can be handed any reader and cannot write.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a parameter should be typed as narrowly as the code that uses it, and this report only calls read, so a one-method interface states exactly that and makes write and delete unreachable from the report, which is also what lets a different kind of store be supplied later. Taking the fat store interface is tempting because it names the real object being passed, but it forces every future store to offer four operations for the sake of one, and using Object would compile only by giving up the ability to call read at all without a cast.",
       "hint": "Name the operations the report actually calls, and nothing else.",
@@ -1463,13 +1463,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it: cannot find symbol, method setSize(int), because ReadonlyBox declares only size().",
-          "misconception": ""
+          "text": "It compiles and prints 5, because the object behind the reference really is a Box.",
+          "misconception": "believes the runtime class's methods are reachable through a narrow reference"
         },
         {
           "id": "B",
-          "text": "It compiles and prints 5, because the object behind the reference really is a Box.",
-          "misconception": "believes the runtime class's methods are reachable through a narrow reference"
+          "text": "The compiler rejects it: cannot find symbol, method setSize(int), because ReadonlyBox declares only size().",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1483,7 +1483,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a method may only be called if the reference's declared type declares it, and ReadonlyBox declares just size(), so javac reports cannot find symbol for setSize(int) and the program never reaches its print. Believing the call works is tempting because the value really is a Box and Box does have that method, but the narrow type is exactly what prevents the write, and that prevention is the design working: the compiler has caught a mutation that the interface promised could not happen, rather than discovering it later at run time.",
       "hint": "The declared type of b is the whole story the compiler has to go on.",
@@ -1531,8 +1531,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3: size() is declared by the interface, so the call is legal and the implementation returns 3.",
-          "misconception": ""
+          "text": "It throws AbstractMethodError, because Box's size() is not inherited from the interface.",
+          "misconception": "believes a method that supplies a requirement is not really the implementation"
         },
         {
           "id": "B",
@@ -1541,8 +1541,8 @@
         },
         {
           "id": "C",
-          "text": "It throws AbstractMethodError, because Box's size() is not inherited from the interface.",
-          "misconception": "believes a method that supplies a requirement is not really the implementation"
+          "text": "3: size() is declared by the interface, so the call is legal and the implementation returns 3.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1551,7 +1551,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a call through an interface runs the implementing class's method, so b.size() is legal because ReadonlyBox declares it and it dispatches to Box.size, returning the 3 the constructor stored. Expecting a default is tempting because an interface declaration carries no state of its own, but the object behind the reference holds that state and the interface is only a way of naming the operations, so the value comes from the instance and the narrow type costs nothing for a read it allows.",
       "hint": "The interface names the operation; the object supplies the value.",
@@ -1599,8 +1599,8 @@
       "options": [
         {
           "id": "A",
-          "text": "x -> x * x  a lambda body may be a single expression whose value becomes the result.",
-          "misconception": ""
+          "text": "apply(x -> x * x)  the method being implemented has to be named inside the expression.",
+          "misconception": "believes a lambda must name the method it implements"
         },
         {
           "id": "B",
@@ -1614,12 +1614,12 @@
         },
         {
           "id": "D",
-          "text": "apply(x -> x * x)  the method being implemented has to be named inside the expression.",
-          "misconception": "believes a lambda must name the method it implements"
+          "text": "x -> x * x  a lambda body may be a single expression whose value becomes the result.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a lambda for a one-method interface is written as the parameters, an arrow, and a body, and a body that is a single expression is taken as the return value, so x -> x * x supplies apply and prints 9. Ending a block with a bare expression statement is tempting because it looks like the same work written out, but a block body that produces no value is not compatible with an int-returning method, and the arrow form needs no method name because the interface's single method is the only possible target.",
       "hint": "The interface's only method is the target, so it never has to be named.",
@@ -1667,13 +1667,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The compiler rejects it: Calc is not a functional interface, multiple non-overriding abstract methods found.",
-          "misconception": ""
+          "text": "It compiles and prints 5, because a lambda only has to match the first abstract method it finds.",
+          "misconception": "believes a lambda implements the first abstract method in the interface"
         },
         {
           "id": "B",
-          "text": "It compiles and prints 5, because a lambda only has to match the first abstract method it finds.",
-          "misconception": "believes a lambda implements the first abstract method in the interface"
+          "text": "The compiler rejects it: Calc is not a functional interface, multiple non-overriding abstract methods found.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1687,7 +1687,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a lambda can only implement an interface with exactly one abstract method, and Calc has two that do not override each other, so javac reports that Calc is not a functional interface and offers no choice to make. Binding the first or the last method is tempting because the two declarations look like variants of one idea and the lambda does have an int parameter, but there is nothing in the syntax to say which method it is meant to be, and an expression body supplies a single body, which is why the interface has to name just one thing to be implemented.",
       "hint": "Count the abstract methods before writing anything in lambda form.",
@@ -1735,8 +1735,8 @@
       "options": [
         {
           "id": "A",
-          "text": "5: the parameter type names the single method, and the lambda body supplies it for 4.",
-          "misconception": ""
+          "text": "4: the lambda's parameter shadows the argument, so the printed value is the parameter itself.",
+          "misconception": "believes the lambda's own parameter is what reaches the print"
         },
         {
           "id": "B",
@@ -1745,8 +1745,8 @@
         },
         {
           "id": "C",
-          "text": "4: the lambda's parameter shadows the argument, so the printed value is the parameter itself.",
-          "misconception": "believes the lambda's own parameter is what reaches the print"
+          "text": "5: the parameter type names the single method, and the lambda body supplies it for 4.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1755,7 +1755,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that the parameter's declared type says which single method has to be supplied, so d.twice(4) calls the lambda's body with 4 and prints 4 + 1 = 5. Reading the method name as the operation is tempting because twice sounds like multiplication, but a name like that is only a label and the body decides, which is exactly the flexibility that makes a one-method interface a good parameter type. No implementing class is needed, because the lambda is itself the implementation for that one call.",
       "hint": "The interface names the operation; the lambda body performs it.",
@@ -1803,8 +1803,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"hi Ana\": the default builds the greeting around the value the lambda supplies for name().",
-          "misconception": ""
+          "text": "It throws AbstractMethodError, because greet() is inherited rather than declared by the class.",
+          "misconception": "believes an inherited default is never properly implemented"
         },
         {
           "id": "B",
@@ -1818,12 +1818,12 @@
         },
         {
           "id": "D",
-          "text": "It throws AbstractMethodError, because greet() is inherited rather than declared by the class.",
-          "misconception": "believes an inherited default is never properly implemented"
+          "text": "\"hi Ana\": the default builds the greeting around the value the lambda supplies for name().",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The rule is that a lambda supplies every abstract method of the target interface, so name() returns Ana while the inherited default greet() wraps it, giving hi Ana. Believing the lambda leaves name() unimplemented is tempting because the arrow body was aimed at the single abstract method and the default is not written anywhere, but the default already has a body and needs nothing from the caller, and the two work together, which is what lets an interface own the shared wording while each call site owns only the name.",
       "hint": "The lambda and the default each supply one piece of the result.",
@@ -1947,13 +1947,13 @@
       "options": [
         {
           "id": "A",
-          "text": "default boolean paid() { return true; }  the existing class inherits the new behaviour and still compiles.",
-          "misconception": ""
+          "text": "boolean paid();  the new operation is abstract, so every existing implementer must add it.",
+          "misconception": "believes an abstract declaration is the only way to extend an interface"
         },
         {
           "id": "B",
-          "text": "boolean paid();  the new operation is abstract, so every existing implementer must add it.",
-          "misconception": "believes an abstract declaration is the only way to extend an interface"
+          "text": "default boolean paid() { return true; }  the existing class inherits the new behaviour and still compiles.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1967,7 +1967,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The rule is that a default body gives the new operation an implementation every existing implementer inherits, so Free keeps compiling and the new behaviour is available immediately, which is the whole reason defaults exist. Declaring it abstract is tempting because that is the shape of a plain interface method, but it converts an addition into a breaking change that every implementer must answer, and a static method is worse still because it belongs to the interface rather than to the objects, so instances of Free would not have it at all.",
       "hint": "Ask which form of declaration adds a behaviour without adding a requirement.",
@@ -2015,8 +2015,8 @@
       "options": [
         {
           "id": "A",
-          "text": "\"test:8\": best compares through the Ranked reference and 8 is the larger of the two ranks.",
-          "misconception": ""
+          "text": "It throws ClassCastException, because two Task objects cannot be compared with each other.",
+          "misconception": "believes comparing two implementations of one interface needs a cast"
         },
         {
           "id": "B",
@@ -2025,8 +2025,8 @@
         },
         {
           "id": "C",
-          "text": "It throws ClassCastException, because two Task objects cannot be compared with each other.",
-          "misconception": "believes comparing two implementations of one interface needs a cast"
+          "text": "\"test:8\": best compares through the Ranked reference and 8 is the larger of the two ranks.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2035,7 +2035,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The rule is that a helper needs only the one operation it uses, so best asks each argument for rank() through the Ranked reference, finds 3 and 8, and returns the task with the larger value, whose toString gives test:8. Expecting the first argument because its test held is tempting when a >= is written, but a condition that holds selects the first operand only when that operand is the intended one, and here 8 >= 3 is true so the second task is returned, which is what makes the higher rank win. No cast is involved because Ranked is the only type the helper knows about.",
       "hint": "Work out the value of 8 >= 3 and which operand that selects.",

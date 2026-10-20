@@ -89,13 +89,13 @@
       "options": [
         {
           "id": "A",
-          "text": "One target is a quantity where a distance means something and the other is a label with no middle, so the losses differ in kind",
-          "misconception": ""
+          "text": "Only the units differ, since both are predictions against a recorded outcome and one loss serves either equally well",
+          "misconception": "believes a shared loss is adequate once the two targets are on a common scale"
         },
         {
           "id": "B",
-          "text": "Only the units differ, since both are predictions against a recorded outcome and one loss serves either equally well",
-          "misconception": "believes a shared loss is adequate once the two targets are on a common scale"
+          "text": "One target is a quantity where a distance means something and the other is a label with no middle, so the losses differ in kind",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -109,7 +109,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A delivery time of 20 hours is two hours away from 22 in a way that means something, so a loss can measure the size of a miss and prefer a near miss to a wild one. Late or not late has no such middle: a model that answers late when the answer was on time is entirely wrong, and no arithmetic on the two labels improves it. That is the whole reason the two problems have separate machinery, since one optimises a distance on a continuous scale and the other optimises a decision on a discrete one, and a model that is asked to regress a label will happily return 0.4 and call it a prediction of a category nobody chose.",
       "hint": "Ask whether a value halfway between the two possible answers could ever be a sensible answer.",
@@ -163,8 +163,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It charges four hundred for the single miss, so one bad case outweighs a hundred small ones and pulls the fit towards it",
-          "misconception": ""
+          "text": "It charges nothing, since one case cannot move a total that is computed over every case in the training set",
+          "misconception": "believes a total is immune to the size of its individual terms"
         },
         {
           "id": "B",
@@ -173,8 +173,8 @@
         },
         {
           "id": "C",
-          "text": "It charges nothing, since one case cannot move a total that is computed over every case in the training set",
-          "misconception": "believes a total is immune to the size of its individual terms"
+          "text": "It charges four hundred for the single miss, so one bad case outweighs a hundred small ones and pulls the fit towards it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -183,7 +183,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Squaring makes the penalty grow faster than the mistake, so a miss of twenty costs four hundred while a miss of one costs one, and that single case outweighs a hundred one-hour errors. A fit minimising this total will therefore spend much of its effort on the row that produced the biggest number, and the effect is not merely a slightly worse fit but a fit shaped around an exceptional case. Whether that is right depends on the world: if twenty hours of error genuinely ruins a parcel while two hours is a nuisance, the quadratic cost is an accurate description of the harm, and if it does not, the same property is a defect. The choice of loss is a claim about costs.",
       "hint": "Ask how the cost of a miss changes as the miss gets bigger, and compare a miss of one with a miss of twenty.",
@@ -237,8 +237,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A single wildly wrong prediction stops dominating the total, since its cost now grows in step with the error itself",
-          "misconception": ""
+          "text": "The fit improves on every target, since the smaller penalty is always the truer measure of what the business loses",
+          "misconception": "conflates a smaller numeric penalty with a better model"
         },
         {
           "id": "B",
@@ -252,12 +252,12 @@
         },
         {
           "id": "D",
-          "text": "The fit improves on every target, since the smaller penalty is always the truer measure of what the business loses",
-          "misconception": "conflates a smaller numeric penalty with a better model"
+          "text": "A single wildly wrong prediction stops dominating the total, since its cost now grows in step with the error itself",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Squaring turns the loss into a system where a few extreme rows set the terms that matter, which is the right behaviour when an extreme error really is far worse and the wrong behaviour when it is a keying mistake or a warehouse fire. An absolute loss charges twenty for a miss of twenty and one for a miss of one, so the fit is determined by the bulk of the cases and a single absurd row cannot drag it. The cost of that robustness is a real one, namely that the absolute loss stops caring about the difference between a small and a middling error within the ordinary range, so the result is a fit to the typical case rather than a careful fit to all of them.",
       "hint": "Ask how the penalty compares a miss of one with a miss of twenty under each loss.",
@@ -309,13 +309,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Calling every parcel on time scores 0.96 while catching no late parcel at all, so the score can rise as usefulness falls",
-          "misconception": ""
+          "text": "Accuracy is meaningless at any base rate, so the figure should never be reported whatever the class balance turns out to be",
+          "misconception": "concludes that a metric is useless rather than that it answers one question only"
         },
         {
           "id": "B",
-          "text": "Accuracy is meaningless at any base rate, so the figure should never be reported whatever the class balance turns out to be",
-          "misconception": "concludes that a metric is useless rather than that it answers one question only"
+          "text": "Calling every parcel on time scores 0.96 while catching no late parcel at all, so the score can rise as usefulness falls",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -329,7 +329,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Accuracy is a weighted average of the two class rates, weighted by how many rows each class has, so with ninety-six on-time rows the correct answer dominates the total no matter what the model does about the four that matter. A model that never predicts late therefore scores 0.96 while being worth nothing operationally, and a model that finds two of the four late parcels can score lower than that if it costs a false alarm for each. The fix is not to abandon accuracy but to report it beside the two class rates separately, or a summary that weights them equally, so the reader can see which class the headline is being carried by.",
       "hint": "Ask what a model that never predicts the rare class scores, and whether that model is worth deploying.",
@@ -381,8 +381,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Each divides by a different group, so a high first rate with a low second can leave most of the late parcels unflagged",
-          "misconception": ""
+          "text": "Each ignores the parcels that were not flagged, so neither can tell a useful model from an idle one by itself",
+          "misconception": "attributes the insufficiency of one rate to the wrong group being excluded"
         },
         {
           "id": "B",
@@ -391,8 +391,8 @@
         },
         {
           "id": "C",
-          "text": "Each ignores the parcels that were not flagged, so neither can tell a useful model from an idle one by itself",
-          "misconception": "attributes the insufficiency of one rate to the wrong group being excluded"
+          "text": "Each divides by a different group, so a high first rate with a low second can leave most of the late parcels unflagged",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -401,7 +401,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The first rate is computed over the flagged group and the second over the group that should have been flagged, so a model can be extremely careful about the small set it does flag while ignoring almost the whole problem. Flag only four parcels a day, get three of them right, and the first rate is 0.75 while the second is 0.01, and a team reading only the first will conclude the model is excellent. The reverse is the other standard failure, a model that flags everything and so catches every late parcel while making its manual check unworkable. Neither rate is wrong and each describes a different decision, which is why a decision about costs is what picks between them.",
       "hint": "Ask which group each rate divides by, and construct a model that scores well on one and badly on the other.",
@@ -453,8 +453,8 @@
       "options": [
         {
           "id": "A",
-          "text": "How well the model orders its cases, independent of where any decision threshold is finally placed on that order",
-          "misconception": ""
+          "text": "How well it separates the classes when the threshold is placed so that half of all cases get flagged",
+          "misconception": "assumes the figure presumes one particular fixed-alarm threshold"
         },
         {
           "id": "B",
@@ -468,12 +468,12 @@
         },
         {
           "id": "D",
-          "text": "How well it separates the classes when the threshold is placed so that half of all cases get flagged",
-          "misconception": "assumes the figure presumes one particular fixed-alarm threshold"
+          "text": "How well the model orders its cases, independent of where any decision threshold is finally placed on that order",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The curve is generated by sliding the threshold through every possible value and recording the two rates at each, so the area underneath is a summary of the whole ordering at once rather than of one point on it. A figure of 0.71 therefore says the model puts a genuinely late case above an on-time one more often than chance, and it is comparable between two models without either of them having been given the same alarm level. What it deliberately excludes is the operating point, and that is both its strength and its limitation: a model can have a high area and still be unusable at any threshold that keeps the false alarms affordable, so the number has to be read together with the threshold that will actually be set.",
       "hint": "Ask how many thresholds the curve covers, and what the area would be if only one threshold were used.",
@@ -527,13 +527,13 @@
       "options": [
         {
           "id": "A",
-          "text": "False positives rise and false negatives fall, since lowering the bar draws more cases into the flagged group",
-          "misconception": ""
+          "text": "Both counts fall, because a lower threshold can only ever be a stricter version of the same test",
+          "misconception": "reads a lower cut-off as a stricter test rather than a looser one"
         },
         {
           "id": "B",
-          "text": "Both counts fall, because a lower threshold can only ever be a stricter version of the same test",
-          "misconception": "reads a lower cut-off as a stricter test rather than a looser one"
+          "text": "False positives rise and false negatives fall, since lowering the bar draws more cases into the flagged group",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -547,7 +547,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The threshold decides which side of the line each case falls on, and lowering it moves cases from the unflagged side to the flagged side. On-time parcels swept in by the lower bar become false positives, and late parcels that were previously below the bar become true catches rather than misses, so one count rises while the other falls and the total flagged grows. The score itself does not change at all, which is the reason a threshold is a decision rather than a model improvement: the ranking was fixed when the model was fitted, and moving the cut only chooses which part of that ranking to act on. Anyone who can move a threshold can therefore change a reported rate without changing a single weight.",
       "hint": "Ask which cases cross the line when the line moves down, and what each of them becomes.",
@@ -599,8 +599,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That a false alarm and a missed late parcel are equally worth avoiding, because the harmonic mean weights them equally",
-          "misconception": ""
+          "text": "That missed parcels are the cheaper mistake, because the combined score is always set by whichever rate is smaller",
+          "misconception": "believes the combined score is dominated by whichever rate happens to be lower"
         },
         {
           "id": "B",
@@ -609,8 +609,8 @@
         },
         {
           "id": "C",
-          "text": "That missed parcels are the cheaper mistake, because the combined score is always set by whichever rate is smaller",
-          "misconception": "believes the combined score is dominated by whichever rate happens to be lower"
+          "text": "That a false alarm and a missed late parcel are equally worth avoiding, because the harmonic mean weights them equally",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -619,7 +619,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Combining two rates into one requires weighting them, and this combination is defined by taking the harmonic mean, which treats the two as equally important and refuses to let either be rescued by being large. That is a genuine choice rather than a neutral summary, and it is the right one only when a false alarm and a missed parcel cost about the same. When one is many times dearer, the number is being asked a question nobody posed: a model with 0.95 on one rate and 0.60 on the other scores 0.737 here, and the fact that this sits between the two tells you the weighting is even rather than that either is acceptable. The honest alternative is to state the cost ratio and set the threshold accordingly.",
       "hint": "Ask what the combination would do if one of the two rates were much more important than the other.",
@@ -671,8 +671,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Depth is chosen before fitting and governs the fitting; the split thresholds are estimated from the data during it",
-          "misconception": ""
+          "text": "Depth is a parameter because it is stored in the model, and split thresholds are settings because they sit at each node",
+          "misconception": "classifies the two by where in the model they are written"
         },
         {
           "id": "B",
@@ -686,12 +686,12 @@
         },
         {
           "id": "D",
-          "text": "Depth is a parameter because it is stored in the model, and split thresholds are settings because they sit at each node",
-          "misconception": "classifies the two by where in the model they are written"
+          "text": "Depth is chosen before fitting and governs the fitting; the split thresholds are estimated from the data during it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The dividing line is not where a number ends up but what produced it. A depth is a decision about the family of models to search, taken before any data is fitted, and the fitting procedure then uses it to decide how many splits to make; a split threshold is a number the data chose, and a different sample would have produced a different one. The confusion is easy because both appear in the saved model and both can be printed, and because a search over depths is itself a fitting procedure, which blurs the vocabulary further. The practical consequence is about what must be refitted: change a setting and the same fitting code runs again, while the parameters come out of the data each time.",
       "hint": "Ask what produced each number: a person's decision, or the sample it was fitted on.",
@@ -743,13 +743,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The aggregate of the trees' answers, since averaging many fits cancels the part of each error that came from its sample",
-          "misconception": ""
+          "text": "The answer of the one tree that saw every row, since only an unresampled tree knows the data reliably",
+          "misconception": "believes the tree fitted on the whole sample is therefore the most accurate"
         },
         {
           "id": "B",
-          "text": "The answer of the one tree that saw every row, since only an unresampled tree knows the data reliably",
-          "misconception": "believes the tree fitted on the whole sample is therefore the most accurate"
+          "text": "The aggregate of the trees' answers, since averaging many fits cancels the part of each error that came from its sample",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -763,7 +763,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each tree is fitted on a different sample and a different subset of features, so each one's particular mistakes are largely its own, while the signal it captures is present in all of them. Averaging leaves the shared signal and cancels a good share of the unshared error, which is the same reason a crowd of slightly biased estimates can beat one good estimate, and it is why the trees are grown deep and unpruned rather than being individually polished. What averaging cannot remove is error the trees share, which comes from a bias in the model family itself, so a forest of shallow trees remains shallow however many of them there are.",
       "hint": "Ask what the trees disagree about and what they agree about, and which of those the aggregate keeps.",
@@ -815,8 +815,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Each round's errors are the next round's target, so the rounds depend on one another and an early mistake shapes all that follow",
-          "misconception": ""
+          "text": "Each round sees a larger sample than the one before, so the final ensemble has been fitted on strictly more data than the first round",
+          "misconception": "believes repeated rounds accumulate additional training data"
         },
         {
           "id": "B",
@@ -825,8 +825,8 @@
         },
         {
           "id": "C",
-          "text": "Each round sees a larger sample than the one before, so the final ensemble has been fitted on strictly more data than the first round",
-          "misconception": "believes repeated rounds accumulate additional training data"
+          "text": "Each round's errors are the next round's target, so the rounds depend on one another and an early mistake shapes all that follow",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -835,7 +835,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "In averaging, the trees are fitted in ignorance of one another and the combination is a sum of independent contributions, so nothing one tree finds can change what another is looking for. In boosting, each tree is fitted to the residual errors of what has been built so far, which makes the sequence a conversation: a pattern the early rounds failed on is the one the next round is handed. That is where the extra accuracy comes from, and it is also where the fragility lies, since a mistake in an early round is baked into the target every later round is chasing, which is why a well-chosen learning rate and a limit on the round count matter more here than anywhere else.",
       "hint": "Ask what the new model is fitted on, and whether that depends on what came before.",
@@ -2154,8 +2154,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The model starts too simple to fit the data and ends fitting it so closely that it no longer generalises",
-          "misconception": ""
+          "text": "The model is only overfitting at the first setting, since a large gap between the two errors is what defines overfitting",
+          "misconception": "places the overfitting at the setting where the two errors are closest together"
         },
         {
           "id": "B",
@@ -2169,12 +2169,12 @@
         },
         {
           "id": "D",
-          "text": "The model is only overfitting at the first setting, since a large gap between the two errors is what defines overfitting",
-          "misconception": "places the overfitting at the setting where the two errors are closest together"
+          "text": "The model starts too simple to fit the data and ends fitting it so closely that it no longer generalises",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The first row has the unseen error slightly below the fitted error, which is the signature of a model with nothing to spare: it cannot even reach the cases it was shown, so capacity rather than data is the binding constraint. The middle row is close to even and is the setting worth choosing. The last row inverts the relationship sharply, the fitted error falling to 1.2 while the unseen error climbs to 5.0, and the only addition between the middle and the last is capacity, so the extra has bought memorisation. The pattern is a single arc, which is why the middle row rather than the last is the answer, and why stopping the search where the gap is smallest is a rule worth having.",
       "hint": "Look at which of the two errors is larger in each row, and what was added between the rows.",
@@ -2226,13 +2226,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Loose, because a cost ratio of forty to one makes the extra late parcels worth far more than the false alarms they bring",
-          "misconception": ""
+          "text": "Balanced, because a single combined score is the only fair way to compare three settings with different costs",
+          "misconception": "believes a cost weighting must be abandoned in favour of one symmetric summary"
         },
         {
           "id": "B",
-          "text": "Balanced, because a single combined score is the only fair way to compare three settings with different costs",
-          "misconception": "believes a cost weighting must be abandoned in favour of one symmetric summary"
+          "text": "Loose, because a cost ratio of forty to one makes the extra late parcels worth far more than the false alarms they bring",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Cost the three settings in the units that matter, which are false alarms rather than rates: the strict setting raises 30 false alarms to save 25 late parcels, the balanced one raises 25 to save 50, and the loose one raises 175 to save 200. Priced at one unit per false alarm against forty per miss, the totals are 1,030, 2,025 and 8,175, and the strict setting wins by a wide margin despite being the one with the lowest rate of genuine flags. The decision is entirely driven by the ratio, and a team that reads only the rates would reach the opposite conclusion, which is why the cost has to be written down before the thresholds are compared rather than after.",
       "hint": "Convert each setting into counts of false alarms and missed late parcels, then price both at the stated ratio.",
@@ -2300,8 +2300,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Setting 88, because it has the best score on the block that played no part in choosing it, which is the only honest comparison here",
-          "misconception": ""
+          "text": "Setting 12, because a tuning score of 0.94 with a block score of 0.51 shows the sharpest capacity in the model",
+          "misconception": "reads a large gap between the two tables as a strength rather than a warning"
         },
         {
           "id": "B",
@@ -2310,8 +2310,8 @@
         },
         {
           "id": "C",
-          "text": "Setting 12, because a tuning score of 0.94 with a block score of 0.51 shows the sharpest capacity in the model",
-          "misconception": "reads a large gap between the two tables as a strength rather than a warning"
+          "text": "Setting 88, because it has the best score on the block that played no part in choosing it, which is the only honest comparison here",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2320,7 +2320,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The untouched block is the only column in the table that was not used to choose anything, so it is the only column that can say which setting will do best on cases nobody has seen, and on that column setting 88 leads. The three tuning figures are a different measurement entirely: 120 settings were scored on those folds and the best of 120 is expected to sit above what any of them will achieve on new data, which is why setting 12 with 0.94 and 0.51 is the most convincing overfitter on display. Missing a target is a reason to go back to the problem rather than to discard an honest measurement, and the ranking on the untouched block is the part of this table worth acting on.",
       "hint": "Ask which column of the table was not used to make any of the choices it reports.",
@@ -2372,8 +2372,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The population the model now serves is not the one it was built on, so its fitted relationships may no longer hold where it sits",
-          "misconception": ""
+          "text": "The feature should be dropped, since an input that has drifted is one the model can no longer be trusted to use at all",
+          "misconception": "jumps from a drifted input to discarding it without measuring the effect"
         },
         {
           "id": "B",
@@ -2387,12 +2387,12 @@
         },
         {
           "id": "D",
-          "text": "The feature should be dropped, since an input that has drifted is one the model can no longer be trusted to use at all",
-          "misconception": "jumps from a drifted input to discarding it without measuring the effect"
+          "text": "The population the model now serves is not the one it was built on, so its fitted relationships may no longer hold where it sits",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A fitted relationship says how the prediction moves as the input moves within the range the model has seen, and a rise from 40 to 55 in the average means many live cases now sit where few training cases did. Nothing about that makes the model worse in a measurable way by itself, which is why option two's arithmetic is wrong and why option four overreaches by discarding a feature on the strength of a summary. The useful responses are to measure the rate on freshly labelled data, to record the input summaries as a standing monitor, and to look for what caused the shift, since a change in the case mix of this size usually has an explanation that also suggests what else may have moved with it.",
       "hint": "Ask what a fitted relationship was estimated over, and what a change in the input's average says about the cases now arriving.",
@@ -2444,13 +2444,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The error on unseen cases falls and then turns back up, so the third setting is the one to keep and beyond it the cost outweighs the gain",
-          "misconception": ""
+          "text": "The error on unseen cases falls at every setting, so the last and strongest penalty listed is plainly the best one to deploy",
+          "misconception": "reads a rising final figure as part of a continuing decline"
         },
         {
           "id": "B",
-          "text": "The error on unseen cases falls at every setting, so the last and strongest penalty listed is plainly the best one to deploy",
-          "misconception": "reads a rising final figure as part of a continuing decline"
+          "text": "The error on unseen cases falls and then turns back up, so the third setting is the one to keep and beyond it the cost outweighs the gain",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2464,7 +2464,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The unseen error traces a shallow valley, falling from 3.8 to 3.1 over the first three settings and then rising to 3.3, so the third is the point where more penalty stops paying. The rise in the fitted error from 2.1 to 2.4 across those same three settings is the penalty doing precisely what it is supposed to do, since deliberately fitting the known cases less well is how it buys steadiness. That is the whole trade in one row, and the fourth row is where it goes wrong: the penalty has by then cost more in bias than it has saved in variance, and the figure on the unseen cases says so even though the fitted figure has been rising throughout and looks like steady progress.",
       "hint": "Find the setting at which the unseen-case error stops falling, and ask what happened after it.",
@@ -2516,8 +2516,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A wider search reports the best of more draws, so part of the rise is the search locating the folds' own noise rather than a better setting",
-          "misconception": ""
+          "text": "The extra settings were each fitted on more data, so the score rose because the fitting improved rather than the search",
+          "misconception": "assumes a wider grid changes how much data each fit receives"
         },
         {
           "id": "B",
@@ -2526,8 +2526,8 @@
         },
         {
           "id": "C",
-          "text": "The extra settings were each fitted on more data, so the score rose because the fitting improved rather than the search",
-          "misconception": "assumes a wider grid changes how much data each fit receives"
+          "text": "A wider search reports the best of more draws, so part of the rise is the search locating the folds' own noise rather than a better setting",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2536,7 +2536,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Three settings per knob across four knobs is 81 candidates and eleven per knob is 14,641, and the reported figure is the best of whichever set was searched, so a wider search is guaranteed to find something that flattered those particular folds. The rise of 0.02 is what the search found, not what the model learned, and the way to tell the two apart is to score the newly chosen setting on a block the search never touched. The knob-count arithmetic also shows the practical cost: the wider search is nearly two hundred times the work for a figure whose increase is entirely within what a bigger draw would produce on its own.",
       "hint": "Ask how many settings each search reported on, and whether the figure is a single measurement or the best of many.",
@@ -2588,8 +2588,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the headline is carried by the large group and hides a twenty-point weakness on a sixth of the traffic it serves",
-          "misconception": ""
+          "text": "That the rural figure reflects harder conditions, so those routes should be left out of the evaluation altogether",
+          "misconception": "resolves a subgroup weakness by removing the subgroup from measurement"
         },
         {
           "id": "B",
@@ -2603,12 +2603,12 @@
         },
         {
           "id": "D",
-          "text": "That the rural figure reflects harder conditions, so those routes should be left out of the evaluation altogether",
-          "misconception": "resolves a subgroup weakness by removing the subgroup from measurement"
+          "text": "That the headline is carried by the large group and hides a twenty-point weakness on a sixth of the traffic it serves",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The arithmetic does reconcile, since 42,000 at 0.95 plus 8,000 at 0.75 gives 45,900 correct out of 50,000, which is 0.918 and rounds to the reported 0.92. That is exactly why the table is easy to skim past: the numbers are consistent, so nothing looks wrong. What consistency hides is distribution, because a single figure on 50,000 rows can be produced by a strong model on most of them and a poor one on the rest, and here the poor one covers a sixth of the traffic. For a reader deciding whether to rely on the model for a rural route, the subgroup figure is the whole answer and the headline is close to irrelevant.",
       "hint": "Check that the subgroup figures reproduce the headline, then ask what they say about the smaller group.",
@@ -2660,13 +2660,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A steady deterioration in the setting the model now serves, which is exactly the signal a weekly score exists to raise",
-          "misconception": ""
+          "text": "Ordinary week-to-week variation, since a fall of this size over a quarter is within the range any score fluctuates by",
+          "misconception": "treats a monotone decline across three weeks as indistinguishable from noise"
         },
         {
           "id": "B",
-          "text": "Ordinary week-to-week variation, since a fall of this size over a quarter is within the range any score fluctuates by",
-          "misconception": "treats a monotone decline across three weeks as indistinguishable from noise"
+          "text": "A steady deterioration in the setting the model now serves, which is exactly the signal a weekly score exists to raise",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2680,7 +2680,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Four steady weeks followed by three consecutive falls is a trend rather than a fluctuation, and the flatness of the first four is what makes the change legible: the model was not decaying, something in its surroundings began to differ. The likely causes are a change in the case mix, a change in how an input is produced, or a downstream system changing what an outcome means, and each of those is invisible in the code, which is why an unchanged model and an unchanged threshold are not evidence that nothing has happened. The second week of a decline is the moment to compare input summaries against the training period, because that investigation gets much harder once the drift has had a quarter to settle.",
       "hint": "Ask whether the fall is a single movement or a run of them, and what the flat weeks before it establish.",
@@ -2732,8 +2732,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Team A's figure forecasts performance on new cases, while team B's is the best of many figures drawn from the block it reports",
-          "misconception": ""
+          "text": "Team A's is the one to distrust, since setting cases aside can only reduce the data available for fitting the model",
+          "misconception": "assumes a smaller fitting set is itself a reason to prefer a report"
         },
         {
           "id": "B",
@@ -2742,8 +2742,8 @@
         },
         {
           "id": "C",
-          "text": "Team A's is the one to distrust, since setting cases aside can only reduce the data available for fitting the model",
-          "misconception": "assumes a smaller fitting set is itself a reason to prefer a report"
+          "text": "Team A's figure forecasts performance on new cases, while team B's is the best of many figures drawn from the block it reports",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2752,7 +2752,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Both numbers come from 1,000 cases scored by the same procedure, so the only thing that separates them is whether the block influenced any decision, and it did for team B. Once a block has been searched over, the winning score on it is a maximum over many draws from that sample rather than a single draw, and the expected size of that lift grows with the number of settings tried rather than with the size of the block, so a larger evaluation would steady team B's figure without making it honest. Team A's figure, read once, is the one that estimates what will happen on the next 1,000 cases, which is the only reason to want a figure at all.",
       "hint": "Ask of each figure whether anything was decided using the block it was computed on.",
@@ -2804,8 +2804,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Count how many of the positive cases it finds, since that is the part of the block the trivial baseline gets entirely wrong",
-          "misconception": ""
+          "text": "Publish both scores together, since beating the trivial baseline by 0.01 is a demonstration in itself",
+          "misconception": "regards a marginal win on the headline as sufficient evidence of usefulness"
         },
         {
           "id": "B",
@@ -2819,12 +2819,12 @@
         },
         {
           "id": "D",
-          "text": "Publish both scores together, since beating the trivial baseline by 0.01 is a demonstration in itself",
-          "misconception": "regards a marginal win on the headline as sufficient evidence of usefulness"
+          "text": "Count how many of the positive cases it finds, since that is the part of the block the trivial baseline gets entirely wrong",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The trivial baseline is wrong on every one of the 40 positive cases and right on every one of the 960 others, so the only place a useful model can beat it is on those 40, and the only figure that shows whether it did is a count of the positives found. A one-point gain on 1,000 cases is ten parcels, and if only four of those are genuine catches then six are on-time parcels dragged into review, so the classifier has beaten the baseline while being close to useless. The other three options all leave that question untouched: rebalancing the block changes the mix rather than the model, more data will not tell you what the current model does, and publishing two numbers that agree to two decimal places is not evidence of anything.",
       "hint": "Ask where the trivial baseline is wrong, and whether the complex model is right there.",
@@ -2876,13 +2876,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The small end is too simple to reach the data and the large end memorises it, so capacity belongs somewhere in between the two",
-          "misconception": ""
+          "text": "The model overfits throughout, since its error on fitted cases is below its error on unseen cases at both ends of the curve",
+          "misconception": "applies one diagnosis to both ends of a curve that shows two faults"
         },
         {
           "id": "B",
-          "text": "The model overfits throughout, since its error on fitted cases is below its error on unseen cases at both ends of the curve",
-          "misconception": "applies one diagnosis to both ends of a curve that shows two faults"
+          "text": "The small end is too simple to reach the data and the large end memorises it, so capacity belongs somewhere in between the two",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2896,7 +2896,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two ends fail in opposite directions and each is diagnosable from the pair of numbers alone. At the small end the model does worse on unseen cases than on the cases it was fitted to, which is what a model with insufficient capacity looks like: it cannot reach the training data either. At the large end the fitted error has collapsed to 0.05 while the unseen error has climbed to 0.31, so the extra capacity bought memorisation of the sample rather than any relationship that carries to new cases. The remedy is the middle of the curve rather than either end, and a curve reported only at its extremes invites exactly the wrong conclusion about which end to move towards.",
       "hint": "Look at which of the two errors is the larger at each end, and what that says about capacity.",
@@ -2948,8 +2948,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The feature had been carrying the outcome rather than predicting it, so it must go or be rebuilt to be available in time",
-          "misconception": ""
+          "text": "The model has degraded in production, so retraining it on the last month of data is the obvious remedy",
+          "misconception": "treats a leakage finding as a symptom of the model ageing"
         },
         {
           "id": "B",
@@ -2958,8 +2958,8 @@
         },
         {
           "id": "C",
-          "text": "The model has degraded in production, so retraining it on the last month of data is the obvious remedy",
-          "misconception": "treats a leakage finding as a symptom of the model ageing"
+          "text": "The feature had been carrying the outcome rather than predicting it, so it must go or be rebuilt to be available in time",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2968,7 +2968,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The only thing that changed between the two runs is where the feature's value came from, so the 0.32 is measuring exactly one thing: how much of the 0.93 was the feature carrying the answer rather than forecasting it. A feature rebuilt from training rows only is the version production will actually have, so 0.61 is closer to the truth and 0.93 was never a measure of skill. The responses follow from that reading, namely removing the feature, replacing it with something whose value exists at the moment of prediction, or keeping a version of it that can be computed causally. Repeating the comparison would produce the same two numbers, because the gap is not noise but a design fault.",
       "hint": "Ask what is identical between the two runs and what is not, and what that isolates.",
@@ -3020,8 +3020,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The rate of missing and out-of-range values on each input, since these shift first and cost nothing to measure",
-          "misconception": ""
+          "text": "The weekly mean and spread of the target, since the outcome is the thing usefulness is finally judged on",
+          "misconception": "chooses the slowest available measure on the grounds that it is the important one"
         },
         {
           "id": "B",
@@ -3035,12 +3035,12 @@
         },
         {
           "id": "D",
-          "text": "The weekly mean and spread of the target, since the outcome is the thing usefulness is finally judged on",
-          "misconception": "chooses the slowest available measure on the grounds that it is the important one"
+          "text": "The rate of missing and out-of-range values on each input, since these shift first and cost nothing to measure",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Input quality is the only candidate on the list that both moves before the outcome and can be measured without a label, which is the combination a monitor needs in order to be an early warning rather than a lagging report. A missing field or a value outside its documented range is a property of the request as it arrives, so the share of them can be tracked every minute against the levels seen during training. The model's own confidence is a poor substitute because a model is typically most confident on the cases it has seen most shape, and the outcome column is the right thing to watch for a business reason while being far too slow to warn anyone.",
       "hint": "Ask which candidate can be measured without a label and would change before the score does.",
@@ -3092,13 +3092,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Report the share of flagged cases that are genuine, since a cheap false alarm makes the quality of each flag the binding constraint",
-          "misconception": ""
+          "text": "Report the overall correct-case rate, since a single figure is easier to track week by week than any pair of rates",
+          "misconception": "chooses a figure on grounds of convenience rather than of decision value"
         },
         {
           "id": "B",
-          "text": "Report the overall correct-case rate, since a single figure is easier to track week by week than any pair of rates",
-          "misconception": "chooses a figure on grounds of convenience rather than of decision value"
+          "text": "Report the share of flagged cases that are genuine, since a cheap false alarm makes the quality of each flag the binding constraint",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3112,7 +3112,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "With a cost ratio that lopsided, the binding constraint is the number of false alarms a team can physically work through, and the figure that exposes that is the quality of each flag. A model with a headline share-of-flagged at 0.02 and one at 0.20 can be equally useful if the first finds ten frauds and the second finds a hundred, so the rate only acquires meaning alongside the volume, which is why the honest pair is a rate and a count rather than a rate alone. Choosing the metric after seeing the results is what allows a team to declare whichever of the two errors it happens to be better at the important one, which is the practice this ordering is designed to prevent.",
       "hint": "Ask which of the two errors is scarce, given the cost ratio, and which rate exposes that scarcity.",
