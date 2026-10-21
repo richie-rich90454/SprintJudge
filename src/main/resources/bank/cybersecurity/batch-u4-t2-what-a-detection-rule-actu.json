@@ -1,0 +1,3774 @@
+{
+  "questions": [
+    {
+      "id": "cyber-4.2-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Identify what signal a detection rule actually keys on.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The memo for the permit portal describes rule 14 as alerting when a submitted application contains the string 'drop table'. What does rule 14 actually key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the submitted application caused a database error",
+          "misconception": "assumes a string rule works by observing database errors"
+        },
+        {
+          "id": "B",
+          "text": "Whether the applicant's account has been used before",
+          "misconception": "confuses a content rule with an account rule"
+        },
+        {
+          "id": "C",
+          "text": "Whether the application was submitted outside business hours",
+          "misconception": "reads the rule as a time-of-day check"
+        },
+        {
+          "id": "D",
+          "text": "The presence of that exact string in the submitted text",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule compares the submitted text for one exact string, so it keys on that string alone. A rule that watches failures keys on a different signal, and treating the two as equivalent is the tempting error.",
+      "hint": "Ask which part of the request the rule reads.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Quantify the traffic a failure-based rule cannot see.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "The portal log for one day shows 12,400 submissions. The failure rule fired on 318 of them, and none of those requests had previously succeeded. How many successful submissions could a rule that watches only failures never see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All 12,082 submissions that succeeded, since no failure was recorded",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the 318 that failed, because a success leaves no trace to watch",
+          "misconception": "believes a successful request leaves no evidence at all"
+        },
+        {
+          "id": "C",
+          "text": "The 318 failures, because those are the only events with a signal",
+          "misconception": "counts only the events that the rule actually fired on"
+        },
+        {
+          "id": "D",
+          "text": "None, because a success is the same as a failure with no error",
+          "misconception": "treats every request as if it produced an error"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A failure-watching rule sees only requests that failed, so all 12,082 successful submissions are invisible to it, including malicious ones that happened to work. No error is not evidence of good behaviour.",
+      "hint": "Ask what a successful request leaves behind.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Explain how a literal rule can be evaded without changing intent.",
+      "practice": "Literal evasion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Rule 22 alerts on the literal text 'drop table' in a zoning application comment. Explain how a requester could keep the same intent while never producing that exact text.",
+      "options": [],
+      "answer": {
+        "exemplar": "A literal rule compares characters, so it can be evaded by changing the spelling, spacing, case, punctuation or encoding of the payload without changing the intent. Splitting the phrase across a line break, changing the case of one letter, or inserting a comment marker between the words all produce text the rule does not match. The rule must normalise and decode before it compares, or key on structure rather than on one exact spelling."
+      },
+      "explanation": "A literal rule compares one exact spelling, so changing case, spacing or encoding moves a request past it while the intent survives. Normalising the text before comparing closes that gap.",
+      "hint": "Ask how many spellings the rule accepts.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Count the variants that match a literal character sequence.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A rule watches for the exact sequence of characters ' or 1=1' in a submitted application field. A requester sends three variants: two spaces before the words, three spaces before the words, and a space before the equals sign. How many of the three variants match the rule's literal sequence?",
+      "options": [],
+      "answer": {
+        "value": 0,
+        "tolerance": 0.01
+      },
+      "explanation": "All three variants differ from the literal sequence the rule searches for, since the spacing changes in each and one adds a space before the equals sign. A literal comparison needs every character in place.",
+      "hint": "Compare each variant character by character.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the effect of a legitimate change on a learned baseline.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "memo_excerpt",
+        "body": "The portal switched to a new intake form in March. Applications now carry a mandatory energy disclosure field, so submissions grew from about 300 bytes to about 1,400 bytes. The learned rule for normal application size was not retrained after the change.",
+        "license": "original"
+      },
+      "stem": "Given this excerpt, what does the change do to the learned rule for normal application size?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It makes almost every legitimate application look anomalous to that rule",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It has no effect, because the rule measures the number of applications",
+          "misconception": "assumes the rule counts requests rather than sizes"
+        },
+        {
+          "id": "C",
+          "text": "It improves the rule, because a larger sample always sharpens a baseline",
+          "misconception": "believes more data is always better regardless of what changed"
+        },
+        {
+          "id": "D",
+          "text": "It makes the rule more sensitive, because larger inputs are easier to profile",
+          "misconception": "confuses input size with rule sensitivity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A learned baseline describes what was normal when it was learned, so adding a mandatory field pushes legitimate applications outside it and floods the team with false alerts. Retraining restores its usefulness.",
+      "hint": "Ask what normal meant last quarter.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Explain how a stale baseline crowds out genuine outliers.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A learned rule marks an application unusual when its measurements fall far from the baseline it was trained on. Stage one: the new intake form made every submission about four times larger than the baseline. Stage two: the team wants the rule to catch genuine outliers. What happens to genuine outliers now?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They hide among thousands of false alerts, so the rule becomes hard to use",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "They are caught sooner, because the rule now sits further from normal traffic",
+          "misconception": "believes a stale baseline sharpens the rule"
+        },
+        {
+          "id": "C",
+          "text": "They are missed entirely, because the rule stops evaluating submissions",
+          "misconception": "assumes a flooded rule stops evaluating altogether"
+        },
+        {
+          "id": "D",
+          "text": "They are caught twice, once by the size rule and once by the outlier rule",
+          "misconception": "invents a duplicate alert path with no basis"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With the baseline far below today's traffic, the rule sits close to the boundary most real submissions cross, so genuine outliers arrive amid thousands of ordinary ones. Only the noise grew.",
+      "hint": "Ask how far real traffic now sits from the boundary.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "State the detection gap created by an uncollected source.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The portal collects application fields and submission times, but records no network-level detail for requests. What is the detection gap that follows from this collection choice?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only slow requests will be missed, since slow requests take longer to record",
+          "misconception": "confuses a collection gap with a latency artefact"
+        },
+        {
+          "id": "B",
+          "text": "Activity that leaves no application field and no timestamp cannot be seen",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Nothing is missed, because every request that reaches the portal writes a field",
+          "misconception": "assumes reaching the portal always produces a record"
+        },
+        {
+          "id": "D",
+          "text": "Only requests from mobile devices will be missed, since they behave differently",
+          "misconception": "pins the gap to one client type"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Detection can only use what is recorded, so requests leaving no field and no timestamp are outside the rules' reach. A field appears only when the portal handles the request, not whenever the request happens.",
+      "hint": "Ask what is invisible to the rules.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Identify the source whose absence leaves the largest investigative hole.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "An investigation of a suspicious application can consult four sources: the portal's own field log, the web server's request log, the network firewall's session log, and an alert summary produced by the rules. Which missing source would leave the largest hole in reconstructing what happened?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The alert summary, because no investigation can proceed without it",
+          "misconception": "believes the rules' own output is the primary evidence"
+        },
+        {
+          "id": "B",
+          "text": "The web server log, because it holds the only copy of the request text",
+          "misconception": "assumes the server log is the only place request content exists"
+        },
+        {
+          "id": "C",
+          "text": "The firewall session log, because it shows who talked to whom outside the portal",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The portal field log, because it records what the applicant typed",
+          "misconception": "overrates one application's own record of itself"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The portal log and server log describe only this application, and the alert summary is derived from the same events. The firewall session log is the only source that links the request to other hosts.",
+      "hint": "Ask which source sees beyond this application.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Explain what a threshold rule keys on and what it omits.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The memo describes rule 31 as alerting when the same account submits more than 40 applications in one hour. Explain what that rule actually keys on, and what it does not tell the reviewer.",
+      "options": [],
+      "answer": {
+        "exemplar": "The rule counts events per account over a fixed window, so it keys on submission volume attributed to one account, not on what the applications contain, who submitted them, or whether the account holder is human. A reviewer reading the alert therefore knows that a threshold was crossed and nothing more: the count may reflect an automated tool, a shared office account, or a genuine flood, and the rule cannot distinguish those cases on its own."
+      },
+      "explanation": "The rule counts submissions per account in an hour, so it keys on volume attributed to one account and says nothing about content or identity. A threshold crossing is a prompt to look, not a finding.",
+      "hint": "Ask what the rule can and cannot see.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Calculate how much traffic a failure-based rule never evaluates.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Over one week the portal handled 84,000 requests. The failure-watching rule fired on 1,150 of them. If the rule had instead watched every request rather than only failures, how many additional requests would it have had the chance to evaluate?",
+      "options": [],
+      "answer": {
+        "value": 82850,
+        "tolerance": 0.01
+      },
+      "explanation": "A rule that watches every request can evaluate all 84,000, so it would have had 82,850 more requests to evaluate than the failure-only rule. The difference is exactly the successful requests.",
+      "hint": "Subtract the failures from the total.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Identify what a literal substring rule keys on in practice.",
+      "practice": "Literal matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "alert_excerpt",
+        "body": "Alert 4471 matched rule 22. The submitted comment read that an assessor had asked for a copy of the plan, and the comment contained the run 'or 1=1' inside the longer word 'department'. The rule fires on any occurrence of that run anywhere in the field.",
+        "license": "original"
+      },
+      "stem": "Given this excerpt, what does rule 22 key on here?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A successful attempt to change the assessment database",
+          "misconception": "assumes a substring hit proves a successful attack"
+        },
+        {
+          "id": "B",
+          "text": "A deliberate attempt, since the run appears in an unusual word",
+          "misconception": "treats a substring appearing as evidence of intent"
+        },
+        {
+          "id": "C",
+          "text": "Nothing, because the run is part of a longer unrelated word",
+          "misconception": "believes the rule requires word boundaries"
+        },
+        {
+          "id": "D",
+          "text": "Any occurrence of that character run, wherever it appears in the field",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule keys on that character run appearing anywhere in the field, and 'department' contains it, so it fires although no attempt exists. Raw literal matching gives both misses and false hits.",
+      "hint": "Ask where in the field the run appears.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Compare how two comments match a literal phrase rule.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A rule requires the two words 'permit denied' to appear together in a field, in that order and with one space. Stage one: a comment reads 'permit denied' exactly. Stage two: another comment reads the same words with two spaces between them. How many of the two comments trigger the rule?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Both, since the rule checks for the two words regardless of spacing",
+          "misconception": "assumes whitespace is normalised by the rule"
+        },
+        {
+          "id": "B",
+          "text": "Neither, since a rule cannot depend on exact spacing",
+          "misconception": "believes the rule ignores literal spacing"
+        },
+        {
+          "id": "C",
+          "text": "Only the first, since the second has a different spacing",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Only the second, since the doubled space marks deliberate obfuscation",
+          "misconception": "infers intent from an extra space"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A literal rule compares characters, so only the first comment, with one space in the right order, matches. The second differs by a single space. Treating spacing as irrelevant is the tempting error.",
+      "hint": "Compare the spacing exactly.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the effect of a stale baseline on a size rule.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The rule for normal building-permit application size was learned last year, and the department has since moved to a form with an extra mandatory page. What does the stale baseline cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because the rule compares sizes against a fixed number in code",
+          "misconception": "confuses a learned baseline with a hard-coded constant"
+        },
+        {
+          "id": "B",
+          "text": "New genuine anomalies are missed, because the rule now tolerates larger sizes",
+          "misconception": "assumes a moved baseline widens coverage"
+        },
+        {
+          "id": "C",
+          "text": "Legitimate applications now look unusual, so the rule generates mostly false alerts",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The rule stops scoring applications, because the baseline no longer fits",
+          "misconception": "assumes a stale baseline halts the rule"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A learned baseline encodes what normal looked like at training time, so a legitimate form change moves real traffic outside it and floods the queue with false alerts. Retraining keeps the rule meaningful.",
+      "hint": "Ask what normal meant at training time.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Predict the flag rate after a legitimate change in traffic.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A learned rule flags any submission more than two standard deviations above the learned average. After a form change the average rose from 400 bytes to 1,300 bytes while the spread stayed similar. What happens to the flag rate for ordinary applications?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It rises sharply, since almost all ordinary traffic now exceeds the threshold",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It falls, since the threshold rises with the average",
+          "misconception": "assumes a learned threshold scales with the mean"
+        },
+        {
+          "id": "C",
+          "text": "It stays the same, since the spread did not change",
+          "misconception": "believes only the spread sets the threshold"
+        },
+        {
+          "id": "D",
+          "text": "It falls to zero, since normal traffic now sits at the average",
+          "misconception": "confuses being average with being under a threshold"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A threshold set above the mean no longer covers traffic whose mean has moved upward, so ordinary applications cross it and the flag rate climbs sharply. The rule must be retrained after the legitimate change.",
+      "hint": "Compare the new average with the old threshold.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "Explain the gap left by an uncollected telemetry layer.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The portal records application fields, submission times and login events, but it does not record process-level activity on the permit server itself. Explain what this gap means for the rules and for an investigation afterwards.",
+      "options": [],
+      "answer": {
+        "exemplar": "Every rule built on this feed is limited to what the application layer emits, so activity on the host below it is invisible: a program started outside the portal, a scheduled task, or a change to a permit file produces no application record at all. In an investigation this means a gap that no amount of analysis of the collected data can fill, since the absence of a record carries no information about what was really happening on the machine."
+      },
+      "explanation": "Rules see only what the feed emits, so anything below the application layer leaves no trace to detect or reconstruct. Absence of a record is not evidence that nothing happened.",
+      "hint": "Ask what the feed never records.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Calculate the record-count gap between the thinnest and richest sources.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An investigation can consult four sources: the portal field log with 2,400 records, the web server log with 9,800 records, the firewall session log with 6,100 records, and the rules' alert summary with 31 records. How many fewer records does the thinnest source hold than the richest?",
+      "options": [],
+      "answer": {
+        "value": 9769,
+        "tolerance": 0.01
+      },
+      "explanation": "The alert summary holds 31 records and the server log 9,800, a difference of 9,769. The summary is derived from the same events as the logs, so it adds little that the raw sources do not.",
+      "hint": "Subtract the smallest count from the largest.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Identify the signal a value-threshold rule keys on.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "rule_definition",
+        "body": "Rule 47 fires when the total value of permits submitted by one contractor account in a rolling 24 hours exceeds 250,000. The rule reads only the account identifier and the declared permit value on each accepted submission.",
+        "license": "original"
+      },
+      "stem": "Given this definition, what does rule 47 key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The true construction cost of the work each permit describes",
+          "misconception": "reads a declared figure as an audited cost"
+        },
+        {
+          "id": "B",
+          "text": "The number of separate permits submitted by the account",
+          "misconception": "counts permits instead of summing their declared values"
+        },
+        {
+          "id": "C",
+          "text": "The declared value total attributed to one account in a day",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Whether the account holder is the same person as earlier submitters",
+          "misconception": "infers identity from an account identifier"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The rule sums declared permit values per account over 24 hours, so it keys on self-reported figures tied to one identifier. It says nothing about true cost or who is behind the account.",
+      "hint": "Ask which fields the rule reads.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Explain how a failure-only rule treats a later successful request.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "The department's rule watches for failed submissions only. Stage one: an application contains a forged approval reference and is rejected by the portal, so the failure rule fires. Stage two: the same requester sends a second application that passes because the reference is valid. What does the failure rule do with the second application?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It fires as well, because the requester is now known to the rule",
+          "misconception": "assumes the rule remembers earlier behaviour"
+        },
+        {
+          "id": "B",
+          "text": "It sees nothing at all, because the second application did not fail",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It fires, because the rule follows the account across requests",
+          "misconception": "assumes a failure rule tracks account history"
+        },
+        {
+          "id": "D",
+          "text": "It fires, because the earlier failure proves the second is fraudulent",
+          "misconception": "treats a prior failure as proof of later wrongdoing"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The rule keys on failures, and the second application succeeded, so it produces no event to see. The earlier failure changes nothing. Assuming the rule remembers across requests is the tempting error.",
+      "hint": "Ask what the rule needs in order to fire.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Determine whether a spacing change defeats a literal rule.",
+      "practice": "Literal matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A rule matches the literal text 'unpaid permit fee' in a submitted application. A requester writes the same words with a doubled space and changes nothing else. What does the rule do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It does not match, because a literal comparison needs the exact characters",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It matches, because the rule normalises repeated spaces before comparing",
+          "misconception": "assumes whitespace normalisation the rule never performs"
+        },
+        {
+          "id": "C",
+          "text": "It matches, because the words involved are still present in order",
+          "misconception": "believes a literal rule works on word order"
+        },
+        {
+          "id": "D",
+          "text": "It matches and alerts, since the intent is clearly the same",
+          "misconception": "treats matching intent as matching text"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A literal comparison needs the exact characters, and a doubled space is a different character sequence, so the rule does not match. Intent being unchanged does not matter to a literal rule.",
+      "hint": "Ask whether the characters are identical.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Count the applications containing an exact literal run.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A rule watches for the character run 'or 1=1' in any submitted field. Across 500 flagged applications, 312 contain that run as its own token, 96 contain it inside a longer word, and 92 contain a variant with different spacing. How many of the 500 contain the exact run as the rule describes it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "500, since all three groups were flagged by the same rule",
+          "misconception": "assumes a flag means the exact pattern was present"
+        },
+        {
+          "id": "B",
+          "text": "408, counting the first two groups as exact matches",
+          "misconception": "counts embedded occurrences as standalone matches"
+        },
+        {
+          "id": "C",
+          "text": "92, since only the spaced variants represent a genuine attempt",
+          "misconception": "judges variants as deliberate and others as noise"
+        },
+        {
+          "id": "D",
+          "text": "312, since only the first group holds the run exactly as written",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Only the 312 applications in the first group contain the run exactly as described; the other groups hold embedded occurrences or variants. Flags therefore need review rather than blind trust.",
+      "hint": "Count the group with an exact token match.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the consequence of a legitimate change for a learned rule.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The rule for a normal number of permit status changes per week was learned from last year's traffic, and the department has since moved most inspections to a mobile workflow that writes changes twice as often. Explain what happens to the rule.",
+      "options": [],
+      "answer": {
+        "exemplar": "The rule compares this week's activity with a baseline learned when changes were recorded half as often, so nearly every ordinary week now lands beyond the threshold and the alerts are dominated by routine mobile workflow entries. The learning has not become wrong, it has simply described a past that no longer holds, which is why a legitimate change has to be folded into the baseline and the rule retrained, rather than the alert volume being accepted as a signal."
+      },
+      "explanation": "The baseline describes last year's traffic, so an ordinary week now sits beyond its threshold and routine work floods the queue. The rule's picture of normal has expired, so the extra alerts are noise.",
+      "hint": "Ask when the baseline was learned.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Calculate the first count a learned rule treats as unusual.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A learned rule flags a submission when its measurements are at least 2 standard deviations above the learned mean. In a normal week the mean is 6 changes and the standard deviation is 1. How many changes in a week is the first count the rule would flag?",
+      "options": [],
+      "answer": {
+        "value": 8,
+        "tolerance": 0.01
+      },
+      "explanation": "Two spreads above a mean of 6 with a spread of 1 gives a threshold of 8, so 8 is the first weekly count the rule treats as unusual. Adding the spread instead of doubling it is the tempting error.",
+      "hint": "Mean plus two spreads.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "Identify the coverage gap implied by where a feed starts.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "coverage_note",
+        "body": "The review of the permit portal's detection coverage found that the application layer feed records accepted and rejected submissions with field values and timestamps. It holds nothing about requests that never reached the application, and nothing about connections to other city systems.",
+        "license": "original"
+      },
+      "stem": "Given this note, what is the coverage gap the review identifies?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only rejected submissions, since rejections carry less detail",
+          "misconception": "reads the gap as missing detail rather than missing events"
+        },
+        {
+          "id": "B",
+          "text": "Only fields that the city changes during review",
+          "misconception": "confuses missing coverage with missing attribute values"
+        },
+        {
+          "id": "C",
+          "text": "Nothing, since every request that matters reaches the application",
+          "misconception": "assumes the application sees all relevant traffic"
+        },
+        {
+          "id": "D",
+          "text": "Anything outside the application, including requests that never reached it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The feed begins where the application begins, so requests that stopped short of it and connections to other systems are outside its reach. Gaps are about events never recorded, not fields left empty.",
+      "hint": "Ask where the feed starts.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Identify which source answers a question the other cannot.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An investigation of one suspicious permit application needs to show what happened after the submission reached the portal. Stage one: the portal field log shows the fields and the times of the applicant's own requests. Stage two: the firewall log shows every outbound session from the permit server. Which source answers the after-the-submission question that the other cannot?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The portal field log, because it timestamps every applicant request",
+          "misconception": "assumes applicant requests describe server behaviour"
+        },
+        {
+          "id": "B",
+          "text": "Neither, because only the rules' summary covers the period in question",
+          "misconception": "believes a derived summary is more complete than raw logs"
+        },
+        {
+          "id": "C",
+          "text": "Both equally, because the two logs record the same kind of event",
+          "misconception": "assumes inbound and outbound activity are interchangeable"
+        },
+        {
+          "id": "D",
+          "text": "The firewall log, because it shows the server's outbound activity",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The portal log records the applicant's side of the exchange, while the firewall log records what the permit server then did outward. A derived summary cannot replace either raw source.",
+      "hint": "Ask which log covers the server's own actions.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Identify the signal a text-pattern rule keys on.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Rule 58 raises an alert when a submitted application refers to an assessor account by its internal staff code rather than by name. What does rule 58 key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the applicant has been given access to internal systems",
+          "misconception": "reads a text pattern as an access decision"
+        },
+        {
+          "id": "B",
+          "text": "Whether the referenced assessor approved the application earlier",
+          "misconception": "assumes the rule checks approval records"
+        },
+        {
+          "id": "C",
+          "text": "Whether the application was submitted by a member of staff",
+          "misconception": "infers the submitter's identity from the text"
+        },
+        {
+          "id": "D",
+          "text": "The presence of an internal staff code pattern in the submitted text",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule looks for a character pattern in the submitted text, so it keys on a staff code and on nothing about accounts, approvals or who typed it. Text patterns are easy to trigger by accident.",
+      "hint": "Ask which field the pattern is read from.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Calculate the share of traffic a failure-only rule can see.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A day's traffic shows 5,000 requests that failed and 45,000 that succeeded. The department's only rule fires on failures. What share of the day's request volume is the rule able to see at all?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ten per cent, which is the 5,000 failures out of 50,000 requests",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One tenth of one per cent, since only failures carry an error",
+          "misconception": "treats a failure as a fraction of a failure"
+        },
+        {
+          "id": "C",
+          "text": "Ninety per cent, since successful requests are the interesting ones",
+          "misconception": "assumes the rule follows the interesting traffic"
+        },
+        {
+          "id": "D",
+          "text": "All of it, since every request is written to the same log file",
+          "misconception": "confuses shared storage with shared visibility"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule can act only on the 5,000 failures, which is 10 per cent of the 50,000 requests. Sharing one log file is not sharing the events a rule keys on.",
+      "hint": "Divide failures by all requests.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Give two edits that defeat a literal rule without changing intent.",
+      "practice": "Literal evasion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Rule 63 matches the literal text 'drop table' in a submitted application field. Describe two ordinary-looking changes to that text that would move a request past the rule without changing what the request asks for.",
+      "options": [],
+      "answer": {
+        "exemplar": "Changing the capitalisation of one letter, so the text reads 'drop Table' rather than 'drop table', leaves the meaning intact while the literal comparison fails. Inserting a comment marker or a line break between the two words does the same, since the rule still looks for one continuous run of characters. Both show that a rule tied to one spelling is measuring typography rather than intent, which is why normalising case and whitespace, or keying on structure, is the durable fix."
+      },
+      "explanation": "A literal rule measures one spelling, so a change of case, an inserted space or a line break moves the request past it while the meaning survives. Normalising the text before comparing closes that gap.",
+      "hint": "Ask how many spellings the rule accepts.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Count the field values containing an exact character run.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A rule looks for the exact three-character sequence 'val' at the start of a field. How many of these five field values match: 'valve', 'value', 'oval', 'v-a-l', 'va1'?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Only 'valve' and 'value' begin with the three characters the rule looks for. The third starts with another letter, the fourth separates the letters with hyphens, and the fifth ends the run with a digit.",
+      "hint": "Check the first three characters of each value.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the effect of a legitimate boundary change on a learned rule.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "alert_excerpt",
+        "body": "Rule 19 flags zoning applications whose parcel size in square metres is far from the learned average. The city annexed a new district in April, and applications from the annexed area are routinely larger because the parcels there are larger.",
+        "license": "original"
+      },
+      "stem": "Given this excerpt, what does the annexation do to rule 19's usefulness?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because the rule measures parcel size and annexation does not alter it",
+          "misconception": "believes a policy change cannot affect measured values"
+        },
+        {
+          "id": "B",
+          "text": "Legitimate large-parcel applications now flood the queue as false alerts",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The rule becomes more accurate, since it now sees a wider variety of parcels",
+          "misconception": "assumes more data always improves a baseline"
+        },
+        {
+          "id": "D",
+          "text": "The rule stops firing, since no application now matches the old average",
+          "misconception": "assumes an out-of-date average silences the rule"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A learned average of parcel size predates the annexation, so ordinary applications from the new district sit far from it and generate false alerts. The rule must be retrained on current data.",
+      "hint": "Ask whether the world changed, not the rule.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Evaluate whether a stale rule still surfaces genuine outliers.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A learned rule marks an application unusual when its values fall far from the learned centre. Stage one: a legitimate change raised every applicant's typical value, so almost all traffic now sits beyond the old boundary. Stage two: the team asks whether a genuine outlier will now be caught. What is the answer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, more reliably, because the rule now sees more variety",
+          "misconception": "believes a stale baseline improves detection"
+        },
+        {
+          "id": "B",
+          "text": "Yes, because the outlier is further from the centre than before",
+          "misconception": "measures distance without counting how many normal items also cross"
+        },
+        {
+          "id": "C",
+          "text": "No, because the rule has stopped evaluating applications",
+          "misconception": "assumes a flooded rule stops working"
+        },
+        {
+          "id": "D",
+          "text": "Not usefully, because the outlier arrives buried in routine alerts",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "When almost all traffic sits beyond the boundary, a genuine outlier is only marginally further out, so it is buried among routine alerts. Only the noise grew.",
+      "hint": "Ask how many normal items also cross the line.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "State what rules cannot see when a layer is not collected.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The permit portal feed holds application fields and timestamps but no record of what happened on the permit server's operating system. What follows for the rules built on that feed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They can still detect it indirectly, because every activity raises a field",
+          "misconception": "believes all activity surfaces as application data"
+        },
+        {
+          "id": "B",
+          "text": "They cannot see activity that produced no application record at all",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "They will false-alarm on it, since unseen activity breaks the baseline",
+          "misconception": "thinks missing records create alert noise"
+        },
+        {
+          "id": "D",
+          "text": "Nothing follows, because such activity is rare in a permitting office",
+          "misconception": "assumes rarity makes the gap irrelevant"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Rules can only work on recorded events, so activity below the application layer leaves nothing for them to match, harmless or not. Such a gap is invisible to the rules themselves.",
+      "hint": "Ask what the rules have to match against.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Identify the source that uniquely shows server-to-server activity.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Four sources are available for an investigation: portal fields, server request logs, firewall sessions, and the alert summary. Only one of them records connections between the permit server and other city systems. Which source is it, and what does it uniquely provide?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The portal fields, because they name the systems the application used",
+          "misconception": "believes application fields hold network connections"
+        },
+        {
+          "id": "B",
+          "text": "The alert summary, because it highlights connections as they happen",
+          "misconception": "assumes a derived summary carries unique evidence"
+        },
+        {
+          "id": "C",
+          "text": "The firewall sessions, because they show the server's outbound connections",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The server request logs, because they log every outbound request",
+          "misconception": "confuses inbound request logging with outbound connections"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Outbound connections to other city systems are visible where they cross the network boundary, which is the firewall session log. Request logs record inbound client requests, and the summary derives from events already held.",
+      "hint": "Ask which log records the server's own outbound traffic.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Explain what a field-pattern rule keys on and what alerts do not prove.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Rule 76 fires when the string 'permit' appears in a field that usually contains a parcel number. Explain what this rule actually keys on, and what a reviewer should not conclude from an alert.",
+      "options": [],
+      "answer": {
+        "exemplar": "The rule keys on a character string appearing in a field that is supposed to hold something else entirely, so it is really watching for a category confusion rather than for anything about permits or applicants. A reviewer should not conclude that a permit was sought, that anyone was authorised, or that the parcel is in question: the alert only says that the letters appeared where a number was expected, and a parcel reference such as 'permit-lot-9' or a pasted note would trigger it as readily as a real request."
+      },
+      "explanation": "The rule keys on a string appearing in a field that should hold a number, so it watches for a category mismatch. An alert does not show that a permit was sought or anyone was authorised.",
+      "hint": "Ask what field the pattern was read from.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Calculate the requests a failure-only rule never inspects.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In a week, the permit portal processed 20,000 submissions. The failure rule fired on 620 of them, and a second rule that watches submissions for unusual text inspected all 20,000. How many submissions did the failure rule never inspect?",
+      "options": [],
+      "answer": {
+        "value": 19380,
+        "tolerance": 0.01
+      },
+      "explanation": "The failure rule inspects only the submissions that failed, so it never inspected the other 19,380. The text rule saw all 20,000 because it does not need an error to occur.",
+      "hint": "Subtract the failures from all submissions.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Identify where a literal rule's coverage ends.",
+      "practice": "Literal matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "rule_note",
+        "body": "Rule 8 matches the string 'easement' as it appears in the raw submitted text, before the portal normalises anything. A reviewer noticed that the rule fires on 'easement' but not on 'Easement', and that a request with 'easement' split across a line break is also missed.",
+        "license": "original"
+      },
+      "stem": "Given this note, what does rule 8 key on, and where does its coverage end?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The exact character run in the raw text, stopping at any change to it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The concept of an easement, wherever it is expressed in the submission",
+          "misconception": "assumes a literal rule captures every wording"
+        },
+        {
+          "id": "C",
+          "text": "The submission's structure, since the rule reads the parsed document",
+          "misconception": "assumes parsing and normalisation happen before matching"
+        },
+        {
+          "id": "D",
+          "text": "Only the first occurrence, since the rule stops after its first hit",
+          "misconception": "invents a first-match-only limit not stated"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule matches the raw character run, so a different capitalisation or a split word falls outside it. Its coverage ends wherever the characters change, though the requester's intent continues there.",
+      "hint": "Ask whether the text is normalised first.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Compare how two comments match an adjacency rule.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A rule requires the words 'council vote' to appear in a comment field. Stage one: a comment reads 'council vote was held' and matches. Stage two: another reads the same words with a hyphen between them. How many of the two comments trigger the rule?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Both, since the words are present in both comments",
+          "misconception": "treats a hyphen as equivalent to a space"
+        },
+        {
+          "id": "B",
+          "text": "Only the first, since the hyphen breaks the exact character run",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Neither, since a rule cannot require adjacent words",
+          "misconception": "believes adjacent matching is impossible"
+        },
+        {
+          "id": "D",
+          "text": "Only the second, because the hyphen makes the phrase a single token",
+          "misconception": "infers token structure that the rule does not test"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A literal rule compares characters, so the hyphenated version lacks the run the rule looks for and only the first comment matches. Presence of the words is not the test; the exact characters are.",
+      "hint": "Compare the characters, not the words.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the effect of a filing-channel change on a learned rule.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The rule for normal application volume was learned before the city moved to online-only filings. Which effect does that change have on the rule?",
+      "options": [
+        {
+          "id": "A",
+          "text": "None, because filing volume is a stable figure in any city",
+          "misconception": "assumes submission counts never shift"
+        },
+        {
+          "id": "B",
+          "text": "The rule becomes stricter, since it learned from a smaller number",
+          "misconception": "infers sensitivity from the size of the old sample"
+        },
+        {
+          "id": "C",
+          "text": "The baseline no longer matches reality, so the rule mislabels ordinary traffic",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The rule is unaffected, since it recalculates on every run",
+          "misconception": "believes a learned baseline refreshes by itself"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A learned baseline encodes the traffic that existed when it was trained, and online-only filings changed that traffic, so the rule now labels ordinary activity as unusual. Retraining restores it.",
+      "hint": "Ask what the baseline was trained on.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Predict the flag count when the mean moves above a fixed threshold.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A learned rule flags counts at least two spreads above the mean. Before a form change the mean weekly count was 30 with a spread of 4; after it the mean is 90 with the same spread. What happens to the count of flags per week for ordinary activity?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It jumps, because the threshold of 38 now sits below ordinary traffic",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It falls, because a higher mean raises the threshold as well",
+          "misconception": "assumes a fixed threshold moves with the mean"
+        },
+        {
+          "id": "C",
+          "text": "It stays level, because the spread is unchanged",
+          "misconception": "believes only the spread affects how many items cross"
+        },
+        {
+          "id": "D",
+          "text": "It drops to nothing, because ordinary traffic now equals the mean",
+          "misconception": "treats the mean as the threshold"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The threshold of 30 plus two spreads of 4 is 38, and typical weeks now produce about 90, so ordinary traffic crosses it and the flag count rises sharply. Retraining on current data is the fix.",
+      "hint": "Compute the threshold, then compare it with the new mean.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "Explain the investigative limit of an application's own records.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The city can query the permit portal's own records, the web server's request logs and the firewall's session logs. Describe the investigative value that the permit portal's own records cannot provide on their own.",
+      "options": [],
+      "answer": {
+        "exemplar": "The portal's records describe only the requests that the application handled and the fields it stored, so on their own they cannot show what happened around those requests. They cannot say which client made the call, what the server did in response at the network level, or whether the request ever left the building, because that context lives in the server and firewall logs. For an investigator, the portal records are necessary but not sufficient, and the missing context is the part that distinguishes a bored resident from a scripted run."
+      },
+      "explanation": "Portal records cover only handled requests and stored fields, so client, network and outcome context lives in the other logs. Assuming application data describes the whole event is the tempting error.",
+      "hint": "Ask what the portal never sees.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Calculate the record gap between the richest and thinnest sources.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "For an investigation, the portal field log holds 3,200 records, the server request log holds 26,400, firewall sessions hold 19,800 and the alert summary holds 96. How many more records does the richest source hold than the thinnest?",
+      "options": [],
+      "answer": {
+        "value": 26304,
+        "tolerance": 0.01
+      },
+      "explanation": "The server request log holds 26,400 records and the alert summary 96, a difference of 26,304. The summary is small because it derives from the same events rather than recording anything new.",
+      "hint": "Subtract the smallest count from the largest.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Identify the signal a file-extension rule keys on.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "rule_definition",
+        "body": "Rule 91 is defined in this note as firing when a submitted application includes a file whose name ends in one of five extensions. The rule never opens the file and never looks at its contents; it reads only the name that the client supplied.",
+        "license": "original"
+      },
+      "stem": "Given this definition, what does rule 91 key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The true format of the uploaded file, since the name states it",
+          "misconception": "treats the client's label as a verified format"
+        },
+        {
+          "id": "B",
+          "text": "Whether the file contains executable content when opened",
+          "misconception": "assumes the rule inspects what it matches"
+        },
+        {
+          "id": "C",
+          "text": "Whether the file was uploaded by an authorised applicant",
+          "misconception": "reads a name rule as an authorisation check"
+        },
+        {
+          "id": "D",
+          "text": "The ending of the file name the client supplied",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule reads only the ending of the client-supplied name, so it keys on a self-declared label. It learns nothing about the real format, because the file is never opened.",
+      "hint": "Ask whether the file is ever opened.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Explain the coverage result for a failure-only rule.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "The department's rule fires on rejected submissions. Stage one: a rejected submission contains a fake approval code and the rule fires on it. Stage two: the same approval code appears in a submission that the portal accepted, and the rule has no failure event to work with. What is the coverage result?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The accepted copy of the same content is never seen by the rule",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The rule fires on the accepted copy as well, because the content matches",
+          "misconception": "assumes content matching overrides event type"
+        },
+        {
+          "id": "C",
+          "text": "Both are seen, because the portal logs every submission equally",
+          "misconception": "assumes equal logging means equal visibility"
+        },
+        {
+          "id": "D",
+          "text": "The accepted copy is seen by a different rule, so nothing is lost",
+          "misconception": "invents a second rule with no basis in the memo"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule keys on rejections, so the accepted copy of the same approval code produces no event for it to examine. Logging both copies does not help, because the rule never looks at the accepted one.",
+      "hint": "Ask what event the rule needs.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "State the coverage limit of a rule tied to one token.",
+      "practice": "Literal evasion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Rule 34 matches the literal token 'zzzz' in a submitted comment field. What is the effect of a rule that is tied to one exact token like that?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It guarantees that every malicious request is caught",
+          "misconception": "assumes one token covers every variant"
+        },
+        {
+          "id": "B",
+          "text": "Any change to the token's spelling moves a request past the rule",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It produces few false alerts, because the token is rare in legitimate text",
+          "misconception": "confuses rarity of the token with the rule's coverage"
+        },
+        {
+          "id": "D",
+          "text": "It adapts over time, since the rule team updates it after every alert",
+          "misconception": "assumes an automatic updating mechanism"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Tying a rule to one exact token means any change of spelling or spacing moves a request past it, so coverage is one spelling wide. Low false-alert rates say nothing about that.",
+      "hint": "Ask how wide the rule's coverage is.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Count the entries meeting an exact literal condition.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A rule matches a run of exactly two hyphens and requires the character after them not to be another hyphen. Across 300 flagged comments, 120 contain exactly two hyphens, 130 contain three or more in a row, and 50 contain two single hyphens far apart. How many of the 300 match the rule's condition?",
+      "options": [
+        {
+          "id": "A",
+          "text": "300, since the rule fires on every flagged comment",
+          "misconception": "treats a flag as proof of the exact condition"
+        },
+        {
+          "id": "B",
+          "text": "250, counting the two-hyphen and longer-run groups",
+          "misconception": "counts longer runs as satisfying an exact-length rule"
+        },
+        {
+          "id": "C",
+          "text": "50, since separated hyphens are the only real matches",
+          "misconception": "inverts which group satisfies the rule"
+        },
+        {
+          "id": "D",
+          "text": "120, the comments with exactly two hyphens and nothing after them",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule requires exactly two hyphens, so only the 120 comments with a two-hyphen run match. Longer runs fail the length condition and separated hyphens fail adjacency.",
+      "hint": "Apply both conditions to each group.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Recommend the treatment of a rule after a legitimate change.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The rule for normal submission size was learned from the old paper-plus-web workflow, and the city has since replaced it with a fully electronic system that sends larger files. Explain what a team should do about the rule and why.",
+      "options": [],
+      "answer": {
+        "exemplar": "The learned baseline describes the file sizes of a workflow that no longer exists, so nearly every legitimate application now sits outside it and the rule's alerts are almost all noise. Leaving the rule as it is would consume analyst time and train people to ignore the channel. The right response is to retire or retrain it against current traffic, and to treat a sustained flood of similar alerts after a known change as a baseline problem to be fixed rather than a run of separate incidents."
+      },
+      "explanation": "The baseline describes a workflow that no longer exists, so ordinary applications sit outside it and the alerts become noise. The rule should be retrained or retired after a known change.",
+      "hint": "Ask whether the change was planned.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Calculate the first count a learned rule treats as unusual.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A learned rule flags a weekly count that is at least two spreads above the learned mean. The mean is 40 inspections with a spread of 5. How many inspections in a week is the first count the rule would flag?",
+      "options": [],
+      "answer": {
+        "value": 50,
+        "tolerance": 0.01
+      },
+      "explanation": "Two spreads above a mean of 40 with a spread of 5 gives a threshold of 50, so 50 is the first weekly count the rule treats as unusual. Adding the spread rather than doubling it is the tempting error.",
+      "hint": "Mean plus two spreads.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "State what a portal-scoped feed cannot see.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "coverage_note",
+        "body": "The review found that the permit portal's feed records submissions, logins and status changes with timestamps and field values. It records nothing about staff workstations, nothing about other city systems, and nothing about network paths between hosts.",
+        "license": "original"
+      },
+      "stem": "Given this note, what can the rules built on this feed not see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only unusual field values, because normal values are recorded too",
+          "misconception": "confuses a coverage gap with unusual activity"
+        },
+        {
+          "id": "B",
+          "text": "Anything outside the permit portal's own records and their timestamps",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Only events that happened in the past, since logs are written after the fact",
+          "misconception": "assumes log latency creates the coverage gap"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because the portal is where all permitting work happens",
+          "misconception": "assumes the application's scope covers the whole city"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The feed begins and ends at the permit portal, so staff workstations, other city systems and the paths between hosts are outside its reach. Coverage is limited to what was recorded.",
+      "hint": "Ask what lies outside the portal.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Identify the source that shows shared infrastructure.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An investigation of a portal account that filed 400 applications needs to know which other accounts it shares infrastructure with. Stage one: the portal fields show the submissions and their times. Stage two: the firewall sessions show which external addresses the permit server talked to. Which source supplies the shared infrastructure?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The portal fields, because they store the applicant addresses",
+          "misconception": "assumes application fields hold network addresses"
+        },
+        {
+          "id": "B",
+          "text": "The alert summary, because it groups accounts by shared address",
+          "misconception": "believes a derived summary performs correlation"
+        },
+        {
+          "id": "C",
+          "text": "Neither, because shared infrastructure is invisible to both logs",
+          "misconception": "assumes network relationships are unobservable"
+        },
+        {
+          "id": "D",
+          "text": "The firewall sessions, because they record the server's external peers",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Shared infrastructure shows up as connections from the permit server to particular external addresses, which is what the firewall session log records. Portal fields show only the application's own view of the account.",
+      "hint": "Ask which log shows outgoing peers.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Identify the signal a rate rule keys on.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Rule 55 raises an alert when the count of applications from one contractor account in a single hour exceeds a fixed number. What does rule 55 key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The contractor's actual workload, as shown by how many permits it holds",
+          "misconception": "confuses submission activity with actual work"
+        },
+        {
+          "id": "B",
+          "text": "Whether the account holder is behaving maliciously",
+          "misconception": "treats a threshold breach as a verdict"
+        },
+        {
+          "id": "C",
+          "text": "A count of submissions per account inside a time window",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The quality of the applications the contractor submitted",
+          "misconception": "reads a volume rule as a quality rule"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The rule counts submissions attributable to one account inside an hour, so it keys on volume and window, not on workload, quality or intent. A breach is a prompt for a human to look, not a verdict.",
+      "hint": "Ask what is counted, and over what period.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Calculate the requests a failure-only rule cannot examine.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "On a typical day the portal handles 40,000 requests, of which 800 fail. A review notes that the department's only rule watches failures. How many requests on that day could the rule not examine at all?",
+      "options": [
+        {
+          "id": "A",
+          "text": "39,200, which is every request that succeeded",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "800, which is the number of failures the rule did examine",
+          "misconception": "counts the failures as the blind spot"
+        },
+        {
+          "id": "C",
+          "text": "None, because the failures stand in for all traffic",
+          "misconception": "assumes the failures represent the interesting cases"
+        },
+        {
+          "id": "D",
+          "text": "40,000, because the rule cannot examine anything at all",
+          "misconception": "treats a narrow rule as no rule at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The rule can examine only the 800 failures, so it never examines the other 39,200 successful requests, which is most of the day's traffic. Assuming the failures represent the interesting cases is the tempting error.",
+      "hint": "Total requests minus the failures.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Explain how a request can pass a literal rule unchanged in substance.",
+      "practice": "Literal evasion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A rule matches the exact text 'northern spur' in a utility application field. Explain why a requester can send the same application past the rule without changing the substance of the request.",
+      "options": [],
+      "answer": {
+        "exemplar": "The rule compares one fixed run of characters, so changing the capitalisation of a word, inserting a space, a hyphen or an extra character, or separating the two words with a line break all produce text the rule does not match while the address the requester meant stays the same. It is also possible to hide the text in an encoding that the portal decodes only after the rule has run, which puts the rule in front of data it never sees in its final form. The durable fix is to normalise the text and decode it before comparing."
+      },
+      "explanation": "The rule compares one fixed run of characters, so changes of case, spacing or punctuation move the request past it while its substance is unchanged. Normalising and decoding before comparing closes that gap.",
+      "hint": "Ask what the rule reads and what it ignores.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Count the values starting with an exact character run.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A rule matches the exact three-character sequence 'val' at the start of a field. How many of these five field values match: 'valve', 'value', 'oval', 'v-a-l', 'va1'?",
+      "options": [],
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Only 'valve' and 'value' begin with the three characters the rule looks for. The third starts with another letter, the fourth separates them with hyphens, and the fifth ends the run with a digit.",
+      "hint": "Check the first three characters of each value.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What legitimate change does to a learned baseline",
+      "learningObjective": "Explain the effect of a re-mapping on a learned rule.",
+      "practice": "Baseline drift",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "alert_excerpt",
+        "body": "Rule 60 flags utility applications whose requested connection length is far from the learned average for that district. The department re-ran its service mapping in May, and many legitimate applications now include a much longer service line because of it.",
+        "license": "original"
+      },
+      "stem": "Given this excerpt, what does the re-mapping do to rule 60?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because the rule measures applications rather than service work",
+          "misconception": "assumes the rule ignores the field it compares"
+        },
+        {
+          "id": "B",
+          "text": "It makes the rule catch genuine anomalies sooner than before",
+          "misconception": "believes a moved baseline improves detection"
+        },
+        {
+          "id": "C",
+          "text": "It reduces the number of alerts, since the spread now covers the longer lines",
+          "misconception": "assumes the spread widens on its own"
+        },
+        {
+          "id": "D",
+          "text": "It makes legitimate long service lines look anomalous to the rule",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The rule compares against an average learned before the re-mapping, so legitimate longer service lines sit far from it and produce false alerts. Retraining on current data is the remedy.",
+      "hint": "Ask when the average was learned.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-legitimate-change-does-to-a-learned-baseline"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Why a learned rule sits close to the boundary",
+      "learningObjective": "Evaluate how a stale threshold treats a genuine spike.",
+      "practice": "Rule threshold",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A learned rule flags weekly inspection counts at least two spreads above the learned mean of 30 with a spread of 4. Stage one: a scheduling change makes typical weeks produce 70 inspections. Stage two: a genuine spike of 90 inspections arrives. How does the rule treat that spike?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It flags the spike, but so does almost every ordinary week, so it is lost in the queue",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It ignores the spike, because the threshold was computed for 30",
+          "misconception": "believes a learned threshold stops applying after a change"
+        },
+        {
+          "id": "C",
+          "text": "It flags the spike and nothing else, because the change moved the threshold too",
+          "misconception": "assumes a learned threshold moves with the mean"
+        },
+        {
+          "id": "D",
+          "text": "It flags the spike first, because spikes always cross the line earliest",
+          "misconception": "assumes rarity makes the rule precise"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The threshold of 38 is far below the new normal of 70, so the rule flags ordinary weeks and the genuine spike alike. Precision depends on how much normal traffic also crosses the line.",
+      "hint": "Ask how many ordinary weeks also cross the line.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "why-a-learned-rule-sits-close-to-the-boundary"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The gap left by what is not collected",
+      "learningObjective": "State what a feed without host telemetry cannot reveal.",
+      "practice": "Collection gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A detection feed for the permit portal holds application records but no operating system telemetry from the permit server. What follows for anyone relying on the feed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only host activity after a successful login, so login rules still work",
+          "misconception": "believes login rules depend on host telemetry"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, because host activity almost always reaches the application",
+          "misconception": "assumes host work surfaces as application work"
+        },
+        {
+          "id": "C",
+          "text": "Nothing follows, because such activity is rare in a permitting office",
+          "misconception": "assumes rarity makes the gap irrelevant"
+        },
+        {
+          "id": "D",
+          "text": "Activity on the host that produced no application record cannot be detected or reconstructed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Rules and later analysis both depend on recorded events, so host activity that never produced an application record is outside their reach. Absence of a record is not evidence that nothing happened.",
+      "hint": "Ask what the rules have to work from.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-gap-left-by-what-is-not-collected"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "Which missing source would hurt an investigation most",
+      "learningObjective": "Identify the source that uniquely records outbound traffic.",
+      "practice": "Missing sources",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Four candidate sources for an investigation are listed with their properties: portal fields covering the owner's own actions, server request logs covering inbound requests, firewall sessions covering outbound connections, and an alert summary of derived alerts. Which source is the only one that can show which external systems the permit server interacted with?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The alert summary, because it highlights unusual connections",
+          "misconception": "believes a summary contains evidence not in the logs"
+        },
+        {
+          "id": "B",
+          "text": "The server request logs, because they record the remote address",
+          "misconception": "confuses the client's address with the server's peers"
+        },
+        {
+          "id": "C",
+          "text": "The firewall sessions, because outbound connections appear there",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The portal fields, because the application names the systems it calls",
+          "misconception": "assumes application fields list outbound dependencies"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Outbound connections are visible where they cross the network boundary, which is the firewall session log. Request logs record inbound client requests, and the summary derives from events already held.",
+      "hint": "Ask which log records the server's own outbound traffic.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "which-missing-source-would-hurt-an-investigation-most"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a detection rule actually keys on",
+      "learningObjective": "Explain what a digit-pattern rule keys on and what alerts do not prove.",
+      "practice": "Rule signal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "The memo describes rule 44 as firing when a submitted application contains the digit sequence '1999'. Explain what that rule keys on, and why a reviewer should be careful about reading too much into an alert.",
+      "options": [],
+      "answer": {
+        "exemplar": "The rule keys on a four-digit character run appearing anywhere in the submitted text, so it can fire on a reference number, a year, a survey figure or a stray phone number rather than on anything meaningful about the application. A reviewer who reads the alert as evidence that the application concerns a property from 1999 is being led by the digits rather than by the data, and should instead open the record, find the exact field and the surrounding context, and judge whether the run is meaningful there."
+      },
+      "explanation": "The rule keys on a four-digit run appearing anywhere in the text, so it can fire on a year or a reference rather than on anything meaningful. A reviewer must find the field and its context first.",
+      "hint": "Ask where in the text the digits appear.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-detection-rule-actually-keys-on"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "The blind spot left by keying on failures",
+      "learningObjective": "Calculate the submissions a failure-only rule never inspects.",
+      "practice": "Blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "During a quiet week the permit portal processed 9,000 submissions and 260 of them failed. The failure rule was the only rule running. How many submissions could that rule not have examined at all?",
+      "options": [],
+      "answer": {
+        "value": 8740,
+        "tolerance": 0.01
+      },
+      "explanation": "The rule examines only failures, so it never examined the other 8,740 submissions, almost the whole week. A failure-only rule set therefore works from a small minority of traffic.",
+      "hint": "Subtract the failures from the total.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "the-blind-spot-left-by-keying-on-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "What a literal-match rule can be moved off",
+      "learningObjective": "Identify what a raw-text rule keys on.",
+      "practice": "Literal matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "rule_note",
+        "body": "Rule 12 matches the two words 'building permit' with exactly one space between them, in the raw field. The review notes that requests using 'building-permit' are missed, and that a request using the same words in capitals is also missed, while both describe exactly the same thing.",
+        "license": "original"
+      },
+      "stem": "Given this note, what does rule 12 key on?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The concept of a building permit, however it is worded",
+          "misconception": "assumes a literal rule captures every wording"
+        },
+        {
+          "id": "B",
+          "text": "One exact spelling of the phrase in the raw submitted text",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The count of permit-related requests made in the week",
+          "misconception": "confuses a text rule with a volume rule"
+        },
+        {
+          "id": "D",
+          "text": "The permit references the application contains",
+          "misconception": "assumes the rule inspects reference fields"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The rule matches one exact spelling, so a hyphenated or differently cased version falls outside it though the meaning is identical. Its coverage is one spelling wide, as the memo shows.",
+      "hint": "Ask how many spellings the rule accepts.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "what-a-literal-match-rule-can-be-moved-off"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-4.2-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 4",
+      "topic": "One spelling of a sequence, and the other one",
+      "learningObjective": "Compare the hits a substring rule produces on two comments.",
+      "practice": "Sequence matching",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A rule looks for the four characters 'sale' in a field. Stage one: a comment reads 'sale of land' and matches. Stage two: another reads 'wholesale' and also matches, because the rule does not require word boundaries. How many of the two comments trigger the rule, and what does that show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the first, because the second does not contain the word sale",
+          "misconception": "believes a literal rule checks word boundaries"
+        },
+        {
+          "id": "B",
+          "text": "Only the second, because the rule skips the common word sale",
+          "misconception": "invents an exception for frequent words"
+        },
+        {
+          "id": "C",
+          "text": "Neither, since a rule must match whole words to be valid",
+          "misconception": "insists that every rule must use word boundaries"
+        },
+        {
+          "id": "D",
+          "text": "Both, and the rule therefore reports matches that are not the word it names",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A literal rule matches the character run wherever it appears, so both comments trigger it and the second is a false hit. The rule needs word boundaries or a stricter pattern.",
+      "hint": "Ask where in the text the run may appear.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-4",
+        "one-spelling-of-a-sequence-and-the-other-one"
+      ],
+      "version": 1
+    }
+  ]
+}

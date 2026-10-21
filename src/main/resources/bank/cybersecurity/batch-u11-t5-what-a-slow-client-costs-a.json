@@ -1,0 +1,3827 @@
+{
+  "questions": [
+    {
+      "id": "cyber-11.5-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Identify why an unbounded body read lets one slow client stall a worker",
+      "practice": "Slow client cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner's dashboard uploads a 40 MB trip archive to a board service that buffers the whole body into memory before parsing.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The parser will fail only if the archive exceeds 60 MB, so smaller uploads are always processed safely",
+          "misconception": "believes the size threshold is what protects the server"
+        },
+        {
+          "id": "B",
+          "text": "The handler thread stays parked on the socket, so one client can hold worker capacity for the whole upload",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Memory growth is charged to the client's bandwidth, so the server's footprint stays flat regardless of pace",
+          "misconception": "assumes the client controls the server's memory use"
+        },
+        {
+          "id": "D",
+          "text": "The upload is rejected instantly because the request line already states the body length",
+          "misconception": "thinks a declared content length implies a deadline"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The handler blocks inside the body read, so a client that dribbles bytes pins a worker thread and socket for the transfer. A body size cap does not help while the read itself is still running.",
+      "hint": "Think about which resource stays held during the read.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Explain how adjacent variable-length groups multiply pattern matching work",
+      "practice": "Pattern blowup",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two variable-length groups placed next to each other in a route-code pattern can multiply the work a short line causes.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The engine only backtracks when the line contains a character outside the allowed set",
+          "misconception": "assumes backtracking only triggers on invalid characters"
+        },
+        {
+          "id": "B",
+          "text": "The engine retries every combination of group lengths, so work grows with the product of the group sizes",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The total work stays linear because each group always consumes at least one character",
+          "misconception": "believes each group must consume a character so work stays linear"
+        },
+        {
+          "id": "D",
+          "text": "The pattern costs more only because the compiled automaton table is larger",
+          "misconception": "blames the compiled table size for the runtime blowup"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Adjacent variable-length groups create many ways to split the same line, and the engine retries each one on failure. That multiplies work, so a short line can still be expensive to check.",
+      "hint": "Think about how many ways the line can be split.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Interpret timing data that reveals a pattern matching blowup",
+      "practice": "Blowup measurement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Measurements from a route-matching service show that requests carrying 40-character lines average 2 ms, while 60-character lines average 240 ms.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Matching cost tracks line length almost exactly, so the pattern is safe on all lines",
+          "misconception": "reads a linear rise as proof the pattern is safe"
+        },
+        {
+          "id": "B",
+          "text": "Only lines with illegal characters are slow, so valid input can never trigger the blowup",
+          "misconception": "believes only invalid characters trigger slow paths"
+        },
+        {
+          "id": "C",
+          "text": "The 30-fold jump for 1.5 times the length points to combinatorial work rather than linear scanning",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The difference is caused by network jitter, because the scanner waits on the socket per character",
+          "misconception": "blames network latency for the pattern's growth"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A 1.5x increase in length causing a 120x slowdown in time implies work that multiplies rather than adds. That is the signature of many retries per split, which a work bound limits.",
+      "hint": "Compare time growth with length growth.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Explain why per-session timeouts do not bound another session's lock hold",
+      "practice": "Lock hold overrun",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a departure-lookup query that has no statement timeout can keep a row lock far longer than any timeout configured on the rest of the system.",
+      "options": [],
+      "answer": {
+        "exemplar": "A statement timeout is a property of the session issuing the query, so it applies only to that session's own statements. A query without one runs until it finishes, and while it holds a row lock every competing writer that touches that row must wait for the lock, inheriting the long hold even though its own timeout is short."
+      },
+      "explanation": "Timeouts are per session, so a query with none can hold its lock as long as it runs. Writers with short timeouts still block on that lock, so the hold outlasts every timeout in the system.",
+      "hint": "Consider where statement timeouts are configured.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Compute the percentage drop in throughput caused by added concurrency",
+      "practice": "Throughput drop",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A dispatch database serves 150 status requests per second at 20 concurrent writers and only 60 per second at 400 concurrent writers. By what percentage did throughput fall between those two concurrency levels?",
+      "options": [],
+      "answer": {
+        "value": 60,
+        "tolerance": 0.01
+      },
+      "explanation": "The loss is 150 minus 60, or 90 requests per second. As a share of the original 150 that is 0.60, so throughput fell 60 percent as concurrency only added contention.",
+      "hint": "Compare the drop against the original throughput.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Determine what a client-side timeout protects when the server keeps working",
+      "practice": "Timeout scope",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "incident-note",
+        "body": "During a fare-adjustment week the stop-information endpoint began to take 30 seconds per request. The mobile client had a 5 second timeout and simply showed a spinner and retried, so request volume doubled while the server got slower.",
+        "license": "original"
+      },
+      "stem": "Given the incident note above, what does the mobile client's 5 second timeout actually protect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It protects the server, because abandoned connections free the worker immediately",
+          "misconception": "believes client timeouts cancel server work at once"
+        },
+        {
+          "id": "B",
+          "text": "It protects the client only, since server-side work continues after the client gives up",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It protects the whole system, because the server detects the closed socket and stops",
+          "misconception": "assumes a closed socket halts the running handler"
+        },
+        {
+          "id": "D",
+          "text": "It protects nothing, because the timeout applies only to network routing delays",
+          "misconception": "treats the timeout as applying only to network hops"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A caller-side timeout abandons the wait but does not stop the handler the server already started. That work continues and consumes the server, so retries can turn a slow service into a load spike.",
+      "hint": "Does the server learn that the client stopped waiting?",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Choose a fix that moves a quota check ahead of the protected work",
+      "practice": "Quota ordering",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two systems are checked in sequence at a board service: the work handler runs first and a quota check runs afterwards, so a rejected request has already consumed effort.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add more workers so the extra work done by rejected requests is absorbed faster",
+          "misconception": "thinks more capacity cancels out wasted work"
+        },
+        {
+          "id": "B",
+          "text": "Log every rejected request and review the numbers weekly to size the quota better",
+          "misconception": "believes better measurement alone prevents the waste"
+        },
+        {
+          "id": "C",
+          "text": "Check the quota first so rejected requests cost only the check and never the handler",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Return an error page that asks clients to wait before retrying the same request",
+          "misconception": "treats a warning message as a substitute for rejecting early"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A quota that runs after the work it was meant to bound only refuses the result; it does not reduce the load. Moving the check ahead of the handler makes a rejected request cheap and constant in cost.",
+      "hint": "Ask where the cost is paid for a request you reject.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Identify the failure mode of an unbounded retry helper",
+      "practice": "Unbounded retry",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A retry wrapper in the schedule service repeats a failed call until it succeeds, with no attempt cap and no pause between tries.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The helper only retries network resets, so an application error ends the loop after one try",
+          "misconception": "believes the wrapper filters by error type"
+        },
+        {
+          "id": "B",
+          "text": "The helper is safe because a successful call always ends the recursion automatically",
+          "misconception": "assumes the success path is always reachable"
+        },
+        {
+          "id": "C",
+          "text": "The helper is safe because the dependency is idempotent and repeats cannot do harm",
+          "misconception": "confuses idempotency with a bound on attempts"
+        },
+        {
+          "id": "D",
+          "text": "The helper can retry forever, so a failing dependency becomes an unbounded loop that pins capacity",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "With no cap and no pause, a dependency that keeps failing turns each request into endless calls. The loop pins capacity and adds load exactly when the dependency is weakest.",
+      "hint": "Consider what happens when the dependency never recovers.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Explain how a slow upload reduces capacity for every other caller",
+      "practice": "Pool starvation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "During a fare-table import, one archive upload occupies a worker for 90 seconds while a dozen legitimate requests wait.",
+      "options": [
+        {
+          "id": "A",
+          "text": "One client's stall reduces the pool available to everyone, so throughput falls as slow clients accumulate",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The stall is harmless because the operating system buffers the whole upload for that worker",
+          "misconception": "believes the kernel absorbs the delay for the app"
+        },
+        {
+          "id": "C",
+          "text": "The stall only affects the client's own thread, so other requests keep their full speed",
+          "misconception": "assumes a slow client cannot affect other callers"
+        },
+        {
+          "id": "D",
+          "text": "The stall resolves once the client sends the final byte, so the wait only lasts a network round trip",
+          "misconception": "thinks the delay is only about the last packet"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A worker occupied by a stalled upload is unavailable to the rest of the service. Because throughput is capped by pool size, a few such clients reduce the capacity everyone else can reach.",
+      "hint": "Think about how a bounded pool reacts to occupied slots.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Interpret profile data that separates matching cost from input size",
+      "practice": "Profile reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Profiling a route-code validator shows 4 ms per line when one optional group is used and 96 ms per line when two adjacent optional groups are used.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The 24-fold increase comes from the extra group doubling the length of every input line",
+          "misconception": "blames input length growth for the slowdown"
+        },
+        {
+          "id": "B",
+          "text": "The blowup comes from the two groups multiplying their retry combinations against each other",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The slowdown comes from the second group forcing a recompilation of the pattern on each call",
+          "misconception": "claims the pattern recompiles per line"
+        },
+        {
+          "id": "D",
+          "text": "The slowdown comes from cache pressure, since the extra group enlarges the automaton tables",
+          "misconception": "attributes the cost to table size rather than backtracking"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Input length is unchanged between the runs, so length cannot explain the jump. Two adjacent optional groups multiply the splits the engine retries, and that multiplication is the extra time.",
+      "hint": "Check what stayed constant across the two profiles.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Explain why more concurrent writers can reduce completed work per second",
+      "practice": "Contention effect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why adding more concurrent writers to a dispatch database can lower the number of requests served each second.",
+      "options": [],
+      "answer": {
+        "exemplar": "Writers that touch the same rows must hold the lock one at a time, so their service time is not independent but queues behind each other. Beyond a small amount of contention the total work in the system grows while the useful rate of completed work falls, because threads spend their time waiting rather than doing work."
+      },
+      "explanation": "Contended writers serialise on the lock, so each waits for the previous to finish. Past the point where the lock is nearly always busy, extra threads add waiting rather than throughput.",
+      "hint": "Think about what extra threads do when the lock is busy.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Calculate how far a lock hold outlasts a competing statement timeout",
+      "practice": "Hold versus timeout",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A departure-lookup query holds a shared row lock for 1,250 ms while a competing writer waits, and that writer's own statement timeout is 500 ms. By how many milliseconds does the lock outlive the writer's timeout?",
+      "options": [],
+      "answer": {
+        "value": 750,
+        "tolerance": 0.01
+      },
+      "explanation": "The lock is held for 1,250 ms and the writer stops waiting after 500 ms, so the remaining hold is 1,250 minus 500. A per-session timeout bounds one statement's wait, not another statement's hold.",
+      "hint": "Subtract the timeout from the hold time.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Read a throughput curve to locate the point where contention saturates",
+      "practice": "Saturation curve",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "graph-note",
+        "body": "On the dispatch cluster, throughput rose from 90 to 140 requests per second as concurrency went from 5 to 40, then fell to 55 requests per second at 400 concurrent writers while average latency went from 12 ms to 310 ms.",
+        "license": "original"
+      },
+      "stem": "Given the measurements above, what does the shape of the throughput curve tell you about the writers?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Adding writers helped until the lock became saturated, after which extra writers only added waiting",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The writers are not contending, because contention always lowers latency rather than raising it",
+          "misconception": "believes contention shortens waits"
+        },
+        {
+          "id": "C",
+          "text": "The writers are saturated on the network, because a saturated network raises latency and throughput alike",
+          "misconception": "blames network saturation for the curve"
+        },
+        {
+          "id": "D",
+          "text": "The writers are slow because the rows are indexed badly, since indexes never help under contention",
+          "misconception": "assumes indexes cannot improve contention"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Throughput first rises then falls while latency climbs, the signature of a shared resource saturating. Once the lock is always busy, extra writers wait longer without adding completed work.",
+      "hint": "Consider what a shared lock does as demand grows.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Compare which caller a timeout protects when the dependency hangs",
+      "practice": "Protected caller",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two clients hit the same stop endpoint; one sets a 4 second timeout and the other sets none at all.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither is protected, since timeouts only work when the dependency is inside the same process",
+          "misconception": "believes timeouts cannot cross a network"
+        },
+        {
+          "id": "B",
+          "text": "Only the client with the timeout is protected, while the server's work continues regardless",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The client with no timeout is protected, because it simply waits and keeps its slot free",
+          "misconception": "thinks waiting longer is a form of protection"
+        },
+        {
+          "id": "D",
+          "text": "Both clients are protected equally, because a timeout applies to the dependency and the caller alike",
+          "misconception": "assumes the timeout stops the server's work"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A caller-side timeout frees the caller's resources, so only that caller recovers. The server keeps processing the abandoned request, so server-side limits are still needed.",
+      "hint": "Ask whose resources the timeout actually releases.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Locate the ordering defect that lets over-quota uploads consume storage",
+      "practice": "Check ordering",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Inspect a delay-report upload path where the quota is decremented only after the file has been stored on disk.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The quota is decremented after the write, so a successful upload never reduces the remaining allowance",
+          "misconception": "misreads how the counter applies to later calls"
+        },
+        {
+          "id": "B",
+          "text": "The quota is checked once per minute, so a burst inside the window can exceed the documented limit",
+          "misconception": "focuses on window size rather than check order"
+        },
+        {
+          "id": "C",
+          "text": "The quota check happens after the expensive write, so over-quota uploads still consume disk space",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The quota covers uploads only, so a client sending many small requests never approaches the limit",
+          "misconception": "assumes request volume is exempt from the quota"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A limit enforced after the work it was meant to bound cannot protect the resource. The disk still receives every uploaded file, so the flood costs storage even though the responses are refusals.",
+      "hint": "Ask when the disk space is consumed relative to the check.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Distinguish pacing a retry loop from bounding it",
+      "practice": "Pacing versus cap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team believes that adding a short sleep between retries is enough to make an unbounded retry loop safe.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A pause makes the loop safe, because the dependency gets time to recover before each try",
+          "misconception": "believes pacing alone creates a bound"
+        },
+        {
+          "id": "B",
+          "text": "A pause makes the loop safe, because the retry count is fixed by the caller's request count",
+          "misconception": "assumes the number of tries follows the request count"
+        },
+        {
+          "id": "C",
+          "text": "A pause makes the loop safe, because the connection pool refuses new attempts while paused",
+          "misconception": "believes the pool blocks further attempts automatically"
+        },
+        {
+          "id": "D",
+          "text": "A pause only lowers the retry rate, so an uncapped loop still retries forever and needs a cap",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A pause changes how fast the retries arrive, not how many there are. Without a cap the loop is still unbounded, and it keeps the caller's resources held for the whole retry period.",
+      "hint": "Think about what a pause does to rate versus to count.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Distinguish a shared capacity effect from a per-client delay",
+      "practice": "Shared delay",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Measurements taken while a board service handled both normal traffic and one stalled upload show latency rising from 18 ms to 1.4 s for every request.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The delay reached every caller, which points to shared capacity rather than one bad connection",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Only the stalling client saw the delay, because the other requests used separate connections",
+          "misconception": "believes connections isolate queueing delay"
+        },
+        {
+          "id": "C",
+          "text": "The service slowed because the stalled upload added its parsing time to every request",
+          "misconception": "thinks one upload's parsing time is added to all requests"
+        },
+        {
+          "id": "D",
+          "text": "The service slowed because the client used more bandwidth than the switch could carry",
+          "misconception": "blames bandwidth saturation for shared delay"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Every request shows the same delay, so the effect is shared rather than per-client. A worker held by the stalled upload is capacity removed from the pool that all callers draw on.",
+      "hint": "Notice whether the delay was confined to one client.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Explain why adjacent variable-length groups make short inputs expensive",
+      "practice": "Split multiplication",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why two adjacent variable-length groups in a validation pattern can make a short input expensive to check.",
+      "options": [],
+      "answer": {
+        "exemplar": "Each group can match a different number of characters, and the engine must decide where one group stops and the next begins. Because the groups sit next to each other, the engine tries the possible split points in turn, and if the overall match fails it backs up and tries the next combination. The number of attempts is therefore a product of the group sizes rather than a sum, so a line of a few dozen characters can cost thousands of checks."
+      },
+      "explanation": "Splitting points between adjacent groups multiply, so the engine's attempts grow faster than the line does. Bounding the total matching work, or removing the ambiguity, keeps a short line cheap.",
+      "hint": "Think about how the choices of the two groups combine.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Count the match attempts produced by two adjacent bounded groups",
+      "practice": "Attempt counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A validator matches each vehicle line against a pattern of two adjacent groups, and each group can absorb between 0 and 4 characters. If the engine tries every split, how many match attempts does it perform for one line?",
+      "options": [],
+      "answer": {
+        "value": 25,
+        "tolerance": 0.01
+      },
+      "explanation": "Each group has 5 possible lengths, from 0 to 4 characters, and the two choices combine independently. The engine makes 5 times 5, or 25 attempts for one line, and a work bound would cut that short.",
+      "hint": "Count the possible lengths for each group, then multiply.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Identify the missing timeout that explains a long lock hold",
+      "practice": "Missing deadline",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "incident-note",
+        "body": "A reporting job that updates a timetable summary row was interrupted three times. Each time, a later run started before the interrupted run's transaction ended, and the summary row stayed locked for several minutes afterwards.",
+        "license": "original"
+      },
+      "stem": "Given the incident note, what best explains the long lock hold on the summary row?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The reporting job writes more rows than it needs to, so the database keeps undoing old work",
+          "misconception": "blames write volume for the lock duration"
+        },
+        {
+          "id": "B",
+          "text": "The interrupted runs left dirty pages, so the checkpoint process holds the lock while it flushes them",
+          "misconception": "invents a checkpoint process that extends the hold"
+        },
+        {
+          "id": "C",
+          "text": "The database was low on memory, so it swapped and slowed every commit that touched the row",
+          "misconception": "attributes the delay to memory pressure"
+        },
+        {
+          "id": "D",
+          "text": "No statement timeout applies to the reporting job, so an interrupted run's transaction can hold the lock on its own",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Nothing in the note caps how long the reporting job's transaction may run, so an interrupted run can keep its row lock for the duration. A timeout on that session would have released the waiters sooner.",
+      "hint": "Check whether any timeout governs the reporting job.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Choose a change that reduces contention rather than adding contenders",
+      "practice": "Contention fix",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two rounds of measurements show 120 requests per second at 10 concurrent writers and 40 requests per second at 120 concurrent writers.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shorten the transactions that touch the shared row and re-measure throughput at the same concurrency",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Add 110 more writers so the extra concurrency compensates for the lower per-writer speed",
+          "misconception": "believes more concurrency restores throughput"
+        },
+        {
+          "id": "C",
+          "text": "Restart the database between the two rounds so the second figure starts from a clean state",
+          "misconception": "suggests a restart instead of reducing contention"
+        },
+        {
+          "id": "D",
+          "text": "Raise the client timeout so slow responses stop appearing as failures to the callers",
+          "misconception": "treats a client timeout change as a fix for contention"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Throughput fell as concurrency rose, which points at contention on a shared row rather than missing capacity. Shortening the transactions that hold that lock reduces the time writers spend waiting.",
+      "hint": "Think about how long each writer holds the shared row.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Diagnose a server that keeps working after its callers abandon requests",
+      "practice": "Abandoned work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Investigate a route-board service where the only timeout is a client-side abort and the handler has no deadline of its own.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The handler ignores its caller, so slow responses are harmless because nothing waits on them",
+          "misconception": "assumes an abandoned request costs the server nothing"
+        },
+        {
+          "id": "B",
+          "text": "The server can keep working long after the client gave up, so its capacity is spent on replies nobody reads",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The client abort closes the socket, so the server's thread is cancelled automatically on write failure",
+          "misconception": "believes a closed socket cancels running work"
+        },
+        {
+          "id": "D",
+          "text": "The absence of a server deadline is fine, because the client timeout is always shorter by design",
+          "misconception": "assumes the two timeouts are coordinated"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Only a server-side deadline stops work that has already begun. Without one, the handler keeps consuming a worker after the client has left, so capacity is spent producing replies that are discarded.",
+      "hint": "Ask whether anything tells the server to stop.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Argue whether an upstream quota can protect a downstream database",
+      "practice": "Quota placement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A network team argues that a quota enforced at the edge cannot protect a downstream database.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The claim is right, because the quota only counts requests and never limits database work per request",
+          "misconception": "confuses request counting with work limiting"
+        },
+        {
+          "id": "B",
+          "text": "The claim is right, because edge devices sit upstream of every database connection",
+          "misconception": "invents upstream placement that does not exist"
+        },
+        {
+          "id": "C",
+          "text": "The claim is wrong, because a quota placed before the database reduces the work that reaches it",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The claim is wrong, because any quota at all is automatically enforced before the handler runs",
+          "misconception": "assumes every quota is ordered before the work"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A quota positioned ahead of the database work reduces how much work arrives. The team's worry only applies when the check runs afterwards, which is exactly the case where it stops nothing.",
+      "hint": "Consider where in the request path the quota sits.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Infer retry amplification from mismatched call counts",
+      "practice": "Retry amplification",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Logs from a rolling-stock feed show 4,100 upstream calls in a minute while a single downstream dependency recorded 11,000 attempts in the same minute.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The extra calls prove the feed generates more requests than the logs record",
+          "misconception": "reads extra calls as missing request volume"
+        },
+        {
+          "id": "B",
+          "text": "The extra calls prove the dependency is duplicating work the feed never asked for",
+          "misconception": "blames the dependency for fabricating requests"
+        },
+        {
+          "id": "C",
+          "text": "The extra calls show the feed fans each request out to several helpers before calling",
+          "misconception": "assumes an undocumented fan-out stage"
+        },
+        {
+          "id": "D",
+          "text": "The ratio is consistent with each failed call being retried several times without a cap",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Roughly eleven thousand attempts for forty-one hundred calls is close to three attempts per call. That matches an unbounded retry helper multiplying load on exactly the dependency that is failing.",
+      "hint": "Compare attempts per upstream call.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Explain how slow request bodies consume shared server capacity",
+      "practice": "Body read cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a service that reads whole request bodies can be slowed by clients that send data very slowly.",
+      "options": [],
+      "answer": {
+        "exemplar": "The handler must consume the body before it can produce a reply, so it stays parked on the socket for as long as the client takes to send the bytes. A slow client therefore holds a worker thread, its buffers, and a connection for minutes rather than milliseconds. Because the pool has a fixed number of workers, a handful of such clients removes enough capacity to make every other caller wait, which is why the server sets the pace rather than the client."
+      },
+      "explanation": "A body read blocks the worker for the whole transfer, so slow clients convert idle capacity into held capacity. With a fixed pool, a few of them can starve every other request of a worker.",
+      "hint": "Think about what the worker holds while reading.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Count the split points produced by three adjacent variable-length groups",
+      "practice": "Split counting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A service matches identifiers against a pattern of three adjacent groups, and each group can absorb between 0 and 2 characters. How many distinct splits does the engine try on one line?",
+      "options": [],
+      "answer": {
+        "value": 27,
+        "tolerance": 0.01
+      },
+      "explanation": "Each of the three groups has 3 possible lengths, and the choices combine independently. The engine therefore tries 3 times 3 times 3, which is 27 splits for a single line of a few characters.",
+      "hint": "Multiply the number of choices for each group.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Infer which code path a pattern validator spends its time on",
+      "practice": "Failure path cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "log-excerpt",
+        "body": "The route-code validator rejected 9 of every 10 lines in a batch of 500. The batch took 8.2 seconds, while a batch of 500 lines that all matched took 0.06 seconds.",
+        "license": "original"
+      },
+      "stem": "Given the log excerpt, what does the difference between the two batches suggest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Most lines were dropped by the network, so the time was spent waiting for packets to arrive",
+          "misconception": "blames network delay for the elapsed time"
+        },
+        {
+          "id": "B",
+          "text": "Most lines failed a checksum, so the parser had to re-read the whole batch to confirm them",
+          "misconception": "invents a checksum stage that is not described"
+        },
+        {
+          "id": "C",
+          "text": "Most lines took the engine's expensive failure path, which retries many splits before giving up",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Most lines were rejected by the pattern's leading anchor, so the scanner restarted from each position",
+          "misconception": "assumes an unanchored scan the log does not show"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Matching lines are fast and failing lines are slow, so the cost sits on the unsuccessful path. That path tries alternative splits, and a work bound would cap it.",
+      "hint": "Compare the batches that matched with those that failed.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Compare timed and untimed query configurations for lock behaviour",
+      "practice": "Timeout comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two configurations are compared: one gives the reporting query a 5 second timeout, the other gives it none.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither limits the hold, because a timeout can only interrupt reads and never a lock wait",
+          "misconception": "believes timeouts exclude lock waits"
+        },
+        {
+          "id": "B",
+          "text": "Both limit the hold, because the database applies the strictest timeout found anywhere",
+          "misconception": "assumes the strictest timeout applies to every session"
+        },
+        {
+          "id": "C",
+          "text": "The untimed configuration limits the hold, because an open transaction is rolled back automatically",
+          "misconception": "claims uncommitted work is auto-rolled-back"
+        },
+        {
+          "id": "D",
+          "text": "The timed configuration limits the hold by ending the wait, at the cost of failing slow queries",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A statement timeout ends the waiting statement, so the lock is released sooner and other writers proceed. The cost is that a legitimate slow query is aborted instead of completed.",
+      "hint": "Consider what the timeout does to the waiting session.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Spot a change that adds contenders without reducing the shared hold",
+      "practice": "Worker inflation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Review a trip-planning service that raises its worker count to 400 at peak hours without changing any of the row locking.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Raising the worker count adds contenders for the same lock, so contention grows and throughput can fall",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Raising the worker count is always safe, because more workers can only add served requests",
+          "misconception": "believes added workers always increase throughput"
+        },
+        {
+          "id": "C",
+          "text": "Raising the worker count is unsafe only when the database runs on rotational storage",
+          "misconception": "reduces the problem to one storage type"
+        },
+        {
+          "id": "D",
+          "text": "Raising the worker count is unsafe only if the workers share a single network socket",
+          "misconception": "invents a shared-socket requirement that is absent"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Extra workers on the same contended rows add waiting rather than work, so the pool can get slower as it grows. The fix has to shorten the hold or reduce overlap, not add contenders.",
+      "hint": "Ask what the extra workers end up waiting on.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Correct a claim that a caller timeout cancels server-side work",
+      "practice": "Timeout misconception",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A discussion begins when someone claims that a timeout set by the caller also stops the work on the server.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The claim is true, because a timeout propagates to the server as a cancellation of the same request",
+          "misconception": "assumes timeouts cancel work across the network"
+        },
+        {
+          "id": "B",
+          "text": "The claim is false, because a timeout only ends the caller's wait and never cancels running work",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The claim is true, because the server notices the closed socket and stops its own processing",
+          "misconception": "believes a closed socket halts the handler"
+        },
+        {
+          "id": "D",
+          "text": "The claim is false, because timeouts are ignored whenever the request has a body",
+          "misconception": "invents a special rule for requests with bodies"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A timeout is a local decision to stop waiting. The server has already accepted the work and runs it to completion unless it has its own deadline, so the caller's timeout protects only the caller.",
+      "hint": "Consider where the deadline is enforced.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Use counters to infer whether a quota check precedes the handler",
+      "practice": "Quota counters",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Counters on a dispatch cluster show 900 requests refused by quota, and 900 more completed normally, while the handler's own error log stayed empty.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The refusals were counted twice, once by the quota and once by the handler's error log",
+          "misconception": "claims the handler logged refusals it never received"
+        },
+        {
+          "id": "B",
+          "text": "The quota refused exactly the requests the handler would have rejected on its own",
+          "misconception": "assumes the two error sources coincide"
+        },
+        {
+          "id": "C",
+          "text": "The refusals cost almost no handler time, which suggests the quota was checked before the work ran",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The refusals must have happened after the work, since a handler that ran would log an error",
+          "misconception": "insists that work always produces a log line"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The handler's log is empty while the quota refuses requests, so the refusal path did not run the handler. That is the signature of a check placed ahead of the work rather than after it.",
+      "hint": "Look for evidence that the handler ran at all.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Explain why unbounded retries amplify an existing failure",
+      "practice": "Retry amplification",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a retry helper with no attempt limit and no pause can be more damaging than the original failure.",
+      "options": [],
+      "answer": {
+        "exemplar": "Each retry multiplies the load on a dependency that is already struggling, so the helper removes the very headroom the service needs to recover. With no cap the loop may not end at all, and with no pause it presents the failing dependency with a continuous burst rather than a trickle. The request also stays open for the whole retry period, holding a worker the entire time, so one slow call can tie up capacity that many healthy calls would need."
+      },
+      "explanation": "An unbounded loop turns one failure into sustained load on the weakest component and keeps the caller waiting. Bounding attempts and pausing between them restores both recovery room and caller capacity.",
+      "hint": "Think about what the retries do to the failing dependency.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Compute the worker capacity left after several clients stall",
+      "practice": "Pinned workers",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A board service runs 10 worker threads, and 6 clients have each pinned one of those workers for 45 seconds with a slow upload. How many worker threads remain available to serve ordinary requests?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "Each slow client occupies one worker, so 6 of the 10 threads are pinned and 10 minus 6 remains. That is 4 threads, which is the capacity every other caller now shares.",
+      "hint": "Subtract the pinned workers from the pool size.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Use batch timings to locate the cost of pattern retries",
+      "practice": "Batch comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "log-excerpt",
+        "body": "A validator received 2,400 vehicle lines in a batch and spent 3.6 seconds on them. A second batch of 2,400 lines of the same length but a different character set took 0.09 seconds.",
+        "license": "original"
+      },
+      "stem": "Given the log excerpt, what best explains the two batch times?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first batch was longer, because the lines with unusual characters occupy more bytes",
+          "misconception": "claims the slower batch contained longer lines"
+        },
+        {
+          "id": "B",
+          "text": "The first batch triggered many retries of the pattern, while the second matched on the first attempt",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The first batch was processed while the machine was busy, while the second ran on an idle host",
+          "misconception": "blames machine load for the gap"
+        },
+        {
+          "id": "D",
+          "text": "The first batch was rejected, so the time went into writing the rejection back to the caller",
+          "misconception": "assumes rejections are the slow path"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Line count and length match in both batches, so size does not explain the gap. The difference sits in whether the pattern matched immediately or forced repeated retries.",
+      "hint": "Hold the batch size constant and compare what differs.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Evaluate what a matching work bound protects and what it costs",
+      "practice": "Bound trade-off",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two databases are compared: one validates route codes with an unbounded pattern, the other with the same pattern under a work bound.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bound removes the need to rewrite the pattern, since every slow case becomes fast",
+          "misconception": "claims the bound fixes all slow cases"
+        },
+        {
+          "id": "B",
+          "text": "The bound guarantees correctness, because a capped search always finds a valid split if one exists",
+          "misconception": "assumes capping cannot cause false rejections"
+        },
+        {
+          "id": "C",
+          "text": "The bound caps the cost of a hostile line, though a legitimate line may still be rejected",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The bound guarantees fairness, because every requester now receives the same amount of matching work",
+          "misconception": "assumes equal work per request follows from a cap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A work bound limits how far the engine may search, so a crafted line cannot consume unbounded time. If a valid match needs more work than the bound allows, the line is rejected anyway.",
+      "hint": "Consider what happens to a line that needs too much work.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Identify which session owns the timeout that bounds a lock hold",
+      "practice": "Timeout ownership",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Examine a boarding-pass service whose reporting query runs without any timeout while another service sets a 30 second limit on everything.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The other service's limit applies, because the database applies the smallest timeout on the server",
+          "misconception": "assumes the server enforces the smallest timeout globally"
+        },
+        {
+          "id": "B",
+          "text": "The reporting query is protected, because an untimed query is always run as a background job",
+          "misconception": "invents background scheduling for untimed queries"
+        },
+        {
+          "id": "C",
+          "text": "The reporting query is protected, because reads never take locks that writers can wait on",
+          "misconception": "believes reads never block writers"
+        },
+        {
+          "id": "D",
+          "text": "The reporting query can hold its lock indefinitely, because no timeout is set on that session",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A timeout is a property of the session that issues the statement, so another service's limit does not apply here. Without one on this session, the lock is held for as long as the query runs.",
+      "hint": "Ask whose session owns the timeout setting.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Assess when a query timeout actually reduces contention",
+      "practice": "Timeout benefit",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An engineer proposes limiting each dispatch database query to 200 milliseconds to keep contention down.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The limit helps only if the query usually completes inside it, since aborted queries release the lock sooner",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The limit helps always, because aborting a query always reduces the total work it requested",
+          "misconception": "confuses aborting work with never doing it"
+        },
+        {
+          "id": "C",
+          "text": "The limit helps never, because a query shorter than 200 ms cannot have contended for a lock",
+          "misconception": "assumes short queries never contend"
+        },
+        {
+          "id": "D",
+          "text": "The limit helps only when the database runs on fast disks, since storage speed sets the lock time",
+          "misconception": "reduces the effect to storage speed"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A timeout shortens the worst-case hold, which helps most when some queries run much longer than usual. It does nothing when every query already finishes inside the limit.",
+      "hint": "Think about which queries the limit actually aborts.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Interpret client abort counts alongside unchanged server timing",
+      "practice": "Abort reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Instrumentation on the stop-information endpoint shows client aborts rising from 2 to 240 per minute, while server-side completion time stayed flat at 180 ms.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The aborts rose because the server started responding more slowly, since response time is now measured",
+          "misconception": "claims flat server time means it got slower"
+        },
+        {
+          "id": "B",
+          "text": "The clients gave up earlier, while the server kept completing the same amount of work",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The aborts rose because the endpoint began accepting larger payloads than the clients expected",
+          "misconception": "invents a payload-size change to explain aborts"
+        },
+        {
+          "id": "D",
+          "text": "The aborts rose because a network device started closing idle connections after a short timeout",
+          "misconception": "blames a device the measurements do not mention"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Server completion time is unchanged, so the server did not slow down. The extra aborts are clients giving up earlier while the same work continues on the server.",
+      "hint": "Compare the client figure with the server figure.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Explain why a late rate limit cannot protect its target resource",
+      "practice": "Late rate limit",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a rate limit applied after the handler has already run is unable to protect the resource it was meant to bound.",
+      "options": [],
+      "answer": {
+        "exemplar": "A rate limit works by refusing work before it happens, so the cost of a refused request stays tiny and constant. Once the handler has run, the work has already been done: the connection was held, the query was executed, and the row was locked. Refusing the response afterwards changes what the caller sees but changes nothing about the load the system absorbed, so the limit can report compliance while the underlying pressure is unchanged."
+      },
+      "explanation": "Refusing after the work leaves every cost already incurred and only changes the reply. The load the limit was meant to cap is still there, so the protection is cosmetic.",
+      "hint": "Ask what has already been spent when the refusal is sent.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Compute the elapsed time of a bounded retry sequence",
+      "practice": "Retry timing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A retry helper in the routing service makes one attempt and then four retries, pausing 3 seconds before each try. How many seconds pass from the start of the first attempt to the start of the last attempt?",
+      "options": [],
+      "answer": {
+        "value": 12,
+        "tolerance": 0.01
+      },
+      "explanation": "Five attempts in total means four pauses between them, and each pause lasts 3 seconds. The elapsed time is therefore 4 times 3, which is 12 seconds before the final attempt even begins.",
+      "hint": "Count the gaps between the attempts, not the attempts.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Identify the main cost of abandoned slow uploads to a tile service",
+      "practice": "Abandoned uploads",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "incident-note",
+        "body": "A map tile endpoint began serving tiles slowly. The team found that a handful of phone clients requested tiles over a mobile link and abandoned them midway, and that the server kept generating the rest of each tile after the client left.",
+        "license": "original"
+      },
+      "stem": "Given the incident note, what is the main cost to the tile service?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Server work and worker capacity are spent finishing tiles that no client will receive",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The client's mobile data is wasted, because the tiles arrive after the client has stopped listening",
+          "misconception": "treats client data use as the server's main cost"
+        },
+        {
+          "id": "C",
+          "text": "The tile cache fills with duplicates, because each abandoned request is stored under a new key",
+          "misconception": "invents a caching effect the note does not describe"
+        },
+        {
+          "id": "D",
+          "text": "The routing table becomes inaccurate, because half-finished tiles are counted as complete in the index",
+          "misconception": "invents an index that counts partial tiles"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The abandoned tiles are still generated in full, so the service pays the generation cost and holds a worker for every one. The fix belongs at the server's read deadline, not at the client.",
+      "hint": "Focus on the work that finishes without a reader.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Compare worst-case matching cost across two pattern designs",
+      "practice": "Design comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two candidate designs are compared: one uses a pattern with two adjacent variable-length groups, the other uses a pattern with a single fixed-length group.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The fixed-length design, because it always reads more characters than the other design does",
+          "misconception": "confuses input size with matching cost"
+        },
+        {
+          "id": "B",
+          "text": "The fixed-length design, because the number of splits no longer grows with group count",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The two-variable-length design, because more groups let the engine skip ahead faster",
+          "misconception": "believes more groups reduce the search space"
+        },
+        {
+          "id": "D",
+          "text": "Neither differs, because the engine compiles both patterns into the same kind of automaton",
+          "misconception": "assumes identical compiled structure means identical cost"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Adjacent variable-length groups multiply the splits the engine tries, so the worst-case cost grows with the number of groups. A single fixed-length group leaves the engine one possible split to check.",
+      "hint": "Count how many split points each design allows.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Find the missing ceiling on pattern matching work",
+      "practice": "Backtracking ceiling",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Review the code path that matches a vehicle identifier and note that the pattern is compiled once but the search has no ceiling on backtracking steps.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The pattern must be recompiled on every request, because compiled patterns expire after one use",
+          "misconception": "invents an expiry rule for compiled patterns"
+        },
+        {
+          "id": "B",
+          "text": "The defect is harmless, because the engine applies the timeout from the request context automatically",
+          "misconception": "assumes a context deadline always reaches the matcher"
+        },
+        {
+          "id": "C",
+          "text": "A crafted identifier can drive the search into unbounded work on a single request",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The defect only affects identifiers longer than 32 characters, since short ones cannot expand",
+          "misconception": "invents a length threshold with no basis"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Compilation is not the issue; the search is. Without a ceiling on the number of steps, a crafted line can keep the engine exploring splits far longer than it should.",
+      "hint": "Ask where the search stops, not where it starts.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Assess the risk of removing the timeout from a reporting service",
+      "practice": "Timeout removal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A board service requires every reporting query to complete, so the team removes the statement timeout from that service.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The removal is safe, because an untimed query is prioritised over everything else by the scheduler",
+          "misconception": "invents a priority rule for untimed queries"
+        },
+        {
+          "id": "B",
+          "text": "The removal is safe, because a query that completes cannot have blocked another session",
+          "misconception": "ignores lock waits during the run"
+        },
+        {
+          "id": "C",
+          "text": "The removal is safe, because the service's other timeouts still cap how long the lock can be held",
+          "misconception": "assumes timeouts transfer between sessions"
+        },
+        {
+          "id": "D",
+          "text": "The removal is unsafe, because it lets one query hold a lock past every other timeout",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The timeout was the only cap on how long the reporting query could hold its lock. Removing it lets that hold run longer than any other session's timeout, so waiters elsewhere give up first.",
+      "hint": "Consider which bound on the lock hold was lost.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Read waiting counters against completed work to detect contention",
+      "practice": "Waiting counters",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Counters on a second dispatch cluster show the average number of writers waiting per commit rising from 0.2 to 6.4 while completed writes per second fell from 900 to 250.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Writers are queueing behind each other, so the same contention that raises waiting lowers completed work",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The cluster is running out of memory, which slows commits and lengthens every queue",
+          "misconception": "invents memory pressure the counters do not show"
+        },
+        {
+          "id": "C",
+          "text": "The disk is the bottleneck, because completed writes fell once the write volume passed a limit",
+          "misconception": "blames disk throughput for the waiting figures"
+        },
+        {
+          "id": "D",
+          "text": "The clients are retrying, which adds writers and explains both the queue and the fall in writes",
+          "misconception": "assumes a client retry storm the counters do not show"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Waiting writers per commit and completed writes per second move in opposite directions, which is what a contended lock produces. The cluster is not adding capacity; it is adding queueing.",
+      "hint": "Read the two counters against each other.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Distinguish the resources protected by caller and server timeouts",
+      "practice": "Two timeout scopes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain the difference between what a caller-side timeout protects and what a server-side deadline protects.",
+      "options": [],
+      "answer": {
+        "exemplar": "A caller-side timeout frees the caller: the wait ends, the connection is released, and the caller's own worker slot becomes available again, so one slow dependency cannot exhaust the caller's capacity. It does nothing to the server, which has already accepted the request and continues working on it. A server-side deadline ends the work itself, releasing the server's worker, its connection, and any lock it holds, but it cannot shorten the caller's wait unless the client also gives up."
+      },
+      "explanation": "The two timeouts protect different resources. The caller's timeout frees the caller while the server keeps working, and only a server-side deadline stops that work and releases its locks.",
+      "hint": "Ask which resource each timeout frees.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Compute the work performed when a quota is applied after the handler",
+      "practice": "Wasted work",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A quota on the board service is checked only after the handler runs, and 60 requests arrive in a minute while the handler takes 2 seconds of work per request. How many worker-seconds of work are performed in that minute?",
+      "options": [],
+      "answer": {
+        "value": 120,
+        "tolerance": 0.01
+      },
+      "explanation": "Sixty requests at 2 seconds of work each is 120 worker-seconds of effort in the minute. Because the quota is checked afterwards, that effort has already happened whether or not the response is refused.",
+      "hint": "Multiply the request count by the work each one takes.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Identify the cause of a surge in calls to a failing dependency",
+      "practice": "Retry surge",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "log-excerpt",
+        "body": "A fare-calculation service calls a payment gateway that failed for 40 minutes. The service logged 31,000 calls to the gateway in that window, against 900 in a normal 40 minutes, and the gateway's own error rate was 100 percent.",
+        "license": "original"
+      },
+      "stem": "Given the log excerpt, what is the most likely explanation for the extra 30,100 calls?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The service switched to a bulk pricing endpoint that makes one call per fare rule it evaluates",
+          "misconception": "invents a bulk endpoint the excerpt does not mention"
+        },
+        {
+          "id": "B",
+          "text": "The service was restarted repeatedly, and each restart re-runs the same fixed batch of calls",
+          "misconception": "invents restarts that the excerpt does not mention"
+        },
+        {
+          "id": "C",
+          "text": "The gateway counted each retry as a separate customer transaction in its own logs",
+          "misconception": "misreads the gateway's error log as customer records"
+        },
+        {
+          "id": "D",
+          "text": "An uncapped retry helper kept calling a dependency that was already failing",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The call count rose by roughly a factor of thirty while the dependency was failing completely, which is the pattern of unbounded retries. Each attempt was guaranteed to fail, so the retries added nothing but load.",
+      "hint": "Look at what was happening to the dependency at the time.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Choose the change that actually ends a stalled upload",
+      "practice": "Upload remedy",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two changes are proposed for the board service: a smaller body size cap and a shorter server-side read deadline.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The read deadline, because it ends a stalled upload instead of merely shrinking what may be uploaded",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The size cap, because a smaller upload finishes sooner no matter how slowly the client sends it",
+          "misconception": "believes size removes the slow client's problem"
+        },
+        {
+          "id": "C",
+          "text": "Both equally, because a client that cannot upload a large file will send its bytes faster",
+          "misconception": "assumes a size cap changes sending behaviour"
+        },
+        {
+          "id": "D",
+          "text": "Neither, because only a client-side timeout can stop a slow upload in progress",
+          "misconception": "believes the client alone can end server work"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A size cap limits how much a client may send, but a client that sends slowly still holds the worker just as long. A server-side read deadline ends the wait and frees the worker.",
+      "hint": "Ask which change ends the wait rather than shrinking it.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Find the defect created by adjacent variable-length groups",
+      "practice": "Group adjacency",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Spot the defect in a validator whose pattern places a variable-length group immediately after another one.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The defect is that the pattern matches only the first line of a multi-line entry",
+          "misconception": "invents a multi-line requirement for the pattern"
+        },
+        {
+          "id": "B",
+          "text": "The defect is that the engine may retry many length combinations for a single short line",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The defect is that the pattern rejects any line containing a digit in the first group",
+          "misconception": "invents a digit rule that is not in the pattern"
+        },
+        {
+          "id": "D",
+          "text": "The defect is that the pattern matches greedily and always consumes the longest possible line",
+          "misconception": "confuses greedy matching with the group count"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Two adjacent variable-length groups give the engine many ways to divide the same short line, and it retries them until one succeeds. That multiplication of attempts is the defect.",
+      "hint": "Think about the number of ways one short line can split.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Assess whether a request timeout bounds pattern matching work",
+      "practice": "Timeout reach",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Some engineers assume that a 20 millisecond timeout on a request is enough to keep a pattern check cheap.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The assumption holds, because a timeout interrupts the match at the exact millisecond it fires",
+          "misconception": "assumes the timeout pre-empts the matcher's work precisely"
+        },
+        {
+          "id": "B",
+          "text": "The assumption holds, because patterns are compiled once and therefore run at a fixed cost",
+          "misconception": "confuses a compiled pattern with a fixed matching cost"
+        },
+        {
+          "id": "C",
+          "text": "The assumption fails, because a timeout can abandon a request without ever stopping the search",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The assumption holds, because a request that is abandoned releases the matcher immediately",
+          "misconception": "believes abandoning a request frees the matching thread"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A request timeout decides when the caller stops waiting; it does not necessarily interrupt matching in progress. Only a bound on the matching work limits the cost of a crafted line.",
+      "hint": "Check whether the limit reaches the matcher itself.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Estimate queueing wait from the number of writers and the hold time",
+      "practice": "Wait estimation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Test data collected during a long export shows 18 concurrent writers, each averaging 240 ms of lock hold, and a mean wait of 1.9 s per writer.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The mean wait equals the lock hold, so the waiting time is caused by the writers' own transactions",
+          "misconception": "equates waiting with the holder's own work"
+        },
+        {
+          "id": "B",
+          "text": "The mean wait is unrelated to the hold time, because lock waits in this database are always constant",
+          "misconception": "claims lock waits are always constant"
+        },
+        {
+          "id": "C",
+          "text": "The extra waiting comes from disk latency, since the exports write large volumes of data",
+          "misconception": "blames disk latency for the wait figures"
+        },
+        {
+          "id": "D",
+          "text": "The extra waiting comes from writers queueing for the same held rows, roughly 18 times the hold",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Eighteen writers holding for 240 ms each means the last in the queue waits about 18 times 240 ms, close to the 1.9 s mean. The waiting is contention, not extra work.",
+      "hint": "Multiply the number of writers by the hold time.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What lock contention does to throughput as concurrency rises",
+      "learningObjective": "Explain why throughput falls as concurrent writers increase",
+      "practice": "Throughput inversion",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why throughput can fall as the number of concurrent writers rises on a single shared row.",
+      "options": [],
+      "answer": {
+        "exemplar": "The row's lock allows one writer at a time, so the work of all writers is serialised and the useful rate of completion is capped by the lock. Beyond a small number of writers, each additional writer spends most of its life waiting rather than working, and the total time in the system grows with the queue. More concurrency then means more waiting and no more completed writes, so the observed throughput drops while latency climbs."
+      },
+      "explanation": "Contention serialises the writers, so added concurrency adds queueing rather than completed work. Past the point where the lock is busy, throughput falls and latency rises together.",
+      "hint": "Think about where the extra threads spend their time.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-lock-contention-does-to-throughput-as-concurrency-rises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a caller-side timeout actually protects",
+      "learningObjective": "Compute the server work that continues after clients abandon calls",
+      "practice": "Abandoned work total",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A client calls an endpoint whose average response time is 4 seconds, and it abandons each call after 2 seconds. Across 300 such calls, how many seconds of server work continue after the client has given up?",
+      "options": [],
+      "answer": {
+        "value": 600,
+        "tolerance": 0.01
+      },
+      "explanation": "Each abandoned call leaves 4 minus 2, or 2 seconds, of server work still running. Over 300 calls that is 600 seconds of work the server completes for replies nobody will read.",
+      "hint": "Find the unfinished portion of one call and multiply.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-caller-side-timeout-actually-protects"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A rate limit that runs after the work it was meant to protect",
+      "learningObjective": "Infer quota ordering from a gap between refusals and handler runs",
+      "practice": "Refusal gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "incident-note",
+        "body": "A departure-board API was overwhelmed after a marketing email sent out at 9 am. The edge rejected requests once 40 per second had already been served, but the service's own logs show 6,200 handler invocations in that minute against a normal 900.",
+        "license": "original"
+      },
+      "stem": "Given that incident note, what does the gap between refusals and handler invocations show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The edge counter was faulty, since it refused more requests than the handler ever received",
+          "misconception": "treats the counters as contradictory rather than sequenced"
+        },
+        {
+          "id": "B",
+          "text": "The service cached responses, so each handler invocation served many clients without new work",
+          "misconception": "invents a cache that the note does not mention"
+        },
+        {
+          "id": "C",
+          "text": "The quota was applied after the handler ran, so the refused requests had already cost work",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The handler was invoked once per connection that was later pooled and reused",
+          "misconception": "invents connection reuse as the explanation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The handler ran far more often than the edge's own allowance implied, which means the refusal decision came after the work. A quota placed before the handler would have shown the opposite pattern.",
+      "hint": "Compare the two counts and ask which came first.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-rate-limit-that-runs-after-the-work-it-was-meant-to-protect"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A retry helper with no bound and no pause",
+      "learningObjective": "Weigh retry cap size against the time held on a caller",
+      "practice": "Cap sizing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two experiments were run: the retry helper was given a five attempt cap with a pause, then a ten attempt cap with a pause.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ten attempts, because the extra attempts recover requests that the five attempt version would have lost",
+          "misconception": "assumes extra attempts recover real work"
+        },
+        {
+          "id": "B",
+          "text": "Five attempts, because a longer retry window ties up the caller for no measurable gain",
+          "misconception": "ignores the difference in recovered work"
+        },
+        {
+          "id": "C",
+          "text": "Either is fine, because the pause alone keeps the dependency healthy during the retries",
+          "misconception": "believes pacing fixes the dependency"
+        },
+        {
+          "id": "D",
+          "text": "Five attempts, accepting fewer retries in exchange for holding the caller for less time",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "More attempts recover more work but keep each caller waiting longer, costing capacity when the dependency is degraded. The smaller cap trades some recovery for a shorter hold.",
+      "hint": "Weigh the recovery gained against the time held.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-retry-helper-with-no-bound-and-no-pause"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a slow client costs a server that reads a request body",
+      "learningObjective": "Find the concurrency defect behind a stalled body read",
+      "practice": "Read defect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Find the concurrency bug in a board service that reads the request body on the worker thread with no deadline attached.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The worker can be parked on the socket indefinitely, so slow clients starve the whole pool",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The worker reads the body twice, so the parser sees each byte after the first pass",
+          "misconception": "invents a double read of the body"
+        },
+        {
+          "id": "C",
+          "text": "The worker closes the connection before reading the body, so uploads are always truncated",
+          "misconception": "invents a premature close in the code"
+        },
+        {
+          "id": "D",
+          "text": "The worker shares one buffer between requests, so concurrent uploads corrupt each other",
+          "misconception": "invents a shared buffer not shown in the code"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Nothing bounds how long the worker may wait on the client's socket, so one slow client can hold a worker indefinitely. A read deadline would end that wait and return the worker to the pool.",
+      "hint": "Ask what stops the worker from waiting forever.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-slow-client-costs-a-server-that-reads-a-request-body"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What adjacent variable-length groups in a pattern turn a short input into",
+      "learningObjective": "Correct the belief that short inputs keep a pattern check safe",
+      "practice": "Short input myth",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A claim in the design review says that a regular expression is safe on short inputs because the input is short.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The claim is right, because the number of checks is bounded by the number of characters read",
+          "misconception": "believes character count bounds match attempts"
+        },
+        {
+          "id": "B",
+          "text": "The claim is wrong, because short inputs can still trigger many retries between adjacent groups",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The claim is right, because short inputs never reach the part of the pattern with variable groups",
+          "misconception": "assumes variable groups appear late in every pattern"
+        },
+        {
+          "id": "D",
+          "text": "The claim is wrong, but only because the pattern should be anchored at the start of the line",
+          "misconception": "blames anchoring rather than the retry count"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Cost here comes from the number of ways a line can be split between groups, not from the number of characters. A short line with ambiguous groups can still cost many checks.",
+      "hint": "Think about what is being multiplied, not what is added.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-adjacent-variable-length-groups-in-a-pattern-turn-a-short-input-into"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bound on pattern matching work defends",
+      "learningObjective": "Use a trace to identify where a validator spends its time",
+      "practice": "Trace reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A long-running trace of the route-code validator shows 61 percent of its total time spent inside backtracking steps rather than reading characters.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The validator spends most of its time on network waits, since backtracking happens while waiting",
+          "misconception": "misplaces backtracking cost in network time"
+        },
+        {
+          "id": "B",
+          "text": "The validator spends most of its time reading input, so shortening the pattern will not help",
+          "misconception": "reads the trace as evidence that reading dominates"
+        },
+        {
+          "id": "C",
+          "text": "The validator spends most of its time retrying splits, so a work bound targets the hot spot",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The validator spends most of its time compiling, so the pattern should be cached between calls",
+          "misconception": "attributes the time to compilation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Nearly two thirds of the time sits in backtracking, which is the retry path rather than the reading path. Capping the retries or removing the ambiguity would therefore address the measured hot spot.",
+      "hint": "Read where the trace says the time is spent.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bound-on-pattern-matching-work-defends"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.5-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a query with no time limit can hold a lock longer than any timeout elsewhere",
+      "learningObjective": "Explain why an untimed query can outlast every other session's timeout",
+      "practice": "Untimed query",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a query with no time limit can keep a lock held longer than any timeout configured elsewhere in the system.",
+      "options": [],
+      "answer": {
+        "exemplar": "A statement timeout is set per session and applies only to statements issued by that session. A reporting query that sets no timeout therefore runs until it finishes, and for that whole time it holds the row locks it touched. Other services may enforce short timeouts of their own, but their timeouts govern how long they will wait, not how long the reporter will hold the lock. Every one of them can give up while the lock is still held, so the effective hold is bounded by the query rather than by any timeout in the system."
+      },
+      "explanation": "Timeouts limit how long a session waits, not how long another session holds a lock. A query with no timeout can therefore keep the lock past every other session's deadline.",
+      "hint": "Consider whose timeout governs whose statement.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-query-with-no-time-limit-can-hold-a-lock-longer-than-any-timeout-elsewhere"
+      ],
+      "version": 1
+    }
+  ]
+}
