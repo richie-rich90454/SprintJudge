@@ -56,10 +56,10 @@ public class RoomEventRepository {
     }
 
     private StoredEvent toStored(org.jooq.Record record) {
-        Long seq = RepoUtil.asLongBoxed(record.get(Tables.EVT_SEQ));
+        // seq and created_at are NOT NULL columns written only by append()
+        long seq = RepoUtil.asLong(record.get(Tables.EVT_SEQ));
         String at = record.get(Tables.EVT_AT);
-        return new StoredEvent(record.get(Tables.EVT_ROOM), seq == null ? 0L : seq, record.get(Tables.EVT_TYPE),
-                record.get(Tables.EVT_ACTOR), record.get(Tables.EVT_PAYLOAD),
-                at == null ? Instant.EPOCH : Instant.parse(at));
+        return new StoredEvent(record.get(Tables.EVT_ROOM), seq, record.get(Tables.EVT_TYPE),
+                record.get(Tables.EVT_ACTOR), record.get(Tables.EVT_PAYLOAD), Instant.parse(at));
     }
 }

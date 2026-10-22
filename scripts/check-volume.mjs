@@ -1,4 +1,4 @@
-// Volume floor check: every catalog subject needs 3000+ real question records.
+// Volume floor check: every catalog subject needs 4000+ real question records.
 // Counts records by each record's own `subject` field, never by file or folder
 // name, so directory slugs cannot drift from the schema. The catalog comes from
 // contracts/question-schema.json, so a new subject cannot be skipped by forgetting
@@ -14,7 +14,7 @@ const strict = args.includes("--strict") || process.env.VOLUME_STRICT === "1";
 const ROOTS = args.filter((a) => !a.startsWith("--"));
 const BANK = "src/main/resources/bank";
 const SCHEMA = "contracts/question-schema.json";
-const FLOOR = 3000;
+const FLOOR = 4000;
 
 if (!fs.existsSync(SCHEMA)) {
   console.error(`volume: cannot read ${SCHEMA}`);
@@ -40,7 +40,6 @@ for (const root of ROOTS.length > 0 ? ROOTS : [BANK]) {
   const files = [];
   if (fs.statSync(abs).isDirectory()) collect(abs, files);
   else files.push(abs);
-  const shippedHere = path.dirname(files[0] ?? abs) === abs && fs.existsSync(path.join(abs, ".shipped"));
   for (const file of files) {
     let data;
     try {
@@ -49,6 +48,9 @@ for (const root of ROOTS.length > 0 ? ROOTS : [BANK]) {
       console.error(`volume: ${file}: invalid JSON`);
       process.exit(1);
     }
+    // a subject directory that carries a .shipped marker has a binding floor
+    const subjectDir = path.dirname(file);
+    const shippedHere = fs.existsSync(path.join(subjectDir, ".shipped"));
     const list = Array.isArray(data) ? data : Array.isArray(data.questions) ? data.questions : [data];
     for (const q of list) {
       if (typeof q?.subject !== "string") continue;

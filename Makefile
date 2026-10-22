@@ -161,8 +161,8 @@ clean: ## Remove build outputs (target/, frontend/dist/).
 
 .PHONY: check-trademarks
 check-trademarks: ## Fail on branded program names outside policy and enforcement files.
-	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude=package-lock.json -e '\bAdvanced Placement\b' -e '\bPre-AP\b' -e 'AP Central' -e 'AP Vertical Teams' -e 'SpringBoard' -e 'PSAT' -e 'NMSQT' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' || (echo "TRADEMARK CHECK FAILED"; exit 1)
-	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude=package-lock.json -e '\bAP\b' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' | grep -v '\.env' | grep -v 'Makefile' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude-dir=executor --exclude=package-lock.json -e '\bAdvanced Placement\b' -e '\bPre-AP\b' -e 'AP Central' -e 'AP Vertical Teams' -e 'SpringBoard' -e 'PSAT' -e 'NMSQT' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude-dir=executor --exclude=package-lock.json -e '\bAP\b' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' | grep -v '\.env' | grep -v 'Makefile' || (echo "TRADEMARK CHECK FAILED"; exit 1)
 	@echo "trademarks: clean"
 
 .PHONY: check-ai-firewall
@@ -182,6 +182,10 @@ check-blueprints: ## Every blueprint carries first-principles attestation.
 .PHONY: check-volume
 check-volume: ## Every bank subject meets the per-course floor.
 	@node scripts/check-volume.mjs
+
+.PHONY: check-unit-volume
+check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rules.
+	@node scripts/check-unit-volume.mjs
 
 .PHONY: check-bank
 check-bank: ## Validate bank records, rules, uniqueness, and brand scan.

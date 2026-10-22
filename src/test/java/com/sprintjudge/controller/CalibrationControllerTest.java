@@ -12,12 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -44,6 +48,9 @@ class CalibrationControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    CalibrationController controller;
 
     @Autowired
     DSLContext dsl;
@@ -96,6 +103,18 @@ class CalibrationControllerTest {
     void blankIdIs400() throws Exception {
         mvc.perform(get("/api/admin/bank/calibration/%20").session(adminSession()))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void blankIdIsRejectedByTheController() {
+        ResponseStatusException error = assertThrows(ResponseStatusException.class, () -> controller.get(" "));
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
+    }
+
+    @Test
+    void nullIdIsRejectedByTheController() {
+        ResponseStatusException error = assertThrows(ResponseStatusException.class, () -> controller.get(null));
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
     }
 
     @Test
