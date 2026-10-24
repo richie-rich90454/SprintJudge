@@ -21,6 +21,32 @@ export function ResultView() {
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
     const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
     const [namesRevealed, setNamesRevealed] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const [exportError, setExportError] = useState<string | null>(null);
+
+    const exportCsv = async () => {
+        if (!review?.sessionId || exporting) return;
+        setExporting(true);
+        setExportError(null);
+        try {
+            const response = await fetch(
+                `/api/admin/export/room/${review.sessionId}?format=csv`,
+                { credentials: "include" },
+            );
+            if (!response.ok) throw new Error("export failed");
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = `sprintjudge-${review.sessionId}.csv`;
+            anchor.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            setExportError("Could not export the room. Sign in again and retry.");
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const podium = leaderboard.slice(0, 3);
     const rest = leaderboard.slice(3);
@@ -136,16 +162,33 @@ export function ResultView() {
                                     </ol>
                                 )}
 
-                                <div className="flex flex-wrap justify-center gap-3 border-t border-[var(--oq-border)] pt-6">
-                                    <Button variant="secondary" onClick={() => navigate({ to: "/" })}>
-                                        Leave results
-                                    </Button>
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => navigate({ to: "/admin" })}
-                                    >
-                                        New game
-                                    </Button>
+                                <div className="flex flex-col items-center gap-3 border-t border-[var(--oq-border)] pt-6">
+                                    <div className="flex flex-wrap justify-center gap-3">
+                                        <Button
+                                            variant="secondary"
+                                            onClick={exportCsv}
+                                            disabled={!review?.sessionId || exporting}
+                                        >
+                                            {exporting ? "Exporting" : "Export CSV"}
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => navigate({ to: "/" })}
+                                        >
+                                            Leave results
+                                        </Button>
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => navigate({ to: "/admin" })}
+                                        >
+                                            New game
+                                        </Button>
+                                    </div>
+                                    {exportError && (
+                                        <p role="alert" className="text-sm text-[var(--oq-danger)]">
+                                            {exportError}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </Card>
