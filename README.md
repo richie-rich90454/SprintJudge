@@ -52,6 +52,23 @@ make dev                # both side by side (make -j2)
 The frontend dev server proxies `/api` and `/ws` to the backend, so both processes run
 side by side during development.
 
+## Run a CSA class
+
+1. Start the packaged app with `make prod` or `java -jar target/sprintjudge.jar`.
+2. Sign in at `/admin/login`.
+3. On the dashboard, pick a CSA unit or **Mixed CSA** under **Start a CSA class**.
+   Each set has sixteen questions and one judged Java problem.
+4. Share the PIN or QR from the host screen. Students join at `/j/<PIN>` on the same
+   network, with no account.
+5. Use **Full screen** on the host screen when projecting. The stage shows the
+   question, timer, answer distribution, the correct answer, the named
+   misconception, and the explanation.
+6. Open **Results** after the game for the podium, answer key, per-student review,
+   class analysis, and CSV export.
+
+Standard, Auto-pilot, Practice, and Exam are the supported classroom modes. Team and
+Battle remain hidden until their player and bracket flows are finished.
+
 ## Configuration
 
 All runtime knobs are plain environment variables:
