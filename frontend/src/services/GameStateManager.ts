@@ -10,6 +10,42 @@ import {
     SubmissionResult,
 } from "../types";
 
+const SESSION_KEY = "sprintjudge_player_session";
+
+interface StoredSession {
+    pin: string;
+    name: string;
+    token: string;
+}
+
+function readStoredSession(): StoredSession | null {
+    try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as Partial<StoredSession>;
+        if (!parsed.pin || !parsed.name || !parsed.token) return null;
+        return { pin: parsed.pin, name: parsed.name, token: parsed.token };
+    } catch {
+        return null;
+    }
+}
+
+function writeStoredSession(session: StoredSession): void {
+    try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    } catch {
+        /* private mode or quota: rejoin degrades to a manual join */
+    }
+}
+
+function clearStoredSession(): void {
+    try {
+        sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+        /* ignore */
+    }
+}
+
 const initial: GameState = {
     status: "LOBBY",
     pin: null,
@@ -76,11 +112,17 @@ export class GameStateManager {
         webSocketService.connect(url);
     }
 
-    join(pin: string, name: string, role: "player" | "host" = "player") {
+    join(
+        pin: string,
+        name: string,
+        role: "player" | "host" = "player",
+        rejoinToken: string | null = null,
+    ) {
         // New game, clean slate: stale leaderboard/review/results from a
         // previous game must never leak into this one (replay guard).
         this.lastSeq = null;
         this.resyncInFlight = false;
+        if (!rejoinToken) clearStoredSession();
         this.patch({
             role,
             pin,
@@ -88,14 +130,30 @@ export class GameStateManager {
             error: null,
             status: "LOBBY",
             playerUuid: null,
-            rejoinToken: null,
+            rejoinToken,
             room: null,
             currentQuestion: null,
             leaderboard: [],
             lastResult: null,
             review: null,
         });
-        webSocketService.send({ type: "JOIN", role, name, pin });
+        webSocketService.send({
+            type: "JOIN",
+            role,
+            name,
+            pin,
+            ...(rejoinToken ? { rejoinToken } : {}),
+        });
+    }
+
+    /** Reclaim a player seat after a page refresh. Returns false when absent. */
+    resume(): boolean {
+        const stored = readStoredSession();
+        if (!stored) return false;
+        const proto = window.location.protocol === "https:" ? "wss" : "ws";
+        this.connect(`${proto}://${window.location.host}/ws`);
+        this.join(stored.pin, stored.name, "player", stored.token);
+        return true;
     }
 
     submit(questionId: string, response: unknown, language?: string) {
@@ -158,6 +216,18 @@ export class GameStateManager {
                 // Baseline for the delta protocol; server answers with a full batch.
                 this.requestLeaderboardResync();
                 this.clearStaleDrafts();
+                if (
+                    this.state.role === "player" &&
+                    this.state.pin &&
+                    this.state.playerName &&
+                    this.state.rejoinToken
+                ) {
+                    writeStoredSession({
+                        pin: this.state.pin,
+                        name: this.state.playerName,
+                        token: this.state.rejoinToken,
+                    });
+                }
                 break;
             case "ROOM_STATE": {
                 const room = m as unknown as RoomState;
@@ -213,6 +283,7 @@ export class GameStateManager {
                 break;
             }
             case "GAME_END":
+                clearStoredSession();
                 this.patch({
                     status: "ENDED",
                     leaderboard: m.rankings as LeaderboardEntry[],
@@ -223,6 +294,7 @@ export class GameStateManager {
                 break;
             case "GAME_REVIEW": {
                 const review = m as unknown as GameReview;
+                clearStoredSession();
                 this.patch({
                     status: "ENDED",
                     review,
