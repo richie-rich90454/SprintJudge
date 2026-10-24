@@ -3,6 +3,7 @@ package com.sprintjudge.bank;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -25,7 +28,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class BankStore {
 
+    private static final Logger log = LoggerFactory.getLogger(BankStore.class);
+
     private final List<Map<String, Object>> questions;
+    private int skippedResources;
 
     /**
      * Loads every bank JSON document from the classpath.
@@ -37,7 +43,12 @@ public class BankStore {
     }
 
     BankStore(PathMatchingResourcePatternResolver resolver, ObjectMapper mapper) throws IOException {
-        this(recordsOfAll(resources(resolver), mapper));
+        this(loadAll(resources(resolver), mapper));
+    }
+
+    private BankStore(Loaded loaded) {
+        this.questions = List.copyOf(loaded.headers());
+        this.skippedResources = loaded.skipped();
     }
 
     BankStore(List<Map<String, Object>> seed) {
@@ -52,12 +63,28 @@ public class BankStore {
         return resolver.getResources("classpath*:bank/**/*.json");
     }
 
-    private static List<Map<String, Object>> recordsOfAll(Resource[] resources, ObjectMapper mapper) throws IOException {
+    record Loaded(List<Map<String, Object>> headers, int skipped) {}
+
+    /**
+     * Loads every readable bank file. A malformed or half-written file must
+     * never take the whole application down: the strict validator reports it in
+     * CI, while runtime keeps serving the other 99.9% of the library.
+     */
+    static Loaded loadAll(Resource[] resources, ObjectMapper mapper) {
         List<Map<String, Object>> all = new ArrayList<>();
+        int skipped = 0;
         for (Resource resource : resources) {
-            all.addAll(recordsOf(mapper.readTree(resource.getInputStream()), mapper));
+            try (InputStream in = resource.getInputStream()) {
+                all.addAll(recordsOf(mapper.readTree(in), mapper));
+            } catch (IOException | RuntimeException e) {
+                skipped++;
+                log.error("Skipping unreadable bank resource: {}", resource.getFilename(), e);
+            }
         }
-        return all;
+        if (skipped > 0) {
+            log.warn("Bank loaded with {} unreadable file(s); run `make check-bank` to see details", skipped);
+        }
+        return new Loaded(all, skipped);
     }
 
     @SuppressWarnings("unchecked")
@@ -70,6 +97,11 @@ public class BankStore {
             return batch;
         }
         return List.of(mapper.convertValue(node, Map.class));
+    }
+
+    /** Number of bank files skipped because they were unreadable at startup. */
+    public int skippedResources() {
+        return skippedResources;
     }
 
     /**
