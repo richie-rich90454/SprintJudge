@@ -510,6 +510,24 @@ class GameRoomManagerCoverageTest {
     }
 
     @Test
+    void reviewNeverCountsAStrayHostSeatAsAStudent() {
+        when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+        when(submissionRepository.findBySession("s1")).thenReturn(List.of());
+        GameRoomManager mgr = manager();
+        mgr.join("123456", "A", "sa", "player", null);
+        roomOf(mgr).addPlayer(new Player("ghost", "Host", 0, "sx", true, "t"));
+        mgr.endGame("123456");
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(ws).broadcast(anyCollection(), sent.capture());
+        var review = (com.sprintjudge.domain.dto.GameReview) sent.getAllValues().stream()
+                .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
+                .findFirst().orElseThrow();
+        assertEquals(1, review.classStats().totalPlayers());
+        assertEquals(1, review.players().size());
+    }
+
+    @Test
     void sweepSkipsConnectedActiveRoom() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
