@@ -10,6 +10,7 @@ import { adminApi } from "../services/AdminApiService";
 
 export function ExploreView() {
     const [query, setQuery] = useState("");
+    const [limit, setLimit] = useState(24);
     const { data, isPending, isError, refetch } = useQuery({
         queryKey: ["banks"],
         queryFn: () => adminApi.listBanks(),
@@ -39,7 +40,10 @@ export function ExploreView() {
                 <div className="max-w-md">
                     <TextInput
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setLimit(24);
+                        }}
                         placeholder="Search quizzes…"
                         aria-label="Search quizzes"
                     />
@@ -86,7 +90,7 @@ export function ExploreView() {
                             {visible.length} of {data?.length ?? 0} quizzes
                         </p>
                         <div className="grid gap-4 md:grid-cols-2">
-                            {visible.map((quiz) => (
+                            {visible.slice(0, limit).map((quiz) => (
                                 <Card key={quiz.id} className="p-6 flex flex-col gap-2">
                                     <h2 className="text-lg font-extrabold">{quiz.title}</h2>
                                     {quiz.description && (
@@ -97,7 +101,7 @@ export function ExploreView() {
                                     <div className="flex flex-wrap gap-2 mt-3">
                                         <Link
                                             to="/practice"
-                                            className="btn btn-kahoot btn-sm font-bold"
+                                            className="btn btn-primary btn-sm font-bold"
                                         >
                                             Practice solo
                                         </Link>
@@ -111,6 +115,13 @@ export function ExploreView() {
                                 </Card>
                             ))}
                         </div>
+                        {visible.length > limit && (
+                            <div className="mt-6 flex justify-center">
+                                <Button variant="secondary" onClick={() => setLimit((n) => n + 24)}>
+                                    Show more ({visible.length - limit} remaining)
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
