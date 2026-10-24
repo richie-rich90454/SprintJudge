@@ -22,6 +22,7 @@ const fakeManager = vi.hoisted(() => {
         } as Record<string, unknown>,
         connect: vi.fn(),
         join: vi.fn(),
+        resume: vi.fn(() => true),
         submit: vi.fn(),
         hostCommand: vi.fn(),
         extendTimer: vi.fn(),
@@ -55,6 +56,11 @@ afterEach(() => {
 });
 
 describe("useGameStore delegation", () => {
+    test("resume delegates to the manager", () => {
+        expect(useGameStore.getState().resume()).toBe(true);
+        expect(fakeManager.resume).toHaveBeenCalledTimes(1);
+    });
+
     test("exposes manager state initially", () => {
         expect(useGameStore.getState().status).toBe("LOBBY");
         expect(useGameStore.getState().gameMode).toBe("STANDARD");
