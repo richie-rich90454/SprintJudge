@@ -70,7 +70,7 @@ describe("formatAnswer", () => {
 
     test("DRAG_SORT numbers lines with texts", () => {
         expect(formatAnswer("DRAG_SORT", { correctOrder: ["1", "0"] }, ["first", "second"])).toBe(
-            "Correct order: 1. second · 2. first",
+            "Correct order: 1. second, 2. first",
         );
     });
 
