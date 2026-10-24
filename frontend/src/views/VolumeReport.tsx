@@ -128,7 +128,7 @@ export function VolumeReport() {
                 {volume.data && rows.length > 0 && (
                     <>
                         <p className="label-caps" aria-live="polite">
-                            {formatCount(total)} questions in total · {ready} of{" "}
+                            {formatCount(total)} questions in total, {ready} of{" "}
                             {rows.length} subjects at 3,000
                         </p>
                         <Card className="p-0 overflow-x-auto">
