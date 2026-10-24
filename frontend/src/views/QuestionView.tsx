@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Link, Navigate } from "@tanstack/react-router";
 import { useGameStore } from "../stores/useGameStore";
 import { useTimerStore } from "../stores/useTimerStore";
-import { motionReduced, useUIStore } from "../stores/useUIStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../services/ScoringService";
 import { boardDelayedForMode } from "../design/kahoot";
-import { Confetti } from "../components/Confetti";
 import { audio } from "../services/AudioEngine";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Chip } from "../components/ui/Primitives";
+import { QuestionPreview } from "../components/host/QuestionPreview";
+import { FormattedText } from "../components/host/FormattedText";
+import { useStageEnter } from "../motion/useStageMotion";
+import type { RoundResult } from "../types";
 
 export function QuestionView() {
     const q = useGameStore((s) => s.currentQuestion);
@@ -22,9 +23,12 @@ export function QuestionView() {
     const roomMode = useGameStore((s) => s.room?.gameMode);
     const joined = useGameStore((s) => s.playerUuid !== null);
     const hasPin = useGameStore((s) => s.pin !== null);
+    const resume = useGameStore((s) => s.resume);
     const submit = useGameStore((s) => s.submit);
     const wsError = useGameStore((s) => s.error);
     const lastResult = useGameStore((s) => s.lastResult);
+    const round =
+        lastResult && "scores" in lastResult ? (lastResult as unknown as RoundResult) : null;
     const end = useTimerStore((s) => s.endEpochMs);
     const totalSec = useTimerStore((s) => s.totalSec);
     const [response, setResponse] = useState<unknown>(null);
@@ -35,11 +39,16 @@ export function QuestionView() {
     const [feedback, setFeedback] = useState<null | { ok: boolean; text: string }>(null);
     const [shake, setShake] = useState(false);
     const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const resumeTried = useRef(false);
+    const stageRef = useStageEnter<HTMLDivElement>([q?.id, status]);
 
-    const reduced = motionReduced();
-    // Subscribe so a motion-preference flip re-renders immediately.
-    useUIStore((s) => s.motion);
     const boardLocked = boardDelayedForMode(gameMode) && status === "ACTIVE";
+
+    useEffect(() => {
+        if (resumeTried.current || hasPin) return;
+        resumeTried.current = true;
+        resume();
+    }, [hasPin, resume]);
 
     useEffect(() => {
         setSubmitted(false);
@@ -70,7 +79,7 @@ export function QuestionView() {
         setFeedback({
             ok,
             text: isCoding(q.type)
-                ? `${sub.passed}/${sub.totalTests} tests passed · +${sub.score}${aiNote}`
+                ? `${sub.passed}/${sub.totalTests} tests passed, +${sub.score}${aiNote}`
                 : ok
                   ? `+${sub.score} pts`
                   : "Not quite",
@@ -94,29 +103,50 @@ export function QuestionView() {
 
     if (status === "REVIEW") {
         return (
-            <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
-                {!reduced && <Confetti fireKey={q?.id ?? "review"} />}
-                <Card className="text-center max-w-md w-full">
-                    <div className="p-6">
-                        <p className="label-caps mb-2">Round complete</p>
-                        <h2 className="text-2xl font-extrabold">Answers locked.</h2>
+            <div className="pattern-exam min-h-[100dvh] flex flex-col">
+                <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
+                    <div className="page-shell flex items-center justify-between gap-4 py-3">
+                        <p className="label-caps">Round complete</p>
                         {feedback && (
                             <p
                                 aria-live="polite"
-                                className={`mt-3 font-bold ${feedback.ok ? "text-[var(--oq-success)]" : "text-[var(--oq-danger)]"}`}
+                                className={`text-sm font-bold ${feedback.ok ? "text-[var(--oq-success)]" : "text-[var(--oq-danger)]"}`}
                             >
                                 {feedback.text}
                             </p>
                         )}
-                        <p className="text-[var(--oq-ink-soft)] mt-2">
-                            {q
-                                ? roomMode === "PRACTICE" || gameMode === "PRACTICE"
-                                    ? "Next question coming up."
-                                    : "The host is preparing the next round."
-                                : "No question was active. The host is preparing the next round."}
-                        </p>
                     </div>
-                </Card>
+                </header>
+                <main ref={stageRef} className="page-shell w-full max-w-5xl flex-1 py-8">
+                    {q ? (
+                        <div className="stage arch p-8 md:p-10">
+                            <QuestionPreview question={q} round={round} />
+                            {round?.correctAnswer &&
+                                typeof round.correctAnswer.explanation === "string" && (
+                                    <div className="mt-8 border-t border-[var(--stage-border)] pt-6">
+                                        <p className="label-caps mb-2 text-[var(--stage-ink-soft)]">
+                                            Why
+                                        </p>
+                                        <FormattedText
+                                            text={round.correctAnswer.explanation}
+                                            className="text-[var(--stage-ink-soft)]"
+                                        />
+                                    </div>
+                                )}
+                            <p className="mt-8 border-t border-[var(--stage-border)] pt-5 text-sm text-[var(--stage-ink-soft)]">
+                                {roomMode === "PRACTICE" || gameMode === "PRACTICE"
+                                    ? "Next question coming up."
+                                    : "The host will bring the next question when the room is ready."}
+                            </p>
+                        </div>
+                    ) : (
+                        <Card className="p-6 text-center">
+                            <p className="text-[var(--oq-ink-soft)]">
+                                The host is preparing the next round.
+                            </p>
+                        </Card>
+                    )}
+                </main>
             </div>
         );
     }
@@ -178,6 +208,8 @@ export function QuestionView() {
 
     const untimed = !isFinite(end);
     const coding = isCoding(q.type);
+    const description = q.description && q.description !== q.title ? q.description : null;
+    const hasResponse = coding || response !== null;
 
     const doSubmit = () => {
         if (submittedRef.current) return;
@@ -197,68 +229,74 @@ export function QuestionView() {
     };
 
     return (
-        <div className="pattern-exam min-h-[100dvh] flex flex-col overflow-hidden">
-            {/* Top bar: type + points + timer */}
-            <div className="flex items-center justify-between flex-wrap gap-2 px-4 md:px-6 py-3 border-b-2 border-[var(--oq-accent)] min-w-0">
-                <span className="label-caps min-w-0 truncate">{q.type.replace(/_/g, " ")}</span>
-                <span className="mono text-sm text-[var(--oq-ink-soft)]">{q.pointsBase} pts</span>
-                {!untimed && (
-                    <div className="scale-90">
+        <div className="pattern-exam min-h-[100dvh] flex flex-col">
+            <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
+                <div className="page-shell flex min-w-0 flex-wrap items-center gap-4 py-3">
+                    <span className="label-caps min-w-0 truncate">
+                        {q.type.replace(/_/g, " ")}
+                    </span>
+                    <span className="mono text-sm text-[var(--oq-ink-soft)]">
+                        {q.pointsBase} points
+                    </span>
+                    <div className="flex-1" />
+                    {boardLocked && gameMode === "EXAM" && (
+                        <Chip tone="neutral">Board hidden until the end</Chip>
+                    )}
+                    {untimed ? (
+                        <span className="chip chip-neutral">Untimed</span>
+                    ) : (
                         <CircularTimer
                             endEpochMs={end}
                             totalSec={totalSec}
                             onExpire={() => doSubmit()}
                         />
-                    </div>
-                )}
-                {untimed && <span className="chip chip-neutral">Untimed</span>}
-            </div>
-            {boardLocked && (
-                <div className="px-4 md:px-6 pt-2">
-                    <Chip tone="neutral">Board locked - updates at round end</Chip>
+                    )}
                 </div>
-            )}
+            </header>
 
-            <motion.div
-                animate={shake && !reduced ? { x: [0, -10, 10, -8, 8, 0] } : { x: 0 }}
-                transition={{ duration: 0.4 }}
-                className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden"
+            <main
+                ref={stageRef}
+                className={`page-shell w-full flex-1 py-6 md:py-10 ${
+                    coding
+                        ? "grid min-h-0 gap-8 overflow-hidden lg:grid-cols-2"
+                        : "flex max-w-4xl flex-col"
+                }`}
             >
-                {/* LEFT: question */}
-                <div className="w-full lg:w-1/2 p-4 md:p-6 overflow-y-auto flex flex-col min-h-0">
-                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                <section
+                    className={`min-w-0 ${coding ? "flex flex-col overflow-y-auto" : ""}`}
+                    aria-live="polite"
+                >
+                    <p className="label-caps mb-3">Question</p>
+                    <h1 className="text-3xl font-black leading-[1.08] tracking-[-0.03em] md:text-4xl">
                         {q.title}
                     </h1>
-                    {q.description && (
-                        <p className="text-[var(--oq-ink-soft)] mt-3 whitespace-pre-wrap leading-relaxed">
-                            {q.description}
-                        </p>
+                    {description && (
+                        <FormattedText
+                            text={description}
+                            className="mt-4 text-[var(--oq-ink-soft)] md:text-lg"
+                        />
                     )}
                     {coding && (
-                        <div className="mt-4 chip chip-neutral">
-                            Write code that passes the hidden test cases. Run it to see output.
+                        <p className="mt-5 border-l-2 border-[var(--oq-accent)] pl-4 text-sm leading-relaxed text-[var(--oq-ink-soft)]">
+                            Write code that passes the hidden tests. Run it below to check your
+                            output before submitting.
+                        </p>
+                    )}
+                    {feedback && (
+                        <div
+                            aria-live="polite"
+                            className={`feedback-banner mt-5 ${feedback.ok ? "ok" : "bad"}`}
+                        >
+                            {feedback.text}
                         </div>
                     )}
-                    {/* Feedback banner (live, non-blocking) */}
-                    <AnimatePresence>
-                        {feedback && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                aria-live="polite"
-                                className={`feedback-banner mt-4 ${feedback.ok ? "ok" : "bad"}`}
-                            >
-                                {feedback.text}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                </section>
 
-                {/* RIGHT: answer area / editor */}
-                <div className="w-full lg:w-1/2 p-4 md:p-6 flex flex-col gap-4 border-t-2 lg:border-t-0 lg:border-l-2 border-[var(--oq-border)] overflow-y-auto min-h-0">
-                    {/* Key per question: a crashed renderer resets instead of
-                        bricking the answer area for the rest of the game. */}
+                <section
+                    className={`min-w-0 flex flex-col gap-4 ${
+                        coding ? "min-h-0 overflow-hidden" : "mt-8"
+                    }`}
+                >
                     <ErrorBoundary key={q.id}>
                         <QuestionRendererHost
                             question={q}
@@ -269,8 +307,8 @@ export function QuestionView() {
 
                     <Button
                         onClick={doSubmit}
-                        disabled={submitted}
-                        className="w-full mt-2 font-bold shrink-0"
+                        disabled={submitted || !hasResponse}
+                        className={`w-full font-bold shrink-0 ${shake ? "question-shake" : ""}`}
                     >
                         {submitted
                             ? "Answer locked in"
@@ -278,8 +316,8 @@ export function QuestionView() {
                               ? "Compile and submit"
                               : "Lock in answer"}
                     </Button>
-                </div>
-            </motion.div>
+                </section>
+            </main>
         </div>
     );
 }
