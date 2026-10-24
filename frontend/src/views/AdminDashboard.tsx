@@ -153,10 +153,20 @@ export function AdminDashboard() {
     const [showCreate, setShowCreate] = useState(false);
     const [search, setSearch] = useState("");
     const [quizSearch, setQuizSearch] = useState("");
+    const [quizLimit, setQuizLimit] = useState(24);
+    const [gamesLimit, setGamesLimit] = useState(24);
     const [bannerError, setBannerError] = useState<string | null>(null);
     const [loadError, setLoadError] = useState<string | null>(null);
 
     const gridRef = useStaggerIn<HTMLDivElement>(".oq-quiz-card", [quizzes.length], 0.06);
+
+    useEffect(() => {
+        setQuizLimit(24);
+    }, [quizSearch]);
+
+    useEffect(() => {
+        setGamesLimit(24);
+    }, [quizSearch]);
 
     useEffect(() => {
         loadQuizzes().catch((e: unknown) => {
@@ -433,8 +443,6 @@ export function AdminDashboard() {
                                         <option value="AUTO_PILOT">Auto-pilot</option>
                                         <option value="PRACTICE">Practice</option>
                                         <option value="EXAM">Exam</option>
-                                        <option value="TEAM">Team</option>
-                                        <option value="BATTLE">Battle</option>
                                     </select>
                                     <Button
                                         variant="primary"
@@ -458,6 +466,11 @@ export function AdminDashboard() {
                                         Browse questions
                                     </Button>
                                 </div>
+                                <p className="mt-4 max-w-xl text-xs leading-relaxed text-[var(--oq-ink-soft)]">
+                                    Team and Battle remain hidden until the bracket flow is finished
+                                    and verified. Standard, Auto-pilot, Practice, and Exam are the
+                                    supported classroom modes.
+                                </p>
                             </motion.div>
                         </AnimatePresence>
                     </TabPanel>
@@ -483,8 +496,6 @@ export function AdminDashboard() {
                                         <option value="AUTO_PILOT">Auto-pilot</option>
                                         <option value="PRACTICE">Practice</option>
                                         <option value="EXAM">Exam</option>
-                                        <option value="TEAM">Team</option>
-                                        <option value="BATTLE">Battle</option>
                                     </select>
                                     <TextInput
                                         value={quizSearch}
@@ -541,7 +552,7 @@ export function AdminDashboard() {
                                     ref={gridRef}
                                     className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
                                 >
-                                    {filteredQuizzes.map((q) => (
+                                    {filteredQuizzes.slice(0, quizLimit).map((q) => (
                                         <Card key={q.id} className="oq-quiz-card">
                                             <div className="flex flex-col gap-4">
                                                 <div className="flex items-start justify-between gap-4">
@@ -595,6 +606,17 @@ export function AdminDashboard() {
                                         </Card>
                                     )}
                                 </div>
+                                {filteredQuizzes.length > quizLimit && (
+                                    <div className="mt-6 flex justify-center">
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => setQuizLimit((n) => n + 24)}
+                                        >
+                                            Show more ({filteredQuizzes.length - quizLimit}{" "}
+                                            remaining)
+                                        </Button>
+                                    </div>
+                                )}
                             </motion.div>
                         </AnimatePresence>
                     </TabPanel>
@@ -719,14 +741,12 @@ export function AdminDashboard() {
                                                 <option value="AUTO_PILOT">Auto-pilot</option>
                                                 <option value="PRACTICE">Practice</option>
                                                 <option value="EXAM">Exam</option>
-                                                <option value="TEAM">Team</option>
-                                                <option value="BATTLE">Battle</option>
                                             </select>
                                         </div>
-                                        {filteredQuizzes.map((q) => (
+                                        {filteredQuizzes.slice(0, gamesLimit).map((q) => (
                                             <div
                                                 key={q.id}
-                                                className="flex items-center justify-between gap-4 rounded-[8px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                                                className="flex items-center justify-between gap-4 rounded-[2px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
                                             >
                                                 <div className="min-w-0">
                                                     <p
@@ -756,6 +776,17 @@ export function AdminDashboard() {
                                             <p className="text-[var(--oq-ink-soft)] text-sm">
                                                 No quiz sets match your search.
                                             </p>
+                                        )}
+                                        {filteredQuizzes.length > gamesLimit && (
+                                            <div className="flex justify-center pt-2">
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => setGamesLimit((n) => n + 24)}
+                                                >
+                                                    Show more (
+                                                    {filteredQuizzes.length - gamesLimit} remaining)
+                                                </Button>
+                                            </div>
                                         )}
                                     </div>
                                 )}
