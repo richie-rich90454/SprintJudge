@@ -14,6 +14,7 @@ export class TrueFalseRenderer extends BaseQuestionRenderer {
                 el("span", { class: "opt-letter" }, [
                     el("span", { class: `opt-shape shape-${shape}` }),
                 ]),
+                el("span", { class: "opt-index" }, [v ? "A." : "B."]),
                 label,
             );
             btn.addEventListener("click", () => {
