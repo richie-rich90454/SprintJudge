@@ -38,7 +38,7 @@ export function formatAnswer(type: string, answer: unknown, options: string[] | 
                 const text = options?.[Number(id)];
                 return `${k + 1}. ${text ?? String(id)}`;
             });
-            return `Correct order: ${parts.join(" · ") || "?"}`;
+            return `Correct order: ${parts.join(", ") || "?"}`;
         }
         case "CLICK_BUG":
             return `Buggy line: ${String(a["bugLine"] ?? "?")}`;
