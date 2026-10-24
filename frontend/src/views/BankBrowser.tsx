@@ -309,8 +309,8 @@ export function BankBrowser() {
                                 <p className="label-caps">Question details</p>
                                 <p className="font-bold leading-snug">{detail.data.stem}</p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                                    {detail.data.subject} · {detail.data.unit} ·{" "}
-                                    {detail.data.topic} · {scopeLabel(detail.data.scope)}
+                                    {detail.data.subject}, {detail.data.unit},{" "}
+                                    {detail.data.topic}, {scopeLabel(detail.data.scope)}
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     Reference: {detail.data.id}
