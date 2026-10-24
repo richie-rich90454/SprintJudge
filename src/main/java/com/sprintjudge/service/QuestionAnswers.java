@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sprintjudge.domain.enums.QuestionType;
 import com.sprintjudge.util.Json;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,8 @@ public final class QuestionAnswers {
     private QuestionAnswers() {}
 
     private static final Set<String> ANSWER_KEYS = Set.of(
-            "correctIndex", "correct", "correctIndices", "answer", "correctOrder", "bugLine", "expected");
+            "correctIndex", "correct", "correctIndices", "answer", "correctOrder", "bugLine",
+            "expected", "explanation", "hint", "optionMeta");
 
     // Answer-bearing keys revealed post-round, per (non-coding) question type.
     private static final Map<QuestionType, String[]> REVEAL_KEYS = Map.of(
@@ -64,6 +66,11 @@ public final class QuestionAnswers {
         String[] keys = REVEAL_KEYS.getOrDefault(type, new String[0]);
         ObjectNode out = Json.MAPPER.createObjectNode();
         for (String key : keys) copy(out, raw, key);
+        // Teaching metadata is server-only during a round and revealed with the
+        // answer. It must never travel in the sanitized question payload.
+        for (String key : List.of("explanation", "hint", "optionMeta", "topic", "unit", "csaUnit")) {
+            copy(out, raw, key);
+        }
         return out;
     }
 
