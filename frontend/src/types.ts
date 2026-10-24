@@ -117,6 +117,7 @@ export interface GameReview {
     questions: QuestionReview[];
     players: PlayerReview[];
     classStats: ClassStats;
+    sessionId: string;
 }
 
 export interface QuestionReview {
