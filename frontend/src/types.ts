@@ -37,6 +37,7 @@ export interface RoomState {
     type: "ROOM_STATE";
     status: GameStatus;
     questionCount: number;
+    currentQuestionIndex: number;
     currentQuestionId: string | null;
     players: PlayerInfo[];
     gameMode: GameMode;
@@ -72,6 +73,25 @@ export interface SubmissionResult {
         totalTests?: number;
         aiFeedback?: string;
     };
+}
+
+export interface RoundScore {
+    uuid: string;
+    name: string;
+    score: number;
+    correct: boolean;
+    roundScore: number;
+    streak: number;
+    bonus: number;
+}
+
+export interface RoundResult {
+    type: "ROUND_RESULT";
+    questionId: string;
+    revealed: boolean;
+    correctAnswer: Record<string, unknown> | null;
+    scores: RoundScore[];
+    answerCounts?: Record<string, number>;
 }
 
 export interface GameState {
