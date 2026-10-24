@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -179,5 +180,42 @@ class BankControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.COMPUTING_FOUNDATIONS").value(greaterThan(0)))
                 .andExpect(jsonPath("$.JAVA_PROGRAMMING").value(greaterThan(0)));
+    }
+
+    @Test
+    void csaPresetsAreAdminVisible() throws Exception {
+        mvc.perform(get("/api/admin/bank/csa").session(adminSession()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(jsonPath("$[0].unit").value(1))
+                .andExpect(jsonPath("$[4].unit").value(5));
+    }
+
+    @Test
+    void anonymousBuildIs401() throws Exception {
+        mvc.perform(post("/api/admin/bank/build")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"csaUnit\":1,\"count\":2,\"includeCoding\":false}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void buildFromBankCreatesAPlayableQuiz() throws Exception {
+        mvc.perform(post("/api/admin/bank/build")
+                        .session(adminSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"csaUnit\":1,\"count\":2,\"includeCoding\":false,\"seed\":1}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quizId").isNotEmpty())
+                .andExpect(jsonPath("$.questions").value(greaterThan(0)));
+    }
+
+    @Test
+    void emptyBankSelectionIs400() throws Exception {
+        mvc.perform(post("/api/admin/bank/build")
+                        .session(adminSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"subject\":\"NOPE\",\"count\":1,\"includeCoding\":false}"))
+                .andExpect(status().isBadRequest());
     }
 }
