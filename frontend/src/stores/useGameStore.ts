@@ -5,6 +5,7 @@ import { GameState } from "../types";
 interface GameStore extends GameState {
     connect: (url: string) => void;
     join: (pin: string, name: string, role?: "player" | "host") => void;
+    resume: () => boolean;
     submit: (questionId: string, response: unknown, language?: string) => void;
     hostCommand: (
         action: "NEXT_QUESTION" | "FORCE_SUBMIT" | "END_GAME",
@@ -23,6 +24,7 @@ export const useGameStore = create<GameStore>((set) => {
             useGameStore.setState({ pin, playerName: name });
             gameStateManager.join(pin, name, role ?? "player");
         },
+        resume: () => gameStateManager.resume(),
         submit: (questionId, response, language) =>
             gameStateManager.submit(questionId, response, language),
         hostCommand: (action, payload) => gameStateManager.hostCommand(action, payload),
