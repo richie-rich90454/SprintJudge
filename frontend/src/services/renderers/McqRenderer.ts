@@ -18,6 +18,7 @@ export class McqRenderer extends BaseQuestionRenderer {
                 el("span", { class: "opt-letter" }, [
                     el("span", { class: `opt-shape shape-${answerShape(i)}` }),
                 ]),
+                el("span", { class: "opt-index" }, [`${String.fromCharCode(65 + i)}.`]),
                 opt,
             );
             btn.addEventListener("click", () => {
