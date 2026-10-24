@@ -17,7 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -187,5 +194,65 @@ class PublicControllerTest {
     void banksEmptyWhenNoQuizzes() {
         when(quizRepository.findAll()).thenReturn(List.of());
         assertTrue(controller.banks().isEmpty());
+    }
+
+    @Test
+    void netReportsTheFirstLanIpv4Address() throws Exception {
+        NetworkInterface nic = mock(NetworkInterface.class);
+        when(nic.isUp()).thenReturn(true);
+        when(nic.isLoopback()).thenReturn(false);
+        Inet4Address lan = mock(Inet4Address.class);
+        when(lan.isLoopbackAddress()).thenReturn(false);
+        when(lan.isLinkLocalAddress()).thenReturn(false);
+        when(lan.getHostAddress()).thenReturn("192.168.1.20");
+        Inet4Address loopback = mock(Inet4Address.class);
+        when(loopback.isLoopbackAddress()).thenReturn(true);
+        Inet4Address linkLocal = mock(Inet4Address.class);
+        when(linkLocal.isLoopbackAddress()).thenReturn(false);
+        when(linkLocal.isLinkLocalAddress()).thenReturn(true);
+        Inet6Address v6 = mock(Inet6Address.class);
+        when(nic.getInetAddresses())
+                .thenReturn(Collections.enumeration(List.of(lan, loopback, linkLocal, v6)));
+        NetworkInterface down = mock(NetworkInterface.class);
+        when(down.isUp()).thenReturn(false);
+        NetworkInterface loopNic = mock(NetworkInterface.class);
+        when(loopNic.isUp()).thenReturn(true);
+        when(loopNic.isLoopback()).thenReturn(true);
+        try (var mocked = mockStatic(NetworkInterface.class)) {
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                    .thenReturn(Collections.enumeration(List.of(nic, down, loopNic)));
+            when(http.isSecure()).thenReturn(false);
+            when(http.getServerName()).thenReturn("quiz.local");
+            when(http.getServerPort()).thenReturn(8080);
+            var info = controller.net(http);
+            assertEquals("quiz.local", info.host());
+            assertEquals(8080, info.port());
+            assertEquals(List.of("http://192.168.1.20:8080"), info.urls());
+        }
+    }
+
+    @Test
+    void netFailsClosedWhenInterfacesCannotBeRead() throws Exception {
+        try (var mocked = mockStatic(NetworkInterface.class)) {
+            mocked.when(NetworkInterface::getNetworkInterfaces).thenThrow(new SocketException("x"));
+            when(http.getServerName()).thenReturn("quiz.local");
+            when(http.getServerPort()).thenReturn(8080);
+            var info = controller.net(http);
+            assertTrue(info.urls().isEmpty());
+        }
+    }
+
+    @Test
+    void netUsesHttpsWhenTheRequestIsSecure() throws Exception {
+        try (var mocked = mockStatic(NetworkInterface.class)) {
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                    .thenReturn(Collections.emptyEnumeration());
+            when(http.isSecure()).thenReturn(true);
+            when(http.getServerName()).thenReturn("quiz.local");
+            when(http.getServerPort()).thenReturn(443);
+            var info = controller.net(http);
+            assertEquals("quiz.local", info.host());
+            assertTrue(info.urls().isEmpty());
+        }
     }
 }
