@@ -164,5 +164,16 @@ class BankStoreTest {
         assertTrue(loaded.headerById("cf-2.1-0001").isPresent());
         assertEquals(8, loaded.headerById("cf-2.1-0001").get().size());
         assertTrue(loaded.headerById("nope").isEmpty());
+        assertTrue(loaded.skippedResources() >= 0);
+    }
+
+    @Test
+    void loadAllReportsNoSkipsForCleanInput() {
+        var clean = new org.springframework.core.io.ByteArrayResource(
+                "{\"questions\":[{\"id\":\"x\"}]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        BankStore.Loaded loaded = BankStore.loadAll(
+                new org.springframework.core.io.Resource[]{clean}, new ObjectMapper());
+        assertEquals(0, loaded.skipped());
+        assertEquals(1, loaded.headers().size());
     }
 }
