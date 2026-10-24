@@ -19,6 +19,8 @@ import { adminApi } from "../services/AdminApiService";
 export function PracticeView() {
     const [name, setName] = useState("");
     const [bankId, setBankId] = useState<string | null>(null);
+    const [query, setQuery] = useState("");
+    const [limit, setLimit] = useState(20);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const connect = useGameStore((s) => s.connect);
@@ -31,6 +33,13 @@ export function PracticeView() {
     });
 
     const canSubmit = name.trim().length > 0 && bankId !== null && !busy;
+    const needle = query.trim().toLowerCase();
+    const filteredBanks = (banks ?? []).filter(
+        (bank) =>
+            !needle ||
+            bank.title.toLowerCase().includes(needle) ||
+            (bank.description ?? "").toLowerCase().includes(needle),
+    );
 
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -69,6 +78,16 @@ export function PracticeView() {
                     <form onSubmit={onSubmit} className="flex flex-col gap-5 text-left">
                         <fieldset>
                             <legend className="label-caps mb-3">Question bank</legend>
+                            <TextInput
+                                value={query}
+                                onChange={(e) => {
+                                    setQuery(e.target.value);
+                                    setLimit(20);
+                                }}
+                                placeholder="Search banks…"
+                                aria-label="Search question banks"
+                                className="mb-3 text-sm"
+                            />
                             {isPending && (
                                 <div className="flex flex-col gap-2" aria-label="Loading banks">
                                     <Skeleton className="h-14" />
@@ -95,9 +114,14 @@ export function PracticeView() {
                                     hint="Ask your teacher to publish one."
                                 />
                             )}
-                            {banks && banks.length > 0 && (
+                            {banks && banks.length > 0 && filteredBanks.length === 0 && (
+                                <p className="text-sm text-[var(--oq-ink-soft)]">
+                                    No banks match that search.
+                                </p>
+                            )}
+                            {filteredBanks.length > 0 && (
                                 <div className="flex flex-col gap-2" role="radiogroup">
-                                    {banks.map((bank) => (
+                                    {filteredBanks.slice(0, limit).map((bank) => (
                                         <label
                                             key={bank.id}
                                             className={`flex items-start gap-3 p-3 border-2 cursor-pointer ${
@@ -126,6 +150,17 @@ export function PracticeView() {
                                     ))}
                                 </div>
                             )}
+                            {filteredBanks.length > limit && (
+                                <div className="mt-3 flex justify-center">
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => setLimit((n) => n + 20)}
+                                    >
+                                        Show more ({filteredBanks.length - limit} remaining)
+                                    </Button>
+                                </div>
+                            )}
                         </fieldset>
                         <Field label="Your name" htmlFor="practice-name">
                             <TextInput
@@ -146,7 +181,7 @@ export function PracticeView() {
                             type="submit"
                             size="lg"
                             disabled={!canSubmit}
-                            className="w-full font-bold btn-kahoot"
+                            className="w-full font-bold"
                         >
                             {busy ? "Starting…" : "Start practicing"}
                         </Button>
