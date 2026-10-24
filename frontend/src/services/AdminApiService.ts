@@ -109,6 +109,20 @@ export class AdminApiService {
         return this.client.put("/admin/settings", settings);
     }
 
+    buildBankQuiz(request: {
+        subject?: string;
+        unit?: string;
+        csaUnit?: number;
+        count?: number;
+        title?: string;
+        seed?: number;
+        includeCoding?: boolean;
+    }) {
+        return this.client
+            .post<{ quizId: string; questions: number; skipped: number }>("/admin/bank/build", request)
+            .then((r) => r.data);
+    }
+
     createGame(
         quizId: string,
         gameMode: "STANDARD" | "AUTO_PILOT" | "PRACTICE" | "EXAM" | "TEAM" | "BATTLE" = "STANDARD",
