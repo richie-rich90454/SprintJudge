@@ -760,7 +760,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 contestants == 0 ? 0 : totalScore / contestants,
                 totalCorrect, totalAttempts, hardestId, easiestId);
 
-        return new GameReview("GAME_REVIEW", room.leaderboard(), qReviews, pReviews, stats);
+        return new GameReview("GAME_REVIEW", room.leaderboard(), qReviews, pReviews, stats,
+                room.sessionId());
     }
 
     /** Sweeps unrecoverable rooms: lobbies idle past the TTL, plus ACTIVE/REVIEW
