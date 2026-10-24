@@ -19,6 +19,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,6 +106,33 @@ public class PublicController {
                 .toList();
     }
     public record BankDto(String id, String title, String description) {}
+
+    /**
+     * LAN join addresses. A host opened on localhost would otherwise render a
+     * QR code that points every phone back at itself.
+     */
+    @GetMapping("/net")
+    public NetInfo net(HttpServletRequest request) {
+        String scheme = request.isSecure() ? "https" : "http";
+        List<String> urls = new ArrayList<>();
+        try {
+            for (NetworkInterface nic : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                if (!nic.isUp() || nic.isLoopback()) continue;
+                for (InetAddress address : Collections.list(nic.getInetAddresses())) {
+                    if (address instanceof Inet4Address
+                            && !address.isLoopbackAddress()
+                            && !address.isLinkLocalAddress()) {
+                        urls.add(scheme + "://" + address.getHostAddress() + ":" + request.getServerPort());
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            log.warn("Could not enumerate network interfaces for LAN join URLs", e);
+        }
+        return new NetInfo(request.getServerName(), request.getServerPort(), List.copyOf(urls));
+    }
+
+    public record NetInfo(String host, int port, List<String> urls) {}
 
     /**
      * Live code execution for the interactive console. Compiles + runs with the
