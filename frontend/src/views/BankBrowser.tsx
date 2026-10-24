@@ -119,6 +119,7 @@ export function BankBrowser() {
     const [subject, setSubject] = useState(SUBJECTS[0]);
     const [scope, setScope] = useState<BankScope>("everything");
     const [unit, setUnit] = useState("");
+    const [limit, setLimit] = useState(24);
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const needle = unit.trim();
@@ -139,14 +140,17 @@ export function BankBrowser() {
 
     const pickSubject = (next: string) => {
         setSubject(next);
+        setLimit(24);
         setSelectedId(null);
     };
     const pickScope = (next: BankScope) => {
         setScope(next);
+        setLimit(24);
         setSelectedId(null);
     };
     const pickUnit = (next: string) => {
         setUnit(next);
+        setLimit(24);
         setSelectedId(null);
     };
 
@@ -257,7 +261,7 @@ export function BankBrowser() {
                             {results.length} question{results.length === 1 ? "" : "s"}
                         </p>
                         <ul className="grid gap-4 md:grid-cols-2">
-                            {results.map((q: BankQuestionHeader) => (
+                            {results.slice(0, limit).map((q: BankQuestionHeader) => (
                                 <li key={q.id}>
                                     <Card className="p-6 flex flex-col gap-2 h-full">
                                         <button
@@ -288,6 +292,13 @@ export function BankBrowser() {
                                 </li>
                             ))}
                         </ul>
+                        {results.length > limit && (
+                            <div className="mt-4 flex justify-center">
+                                <Button variant="secondary" onClick={() => setLimit((n) => n + 24)}>
+                                    Show more ({results.length - limit} remaining)
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
                 {selectedId !== null && (
