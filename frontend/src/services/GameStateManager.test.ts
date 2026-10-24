@@ -668,3 +668,85 @@ describe("GameStateManager connection status", () => {
         internals._instance = kept;
     });
 });
+
+describe("GameStateManager session resume", () => {
+    const KEY = "sprintjudge_player_session";
+
+    test("JOINED stores a resume session and resume reclaims it", () => {
+        gameStateManager.join("123456", "Ada");
+        joined("u1");
+        expect(JSON.parse(sessionStorage.getItem(KEY) ?? "null")).toEqual({
+            pin: "123456",
+            name: "Ada",
+            token: "tok-1",
+        });
+        vi.clearAllMocks();
+        expect(gameStateManager.resume()).toBe(true);
+        expect(fakeWs.connect).toHaveBeenCalledTimes(1);
+        expect(fakeWs.send).toHaveBeenCalledWith({
+            type: "JOIN",
+            role: "player",
+            name: "Ada",
+            pin: "123456",
+            rejoinToken: "tok-1",
+        });
+    });
+
+    test("resume without a stored session returns false", () => {
+        sessionStorage.clear();
+        expect(gameStateManager.resume()).toBe(false);
+        expect(fakeWs.connect).not.toHaveBeenCalled();
+    });
+
+    test("malformed stored session returns false", () => {
+        sessionStorage.setItem(KEY, "{not json");
+        expect(gameStateManager.resume()).toBe(false);
+    });
+
+    test("partial stored session returns false", () => {
+        sessionStorage.setItem(KEY, JSON.stringify({ pin: "1" }));
+        expect(gameStateManager.resume()).toBe(false);
+    });
+
+    test("GAME_END clears the stored session", () => {
+        gameStateManager.join("123456", "Ada");
+        joined("u1");
+        msg({ type: "GAME_END", rankings: [] });
+        expect(sessionStorage.getItem(KEY)).toBeNull();
+    });
+
+    test("storage write failure never breaks JOINED", () => {
+        const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+            throw new Error("quota");
+        });
+        gameStateManager.join("123456", "Ada");
+        expect(() => joined("u1")).not.toThrow();
+        spy.mockRestore();
+    });
+
+    test("storage clear failure never breaks a fresh join", () => {
+        const spy = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+            throw new Error("blocked");
+        });
+        expect(() => gameStateManager.join("123456", "Ada")).not.toThrow();
+        spy.mockRestore();
+    });
+});
+
+    test("resume uses wss when the page is https", () => {
+        sessionStorage.setItem(
+            "sprintjudge_player_session",
+            JSON.stringify({ pin: "1", name: "Ada", token: "t" }),
+        );
+        const original = window.location;
+        Object.defineProperty(window, "location", {
+            configurable: true,
+            value: { protocol: "https:", host: "quiz.test" },
+        });
+        try {
+            expect(gameStateManager.resume()).toBe(true);
+            expect(fakeWs.connect).toHaveBeenCalledWith("wss://quiz.test/ws");
+        } finally {
+            Object.defineProperty(window, "location", { configurable: true, value: original });
+        }
+    });
