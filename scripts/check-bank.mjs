@@ -109,11 +109,13 @@ function checkQuestion(file, q, index) {
     }
     const correct = correctIds;
     for (const opt of options) {
-      if (!correct.has(opt.id) && opt.misconception.trim().length === 0 && correct.size > 0) {
+      const misconception =
+        typeof opt.misconception === "string" ? opt.misconception.trim() : "";
+      if (!correct.has(opt.id) && misconception.length === 0 && correct.size > 0) {
         err(file, id, `distractor ${opt.id} needs a named misconception`);
       }
       // Quality floor: "wrong" or "confuses order" is not a named misconception.
-      if (!correct.has(opt.id) && correct.size > 0 && opt.misconception.trim().length < 12) {
+      if (!correct.has(opt.id) && correct.size > 0 && misconception.length < 12) {
         err(file, id, `distractor ${opt.id} misconception under 12 chars: name the specific wrong belief`);
       }
     }
