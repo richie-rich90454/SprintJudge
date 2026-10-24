@@ -13,7 +13,8 @@ public record GameReview(
         List<LeaderboardEntry> rankings,
         List<QuestionReview> questions,
         List<PlayerReview> players,
-        ClassStats classStats
+        ClassStats classStats,
+        String sessionId
 ) {
     public record QuestionReview(
             String questionId,
