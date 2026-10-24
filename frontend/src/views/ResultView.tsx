@@ -1,16 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { motion as fm } from "framer-motion";
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Tabs, TabPanel } from "../components/ui/Tabs";
 import { useGameStore } from "../stores/useGameStore";
-import { motionReduced, useUIStore } from "../stores/useUIStore";
-import { motion } from "../services/MotionService";
 import { formatAnswer } from "../services/reviewFormat";
-import { Confetti } from "../components/Confetti";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
 
 type ReviewTab = "podium" | "answers" | "students" | "analysis";
@@ -27,17 +24,8 @@ export function ResultView() {
 
     const podium = leaderboard.slice(0, 3);
     const rest = leaderboard.slice(3);
-    const listRef = useRef<HTMLOListElement>(null);
-
-    useEffect(() => {
-        motion.killFor(listRef.current);
-        motion.countUp(listRef.current);
-        return () => motion.killFor(listRef.current);
-    }, [rest.length, podium.length]);
-
-    const heights = [128, 88, 64];
-    const order = [1, 0, 2];
-    const medal = ["1", "2", "3"];
+    const podiumRef = useCountUp<HTMLDivElement>(true, [podium.length]);
+    const order = podium.length >= 3 ? [1, 0, 2] : podium.map((_, i) => i);
 
     const tabs: { id: ReviewTab; label: string }[] = [
         { id: "podium", label: "Podium" },
@@ -45,30 +33,31 @@ export function ResultView() {
         { id: "students", label: "Students" },
         { id: "analysis", label: "Analysis" },
     ];
-    // Subscribe so a motion-preference flip re-renders immediately.
-    useUIStore((s) => s.motion);
-
     return (
         <div className="pattern-exam min-h-[100dvh] py-10">
-            {!motionReduced() && <Confetti fireKey="final" />}
-            <div className="page-shell max-w-4xl">
-                <div className="flex justify-end gap-1 mb-2">
-                    <SoundToggle />
-                    <MotionToggle />
+            <div className="page-shell max-w-5xl">
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <p className="label-caps mb-2">Final</p>
+                        <h1 className="text-4xl font-black tracking-[-0.03em] md:text-5xl">
+                            Results
+                        </h1>
+                        <p className="mt-2 text-[var(--oq-ink-soft)]">
+                            {review?.classStats
+                                ? `${review.classStats.totalPlayers} ${
+                                      review.classStats.totalPlayers === 1 ? "student" : "students"
+                                  }, ${review.classStats.totalQuestions} ${
+                                      review.classStats.totalQuestions === 1 ? "question" : "questions"
+                                  }`
+                                : "Class summary"}
+                        </p>
+                    </div>
+                    <div className="flex gap-1">
+                        <SoundToggle />
+                        <MotionToggle />
+                    </div>
                 </div>
-                <div className="text-center mb-8">
-                    <p className="label-caps mb-2">Game complete</p>
-                    <h1
-                        className="font-extrabold tracking-tight"
-                        style={{ fontSize: "clamp(34px,5vw,56px)" }}
-                    >
-                        Results
-                    </h1>
-                    <div
-                        className="mt-4 h-[3px] w-20 mx-auto"
-                        style={{ background: "var(--oq-accent)" }}
-                    />
-                </div>
+                <div className="mt-6 border-b border-[var(--oq-border-strong)]" />
 
                 <Tabs
                     value={tab}
@@ -77,78 +66,59 @@ export function ResultView() {
                     label="Result views"
                 >
                     <TabPanel value="podium">
-                        <Card className="pt-10 pb-6 px-6 md:px-10">
-                            <div className="flex flex-col gap-8">
-                                <div className="flex items-end justify-start sm:justify-center gap-4 mb-10 min-h-[190px] overflow-x-auto pb-2">
+                        <Card className="p-6 md:p-10">
+                            <div ref={podiumRef} className="flex flex-col gap-8">
+                                <div className="flex min-h-[240px] items-end justify-center gap-4 overflow-x-auto pb-2 md:gap-8">
                                     {podium.length === 0 && (
-                                        <p className="text-[var(--oq-ink-soft)]">No results.</p>
+                                        <p className="text-[var(--oq-ink-soft)]">No results yet.</p>
                                     )}
                                     {order.map((idx) => {
                                         if (idx >= podium.length) return null;
                                         const p = podium[idx];
+                                        const height =
+                                            p.rank === 1
+                                                ? "h-40"
+                                                : p.rank === 2
+                                                  ? "h-32"
+                                                  : "h-24";
                                         return (
-                                            <fm.div
+                                            <div
                                                 key={p.uuid}
-                                                layout
-                                                initial={{ opacity: 0, y: 30 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{
-                                                    type: "spring",
-                                                    stiffness: 260,
-                                                    damping: 22,
-                                                }}
-                                                className="flex flex-col items-center w-28 md:w-36 shrink-0"
+                                                className="flex w-28 shrink-0 flex-col items-center md:w-40"
                                             >
-                                                <span
-                                                    className="mono font-extrabold mb-2"
-                                                    style={{
-                                                        fontSize: idx === 0 ? 30 : 22,
-                                                        color: "var(--oq-accent)",
-                                                    }}
+                                                <p
+                                                    className="font-mono text-2xl font-semibold tabular-nums md:text-3xl"
+                                                    data-count={p.score}
                                                 >
-                                                    {p.score.toLocaleString()}
-                                                </span>
-                                                <span
-                                                    className={`font-bold truncate max-w-full ${idx === 0 ? "text-lg" : ""}`}
+                                                    {p.score}
+                                                </p>
+                                                <p
+                                                    className="mt-1 max-w-full truncate text-sm font-semibold"
                                                     title={p.name}
                                                 >
                                                     {p.name}
-                                                </span>
+                                                </p>
                                                 <div
-                                                    className="w-full mt-2 border-x-2 border-t-2 flex items-start justify-center pt-2"
-                                                    style={{
-                                                        height: heights[idx],
-                                                        borderColor: "var(--oq-accent)",
-                                                        background: "var(--oq-row-alt)",
-                                                        borderRadius: "12px 12px 0 0",
-                                                    }}
+                                                    className={`mt-3 flex w-full ${height} items-start justify-center border border-[var(--oq-border-strong)] bg-[var(--oq-row-alt)] pt-3`}
                                                 >
-                                                    <span
-                                                        className="mono font-extrabold"
-                                                        style={{
-                                                            fontSize: idx === 0 ? 44 : 30,
-                                                            color: "var(--oq-accent)",
-                                                            lineHeight: 1,
-                                                        }}
-                                                    >
-                                                        {medal[idx]}
+                                                    <span className="font-mono text-4xl font-semibold text-[var(--oq-accent)]">
+                                                        {p.rank}
                                                     </span>
                                                 </div>
-                                            </fm.div>
+                                            </div>
                                         );
                                     })}
                                 </div>
 
                                 {rest.length > 0 && (
-                                    <fm.ol ref={listRef} className="flex flex-col gap-4">
+                                    <ol className="flex flex-col gap-2">
                                         {rest.map((r) => (
-                                            <fm.li
+                                            <li
                                                 key={r.uuid}
-                                                layout
-                                                className="flex items-center justify-between px-4 py-3 min-h-[44px] border border-[var(--oq-border)] rounded-[6px] bg-[var(--oq-row-alt)]"
+                                                className="flex min-h-[44px] items-center justify-between border border-[var(--oq-border)] bg-[var(--oq-row-alt)] px-4 py-3"
                                             >
-                                                <span className="flex items-center gap-4 min-w-0">
-                                                    <span className="min-w-8 h-8 px-1 mono text-sm flex items-center justify-center border border-[var(--oq-border)] rounded-[6px] tabular-nums shrink-0">
+                                                <span className="flex min-w-0 items-center gap-4">
+                                                    <span className="flex h-8 min-w-8 shrink-0 items-center justify-center border border-[var(--oq-border)] px-1 font-mono text-sm tabular-nums">
                                                         {r.rank}
                                                     </span>
                                                     <span className="truncate" title={r.name}>
@@ -156,15 +126,27 @@ export function ResultView() {
                                                     </span>
                                                 </span>
                                                 <span
-                                                    className="mono font-semibold"
-                                                    data-score={r.score}
+                                                    className="font-mono font-semibold tabular-nums"
+                                                    data-count={r.score}
                                                 >
                                                     {r.score}
                                                 </span>
-                                            </fm.li>
+                                            </li>
                                         ))}
-                                    </fm.ol>
+                                    </ol>
                                 )}
+
+                                <div className="flex flex-wrap justify-center gap-3 border-t border-[var(--oq-border)] pt-6">
+                                    <Button variant="secondary" onClick={() => navigate({ to: "/" })}>
+                                        Leave results
+                                    </Button>
+                                    <Button
+                                        variant="primary"
+                                        onClick={() => navigate({ to: "/admin" })}
+                                    >
+                                        New game
+                                    </Button>
+                                </div>
                             </div>
                         </Card>
                     </TabPanel>
@@ -221,7 +203,7 @@ export function ResultView() {
                                                             {i + 1}. {q.title}
                                                         </p>
                                                         <p className="text-sm text-[var(--oq-ink-soft)] mt-1">
-                                                            {q.questionType.replace(/_/g, " ")} ·{" "}
+                                                            {q.questionType.replace(/_/g, " ")},{" "}
                                                             {q.pointsBase} pts
                                                         </p>
                                                     </div>
@@ -280,7 +262,7 @@ export function ResultView() {
                                                                             : `Player ${pi + 1}`}
                                                                     </span>
                                                                     <span className="mono text-[var(--oq-ink-soft)]">
-                                                                        +{a.scoreEarned} ·{" "}
+                                                                        +{a.scoreEarned} points{" "}
                                                                         {a.attemptCount}{" "}
                                                                         {a.attemptCount === 1
                                                                             ? "try"
@@ -498,14 +480,6 @@ export function ResultView() {
                         </Card>
                     </TabPanel>
                 </Tabs>
-
-                <Button
-                    variant="secondary"
-                    className="w-full mt-6"
-                    onClick={() => navigate({ to: "/" })}
-                >
-                    Back to lobby
-                </Button>
             </div>
         </div>
     );
