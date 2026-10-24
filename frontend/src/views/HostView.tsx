@@ -8,14 +8,13 @@ import { TextInput } from "../components/ui/TextInput";
 import { Chip } from "../components/ui/Primitives";
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
-import { useTimerStore } from "../stores/useTimerStore";
 import { webSocketService, type WsMessage } from "../services/WebSocketService";
-import { CircularTimer } from "../components/Timer/CircularTimer";
-import { RoomQr } from "../components/RoomQr";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { useStaggerIn } from "../hooks/useMotion";
 import { useVirtualWindow } from "../hooks/useVirtualWindow";
+import { HostStage } from "../components/host/HostStage";
+import { useJoinUrl } from "../hooks/useJoinUrl";
 
 const ROW_H = 44;
 const PROJECTOR_ROW_H = 64;
@@ -35,6 +34,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
     const rows = leaderboard.length
         ? leaderboard
         : [...(room?.players ?? [])]
+              .filter((p) => p.name !== "Host")
               .sort((a, b) => b.score - a.score)
               .map((p, i) => ({
                   uuid: p.uuid,
@@ -55,7 +55,9 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                 <h3 className="header-double" style={{ marginBottom: 0 }}>
                     Leaderboard
                 </h3>
-                <span className="label-caps">{rows.length} players</span>
+                <span className="label-caps">
+                    {rows.length} {rows.length === 1 ? "student" : "students"}
+                </span>
             </div>
             {wsError && (
                 <p role="alert" className="text-[var(--oq-danger)] text-sm px-6 pt-4">
@@ -133,6 +135,7 @@ function ControlsPanel() {
     const kickPlayer = useGameStore((s) => s.kick);
     const status = useGameStore((s) => s.status);
     const room = useGameStore((s) => s.room);
+    const gameMode = useGameStore((s) => s.gameMode);
     const wsError = useGameStore((s) => s.error);
     const [teamName, setTeamName] = useState("");
     const [teamsLoading, setTeamsLoading] = useState(false);
@@ -143,8 +146,10 @@ function ControlsPanel() {
     // lockouts, rate limits) must not paint the Teams panel red.
     const teamOp = useRef(false);
 
-    const players = room?.players ?? [];
+    const players = (room?.players ?? []).filter((p) => p.name !== "Host");
     const active = status === "ACTIVE";
+    const reviewing = status === "REVIEW";
+    const statusCopy = active ? "Round live" : reviewing ? "Reviewing answers" : "Awaiting start";
 
     useEffect(() => {
         const sub = webSocketService.onMessage().subscribe((m: WsMessage) => {
@@ -197,7 +202,7 @@ function ControlsPanel() {
         <Card className="p-0 overflow-hidden">
             <div className="pb-4 border-b border-[var(--oq-border)]">
                 <h3 className="font-extrabold text-lg">Controls</h3>
-                <p className="label-caps mt-1">{active ? "Round live" : "Awaiting start"}</p>
+                <p className="label-caps mt-1">{statusCopy}</p>
             </div>
 
             <div className="py-4 flex flex-col gap-4">
@@ -208,7 +213,7 @@ function ControlsPanel() {
                             className="w-full"
                             onClick={() => hostCommand("FORCE_SUBMIT")}
                         >
-                            Force submit
+                            Reveal answer
                         </Button>
                         <Button
                             variant="secondary"
@@ -227,7 +232,7 @@ function ControlsPanel() {
                         >
                             {status === "LOBBY" ? "Start round" : "Next question"}
                         </Button>
-                        {status === "LOBBY" && (
+                        {status === "LOBBY" && gameMode === "BATTLE" && (
                             <Button
                                 variant="secondary"
                                 className="w-full"
@@ -264,76 +269,80 @@ function ControlsPanel() {
                 </Dialog>
             </div>
 
-            <div className="py-4 border-t border-[var(--oq-border)]">
-                <div className="flex items-center justify-between mb-3">
-                    <p className="label-caps">Teams</p>
-                    <button
-                        type="button"
-                        onClick={requestTeams}
-                        className="text-[var(--oq-accent)] text-sm font-bold min-h-[44px] px-2 inline-flex items-center gap-2"
-                    >
-                        {teamsLoading && <span className="oq-spin" aria-hidden="true" />}
-                        Retry
-                    </button>
-                </div>
-                {teamsError && (
-                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-2">
-                        {teamsError}
-                    </p>
-                )}
-                {wsError && (
-                    <p role="alert" className="text-[var(--oq-danger)] text-sm mb-2">
-                        {wsError}
-                    </p>
-                )}
-                <div className="flex gap-2 mb-3">
-                    <TextInput
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        placeholder="Team name"
-                        aria-label="Team name"
-                        className="flex-1 text-sm"
-                        onKeyDown={(e) => e.key === "Enter" && createTeam()}
-                    />
-                    <Button variant="secondary" size="sm" onClick={createTeam}>
-                        Create
-                    </Button>
-                </div>
-                <ul className="flex flex-col gap-4 max-h-48 overflow-y-auto">
-                    {teams.map((t) => (
-                        <li
-                            key={t.id}
-                            className="flex items-center justify-between text-sm min-h-[44px] px-3 rounded-[6px] hover:bg-[var(--oq-row-alt)] transition-colors"
+            {gameMode === "TEAM" && (
+                <div className="py-4 border-t border-[var(--oq-border)]">
+                    <div className="flex items-center justify-between mb-3">
+                        <p className="label-caps">Teams</p>
+                        <button
+                            type="button"
+                            onClick={requestTeams}
+                            className="text-[var(--oq-accent)] text-sm font-bold min-h-[44px] px-2 inline-flex items-center gap-2"
                         >
-                            <span className="font-medium">{t.name}</span>
-                            <span className="mono text-xs text-[var(--oq-ink-soft)]">
-                                {t.memberUuids.length} members · {t.score} pts
-                            </span>
-                        </li>
-                    ))}
-                    {teamsLoading && (
-                        <li className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
-                            <span className="oq-spin" aria-hidden="true" /> Loading teams…
-                        </li>
+                            {teamsLoading && <span className="oq-spin" aria-hidden="true" />}
+                            Retry
+                        </button>
+                    </div>
+                    {teamsError && (
+                        <p role="alert" className="text-[var(--oq-danger)] text-sm mb-2">
+                            {teamsError}
+                        </p>
                     )}
-                    {!teamsLoading && teams.length === 0 && !teamsError && (
-                        <li className="text-[var(--oq-ink-soft)] text-sm">No teams yet.</li>
+                    {wsError && (
+                        <p role="alert" className="text-[var(--oq-danger)] text-sm mb-2">
+                            {wsError}
+                        </p>
                     )}
-                </ul>
-            </div>
+                    <div className="flex gap-2 mb-3">
+                        <TextInput
+                            value={teamName}
+                            onChange={(e) => setTeamName(e.target.value)}
+                            placeholder="Team name"
+                            aria-label="Team name"
+                            className="flex-1 text-sm"
+                            onKeyDown={(e) => e.key === "Enter" && createTeam()}
+                        />
+                        <Button variant="secondary" size="sm" onClick={createTeam}>
+                            Create
+                        </Button>
+                    </div>
+                    <ul className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                        {teams.map((t) => (
+                            <li
+                                key={t.id}
+                                className="flex items-center justify-between text-sm min-h-[44px] px-3 rounded-[2px] hover:bg-[var(--oq-row-alt)] transition-colors"
+                            >
+                                <span className="font-medium">{t.name}</span>
+                                <span className="mono text-xs text-[var(--oq-ink-soft)]">
+                                    {t.memberUuids.length} members, {t.score} pts
+                                </span>
+                            </li>
+                        ))}
+                        {teamsLoading && (
+                            <li className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
+                                <span className="oq-spin" aria-hidden="true" /> Loading teams
+                            </li>
+                        )}
+                        {!teamsLoading && teams.length === 0 && !teamsError && (
+                            <li className="text-[var(--oq-ink-soft)] text-sm">No teams yet.</li>
+                        )}
+                    </ul>
+                </div>
+            )}
 
             <div className="pt-4 border-t border-[var(--oq-border)]">
-                <p className="label-caps mb-3">{players.length} players</p>
+                <p className="label-caps mb-3">
+                    {players.length} {players.length === 1 ? "student" : "students"}
+                </p>
                 {!room && (
                     <p className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
-                        <span className="oq-spin" aria-hidden="true" /> Loading players…
+                        <span className="oq-spin" aria-hidden="true" /> Loading players
                     </p>
                 )}
-                <ul className="flex flex-col gap-4 max-h-48 overflow-y-auto">
+                <ul className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                     {players.map((p) => (
                         <li
                             key={p.uuid}
-                            className="flex items-center justify-between gap-2 text-sm min-h-[44px] px-3 rounded-[6px] hover:bg-[var(--oq-row-alt)] transition-colors"
+                            className="flex items-center justify-between gap-2 text-sm min-h-[44px] px-3 rounded-[2px] hover:bg-[var(--oq-row-alt)] transition-colors"
                         >
                             <span className="font-medium truncate" title={p.name}>
                                 {p.name}
@@ -375,15 +384,12 @@ export function HostView() {
     const room = useGameStore((s) => s.room);
     const gameStatus = useGameStore((s) => s.status);
     const wsError = useGameStore((s) => s.error);
-    const q = useGameStore((s) => s.currentQuestion);
-    const end = useTimerStore((s) => s.endEpochMs);
-    const totalSec = useTimerStore((s) => s.totalSec);
     const [copied, setCopied] = useState(false);
     const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const pin =
         (typeof search.pin === "string" && search.pin.length > 0 ? search.pin : storePin) ?? null;
-    const projector = search.projector === true || search.projector === "1";
+    const joinUrl = useJoinUrl(pin ?? "");
 
     useEffect(() => {
         if (!pin) return;
@@ -414,7 +420,7 @@ export function HostView() {
         );
     }
 
-    const playerCount = room?.players.length ?? 0;
+    const playerCount = (room?.players ?? []).filter((p) => p.name !== "Host").length;
     const liveStatus = gameStatus === "ENDED" ? "ENDED" : (room?.status ?? gameStatus);
     const statusLabel =
         liveStatus === "ACTIVE"
@@ -426,8 +432,6 @@ export function HostView() {
                 : "Lobby open";
     const tone: "success" | "accent" | "neutral" =
         liveStatus === "ACTIVE" ? "success" : liveStatus === "REVIEW" ? "accent" : "neutral";
-    const joinUrl = `${window.location.origin}/j/${pin}`;
-
     const copyLink = () => {
         const done = (ok: boolean) => {
             setCopied(ok);
@@ -456,32 +460,13 @@ export function HostView() {
         }
     };
 
-    if (projector) {
-        return (
-            <div className="pattern-exam min-h-[100dvh] flex flex-col">
-                <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
-                    <div className="page-shell py-6 flex items-center gap-8">
-                        <p
-                            className="mono font-extrabold tracking-[.2em] leading-none"
-                            style={{ fontSize: "clamp(48px,8vw,96px)" }}
-                        >
-                            {pin}
-                        </p>
-                        <div className="flex-1">
-                            <p className="label-caps mb-1">{statusLabel}</p>
-                            <p className="font-bold text-2xl">{playerCount} players</p>
-                        </div>
-                        {room?.status === "ACTIVE" && end && isFinite(end) && q && (
-                            <CircularTimer endEpochMs={end} totalSec={totalSec} />
-                        )}
-                    </div>
-                </header>
-                <main className="page-shell flex-1 py-6 w-full">
-                    <LeaderboardPanel projector />
-                </main>
-            </div>
-        );
-    }
+    const toggleFullScreen = () => {
+        if (document.fullscreenElement) {
+            void document.exitFullscreen().catch(() => {});
+        } else {
+            void document.documentElement.requestFullscreen().catch(() => {});
+        }
+    };
 
     return (
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
@@ -499,27 +484,18 @@ export function HostView() {
                             <div className="mb-1">
                                 <Chip tone={tone}>{statusLabel}</Chip>
                             </div>
-                            <p className="font-bold text-lg">{playerCount} players</p>
+                            <p className="font-bold text-lg">
+                                {playerCount} {playerCount === 1 ? "student" : "students"}
+                            </p>
                         </div>
                         <div className="flex-1" />
-                        {room?.status === "ACTIVE" && end && isFinite(end) && q && (
-                            <CircularTimer endEpochMs={end} totalSec={totalSec} />
-                        )}
-                        {(!room || room.status === "LOBBY") && <RoomQr pin={pin} />}
                         <div className="flex items-center gap-2">
                             <Button variant="secondary" size="sm" onClick={copyLink}>
                                 {copied ? "Copied" : "Copy join link"}
                             </Button>
-                            <Link
-                                to="/host"
-                                search={{
-                                    pin,
-                                    projector: true,
-                                }}
-                                className="btn btn-secondary btn-sm"
-                            >
-                                Projector
-                            </Link>
+                            <Button variant="secondary" size="sm" onClick={toggleFullScreen}>
+                                Full screen
+                            </Button>
                         </div>
                         <SoundToggle />
                         <MotionToggle />
@@ -530,36 +506,38 @@ export function HostView() {
                 </div>
             </header>
 
-            <main className="page-shell flex-1 grid md:grid-cols-[1fr_280px] gap-6 py-6 items-start w-full">
-                {!room ? (
-                    <div
-                        className="rounded-[8px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
-                        aria-label="Loading room"
-                    >
-                        <div className="h-5 w-40 animate-pulse rounded-[6px] bg-[var(--oq-border)] mb-4" />
-                        <div className="flex flex-col gap-4" aria-hidden="true">
-                            {[0, 1, 2, 3].map((i) => (
-                                <div
-                                    key={i}
-                                    className="h-11 animate-pulse rounded-[6px] bg-[var(--oq-border)] opacity-40"
-                                />
-                            ))}
+            <main className="page-shell flex-1 grid lg:grid-cols-[minmax(0,1fr)_320px] gap-6 py-6 items-start w-full">
+                <div className="min-w-0 flex flex-col gap-6">
+                    {!room ? (
+                        <div
+                            className="rounded-[2px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                            aria-label="Loading room"
+                        >
+                            <div className="skeleton h-5 w-40 mb-4" />
+                            <div className="flex flex-col gap-4" aria-hidden="true">
+                                {[0, 1, 2, 3].map((i) => (
+                                    <div key={i} className="skeleton h-11" />
+                                ))}
+                            </div>
+                            <p className="text-[var(--oq-ink-soft)] text-sm mt-4">Loading room</p>
+                            {wsError && (
+                                <p role="alert" className="text-[var(--oq-danger)] text-sm mt-2">
+                                    Connection error: {wsError}
+                                </p>
+                            )}
                         </div>
-                        <p className="text-[var(--oq-ink-soft)] text-sm mt-4">Loading room…</p>
-                        {wsError && (
-                            <p role="alert" className="text-[var(--oq-danger)] text-sm mt-2">
-                                Connection error: {wsError}
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    <LeaderboardPanel />
-                )}
-                {wsError && room && (
-                    <p role="alert" className="text-[var(--oq-danger)] text-sm md:col-span-2">
-                        Connection error: {wsError}
-                    </p>
-                )}
+                    ) : (
+                        <>
+                            <HostStage pin={pin} joinUrl={joinUrl} />
+                            <LeaderboardPanel />
+                        </>
+                    )}
+                    {wsError && room && (
+                        <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                            Connection error: {wsError}
+                        </p>
+                    )}
+                </div>
                 {liveStatus === "ENDED" ? (
                     <Card className="p-6 flex flex-col gap-4">
                         <h3 className="font-extrabold text-lg">Game over</h3>
