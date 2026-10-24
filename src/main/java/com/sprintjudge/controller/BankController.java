@@ -1,11 +1,14 @@
 package com.sprintjudge.controller;
 
 import com.sprintjudge.bank.BankStore;
+import com.sprintjudge.service.BankQuizBuilder;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,14 +24,17 @@ import org.springframework.web.server.ResponseStatusException;
 public class BankController {
 
     private final BankStore store;
+    private final BankQuizBuilder builder;
 
     /**
-     * Creates the controller over the shared bank store.
+     * Creates the controller over the shared bank store and quiz builder.
      *
      * @param store classpath question bank
+     * @param builder playable quiz generator
      */
-    public BankController(BankStore store) {
+    public BankController(BankStore store, BankQuizBuilder builder) {
         this.store = store;
+        this.builder = builder;
     }
 
     /**
@@ -83,4 +89,30 @@ public class BankController {
     public Map<String, Integer> volume() {
         return store.volume();
     }
+
+    /**
+     * Builds a playable quiz from bank records. Admin-only: the builder copies
+     * answer keys and explanations into the generated quiz config.
+     */
+    @PostMapping("/build")
+    public BankQuizBuilder.BuildResult build(@RequestBody BankQuizBuilder.BuildRequest request) {
+        try {
+            return builder.build(request);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    /** Four CSA-aligned class presets for the teacher home. */
+    @GetMapping("/csa")
+    public List<CsaPreset> csaPresets() {
+        return List.of(
+                new CsaPreset(1, "Using Objects and Methods", "Objects, methods, primitives, strings", 16),
+                new CsaPreset(2, "Selection and Iteration", "Boolean logic, if statements, loops", 16),
+                new CsaPreset(3, "Class Creation", "Encapsulation, constructors, invariants", 16),
+                new CsaPreset(4, "Data Collections", "Arrays, lists, 2D arrays, recursion, files", 16),
+                new CsaPreset(5, "Mixed CSA", "Four questions from each CSA unit", 16));
+    }
+
+    public record CsaPreset(int unit, String title, String description, int questions) {}
 }
