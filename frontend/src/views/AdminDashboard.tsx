@@ -27,6 +27,14 @@ const TABS: { id: AdminTab; label: string }[] = [
     { id: "settings", label: "Settings" },
 ];
 
+const CSA_PRESETS = [
+    { unit: 1, title: "Using Objects and Methods", detail: "Objects, methods, primitives, strings" },
+    { unit: 2, title: "Selection and Iteration", detail: "Boolean logic, if statements, loops" },
+    { unit: 3, title: "Class Creation", detail: "Encapsulation, constructors, invariants" },
+    { unit: 4, title: "Data Collections", detail: "Arrays, lists, 2D arrays, recursion" },
+    { unit: 5, title: "Mixed CSA", detail: "Four questions from each unit" },
+];
+
 function SettingsTab() {
     const [settings, setSettings] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
@@ -140,6 +148,7 @@ export function AdminDashboard() {
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
     const [busy, setBusy] = useState(false);
+    const [csaBusy, setCsaBusy] = useState<number | null>(null);
     const [needsAuth, setNeedsAuth] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [search, setSearch] = useState("");
@@ -218,6 +227,25 @@ export function AdminDashboard() {
             setBannerError("Failed to create game - try again.");
         } finally {
             setBusy(false);
+        }
+    };
+
+    const startCsa = async (unit: number) => {
+        setCsaBusy(unit);
+        setBannerError(null);
+        try {
+            const built = await adminApi.buildBankQuiz({
+                csaUnit: unit,
+                count: 16,
+                includeCoding: true,
+            });
+            const game = await adminApi.createGame(built.quizId, "STANDARD");
+            setPin(game.pinCode);
+            navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
+        } catch {
+            setBannerError("Could not build the CSA game. Try the bank again.");
+        } finally {
+            setCsaBusy(null);
         }
     };
 
@@ -346,14 +374,54 @@ export function AdminDashboard() {
                                         <p className="stat-value">{quizzes.length}</p>
                                     </Card>
                                     <Card className="stat-block card-accent">
-                                        <p className="label-caps mb-1">Questions loaded</p>
-                                        <p className="stat-value">{questions.length}</p>
+                                        <p className="label-caps mb-1">CSA units</p>
+                                        <p className="stat-value">4</p>
                                     </Card>
                                     <Card className="stat-block card-accent">
                                         <p className="label-caps mb-1">Question types</p>
                                         <p className="stat-value">12</p>
                                     </Card>
                                 </div>
+                                <div className="mb-8">
+                                    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                                        <div>
+                                            <h3 className="text-xl font-extrabold tracking-[-0.02em]">
+                                                Start a CSA class
+                                            </h3>
+                                            <p className="mt-1 text-sm text-[var(--oq-ink-soft)]">
+                                                Sixteen questions from the bank, with one live Java
+                                                problem.
+                                            </p>
+                                        </div>
+                                        {csaBusy !== null && (
+                                            <p className="label-caps">Building the set</p>
+                                        )}
+                                    </div>
+                                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                                        {CSA_PRESETS.map((preset) => (
+                                            <button
+                                                key={preset.unit}
+                                                type="button"
+                                                onClick={() => startCsa(preset.unit)}
+                                                disabled={csaBusy !== null}
+                                                className="card min-h-[128px] p-4 text-left transition-colors hover:border-[var(--oq-accent)] disabled:opacity-50"
+                                            >
+                                                <p className="label-caps">
+                                                    {preset.unit === 5
+                                                        ? "Mixed"
+                                                        : `CSA ${preset.unit}`}
+                                                </p>
+                                                <p className="mt-2 font-bold leading-snug">
+                                                    {preset.title}
+                                                </p>
+                                                <p className="mt-1 text-xs leading-relaxed text-[var(--oq-ink-soft)]">
+                                                    {preset.detail}
+                                                </p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <h3 className="header-double mb-4">Quick actions</h3>
                                 <div className="flex flex-wrap gap-4 items-center">
                                     <select
