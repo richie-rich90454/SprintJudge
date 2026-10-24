@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -737,7 +739,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         String hostUuid = room.hostUuid();
 
         for (Player p : room.players()) {
-            if (p.uuid().equals(hostUuid)) continue; // host is never reviewed
+            if (p.uuid().equals(hostUuid) || "Host".equalsIgnoreCase(p.name())) continue;
             contestants++;
             List<com.sprintjudge.domain.models.Submission> pSubs =
                     byPlayer.getOrDefault(p.uuid(), List.of());
@@ -873,8 +875,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 .map(p -> new RoomState.PlayerInfo(p.uuid(), p.name(), p.score(), p.connected()))
                 .toList();
         int count = questionRepository.findByQuiz(room.quizId()).size();
-        return new RoomState("ROOM_STATE", room.status(), count, room.currentQuestionId(), players,
-                room.gameMode().name());
+        return new RoomState("ROOM_STATE", room.status(), count, room.currentQuestionIndex(),
+                room.currentQuestionId(), players, room.gameMode().name());
     }
 
     private void sendRoundResult(String pin, boolean revealed) {
@@ -896,7 +898,68 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                             correct, round[0], room.streakOf(pl.uuid()), round[1]);
                 })
                 .toList();
-        broadcastToRoom(pin, new RoundResult("ROUND_RESULT", q.id(), revealed, answer, scores));
+        Map<String, Integer> counts = revealed ? answerCounts(room, q, type, scores) : Map.of();
+        broadcastToRoom(pin, new RoundResult("ROUND_RESULT", q.id(), revealed, answer, scores, counts));
+    }
+
+    /**
+     * Option-level distribution for the host reveal. Only the latest answer
+     * per player counts; timed-out players stay in the denominator through the
+     * correct/incorrect fallback so a silent class never reads as 100%.
+     */
+    Map<String, Integer> answerCounts(GameRoom room, Question q, QuestionType type,
+                                      List<RoundResult.PlayerScore> scores) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        Map<String, String> latest = new HashMap<>();
+        for (Submission s : submissionRepository.findBySessionQuestion(room.sessionId(), q.id())) {
+            latest.put(s.playerUuid(), s.responseData());
+        }
+        if (type == QuestionType.MCQ || type == QuestionType.OUTPUT_PRED
+                || type == QuestionType.COMPLEXITY) {
+            for (String data : latest.values()) {
+                try {
+                    int idx = Json.readTree(data == null ? "{}" : data).path("selectedIndex").asInt(-1);
+                    if (idx >= 0 && idx < 26) {
+                        counts.merge(String.valueOf((char) ('A' + idx)), 1, Integer::sum);
+                    }
+                } catch (RuntimeException ignored) {
+                    // A malformed legacy response is skipped, never a 500.
+                }
+            }
+        } else if (type == QuestionType.TRUE_FALSE) {
+            for (String data : latest.values()) {
+                try {
+                    var node = Json.readTree(data == null ? "{}" : data);
+                    if (node.has("value")) {
+                        counts.merge(node.path("value").asBoolean() ? "True" : "False", 1, Integer::sum);
+                    }
+                } catch (RuntimeException ignored) {
+                    // skip malformed legacy response
+                }
+            }
+        } else if (type == QuestionType.MULTIPLE_SELECT) {
+            for (String data : latest.values()) {
+                try {
+                    var node = Json.readTree(data == null ? "{}" : data).path("selectedIndices");
+                    if (node.isArray()) {
+                        for (var selected : node) {
+                            int idx = selected.asInt(-1);
+                            if (idx >= 0 && idx < 26) {
+                                counts.merge(String.valueOf((char) ('A' + idx)), 1, Integer::sum);
+                            }
+                        }
+                    }
+                } catch (RuntimeException ignored) {
+                    // skip malformed legacy response
+                }
+            }
+        }
+        if (counts.isEmpty()) {
+            int correct = (int) scores.stream().filter(RoundResult.PlayerScore::correct).count();
+            counts.put("Correct", correct);
+            counts.put("Incorrect", Math.max(0, scores.size() - correct));
+        }
+        return counts;
     }
 
     private String sessionIdOf(GameRoom room, String uuid) {
