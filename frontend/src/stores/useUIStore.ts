@@ -4,7 +4,20 @@ const THEME_KEY = "oq-theme";
 const SOUND_KEY = "oq-sound";
 const MOTION_KEY = "oq-motion";
 
-const THEME_COLORS = { light: "#fff0e4" } as const;
+/**
+ * Reads the live bone background token so the browser chrome matches the UI.
+ * Falls back to a named color when the stylesheet is not ready (tests, SSR).
+ */
+function themeColor(): string {
+    try {
+        const value = getComputedStyle(document.documentElement)
+            .getPropertyValue("--oq-bg")
+            .trim();
+        return value || "white";
+    } catch {
+        return "white";
+    }
+}
 
 /** Syncs the theme-color meta with the active theme (no token disagreement). */
 function syncThemeColor(_t: "light" | "dark"): void {
@@ -15,7 +28,7 @@ function syncThemeColor(_t: "light" | "dark"): void {
             meta.setAttribute("name", "theme-color");
             document.head.appendChild(meta);
         }
-        meta.setAttribute("content", THEME_COLORS.light);
+        meta.setAttribute("content", themeColor());
     } catch {
         /* ignore */
     }
