@@ -149,6 +149,17 @@ class GameWebSocketTeamBattleTest {
     }
 
     @Test
+    void spectatorSubmitIsRejected() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-9");
+        props.put("role", "spectator");
+        ws().onMessage(session,
+                "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"response\":{\"selectedIndex\":0}}");
+        assertTrue(lastMessage().contains("Spectators cannot submit"));
+        verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
     void joinTeamHappyPathSendsTeamJoined() {
         props.put("pin", "123456");
         props.put("playerUuid", "uuid-9");
