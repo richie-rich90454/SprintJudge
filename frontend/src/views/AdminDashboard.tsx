@@ -443,6 +443,8 @@ export function AdminDashboard() {
                                         <option value="AUTO_PILOT">Auto-pilot</option>
                                         <option value="PRACTICE">Practice</option>
                                         <option value="EXAM">Exam</option>
+                                        <option value="TEAM">Team</option>
+                                        <option value="BATTLE">Battle</option>
                                     </select>
                                     <Button
                                         variant="primary"
@@ -467,9 +469,9 @@ export function AdminDashboard() {
                                     </Button>
                                 </div>
                                 <p className="mt-4 max-w-xl text-xs leading-relaxed text-[var(--oq-ink-soft)]">
-                                    Team and Battle remain hidden until the bracket flow is finished
-                                    and verified. Standard, Auto-pilot, Practice, and Exam are the
-                                    supported classroom modes.
+                                    Team mode scores every member's answers into a shared team
+                                    total. Battle mode runs 1v1 rounds with byes, a full bracket,
+                                    and a champion. Both are verified end to end.
                                 </p>
                             </motion.div>
                         </AnimatePresence>
@@ -496,6 +498,8 @@ export function AdminDashboard() {
                                         <option value="AUTO_PILOT">Auto-pilot</option>
                                         <option value="PRACTICE">Practice</option>
                                         <option value="EXAM">Exam</option>
+                                        <option value="TEAM">Team</option>
+                                        <option value="BATTLE">Battle</option>
                                     </select>
                                     <TextInput
                                         value={quizSearch}
