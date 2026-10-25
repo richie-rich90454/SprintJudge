@@ -717,7 +717,7 @@ describe("GameStateManager connection status", () => {
     test("failed status surfaces a connection error", () => {
         fakeWs.emitStatus("failed");
         expect(gameStateManager.state.error).toBe(
-            "Connection failed after 10 retries — refresh to rejoin",
+            "Connection failed after 10 retries. Refresh to rejoin.",
         );
     });
 
