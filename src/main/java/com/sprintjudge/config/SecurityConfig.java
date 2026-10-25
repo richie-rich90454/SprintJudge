@@ -75,12 +75,10 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             // Materialize the deferred token on every request so the SPA gets
             // the XSRF-TOKEN cookie before its first POST, not after a 403.
+            // CsrfFilter always sets this attribute, so the cast is safe.
             .addFilterAfter((request, response, chain) -> {
-                Object token = request.getAttribute(
-                        org.springframework.security.web.csrf.CsrfToken.class.getName());
-                if (token instanceof org.springframework.security.web.csrf.CsrfToken csrfToken) {
-                    csrfToken.getToken();
-                }
+                ((org.springframework.security.web.csrf.CsrfToken) request.getAttribute(
+                        org.springframework.security.web.csrf.CsrfToken.class.getName())).getToken();
                 chain.doFilter(request, response);
             }, org.springframework.security.web.csrf.CsrfFilter.class)
             .headers(headers -> headers
