@@ -4,9 +4,9 @@ import { formatAnswer } from "./reviewFormat";
 const OPTS = ["Alpha", "Beta", "Gamma", "Delta"];
 
 describe("formatAnswer", () => {
-    test("nullish answers show a dash", () => {
-        expect(formatAnswer("MCQ", null, OPTS)).toBe("—");
-        expect(formatAnswer("MCQ", undefined, OPTS)).toBe("—");
+    test("nullish answers show a question mark", () => {
+        expect(formatAnswer("MCQ", null, OPTS)).toBe("?");
+        expect(formatAnswer("MCQ", undefined, OPTS)).toBe("?");
     });
 
     test("non-object answers stringify", () => {
@@ -15,12 +15,12 @@ describe("formatAnswer", () => {
     });
 
     test("MCQ resolves letter and text", () => {
-        expect(formatAnswer("MCQ", { correctIndex: 1 }, OPTS)).toBe("Correct: B — Beta");
+        expect(formatAnswer("MCQ", { correctIndex: 1 }, OPTS)).toBe("Correct: B, Beta");
     });
 
     test("OUTPUT_PRED and COMPLEXITY share MCQ shape", () => {
-        expect(formatAnswer("OUTPUT_PRED", { correctIndex: 0 }, OPTS)).toBe("Correct: A — Alpha");
-        expect(formatAnswer("COMPLEXITY", { correctIndex: 3 }, OPTS)).toBe("Correct: D — Delta");
+        expect(formatAnswer("OUTPUT_PRED", { correctIndex: 0 }, OPTS)).toBe("Correct: A, Alpha");
+        expect(formatAnswer("COMPLEXITY", { correctIndex: 3 }, OPTS)).toBe("Correct: D, Delta");
     });
 
     test("index without options falls back to letter", () => {
@@ -42,7 +42,7 @@ describe("formatAnswer", () => {
 
     test("MULTIPLE_SELECT joins letters", () => {
         expect(formatAnswer("MULTIPLE_SELECT", { correctIndices: [0, 2] }, OPTS)).toBe(
-            "Correct: A — Alpha, C — Gamma",
+            "Correct: A, Alpha, C, Gamma",
         );
     });
 
