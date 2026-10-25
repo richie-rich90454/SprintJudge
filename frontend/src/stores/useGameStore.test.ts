@@ -19,6 +19,11 @@ const fakeManager = vi.hoisted(() => {
             error: null,
             gameMode: "STANDARD",
             review: null,
+            teams: [],
+            bracket: null,
+            battleOpponent: null,
+            battleResult: null,
+            champion: null,
         } as Record<string, unknown>,
         connect: vi.fn(),
         join: vi.fn(),
@@ -27,6 +32,11 @@ const fakeManager = vi.hoisted(() => {
         hostCommand: vi.fn(),
         extendTimer: vi.fn(),
         kickPlayer: vi.fn(),
+        joinTeam: vi.fn(),
+        leaveTeam: vi.fn(),
+        createTeam: vi.fn(),
+        requestTeams: vi.fn(),
+        requestBracket: vi.fn(),
         observe: () => ({
             subscribe: (cb: (s: Record<string, unknown>) => void) => {
                 listeners.push(cb);
@@ -120,6 +130,20 @@ describe("useGameStore delegation", () => {
     test("kick delegates to kickPlayer", () => {
         useGameStore.getState().kick("uuid-9");
         expect(fakeManager.kickPlayer).toHaveBeenCalledWith("uuid-9");
+    });
+
+    test("team and bracket actions delegate to the manager", () => {
+        const s = useGameStore.getState();
+        s.joinTeam("team-1");
+        s.leaveTeam();
+        s.createTeam("Alpha");
+        s.requestTeams();
+        s.requestBracket();
+        expect(fakeManager.joinTeam).toHaveBeenCalledWith("team-1");
+        expect(fakeManager.leaveTeam).toHaveBeenCalledTimes(1);
+        expect(fakeManager.createTeam).toHaveBeenCalledWith("Alpha");
+        expect(fakeManager.requestTeams).toHaveBeenCalledTimes(1);
+        expect(fakeManager.requestBracket).toHaveBeenCalledTimes(1);
     });
 
     test("clearError nulls the error", () => {
