@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
-import { motion as fm } from "framer-motion";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Dialog } from "../components/ui/Dialog";
@@ -11,8 +10,8 @@ import { useUIStore } from "../stores/useUIStore";
 import { webSocketService, type WsMessage } from "../services/WebSocketService";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
-import { useStaggerIn } from "../hooks/useMotion";
 import { useVirtualWindow } from "../hooks/useVirtualWindow";
+import { useFlipList } from "../motion/useStageMotion";
 import { HostStage } from "../components/host/HostStage";
 import { useJoinUrl } from "../hooks/useJoinUrl";
 
@@ -163,7 +162,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
 
     const rh = projector ? PROJECTOR_ROW_H : ROW_H;
     const maxH = projector ? 640 : 460;
-    const listRef = useStaggerIn<HTMLDivElement>(".lb-row", [rows.length], 0.05);
+    const listRef = useFlipList<HTMLDivElement>([rows.map((r) => r.uuid).join(",")]);
     const { ref, start, end } = useVirtualWindow(rows.length, rh, 6, maxH);
     const slice = rows.slice(start, end);
 
@@ -196,10 +195,9 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                             {slice.map((r) => {
                                 const podium = r.rank <= 3;
                                 return (
-                                    <fm.div
+                                    <div
                                         key={r.uuid}
-                                        layout
-                                        className={`lb-row flex items-center gap-4 px-6 border-b border-dotted border-[var(--oq-border)] ${podium ? "bg-[var(--oq-row-alt)]" : ""} ${projector ? "text-2xl" : ""}`}
+                                        className={`lb-row flip-row flex items-center gap-4 px-6 border-b border-dotted border-[var(--oq-border)] ${podium ? "bg-[var(--oq-row-alt)]" : ""} ${projector ? "text-2xl" : ""}`}
                                         style={{ height: rh, minHeight: 44 }}
                                     >
                                         <span
@@ -227,7 +225,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                                         >
                                             {(r.score ?? 0).toLocaleString()}
                                         </span>
-                                    </fm.div>
+                                    </div>
                                 );
                             })}
                             <div
@@ -614,6 +612,15 @@ export function HostView() {
                             <Button variant="secondary" size="sm" onClick={toggleFullScreen}>
                                 Full screen
                             </Button>
+                            <Link
+                                to="/watch/$pin"
+                                params={{ pin }}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-secondary btn-sm"
+                            >
+                                Projector view
+                            </Link>
                         </div>
                         <SoundToggle />
                         <MotionToggle />
