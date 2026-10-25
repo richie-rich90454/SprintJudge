@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -878,27 +879,23 @@ class GameRoomManagerCoverageTest {
         mgr.submit("123456", "q1", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", p3.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(alpha.id(), 200);
-        room.applyTeamScore(alpha.id(), 200);
-        room.applyTeamScore(beta.id(), 200);
         assertEquals(400, room.getTeam(alpha.id()).score());
         assertEquals(200, room.getTeam(beta.id()).score());
         mgr.forceSubmit("123456");
         assertEquals("REVIEW", room.status());
         mgr.nextQuestion("123456");
         mgr.submit("123456", "q2", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(alpha.id(), 220);
         assertEquals(620, room.getTeam(alpha.id()).score());
         assertEquals(2, mgr.getTeams("123456").size());
     }
 
     @Test
-    void battleFullGameTwoPlayersPairsThenScoresThenEnds() {
+    void battleFullGameTwoPlayersPairsThenScoresThenCrownsChampion() {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.BATTLE));
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
-        when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
+        lenient().when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(300);
         GameRoom room = roomOf(mgr);
@@ -913,13 +910,9 @@ class GameRoomManagerCoverageTest {
         mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         assertEquals(300, room.getPlayer(p1.uuid()).score());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", room.status());
-        mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", room.status());
-        mgr.submit("123456", "q2", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(630, room.getPlayer(p1.uuid()).score());
-        mgr.forceSubmit("123456");
-        mgr.nextQuestion("123456");
+        // A two-player battle is decided the moment the first round reveals.
+        assertEquals("ENDED", room.status());
+        assertEquals(p1.uuid(), room.championUuid());
         verify(sessionRepository).updateStatus("s1", "ENDED");
     }
 
@@ -1047,18 +1040,23 @@ class GameRoomManagerCoverageTest {
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.BATTLE));
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+        lenient().when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(120);
         GameRoom room = roomOf(mgr);
         room.addPlayer(new Player("u1", "A", 0, "s1", true));
         room.addPlayer(new Player("u2", "B", 0, "s2", true));
+        room.addPlayer(new Player("u3", "C", 0, "s3", true));
+        room.addPlayer(new Player("u4", "D", 0, "s4", true));
         mgr.startBattle("123456");
         mgr.submit("123456", "q1", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", "u3", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         assertEquals("REVIEW", room.status());
         int matchesBefore = mgr.getBattleMatches("123456").size();
         mgr.nextQuestion("123456");
         assertEquals("ACTIVE", room.status());
+        assertEquals(2, mgr.getBracket("123456").size());
         assertEquals(matchesBefore, mgr.getBattleMatches("123456").size());
     }
 
@@ -1262,7 +1260,7 @@ class GameRoomManagerCoverageTest {
     }
 
     @Test
-    void battleOddPlayerOutSendsWaitingNoticeToLeftover() {
+    void battleOddPlayerOutAdvancesOnABye() {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.BATTLE));
         GameRoom room = roomOf(mgr);
@@ -1274,9 +1272,13 @@ class GameRoomManagerCoverageTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
+        GameRoom.BattleRound round = mgr.getBracket("123456").get(0);
+        assertEquals(3, round.pairs().size());
+        assertTrue(round.pairs().get(2).bye());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws, times(1)).send(anyString(), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Odd player"));
+        verify(ws, times(5)).send(anyString(), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .noneMatch(com.sprintjudge.domain.dto.ErrorMessage.class::isInstance));
     }
 
     @Test
@@ -1291,7 +1293,9 @@ class GameRoomManagerCoverageTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
-        verify(ws, never()).send(anyString(), any());
+        verify(ws, times(4)).send(anyString(), any());
+        verify(ws, never()).send(anyString(),
+                org.mockito.ArgumentMatchers.isA(com.sprintjudge.domain.dto.ErrorMessage.class));
     }
 
     @Test
@@ -1313,14 +1317,10 @@ class GameRoomManagerCoverageTest {
         mgr.startQuestion("123456");
         mgr.submit("123456", "q1", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(t.id(), 100);
-        room.applyTeamScore(t.id(), 100);
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         mgr.submit("123456", "q2", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q2", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(t.id(), 110);
-        room.applyTeamScore(t.id(), 110);
         assertEquals(420, room.getTeam(t.id()).score());
     }
 
@@ -1594,11 +1594,12 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(new Player("u4", "D", 0, "s4", true));
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
-        assertEquals(2, mgr.getBracket("123456").size());
+        assertEquals(2, mgr.getBracket("123456").get(0).pairs().size());
         mgr.submit("123456", "q1", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", "u3", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
+        assertEquals(2, mgr.getBracket("123456").size());
         mgr.submit("123456", "q2", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
         assertEquals(168, room.getPlayer("u1").score());
     }
@@ -1910,7 +1911,7 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(new Player("u4", "D", 0, "s4", true));
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
-        assertEquals(2, mgr.getBracket("123456").size());
+        assertEquals(1, mgr.getBracket("123456").size());
     }
 
     @Test
@@ -2076,20 +2077,19 @@ class GameRoomManagerCoverageTest {
     }
 
     @Test
-    void createTeamAfterGameStartedStillTracked() {
+    void createTeamAfterGameStartedIsRejected() {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.TEAM));
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        var t = mgr.createTeam("123456", "LateTeam");
-        assertNotNull(t.id());
-        assertEquals(1, mgr.getTeams("123456").size());
+        assertThrows(IllegalStateException.class, () -> mgr.createTeam("123456", "LateTeam"));
+        assertTrue(mgr.getTeams("123456").isEmpty());
         assertEquals("ACTIVE", roomOf(mgr).status());
     }
 
     @Test
-    void joinTeamAfterRoundStartedStillAllowed() {
+    void joinTeamAfterRoundStartedIsRejected() {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.TEAM));
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
@@ -2098,12 +2098,12 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(p);
         var t = mgr.createTeam("123456", "Alpha");
         mgr.startQuestion("123456");
-        var joined = mgr.joinTeam("123456", t.id(), p.uuid());
-        assertTrue(joined.memberUuids().contains(p.uuid()));
+        assertThrows(IllegalStateException.class, () -> mgr.joinTeam("123456", t.id(), p.uuid()));
+        assertNull(room.teamIdOf(p.uuid()));
     }
 
     @Test
-    void battleWithHostAndOddPlayersNotifiesOnlyLeftover() {
+    void battleWithHostAndOddPlayersAdvancesTheBye() {
         GameRoomManager mgr = manager();
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.BATTLE));
         GameRoom room = roomOf(mgr);
@@ -2116,9 +2116,12 @@ class GameRoomManagerCoverageTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startBattle("123456");
         assertEquals(1, mgr.getBattleMatches("123456").size());
-        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws, times(1)).send(anyString(), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Odd player"));
+        GameRoom.BattleRound round = mgr.getBracket("123456").get(0);
+        assertEquals(2, round.pairs().size());
+        assertTrue(round.pairs().get(1).bye());
+        // The host never receives an opponent frame: only the three fighters do.
+        verify(ws, times(3)).send(anyString(), any());
+        verify(ws, never()).send(eq("sh"), any());
     }
 
     @Test
