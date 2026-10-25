@@ -103,7 +103,7 @@ export class GameStateManager {
                 });
                 this.requestLeaderboardResync();
             } else if (status === "failed") {
-                this.patch({ error: "Connection failed after 10 retries — refresh to rejoin" });
+                this.patch({ error: "Connection failed after 10 retries. Refresh to rejoin." });
             }
         });
     }
