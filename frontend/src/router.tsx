@@ -4,6 +4,7 @@ import {
     createRoute,
     createRouter,
     lazyRouteComponent,
+    useRouterState,
 } from "@tanstack/react-router";
 import { LandingView } from "./views/LandingView";
 import { JoinView } from "./views/JoinView";
@@ -13,7 +14,12 @@ import { AdminLoginView } from "./views/AdminLoginView";
 import { requireAdmin } from "./services/adminGuard";
 
 function Root() {
-    return <Outlet />;
+    const pathname = useRouterState({ select: (s) => s.location.pathname });
+    return (
+        <div key={pathname} className="route-enter">
+            <Outlet />
+        </div>
+    );
 }
 
 const rootRoute = createRootRoute({ component: Root });
@@ -81,6 +87,12 @@ const resultsRoute = createRoute({
     component: lazyRouteComponent(() => import("./views/ResultView"), "ResultView"),
 });
 
+const watchRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/watch/$pin",
+    component: lazyRouteComponent(() => import("./views/SpectatorView"), "SpectatorView"),
+});
+
 const adminRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin",
@@ -126,6 +138,7 @@ const routeTree = rootRoute.addChildren([
     playRoute,
     hostRoute,
     resultsRoute,
+    watchRoute,
     adminRoute,
     adminDashboardAliasRoute,
     adminLoginRoute,
