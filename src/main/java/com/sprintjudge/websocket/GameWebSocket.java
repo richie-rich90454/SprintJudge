@@ -103,6 +103,16 @@ public class GameWebSocket {
                         }
                     }
                 }
+                case "LEAVE_TEAM" -> {
+                    String uuid = (String) session.getUserProperties().get(UUID_KEY);
+                    if (uuid != null) {
+                        try {
+                            roomManager.leaveTeam(pinOf(session), uuid);
+                        } catch (IllegalArgumentException | IllegalStateException e) {
+                            send(session, new ErrorMessage("ERROR", e.getMessage()));
+                        }
+                    }
+                }
                 case "GET_TEAMS" -> {
                     String pin = pinOf(session);
                     if (pin == null) {
@@ -119,8 +129,7 @@ public class GameWebSocket {
                         send(session, new ErrorMessage("ERROR", "Join a room first"));
                         break;
                     }
-                    var bracket = roomManager.getBracket(pin);
-                    send(session, Map.of("type", "BRACKET", "rounds", bracket));
+                    send(session, roomManager.getBracketView(pin));
                 }
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
