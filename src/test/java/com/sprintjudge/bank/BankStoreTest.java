@@ -176,4 +176,25 @@ class BankStoreTest {
         assertEquals(0, loaded.skipped());
         assertEquals(1, loaded.headers().size());
     }
+
+    @Test
+    void loadAllSkipsAnUnreadableResourceAndKeepsTheRest() {
+        var broken = new org.springframework.core.io.ByteArrayResource(new byte[0]) {
+            @Override
+            public java.io.InputStream getInputStream() throws java.io.IOException {
+                throw new java.io.IOException("unreadable");
+            }
+
+            @Override
+            public String getFilename() {
+                return "broken.json";
+            }
+        };
+        var clean = new org.springframework.core.io.ByteArrayResource(
+                "{\"questions\":[{\"id\":\"y\"}]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        BankStore.Loaded loaded = BankStore.loadAll(
+                new org.springframework.core.io.Resource[]{broken, clean}, new ObjectMapper());
+        assertEquals(1, loaded.skipped());
+        assertEquals(1, loaded.headers().size());
+    }
 }
