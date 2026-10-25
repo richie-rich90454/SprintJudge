@@ -204,9 +204,10 @@ public class BankQuizBuilder {
     private synchronized ExportBundle.QuestionExport codingQuestion(String subject) {
         if (!"JAVA_PROGRAMMING".equals(subject)) return null;
         if (codingQuestion != null) return codingQuestion;
-        try (var in = new ClassPathResource(codingBundle).getInputStream()) {
-            ExportBundle bundle = Json.read(new String(in.readAllBytes(),
-                    java.nio.charset.StandardCharsets.UTF_8), ExportBundle.class);
+        try {
+            String json = new ClassPathResource(codingBundle)
+                    .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+            ExportBundle bundle = Json.read(json, ExportBundle.class);
             ExportBundle.QuestionExport fallback = null;
             for (ExportBundle.QuizExport quiz : bundle.quizzes()) {
                 boolean preferred = isPreferred(quiz.title());
