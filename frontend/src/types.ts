@@ -100,7 +100,7 @@ export interface GameState {
     playerUuid: string | null;
     rejoinToken: string | null;
     playerName: string | null;
-    role: "player" | "host";
+    role: "player" | "host" | "spectator";
     quizId: string | null;
     currentQuestion: QuestionDto | null;
     leaderboard: LeaderboardEntry[];
