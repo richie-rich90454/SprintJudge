@@ -56,6 +56,22 @@ public class PublicController {
     private static final long WINDOW_MS = 60_000;
     private static final long STALE_MS = 120_000;
 
+    @org.springframework.beans.factory.annotation.Value("${sprintjudge.executor.mode:native}")
+    private String executorMode = "native";
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.core.env.Environment environment;
+
+    /**
+     * Production policy: the public runner is unsandboxed under the native
+     * executor, so it is refused in prod unless nsjail is the active mode.
+     */
+    boolean publicRunAllowed() {
+        return environment == null
+                || !environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod"))
+                || "nsjail".equalsIgnoreCase(executorMode);
+    }
+
     public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,
                               CodeExecutor executor, UserRepository userRepository,
                               GameRoomManager roomManager, QuestionRepository questionRepository) {
@@ -140,6 +156,10 @@ public class PublicController {
      */
     @PostMapping("/run")
     public RunResult run(@Valid @RequestBody RunRequest request, HttpServletRequest http) {
+        if (!publicRunAllowed()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "public_runner_disabled");
+        }
         if (overLimit(runWindow, http.getRemoteAddr(), RUN_LIMIT_PER_MIN)) {
             log.warn("Rate limit exceeded for IP: {}", http.getRemoteAddr());
             throw new org.springframework.web.server.ResponseStatusException(
