@@ -261,10 +261,12 @@ class GameRoomBreadthTest {
         r.addBattleMatch(new GameRoom.BattleMatch("m2", "c", "d", "q1", "x", "y", true, false, "c"));
         assertEquals(2, r.battleMatches().size());
         assertEquals("c", r.battleMatches().get(1).winnerUuid());
-        r.setBracket(java.util.List.<String[]>of(new String[]{"a", "b"}));
-        assertEquals(1, r.bracket().size());
-        r.setBracket(java.util.List.<String[]>of(new String[]{"c", "d"}, new String[]{"e", "f"}));
-        assertEquals(2, r.bracket().size());
+        r.beginBattleRound(java.util.List.of(new GameRoom.BattlePair("a", "b", null, false)));
+        assertEquals(1, r.bracketRounds().size());
+        r.beginBattleRound(java.util.List.of(
+                new GameRoom.BattlePair("c", "d", null, false),
+                new GameRoom.BattlePair("e", "f", null, false)));
+        assertEquals(2, r.bracketRounds().size());
     }
 
     @Test
@@ -975,8 +977,9 @@ class GameRoomBreadthTest {
             pool.submit(() -> {
                 try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 for (int i = 0; i < 100; i++) {
-                    if (idx % 2 == 0) r.setBracket(java.util.List.<String[]>of(new String[]{"a" + i, "b" + i}));
-                    else if (r.bracket() == null) nulls.incrementAndGet();
+                    if (idx % 2 == 0) r.beginBattleRound(java.util.List.of(
+                            new GameRoom.BattlePair("a" + i, "b" + i, null, false)));
+                    else if (r.bracketRounds() == null) nulls.incrementAndGet();
                 }
                 done.countDown();
             });
