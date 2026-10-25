@@ -89,7 +89,9 @@ class CalibrationControllerTest {
 
     @Test
     void anonymousRunIs401() throws Exception {
-        mvc.perform(post("/api/admin/bank/calibration/run"))
+        mvc.perform(post("/api/admin/bank/calibration/run")
+                        .with(org.springframework.security.test.web.servlet.request
+                                .SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -146,7 +148,9 @@ class CalibrationControllerTest {
                     .execute();
         }
 
-        mvc.perform(post("/api/admin/bank/calibration/run").session(adminSession()))
+        mvc.perform(post("/api/admin/bank/calibration/run").session(adminSession())
+                        .with(org.springframework.security.test.web.servlet.request
+                                .SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.calibrated").value(greaterThanOrEqualTo(1)));
 
