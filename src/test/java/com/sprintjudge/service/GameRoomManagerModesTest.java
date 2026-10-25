@@ -196,7 +196,7 @@ class GameRoomManagerModesTest {
     }
 
     @Test
-    void battleOddPlayerSitsOutWithNotice() {
+    void battleOddPlayerSitsOutWithABye() {
         GameRoomManager mgr = manager();
         putRoom(mgr, GameRoom.GameMode.BATTLE);
         addPlayer(mgr, "Ann");
@@ -205,9 +205,11 @@ class GameRoomManagerModesTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startBattle("123456");
         assertEquals(1, mgr.getBattleMatches("123456").size());
+        assertTrue(mgr.getBracket("123456").get(0).pairs().get(1).bye());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws, times(1)).send(anyString(), sent.capture());
-        assertTrue(((ErrorMessage) sent.getValue()).message().contains("Odd player"));
+        verify(ws, times(3)).send(anyString(), sent.capture());
+        assertTrue(sent.getAllValues().stream()
+                .noneMatch(com.sprintjudge.domain.dto.ErrorMessage.class::isInstance));
     }
 
     @Test
