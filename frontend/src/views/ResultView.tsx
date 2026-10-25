@@ -10,7 +10,7 @@ import { MotionToggle } from "../components/MotionToggle";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
 
-type ReviewTab = "podium" | "answers" | "students" | "analysis";
+type ReviewTab = "podium" | "answers" | "students" | "teams" | "analysis";
 
 export function ResultView() {
     const leaderboard = useGameStore((s) => s.leaderboard);
@@ -57,6 +57,9 @@ export function ResultView() {
         { id: "podium", label: "Podium" },
         { id: "answers", label: "Answer Key" },
         { id: "students", label: "Students" },
+        ...(review?.teams && review.teams.length > 0
+            ? [{ id: "teams" as ReviewTab, label: "Teams" }]
+            : []),
         { id: "analysis", label: "Analysis" },
     ];
     return (
@@ -422,6 +425,46 @@ export function ResultView() {
                                     </div>
                                 )}
                             </div>
+                        </Card>
+                    </TabPanel>
+
+                    <TabPanel value="teams">
+                        <Card className="p-6">
+                            <h3 className="font-extrabold text-lg mb-4">Team standings</h3>
+                            {!review || !review.teams || review.teams.length === 0 ? (
+                                <p className="text-[var(--oq-ink-soft)]">
+                                    This game was not played in team mode.
+                                </p>
+                            ) : (
+                                <ol className="flex flex-col gap-2">
+                                    {review.teams.map((t, i) => (
+                                        <li
+                                            key={t.id}
+                                            className="flex min-h-[44px] items-center justify-between gap-4 border border-[var(--oq-border)] bg-[var(--oq-row-alt)] px-4 py-3"
+                                        >
+                                            <span className="flex min-w-0 items-center gap-4">
+                                                <span className="flex h-8 min-w-8 shrink-0 items-center justify-center border border-[var(--oq-border)] px-1 font-mono text-sm tabular-nums">
+                                                    {i + 1}
+                                                </span>
+                                                <span className="min-w-0">
+                                                    <span className="block truncate font-semibold">
+                                                        {t.name}
+                                                    </span>
+                                                    <span className="text-xs text-[var(--oq-ink-soft)]">
+                                                        {t.memberUuids.length}{" "}
+                                                        {t.memberUuids.length === 1
+                                                            ? "member"
+                                                            : "members"}
+                                                    </span>
+                                                </span>
+                                            </span>
+                                            <span className="font-mono font-semibold tabular-nums">
+                                                {t.score}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ol>
+                            )}
                         </Card>
                     </TabPanel>
 
