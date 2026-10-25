@@ -202,6 +202,14 @@ class BankControllerTest {
     }
 
     @Test
+    void adminGetIssuesTheCsrfCookie() throws Exception {
+        mvc.perform(get("/api/admin/bank/volume").session(adminSession()))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .cookie().exists("XSRF-TOKEN"));
+    }
+
+    @Test
     void buildWithoutCsrfTokenIs403() throws Exception {
         mvc.perform(post("/api/admin/bank/build")
                         .session(adminSession())

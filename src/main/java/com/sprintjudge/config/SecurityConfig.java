@@ -73,6 +73,16 @@ public class SecurityConfig {
                 // echoes XSRF-TOKEN in X-XSRF-TOKEN).
                 .ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+            // Materialize the deferred token on every request so the SPA gets
+            // the XSRF-TOKEN cookie before its first POST, not after a 403.
+            .addFilterAfter((request, response, chain) -> {
+                Object token = request.getAttribute(
+                        org.springframework.security.web.csrf.CsrfToken.class.getName());
+                if (token instanceof org.springframework.security.web.csrf.CsrfToken csrfToken) {
+                    csrfToken.getToken();
+                }
+                chain.doFilter(request, response);
+            }, org.springframework.security.web.csrf.CsrfFilter.class)
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
                 .httpStrictTransportSecurity(hsts -> hsts
