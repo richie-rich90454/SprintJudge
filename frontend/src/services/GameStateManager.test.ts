@@ -613,12 +613,82 @@ describe("GameStateManager timer and errors", () => {
         expect(gameStateManager.state.error).toBe("kicked");
     });
 
-    test("team and battle events leave the state machine alone", () => {
+    test("teams and brackets update the matching slices only", () => {
         const before = gameStateManager.state;
-        for (const t of ["TEAM_CREATED", "TEAM_JOINED", "TEAM_LIST", "BRACKET", "SOMETHING_ELSE"]) {
-            msg({ type: t });
-        }
-        expect(gameStateManager.state).toBe(before);
+        msg({ type: "TEAM_CREATED" });
+        msg({ type: "TEAM_JOINED" });
+        msg({ type: "TEAM_LIST", teams: [{ id: "t1", name: "A", memberUuids: [], score: 0 }] });
+        expect(gameStateManager.state.teams).toHaveLength(1);
+        const bracket = { type: "BRACKET", rounds: [], championUuid: null, championName: null };
+        msg(bracket);
+        expect(gameStateManager.state.bracket).toEqual(bracket);
+        msg({ type: "BATTLE_OPPONENT", round: 1, opponentUuid: "u2", opponentName: "Bo", bye: false });
+        expect(gameStateManager.state.battleOpponent?.opponentName).toBe("Bo");
+        msg({ type: "BATTLE_CHAMPION", championUuid: "u1", championName: "Al" });
+        expect(gameStateManager.state.champion?.championName).toBe("Al");
+        expect(gameStateManager.state.status).toBe(before.status);
+        expect(gameStateManager.state.playerUuid).toBe(before.playerUuid);
+    });
+});
+
+describe("GameStateManager team and battle", () => {
+    test("team and battle commands send the expected frames", () => {
+        gameStateManager.joinTeam("team-1");
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "JOIN_TEAM", teamId: "team-1" });
+        gameStateManager.leaveTeam();
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "LEAVE_TEAM" });
+        gameStateManager.createTeam("Alpha");
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "CREATE_TEAM", name: "Alpha" });
+        gameStateManager.requestTeams();
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "GET_TEAMS" });
+        gameStateManager.requestBracket();
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "GET_BRACKET" });
+    });
+
+    test("joining a team game requests teams and records the mode", () => {
+        joined("u1", {
+            room: { type: "ROOM_STATE", status: "LOBBY", players: [], gameMode: "TEAM" },
+        });
+        expect(gameStateManager.state.gameMode).toBe("TEAM");
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "GET_TEAMS" });
+    });
+
+    test("joining a battle game requests the bracket and records the mode", () => {
+        joined("u1", {
+            room: { type: "ROOM_STATE", status: "LOBBY", players: [], gameMode: "BATTLE" },
+        });
+        expect(gameStateManager.state.gameMode).toBe("BATTLE");
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "GET_BRACKET" });
+    });
+
+    test("a JOINED room without a mode keeps the current mode", () => {
+        const before = gameStateManager.state.gameMode;
+        msg({
+            type: "JOINED",
+            uuid: "u5",
+            rejoinToken: "tok-2",
+            room: { type: "ROOM_STATE", status: "LOBBY", players: [] },
+        });
+        expect(gameStateManager.state.gameMode).toBe(before);
+    });
+
+    test("TEAM_LIST without a payload clears the roster", () => {
+        msg({ type: "TEAM_LIST", teams: [{ id: "t1", name: "A", memberUuids: [], score: 1 }] });
+        expect(gameStateManager.state.teams).toHaveLength(1);
+        msg({ type: "TEAM_LIST" });
+        expect(gameStateManager.state.teams).toEqual([]);
+    });
+
+    test("BATTLE_RESULT stores the round outcome", () => {
+        const result = {
+            type: "BATTLE_RESULT",
+            round: 2,
+            matches: [{ p1Uuid: "a", p2Uuid: "b", winnerUuid: "a", bye: false }],
+            winners: ["a"],
+        };
+        msg(result);
+        expect(gameStateManager.state.battleResult?.round).toBe(2);
+        expect(gameStateManager.state.battleResult?.winners).toEqual(["a"]);
     });
 });
 
