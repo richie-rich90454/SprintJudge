@@ -166,7 +166,7 @@ export function BankBrowser() {
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
                         Pick a subject to see which questions are ready for
-                        class. Titles only — answers stay hidden.
+                        class. Titles only. Answers stay hidden.
                     </p>
                 </div>
                 <Card className="p-6 flex flex-col gap-5 md:flex-row md:items-end">
