@@ -14,7 +14,8 @@ public record GameReview(
         List<QuestionReview> questions,
         List<PlayerReview> players,
         ClassStats classStats,
-        String sessionId
+        String sessionId,
+        List<TeamReview> teams
 ) {
     public record QuestionReview(
             String questionId,
@@ -52,5 +53,12 @@ public record GameReview(
             int totalAttempts,
             String hardestQuestionId,
             String easiestQuestionId
+    ) {}
+
+    public record TeamReview(
+            String id,
+            String name,
+            long score,
+            List<String> memberUuids
     ) {}
 }
