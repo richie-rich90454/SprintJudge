@@ -2,7 +2,7 @@
 
 SprintJudge runs as a Spring Boot backend and a Vite/React frontend. In dev the
 backend listens on `:8080` and the UI on `:5173`; the production fat jar listens
-on `$SPRINTJUDGE_PORT` (default `:8080` — the repo `.env` ships `3000`).
+on `$SPRINTJUDGE_PORT` (default `:8080`, which is also what `.env.example` uses).
 
 ## Pick your setup path
 
@@ -46,7 +46,7 @@ Configure the executor and database in `src/main/resources/application.yml`.
 |---------|---------|----------|
 | Backend dev (`mvn spring-boot:run`) | :8080 | application.yml |
 | Frontend dev (`npm run dev`) | :5173 | vite.config.ts |
-| Fat jar prod | :8080 | SPRINTJUDGE_PORT (repo .env ships 3000) |
+| Fat jar prod | :8080 | SPRINTJUDGE_PORT (default 8080) |
 | Prod verifier | :8091 | make verify-prod PORT=... |
 
 The Vite dev server proxies `/api` and `/ws` to `http://localhost:8080`.
