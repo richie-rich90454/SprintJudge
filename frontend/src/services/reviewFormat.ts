@@ -4,13 +4,13 @@ function letter(i: number): string {
 
 /** Human-readable answer key: letters + option text, never raw JSON. */
 export function formatAnswer(type: string, answer: unknown, options: string[] | null): string {
-    if (answer == null || typeof answer !== "object") return String(answer ?? "—");
+    if (answer == null || typeof answer !== "object") return String(answer ?? "?");
     const a = answer as Record<string, unknown>;
     const opt = (i: unknown): string => {
         const n = Number(i);
         if (!Number.isInteger(n) || n < 0) return String(i ?? "?");
         const text = options?.[n];
-        return text != null ? `${letter(n)} — ${text}` : letter(n);
+        return text != null ? `${letter(n)}, ${text}` : letter(n);
     };
     switch (type) {
         case "MCQ":
