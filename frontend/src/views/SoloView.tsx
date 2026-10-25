@@ -22,7 +22,7 @@ export function SoloView() {
                     <JoinForm heading="Enter your practice PIN" />
                 </Card>
                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                    Or skip the PIN —{" "}
+                    Or skip the PIN and{" "}
                     <Link
                         to="/practice"
                         className="font-bold text-[var(--oq-accent-dark)] underline underline-offset-4"
