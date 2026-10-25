@@ -191,6 +191,15 @@ check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rule
 check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
 	@node scripts/check-bank.mjs
 
+.PHONY: backup-db
+backup-db: ## WAL-safe SQLite backup into backups/ (DB=, OUT=).
+	@$(LOAD_ENV); ./scripts/backup-db.sh "$(DB)" "$(OUT)"
+
+.PHONY: restore-db
+restore-db: ## Restore a backup while the server is stopped (FILE=, DB=).
+	@test -n "$(FILE)" || (echo "FILE=<backup.db> is required"; exit 1)
+	@$(LOAD_ENV); ./scripts/restore-db.sh "$(FILE)" "$(DB)"
+
 .PHONY: check-ui
 check-ui: ## Enforce the UI design rules (copy, tokens, typography, resets).
 	@node scripts/check-ui.mjs
