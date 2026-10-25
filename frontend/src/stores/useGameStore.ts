@@ -13,6 +13,11 @@ interface GameStore extends GameState {
     ) => void;
     extendTimer: (seconds: number) => void;
     kick: (uuid: string) => void;
+    joinTeam: (teamId: string) => void;
+    leaveTeam: () => void;
+    createTeam: (name: string) => void;
+    requestTeams: () => void;
+    requestBracket: () => void;
     clearError: () => void;
 }
 export const useGameStore = create<GameStore>((set) => {
@@ -30,6 +35,11 @@ export const useGameStore = create<GameStore>((set) => {
         hostCommand: (action, payload) => gameStateManager.hostCommand(action, payload),
         extendTimer: (seconds) => gameStateManager.extendTimer(seconds),
         kick: (uuid) => gameStateManager.kickPlayer(uuid),
+        joinTeam: (teamId) => gameStateManager.joinTeam(teamId),
+        leaveTeam: () => gameStateManager.leaveTeam(),
+        createTeam: (name) => gameStateManager.createTeam(name),
+        requestTeams: () => gameStateManager.requestTeams(),
+        requestBracket: () => gameStateManager.requestBracket(),
         clearError: () => set({ error: null }),
     };
 });
