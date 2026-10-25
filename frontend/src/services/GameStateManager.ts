@@ -125,7 +125,7 @@ export class GameStateManager {
     join(
         pin: string,
         name: string,
-        role: "player" | "host" = "player",
+        role: "player" | "host" | "spectator" = "player",
         rejoinToken: string | null = null,
     ) {
         // New game, clean slate: stale leaderboard/review/results from a
