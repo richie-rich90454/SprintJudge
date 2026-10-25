@@ -151,6 +151,13 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerJoined(pin, safeName, p.uuid()));
                 return p;
             }
+            // Read-only projector: receives broadcasts, takes no seat, no score.
+            if ("spectator".equalsIgnoreCase(role)) {
+                Player viewer = new Player(Ids.uuid(), safeName, 0, sessionId, true, null);
+                if (!room.addSpectator(viewer)) throw new IllegalStateException("Room is full");
+                room.touch();
+                return viewer;
+            }
             // Rejoin: reclaim a disconnected seat by token so scores survive.
             if (rejoinToken != null) {
                 Player reclaimed = room.reclaim(rejoinToken, sessionId);
@@ -186,6 +193,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (room == null) return;
         synchronized (room) {
             if (playerUuid.equals(room.hostUuid())) room.setHostUuid(null);
+            room.removeSpectator(playerUuid);
             // ponytail: soft-remove keeps score in the board so a rejoin
             // via token reclaims the seat. hardRemove was destroying
             // standings on every disconnect/page-refresh.
@@ -1153,7 +1161,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     private List<String> playerSessionIds(String pin) {
         GameRoom room = registry.get(Integer.parseInt(pin));
         if (room == null) return List.of();
-        return room.players().stream().map(p -> p.sessionId()).filter(s -> s != null).toList();
+        List<String> ids = new java.util.ArrayList<>(room.players().stream()
+                .map(Player::sessionId).filter(s -> s != null).toList());
+        ids.addAll(room.spectators().stream().map(Player::sessionId).filter(s -> s != null).toList());
+        return ids;
     }
 
     private GameRoom require(String pin) {
