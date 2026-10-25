@@ -201,6 +201,10 @@ public class GameWebSocket {
             send(session, new ErrorMessage("ERROR", "Join a room first"));
             return;
         }
+        if ("spectator".equals(session.getUserProperties().get(ROLE_KEY))) {
+            send(session, new ErrorMessage("ERROR", "Spectators cannot submit answers"));
+            return;
+        }
         // Schema validation: SUBMIT requires a questionId and a response payload.
         String questionId = msg.path("questionId").asText("");
         if (questionId.isBlank() || msg.path("response").isMissingNode()) {
