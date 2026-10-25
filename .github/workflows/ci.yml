@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SPRINTJUDGE_ADMIN_PASSWORD: ci-admin-password
+  SPRINTJUDGE_DB_PATH: ${{ runner.temp }}/sprintjudge-ci.db
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Build the SPA (the jar packaging step requires dist/)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+      - name: Backend tests and 100% coverage
+        run: ./mvnw -B verify
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+      - name: Typecheck
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: Unit tests and coverage
+        working-directory: frontend
+        run: npm run test:unit
+      - name: Production build
+        working-directory: frontend
+        run: npm run build
+      - name: UI rules
+        run: node scripts/check-ui.mjs
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Install frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Start the backend
+        run: |
+          ./mvnw -B spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
+          for i in $(seq 1 120); do
+            if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "backend did not become healthy"; tail -100 backend.log; exit 1
+      - name: Start the frontend
+        working-directory: frontend
+        run: |
+          npm run dev -- --host 127.0.0.1 > vite.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:5173 > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          echo "vite did not start"; cat vite.log; exit 1
+      - name: Run the live practice flow
+        working-directory: frontend
+        env:
+          CI: "true"
+        run: npx playwright test --project=chromium
+      - name: Logs on failure
+        if: failure()
+        run: |
+          tail -200 backend.log || true
+          tail -100 frontend/vite.log || true
+
+  jar-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Package the jar
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          cd ..
+          ./mvnw -B -DskipTests package
+      - name: Boot and probe health
+        run: |
+          java -jar target/sprintjudge.jar --spring.profiles.active=prod \
+            --server.port=8091 > jar.log 2>&1 &
+          for i in $(seq 1 120); do
+            if curl -fsS http://localhost:8091/actuator/health | grep -q '"UP"'; then
+              echo "jar healthy"; exit 0
+            fi
+            sleep 2
+          done
+          echo "jar did not become healthy"; tail -150 jar.log; exit 1
