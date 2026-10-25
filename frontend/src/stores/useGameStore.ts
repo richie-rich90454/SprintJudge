@@ -4,7 +4,7 @@ import { GameState } from "../types";
 
 interface GameStore extends GameState {
     connect: (url: string) => void;
-    join: (pin: string, name: string, role?: "player" | "host") => void;
+    join: (pin: string, name: string, role?: "player" | "host" | "spectator") => void;
     resume: () => boolean;
     submit: (questionId: string, response: unknown, language?: string) => void;
     hostCommand: (
