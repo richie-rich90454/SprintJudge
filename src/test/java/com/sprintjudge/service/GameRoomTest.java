@@ -653,7 +653,8 @@ class GameRoomTest {
             final int idx = t;
             pool.submit(() -> {
                 try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-                for (int i = 0; i < 50; i++) r.setBracket(java.util.List.<String[]>of(new String[]{"p" + idx, "q" + i}));
+                for (int i = 0; i < 50; i++) r.beginBattleRound(java.util.List.of(
+                        new GameRoom.BattlePair("p" + idx, "q" + i, null, false)));
                 done.countDown();
             });
         }
@@ -661,8 +662,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(1, r.bracket().size());
-        org.junit.jupiter.api.Assertions.assertNotNull(r.bracket().get(0));
+        assertEquals(threads * 50, r.bracketRounds().size());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.bracketRounds().get(0));
     }
 
     @Test
