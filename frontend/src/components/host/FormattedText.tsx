@@ -24,13 +24,13 @@ function CodeBlock({ code }: { code: string }) {
     const withoutLang = code.replace(/^[a-zA-Z0-9+#-]*\r?\n/, "");
     const lines = withoutLang.replace(/\s+$/, "").split(/\r?\n/);
     return (
-        <pre className="my-4 overflow-x-auto rounded-[2px] border border-[var(--stage-border,var(--oq-border))] bg-[var(--stage-surface,#151619)] p-4 text-[var(--stage-ink,#f2ede3)]">
+        <pre className="my-4 overflow-x-auto rounded-[2px] border border-[var(--stage-border,var(--oq-border))] bg-[var(--stage-surface,var(--stage-bg,var(--oq-surface)))] p-4 text-[var(--stage-ink,var(--oq-ink))]">
             <code className="block font-mono text-[0.9rem] leading-6">
                 {lines.map((line, i) => (
                     <span key={i} className="flex gap-4">
                         <span
                             aria-hidden="true"
-                            className="w-6 shrink-0 select-none text-right text-[var(--stage-ink-soft,#b9b0a0)]"
+                            className="w-6 shrink-0 select-none text-right text-[var(--stage-ink-soft,var(--oq-ink-soft))]"
                         >
                             {i + 1}
                         </span>
