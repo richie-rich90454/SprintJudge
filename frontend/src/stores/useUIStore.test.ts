@@ -100,7 +100,25 @@ describe("useUIStore theme lockdown", () => {
         const { useUIStore } = await fresh();
         expect(document.head.querySelector('meta[name="theme-color"]')).toBeNull();
         useUIStore.getState().setTheme("light");
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
+    });
+
+    test("theme-color follows the live background token", async () => {
+        vi.spyOn(window, "getComputedStyle").mockReturnValue({
+            getPropertyValue: () => " #ede8de ",
+        } as unknown as CSSStyleDeclaration);
+        const { useUIStore } = await fresh();
+        useUIStore.getState().setTheme("light");
+        expect(metaContent()).toBe("#ede8de");
+    });
+
+    test("theme-color falls back when computed styles throw", async () => {
+        vi.spyOn(window, "getComputedStyle").mockImplementation(() => {
+            throw new Error("no styles");
+        });
+        const { useUIStore } = await fresh();
+        useUIStore.getState().setTheme("light");
+        expect(metaContent()).toBe("white");
     });
 
     test("setTheme reuses existing meta element", async () => {
@@ -109,7 +127,7 @@ describe("useUIStore theme lockdown", () => {
         const first = document.head.querySelector('meta[name="theme-color"]');
         useUIStore.getState().setTheme("light");
         expect(document.head.querySelector('meta[name="theme-color"]')).toBe(first);
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
     });
 
     test("applyStoredTheme removes dark class and sets meta", async () => {
@@ -117,7 +135,7 @@ describe("useUIStore theme lockdown", () => {
         document.documentElement.classList.add("dark");
         applyStoredTheme();
         expect(document.documentElement.classList.contains("dark")).toBe(false);
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
     });
 
     test("applyStoredTheme tolerates DOM errors", async () => {
@@ -134,7 +152,7 @@ describe("useUIStore theme lockdown", () => {
     test("watchSystemTheme syncs meta without throwing", async () => {
         const { watchSystemTheme } = await fresh();
         watchSystemTheme();
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
     });
 
     test("watchSystemTheme tolerates errors", async () => {
@@ -332,7 +350,7 @@ describe("useUIStore preference workflows", () => {
         mod.useUIStore.getState().toggleTheme();
         mod.useUIStore.getState().toggleTheme();
         expect(mod.useUIStore.getState().theme).toBe("light");
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
     });
 
     test("sound and motion matrix persists jointly across a reload", async () => {
@@ -393,7 +411,7 @@ describe("useUIStore preference workflows", () => {
         const mod = await fresh();
         mod.useUIStore.getState().setTheme("light");
         mod.useUIStore.getState().setTheme("dark");
-        expect(metaContent()).toBe("#fff0e4");
+        expect(metaContent()).toBe("white");
         expect(document.head.querySelectorAll('meta[name="theme-color"]')).toHaveLength(1);
     });
 
