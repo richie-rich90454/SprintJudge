@@ -44,8 +44,10 @@ flowchart TB
 ```
 
 The dashboard has five tabs (Dashboard, Quizzes, Questions, Games, Settings);
-Games and Settings beyond the basics are still stubs. Team battles need at
-least 2 contestants besides the host; odd players wait for the next round.
+Games and Settings beyond the basics are still stubs. Team mode needs at least
+one team created in the lobby before students can pick one. Battle mode needs at
+least 2 contestants besides the host; an odd player advances on a bye, and the
+last winner standing is the champion.
 
 ## Wizard and scoring at a glance
 
