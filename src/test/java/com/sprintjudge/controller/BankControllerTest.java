@@ -194,15 +194,28 @@ class BankControllerTest {
     @Test
     void anonymousBuildIs401() throws Exception {
         mvc.perform(post("/api/admin/bank/build")
+                        .with(org.springframework.security.test.web.servlet.request
+                                .SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"csaUnit\":1,\"count\":2,\"includeCoding\":false}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
+    void buildWithoutCsrfTokenIs403() throws Exception {
+        mvc.perform(post("/api/admin/bank/build")
+                        .session(adminSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"csaUnit\":1,\"count\":2,\"includeCoding\":false}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void buildFromBankCreatesAPlayableQuiz() throws Exception {
         mvc.perform(post("/api/admin/bank/build")
                         .session(adminSession())
+                        .with(org.springframework.security.test.web.servlet.request
+                                .SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"csaUnit\":1,\"count\":2,\"includeCoding\":false,\"seed\":1}"))
                 .andExpect(status().isOk())
@@ -214,6 +227,8 @@ class BankControllerTest {
     void emptyBankSelectionIs400() throws Exception {
         mvc.perform(post("/api/admin/bank/build")
                         .session(adminSession())
+                        .with(org.springframework.security.test.web.servlet.request
+                                .SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"subject\":\"NOPE\",\"count\":1,\"includeCoding\":false}"))
                 .andExpect(status().isBadRequest());
