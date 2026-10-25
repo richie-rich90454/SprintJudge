@@ -24,7 +24,7 @@ directly (no nsjail on Windows), and the database defaults to a portable relativ
 make prod          # builds target/sprintjudge.jar and starts it with ZGC
 # optional environment:
 #   SPRINTJUDGE_DB_PATH=D:\data\sprintjudge.db
-#   SPRINTJUDGE_PORT=3000
+#   SPRINTJUDGE_PORT=8080
 #   SPRINTJUDGE_EXECUTOR_MODE=native
 ```
 
@@ -56,6 +56,58 @@ on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
 ```bash
 sqlite3 /var/lib/sprintjudge/sprintjudge.db "PRAGMA wal_checkpoint(TRUNCATE);"
 ```
+
+## Backup, restore, upgrade
+
+`make backup-db` uses `sqlite3 .backup`, which produces a consistent single
+file while the server is running (WAL included). `make restore-db` replaces the
+database; stop the service first.
+
+```bash
+make backup-db DB=/var/lib/sprintjudge/sprintjudge.db OUT=backups/before-upgrade.db
+sudo systemctl stop sprintjudge
+make restore-db FILE=backups/before-upgrade.db DB=/var/lib/sprintjudge/sprintjudge.db
+sudo systemctl start sprintjudge
+```
+
+Upgrade:
+
+1. `make backup-db`
+2. Replace `sprintjudge.jar`.
+3. `sudo systemctl restart sprintjudge`
+4. Probe `curl -fsS http://127.0.0.1:8080/actuator/health` and open one quiz.
+
+Rollback: stop the service, restore the backup, put the previous jar back,
+start, and probe health again. SQLite migrations are forward-only, so a jar
+rollback without the matching database backup is not supported.
+
+## Public runner policy
+
+`POST /api/public/run` is refused with 403 in the `prod` profile unless
+`SPRINTJUDGE_EXECUTOR_MODE=nsjail`. In development it stays available with the
+native toolchain. This keeps an unsandboxed execution endpoint off a production
+host by default.
+
+## Load probe
+
+With a seeded backend running, probe 30 players and broadcast latency:
+
+```bash
+node scripts/load-test.mjs 30
+```
+
+The script joins a real practice room, submits one answer, and prints join,
+question-start, and reveal percentiles plus any dropped clients. It exits
+non-zero on a drop, so it can gate a classroom pilot.
+
+## Security notes
+
+- CSRF is enforced on `/api/admin/**`; the SPA echoes `XSRF-TOKEN` automatically.
+  Public endpoints and the WebSocket handshake stay exempt.
+- The CSP no longer allows inline or `data:` scripts.
+- The service refuses to boot in `prod` with the default admin password.
+- Set `SPRINTJUDGE_COOKIE_SECURE=true` behind TLS and keep HSTS enabled only
+  when nginx terminates TLS.
 
 Go-live checklist:
 
