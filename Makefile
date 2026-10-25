@@ -191,5 +191,9 @@ check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rule
 check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
 	@node scripts/check-bank.mjs
 
+.PHONY: check-ui
+check-ui: ## Enforce the UI design rules (copy, tokens, typography, resets).
+	@node scripts/check-ui.mjs
+
 .PHONY: check-legal
 check-legal: check-trademarks check-ai-firewall check-blueprints check-bank ## Run all legal checks.
