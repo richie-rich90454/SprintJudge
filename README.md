@@ -66,8 +66,10 @@ side by side during development.
 6. Open **Results** after the game for the podium, answer key, per-student review,
    class analysis, and CSV export.
 
-Standard, Auto-pilot, Practice, and Exam are the supported classroom modes. Team and
-Battle remain hidden until their player and bracket flows are finished.
+Standard, Auto-pilot, Practice, Exam, Team, and Battle are supported. Team mode
+scores every member's answers into a shared team total; students pick a team in
+the lobby. Battle mode runs 1v1 rounds with byes, a full bracket, and a champion.
+See `docs/teacher-runbook.md` for the classroom flow.
 
 ## Configuration
 
