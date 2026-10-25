@@ -14,7 +14,6 @@ import { useStaggerIn } from "../hooks/useMotion";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { LogoMark } from "../components/LogoMark";
-import { motion, AnimatePresence } from "framer-motion";
 
 type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
 type GameMode = "STANDARD" | "AUTO_PILOT" | "PRACTICE" | "EXAM" | "TEAM" | "BATTLE";
@@ -90,13 +89,7 @@ function SettingsTab() {
         );
 
     return (
-        <motion.div
-            key="settings"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-        >
+        <div className="tab-panel" key="settings">
             <h2 className="text-lg font-extrabold mb-4">Settings</h2>
             {Object.keys(settings).length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
@@ -133,7 +126,7 @@ function SettingsTab() {
                     </div>
                 </div>
             )}
-        </motion.div>
+        </div>
     );
 }
 
@@ -370,14 +363,7 @@ export function AdminDashboard() {
                     label="Admin sections"
                 >
                     <TabPanel value="dashboard">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key="dashboard"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.15 }}
-                            >
+                            <div className="tab-panel" key="dashboard">
                                 <div className="grid sm:grid-cols-3 gap-4 mb-8">
                                     <Card className="stat-block card-accent">
                                         <p className="label-caps mb-1">Quiz sets</p>
@@ -473,19 +459,11 @@ export function AdminDashboard() {
                                     total. Battle mode runs 1v1 rounds with byes, a full bracket,
                                     and a champion. Both are verified end to end.
                                 </p>
-                            </motion.div>
-                        </AnimatePresence>
+                            </div>
                     </TabPanel>
 
                     <TabPanel value="quizzes">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key="quizzes"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.15 }}
-                            >
+                            <div className="tab-panel" key="quizzes">
                                 <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
                                     <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
                                     <select
@@ -621,19 +599,11 @@ export function AdminDashboard() {
                                         </Button>
                                     </div>
                                 )}
-                            </motion.div>
-                        </AnimatePresence>
+                            </div>
                     </TabPanel>
 
                     <TabPanel value="questions">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key="questions"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.15 }}
-                            >
+                            <div className="tab-panel" key="questions">
                                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                                     <h2 className="text-lg font-extrabold mr-auto">Questions</h2>
                                     <select
@@ -708,19 +678,11 @@ export function AdminDashboard() {
                                             : "Select a quiz set to view questions."}
                                     </div>
                                 )}
-                            </motion.div>
-                        </AnimatePresence>
+                            </div>
                     </TabPanel>
 
                     <TabPanel value="games">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key="games"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.15 }}
-                            >
+                            <div className="tab-panel" key="games">
                                 <h2 className="text-lg font-extrabold mb-4">Games</h2>
                                 {quizzes.length === 0 ? (
                                     <div className="text-center py-16 text-[var(--oq-ink-soft)]">
@@ -794,14 +756,11 @@ export function AdminDashboard() {
                                         )}
                                     </div>
                                 )}
-                            </motion.div>
-                        </AnimatePresence>
+                            </div>
                     </TabPanel>
 
                     <TabPanel value="settings">
-                        <AnimatePresence mode="wait">
                             <SettingsTab key="settings-panel" />
-                        </AnimatePresence>
                     </TabPanel>
                 </Tabs>
             </main>
