@@ -14,7 +14,7 @@ import { Chip } from "../components/ui/Primitives";
 import { QuestionPreview } from "../components/host/QuestionPreview";
 import { FormattedText } from "../components/host/FormattedText";
 import { useStageEnter } from "../motion/useStageMotion";
-import type { RoundResult } from "../types";
+import type { RoundResult, TeamInfo } from "../types";
 
 export function QuestionView() {
     const q = useGameStore((s) => s.currentQuestion);
@@ -31,6 +31,15 @@ export function QuestionView() {
         lastResult && "scores" in lastResult ? (lastResult as unknown as RoundResult) : null;
     const end = useTimerStore((s) => s.endEpochMs);
     const totalSec = useTimerStore((s) => s.totalSec);
+    const teams = useGameStore((s) => s.teams);
+    const myUuid = useGameStore((s) => s.playerUuid);
+    const bracket = useGameStore((s) => s.bracket);
+    const battleOpponent = useGameStore((s) => s.battleOpponent);
+    const battleResult = useGameStore((s) => s.battleResult);
+    const champion = useGameStore((s) => s.champion);
+    const roomPlayers = useGameStore((s) => s.room?.players);
+    const joinTeam = useGameStore((s) => s.joinTeam);
+    const leaveTeam = useGameStore((s) => s.leaveTeam);
     const [response, setResponse] = useState<unknown>(null);
     const [submitted, setSubmitted] = useState(false);
     // Ref mirror: a click and the timer expiry in the same tick both read
@@ -101,6 +110,166 @@ export function QuestionView() {
         return <Navigate to="/results" />;
     }
 
+    const myTeam = teams.find((t) => (myUuid ? t.memberUuids.includes(myUuid) : false)) ?? null;
+    const myBattleMatch =
+        battleResult?.matches.find(
+            (m) => myUuid !== null && (m.p1Uuid === myUuid || m.p2Uuid === myUuid),
+        ) ?? null;
+    const battleWon = myBattleMatch !== null && myBattleMatch.winnerUuid === myUuid;
+    const currentBattleRound = bracket?.rounds?.[bracket.rounds.length - 1] ?? null;
+    const myPair =
+        currentBattleRound?.pairs.find(
+            (p) => myUuid !== null && (p.p1Uuid === myUuid || p.p2Uuid === myUuid),
+        ) ?? null;
+    const opponentName =
+        battleOpponent?.opponentName ||
+        (myPair && myUuid
+            ? roomPlayers?.find(
+                  (p) => p.uuid === (myPair.p1Uuid === myUuid ? myPair.p2Uuid : myPair.p1Uuid),
+              )?.name
+            : null) ||
+        null;
+
+    if (status === "LOBBY" && gameMode === "TEAM") {
+        return (
+            <div className="pattern-exam min-h-[100dvh] flex flex-col">
+                <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
+                    <div className="page-shell flex items-center justify-between gap-4 py-3">
+                        <p className="label-caps">Team lobby</p>
+                        <span className="mono text-sm text-[var(--oq-ink-soft)]">
+                            {teams.length} {teams.length === 1 ? "team" : "teams"}
+                        </span>
+                    </div>
+                </header>
+                <main className="page-shell w-full max-w-3xl flex-1 py-8">
+                    <Card className="p-6">
+                        <h1 className="text-2xl font-black tracking-[-0.02em]">Pick your team</h1>
+                        <p className="mt-2 text-sm text-[var(--oq-ink-soft)]">
+                            Scores earned by every member add to the team total.
+                        </p>
+                        {teams.length === 0 ? (
+                            <p className="mt-6 text-[var(--oq-ink-soft)]">
+                                The host has not created teams yet.
+                            </p>
+                        ) : (
+                            <ul className="mt-6 flex flex-col gap-2">
+                                {teams.map((t: TeamInfo) => {
+                                    const mine = myTeam?.id === t.id;
+                                    return (
+                                        <li
+                                            key={t.id}
+                                            className={`flex min-h-[56px] items-center justify-between gap-3 border px-4 py-2 ${
+                                                mine
+                                                    ? "border-[var(--oq-accent)] bg-[var(--oq-row-alt)]"
+                                                    : "border-[var(--oq-border)]"
+                                            }`}
+                                        >
+                                            <span className="min-w-0">
+                                                <span className="block truncate font-semibold">
+                                                    {t.name}
+                                                </span>
+                                                <span className="mono text-xs text-[var(--oq-ink-soft)]">
+                                                    {t.memberUuids.length}{" "}
+                                                    {t.memberUuids.length === 1
+                                                        ? "member"
+                                                        : "members"}
+                                                </span>
+                                            </span>
+                                            <Button
+                                                variant={mine ? "secondary" : "primary"}
+                                                size="sm"
+                                                onClick={() =>
+                                                    mine ? leaveTeam() : joinTeam(t.id)
+                                                }
+                                            >
+                                                {mine ? "Leave" : "Join"}
+                                            </Button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                        {wsError && (
+                            <p role="alert" className="mt-4 text-sm text-[var(--oq-danger)]">
+                                {wsError}
+                            </p>
+                        )}
+                        <p className="mt-6 border-t border-[var(--oq-border)] pt-4 text-sm text-[var(--oq-ink-soft)]">
+                            {myTeam
+                                ? `You are on ${myTeam.name}. Waiting for the host to start.`
+                                : "Join a team before the host starts the game."}
+                        </p>
+                    </Card>
+                </main>
+            </div>
+        );
+    }
+
+    if (status === "LOBBY" && gameMode === "BATTLE") {
+        return (
+            <div className="pattern-exam min-h-[100dvh] flex flex-col">
+                <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
+                    <div className="page-shell flex items-center justify-between gap-4 py-3">
+                        <p className="label-caps">Battle lobby</p>
+                        <span className="mono text-sm text-[var(--oq-ink-soft)]">
+                            {currentBattleRound ? `Round ${currentBattleRound.number}` : "Not started"}
+                        </span>
+                    </div>
+                </header>
+                <main className="page-shell w-full max-w-3xl flex-1 py-8">
+                    <Card className="p-6">
+                        <h1 className="text-2xl font-black tracking-[-0.02em]">
+                            {myPair?.bye
+                                ? "You have a bye"
+                                : myPair
+                                  ? `You face ${opponentName ?? "your opponent"}`
+                                  : "Waiting for pairings"}
+                        </h1>
+                        <p className="mt-2 text-sm text-[var(--oq-ink-soft)]">
+                            {myPair?.bye
+                                ? "Nobody to fight this round. You advance automatically."
+                                : "Win your 1v1 to move to the next round."}
+                        </p>
+                        {bracket && bracket.rounds.length > 0 && (
+                            <div className="mt-6 border-t border-[var(--oq-border)] pt-4">
+                                <p className="label-caps mb-2">Bracket</p>
+                                <ol className="flex flex-col gap-2 text-sm">
+                                    {bracket.rounds.map((r) => (
+                                        <li key={r.number} className="flex flex-col gap-1">
+                                            <span className="mono text-xs text-[var(--oq-ink-soft)]">
+                                                Round {r.number}
+                                            </span>
+                                            {r.pairs.map((p, i) => (
+                                                <span key={i}>
+                                                    {roomPlayers?.find((x) => x.uuid === p.p1Uuid)
+                                                        ?.name ?? "Player"}{" "}
+                                                    vs{" "}
+                                                    {p.bye
+                                                        ? "bye"
+                                                        : (roomPlayers?.find(
+                                                              (x) => x.uuid === p.p2Uuid,
+                                                          )?.name ?? "Player")}
+                                                </span>
+                                            ))}
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        )}
+                        {wsError && (
+                            <p role="alert" className="mt-4 text-sm text-[var(--oq-danger)]">
+                                {wsError}
+                            </p>
+                        )}
+                        <p className="mt-6 border-t border-[var(--oq-border)] pt-4 text-sm text-[var(--oq-ink-soft)]">
+                            Waiting for the host to start the battle.
+                        </p>
+                    </Card>
+                </main>
+            </div>
+        );
+    }
+
     if (status === "REVIEW") {
         return (
             <div className="pattern-exam min-h-[100dvh] flex flex-col">
@@ -121,6 +290,51 @@ export function QuestionView() {
                     {q ? (
                         <div className="stage arch p-8 md:p-10">
                             <QuestionPreview question={q} round={round} />
+                            {gameMode === "BATTLE" && myBattleMatch && (
+                                <p
+                                    className={`mt-6 border-l-2 pl-4 text-sm font-bold ${
+                                        battleWon
+                                            ? "border-[var(--oq-success)] text-[var(--oq-success)]"
+                                            : "border-[var(--oq-danger)] text-[var(--oq-danger)]"
+                                    }`}
+                                >
+                                    {myBattleMatch.bye
+                                        ? "Bye round. You advance."
+                                        : battleWon
+                                          ? `You beat ${opponentName ?? "your opponent"}.`
+                                          : "You lost this round."}
+                                </p>
+                            )}
+                            {champion && (
+                                <p className="mt-4 text-sm font-bold text-[var(--oq-accent)]">
+                                    Champion: {champion.championName}
+                                </p>
+                            )}
+                            {gameMode === "TEAM" && teams.length > 0 && (
+                                <div className="mt-8 border-t border-[var(--stage-border)] pt-6">
+                                    <p className="label-caps mb-3 text-[var(--stage-ink-soft)]">
+                                        Team standings
+                                    </p>
+                                    <ol className="flex flex-col gap-2">
+                                        {teams.map((t, i) => (
+                                            <li
+                                                key={t.id}
+                                                className="flex items-center justify-between gap-4 text-sm"
+                                            >
+                                                <span className="min-w-0 truncate">
+                                                    <span className="mono mr-3 text-[var(--stage-ink-soft)]">
+                                                        {i + 1}
+                                                    </span>
+                                                    {t.name}
+                                                </span>
+                                                <span className="mono font-bold tabular-nums">
+                                                    {t.score.toLocaleString()}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                </div>
+                            )}
                             {round?.correctAnswer &&
                                 typeof round.correctAnswer.explanation === "string" && (
                                     <div className="mt-8 border-t border-[var(--stage-border)] pt-6">
@@ -241,6 +455,18 @@ export function QuestionView() {
                     <div className="flex-1" />
                     {boardLocked && gameMode === "EXAM" && (
                         <Chip tone="neutral">Board hidden until the end</Chip>
+                    )}
+                    {gameMode === "BATTLE" && myPair && (
+                        <Chip tone="accent">
+                            {myPair.bye
+                                ? "Bye round"
+                                : `Round ${currentBattleRound?.number ?? 1}: vs ${
+                                      opponentName ?? "opponent"
+                                  }`}
+                        </Chip>
+                    )}
+                    {gameMode === "TEAM" && myTeam && (
+                        <Chip tone="neutral">{myTeam.name}</Chip>
                     )}
                     {untimed ? (
                         <span className="chip chip-neutral">Untimed</span>
