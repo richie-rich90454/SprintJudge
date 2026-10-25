@@ -60,7 +60,7 @@ the public surface never exposes them.
 ## Live-run example
 
 ```bash
-curl -X POST http://localhost:3000/api/public/run \
+curl -X POST http://localhost:8080/api/public/run \
   -H 'Content-Type: application/json' \
   -d '{"language":"python","sourceCode":"print(41+1)","stdin":"","timeoutSec":10}'
 ```
