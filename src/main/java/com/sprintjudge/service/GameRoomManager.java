@@ -268,6 +268,20 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 room.setStatus("REVIEW");
                 sessionRepository.updateStatus(room.sessionId(), "REVIEW");
             }
+            if (room.gameMode() == GameRoom.GameMode.BATTLE) {
+                if (room.currentBattleRound() == null) {
+                    // The host pressed "Start round" instead of "Start battle":
+                    // a battle question without pairings would score nobody out.
+                    startBattle(pin);
+                    return;
+                }
+                // Advance the bracket before the next question: pair the winners,
+                // hand the odd player a bye, and refresh both clients' views.
+                room.clearBattleAnswerTimes();
+                room.beginBattleRound(pairUp(room.battleWinners()));
+                broadcastBracket(room);
+                broadcastBattleRound(room);
+            }
             nextQuestionLocked(room);
         }
     }
@@ -340,6 +354,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 p.name(), playerUuid, Json.write(response), total, correct, null, attempts, Instant.now()));
         room.applyScore(playerUuid, total);
         room.recordRound(playerUuid, base, bonus);
+        applyTeamScore(room, playerUuid, total);
+        if (room.gameMode() == GameRoom.GameMode.BATTLE) {
+            room.markBattleAnswer(playerUuid, System.currentTimeMillis());
+        }
 
         // Every mode gets immediate per-player feedback (correct/wrong + score)
         // the moment they submit — host-led rooms reveal instantly per player.
@@ -382,6 +400,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                     int total = baseScore + bonus;
                     room.applyScore(uuid, total);
                     room.recordRound(uuid, baseScore, bonus);
+                    applyTeamScore(room, uuid, total);
+                    if (room.gameMode() == GameRoom.GameMode.BATTLE) {
+                        room.markBattleAnswer(uuid, System.currentTimeMillis());
+                    }
                 }
                 // ponytail: re-resolve the session at reply time — the player may
                 // have reconnected (new sessionId) while the judge was running.
@@ -485,8 +507,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
     public GameRoom.Team createTeam(String pin, String name) {
         GameRoom room = require(pin);
+        requireLobby(room, "Teams can only be created in the lobby");
         if (name == null || name.isBlank()) throw new IllegalArgumentException("Team name is required");
-        return room.createTeam(name);
+        GameRoom.Team team = room.createTeam(name.trim());
+        broadcastTeamList(room);
+        return team;
     }
 
     public GameRoom.Team joinTeam(String pin, String teamId, String playerUuid) {
@@ -494,14 +519,40 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (teamId == null || teamId.isBlank()) throw new IllegalArgumentException("teamId is required");
         if (playerUuid == null || playerUuid.isBlank()) throw new IllegalArgumentException("playerUuid is required");
         if (room.getPlayer(playerUuid) == null) throw new IllegalArgumentException("Unknown player: " + playerUuid);
+        requireLobby(room, "Teams are locked once the game starts");
         GameRoom.Team team = room.joinTeam(teamId, playerUuid);
         if (team == null) throw new IllegalArgumentException("Unknown team: " + teamId);
+        broadcastTeamList(room);
         return team;
+    }
+
+    public void leaveTeam(String pin, String playerUuid) {
+        GameRoom room = require(pin);
+        requireLobby(room, "Teams are locked once the game starts");
+        room.leaveTeam(playerUuid);
+        broadcastTeamList(room);
     }
 
     public java.util.List<GameRoom.Team> getTeams(String pin) {
         GameRoom room = require(pin);
-        return new java.util.ArrayList<>(room.allTeams());
+        return room.teamsSorted();
+    }
+
+    private static void requireLobby(GameRoom room, String message) {
+        if (!"LOBBY".equals(room.status())) throw new IllegalStateException(message);
+    }
+
+    /** Team score follows the player's awarded points, in selection and coding alike. */
+    private void applyTeamScore(GameRoom room, String playerUuid, int delta) {
+        if (room.gameMode() != GameRoom.GameMode.TEAM) return;
+        String teamId = room.teamIdOf(playerUuid);
+        if (teamId != null) room.applyTeamScore(teamId, delta);
+        broadcastTeamList(room);
+    }
+
+    private void broadcastTeamList(GameRoom room) {
+        broadcastToRoom(room.pin(), Map.of("type", "TEAM_LIST",
+                "teams", new java.util.ArrayList<>(room.teamsSorted())));
     }
 
     // ---------- battle mode ----------
@@ -523,47 +574,137 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         if (room.currentQuestionIndex() < 0 || room.currentQuestionIndex() >= questions.size()) {
             throw new IllegalStateException("No question available for battle at index " + room.currentQuestionIndex());
         }
+
+        room.resetBattle();
+        List<GameRoom.BattlePair> pairs = pairUp(players.stream().map(Player::uuid).toList());
+        room.beginBattleRound(pairs);
         Question q = questions.get(room.currentQuestionIndex());
-
-        // Clear any prior battle state so a re-start never stacks matches.
-        room.battleMatches().clear();
-        room.bracket().clear();
-
-        // Pair players for 1v1 matches.
-        java.util.Collections.shuffle(players);
-        for (int i = 0; i + 1 < players.size(); i += 2) {
-            String matchId = Ids.uuid();
-            GameRoom.BattleMatch match = new GameRoom.BattleMatch(
-                    matchId, players.get(i).uuid(), players.get(i + 1).uuid(),
-                    q.id(), null, null, false, false, null);
-            room.addBattleMatch(match);
+        for (GameRoom.BattlePair pair : pairs) {
+            if (pair.bye()) continue;
+            room.addBattleMatch(new GameRoom.BattleMatch(Ids.uuid(), pair.p1Uuid(), pair.p2Uuid(),
+                    q.id(), null, null, false, false, null));
         }
-        // Build bracket (round 1 matchups).
-        java.util.List<String[]> rounds = new java.util.ArrayList<>();
-        for (GameRoom.BattleMatch m : room.battleMatches()) {
-            rounds.add(new String[]{m.p1Uuid(), m.p2Uuid()});
-        }
-        room.setBracket(rounds);
-
-        if (players.size() % 2 == 1) {
-            Player odd = players.get(players.size() - 1);
-            ws.send(odd.sessionId(),
-                    new ErrorMessage("ERROR", "Odd player out — waiting for the next battle round"));
-            broadcastRoomState(pin);
-        }
-
-        // Start the question for all players.
+        broadcastBracket(room);
+        broadcastBattleRound(room);
         startQuestion(pin);
     }
 
-    public java.util.List<GameRoom.BattleMatch> getBattleMatches(String pin) {
-        GameRoom room = require(pin);
-        return room.battleMatches();
+    /** Sequential pairing; an odd player out advances on a bye. */
+    static List<GameRoom.BattlePair> pairUp(List<String> uuids) {
+        List<GameRoom.BattlePair> pairs = new java.util.ArrayList<>();
+        for (int i = 0; i + 1 < uuids.size(); i += 2) {
+            pairs.add(new GameRoom.BattlePair(uuids.get(i), uuids.get(i + 1), null, false));
+        }
+        if (uuids.size() % 2 == 1) {
+            String bye = uuids.get(uuids.size() - 1);
+            pairs.add(new GameRoom.BattlePair(bye, null, bye, true));
+        }
+        return pairs;
     }
 
-    public java.util.List<String[]> getBracket(String pin) {
+    public java.util.List<GameRoom.BattleRound> getBracket(String pin) {
+        return require(pin).bracketRounds();
+    }
+
+    public BattleBracket getBracketView(String pin) {
         GameRoom room = require(pin);
-        return room.bracket();
+        List<BattleBracket.Round> rounds = room.bracketRounds().stream()
+                .map(r -> new BattleBracket.Round(r.number(), r.pairs().stream()
+                        .map(p -> new BattleBracket.Pair(p.p1Uuid(), p.p2Uuid(), p.winnerUuid(), p.bye()))
+                        .toList()))
+                .toList();
+        String championUuid = room.championUuid();
+        Player champion = championUuid == null ? null : room.getPlayer(championUuid);
+        return new BattleBracket("BRACKET", rounds, championUuid,
+                champion == null ? null : champion.name());
+    }
+
+    public java.util.List<GameRoom.BattleMatch> getBattleMatches(String pin) {
+        return require(pin).battleMatches();
+    }
+
+    private void broadcastBracket(GameRoom room) {
+        broadcastToRoom(room.pin(), getBracketView(room.pin()));
+    }
+
+    /** Tells each fighter who they face in the round that just opened. */
+    private void broadcastBattleRound(GameRoom room) {
+        GameRoom.BattleRound cur = room.currentBattleRound();
+        for (Player p : room.players()) {
+            GameRoom.BattlePair pair = room.pairOf(p.uuid());
+            if (pair == null || p.sessionId() == null) continue;
+            String opponentUuid = p.uuid().equals(pair.p1Uuid()) ? pair.p2Uuid() : pair.p1Uuid();
+            Player opponent = opponentUuid == null ? null : room.getPlayer(opponentUuid);
+            ws.send(p.sessionId(), Map.of("type", "BATTLE_OPPONENT",
+                    "round", cur.number(),
+                    "opponentUuid", opponentUuid == null ? "" : opponentUuid,
+                    "opponentName", opponent == null ? "" : opponent.name(),
+                    "bye", pair.bye()));
+        }
+    }
+
+    /**
+     * Resolves the round at reveal: best score wins, then the faster answer,
+     * then total score, then the first-listed player (a perfect dead heat must
+     * still advance exactly one player).
+     */
+    private void resolveBattleRound(GameRoom room) {
+        GameRoom.BattleRound cur = room.currentBattleRound();
+        if (cur == null) return;
+        List<GameRoom.BattlePair> resolved = new java.util.ArrayList<>();
+        List<String> winners = new java.util.ArrayList<>();
+        List<BattleResult.Match> matches = new java.util.ArrayList<>();
+        for (GameRoom.BattlePair pair : cur.pairs()) {
+            String winner;
+            if (pair.bye() || pair.p2Uuid() == null) {
+                winner = pair.p1Uuid();
+            } else {
+                winner = decideWinner(room, pair);
+            }
+            resolved.add(pair.withWinner(winner));
+            winners.add(winner);
+            matches.add(new BattleResult.Match(pair.p1Uuid(), pair.p2Uuid(), winner, pair.bye()));
+        }
+        room.resolveCurrentBattleRound(resolved);
+        broadcastToRoom(room.pin(), new BattleResult("BATTLE_RESULT", cur.number(), matches, winners));
+        broadcastBracket(room);
+
+        if (winners.size() == 1) {
+            String championUuid = winners.get(0);
+            room.setChampionUuid(championUuid);
+            room.setBattleWinners(winners);
+            Player champion = room.getPlayer(championUuid);
+            broadcastToRoom(room.pin(), new BattleChampion("BATTLE_CHAMPION", championUuid,
+                    champion == null ? "Player" : champion.name()));
+            broadcastBracket(room);
+            endGame(room.pin());
+        } else {
+            room.setBattleWinners(winners);
+        }
+    }
+
+    private String decideWinner(GameRoom room, GameRoom.BattlePair pair) {
+        String a = pair.p1Uuid();
+        String b = pair.p2Uuid();
+        int roundA = roundTotal(room, a);
+        int roundB = roundTotal(room, b);
+        if (roundA != roundB) return roundA > roundB ? a : b;
+        Long timeA = room.battleAnswerMs(a);
+        Long timeB = room.battleAnswerMs(b);
+        if (timeA != null && timeB != null && !timeA.equals(timeB)) {
+            return timeA < timeB ? a : b;
+        }
+        long scoreA = room.board().scoreOf(a);
+        long scoreB = room.board().scoreOf(b);
+        if (scoreA != scoreB) return scoreA > scoreB ? a : b;
+        // shortcut: a perfect dead heat advances the first-listed player; upgrade
+        // to a sudden-death question if true ties must be broken by play.
+        return a;
+    }
+
+    private static int roundTotal(GameRoom room, String uuid) {
+        int[] round = room.roundOf(uuid);
+        return round[0] + round[1];
     }
 
     private void onTimerExpired(String pin) {
@@ -626,6 +767,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
         }
         sendRoundResult(pin, true);
         broadcastRoomState(pin);
+        if (room.gameMode() == GameRoom.GameMode.BATTLE) {
+            resolveBattleRound(room);
+        }
         eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.QuestionCompleted(
                 pin, room.currentQuestionId(), room.currentQuestionIndex()));
         // Auto-pilot / Practice: auto-advance after brief review.
@@ -761,7 +905,15 @@ public class GameRoomManager implements LeaderboardBroadcaster {
                 totalCorrect, totalAttempts, hardestId, easiestId);
 
         return new GameReview("GAME_REVIEW", room.leaderboard(), qReviews, pReviews, stats,
-                room.sessionId());
+                room.sessionId(), teamReviews(room));
+    }
+
+    private static List<GameReview.TeamReview> teamReviews(GameRoom room) {
+        if (room.gameMode() != GameRoom.GameMode.TEAM) return List.of();
+        return room.teamsSorted().stream()
+                .map(t -> new GameReview.TeamReview(t.id(), t.name(), t.score(),
+                        List.copyOf(t.memberUuids())))
+                .toList();
     }
 
     /** Sweeps unrecoverable rooms: lobbies idle past the TTL, plus ACTIVE/REVIEW
