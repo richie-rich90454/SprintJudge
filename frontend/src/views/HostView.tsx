@@ -26,6 +26,124 @@ interface TeamRow {
     score: number;
 }
 
+function TeamBoard() {
+    const teams = useGameStore((s) => s.teams);
+    const requestTeams = useGameStore((s) => s.requestTeams);
+
+    useEffect(() => {
+        requestTeams();
+    }, [requestTeams]);
+
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--oq-border)]">
+                <h3 className="font-extrabold text-lg">Teams</h3>
+                <span className="label-caps">
+                    {teams.length} {teams.length === 1 ? "team" : "teams"}
+                </span>
+            </div>
+            {teams.length === 0 ? (
+                <p className="text-[var(--oq-ink-soft)] text-sm p-6">
+                    No teams yet. Create them in the controls panel so students can pick one.
+                </p>
+            ) : (
+                <ol className="flex flex-col">
+                    {teams.map((t, i) => (
+                        <li
+                            key={t.id}
+                            className="flex items-center gap-4 px-6 py-3 border-b border-dotted border-[var(--oq-border)] last:border-b-0"
+                        >
+                            <span className="mono font-bold min-w-8 text-right tabular-nums text-[var(--oq-accent)]">
+                                {i + 1}
+                            </span>
+                            <span className="truncate font-semibold flex-1" title={t.name}>
+                                {t.name}
+                            </span>
+                            <span className="mono text-xs text-[var(--oq-ink-soft)]">
+                                {t.memberUuids.length}{" "}
+                                {t.memberUuids.length === 1 ? "member" : "members"}
+                            </span>
+                            <span className="mono font-bold tabular-nums">
+                                {t.score.toLocaleString()}
+                            </span>
+                        </li>
+                    ))}
+                </ol>
+            )}
+        </Card>
+    );
+}
+
+function BracketPanel() {
+    const bracket = useGameStore((s) => s.bracket);
+    const champion = useGameStore((s) => s.champion);
+    const requestBracket = useGameStore((s) => s.requestBracket);
+    const room = useGameStore((s) => s.room);
+
+    useEffect(() => {
+        requestBracket();
+    }, [requestBracket]);
+
+    const nameOf = (uuid: string | null | undefined) =>
+        uuid ? (room?.players.find((p) => p.uuid === uuid)?.name ?? "Player") : "";
+
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--oq-border)]">
+                <h3 className="font-extrabold text-lg">Bracket</h3>
+                <span className="label-caps">
+                    {bracket?.rounds.length ?? 0}{" "}
+                    {(bracket?.rounds.length ?? 0) === 1 ? "round" : "rounds"}
+                </span>
+            </div>
+            {!bracket || bracket.rounds.length === 0 ? (
+                <p className="text-[var(--oq-ink-soft)] text-sm p-6">
+                    Start the battle to build the first bracket.
+                </p>
+            ) : (
+                <div className="flex flex-col gap-5 p-6">
+                    {bracket.rounds.map((r) => (
+                        <div key={r.number}>
+                            <p className="label-caps mb-2">Round {r.number}</p>
+                            <ul className="flex flex-col gap-1 text-sm">
+                                {r.pairs.map((p, i) => (
+                                    <li
+                                        key={i}
+                                        className="flex items-center justify-between gap-3 border border-[var(--oq-border)] px-3 py-2"
+                                    >
+                                        <span
+                                            className={
+                                                p.winnerUuid === p.p1Uuid ? "font-bold" : ""
+                                            }
+                                        >
+                                            {nameOf(p.p1Uuid)}
+                                        </span>
+                                        <span className="label-caps text-[var(--oq-ink-soft)]">
+                                            {p.bye ? "bye" : "vs"}
+                                        </span>
+                                        <span
+                                            className={
+                                                p.winnerUuid === p.p2Uuid ? "font-bold" : ""
+                                            }
+                                        >
+                                            {p.bye ? "" : nameOf(p.p2Uuid)}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                    {champion && (
+                        <p className="border-t border-[var(--oq-border)] pt-4 font-bold text-[var(--oq-accent)]">
+                            Champion: {champion.championName}
+                        </p>
+                    )}
+                </div>
+            )}
+        </Card>
+    );
+}
+
 function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
     const leaderboard = useGameStore((s) => s.leaderboard);
     const room = useGameStore((s) => s.room);
@@ -529,6 +647,8 @@ export function HostView() {
                     ) : (
                         <>
                             <HostStage pin={pin} joinUrl={joinUrl} />
+                            {room?.gameMode === "TEAM" && <TeamBoard />}
+                            {room?.gameMode === "BATTLE" && <BracketPanel />}
                             <LeaderboardPanel />
                         </>
                     )}
