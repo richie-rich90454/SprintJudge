@@ -40,6 +40,9 @@ public class GameRoom {
     private final GameMode gameMode;
 
     private final Map<String, Player> players = new ConcurrentHashMap<>();
+    // Read-only projector connections. They receive every broadcast but never
+    // score, never count toward the roster, and never take the host seat.
+    private final Map<String, Player> spectators = new ConcurrentHashMap<>();
     private final LiveLeaderboard board = new LiveLeaderboard();
 
     // In-memory per-(question,player) attempt counter (authoritative; the async
@@ -115,6 +118,21 @@ public class GameRoom {
         return true;
     }
 
+    /** Spectators watch the room without a roster seat or a score. */
+    public synchronized boolean addSpectator(Player p) {
+        if (players.size() >= maxPlayers) return false;
+        spectators.put(p.uuid(), p);
+        return true;
+    }
+
+    public synchronized void removeSpectator(String uuid) {
+        if (uuid != null) spectators.remove(uuid);
+    }
+
+    public synchronized List<Player> spectators() {
+        return new ArrayList<>(spectators.values());
+    }
+
     /** Disconnect: keep the board row so standings/rankings survive the gap. */
     public synchronized void softRemove(String uuid) {
         Player p = players.get(uuid);
@@ -183,7 +201,7 @@ public class GameRoom {
     }
 
     public int connectedCount() {
-        int n = 0;
+        int n = spectators.size();
         for (Player p : players.values()) if (p.connected()) n++;
         return n;
     }
