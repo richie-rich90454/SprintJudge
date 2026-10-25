@@ -569,4 +569,60 @@ class GameRoomTeamBattleFlowTest {
         assertThrows(IllegalArgumentException.class, () -> mgr.getBattleMatches("000000"));
         assertThrows(IllegalArgumentException.class, () -> mgr.getBracketView("000000"));
     }
+
+    // ---------- spectator mode ----------
+
+    @Test
+    void roomSpectatorsWatchWithoutASeat() {
+        GameRoom room = new GameRoom("s", "q", "p", "LOBBY", 2, GameRoom.GameMode.STANDARD);
+        room.addSpectator(new Player("v1", "Projector", 0, "sv1", true));
+        assertEquals(1, room.spectators().size());
+        assertEquals(1, room.connectedCount());
+        room.removeSpectator("v1");
+        room.removeSpectator(null);
+        assertTrue(room.spectators().isEmpty());
+        room.addPlayer(new Player("p1", "A", 0, "s1", true));
+        room.addPlayer(new Player("p2", "B", 0, "s2", true));
+        assertTrue(room.isFull());
+        assertFalse(room.addSpectator(new Player("v2", "V", 0, "sv2", true)));
+    }
+
+    @Test
+    void managerSpectatorJoinsAndLeavesWithoutScoring() {
+        GameRoomManager mgr = manager();
+        seeded(mgr, GameRoom.GameMode.STANDARD, "Alice");
+        Player viewer = mgr.join("123456", "Projector", "sess-v", "spectator", null);
+        assertEquals(1, roomOf(mgr).spectators().size());
+        assertTrue(mgr.getRoomState("123456").players().stream()
+                .noneMatch(p -> p.uuid().equals(viewer.uuid())));
+
+        // Spectators receive the same broadcasts as players.
+        mgr.join("123456", "Silent", null, "spectator", null);
+        stubQuiz(1);
+        mgr.startQuestion("123456");
+        mgr.forceSubmit("123456");
+        org.mockito.Mockito.verify(ws, org.mockito.Mockito.atLeastOnce())
+                .broadcast(org.mockito.ArgumentMatchers.argThat(
+                        ids -> ids != null && ids.contains("sess-v")), any());
+
+        mgr.leave("123456", viewer.uuid());
+        assertTrue(roomOf(mgr).spectators().stream()
+                .noneMatch(p -> p.uuid().equals(viewer.uuid())));
+    }
+
+    @Test
+    void managerSpectatorIsRejectedWhenTheRoomIsFull() {
+        GameRoomManager mgr = manager();
+        try {
+            var f = GameRoomManager.class.getDeclaredField("registry");
+            f.setAccessible(true);
+            ((RoomRegistry) f.get(mgr)).put(123456,
+                    new GameRoom("s1", "qz", "123456", "LOBBY", 1, GameRoom.GameMode.STANDARD));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        mgr.join("123456", "Alice", "sess-a", "player", null);
+        assertThrows(IllegalStateException.class,
+                () -> mgr.join("123456", "Projector", "sess-v", "spectator", null));
+    }
 }
