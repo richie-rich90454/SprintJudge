@@ -42,8 +42,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(org.springframework.core.env.Environment environment) {
         if ("changeme".equals(adminPassword)) {
+            if (environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod"))) {
+                throw new IllegalStateException(
+                        "Refusing to boot in prod with the default admin password; "
+                                + "set SPRINTJUDGE_ADMIN_PASSWORD");
+            }
             log.warn("Using default admin password — set sprintjudge.admin.password environment variable!");
         }
         var admin = User.builder()
@@ -63,17 +68,20 @@ public class SecurityConfig {
             .addFilterBefore(loginRateLimitFilter,
                     org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**", "/ws", "/admin/login", "/admin/logout")
+                // Public endpoints and the WebSocket handshake carry no session
+                // state; every admin API is CSRF-protected (the Axios client
+                // echoes XSRF-TOKEN in X-XSRF-TOKEN).
+                .ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
                 .httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true).preload(true).maxAgeInSeconds(31_536_000))
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
-                    "default-src 'self'; script-src 'self' 'unsafe-inline' data: blob:; "
+                    "default-src 'self'; script-src 'self' blob:; "
                   + "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
                   + "worker-src 'self' blob:; connect-src 'self' ws: wss: blob:; "
-                  + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
+                  + "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                 .referrerPolicy(referrer -> referrer.policy(
                     org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)))
             .authorizeHttpRequests(auth -> auth
