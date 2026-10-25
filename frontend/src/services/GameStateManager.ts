@@ -8,6 +8,11 @@ import {
     LeaderboardDelta,
     GameReview,
     SubmissionResult,
+    TeamInfo,
+    BattleBracket,
+    BattleOpponent,
+    BattleResultMessage,
+    BattleChampionMessage,
 } from "../types";
 
 const SESSION_KEY = "sprintjudge_player_session";
@@ -61,6 +66,11 @@ const initial: GameState = {
     error: null,
     gameMode: "STANDARD",
     review: null,
+    teams: [],
+    bracket: null,
+    battleOpponent: null,
+    battleResult: null,
+    champion: null,
 };
 
 /**
@@ -136,6 +146,11 @@ export class GameStateManager {
             leaderboard: [],
             lastResult: null,
             review: null,
+            teams: [],
+            bracket: null,
+            battleOpponent: null,
+            battleResult: null,
+            champion: null,
         });
         webSocketService.send({
             type: "JOIN",
@@ -173,6 +188,26 @@ export class GameStateManager {
 
     kickPlayer(playerUuid: string) {
         webSocketService.send({ type: "KICK_PLAYER", playerUuid });
+    }
+
+    joinTeam(teamId: string) {
+        webSocketService.send({ type: "JOIN_TEAM", teamId });
+    }
+
+    leaveTeam() {
+        webSocketService.send({ type: "LEAVE_TEAM" });
+    }
+
+    createTeam(name: string) {
+        webSocketService.send({ type: "CREATE_TEAM", name });
+    }
+
+    requestTeams() {
+        webSocketService.send({ type: "GET_TEAMS" });
+    }
+
+    requestBracket() {
+        webSocketService.send({ type: "GET_BRACKET" });
     }
 
     requestLeaderboardResync() {
@@ -215,6 +250,10 @@ export class GameStateManager {
                 });
                 // Baseline for the delta protocol; server answers with a full batch.
                 this.requestLeaderboardResync();
+                const joinedMode = (m.room as unknown as RoomState)?.gameMode;
+                if (joinedMode) this.patch({ gameMode: joinedMode });
+                if (joinedMode === "TEAM") this.requestTeams();
+                if (joinedMode === "BATTLE") this.requestBracket();
                 this.clearStaleDrafts();
                 if (
                     this.state.role === "player" &&
@@ -321,9 +360,22 @@ export class GameStateManager {
                 break;
             case "TEAM_CREATED":
             case "TEAM_JOINED":
+                // The server follows both with a TEAM_LIST broadcast.
+                break;
             case "TEAM_LIST":
+                this.patch({ teams: (m.teams as TeamInfo[]) ?? [] });
+                break;
             case "BRACKET":
-                // Team/battle events are consumed by UI components, not state machine.
+                this.patch({ bracket: m as unknown as BattleBracket });
+                break;
+            case "BATTLE_OPPONENT":
+                this.patch({ battleOpponent: m as unknown as BattleOpponent });
+                break;
+            case "BATTLE_RESULT":
+                this.patch({ battleResult: m as unknown as BattleResultMessage });
+                break;
+            case "BATTLE_CHAMPION":
+                this.patch({ champion: m as unknown as BattleChampionMessage });
                 break;
         }
     }
