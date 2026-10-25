@@ -1740,10 +1740,10 @@ class GameRoomManagerTest {
 
         mgr.startBattle("123456");
 
-        java.util.List<String[]> bracket = mgr.getBracket("123456");
+        java.util.List<GameRoom.BattleRound> bracket = mgr.getBracket("123456");
         assertEquals(1, bracket.size());
         assertNotNull(bracket.get(0));
-        assertEquals(2, bracket.get(0).length);
+        assertEquals(1, bracket.get(0).pairs().size());
     }
 
     @Test
@@ -1771,7 +1771,7 @@ class GameRoomManagerTest {
 
         java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
         assertEquals(2, matches.size());
-        assertEquals(2, mgr.getBracket("123456").size());
+        assertEquals(2, mgr.getBracket("123456").get(0).pairs().size());
     }
 
     // ==================== AUTO_PILOT MODE ====================
