@@ -1,0 +1,2575 @@
+{
+  "meta": {
+    "subject": "WEB_DEVELOPMENT",
+    "unit": "Unit 8",
+    "unitNum": 8,
+    "dir": "web-development",
+    "prefix": "web",
+    "slot": 4,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-web-development",
+    "reviewer": "bank-review-web-development",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "web-8.4-0001",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Handle rejected optimistic update",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Architect Ana's optimistic update is rejected; what must the client do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Roll back to server version",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Keep local changes and retry",
+          "misconception": "ignores server truth"
+        },
+        {
+          "id": "C",
+          "text": "Overwrite server with local",
+          "misconception": "loses newer edit"
+        },
+        {
+          "id": "D",
+          "text": "Delete the record",
+          "misconception": "overreacts"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A rejected update means the server has a newer version. Rolling back preserves that newer edit and avoids conflicts.",
+      "hint": "Roll back to server version.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0002",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Avoid full-row overwrite",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Designer Ben saves a whole row and wipes a field he did not edit; safer approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Full row replace",
+          "misconception": "overwrites unedited fields"
+        },
+        {
+          "id": "B",
+          "text": "Delete and recreate row",
+          "misconception": "loses identity"
+        },
+        {
+          "id": "C",
+          "text": "Partial update with changed fields only",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Lock the row first",
+          "misconception": "does not reduce overwrite"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Partial updates touch only changed fields, preserving others. Full replace risks clobbering concurrent edits.",
+      "hint": "Update only changed fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0003",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Drain offline queue",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Manager Cara's offline queue never empties; likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Items are valid",
+          "misconception": "does not explain stall"
+        },
+        {
+          "id": "B",
+          "text": "Queue is too small",
+          "misconception": "confuses capacity with drain"
+        },
+        {
+          "id": "C",
+          "text": "Network is fast",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "D",
+          "text": "Retry policy retries forever",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Retrying forever on a failing item blocks later items. Use backoff and a dead-letter queue.",
+      "hint": "Forever retries block the queue.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0004",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotent consumer",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How does a consumer apply a message only once despite redelivery?",
+      "answer": {
+        "exemplar": "The consumer records processed message ids and skips duplicates, making the operation idempotent so redelivery has no effect."
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Redelivery then becomes a no-op.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0005",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Handle sequence gap",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Developer Dan sees a gap in message sequence; what should the consumer do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Process later messages immediately",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "B",
+          "text": "Drop all messages",
+          "misconception": "overreacts"
+        },
+        {
+          "id": "C",
+          "text": "Wait for the missing message",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Acknowledge and ignore gap",
+          "misconception": "loses data"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Waiting for the missing message preserves order. Processing or dropping risks incorrect results.",
+      "hint": "Wait for the missing message.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0006",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Resolve stale edit after delete",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Eli's device sends an old edit after a delete; server response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply the edit to a new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Ignore and return success",
+          "misconception": "hides conflict"
+        },
+        {
+          "id": "C",
+          "text": "Merge fields silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "D",
+          "text": "Reject the edit as stale",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0007",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Document flexibility",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Fiona needs variable fields per record; which storage fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Document with optional fields",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Fixed table columns",
+          "misconception": "requires schema changes"
+        },
+        {
+          "id": "C",
+          "text": "EAV table",
+          "misconception": "complex queries"
+        },
+        {
+          "id": "D",
+          "text": "Single text blob",
+          "misconception": "loses structure"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Documents allow optional and nested fields without schema changes. Fixed columns need migrations.",
+      "hint": "Documents allow optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0008",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Preserve newer edit",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Reviewer Greg's rollback discards a newer edit; cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Network latency",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "B",
+          "text": "Server version is older",
+          "misconception": "reverses versions"
+        },
+        {
+          "id": "C",
+          "text": "Rollback restores stale local state",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Cache invalidation",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Rolling back to stale local state can overwrite the server's newer edit. Merge or refetch instead.",
+      "hint": "Rollback can clobber newer server edit.",
+      "difficulty": 0.25,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0009",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update benefit",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why are partial updates safer than full-row writes?",
+      "answer": {
+        "exemplar": "Partial updates change only the fields provided, preserving concurrent edits to other fields, while full-row writes replace the entire record and can clobber them."
+      },
+      "explanation": "Partial updates limit the blast radius of a write. Full replaces risk overwriting concurrent changes.",
+      "hint": "Partial updates preserve other fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0010",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Retry with backoff",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Architect Hana needs the queue to drain under failures; policy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry immediately forever",
+          "misconception": "blocks queue"
+        },
+        {
+          "id": "B",
+          "text": "Exponential backoff with dead-letter",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Drop failed items",
+          " misconnception": "loses data"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Exponential backoff with a dead-letter queue lets healthy items proceed. Immediate forever retries stall the queue.",
+      "hint": "Backoff plus dead-letter.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0011",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotency key",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Technician Ivan sees duplicate effects; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shorten ack timeout",
+          "misconception": "causes more redelivery"
+        },
+        {
+          "id": "B",
+          "text": "Increase consumer count",
+          "misconception": "more duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Disable retries",
+          "misconception": "loses delivery guarantees"
+        },
+        {
+          "id": "D",
+          "text": "Track processed message ids",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Scaling or timing changes do not deduplicate.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0012",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Sequence gap handling",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Jane's consumer receives message 5 before 4; best action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Process 5 now",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "B",
+          "text": "Drop 5",
+          "misconception": "loses data"
+        },
+        {
+          "id": "C",
+          "text": "Buffer 5 and wait for 4",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ack 5 and continue",
+          "misconception": "ignores gap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Buffering preserves order until the missing message arrives. Processing or dropping risks incorrect results.",
+      "hint": "Buffer and wait for the gap.",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0013",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Stale edit rejection",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Surveyor Kyle's device sends old edit after delete; server should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Ignore and success",
+          "misconception": "hides conflict"
+        },
+        {
+          "id": "C",
+          "text": "Merge silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "D",
+          "text": "Reject as stale",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0014",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Document vs table",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What can a document store that a fixed table cannot?",
+      "answer": {
+        "exemplar": "A document can store nested objects and arrays with optional fields per record without schema migrations, while a table requires predefined columns."
+      },
+      "explanation": "Documents allow flexible nested and optional fields. Tables need migrations for new columns.",
+      "hint": "Documents allow nested optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0015",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Optimistic update flow",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Which step completes an optimistic update after server rejection?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep local changes",
+          "misconception": "ignores server truth"
+        },
+        {
+          "id": "B",
+          "text": "Overwrite server",
+          "misconception": "loses newer edit"
+        },
+        {
+          "id": "C",
+          "text": "Roll back to server version",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Delete record",
+          "misconception": "overreacts"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A rejected update means the server has a newer version. Rolling back preserves that newer edit and avoids conflicts.",
+      "hint": "Roll back to server version.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0016",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Full-row risk",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Researcher Liam uses PUT and loses a concurrent edit; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase timeout",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "B",
+          "text": "Use PUT with full row",
+          "misconception": "clobbers edits"
+        },
+        {
+          "id": "C",
+          "text": "Add client cache",
+          "misconception": "does not fix write"
+        },
+        {
+          "id": "D",
+          "text": "Use PATCH with changed fields",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "PATCH sends only changed fields, avoiding clobber. PUT replaces the whole row and risks overwriting concurrent edits.",
+      "hint": "Use PATCH for partial changes.",
+      "difficulty": 0.35,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0017",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Drain policy",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Technician Mia's queue stalls on one bad item; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry forever",
+          "misconception": "blocks queue"
+        },
+        {
+          "id": "B",
+          "text": "Clear whole queue",
+          "misconception": "loses data"
+        },
+        {
+          "id": "C",
+          "text": "Move item to dead-letter",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Pause consumers",
+          "misconception": "worsens stall"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A dead-letter queue isolates failing items so healthy ones proceed. Forever retries stall the queue.",
+      "hint": "Dead-letter bad items.",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0018",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotent handling",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Noah sees triple effects; root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ack too fast",
+          "misconception": "not cause"
+        },
+        {
+          "id": "B",
+          "text": "Broker is slow",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "C",
+          "text": "Message too large",
+          "misconception": "unrelated"
+        },
+        {
+          "id": "D",
+          "text": "Consumer not idempotent",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Without idempotency, redelivery applies effects multiple times. Track processed ids to deduplicate.",
+      "hint": "Make consumer idempotent.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0019",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Gap waiting",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should a consumer wait for a missing sequence message?",
+      "answer": {
+        "exemplar": "Waiting preserves message order and prevents processing out-of-order updates that could leave state inconsistent until the gap arrives."
+      },
+      "explanation": "Waiting keeps order and state consistent. Processing out of order risks stale or incorrect state.",
+      "hint": "Wait to preserve order.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0020",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Conflict detection",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Surveyor Olivia's device sends old edit after delete; server should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Merge silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "C",
+          "text": "Reject as stale",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore and success",
+          "misconception": "hides conflict"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0021",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Nested data",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Architect Paul needs nested arrays in one record; storage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fixed table columns",
+          "misconception": "no nesting"
+        },
+        {
+          "id": "B",
+          "text": "Text blob",
+          "misconception": "loses structure"
+        },
+        {
+          "id": "C",
+          "text": "EAV table",
+          "misconception": "complex"
+        },
+        {
+          "id": "D",
+          "text": "Document with arrays",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documents support nested arrays directly. Tables need join tables or EAV for nesting.",
+      "hint": "Documents support nested arrays.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0022",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Rollback risk",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Quinn rolls back and loses a newer edit; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rollback restores stale local state",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Server version older",
+          "misconception": "reverses versions"
+        },
+        {
+          "id": "C",
+          "text": "Network latency",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "D",
+          "text": "Cache invalidation",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Rolling back to stale local state can overwrite the server's newer edit. Merge or refetch instead.",
+      "hint": "Rollback can clobber newer server edit.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0023",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update rationale",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Designer Rose loses a concurrent edit with PUT; root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Index missing",
+          "misconception": "unrelated"
+        },
+        {
+          "id": "B",
+          "text": "Network timeout",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "C",
+          "text": "Full row replace clobbers fields",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Cache stale",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "PUT replaces the entire record, overwriting concurrent changes. Use PATCH for partial updates.",
+      "hint": "Full replace clobbers concurrent edits.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0024",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Queue drain",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does an offline queue need a retry limit?",
+      "answer": {
+        "exemplar": "A retry limit prevents one failing item from blocking the queue forever, allowing later items to drain while failed items go to a dead-letter queue."
+      },
+      "explanation": "Limits keep one bad item from stalling everything. Failed items can be inspected later.",
+      "hint": "Retry limits prevent stall.",
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0025",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Deduplication",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Technician Sam sees duplicate side effects; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shorten ack timeout",
+          "misconception": "more redelivery"
+        },
+        {
+          "id": "B",
+          "text": "Increase consumers",
+          "misconception": "more duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Disable retries",
+          "misconception": "loses guarantees"
+        },
+        {
+          "id": "D",
+          "text": "Track processed ids",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Scaling or timing changes do not deduplicate.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0026",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Gap handling",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Tara receives message 7 before 6; action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Process 7 now",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "B",
+          "text": "Drop 7",
+          "misconception": "loses data"
+        },
+        {
+          "id": "C",
+          "text": "Buffer 7 and wait for 6",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ack 7 and continue",
+          "misconception": "ignores gap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Buffering preserves order until the missing message arrives. Processing or dropping risks incorrect results.",
+      "hint": "Buffer and wait for the gap.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0027",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Stale edit",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Uma's device sends old edit after delete; server should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Ignore and success",
+          "misconception": "hides conflict"
+        },
+        {
+          "id": "C",
+          "text": "Merge silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "D",
+          "text": "Reject as stale",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0028",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Schema flexibility",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Developer Vera needs new field without migration; storage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fixed table columns",
+          "misconception": "requires migration"
+        },
+        {
+          "id": "B",
+          "text": "EAV table",
+          "misconception": "complex queries"
+        },
+        {
+          "id": "C",
+          "text": "Document with optional field",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Text blob",
+          "misconception": "loses structure"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Documents allow optional fields without schema changes. Fixed columns need migrations.",
+      "hint": "Documents allow optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0029",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Optimistic update handling",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why must a rejected optimistic update roll back?",
+      "answer": {
+        "exemplar": "Rollback restores the server's authoritative version and prevents the client from overwriting a newer edit that arrived after the local change."
+      },
+      "explanation": "Rollback preserves server truth and avoids overwriting newer edits. Keeping local changes risks conflicts.",
+      "hint": "Rollback preserves server truth.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0030",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update safety",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Reviewer Will uses PUT and loses a field; safer method?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase timeout",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "B",
+          "text": "Use PUT with full row",
+          "misconception": "clobbers edits"
+        },
+        {
+          "id": "C",
+          "text": "Add client cache",
+          "misconception": "does not fix write"
+        },
+        {
+          "id": "D",
+          "text": "Use PATCH with changed fields",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "PATCH sends only changed fields, avoiding clobber. PUT replaces the whole row and risks overwriting concurrent edits.",
+      "hint": "Use PATCH for partial changes.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0031",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Drain under failures",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Architect Xena needs queue to drain under failures; policy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry immediately forever",
+          "misconception": "blocks queue"
+        },
+        {
+          "id": "B",
+          "text": "Drop failed items",
+          "misconception": "loses data"
+        },
+        {
+          "id": "C",
+          "text": "Exponential backoff with dead-letter",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Pause consumers",
+          "misconception": "worsens stall"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Exponential backoff with a dead-letter queue lets healthy items proceed. Immediate forever retries stall the queue.",
+      "hint": "Backoff plus dead-letter.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0032",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotency",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Surveyor Yara sees duplicate effects; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shorten ack timeout",
+          "misconception": "causes more redelivery"
+        },
+        {
+          "id": "B",
+          "text": "Increase consumer count",
+          "misconception": "more duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Disable retries",
+          "misconception": "loses delivery guarantees"
+        },
+        {
+          "id": "D",
+          "text": "Track processed message ids",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Scaling or timing changes do not deduplicate.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0033",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Gap buffering",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Technician Zoe receives message 9 before 8; root cause of out-of-order processing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Message too large",
+          "misconception": "unrelated"
+        },
+        {
+          "id": "B",
+          "text": "Broker is slow",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "C",
+          "text": "Consumer processes without waiting",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ack too fast",
+          "misconception": "not cause"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Processing without waiting for gaps breaks ordering. Buffer until the missing message arrives.",
+      "hint": "Wait for missing messages.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0034",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Stale edit handling",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why reject an old edit after a delete?",
+      "answer": {
+        "exemplar": "Rejecting prevents resurrecting deleted data; applying or merging the stale edit would undo the delete and violate user intent."
+      },
+      "explanation": "Rejection preserves delete intent. Applying or merging resurrects deleted data.",
+      "hint": "Reject to preserve delete intent.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0035",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Document flexibility",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Field team Aaron needs variable fields per record; storage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fixed table columns",
+          "misconception": "requires schema changes"
+        },
+        {
+          "id": "B",
+          "text": "Single text blob",
+          "misconception": "loses structure"
+        },
+        {
+          "id": "C",
+          "text": "EAV table",
+          "misconception": "complex queries"
+        },
+        {
+          "id": "D",
+          "text": "Document with optional fields",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documents allow optional and nested fields without schema changes. Fixed columns need migrations.",
+      "hint": "Documents allow optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0036",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Conflict resolution",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Designer Ben's update rejected; client should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep local changes",
+          "misconception": "ignores server truth"
+        },
+        {
+          "id": "B",
+          "text": "Overwrite server",
+          "misconception": "loses newer edit"
+        },
+        {
+          "id": "C",
+          "text": "Roll back to server version",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Delete record",
+          "misconception": "overreacts"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A rejected update means the server has a newer version. Rolling back preserves that newer edit and avoids conflicts.",
+      "hint": "Roll back to server version.",
+      "difficulty": 0.25,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0037",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Manager Cara saves whole row and wipes a field; safer approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Full row replace",
+          "misconception": "overwrites unedited fields"
+        },
+        {
+          "id": "B",
+          "text": "Lock row first",
+          "misconception": "does not reduce overwrite"
+        },
+        {
+          "id": "C",
+          "text": "Delete and recreate",
+          "misconception": "loses identity"
+        },
+        {
+          "id": "D",
+          "text": "Partial update with changed fields only",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Partial updates touch only changed fields, preserving others. Full replace risks clobbering concurrent edits.",
+      "hint": "Update only changed fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0038",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Queue stall cause",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Engineer Dan's queue never empties; likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry forever",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Queue too small",
+          "misconception": "confuses capacity with drain"
+        },
+        {
+          "id": "C",
+          "text": "Network fast",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "D",
+          "text": "Items valid",
+          "misconception": "does not explain stall"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Retrying forever on a failing item blocks later items. Use backoff and a dead-letter queue.",
+      "hint": "Forever retries block the queue.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0039",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotent consumer",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How does a consumer apply a message only once despite redelivery?",
+      "answer": {
+        "exemplar": "The consumer records processed message ids and skips duplicates, making the operation idempotent so redelivery has no effect."
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Redelivery then becomes a no-op.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0040",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Gap handling",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Reviewer Eli sees a gap in sequence; consumer should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Process later messages immediately",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "B",
+          "text": "Drop all messages",
+          "misconception": "overreacts"
+        },
+        {
+          "id": "C",
+          "text": "Wait for missing message",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Acknowledge and ignore gap",
+          "misconception": "loses data"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Waiting for the missing message preserves order. Processing or dropping risks incorrect results.",
+      "hint": "Wait for the missing message.",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0041",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Stale edit rejection",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Fiona's device sends old edit after delete; server response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Ignore and return success",
+          "misconception": "hides conflict"
+        },
+        {
+          "id": "C",
+          "text": "Merge fields silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "D",
+          "text": "Reject edit as stale",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0042",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Document vs table",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Surveyor Greg needs variable fields per record; storage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Document with optional fields",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Fixed table columns",
+          "misconception": "requires schema changes"
+        },
+        {
+          "id": "C",
+          "text": "EAV table",
+          "misconception": "complex queries"
+        },
+        {
+          "id": "D",
+          "text": "Single text blob",
+          "misconception": "loses structure"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Documents allow optional and nested fields without schema changes. Fixed columns need migrations.",
+      "hint": "Documents allow optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0043",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Rollback risk",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Technician Hana's rollback discards newer edit; cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Network latency",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "B",
+          "text": "Server version older",
+          "misconception": "reverses versions"
+        },
+        {
+          "id": "C",
+          "text": "Rollback restores stale local state",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Cache invalidation",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Rolling back to stale local state can overwrite the server's newer edit. Merge or refetch instead.",
+      "hint": "Rollback can clobber newer server edit.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0044",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update benefit",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why are partial updates safer than full-row writes?",
+      "answer": {
+        "exemplar": "Partial updates change only the fields provided, preserving concurrent edits to other fields, while full-row writes replace the entire record and can clobber them."
+      },
+      "explanation": "Partial updates limit the blast radius of a write. Full replaces risk overwriting concurrent changes.",
+      "hint": "Partial updates preserve other fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0045",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Retry with backoff",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Architect Ivan needs queue to drain under failures; policy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry immediately forever",
+          "misconception": "blocks queue"
+        },
+        {
+          "id": "B",
+          "text": "Pause consumers",
+          "misconception": "worsens stall"
+        },
+        {
+          "id": "C",
+          "text": "Drop failed items",
+          "misconception": "loses data"
+        },
+        {
+          "id": "D",
+          "text": "Exponential backoff with dead-letter",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Exponential backoff with a dead-letter queue lets healthy items proceed. Immediate forever retries stall the queue.",
+      "hint": "Backoff plus dead-letter.",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0046",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotency key",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Researcher Jane sees duplicate effects; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Disable retries",
+          "misconception": "loses delivery guarantees"
+        },
+        {
+          "id": "B",
+          "text": "Increase consumer count",
+          "misconception": "more duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Track processed message ids",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Shorten ack timeout",
+          "misconception": "causes more redelivery"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Scaling or timing changes do not deduplicate.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0047",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Sequence gap handling",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Kyle's consumer receives message 5 before 4; best action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Process 5 now",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "B",
+          "text": "Ack 5 and continue",
+          "misconception": "ignores gap"
+        },
+        {
+          "id": "C",
+          "text": "Drop 5",
+          "misconception": "loses data"
+        },
+        {
+          "id": "D",
+          "text": "Buffer 5 and wait for 4",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Buffering preserves order until the missing message arrives. Processing or dropping risks incorrect results.",
+      "hint": "Buffer and wait for the gap.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0048",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Stale edit rejection",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Surveyor Liam's device sends old edit after delete; server should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Merge silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "C",
+          "text": "Reject as stale",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore and success",
+          "misconception": "hides conflict"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0049",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Nested data",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What can a document store that a fixed table cannot?",
+      "answer": {
+        "exemplar": "A document can store nested objects and arrays with optional fields per record without schema migrations, while a table requires predefined columns."
+      },
+      "explanation": "Documents allow flexible nested and optional fields. Tables need migrations for new columns.",
+      "hint": "Documents allow nested optional fields.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0050",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Optimistic update flow",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Which step completes an optimistic update after server rejection?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep local changes",
+          "misconception": "ignores server truth"
+        },
+        {
+          "id": "B",
+          "text": "Delete record",
+          "misconception": "overreacts"
+        },
+        {
+          "id": "C",
+          "text": "Overwrite server",
+          "misconception": "loses newer edit"
+        },
+        {
+          "id": "D",
+          "text": "Roll back to server version",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A rejected update means the server has a newer version. Rolling back preserves that newer edit and avoids conflicts.",
+      "hint": "Roll back to server version.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0051",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Full-row risk",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Researcher Mia uses PUT and loses a concurrent edit; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use PATCH with changed fields",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Use PUT with full row",
+          "misconception": "clobbers edits"
+        },
+        {
+          "id": "C",
+          "text": "Add client cache",
+          "misconception": "does not fix write"
+        },
+        {
+          "id": "D",
+          "text": "Increase timeout",
+          "misconception": "irrelevant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "PATCH sends only changed fields, avoiding clobber. PUT replaces the whole row and risks overwriting concurrent edits.",
+      "hint": "Use PATCH for partial changes.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0052",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Drain policy",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Technician Noah's queue stalls on one bad item; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry forever",
+          "misconception": "blocks queue"
+        },
+        {
+          "id": "B",
+          "text": "Clear whole queue",
+          "misconception": "loses data"
+        },
+        {
+          "id": "C",
+          "text": "Move item to dead-letter",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Pause consumers",
+          "misconception": "worsens stall"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A dead-letter queue isolates failing items so healthy ones proceed. Forever retries stall the queue.",
+      "hint": "Dead-letter bad items.",
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0053",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Idempotent handling",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Olivia sees triple effects; root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ack too fast",
+          "misconception": "not cause"
+        },
+        {
+          "id": "B",
+          "text": "Broker is slow",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "C",
+          "text": "Message too large",
+          "misconception": "unrelated"
+        },
+        {
+          "id": "D",
+          "text": "Consumer not idempotent",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Without idempotency, redelivery applies effects multiple times. Track processed ids to deduplicate.",
+      "hint": "Make consumer idempotent.",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0054",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Gap waiting",
+      "practice": "sequencing",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should a consumer wait for a missing sequence message?",
+      "answer": {
+        "exemplar": "Waiting preserves message order and prevents processing out-of-order updates that could leave state inconsistent until the gap arrives."
+      },
+      "explanation": "Waiting keeps order and state consistent. Processing out of order risks stale or incorrect state.",
+      "hint": "Wait to preserve order.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0055",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Conflict detection",
+      "practice": "sync conflict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Surveyor Paul's device sends old edit after delete; server should?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply edit to new row",
+          "misconception": "recreates deleted data"
+        },
+        {
+          "id": "B",
+          "text": "Merge silently",
+          "misconception": "loses delete intent"
+        },
+        {
+          "id": "C",
+          "text": "Reject as stale",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore and success",
+          "misconception": "hides conflict"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A stale edit referencing a deleted row should be rejected. Applying or merging resurrects deleted data.",
+      "hint": "Reject stale edits after delete.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0056",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Nested data",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Architect Quinn needs nested arrays in one record; storage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fixed table columns",
+          "misconception": "no nesting"
+        },
+        {
+          "id": "B",
+          "text": "Text blob",
+          "misconception": "loses structure"
+        },
+        {
+          "id": "C",
+          "text": "EAV table",
+          "misconception": "complex"
+        },
+        {
+          "id": "D",
+          "text": "Document with arrays",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documents support nested arrays directly. Tables need join tables or EAV for nesting.",
+      "hint": "Documents support nested arrays.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0057",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Rollback risk",
+      "practice": "optimistic update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Rose rolls back and loses a newer edit; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rollback restores stale local state",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Server version older",
+          "misconception": "reverses versions"
+        },
+        {
+          "id": "C",
+          "text": "Network latency",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "D",
+          "text": "Cache invalidation",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Rolling back to stale local state can overwrite the server's newer edit. Merge or refetch instead.",
+      "hint": "Rollback can clobber newer server edit.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0058",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Partial update rationale",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Designer Sam loses a concurrent edit with PUT; root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Index missing",
+          "misconception": "unrelated"
+        },
+        {
+          "id": "B",
+          "text": "Network timeout",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "C",
+          "text": "Full row replace clobbers fields",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Cache stale",
+          "misconception": "unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "PUT replaces the entire record, overwriting concurrent changes. Use PATCH for partial updates.",
+      "hint": "Full replace clobbers concurrent edits.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0059",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Queue drain",
+      "practice": "offline queue",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does an offline queue need a retry limit?",
+      "answer": {
+        "exemplar": "A retry limit prevents one failing item from blocking the queue forever, allowing later items to drain while failed items go to a dead-letter queue."
+      },
+      "explanation": "Limits keep one bad item from stalling everything. Failed items can be inspected later.",
+      "hint": "Retry limits prevent stall.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.4-0060",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Deduplication",
+      "practice": "idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Technician Tara sees duplicate side effects; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shorten ack timeout",
+          "misconception": "more redelivery"
+        },
+        {
+          "id": "B",
+          "text": "Increase consumers",
+          "misconception": "more duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Disable retries",
+          "misconception": "loses guarantees"
+        },
+        {
+          "id": "D",
+          "text": "Track processed ids",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Tracking processed ids makes handling idempotent. Scaling or timing changes do not deduplicate.",
+      "hint": "Track processed message ids.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    }
+  ]
+}
