@@ -1,0 +1,2223 @@
+{
+  "meta": {
+    "subject": "DATA_SCIENCE",
+    "unit": "Unit 1",
+    "unitNum": 1,
+    "dir": "data-science",
+    "prefix": "datasci",
+    "slot": 20,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-data-science",
+    "reviewer": "bank-review-data-science",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "datasci-1.20-0001",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Identify how a duplicated dimension key inflates a fact table",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In an architect's brief, a dimension table lists each project once, but the fact table repeats project keys; what does this duplication add?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It adds duplicate fact rows, inflating counts and sums for that project",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It only adds extra columns and leaves row counts unchanged",
+          "misconception": "confuses duplicated keys with duplicated columns"
+        },
+        {
+          "id": "C",
+          "text": "It removes the original rows and replaces them with copies",
+          "misconception": "assumes duplication deletes rather than adds"
+        },
+        {
+          "id": "D",
+          "text": "It has no effect because keys are ignored during aggregation",
+          "misconception": "believes dimension keys do not affect fact rows"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A duplicated dimension key joins to multiple fact rows, so counts and sums for that project grow. The tempting idea that keys are ignored fails because joins multiply matching rows.",
+      "hint": "Think about how joins multiply rows.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-1.20-0002",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Detect ratings that exceed the allowed scale",
+      "practice": "Data check",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A project rating column is documented as 1 to 5, yet a row shows 7; what should the analyst conclude?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The row is valid because ratings can exceed the documented maximum",
+          "misconception": "treats documented limits as suggestions"
+        },
+        {
+          "id": "B",
+          "text": "The row is invalid and needs investigation or correction",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The value is a typo that can be ignored without action",
+          "misconception": "assumes invalid data never matters"
+        },
+        {
+          "id": "D",
+          "text": "The column must be redefined to allow values up to 7",
+          "misconception": "changes the rule instead of fixing the data"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A rating outside the documented 1 to 5 range violates the contract and warrants investigation. Ignoring it or redefining the rule both avoid the real data-quality issue.",
+      "hint": "Compare the value to the documented range.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0003",
+      "topic": "What a log does to a range",
+      "learningObjective": "Explain the effect of a logarithm on a value range",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Describe what applying a base-10 logarithm does to a column whose values range from 100 to 10000.",
+      "answer": {
+        "exemplar": "A base-10 logarithm compresses the range from 100 to 10000 into 2 to 4, turning multiplicative differences into additive ones and reducing the influence of large values while preserving order."
+      },
+      "explanation": "Logarithms compress wide positive ranges into narrower ones and convert multiplicative gaps into additive gaps. The tempting view that logs change ordering is wrong because they are monotonic.",
+      "hint": "Recall that log preserves order.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "datasci-1.20-0004",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Compute the geometric mean and compare it to the arithmetic mean",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "For the three positive values 2, 8, and 32, what is the geometric mean?",
+      "answer": {
+        "value": 8,
+        "tolerance": 0.01
+      },
+      "explanation": "The geometric mean is the cube root of 2 times 8 times 32, which is the cube root of 512, or 8. The arithmetic mean is 14, so the geometric mean is smaller for spread values.",
+      "hint": "Multiply then take the nth root.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0005",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Count rows whose category is not in the documented set",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A table documents allowed statuses as active, paused, and closed; a row shows 'pending'. First classify the row, then decide the action.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is documented and no action is needed",
+          "misconception": "misreads the documented set"
+        },
+        {
+          "id": "B",
+          "text": "It is a synonym for active and can be merged",
+          "misconception": "assumes undocumented means equivalent"
+        },
+        {
+          "id": "C",
+          "text": "It is undocumented and should be flagged for review",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It should be deleted immediately without review",
+          "misconception": "jumps to deletion over investigation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "'Pending' is not in the documented set, so the row is undocumented and should be flagged. Deleting or merging without review risks losing real cases.",
+      "hint": "Check membership in the allowed set.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "datasci-1.20-0006",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Recognize that parse failures drop rows from a load",
+      "practice": "Load review",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "During a CSV load, ten rows fail to parse; what happens to those rows by default?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They are moved to a separate success table",
+          "misconception": "invents a success destination for failures"
+        },
+        {
+          "id": "B",
+          "text": "They are loaded with nulls in every column",
+          "misconception": "confuses parse failure with null insertion"
+        },
+        {
+          "id": "C",
+          "text": "They halt the entire load and nothing is loaded",
+          "misconception": "assumes one failure stops the whole job"
+        },
+        {
+          "id": "D",
+          "text": "They are skipped and omitted from the loaded table",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Parse failures typically cause those rows to be skipped, so they never reach the table. The idea that one bad row stops everything is usually false for batch loads.",
+      "hint": "Default behavior skips bad rows.",
+      "difficulty": 0.75,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-1.20-0007",
+      "topic": "Reading a load report",
+      "learningObjective": "Read a load report to find how many rows were rejected",
+      "practice": "Report read",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A load report shows 1000 rows read, 950 inserted, 30 rejected, 20 skipped; how many rows are missing from the table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "30, because rejected rows are the only ones missing",
+          "misconception": "ignores skipped rows"
+        },
+        {
+          "id": "B",
+          "text": "20, because skipped rows are the only ones missing",
+          "misconception": "ignores rejected rows"
+        },
+        {
+          "id": "C",
+          "text": "50, the sum of rejected and skipped rows",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "1000, because nothing was actually loaded",
+          "misconception": "misreads inserted count"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Missing rows are rejected plus skipped, 30 plus 20, which equals 50. Counting only one category understates the loss.",
+      "hint": "Add rejected and skipped.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-1.20-0008",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Compare two candidate test blocks for coverage",
+      "practice": "Test review",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Two test blocks cover the same feature but one adds edge cases; which should be preferred and why?",
+      "answer": {
+        "exemplar": "Prefer the block that includes edge cases because it exercises boundary values and failure paths, exposing defects the happy-path block misses while still covering the core behavior."
+      },
+      "explanation": "The block with edge cases provides broader coverage and finds more defects. Preferring the smaller block leaves boundary failures untested.",
+      "hint": "Edge cases reveal boundary defects.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-1.20-0009",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Compute a whole-table feature without grouping",
+      "practice": "Feature calc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A table has 4 rows with values 10, 20, 30, 40. What is the mean of these values?",
+      "answer": {
+        "value": 25,
+        "tolerance": 0.01
+      },
+      "explanation": "The sum is 100 and there are 4 rows, so the mean is 25. Dividing by the wrong count would give a different value.",
+      "hint": "Sum divided by count.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0010",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Diagnose a join that multiplied rows",
+      "practice": "Join debug",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A join of orders to customers returned more rows than orders; classify the cause and the fix.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The database is corrupt and must be rebuilt",
+          "misconception": "overreacts to a normal join issue"
+        },
+        {
+          "id": "B",
+          "text": "The join is an inner join and should become a left join",
+          "misconception": "changes join type without fixing duplication"
+        },
+        {
+          "id": "C",
+          "text": "Orders are duplicated and should be deleted",
+          "misconception": "blames the wrong table"
+        },
+        {
+          "id": "D",
+          "text": "The customer key is non-unique, so deduplicate the customer side",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A non-unique customer key multiplies order rows; deduplicating the customer side fixes it. Switching join type does not remove duplication.",
+      "hint": "Check key uniqueness on both sides.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0011",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Explain why duplicate dimension rows inflate aggregates",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why does a dimension with duplicate keys make a sum over facts too large?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because dimensions are summed instead of facts",
+          "misconception": "confuses which table is aggregated"
+        },
+        {
+          "id": "B",
+          "text": "Because each duplicate key joins to the same facts again",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because duplicates delete original fact rows",
+          "misconception": "assumes duplication removes data"
+        },
+        {
+          "id": "D",
+          "text": "Because keys are hashed and collisions occur",
+          "misconception": "introduces unrelated hashing idea"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Each duplicate dimension key repeats the join to the same facts, inflating sums. The idea that dimensions are summed misidentifies the aggregation target.",
+      "hint": "Joins repeat matching rows.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0012",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Interpret a rating above the maximum as invalid",
+      "practice": "Data check",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A satisfaction score is capped at 10, but one record shows 12; what is the most reasonable next step?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Accept it as an outlier and keep it in analysis",
+          "misconception": "keeps invalid data without review"
+        },
+        {
+          "id": "B",
+          "text": "Automatically change it to 10 without logging",
+          "misconception": "silently alters data"
+        },
+        {
+          "id": "C",
+          "text": "Flag it for validation and possible correction",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Delete the entire table and reload",
+          "misconception": "overreacts to a single bad value"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Flagging preserves traceability while allowing correction. Silently capping or deleting the table both mishandle the anomaly.",
+      "hint": "Validate before changing.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-1.20-0013",
+      "topic": "What a log does to a range",
+      "learningObjective": "State the monotonic property of logarithms",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why taking a logarithm does not change the order of positive values.",
+      "answer": {
+        "exemplar": "A logarithm is strictly increasing for positive inputs, so if a is less than b then log a is less than log b, meaning ranks and order remain unchanged while spacing compresses."
+      },
+      "explanation": "Logarithms are strictly increasing, preserving order. The misconception that logs reorder values ignores monotonicity.",
+      "hint": "Monotonic functions preserve order.",
+      "difficulty": 0.75,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0014",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Compare arithmetic and geometric means for positive values",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "For values 4 and 16, what is the arithmetic mean minus the geometric mean?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "The arithmetic mean is 10 and the geometric mean is 8, so the difference is 2. Reversing the subtraction would give negative two.",
+      "hint": "Compute both then subtract.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-1.20-0015",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Identify rows outside the documented category set",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Allowed regions are north, south, east, west; a row lists 'central'. First classify, then choose handling.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It belongs to the set and needs no action",
+          "misconception": "misreads allowed regions"
+        },
+        {
+          "id": "B",
+          "text": "It should be dropped from the dataset",
+          "misconception": "deletes before investigating"
+        },
+        {
+          "id": "C",
+          "text": "It is a typo for north and should be renamed",
+          "misconception": "assumes undocumented means typo"
+        },
+        {
+          "id": "D",
+          "text": "It is outside the set and should be reviewed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "'Central' is outside the documented regions, so review is appropriate. Renaming or dropping without review risks errors.",
+      "hint": "Check the allowed list.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0016",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Explain why parse failures reduce loaded row counts",
+      "practice": "Load review",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why does a parse failure lower the number of rows in the final table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Failed rows are merged into one row",
+          "misconception": "invents merging behavior"
+        },
+        {
+          "id": "B",
+          "text": "Failed rows are converted to empty strings",
+          "misconception": "confuses failure with empty value"
+        },
+        {
+          "id": "C",
+          "text": "Failed rows are excluded from the insert step",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Failed rows are stored in a hidden column",
+          "misconception": "invents hidden storage"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Parse failures exclude those rows from insertion, lowering the count. Conversion to empty strings or merging are not default behaviors.",
+      "hint": "Failed rows never get inserted.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "datasci-1.20-0017",
+      "topic": "Reading a load report",
+      "learningObjective": "Compute the success rate from a load report",
+      "practice": "Report read",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A load report reads 800 rows and inserts 760; what is the success rate as a percent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "90 percent",
+          "misconception": "rounds 760/800 incorrectly"
+        },
+        {
+          "id": "B",
+          "text": "100 percent",
+          "misconception": "ignores rejected rows"
+        },
+        {
+          "id": "C",
+          "text": "80 percent",
+          "misconception": "confuses inserted with rejected"
+        },
+        {
+          "id": "D",
+          "text": "95 percent",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "760 divided by 800 is 0.95, or 95 percent. Treating rejected rows as loaded would overstate success.",
+      "hint": "Divide inserted by read.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-1.20-0018",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Justify choosing the block with boundary tests",
+      "practice": "Test review",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a test block that checks boundary values is more useful than one that only checks mid-range values.",
+      "answer": {
+        "exemplar": "Boundary tests catch off-by-one and limit errors that mid-range tests miss, so they provide stronger assurance that the feature behaves correctly at its edges as well as its center."
+      },
+      "explanation": "Boundary values expose off-by-one and limit defects. Mid-range-only tests leave edges unverified.",
+      "hint": "Edges often contain bugs.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-1.20-0019",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Compute a column minimum over the whole table",
+      "practice": "Feature calc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Given values 5, 12, 3, 19, 8, what is the minimum value?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "The smallest value among 5, 12, 3, 19, 8 is 3. Picking 5 or 8 would confuse minimum with another statistic.",
+      "hint": "Scan for the smallest.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0020",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Identify row multiplication from a non-unique join key",
+      "practice": "Join debug",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A products-to-categories join returns extra rows; first identify why, then pick the fix.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Category key is unique and no fix is needed",
+          "misconception": "denies the observed inflation"
+        },
+        {
+          "id": "B",
+          "text": "Product key is non-unique, so deduplicate products",
+          "misconception": "blames the wrong side"
+        },
+        {
+          "id": "C",
+          "text": "Category key is non-unique, so deduplicate categories",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Switch to a cross join to reduce rows",
+          "misconception": "cross join increases rows"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A non-unique category key inflates the join; deduplicating categories fixes it. A cross join would make inflation worse.",
+      "hint": "Find the non-unique side.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "datasci-1.20-0021",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Distinguish duplicated keys from duplicated columns",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which change actually adds rows to a fact table during a join?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A renamed dimension key with the same values",
+          "misconception": "renaming does not add rows"
+        },
+        {
+          "id": "B",
+          "text": "A dimension column that is duplicated in name only",
+          "misconception": "confuses column duplication with key duplication"
+        },
+        {
+          "id": "C",
+          "text": "A wider dimension table with more attributes",
+          "misconception": "attributes do not multiply rows"
+        },
+        {
+          "id": "D",
+          "text": "A dimension key that appears more than once",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Only a repeated dimension key multiplies fact rows. Extra attributes or renamed keys do not change row counts.",
+      "hint": "Rows multiply on key repeats.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0022",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Compare a rating value against its documented maximum",
+      "practice": "Data check",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A quality score is documented as 0 to 100; a row shows 105. Is the row valid?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because 105 is close to 100",
+          "misconception": "tolerates out-of-range values"
+        },
+        {
+          "id": "B",
+          "text": "Yes, because scores are approximate",
+          "misconception": "treats scores as fuzzy"
+        },
+        {
+          "id": "C",
+          "text": "No, because 105 exceeds the documented maximum",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No, because the minimum is 100",
+          "misconception": "misstates the range"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "105 exceeds the documented maximum of 100, so the row is invalid. Proximity does not make it valid.",
+      "hint": "Check against the maximum.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0023",
+      "topic": "What a log does to a range",
+      "learningObjective": "Compute a log-transformed value",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the base-10 logarithm of 1000?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "log10(1000) is 3 because 10 cubed equals 1000. A value of 2 would correspond to 100.",
+      "hint": "Find the power of 10.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0024",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Explain when the geometric mean is preferred",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "When is the geometric mean preferred over the arithmetic mean for growth rates?",
+      "answer": {
+        "exemplar": "The geometric mean is preferred for growth rates because it compounds multiplicative changes correctly, while the arithmetic mean overstates average growth when rates vary."
+      },
+      "explanation": "Growth rates compound multiplicatively, so the geometric mean is appropriate. The arithmetic mean overstates average growth under variation.",
+      "hint": "Growth compounds multiplicatively.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "datasci-1.20-0025",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Count rows whose value is outside the documented set",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A status column allows open or closed; rows show open, closed, and 'draft'. First classify 'draft', then decide.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Documented; leave it unchanged",
+          "misconception": "misreads allowed statuses"
+        },
+        {
+          "id": "B",
+          "text": "Invalid; delete immediately",
+          "misconception": "deletes before investigating"
+        },
+        {
+          "id": "C",
+          "text": "Synonym for open; merge without review",
+          "misconception": "assumes equivalence"
+        },
+        {
+          "id": "D",
+          "text": "Undocumented; flag for review",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "'Draft' is outside the documented set, so it should be flagged. Merging or deleting without review loses information.",
+      "hint": "Check the allowed list.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0026",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Compute how many rows survive a parse failure",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A file has 500 rows and 12 fail to parse; how many rows are loaded?",
+      "answer": {
+        "value": 488,
+        "tolerance": 0.01
+      },
+      "explanation": "500 minus 12 equals 488 rows loaded. Adding instead of subtracting would give 512.",
+      "hint": "Subtract failures from total.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0027",
+      "topic": "Reading a load report",
+      "learningObjective": "Interpret a load report's rejected count",
+      "practice": "Report read",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a load report, what does a high rejected count most likely indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The source data often violates load rules",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The loader is running faster than expected",
+          "misconception": "confuses rejection with speed"
+        },
+        {
+          "id": "C",
+          "text": "The table schema is too wide",
+          "misconception": "width does not cause rejection"
+        },
+        {
+          "id": "D",
+          "text": "The network is slow",
+          "misconception": "blames network for data issues"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Many rejections usually mean source data violates parsing or constraint rules. Speed, width, or network are not typical causes.",
+      "hint": "Rejections reflect data-rule violations.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0028",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Choose the test block with better coverage",
+      "practice": "Test review",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Block X tests only valid inputs; Block Y tests valid and invalid inputs. First compare coverage, then choose.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Choose X because it is simpler",
+          "misconception": "prefers less coverage"
+        },
+        {
+          "id": "B",
+          "text": "Choose X because invalid inputs never occur",
+          "misconception": "assumes invalid inputs are impossible"
+        },
+        {
+          "id": "C",
+          "text": "Choose Y because it covers failure paths",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Choose neither and write a new block",
+          "misconception": "unnecessarily discards both"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Block Y covers failure paths as well as valid inputs, so it is more thorough. Assuming invalid inputs never occur is unsafe.",
+      "hint": "Coverage includes failure paths.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "datasci-1.20-0029",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Explain a whole-table aggregate without grouping",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does a whole-table average differ from a grouped average?",
+      "answer": {
+        "exemplar": "A whole-table average weights every row equally, while a grouped average first averages within groups and then averages groups, which can differ when group sizes are unequal."
+      },
+      "explanation": "Whole-table and grouped averages differ when groups have unequal sizes. Treating them as identical ignores group weighting.",
+      "hint": "Group sizes affect the result.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "datasci-1.20-0030",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Compute the inflation factor of a join",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A left table has 10 rows and a join returns 25 rows due to a duplicate right key; what is the inflation factor?",
+      "answer": {
+        "value": 2.5,
+        "tolerance": 0.01
+      },
+      "explanation": "25 divided by 10 is 2.5. This factor shows how much the duplicate key inflated the result.",
+      "hint": "Divide result rows by left rows.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0031",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Detect row inflation from a duplicated key",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "After joining facts to a dimension, row count rose from 100 to 140; what is the likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The aggregation removed rows",
+          "misconception": "aggregation reduces, not increases"
+        },
+        {
+          "id": "B",
+          "text": "The fact table gained new rows during the join",
+          "misconception": "facts are not created by joins"
+        },
+        {
+          "id": "C",
+          "text": "The join changed to an inner join",
+          "misconception": "join type does not multiply rows"
+        },
+        {
+          "id": "D",
+          "text": "The dimension key is duplicated",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A rise in row count after a join usually means the dimension key is duplicated. Facts are not created by joins.",
+      "hint": "Joins multiply on key repeats.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0032",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Explain why out-of-range ratings distort averages",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can an out-of-range rating distort an average score?",
+      "answer": {
+        "exemplar": "An out-of-range rating shifts the sum and count in ways the documented scale does not allow, so the average no longer reflects the intended measurement and can mislead decisions."
+      },
+      "explanation": "Out-of-range values distort sums and averages beyond the intended scale. Ignoring them assumes they are harmless.",
+      "hint": "Invalid values skew sums.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0033",
+      "topic": "What a log does to a range",
+      "learningObjective": "Identify that logs compress large values",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What is the main effect of a logarithm on a wide positive range?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It reverses the order of values",
+          "misconception": "logs are monotonic"
+        },
+        {
+          "id": "B",
+          "text": "It expands small values beyond the maximum",
+          "misconception": "logs do not expand beyond range"
+        },
+        {
+          "id": "C",
+          "text": "It compresses large values into a narrower band",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It removes negative values only",
+          "misconception": "irrelevant to positive ranges"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Logs compress wide positive ranges into narrower bands. They do not reverse order or expand beyond the range.",
+      "hint": "Compression is the key effect.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "datasci-1.20-0034",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Compute the arithmetic mean of two values",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the arithmetic mean of 6 and 18?",
+      "answer": {
+        "value": 12,
+        "tolerance": 0.01
+      },
+      "explanation": "The sum is 24 and the count is 2, so the mean is 12. Confusing it with the geometric mean would give about 10.39.",
+      "hint": "Sum divided by count.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0035",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Explain why undocumented categories need review",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should a category not in the documented set be reviewed rather than deleted?",
+      "answer": {
+        "exemplar": "It may represent a legitimate new case or a data-entry variant, so review preserves information and determines the correct handling instead of losing data."
+      },
+      "explanation": "Undocumented categories may be valid new cases. Deleting them loses information; review decides the right action.",
+      "hint": "Review preserves information.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0036",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Identify which rows are lost during parsing",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A parser rejects rows with malformed dates. First classify the impact, then decide monitoring.",
+      "options": [
+        {
+          "id": "A",
+          "text": "No rows are lost; malformed dates become nulls",
+          "misconception": "confuses parse failure with nulling"
+        },
+        {
+          "id": "B",
+          "text": "Malformed rows are fixed automatically",
+          "misconception": "assumes auto-correction"
+        },
+        {
+          "id": "C",
+          "text": "All rows are dropped when one fails",
+          "misconception": "overstates failure impact"
+        },
+        {
+          "id": "D",
+          "text": "Malformed rows are dropped, so track and alert on rejections",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Malformed rows are dropped, so monitoring rejections is important. Automatic fixing or nulling are not default behaviors.",
+      "hint": "Track rejected rows.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0037",
+      "topic": "Reading a load report",
+      "learningObjective": "Compute total processed from a load report",
+      "practice": "Report read",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A load report shows 900 inserted and 100 rejected; how many rows were read?",
+      "answer": {
+        "value": 1000,
+        "tolerance": 0.01
+      },
+      "explanation": "Read rows equal inserted plus rejected, 900 plus 100, which is 1000. Subtracting would give 800.",
+      "hint": "Add inserted and rejected.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0038",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Identify the advantage of a smaller focused test block",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "When might a smaller focused test block be preferable to a large one?",
+      "options": [
+        {
+          "id": "A",
+          "text": "When it replaces all integration tests",
+          "misconception": "unit blocks do not replace integration"
+        },
+        {
+          "id": "B",
+          "text": "When it covers every possible input",
+          "misconception": "small blocks cannot cover everything"
+        },
+        {
+          "id": "C",
+          "text": "When it targets a specific risk with fast feedback",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "When it runs only on production data",
+          "misconception": "tests should not run on production"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A focused block gives fast feedback on a specific risk. It cannot cover everything or replace integration tests.",
+      "hint": "Focus speeds feedback.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0039",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Compute a column maximum over the whole table",
+      "practice": "Feature calc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "For values 7, 2, 9, 4, 6, what is the maximum?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4",
+          "misconception": "confuses max with median"
+        },
+        {
+          "id": "B",
+          "text": "7",
+          "misconception": "picks first large value"
+        },
+        {
+          "id": "C",
+          "text": "6",
+          "misconception": "picks last value"
+        },
+        {
+          "id": "D",
+          "text": "9",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The largest value among 7, 2, 9, 4, 6 is 9. Picking 7 or 6 confuses maximum with another value.",
+      "hint": "Scan for the largest.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0040",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Explain why non-unique join keys inflate results",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does a non-unique join key inflate the number of result rows?",
+      "answer": {
+        "exemplar": "Each matching row on one side pairs with every matching row on the other side, so a non-unique key creates a Cartesian product among matches and multiplies result rows."
+      },
+      "explanation": "Non-unique keys create a Cartesian product among matches, multiplying rows. Assuming one-to-one joins is the common error.",
+      "hint": "Matches multiply across sides.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "datasci-1.20-0041",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Recommend deduplication to fix inflated counts",
+      "practice": "Join debug",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Counts are inflated after a join; first diagnose, then choose the fix.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Switch to a right join",
+          "misconception": "join type does not deduplicate"
+        },
+        {
+          "id": "B",
+          "text": "Drop the fact table and recreate it",
+          "misconception": "destroys data unnecessarily"
+        },
+        {
+          "id": "C",
+          "text": "Deduplicate the dimension before joining",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore the inflation in reporting",
+          "misconception": "hides a real data issue"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Deduplicating the dimension before joining fixes inflation without data loss. Ignoring or switching join type does not help.",
+      "hint": "Fix the dimension side.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "datasci-1.20-0042",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Compute the mean after removing invalid ratings",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Ratings are 3, 5, and an invalid 99; what is the mean of the valid ratings?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "The valid ratings are 3 and 5, whose mean is 4. Including 99 would give about 35.67.",
+      "hint": "Exclude the invalid value.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0043",
+      "topic": "What a log does to a range",
+      "learningObjective": "Compute a log-transformed endpoint",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the base-10 logarithm of 10000?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "log10(10000) is 4 because 10 to the fourth power is 10000. A value of 3 would correspond to 1000.",
+      "hint": "Find the power of 10.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0044",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Compute the geometric mean of two values",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "What is the geometric mean of 9 and 16?",
+      "answer": {
+        "value": 12,
+        "tolerance": 0.01
+      },
+      "explanation": "The geometric mean is the square root of 9 times 16, which is the square root of 144, or 12. The arithmetic mean is 12.5.",
+      "hint": "Multiply then take the square root.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0045",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Identify rows outside the documented set",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Allowed tiers are bronze, silver, gold; a row shows 'platinum'. Is it documented?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because platinum is a higher tier",
+          "misconception": "assumes higher is allowed"
+        },
+        {
+          "id": "B",
+          "text": "No, because platinum is misspelled",
+          "misconception": "misattributes the reason"
+        },
+        {
+          "id": "C",
+          "text": "Yes, because tiers are open-ended",
+          "misconception": "ignores the documented set"
+        },
+        {
+          "id": "D",
+          "text": "No, because platinum is not in the allowed set",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "'Platinum' is not in the allowed set, so the row is undocumented. Being a higher tier does not make it valid.",
+      "hint": "Check the allowed list.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0046",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Explain why parse failures cause silent data loss",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can parse failures cause silent data loss in a pipeline?",
+      "answer": {
+        "exemplar": "If rejected rows are not logged or monitored, a pipeline may appear successful while missing data, leading to incomplete analysis without any visible error."
+      },
+      "explanation": "Unmonitored rejections make a load look successful while data is missing. Logging rejections prevents silent loss.",
+      "hint": "Monitor rejected rows.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "datasci-1.20-0047",
+      "topic": "Reading a load report",
+      "learningObjective": "Identify the meaning of inserted count",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a load report, what does the inserted count represent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rows that failed parsing",
+          "misconception": "confuses rejected with inserted"
+        },
+        {
+          "id": "B",
+          "text": "Rows read from the source file",
+          "misconception": "confuses read with inserted"
+        },
+        {
+          "id": "C",
+          "text": "Rows successfully added to the target table",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Rows skipped by the loader",
+          "misconception": "confuses skipped with inserted"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Inserted counts rows successfully added to the target table. Read, rejected, and skipped are separate counts.",
+      "hint": "Inserted means added successfully.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "datasci-1.20-0048",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Compute coverage overlap between two blocks",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Block X has 10 tests and Block Y has 10 tests with 4 overlapping; how many unique tests are there?",
+      "answer": {
+        "value": 16,
+        "tolerance": 0.01
+      },
+      "explanation": "Unique tests are 10 plus 10 minus 4, which equals 16. Adding without subtracting overlap gives 20.",
+      "hint": "Subtract the overlap.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "datasci-1.20-0049",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Explain why whole-table features ignore groups",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does a feature computed over the whole table ignore group boundaries?",
+      "answer": {
+        "exemplar": "It aggregates every row together regardless of group, so group identity is discarded and only the global statistic remains, which can hide group-level differences."
+      },
+      "explanation": "Whole-table aggregation discards group identity. Group-level differences can be hidden in the global result.",
+      "hint": "Global aggregation ignores groups.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0050",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Identify the correct join to avoid row multiplication",
+      "practice": "Join debug",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "To avoid row multiplication, which approach should be taken first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Convert all keys to strings",
+          "misconception": "type does not affect uniqueness"
+        },
+        {
+          "id": "B",
+          "text": "Always use a cross join to simplify",
+          "misconception": "cross joins multiply rows"
+        },
+        {
+          "id": "C",
+          "text": "Delete duplicate rows from the fact table",
+          "misconception": "facts may legitimately repeat"
+        },
+        {
+          "id": "D",
+          "text": "Verify key uniqueness on both sides before joining",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Checking key uniqueness before joining prevents multiplication. Cross joins and deleting facts are wrong fixes.",
+      "hint": "Check uniqueness first.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0051",
+      "topic": "Rows added by a duplicated dimension key",
+      "learningObjective": "Compute inflated sum due to duplicate key",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A project has one fact of value 10, but the dimension key is duplicated twice; what is the summed value?",
+      "answer": {
+        "value": 20,
+        "tolerance": 0.01
+      },
+      "explanation": "Two dimension rows join to the same fact, so the sum is 20. Treating the fact as counted once gives 10.",
+      "hint": "Multiply by duplicate count.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0052",
+      "topic": "Rows holding an unattainable rating",
+      "learningObjective": "Classify a rating relative to its scale",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A rating scale is 1 to 5 and a row shows 0; first classify, then decide handling.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Valid because 0 is near 1",
+          "misconception": "tolerates out-of-range values"
+        },
+        {
+          "id": "B",
+          "text": "Invalid because 0 is below the minimum",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Valid because zero means no rating",
+          "misconception": "reinterprets invalid as meaningful"
+        },
+        {
+          "id": "D",
+          "text": "Invalid but should be deleted immediately",
+          "misconception": "deletes before investigating"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "0 is below the documented minimum of 1, so the row is invalid. It should be investigated rather than deleted outright.",
+      "hint": "Compare to the minimum.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0053",
+      "topic": "What a log does to a range",
+      "learningObjective": "Identify that logs require positive values",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What precondition must hold for a standard logarithm to be defined?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The input must be less than one",
+          "misconception": "confuses domain with a special case"
+        },
+        {
+          "id": "B",
+          "text": "The input must be an integer",
+          "misconception": "logs accept real positives"
+        },
+        {
+          "id": "C",
+          "text": "The input must be positive",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The input must be negative",
+          "misconception": "reverses the domain"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Standard logarithms require positive inputs. Integers or values less than one are not required.",
+      "hint": "Logs need positive inputs.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "datasci-1.20-0054",
+      "topic": "Arithmetic mean against geometric mean",
+      "learningObjective": "Compare means for a set of values",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "For values 1, 10, 100, which mean is larger?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither is defined",
+          "misconception": "all values are positive"
+        },
+        {
+          "id": "B",
+          "text": "The geometric mean",
+          "misconception": "reverses the inequality"
+        },
+        {
+          "id": "C",
+          "text": "They are equal",
+          "misconception": "assumes means coincide"
+        },
+        {
+          "id": "D",
+          "text": "The arithmetic mean",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "For positive non-constant values, the arithmetic mean exceeds the geometric mean. They are equal only when all values are identical.",
+      "hint": "AM is larger for varied positives.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0055",
+      "topic": "Rows outside the documented set",
+      "learningObjective": "Compute count of rows outside the documented set",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A table has 200 rows; 185 have documented statuses; how many are outside the set?",
+      "answer": {
+        "value": 15,
+        "tolerance": 0.01
+      },
+      "explanation": "200 minus 185 is 15 rows outside the set. Adding would give 385.",
+      "hint": "Subtract documented from total.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0056",
+      "topic": "Rows lost to a parse failure",
+      "learningObjective": "Choose a strategy to handle parse failures",
+      "practice": "Test review",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Parse failures are frequent; first assess impact, then choose a mitigation.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Silently skip all rejected rows",
+          "misconception": "causes silent data loss"
+        },
+        {
+          "id": "B",
+          "text": "Log and quarantine rejected rows for review",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Abort every load on first failure",
+          "misconception": "too strict for batch loads"
+        },
+        {
+          "id": "D",
+          "text": "Ignore the schema and load everything",
+          "misconception": "defeats validation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Logging and quarantining preserves data for review. Silent skipping loses data and aborting is too strict.",
+      "hint": "Quarantine for review.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "datasci-1.20-0057",
+      "topic": "Reading a load report",
+      "learningObjective": "Compare inserted and rejected counts",
+      "practice": "Data audit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A report shows 980 inserted and 20 rejected; is the load healthy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, inserted count is too high",
+          "misconception": "high inserted is good"
+        },
+        {
+          "id": "B",
+          "text": "No, any rejection means failure",
+          "misconception": "zero tolerance is unrealistic"
+        },
+        {
+          "id": "C",
+          "text": "Yes, rejection rate is low",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Yes, because rejected rows are ignored",
+          "misconception": "ignores rejected data"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A 2 percent rejection rate is low, so the load is healthy. Zero tolerance is unrealistic for real data.",
+      "hint": "Assess the rejection rate.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-1.20-0058",
+      "topic": "Comparing two candidate test blocks",
+      "learningObjective": "Explain why edge-case tests matter",
+      "practice": "Concept note",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why do edge-case tests improve confidence in a feature?",
+      "answer": {
+        "exemplar": "Edge-case tests probe boundary values and unusual inputs where defects commonly hide, so passing them gives stronger assurance than happy-path tests alone."
+      },
+      "explanation": "Edge cases hide common defects. Happy-path tests alone leave boundaries unverified.",
+      "hint": "Boundaries hide bugs.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-1.20-0059",
+      "topic": "A feature computed over the whole table",
+      "learningObjective": "Compute a whole-table sum",
+      "practice": "Feature calc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Values are 5, 10, 15, 20; what is the whole-table sum?",
+      "answer": {
+        "value": 50,
+        "tolerance": 0.01
+      },
+      "explanation": "5 plus 10 plus 15 plus 20 equals 50. Averaging instead would give 12.5.",
+      "hint": "Add all values.",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "datasci-1.20-0060",
+      "topic": "A join that returned too many rows",
+      "learningObjective": "Compute the number of distinct keys after deduplication",
+      "practice": "Calculation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A join key has 8 distinct values among 12 rows; how many rows are duplicates?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "12 minus 8 equals 4 duplicate rows. Confusing distinct with duplicate would give 8.",
+      "hint": "Subtract distinct from total.",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    }
+  ]
+}
