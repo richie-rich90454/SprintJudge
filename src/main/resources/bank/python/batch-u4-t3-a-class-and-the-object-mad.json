@@ -1,0 +1,1984 @@
+{
+  "meta": {
+    "subject": "PYTHON",
+    "unit": "Unit 4",
+    "unitNum": 4,
+    "dir": "python",
+    "prefix": "py",
+    "slot": 3,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-python",
+    "reviewer": "bank-review-python",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "py-4.3-0001",
+      "topic": "A Class And The Object Made From It",
+      "learningObjective": "Trace attribute lookup on an instance",
+      "practice": "code trace",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A team ticket defines class Point with x=3 and y=4; p=Point(); what is p.x plus p.y?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prints 7 because class attributes are visible on instances",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It prints 0 because attributes are unset until assigned",
+          "misconception": "assumes attributes must be set in __init__"
+        },
+        {
+          "id": "C",
+          "text": "It prints 7 because instance attributes default to class values",
+          "misconception": "confuses instance creation with class attribute mutation"
+        },
+        {
+          "id": "D",
+          "text": "It raises AttributeError because x and y lack self",
+          "misconception": "thinks class attributes need instance assignment"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Class attributes defined in the body are shared and readable on instances, so p.x + p.y is 7. The wrong ideas assume attributes must be instance-set or that missing __init__ blocks access.",
+      "hint": "Class-level names are visible on instances.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "py-4.3-0002",
+      "topic": "One Attribute Held By The Class",
+      "learningObjective": "Explain class attribute sharing",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two objects share one class attribute count; one object sets self.count=5; what happens to the other?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Both objects now report 5 because the class attribute changed",
+          "misconception": "treats instance assignment as class mutation"
+        },
+        {
+          "id": "B",
+          "text": "The other still reports the old class value because instance shadows class",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both report None because the attribute was deleted",
+          "misconception": "confuses assignment with deletion"
+        },
+        {
+          "id": "D",
+          "text": "Python raises an error because count is immutable",
+          "misconception": "assumes class attributes cannot be shadowed"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Assigning to self.count creates an instance attribute that shadows the class attribute for that object only. The other object keeps reading the class-level value.",
+      "hint": "Instance assignment shadows, it does not mutate.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.3-0003",
+      "topic": "What A Double-Under Method Is For",
+      "learningObjective": "Identify dunder purpose",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a ticket, __str__ is added to a class; what does it control?",
+      "options": [
+        {
+          "id": "A",
+          "text": "How the object behaves when called like a function",
+          "misconception": "confuses __str__ with __call__"
+        },
+        {
+          "id": "B",
+          "text": "Whether the object can be used as a dictionary key",
+          "misconception": "confuses text form with hashability"
+        },
+        {
+          "id": "C",
+          "text": "The official debug text returned by repr()",
+          "misconception": "confuses __str__ with __repr__"
+        },
+        {
+          "id": "D",
+          "text": "The readable text returned by str() and print()",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "__str__ supplies the informal string used by str() and print(). __repr__ is the developer-facing form, and __call__ makes instances callable.",
+      "hint": "str() and print() use __str__.",
+      "difficulty": 0.45,
+      "discrimination": 0.28,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.3-0004",
+      "topic": "Two Hooks Driving One Operation",
+      "learningObjective": "Trace __init__ and __new__ order",
+      "practice": "code trace",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A ticket class logs in __new__ then __init__; creating one instance, which log prints first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__new__ logs first because it creates the instance before __init__",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "__init__ logs first because construction starts with attributes",
+          "misconception": "reverses the creation sequence"
+        },
+        {
+          "id": "C",
+          "text": "Both logs interleave because they run in parallel",
+          "misconception": "assumes concurrent execution"
+        },
+        {
+          "id": "D",
+          "text": "Neither logs because creation skips hooks without super",
+          "misconception": "thinks hooks require explicit super calls"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "__new__ allocates the instance first, then __init__ initializes it, so __new__'s log appears first. They never run in parallel during normal construction.",
+      "hint": "Allocation precedes initialization.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "py-4.3-0005",
+      "topic": "When The Construction Hook Runs",
+      "learningObjective": "State when __init__ runs",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a team ticket, when does __init__ execute relative to object creation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It runs before memory is allocated for the object",
+          "misconception": "confuses __init__ with __new__"
+        },
+        {
+          "id": "B",
+          "text": "It runs only when the object is garbage collected",
+          "misconception": "confuses init with finalizer"
+        },
+        {
+          "id": "C",
+          "text": "It runs after allocation to initialize attributes",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It runs at class definition time, not instance time",
+          "misconception": "thinks dunder methods execute during class body"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "__init__ runs after __new__ allocates the instance, setting up attributes. It does not run at class definition or during garbage collection.",
+      "hint": "Init follows allocation.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.3-0006",
+      "topic": "The Two Text Forms Of An Object",
+      "learningObjective": "Distinguish str and repr",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket asks which text form targets end users versus developers; which is which?",
+      "options": [
+        {
+          "id": "A",
+          "text": "str targets developers and repr targets end users",
+          "misconception": "swaps the two audiences"
+        },
+        {
+          "id": "B",
+          "text": "Both target developers but repr is stricter",
+          "misconception": "ignores end-user purpose of str"
+        },
+        {
+          "id": "C",
+          "text": "Both target end users but differ only in length",
+          "misconception": "ignores audience distinction"
+        },
+        {
+          "id": "D",
+          "text": "str targets end users and repr targets developers",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "str() gives a readable form for users, while repr() gives an unambiguous form aimed at developers. They differ in audience and intent, not just length.",
+      "hint": "Users read str; developers read repr.",
+      "difficulty": 0.75,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "py-4.3-0007",
+      "topic": "Who Each Text Form Is Written For",
+      "learningObjective": "Choose text form by audience",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket wants a log line for debugging; which form should it use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use repr() because it is meant for developers",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Use str() because it is always shorter",
+          "misconception": "picks by length not audience"
+        },
+        {
+          "id": "C",
+          "text": "Use either because they are interchangeable",
+          "misconception": "ignores semantic difference"
+        },
+        {
+          "id": "D",
+          "text": "Use print() with no form because defaults suffice",
+          "misconception": "avoids explicit form choice"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Debugging logs serve developers, so repr() is appropriate. str() is for user-facing output, and the two are not interchangeable.",
+      "hint": "Debugging is developer-facing.",
+      "difficulty": 0.85,
+      "discrimination": 0.29,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "py-4.3-0008",
+      "topic": "Equality And Hashing That Disagree",
+      "learningObjective": "Detect eq without hash",
+      "practice": "error analysis",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A ticket class defines __eq__ but not __hash__; what happens in a set?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It works fine because __eq__ implies a default hash",
+          "misconception": "assumes equality provides hashing"
+        },
+        {
+          "id": "B",
+          "text": "All instances hash to the same value and collide",
+          "misconception": "confuses missing hash with constant hash"
+        },
+        {
+          "id": "C",
+          "text": "Instances become unhashable and set add raises TypeError",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Sets ignore __eq__ and use identity only",
+          "misconception": "thinks sets bypass equality"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Defining __eq__ without __hash__ sets __hash__ to None, making instances unhashable. A TypeError is raised when adding to a set or dict.",
+      "hint": "__eq__ clears __hash__.",
+      "difficulty": 0.25,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "py-4.3-0009",
+      "topic": "A Method The Subclass Replaces",
+      "learningObjective": "Recognize method overriding",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A subclass redefines a parent method with the same name; what is this called?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Overloading because signatures differ",
+          "misconception": "confuses override with overload"
+        },
+        {
+          "id": "B",
+          "text": "Delegation because the parent still runs first",
+          "misconception": "assumes parent always executes"
+        },
+        {
+          "id": "C",
+          "text": "Shadowing because the name hides a variable",
+          "misconception": "confuses method with attribute hiding"
+        },
+        {
+          "id": "D",
+          "text": "Overriding because the subclass replaces the parent method",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Redefining an inherited method in a subclass is overriding. Overloading is not supported by signature in Python, and delegation requires an explicit call.",
+      "hint": "Same name, subclass wins.",
+      "difficulty": 0.35,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.3-0010",
+      "topic": "Reaching The Parent Explicitly",
+      "learningObjective": "Use super() correctly",
+      "practice": "code trace",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A subclass __init__ calls super().__init__(); what does super() return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A proxy that delegates to the parent class",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The class object itself so attributes attach to it",
+          "misconception": "confuses super with cls"
+        },
+        {
+          "id": "C",
+          "text": "The instance with parent attributes only",
+          "misconception": "thinks super strips subclass state"
+        },
+        {
+          "id": "D",
+          "text": "None because super must be assigned first",
+          "misconception": "misunderstands super return value"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "super() returns a proxy object that delegates method calls to the next class in the MRO. It is not the class or a stripped instance.",
+      "hint": "super returns a proxy.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.3-0011",
+      "topic": "Arranging Two Parents",
+      "learningObjective": "Define multiple inheritance",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket class inherits from two parents; what syntax is used?",
+      "options": [
+        {
+          "id": "A",
+          "text": "class C extends A, B:",
+          "misconception": "uses Java-style extends"
+        },
+        {
+          "id": "B",
+          "text": "class C inherits A and B:",
+          "misconception": "uses invalid keyword inherits"
+        },
+        {
+          "id": "C",
+          "text": "class C(A, B):",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "class C : A, B:",
+          "misconception": "uses C++-style colon"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Python multiple inheritance lists base classes in parentheses separated by commas. extends, inherits, and colon syntax are not valid Python.",
+      "hint": "Bases go in parentheses.",
+      "difficulty": 0.55,
+      "discrimination": 0.27,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "py-4.3-0012",
+      "topic": "The Order A Search Walks",
+      "learningObjective": "Explain MRO",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a diamond inheritance, which order does Python search attributes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Depth-first right-to-left always",
+          "misconception": "assumes naive depth-first"
+        },
+        {
+          "id": "B",
+          "text": "Reverse definition order of bases",
+          "misconception": "reverses base order"
+        },
+        {
+          "id": "C",
+          "text": "Alphabetical by class name",
+          "misconception": "assumes name-based ordering"
+        },
+        {
+          "id": "D",
+          "text": "C3 linearization order shown by __mro__",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Python uses C3 linearization, exposed via __mro__, to determine attribute lookup order. It is not simple depth-first or alphabetical.",
+      "hint": "Check __mro__.",
+      "difficulty": 0.65,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 35,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.3-0013",
+      "topic": "A Value Computed On Every Read",
+      "learningObjective": "Identify property usage",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket uses @property on a method; what effect does it have?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It lets the method be accessed like an attribute",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It caches the value after first call",
+          "misconception": "confuses property with lru_cache"
+        },
+        {
+          "id": "C",
+          "text": "It makes the method static and class-level",
+          "misconception": "confuses property with staticmethod"
+        },
+        {
+          "id": "D",
+          "text": "It runs the method at class definition time",
+          "misconception": "thinks decorators execute eagerly"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "@property turns a method into a managed attribute accessed without parentheses. It does not cache, make static, or run at definition time.",
+      "hint": "Access without calling.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "py-4.3-0014",
+      "topic": "A Value Shared Until An Object Sets Its Own",
+      "learningObjective": "Trace class attribute shadowing",
+      "practice": "code trace",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A team ticket sets class attr shared=10; one instance sets self.shared=20; what does the class attr read?",
+      "options": [
+        {
+          "id": "A",
+          "text": "20 because instance assignment updates the class",
+          "misconception": "treats instance assignment as class mutation"
+        },
+        {
+          "id": "B",
+          "text": "None because the class attr was removed",
+          "misconception": "confuses shadowing with deletion"
+        },
+        {
+          "id": "C",
+          "text": "10 because class attribute remains unchanged",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Error because shared is read-only",
+          "misconception": "assumes class attributes immutable"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Instance assignment creates a separate instance attribute; the class attribute stays 10. Only explicit class assignment changes it.",
+      "hint": "Class state stays separate.",
+      "difficulty": 0.85,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "py-4.3-0015",
+      "topic": "An Attribute That Arrives On Its Own",
+      "learningObjective": "Explain __slots__ effect",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket adds __slots__ to a class; what changes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Instances gain a __dict__ for arbitrary attributes",
+          "misconception": "reverses __slots__ effect"
+        },
+        {
+          "id": "B",
+          "text": "Method lookup becomes slower due to dict overhead",
+          "misconception": "assumes slots add overhead"
+        },
+        {
+          "id": "C",
+          "text": "The class becomes abstract and cannot instantiate",
+          "misconception": "confuses __slots__ with ABC"
+        },
+        {
+          "id": "D",
+          "text": "Instances restrict attributes to the declared slots",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "__slots__ declares allowed instance attributes and removes __dict__, saving memory. It does not make the class abstract or slower.",
+      "hint": "Slots limit attributes.",
+      "difficulty": 0.25,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.3-0016",
+      "topic": "Catching A Parent Class",
+      "learningObjective": "Use except with base Exception",
+      "practice": "code trace",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A ticket catches Exception in a try block; does it catch a ValueError?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes because ValueError subclasses Exception",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "No because ValueError is not a subclass of Exception",
+          "misconception": "wrong hierarchy belief"
+        },
+        {
+          "id": "C",
+          "text": "Only if re-raised explicitly",
+          "misconception": "confuses catch with reraise"
+        },
+        {
+          "id": "D",
+          "text": "No because ValueError is a warning not an error",
+          "misconception": "misclassifies ValueError"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "ValueError is a subclass of Exception, so an except Exception clause catches it. No re-raise or special handling is needed.",
+      "hint": "ValueError under Exception.",
+      "difficulty": 0.35,
+      "discrimination": 0.28,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "py-4.3-0017",
+      "topic": "A Fault That Carries Its Own Numbers",
+      "learningObjective": "Store data in custom exception",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket wants an exception to carry error code 404; how?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Subclass BaseException and store code in __dict__ only",
+          "misconception": "avoids __init__ storage"
+        },
+        {
+          "id": "B",
+          "text": "Use a global variable shared by all instances",
+          "misconception": "uses global instead of instance state"
+        },
+        {
+          "id": "C",
+          "text": "Define __init__ to accept and store the code",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Raise a string with the code embedded",
+          "misconception": "uses string instead of object"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A custom exception can override __init__ to accept and store attributes like an error code. Globals or strings lose structure.",
+      "hint": "Store via __init__.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.3-0018",
+      "topic": "A Hand-Written Context Manager",
+      "learningObjective": "Implement context manager protocol",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket class supports 'with' statement; which methods are required?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__begin__ and __end__",
+          "misconception": "uses generic lifecycle names"
+        },
+        {
+          "id": "B",
+          "text": "__start__ and __stop__",
+          "misconception": "invents nonstandard names"
+        },
+        {
+          "id": "C",
+          "text": "__open__ and __close__",
+          "misconception": "confuses file API with context protocol"
+        },
+        {
+          "id": "D",
+          "text": "__enter__ and __exit__",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The context manager protocol requires __enter__ (setup) and __exit__ (teardown). Other name pairs are not recognized by 'with'.",
+      "hint": "Enter and exit.",
+      "difficulty": 0.55,
+      "discrimination": 0.29,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 27,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.3-0019",
+      "topic": "One Check Over Several Cases",
+      "learningObjective": "Use parametrize decorator",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket wants one test function to run with several inputs; which pytest feature?",
+      "options": [
+        {
+          "id": "A",
+          "text": "@pytest.mark.skipif",
+          "misconception": "confuses conditional skip with data cases"
+        },
+        {
+          "id": "B",
+          "text": "@pytest.fixture with scope module",
+          "misconception": "confuses fixture with parametrize"
+        },
+        {
+          "id": "C",
+          "text": "@pytest.mark.parametrize",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "@pytest.mark.xfail",
+          "misconception": "confuses expected failure with cases"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "@pytest.mark.parametrize runs one test with multiple argument sets. Fixtures, skipif, and xfail serve different purposes.",
+      "hint": "parametrize feeds cases.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.3-0020",
+      "topic": "One Assertion Over Several Cases",
+      "learningObjective": "Assert multiple conditions",
+      "practice": "concept mcq",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A ticket checks several values in one test; which assertion style is clearest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No assertions because pytest infers pass",
+          "misconception": "thinks tests pass by default"
+        },
+        {
+          "id": "B",
+          "text": "A single assert with chained comparisons",
+          "misconception": "can hide which value failed"
+        },
+        {
+          "id": "C",
+          "text": "assert True to skip detailed checks",
+          "misconception": "avoids real verification"
+        },
+        {
+          "id": "D",
+          "text": "One assert per value with clear messages",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Separate asserts with messages identify failures precisely. Chained asserts or assert True weaken diagnostics.",
+      "hint": "One assert per value.",
+      "difficulty": 0.75,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "py-4.3-0021",
+      "topic": "A Class And The Object Made From It",
+      "learningObjective": "Trace instance creation count",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A team ticket creates 4 Point objects in a loop; how many instances exist if none are deleted?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "Each call to Point() allocates a new instance; four calls yield four objects. No deletion occurs, so all remain.",
+      "hint": "One per call.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0022",
+      "topic": "One Attribute Held By The Class",
+      "learningObjective": "Compute shared counter",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket increments a class counter by 1 for each of 7 objects created; what is the counter?",
+      "answer": {
+        "value": 7,
+        "tolerance": 0.01
+      },
+      "explanation": "The class attribute accumulates one increment per creation, reaching 7 after seven objects. Instance shadows do not affect it.",
+      "hint": "Add per creation.",
+      "difficulty": 0.25,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0023",
+      "topic": "What A Double-Under Method Is For",
+      "learningObjective": "Count dunder calls",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket calls str(obj) and repr(obj) once each; how many dunder invocations occur?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "str(obj) invokes __str__ and repr(obj) invokes __repr__, one each, totaling two dunder calls.",
+      "hint": "One per form.",
+      "difficulty": 0.35,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0024",
+      "topic": "Two Hooks Driving One Operation",
+      "learningObjective": "Count hook runs",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket creates 3 instances; how many times do __new__ and __init__ run combined?",
+      "answer": {
+        "value": 6,
+        "tolerance": 0.01
+      },
+      "explanation": "Each instance runs __new__ once and __init__ once, so 3 instances yield 6 total hook invocations.",
+      "hint": "Two per instance.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0025",
+      "topic": "When The Construction Hook Runs",
+      "learningObjective": "Count init runs",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket constructs 5 objects; how many __init__ calls happen?",
+      "answer": {
+        "value": 5,
+        "tolerance": 0.01
+      },
+      "explanation": "__init__ runs once per successful construction, so five objects mean five __init__ calls.",
+      "hint": "One per object.",
+      "difficulty": 0.55,
+      "discrimination": 0.29,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0026",
+      "topic": "The Two Text Forms Of An Object",
+      "learningObjective": "Compute text length",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket repr returns 'Point(3,4)' of length 9; str returns 'Point' of length 5; what is their total length?",
+      "answer": {
+        "value": 14,
+        "tolerance": 0.01
+      },
+      "explanation": "Adding the two lengths, 9 plus 5, gives 14 characters total across both text forms.",
+      "hint": "Add lengths.",
+      "difficulty": 0.65,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0027",
+      "topic": "Who Each Text Form Is Written For",
+      "learningObjective": "Count audiences",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket distinguishes two text forms for two audiences; how many distinct audiences?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "str targets end users and repr targets developers, giving two distinct audiences.",
+      "hint": "Users and developers.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0028",
+      "topic": "Equality And Hashing That Disagree",
+      "learningObjective": "Count hashable items",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket has 6 objects where 3 are unhashable due to __eq__; how many can enter a set?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Only hashable objects can be added to a set, so 6 minus 3 unhashable leaves 3 addable objects.",
+      "hint": "Subtract unhashable.",
+      "difficulty": 0.85,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0029",
+      "topic": "A Method The Subclass Replaces",
+      "learningObjective": "Count overridden methods",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket subclass overrides 2 of 5 inherited methods; how many remain inherited unchanged?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Five inherited methods minus two overridden leaves three methods unchanged from the parent.",
+      "hint": "Subtract overrides.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0030",
+      "topic": "Reaching The Parent Explicitly",
+      "learningObjective": "Count super calls",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket subclass __init__ calls super().__init__() twice by mistake; how many parent inits run?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Each super().__init__() call invokes the parent initializer, so two calls run it twice.",
+      "hint": "One per call.",
+      "difficulty": 0.35,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0031",
+      "topic": "Arranging Two Parents",
+      "learningObjective": "Count base classes",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket defines class C(A, B, D); how many direct base classes does C have?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "The tuple (A, B, D) lists three direct bases, so C has three direct parents.",
+      "hint": "Count bases.",
+      "difficulty": 0.45,
+      "discrimination": 0.29,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0032",
+      "topic": "The Order A Search Walks",
+      "learningObjective": "Count MRO entries",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket class linearization lists 4 classes including object; how many entries in __mro__?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "__mro__ contains every class in the linearization, including object, so four classes means four entries.",
+      "hint": "Include object.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0033",
+      "topic": "A Value Computed On Every Read",
+      "learningObjective": "Count property accesses",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket reads obj.value three times; how many times does the property getter run?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "A property computes on each access, so three reads invoke the getter three times.",
+      "hint": "Once per read.",
+      "difficulty": 0.65,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0034",
+      "topic": "A Value Shared Until An Object Sets Its Own",
+      "learningObjective": "Count shadowing instances",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket has 10 instances and 4 set self.x; how many still read the class x?",
+      "answer": {
+        "value": 6,
+        "tolerance": 0.01
+      },
+      "explanation": "The four that set self.x shadow the class value; the remaining six still read the class-level x.",
+      "hint": "Subtract setters.",
+      "difficulty": 0.75,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0035",
+      "topic": "An Attribute That Arrives On Its Own",
+      "learningObjective": "Count slotted attributes",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket __slots__ declares 3 attributes; an instance sets all 3; how many attributes stored?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "With three declared slots, setting all three stores exactly three attributes on the instance.",
+      "hint": "Match slots.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0036",
+      "topic": "Catching A Parent Class",
+      "learningObjective": "Count caught exceptions",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket raises 4 ValueErrors caught by except Exception; how many propagate?",
+      "answer": {
+        "value": 0,
+        "tolerance": 0.01
+      },
+      "explanation": "All four ValueErrors are subclasses of Exception, so the handler catches each and none propagate.",
+      "hint": "All caught.",
+      "difficulty": 0.25,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0037",
+      "topic": "A Fault That Carries Its Own Numbers",
+      "learningObjective": "Count exception attributes",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket custom exception stores code and message; how many attributes added?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Storing both code and message adds two attributes to the exception instance.",
+      "hint": "Count fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0038",
+      "topic": "A Hand-Written Context Manager",
+      "learningObjective": "Count protocol methods",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket context manager implements __enter__ and __exit__; how many protocol methods?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "The context manager protocol defines exactly two methods: __enter__ and __exit__.",
+      "hint": "Two methods.",
+      "difficulty": 0.45,
+      "discrimination": 0.29,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0039",
+      "topic": "One Check Over Several Cases",
+      "learningObjective": "Count parametrized cases",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket parametrize lists 5 input values; how many test runs occur?",
+      "answer": {
+        "value": 5,
+        "tolerance": 0.01
+      },
+      "explanation": "@pytest.mark.parametrize runs the test once per listed value, so five values yield five runs.",
+      "hint": "One per value.",
+      "difficulty": 0.55,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0040",
+      "topic": "One Assertion Over Several Cases",
+      "learningObjective": "Count asserts",
+      "practice": "numeric",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A ticket test has 3 separate assert statements; how many can fail independently?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Each assert is evaluated independently, so any of the three can be the failing one.",
+      "hint": "One per assert.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "py-4.3-0041",
+      "topic": "A Class And The Object Made From It",
+      "learningObjective": "Explain class instantiation",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why a class is a blueprint and an object is an instance; explain briefly.",
+      "answer": {
+        "exemplar": "A class defines attributes and methods as a template, while an object is a concrete instance created from that template with its own state."
+      },
+      "explanation": "The class holds the shared definition; instantiation creates a distinct object carrying state. This distinction underlies all object-oriented design.",
+      "hint": "Template versus instance.",
+      "difficulty": 0.75,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0042",
+      "topic": "One Attribute Held By The Class",
+      "learningObjective": "Explain class attribute mutation",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why mutating a class attribute affects all instances lacking an override.",
+      "answer": {
+        "exemplar": "Instances without their own attribute read the shared class value, so changing the class attribute changes what they observe."
+      },
+      "explanation": "Class attributes are stored once on the class; instances resolve to them when no instance attribute shadows. Thus class-level mutation propagates to all non-shadowing instances.",
+      "hint": "Shared storage.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0043",
+      "topic": "What A Double-Under Method Is For",
+      "learningObjective": "Explain dunder hook role",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks what dunder methods enable for built-in operations.",
+      "answer": {
+        "exemplar": "Dunder methods hook objects into Python's built-in operations like printing, comparison, and iteration by defining special behavior."
+      },
+      "explanation": "They are the protocol by which Python invokes object behavior for operators and functions. Without them, objects fall back to default identity-based behavior.",
+      "hint": "Hooks for built-ins.",
+      "difficulty": 0.25,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0044",
+      "topic": "Two Hooks Driving One Operation",
+      "learningObjective": "Explain new and init split",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why __new__ and __init__ are separate hooks.",
+      "answer": {
+        "exemplar": "__new__ allocates and returns the instance, while __init__ initializes its state, separating creation from setup."
+      },
+      "explanation": "Separating allocation from initialization allows immutable types and metaclass control. __init__ only runs if __new__ returns an instance of the class.",
+      "hint": "Allocate then initialize.",
+      "difficulty": 0.35,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0045",
+      "topic": "When The Construction Hook Runs",
+      "learningObjective": "Explain init timing",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks when __init__ is invoked during instantiation.",
+      "answer": {
+        "exemplar": "__init__ is invoked immediately after __new__ returns an instance, receiving the same arguments passed to the class call."
+      },
+      "explanation": "The class call first allocates via __new__, then passes the instance and arguments to __init__. If __new__ returns a different type, __init__ is skipped.",
+      "hint": "Right after allocation.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0046",
+      "topic": "The Two Text Forms Of An Object",
+      "learningObjective": "Explain str versus repr",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks how str and repr differ in purpose.",
+      "answer": {
+        "exemplar": "str aims for readable output for users, while repr aims for an unambiguous representation useful to developers and debugging."
+      },
+      "explanation": "str prioritizes human readability and may omit details; repr prioritizes precision and often resembles constructor syntax. Both can be customized via dunder methods.",
+      "hint": "Readability versus precision.",
+      "difficulty": 0.55,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0047",
+      "topic": "Who Each Text Form Is Written For",
+      "learningObjective": "Explain audience choice",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks which text form to use in user-facing versus debug output.",
+      "answer": {
+        "exemplar": "Use str for user-facing messages and repr for logs or debugging where exact state matters."
+      },
+      "explanation": "Matching form to audience improves clarity: users need friendly text, while developers need precise state. Mixing them degrades either experience.",
+      "hint": "Audience determines form.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0048",
+      "topic": "Equality And Hashing That Disagree",
+      "learningObjective": "Explain hash and eq contract",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why defining __eq__ without __hash__ makes objects unhashable.",
+      "answer": {
+        "exemplar": "Python sets __hash__ to None when __eq__ is defined, so objects become unhashable to keep the hash-equality contract consistent."
+      },
+      "explanation": "If equal objects had different hashes, dict and set lookups would break. Python disables hashing rather than risk inconsistency.",
+      "hint": "Contract consistency.",
+      "difficulty": 0.75,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0049",
+      "topic": "A Method The Subclass Replaces",
+      "learningObjective": "Explain overriding effect",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks what happens when a subclass overrides a method.",
+      "answer": {
+        "exemplar": "Calls on subclass instances use the overridden version, replacing the parent behavior unless super is explicitly invoked."
+      },
+      "explanation": "Method resolution finds the subclass definition first. Parent behavior is only reached through an explicit super call.",
+      "hint": "Subclass version wins.",
+      "difficulty": 0.85,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0050",
+      "topic": "Reaching The Parent Explicitly",
+      "learningObjective": "Explain super proxy",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks what super() does in a method.",
+      "answer": {
+        "exemplar": "super() returns a proxy that delegates to the next class in the method resolution order, enabling cooperative parent calls."
+      },
+      "explanation": "It avoids hardcoding parent names and supports multiple inheritance. The proxy resolves methods according to __mro__.",
+      "hint": "Proxy to parent.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0051",
+      "topic": "Arranging Two Parents",
+      "learningObjective": "Explain multiple inheritance",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks what multiple inheritance provides.",
+      "answer": {
+        "exemplar": "A class can inherit behavior from multiple parents, combining their interfaces and implementations into one type."
+      },
+      "explanation": "This enables mixin patterns but requires careful MRO and method resolution to avoid ambiguity. Python uses C3 linearization to order bases.",
+      "hint": "Combine parents.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0052",
+      "topic": "The Order A Search Walks",
+      "learningObjective": "Explain MRO lookup",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks how Python resolves an attribute in a hierarchy.",
+      "answer": {
+        "exemplar": "Python walks the method resolution order, checking each class in __mro__ until it finds the attribute or raises AttributeError."
+      },
+      "explanation": "The MRO is computed at class creation via C3 linearization. It ensures a consistent, predictable lookup path across simple and multiple inheritance.",
+      "hint": "Follow __mro__.",
+      "difficulty": 0.45,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0053",
+      "topic": "A Value Computed On Every Read",
+      "learningObjective": "Explain property behavior",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why @property recomputes each access.",
+      "answer": {
+        "exemplar": "A property calls its getter on every read, so it reflects current underlying state rather than a cached value."
+      },
+      "explanation": "This keeps derived values fresh but can cost performance if computation is heavy. Caching requires explicit memoization.",
+      "hint": "Fresh each read.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0054",
+      "topic": "A Value Shared Until An Object Sets Its Own",
+      "learningObjective": "Explain shadowing",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why instance assignment shadows a class attribute.",
+      "answer": {
+        "exemplar": "Assigning to an instance creates an attribute in its __dict__ that takes precedence over the class attribute during lookup."
+      },
+      "explanation": "Lookup checks instance dict before class dict, so the instance value wins. The class value remains unchanged for other instances.",
+      "hint": "Instance dict first.",
+      "difficulty": 0.65,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0055",
+      "topic": "An Attribute That Arrives On Its Own",
+      "learningObjective": "Explain __slots__ memory",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why __slots__ reduces memory.",
+      "answer": {
+        "exemplar": "__slots__ replaces the per-instance __dict__ with fixed slots, reducing overhead when many instances are created."
+      },
+      "explanation": "Without __dict__, attribute storage is more compact. The tradeoff is no arbitrary attributes and potential complications with multiple inheritance.",
+      "hint": "No per-instance dict.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0056",
+      "topic": "Catching A Parent Class",
+      "learningObjective": "Explain exception hierarchy",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why catching Exception covers most errors.",
+      "answer": {
+        "exemplar": "Most built-in errors subclass Exception, so a broad handler catches them, though BaseException includes non-error control flow."
+      },
+      "explanation": "Catching Exception avoids swallowing KeyboardInterrupt and SystemExit, which subclass BaseException directly. Prefer specific catches when possible.",
+      "hint": "Exception is broad but safe.",
+      "difficulty": 0.85,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0057",
+      "topic": "A Fault That Carries Its Own Numbers",
+      "learningObjective": "Explain custom exception data",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks how an exception can carry structured data.",
+      "answer": {
+        "exemplar": "Override __init__ to accept and store fields, then access them on the caught exception instance."
+      },
+      "explanation": "This preserves context for handlers and logging. Keep the data immutable and serializable for robust error reporting.",
+      "hint": "Store in __init__.",
+      "difficulty": 0.25,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0058",
+      "topic": "A Hand-Written Context Manager",
+      "learningObjective": "Explain context protocol",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks how a class becomes a context manager.",
+      "answer": {
+        "exemplar": "Implement __enter__ for setup and __exit__ for teardown; Python calls them around the with block."
+      },
+      "explanation": "__exit__ receives exception details and can suppress them by returning truthy. This pattern ensures cleanup even on errors.",
+      "hint": "Enter and exit hooks.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0059",
+      "topic": "One Check Over Several Cases",
+      "learningObjective": "Explain parametrize benefit",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why parametrize is preferred over loops in tests.",
+      "answer": {
+        "exemplar": "Parametrize creates separate test cases with individual pass or fail reporting, improving diagnostics over a single looped assertion."
+      },
+      "explanation": "Each case appears as its own test in output, making failures pinpoint. A loop would stop at the first failure and hide others.",
+      "hint": "Separate cases.",
+      "difficulty": 0.45,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    },
+    {
+      "id": "py-4.3-0060",
+      "topic": "One Assertion Over Several Cases",
+      "learningObjective": "Explain assertion granularity",
+      "practice": "explanation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A team ticket asks why granular assertions aid debugging.",
+      "answer": {
+        "exemplar": "Granular assertions pinpoint which condition failed, reducing time spent diagnosing test failures."
+      },
+      "explanation": "A single compound assertion reports only that it failed, not which part. Separate asserts with messages reveal the exact mismatch.",
+      "hint": "Pinpoint failures.",
+      "difficulty": 0.55,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 75
+      }
+    }
+  ]
+}
