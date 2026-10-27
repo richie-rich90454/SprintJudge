@@ -1,0 +1,2328 @@
+{
+  "meta": {
+    "subject": "DATA_SCIENCE",
+    "unit": "Unit 3",
+    "unitNum": 3,
+    "dir": "data-science",
+    "prefix": "datasci",
+    "slot": 15,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-data-science",
+    "reviewer": "bank-review-data-science",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "datasci-3.15-0001",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Identify rows above their group average",
+      "practice": "group avg",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Clerk Ana compares each case's hours to its department average; which rows qualify?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rows whose hours exceed their department average",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Rows whose hours exceed the global average",
+          "misconception": "uses global instead of group average"
+        },
+        {
+          "id": "C",
+          "text": "Rows with the maximum hours overall",
+          "misconception": "confuses above-average with maximum"
+        },
+        {
+          "id": "D",
+          "text": "Rows below their department average",
+          "misconception": "reverses comparison"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A row qualifies when its value exceeds its own group average, not the global average.",
+      "hint": "Compare to own group average.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0002",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Evaluate a correlated subquery result",
+      "practice": "corr eval",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Clerk Ben runs a correlated subquery returning department average per case; what does each outer row receive?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The overall average across all cases",
+          "misconception": "ignores correlation"
+        },
+        {
+          "id": "B",
+          "text": "Its own department's average value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The maximum department average",
+          "misconception": "confuses average with max"
+        },
+        {
+          "id": "D",
+          "text": "Null because subquery is correlated",
+          "misconception": "misunderstands correlation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Correlation ties the subquery to the outer row's department, so each case gets its department average.",
+      "hint": "Correlation scopes to department.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-3.15-0003",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Explain a running total at frame end",
+      "practice": "running end",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Clerk Chen computes running total of case fees through each month; value at last row?",
+      "answer": {
+        "exemplar": "The running total at the last row equals the sum of all case fees across every month in the partition, since the frame includes all preceding rows."
+      },
+      "explanation": "At the last row the frame includes all preceding rows, so the running total equals the full sum.",
+      "hint": "Last row includes all prior.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.15-0004",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Apply dense rank to tied values",
+      "practice": "dense tie",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Three cases tie for first by fee; dense rank of the next case?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Dense rank assigns consecutive ranks, so after a tie at first the next case gets rank 2.",
+      "hint": "Dense has no gaps.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.15-0005",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Handle top two per group with ties",
+      "practice": "top2 tie",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk wants top 2 cases per department by fee, including ties; which function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "DENSE_RANK then filter <= 1",
+          "misconception": "keeps only first rank"
+        },
+        {
+          "id": "B",
+          "text": "ROW_NUMBER then filter <= 2",
+          "misconception": "excludes tied third rows"
+        },
+        {
+          "id": "C",
+          "text": "RANK then filter rank <= 2",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "COUNT group by department",
+          "misconception": "aggregates, not ranks"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "RANK includes ties, so filtering rank <= 2 keeps top 2 including tied rows.",
+      "hint": "RANK includes ties.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0006",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Count rows a recursive walk produces",
+      "practice": "recur rows",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Recursive walk of a case chain starting at 1 row with 2 children each level for 3 levels; total rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 rows, one per level",
+          "misconception": "counts levels not rows"
+        },
+        {
+          "id": "B",
+          "text": "6 rows excluding the root",
+          "misconception": "omits root"
+        },
+        {
+          "id": "C",
+          "text": "8 rows double counting",
+          "misconception": "overcounts by one"
+        },
+        {
+          "id": "D",
+          "text": "7 rows including the root",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A binary tree 3 levels deep has 1 + 2 + 4 = 7 nodes including root.",
+      "hint": "Sum powers of two.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0007",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Identify seekable queries for a composite index",
+      "practice": "index seek",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Composite index on (department, status); which query can seek?",
+      "options": [
+        {
+          "id": "A",
+          "text": "WHERE status = 'open' only",
+          "misconception": "skips leading column"
+        },
+        {
+          "id": "B",
+          "text": "WHERE department = 'A' AND status = 'open'",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "WHERE status LIKE '%open%'",
+          "misconception": "leading wildcard prevents seek"
+        },
+        {
+          "id": "D",
+          "text": "ORDER BY case_id only",
+          "misconception": "unrelated to index columns"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A composite index seeks when the query filters on the leading column and optionally the next.",
+      "hint": "Leading column must be filtered.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0008",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Count inner rows a nested loop reads",
+      "practice": "nested loop",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Nested loop join: outer 10 rows, inner 5 rows each; how many inner reads?",
+      "answer": {
+        "exemplar": "The nested loop reads 50 inner rows because 10 outer iterations each scan all 5 inner rows, totalling 50 reads."
+      },
+      "explanation": "Nested loop reads inner rows once per outer row: 10 times 5 equals 50.",
+      "hint": "Multiply outer by inner.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0009",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Identify rows from a lost join condition",
+      "practice": "lost join",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Join loses its condition and becomes a cross join: 12 cases times 5 departments; rows produced?",
+      "answer": {
+        "value": 60,
+        "tolerance": 0.01
+      },
+      "explanation": "A cross join produces the Cartesian product: 12 times 5 equals 60 rows.",
+      "hint": "Multiply both sides.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.15-0010",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Identify repeated rows across offset pages",
+      "practice": "offset repeat",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk pages cases with OFFSET 10 LIMIT 10 then OFFSET 15 LIMIT 10; what repeats?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All rows repeat",
+          "misconception": "overstates overlap"
+        },
+        {
+          "id": "B",
+          "text": "No rows repeat",
+          "misconception": "ignores overlapping offset"
+        },
+        {
+          "id": "C",
+          "text": "Rows 16 through 20 appear in both pages",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Only row 10 repeats",
+          "misconception": "understates overlap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Offsets 10 and 15 overlap on rows 16-20, so those rows appear in both pages.",
+      "hint": "Overlap between offsets.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0011",
+      "topic": "Queries a repeated lookup issues",
+      "learningObjective": "Count queries from a repeated lookup",
+      "practice": "lookup count",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "N+1 problem: 1 query for 50 cases plus 1 per case; total queries?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2500 queries total",
+          "misconception": "multiplies instead of adds"
+        },
+        {
+          "id": "B",
+          "text": "50 queries total",
+          "misconception": "omits initial query"
+        },
+        {
+          "id": "C",
+          "text": "1 query total",
+          "misconception": "ignores per-case lookups"
+        },
+        {
+          "id": "D",
+          "text": "51 queries total",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "One initial query plus 50 per-case queries totals 51 queries.",
+      "hint": "Add one initial query.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.15-0012",
+      "topic": "Distinct entities behind duplicated links",
+      "learningObjective": "Count distinct entities behind duplicated links",
+      "practice": "distinct entities",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "100 link rows but only 30 distinct cases; how many distinct entities?",
+      "options": [
+        {
+          "id": "A",
+          "text": "100 distinct cases",
+          "misconception": "counts rows not entities"
+        },
+        {
+          "id": "B",
+          "text": "30 distinct cases",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "70 distinct cases",
+          "misconception": "subtracts duplicates from total"
+        },
+        {
+          "id": "D",
+          "text": "1 distinct case",
+          "misconception": "over-deduplicates"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Distinct entities are counted by unique case, so 30 distinct cases remain.",
+      "hint": "Count unique cases.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0013",
+      "topic": "A cost claim against the plan",
+      "learningObjective": "Evaluate a cost claim against a plan",
+      "practice": "cost claim",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Clerk claims an index scan is cheaper than a seq scan; plan shows seq scan chosen. Who is right?",
+      "answer": {
+        "exemplar": "The planner is right because it chose the seq scan based on cost estimates; the clerk's claim may ignore selectivity or table size factors."
+      },
+      "explanation": "The planner picks the lower estimated cost, so its seq scan choice reflects its cost model.",
+      "hint": "Planner uses cost estimates.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0014",
+      "topic": "Duplicate share of a multiplied result",
+      "learningObjective": "Compute duplicate share of a multiplied result",
+      "practice": "dup share",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Result has 100 rows, 40 are duplicates of existing cases; duplicate share percent?",
+      "answer": {
+        "value": 40,
+        "tolerance": 0.01
+      },
+      "explanation": "Duplicate share is 40 out of 100, or 40 percent.",
+      "hint": "Divide duplicates by total.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0015",
+      "topic": "Reading a plan for a table scan",
+      "learningObjective": "Read a plan for a table scan",
+      "practice": "plan scan",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Plan shows Seq Scan on cases; what does it imply?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No rows are read",
+          "misconception": "misreads scan node"
+        },
+        {
+          "id": "B",
+          "text": "Only indexed rows are read",
+          "misconception": "confuses seq scan with index scan"
+        },
+        {
+          "id": "C",
+          "text": "Every row of cases is read",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Only distinct rows are read",
+          "misconception": "invents distinctness"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A sequential scan reads every row of the table.",
+      "hint": "Seq scan reads all rows.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0016",
+      "topic": "An index that a query cannot use",
+      "learningObjective": "Identify an unusable index",
+      "practice": "unusable idx",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Query filters WHERE LOWER(name) = 'smith'; index on name. Can it be used?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, because name is text",
+          "misconception": "wrong reason"
+        },
+        {
+          "id": "B",
+          "text": "Yes, index on name applies",
+          "misconception": "ignores function wrapping"
+        },
+        {
+          "id": "C",
+          "text": "Yes, partial index applies",
+          "misconception": "invents partial index"
+        },
+        {
+          "id": "D",
+          "text": "No, function on column prevents index use",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Wrapping a column in a function prevents a plain index on that column from being used.",
+      "hint": "Function blocks index.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.15-0017",
+      "topic": "A join result larger than both inputs",
+      "learningObjective": "Explain a join larger than both inputs",
+      "practice": "big join",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Join of 10 cases and 10 departments yields 40 rows; why larger than inputs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Join adds rows from nowhere",
+          "misconception": "vague explanation"
+        },
+        {
+          "id": "B",
+          "text": "Shared keys multiply rows",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Duplicates in both tables",
+          "misconception": "possible but not necessary"
+        },
+        {
+          "id": "D",
+          "text": "Outer join preserves all",
+          "misconception": "outer join size bounded by sum"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Shared join keys cause multiplication, producing more rows than either input.",
+      "hint": "Multiplication from shared keys.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0018",
+      "topic": "Reading a composite index order",
+      "learningObjective": "Read composite index column order",
+      "practice": "idx order",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Composite index on (department, status, date); which column must lead for a seek?",
+      "answer": {
+        "exemplar": "The leading column department must be filtered with equality for the index to seek; without it the index cannot be used efficiently."
+      },
+      "explanation": "The leading column must be constrained for a composite index seek to occur.",
+      "hint": "Leading column first.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.15-0019",
+      "topic": "Reading duplicated rows across pages",
+      "learningObjective": "Read duplicated rows across pages",
+      "practice": "dup pages",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Page size 10, overlap of 5 rows between consecutive pages; distinct rows in 2 pages?",
+      "answer": {
+        "value": 15,
+        "tolerance": 0.01
+      },
+      "explanation": "Two pages of 10 with 5 overlap yield 10 + 10 - 5 = 15 distinct rows.",
+      "hint": "Subtract overlap.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.15-0020",
+      "topic": "Reading a running-total series",
+      "learningObjective": "Read a running-total series",
+      "practice": "rt series",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Running totals: 10, 25, 40; what was the third increment?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10",
+          "misconception": "reads first increment"
+        },
+        {
+          "id": "B",
+          "text": "25",
+          "misconception": "reads cumulative value"
+        },
+        {
+          "id": "C",
+          "text": "15",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "40",
+          "misconception": "reads total"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Third increment is 40 minus 25 equals 15.",
+      "hint": "Subtract previous cumulative.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0021",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Apply group average filter",
+      "practice": "avg apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Clerk flags cases above their department average; which SQL pattern?",
+      "options": [
+        {
+          "id": "A",
+          "text": "GROUP BY hours",
+          "misconception": "groups by value"
+        },
+        {
+          "id": "B",
+          "text": "WHERE hours > (SELECT AVG(hours) FROM cases)",
+          "misconception": "uses global average"
+        },
+        {
+          "id": "C",
+          "text": "HAVING hours > AVG(hours)",
+          "misconception": "filters rows in HAVING"
+        },
+        {
+          "id": "D",
+          "text": "WHERE hours > (SELECT AVG(hours) ... same department)",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A correlated subquery computes the department average for comparison.",
+      "hint": "Correlated subquery.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0022",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Evaluate correlated subquery cost",
+      "practice": "corr cost",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Correlated subquery on 10000 cases; performance concern?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It executes once total",
+          "misconception": "ignores correlation"
+        },
+        {
+          "id": "B",
+          "text": "It executes once per outer row",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It never executes",
+          "misconception": "misunderstands subqueries"
+        },
+        {
+          "id": "D",
+          "text": "It executes per column",
+          "misconception": "wrong granularity"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Correlation causes per-row execution, which is costly for large tables.",
+      "hint": "Per outer row.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0023",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Apply running total frame",
+      "practice": "rt apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Clerk needs running total of fees ordered by date; frame?",
+      "answer": {
+        "exemplar": "Use SUM(fee) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) to accumulate fees through each date."
+      },
+      "explanation": "Unbounded preceding to current row accumulates all prior fees plus current.",
+      "hint": "Unbounded preceding.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0024",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Evaluate dense rank with multiple ties",
+      "practice": "dense multi",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Values: 10,10,10,8; dense rank of 8?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Three ties at rank 1, so value 8 gets dense rank 2.",
+      "hint": "Dense skips no ranks.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.15-0025",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Evaluate top two with tie inclusion",
+      "practice": "top2 eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Top 2 per department using RANK; department has 3 tied at first. How many rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4 rows including second rank",
+          "misconception": "adds second rank rows"
+        },
+        {
+          "id": "B",
+          "text": "2 rows only",
+          "misconception": "ignores ties"
+        },
+        {
+          "id": "C",
+          "text": "3 rows, all tied at first",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "1 row only",
+          "misconception": "over-filters"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "RANK gives all three tied rows rank 1, and rank <= 2 includes them; rank 2 row would also be included if present, but here only 3 ties.",
+      "hint": "Ties share rank 1.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0026",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Apply recursive walk to a hierarchy",
+      "practice": "recur apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Recursive walk of employee hierarchy from manager down; which rows produced?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All employees including unrelated",
+          "misconception": "no filtering by hierarchy"
+        },
+        {
+          "id": "B",
+          "text": "Only direct reports",
+          "misconception": "stops at first level"
+        },
+        {
+          "id": "C",
+          "text": "Only the manager",
+          "misconception": "no recursion"
+        },
+        {
+          "id": "D",
+          "text": "Manager and all direct and indirect reports",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Recursive walk traverses the entire hierarchy from the manager downward.",
+      "hint": "Recursion walks all levels.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0027",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Evaluate composite index seekability",
+      "practice": "idx eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Index on (department, status); query WHERE status = 'open' AND department = 'A'. Seekable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, order in WHERE matters",
+          "misconception": "WHERE order does not matter"
+        },
+        {
+          "id": "B",
+          "text": "Yes, both columns constrained",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No, status is second column",
+          "misconception": "both columns present so seekable"
+        },
+        {
+          "id": "D",
+          "text": "Yes, but only status",
+          "misconception": "understates seekability"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Both leading and second columns are constrained, so the index can seek.",
+      "hint": "Both columns constrained.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0028",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Evaluate nested loop read count",
+      "practice": "nested eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Nested loop: outer 20, inner 8 each; clerk says 28 reads. Correct?",
+      "answer": {
+        "exemplar": "No, the correct count is 160 reads because 20 outer rows times 8 inner rows equals 160, not 28."
+      },
+      "explanation": "Nested loop reads 20 times 8 equals 160 inner rows, not 28.",
+      "hint": "Multiply, not add.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0029",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Evaluate lost join condition impact",
+      "practice": "lost eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Lost condition turns join into cross join: 5 cases, 4 departments. Rows?",
+      "answer": {
+        "value": 20,
+        "tolerance": 0.01
+      },
+      "explanation": "Cross join produces 5 times 4 equals 20 rows.",
+      "hint": "Multiply both sides.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.15-0030",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Create a page with no repeat",
+      "practice": "page create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk wants no repeated rows across pages; which approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use DISTINCT in the page query",
+          "misconception": "deduplicates within page only"
+        },
+        {
+          "id": "B",
+          "text": "Use larger OFFSET values",
+          "misconception": "does not eliminate overlap"
+        },
+        {
+          "id": "C",
+          "text": "Use keyset pagination on a unique column",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Use ORDER BY random",
+          "misconception": "unstable ordering"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Keyset pagination on a unique column avoids overlap between pages.",
+      "hint": "Keyset on unique column.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0031",
+      "topic": "Queries a repeated lookup issues",
+      "learningObjective": "Create a query avoiding N+1",
+      "practice": "n+1 fix",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Clerk wants to avoid N+1 when loading cases with departments; best approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use OFFSET pagination",
+          "misconception": "unrelated to N+1"
+        },
+        {
+          "id": "B",
+          "text": "Loop and query per case",
+          "misconception": "causes N+1"
+        },
+        {
+          "id": "C",
+          "text": "Cache each department separately",
+          "misconception": "adds complexity, not fix"
+        },
+        {
+          "id": "D",
+          "text": "Use a join or eager fetch in one query",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A single join or eager fetch retrieves all data in one query, avoiding N+1.",
+      "hint": "One query with join.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.15-0032",
+      "topic": "Distinct entities behind duplicated links",
+      "learningObjective": "Create a deduplicated entity list",
+      "practice": "dedup entity",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Clerk wants one row per distinct case from duplicated links; which query?",
+      "options": [
+        {
+          "id": "A",
+          "text": "SELECT case_id FROM links",
+          "misconception": "keeps duplicates"
+        },
+        {
+          "id": "B",
+          "text": "SELECT DISTINCT case_id FROM links",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "SELECT COUNT(*) FROM links",
+          "misconception": "counts rows"
+        },
+        {
+          "id": "D",
+          "text": "SELECT * FROM links",
+          "misconception": "no deduplication"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "DISTINCT collapses duplicated links to one row per case.",
+      "hint": "DISTINCT on case id.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0033",
+      "topic": "A cost claim against the plan",
+      "learningObjective": "Create an index to support a claim",
+      "practice": "index create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Clerk claims an index would speed a filter; what must be verified first?",
+      "answer": {
+        "exemplar": "Verify the filter column has sufficient selectivity and that the query's cost estimate favors an index scan over a sequential scan."
+      },
+      "explanation": "An index helps only if selectivity and cost estimates favor it over a seq scan.",
+      "hint": "Check selectivity and cost.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0034",
+      "topic": "Duplicate share of a multiplied result",
+      "learningObjective": "Create a deduplication to reduce duplicate share",
+      "practice": "dedup reduce",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Duplicate share 40% of 100 rows; after dedup to 60 distinct rows, new duplicate share?",
+      "answer": {
+        "value": 0,
+        "tolerance": 0.01
+      },
+      "explanation": "After deduplication no duplicates remain, so duplicate share is 0 percent.",
+      "hint": "Dedup removes duplicates.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0035",
+      "topic": "Reading a plan for a table scan",
+      "learningObjective": "Create an index to avoid a seq scan",
+      "practice": "avoid scan",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Plan shows Seq Scan; clerk wants index scan; what to add?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A view over the table",
+          "misconception": "does not change scan"
+        },
+        {
+          "id": "B",
+          "text": "More rows to the table",
+          "misconception": "increases scan cost"
+        },
+        {
+          "id": "C",
+          "text": "An index on the filtered column",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "ORDER BY on primary key",
+          "misconception": "not a filter index"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An index on the filtered column lets the planner choose an index scan.",
+      "hint": "Index on filter column.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0036",
+      "topic": "An index that a query cannot use",
+      "learningObjective": "Create a usable index for a function filter",
+      "practice": "func index",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Query filters WHERE LOWER(name) = 'smith'; best index?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Index on case_id",
+          "misconception": "unrelated column"
+        },
+        {
+          "id": "B",
+          "text": "Plain index on name",
+          "misconception": "function blocks it"
+        },
+        {
+          "id": "C",
+          "text": "Partial index on name",
+          "misconception": "not function-aware"
+        },
+        {
+          "id": "D",
+          "text": "Expression index on LOWER(name)",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "An expression index on LOWER(name) matches the filter function.",
+      "hint": "Index the expression.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.15-0037",
+      "topic": "A join result larger than both inputs",
+      "learningObjective": "Create a join without multiplication",
+      "practice": "no mult",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Clerk wants join result no larger than inputs; which condition?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use outer join",
+          "misconception": "outer can still multiply"
+        },
+        {
+          "id": "B",
+          "text": "Join on unique keys in both tables",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Add ORDER BY",
+          "misconception": "ordering does not dedup"
+        },
+        {
+          "id": "D",
+          "text": "Filter after join",
+          "misconception": "does not prevent multiplication"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Joining on unique keys prevents row multiplication, keeping result size bounded.",
+      "hint": "Unique keys prevent mult.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0038",
+      "topic": "Reading a composite index order",
+      "learningObjective": "Create an index matching query order",
+      "practice": "idx match",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Query filters department then status then date; best composite index?",
+      "answer": {
+        "exemplar": "Create the index as (department, status, date) so column order matches the query's filter order from most to least selective."
+      },
+      "explanation": "Index column order should match filter order for efficient seeking.",
+      "hint": "Match filter order.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.15-0039",
+      "topic": "Reading duplicated rows across pages",
+      "learningObjective": "Create stable pagination without duplicates",
+      "practice": "stable page",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Page size 20; keyset pagination on unique id avoids overlap; duplicates per page?",
+      "answer": {
+        "value": 0,
+        "tolerance": 0.01
+      },
+      "explanation": "Keyset pagination on a unique id produces no duplicate rows across pages.",
+      "hint": "Unique keyset avoids dup.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.15-0040",
+      "topic": "Reading a running-total series",
+      "learningObjective": "Create a running total with reset per group",
+      "practice": "rt reset",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk needs running total of fees per department, resetting each department; which query?",
+      "options": [
+        {
+          "id": "A",
+          "text": "SUM(fee) GROUP BY dept",
+          "misconception": "collapses rows"
+        },
+        {
+          "id": "B",
+          "text": "SUM(fee) OVER (ORDER BY date)",
+          "misconception": "no partition, no reset"
+        },
+        {
+          "id": "C",
+          "text": "SUM(fee) OVER (PARTITION BY dept ORDER BY date)",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "COUNT(*) OVER (PARTITION BY dept)",
+          "misconception": "counts, not sums"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Partition by department resets the running total for each department.",
+      "hint": "Partition resets total.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0041",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Evaluate row count above group average",
+      "practice": "avg count",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "10 cases, group averages vary; can all 10 be above their group average?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, exactly half must be below",
+          "misconception": "overstates symmetry"
+        },
+        {
+          "id": "B",
+          "text": "Yes, if all values differ",
+          "misconception": "ignores average definition"
+        },
+        {
+          "id": "C",
+          "text": "Yes, with null values",
+          "misconception": "nulls do not help"
+        },
+        {
+          "id": "D",
+          "text": "No, at least one must be at or below average",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "By definition of average, not all values can exceed their group average.",
+      "hint": "Average definition.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0042",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Evaluate correlated subquery with no match",
+      "practice": "corr nomatch",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Correlated subquery returns no rows for an outer row; what value?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Zero",
+          "misconception": "confuses empty with zero"
+        },
+        {
+          "id": "B",
+          "text": "Null",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Error",
+          "misconception": "no error raised"
+        },
+        {
+          "id": "D",
+          "text": "The outer row is dropped",
+          "misconception": "subquery does not filter"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A scalar subquery returning no rows yields null.",
+      "hint": "Empty scalar yields null.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0043",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Evaluate running total at frame boundary",
+      "practice": "rt boundary",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Running total with frame ROWS 2 PRECEDING; value at first row of partition?",
+      "answer": {
+        "exemplar": "At the first row the frame contains only that row because there are no preceding rows, so the running total equals the first row's value."
+      },
+      "explanation": "At the partition start, preceding rows do not exist, so the frame holds only the current row.",
+      "hint": "No preceding at start.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0044",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Evaluate dense rank versus rank",
+      "practice": "dense vs rank",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Values: 5,5,4; RANK of 4 minus DENSE_RANK of 4?",
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "RANK of 4 is 3, DENSE_RANK of 4 is 2, difference is 1.",
+      "hint": "Subtract dense from rank.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.15-0045",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Create top two per group without ties",
+      "practice": "top2 notie",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk wants exactly 2 rows per department, no ties; which function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "DENSE_RANK partitioned by department",
+          "misconception": "includes ties"
+        },
+        {
+          "id": "B",
+          "text": "RANK partitioned by department",
+          "misconception": "includes ties"
+        },
+        {
+          "id": "C",
+          "text": "ROW_NUMBER partitioned by department ordered by fee desc",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "COUNT group by department",
+          "misconception": "aggregates"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "ROW_NUMBER assigns unique ranks, so filtering <= 2 yields exactly 2 rows per department.",
+      "hint": "ROW_NUMBER unique.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0046",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Create a recursive walk with cycle guard",
+      "practice": "cycle guard",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Recursive walk on a graph with cycles; risk and fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Drops all rows",
+          "misconception": "wrong outcome"
+        },
+        {
+          "id": "B",
+          "text": "No risk, recursion terminates",
+          "misconception": "ignores cycles"
+        },
+        {
+          "id": "C",
+          "text": "Returns empty set",
+          "misconception": "wrong outcome"
+        },
+        {
+          "id": "D",
+          "text": "Infinite loop; track visited nodes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Cycles cause infinite recursion unless visited nodes are tracked.",
+      "hint": "Track visited nodes.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0047",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Create a composite index for multi-column filter",
+      "practice": "multi idx",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Query filters department = 'A' AND status = 'open' AND date > '2024-01-01'; best index?",
+      "options": [
+        {
+          "id": "A",
+          "text": "(date, department, status)",
+          "misconception": "date range first blocks seek on others"
+        },
+        {
+          "id": "B",
+          "text": "(department, status, date)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "(status, date, department)",
+          "misconception": "status alone less selective lead"
+        },
+        {
+          "id": "D",
+          "text": "Single index on date",
+          "misconception": "ignores department and status"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Equality columns first then range column lets the index seek efficiently.",
+      "hint": "Equality then range.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0048",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Create an index to reduce nested loop reads",
+      "practice": "reduce reads",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Nested loop reads 1000 inner rows; how to reduce?",
+      "answer": {
+        "exemplar": "Add an index on the inner table's join column so each outer row seeks one inner row instead of scanning all rows."
+      },
+      "explanation": "An index on the inner join column turns full scans into single-row seeks.",
+      "hint": "Index inner join column.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0049",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Create a guard against lost join condition",
+      "practice": "guard join",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Code review catches a join with no ON clause; tables 10 and 10 rows. Rows if run?",
+      "answer": {
+        "value": 100,
+        "tolerance": 0.01
+      },
+      "explanation": "Missing ON makes a cross join: 10 times 10 equals 100 rows.",
+      "hint": "Cross join product.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.15-0050",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Create a deduplicated page result",
+      "practice": "dedup page",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Overlapping pages produce duplicate rows; clerk wants unique rows across all pages; approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add ORDER BY random",
+          "misconception": "unstable"
+        },
+        {
+          "id": "B",
+          "text": "Increase page size",
+          "misconception": "does not remove duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Collect all then DISTINCT, or use keyset pagination",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Use OFFSET only",
+          "misconception": "causes overlap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "DISTINCT after collection or keyset pagination eliminates cross-page duplicates.",
+      "hint": "Distinct or keyset.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0051",
+      "topic": "Queries a repeated lookup issues",
+      "learningObjective": "Create a batched lookup",
+      "practice": "batch lookup",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Clerk batches 50 case lookups into one query; queries issued?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0 queries, cached",
+          "misconception": "assumes cache"
+        },
+        {
+          "id": "B",
+          "text": "50 queries in a loop",
+          "misconception": "not batched"
+        },
+        {
+          "id": "C",
+          "text": "2 queries split",
+          "misconception": "unnecessary split"
+        },
+        {
+          "id": "D",
+          "text": "1 query using IN list",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A single query with an IN list batches all 50 lookups into one round trip.",
+      "hint": "One IN query.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.15-0052",
+      "topic": "Distinct entities behind duplicated links",
+      "learningObjective": "Create a count of distinct entities",
+      "practice": "distinct count",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Clerk wants count of distinct cases in links; which query?",
+      "options": [
+        {
+          "id": "A",
+          "text": "SELECT COUNT(*) FROM links",
+          "misconception": "counts rows"
+        },
+        {
+          "id": "B",
+          "text": "SELECT COUNT(DISTINCT case_id) FROM links",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "SELECT DISTINCT case_id FROM links",
+          "misconception": "returns rows not count"
+        },
+        {
+          "id": "D",
+          "text": "SELECT COUNT(case_id) FROM links",
+          "misconception": "counts non-null rows"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "COUNT(DISTINCT case_id) counts unique cases.",
+      "hint": "Count distinct.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0053",
+      "topic": "A cost claim against the plan",
+      "learningObjective": "Create a verified cost comparison",
+      "practice": "cost verify",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Clerk claims index is cheaper; how to verify against the plan?",
+      "answer": {
+        "exemplar": "Run EXPLAIN ANALYZE on both plans and compare actual execution times and row counts to verify which is cheaper."
+      },
+      "explanation": "EXPLAIN ANALYZE measures actual costs, validating or refuting the claim.",
+      "hint": "Use EXPLAIN ANALYZE.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.15-0054",
+      "topic": "Duplicate share of a multiplied result",
+      "learningObjective": "Create a check for duplicate share threshold",
+      "practice": "dup threshold",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Result 200 rows, 50 duplicates; duplicate share percent?",
+      "answer": {
+        "value": 25,
+        "tolerance": 0.01
+      },
+      "explanation": "50 duplicates out of 200 rows is 25 percent.",
+      "hint": "Divide by total.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.15-0055",
+      "topic": "Reading a plan for a table scan",
+      "learningObjective": "Create a covering index to avoid heap fetches",
+      "practice": "covering idx",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Plan shows index scan with heap fetches; clerk wants index-only scan; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add more tables",
+          "misconception": "increases work"
+        },
+        {
+          "id": "B",
+          "text": "Remove the WHERE clause",
+          "misconception": "changes query semantics"
+        },
+        {
+          "id": "C",
+          "text": "Include needed columns in the index",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Use a seq scan instead",
+          "misconception": "reverses goal"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Including all needed columns makes the index covering, enabling index-only scans.",
+      "hint": "Covering index.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.15-0056",
+      "topic": "An index that a query cannot use",
+      "learningObjective": "Create an index for a LIKE prefix query",
+      "practice": "like idx",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Query filters WHERE name LIKE 'Sm%'; best index?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Full-text index",
+          "misconception": "overkill for prefix"
+        },
+        {
+          "id": "B",
+          "text": "No index can help",
+          "misconception": "prefix LIKE can use index"
+        },
+        {
+          "id": "C",
+          "text": "Expression index on LOWER(name)",
+          "misconception": "unnecessary case folding"
+        },
+        {
+          "id": "D",
+          "text": "Plain index on name supports prefix seek",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A plain index supports prefix LIKE seeks.",
+      "hint": "Prefix LIKE uses index.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.15-0057",
+      "topic": "A join result larger than both inputs",
+      "learningObjective": "Create a join on unique keys",
+      "practice": "unique join",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Clerk joins cases to departments on department_id where both are unique; result size?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cases times departments",
+          "misconception": "only if no unique keys"
+        },
+        {
+          "id": "B",
+          "text": "At most the number of cases",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Cases plus departments",
+          "misconception": "union size"
+        },
+        {
+          "id": "D",
+          "text": "Always exactly cases",
+          "misconception": "inner may drop unmatched"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Joining on unique keys prevents multiplication, so result is at most the case count.",
+      "hint": "Unique keys bound size.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.15-0058",
+      "topic": "Reading a composite index order",
+      "learningObjective": "Create an index for a query with range on first column",
+      "practice": "range first",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Query filters date range then department equality; can a composite index seek both?",
+      "answer": {
+        "exemplar": "No, once the first index column has a range condition the subsequent columns cannot be used for seeking, only filtering."
+      },
+      "explanation": "A range on the leading column prevents seeking on later columns.",
+      "hint": "Range blocks later seeks.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.15-0059",
+      "topic": "Reading duplicated rows across pages",
+      "learningObjective": "Create a count of distinct rows across pages",
+      "practice": "distinct pages",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Two pages of 10 with 5 overlap; distinct rows total?",
+      "answer": {
+        "value": 15,
+        "tolerance": 0.01
+      },
+      "explanation": "Distinct rows across two overlapping pages: 10 + 10 - 5 = 15.",
+      "hint": "Subtract overlap.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.15-0060",
+      "topic": "Reading a running-total series",
+      "learningObjective": "Create a running total with a moving window",
+      "practice": "moving window",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Clerk wants 3-row moving sum of fees; which frame?",
+      "options": [
+        {
+          "id": "A",
+          "text": "ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING",
+          "misconception": "forward-looking"
+        },
+        {
+          "id": "B",
+          "text": "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
+          "misconception": "cumulative, not moving"
+        },
+        {
+          "id": "C",
+          "text": "ROWS BETWEEN 2 PRECEDING AND CURRENT ROW",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING",
+          "misconception": "centered 3-row"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Two preceding plus current row gives a 3-row moving sum.",
+      "hint": "2 preceding + current.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    }
+  ]
+}
