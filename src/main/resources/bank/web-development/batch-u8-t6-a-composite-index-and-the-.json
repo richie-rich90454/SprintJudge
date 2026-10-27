@@ -1,0 +1,2624 @@
+{
+  "meta": {
+    "subject": "WEB_DEVELOPMENT",
+    "unit": "Unit 8",
+    "unitNum": 8,
+    "dir": "web-development",
+    "prefix": "web",
+    "slot": 6,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-web-development",
+    "reviewer": "bank-review-web-development",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "web-8.6-0001",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Identify which column of a composite index a predicate can use",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "In a chef's recipe costing sheet, a composite index on (ingredient, unit) is queried with WHERE unit = 'kg'. Which leading column rule applies?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The index is used because unit is the second column and still indexed",
+          "misconception": "thinks any column in a composite index is independently usable"
+        },
+        {
+          "id": "B",
+          "text": "The index is skipped because the leading ingredient column has no predicate",
+          "misconception": "confuses leading column with covering column"
+        },
+        {
+          "id": "C",
+          "text": "The index is used only after a full scan of the ingredient column",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The index is dropped because the query lacks an ORDER BY clause",
+          "misconception": "mixes index selection with sort ordering"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A composite index is ordered first by its leading column, so a predicate on a later column cannot seek without the leading one. The plan falls back to scanning the leading column range, which keeps correctness but costs more reads. C captures that fallback.",
+      "hint": "Leading column must have a predicate to seek.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.6-0002",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Recognize when an index covers a query and avoids a table lookup",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Maria's costing sheet query selects ingredient and cost where ingredient = 'salt'. An index on (ingredient) INCLUDE (cost) exists. What does the plan avoid?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It avoids parsing the SQL text a second time",
+          "misconception": "confuses plan cache with index coverage"
+        },
+        {
+          "id": "B",
+          "text": "It avoids a separate visit to the base table rows",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It avoids locking the ingredient column during reads",
+          "misconception": "mixes concurrency control with index coverage"
+        },
+        {
+          "id": "D",
+          "text": "It avoids serializing the result set to JSON",
+          "misconception": "confuses output encoding with storage access"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A covering index holds every column the query needs, so the engine reads only the index pages. That removes the extra heap or clustered-index lookup per row, which is the main win for point lookups on wide rows. B names that removed visit.",
+      "hint": "Covering means no base-table fetch.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.6-0003",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Choose a fix that ends a full table scan",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Leo's costing query scans all 40,000 recipe rows because the predicate is LOWER(ingredient) = 'salt'. Which change most directly ends the scan?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add an index on ingredient and rewrite the predicate to ingredient = 'salt'",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Increase the buffer pool size so the scan runs faster",
+          "misconception": "treats symptom speed as root cause removal"
+        },
+        {
+          "id": "C",
+          "text": "Partition the table by recipe date to reduce scanned rows",
+          "misconception": "reduces but does not remove the scan per partition"
+        },
+        {
+          "id": "D",
+          "text": "Add a LIMIT 10 clause to stop early",
+          "misconception": "stops output early but still scans internally"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The function on the column blocks index use, so removing it and indexing the bare column lets the engine seek directly. Buffer or partition changes only shrink or speed the scan; LIMIT only trims output. A fixes the root cause.",
+      "hint": "Remove the function from the column.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 65
+      }
+    },
+    {
+      "id": "web-8.6-0004",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Explain why offset pagination drifts after a deletion",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Ana pages a costing sheet with OFFSET 20, then a row above the page is deleted before the next request. Why does the next page skip a row?",
+      "answer": {
+        "exemplar": "Offset counts physical rows from the start, so deleting a row above shifts every later row up by one and the fixed offset skips the row that moved into the deleted slot. A cursor keyed on a stable column avoids this drift because it resumes after a value rather than a count."
+      },
+      "explanation": "Offset pagination is positional, so any insert or delete above the window shifts the window. The skipped row is the one that slid into the removed position, not a data loss in storage. Cursor pagination fixes this by anchoring to a value.",
+      "hint": "Offset is a count, not a value.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 48,
+        "p75Sec": 72
+      }
+    },
+    {
+      "id": "web-8.6-0005",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Handle a cursor row that no longer exists",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Ben's cursor points at recipe row 42, which is deleted before the next page request. What should the API do, and what is the risk of the alternative?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Return an empty page because the cursor key is gone",
+          "misconception": "treats a missing cursor row as end of data"
+        },
+        {
+          "id": "B",
+          "text": "Resume after the deleted key using the next available value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Fail the request with 404 and ask the client to restart",
+          "misconception": "overreacts to a normal pagination edge case"
+        },
+        {
+          "id": "D",
+          "text": "Repeat the previous page to keep the client stable",
+          "misconception": "creates duplicates instead of progressing"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The cursor is an anchor, not a row to return, so resuming after its key keeps progress. Returning empty or 404 loses data; repeating the page creates duplicates. B is the standard seek behavior.",
+      "hint": "Anchor on the key, not the row.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 78
+      }
+    },
+    {
+      "id": "web-8.6-0006",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Deduplicate items that appear on overlapping pages",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Cara's endless recipe list fetches pages of 20 with a one-row overlap. How should the client merge page 2 into the list?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Append all 20 rows and let the UI sort later",
+          "misconception": "ignores the overlap and creates duplicates"
+        },
+        {
+          "id": "B",
+          "text": "Drop rows whose id already exists in the accumulated list",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Replace the entire list with page 2 contents",
+          "misconception": "discards already loaded history"
+        },
+        {
+          "id": "D",
+          "text": "Keep only the overlapping row and discard the rest",
+          "misconception": "keeps the duplicate and loses new rows"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Overlapping pages intentionally repeat boundary rows to avoid gaps. The client must deduplicate by a stable id when merging, otherwise the list grows with duplicates and scroll position jumps. B does that.",
+      "hint": "Deduplicate by stable id on merge.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 44,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.6-0007",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Identify what a rollback discards on a rejected optimistic update",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Dan saves a recipe cost optimistically, but the server rejects it because a newer edit exists. On rollback, what is discarded?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server's newer edit is discarded to restore the client view",
+          "misconception": "reverses who owns the authoritative state"
+        },
+        {
+          "id": "B",
+          "text": "The client's pending edit is discarded and the server version restored",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both edits are discarded and the row is deleted",
+          "misconception": "overreacts with data destruction"
+        },
+        {
+          "id": "D",
+          "text": "The conflict is queued for manual merge later",
+          "misconception": "defers instead of resolving with current data"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An optimistic update is local until confirmed, so a rejection means the client's edit never happened. The rollback restores the server's newer version, discarding only the pending client change. B states that.",
+      "hint": "Optimistic means local until confirmed.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 46,
+        "p75Sec": 70
+      }
+    },
+    {
+      "id": "web-8.6-0008",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Recognize the hazard of full-row writes",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Eva sends a PUT with the whole recipe row to change only cost, but unit silently reverts to its old value. What caused it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The client omitted unit from the payload so the server kept the old value",
+          "misconception": "assumes missing fields are preserved on PUT"
+        },
+        {
+          "id": "B",
+          "text": "The server's PUT handler replaced every column with the payload values",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "A trigger reset unit whenever cost changed",
+          "misconception": "invents a trigger without evidence"
+        },
+        {
+          "id": "D",
+          "text": "The index on unit was rebuilt and dropped the value",
+          "misconception": "confuses storage index with column data"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "PUT means replace the whole resource, so any field absent or stale in the payload overwrites the stored value. A PATCH or explicit partial update would preserve untouched columns. B identifies the handler behavior.",
+      "hint": "PUT replaces the whole row.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0009",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Choose the index column order that matches query predicates",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Finn queries costing rows where category = 'dairy' and ingredient = 'butter', always together. Which composite index order is better and why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "(ingredient, category) because ingredient is more selective",
+          "misconception": "assumes selectivity alone decides leading column"
+        },
+        {
+          "id": "B",
+          "text": "(category, ingredient) because both predicates are equality and either leads",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "(cost, category) to support range scans on cost",
+          "misconception": "adds an unneeded range column to the lead"
+        },
+        {
+          "id": "D",
+          "text": "A single-column index on cost only",
+          "misconception": "ignores the equality predicates entirely"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "When both predicates are equality, either column can lead and the engine seeks both. Ordering by the more common or narrower filter is a tie-break, but both work; adding a range column first would block the second equality. B is correct.",
+      "hint": "Equality predicates can lead in any order.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.6-0010",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Measure the benefit of a covering index on wide rows",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Grace adds a covering index to a costing sheet with very wide rows. Why does read amplification drop even though row count is unchanged?",
+      "answer": {
+        "exemplar": "The covering index stores only the needed columns in a compact, sorted structure, so each page holds more entries and fewer pages are read. The base table's wide rows are never touched, removing the per-row heap lookup that dominated I/O before."
+      },
+      "explanation": "Covering does not change row count but changes bytes read per row. Compact index pages plus no heap fetch lowers I/O dramatically on wide tables. That is the measured benefit.",
+      "hint": "Fewer bytes read per row.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.6-0011",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Distinguish a scan that remains necessary from one that is not",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Hugo's plan shows Seq Scan on recipes. Which of these is NOT a way to end that scan?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add a usable index matching the predicate",
+          "misconception": "this does end the scan, not a distractor"
+        },
+        {
+          "id": "B",
+          "text": "Rewrite the predicate to be sargable",
+          "misconception": "this also ends the scan"
+        },
+        {
+          "id": "C",
+          "text": "Partition the table and prune partitions",
+          "misconception": "this can still leave scans per partition"
+        },
+        {
+          "id": "D",
+          "text": "Increase work_mem so the scan sorts faster",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "work_mem affects sort and hash operations, not whether a sequential scan happens. Indexes, sargable predicates, and partition pruning can remove or shrink scans. D does not end the scan.",
+      "hint": "work_mem is for sorts, not scans.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-8.6-0012",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Compute the skipped row after a deletion with offset paging",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Iris uses OFFSET 10 on a 30-row costing sheet. A row at position 3 is deleted before page 2. Which row is skipped on page 2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The row that was at position 11 before deletion",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The row that was at position 10 before deletion",
+          "misconception": "off by one in offset counting"
+        },
+        {
+          "id": "C",
+          "text": "No row is skipped because OFFSET is stable",
+          "misconception": "assumes offset is value-based"
+        },
+        {
+          "id": "D",
+          "text": "The deleted row reappears on page 2",
+          "misconception": "confuses deletion with soft delete"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "After deletion, rows shift up one. OFFSET 10 now starts at old position 11, skipping old position 10 which slid into the deleted slot. A is the skipped row.",
+      "hint": "Rows shift up after a delete.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0013",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Implement seek pagination after a deleted cursor anchor",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Jack's seek query uses WHERE id > :cursor ORDER BY id LIMIT 20, but the cursor row was deleted. The query returns 20 rows starting after the deleted id. Is that correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because the predicate compares values not row existence",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "No, it must error because the cursor row is missing",
+          "misconception": "overstates the requirement for cursor existence"
+        },
+        {
+          "id": "C",
+          "text": "No, it returns one extra row to compensate",
+          "misconception": "invents compensation logic"
+        },
+        {
+          "id": "D",
+          "text": "Yes, but only if the client retries the whole request",
+          "misconception": "adds unnecessary retry requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Seek pagination compares the cursor value to column values, so a deleted anchor does not break the predicate. The next 20 rows after that value are correct. A is right.",
+      "hint": "Seek compares values, not rows.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.6-0014",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Choose an overlap size that avoids gaps without excess duplicates",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Kate's endless list overlaps by one row. A row inserted at the boundary can still be missed. What overlap is safer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Overlap by the maximum possible page size",
+          "misconception": "wastes bandwidth with huge overlap"
+        },
+        {
+          "id": "B",
+          "text": "Overlap by one row plus dedup by id on merge",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No overlap and rely on exact timestamps",
+          "misconception": "risks gaps under concurrent inserts"
+        },
+        {
+          "id": "D",
+          "text": "Overlap by half the page size always",
+          "misconception": "arbitrary and wasteful"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A one-row overlap plus dedup by id prevents gaps from concurrent inserts without large bandwidth waste. Larger overlaps add cost without much safety; none risks missing rows. B balances both.",
+      "hint": "Small overlap plus dedup.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 46,
+        "p75Sec": 70
+      }
+    },
+    {
+      "id": "web-8.6-0015",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Decide whether to retry or discard after a rejected optimistic update",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Liam's optimistic cost edit is rejected because version 5 exists but he holds version 4. After rollback, what version does he see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Version 4, his original stale version",
+          "misconception": "rollback restores stale local state"
+        },
+        {
+          "id": "B",
+          "text": "Version 5, the server's newer version",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Version 6, an auto-incremented merge version",
+          "misconception": "invents version bumping"
+        },
+        {
+          "id": "D",
+          "text": "No version, the row is locked",
+          "misconception": "confuses rejection with lock"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Rollback restores the last known server state, which is version 5. The client's version 4 edit is discarded. No auto version bump or lock occurs.",
+      "hint": "Server state wins on rejection.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0016",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Choose PUT versus PATCH for a partial change",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Mia wants to change only the cost field of a recipe. Which HTTP method avoids overwriting other fields?",
+      "options": [
+        {
+          "id": "A",
+          "text": "PUT, because it is idempotent and safe",
+          "misconception": "confuses idempotency with partial update"
+        },
+        {
+          "id": "B",
+          "text": "PATCH, because it applies only the provided fields",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "DELETE then POST, because it replaces cleanly",
+          "misconception": "destroys the resource first"
+        },
+        {
+          "id": "D",
+          "text": "GET, because it reads before writing",
+          "misconception": "GET is not a write method"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "PATCH applies a partial modification, preserving fields not in the payload. PUT replaces the whole resource and would clobber omitted fields. B is correct.",
+      "hint": "PATCH is partial by design.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "web-8.6-0017",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Predict index usage when the leading column has a range predicate",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Noah's index is (category, ingredient). Query: category = 'dairy' AND ingredient > 'a'. Which column can the index seek and which can only filter?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Seek category, filter ingredient after the range",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Seek both columns because both are indexed",
+          "misconception": "range on second column breaks seek"
+        },
+        {
+          "id": "C",
+          "text": "Seek ingredient, filter category",
+          "misconception": "reverses leading and trailing roles"
+        },
+        {
+          "id": "D",
+          "text": "Seek neither, full scan required",
+          "misconception": "understates index capability"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The leading equality column is seekable. Once a range is applied on the second column, the index can no longer seek further columns, so ingredient is filtered within the category range. A is correct.",
+      "hint": "Range on trailing column stops seeking.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.6-0018",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Identify when a query is not covered despite an index",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Olivia has index (ingredient) INCLUDE (cost). Query selects ingredient, cost, AND unit. Why is the table still visited?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because unit is not in the index, so a heap fetch is needed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Because INCLUDE columns cannot be used in predicates",
+          "misconception": "misstates INCLUDE semantics"
+        },
+        {
+          "id": "C",
+          "text": "Because the index is not clustered",
+          "misconception": "confuses clustering with coverage"
+        },
+        {
+          "id": "D",
+          "text": "Because SELECT * always forces a table scan",
+          "misconception": "SELECT * is not present here"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Coverage requires every selected column in the index. unit is absent, so the engine fetches the base row. INCLUDE is fine for selected columns; clustering is unrelated. A is correct.",
+      "hint": "Every selected column must be in the index.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0019",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Rewrite a non-sargable predicate to end a scan",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Paul's predicate is ingredient LIKE '%salt%'. How can he make it sargable without changing the result intent too much?",
+      "answer": {
+        "exemplar": "He cannot make a leading-wildcard LIKE sargable on a plain B-tree index. He can add a full-text or trigram index to support substring search, or restructure the query to a prefix LIKE 'salt%' if leading matches suffice. Otherwise the scan remains necessary."
+      },
+      "explanation": "Leading wildcards defeat B-tree seeks. Full-text or trigram indexes support substring search; a prefix search can use a normal index. If neither fits, scanning is unavoidable.",
+      "hint": "Leading wildcard blocks B-tree seek.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.6-0020",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Replace offset paging with keyset pagination",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Quinn switches from OFFSET to keyset pagination using WHERE id > :lastId. What stability problem does this solve?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prevents duplicate rows across overlapping pages",
+          "misconception": "dedup is a separate client concern"
+        },
+        {
+          "id": "B",
+          "text": "It prevents page drift when rows are inserted or deleted above",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It prevents the server from caching plans",
+          "misconception": "unrelated to plan caching"
+        },
+        {
+          "id": "D",
+          "text": "It prevents NULL values in the id column",
+          "misconception": "unrelated to nullability"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Keyset pagination anchors to a value, so inserts and deletes above the window do not shift the page. Offset counts positions, which drift. B is correct.",
+      "hint": "Anchor to a value, not a count.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0021",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Explain why seek pagination tolerates a deleted anchor",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Rosa's cursor row is deleted. Why does seek pagination still return the right next page?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the database recreates the deleted row as a tombstone",
+          "misconception": "confuses soft delete with seek semantics"
+        },
+        {
+          "id": "B",
+          "text": "Because the predicate compares the cursor value to column values",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because OFFSET is recomputed from the new row count",
+          "misconception": "seek does not use offset"
+        },
+        {
+          "id": "D",
+          "text": "Because the client caches the previous page",
+          "misconception": "client cache is not the reason"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Seek pagination uses a value comparison, not row existence. A deleted anchor leaves the predicate valid and the next rows correct. B is correct.",
+      "hint": "Value comparison, not row existence.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-8.6-0022",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Implement deduplication when merging overlapping pages",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Sam merges page 2 into an endless list but keeps duplicates at the boundary. What is the bug?",
+      "options": [
+        {
+          "id": "A",
+          "text": "He appends without checking ids already present",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "He sorts page 2 before merging",
+          "misconception": "sorting is fine and not the bug"
+        },
+        {
+          "id": "C",
+          "text": "He uses a stable id that changes per request",
+          "misconception": "invents unstable ids"
+        },
+        {
+          "id": "D",
+          "text": "He limits page size to 20",
+          "misconception": "page size is not the bug"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The bug is appending boundary rows without dedup by id. Sorting and page size are fine. A identifies the missing dedup check.",
+      "hint": "Dedup by id on merge.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0023",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Distinguish client and server ownership during a rollback",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Tina's optimistic edit is rejected. Who owns the authoritative value after rollback, and what did the rollback discard?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Client owns it and the server edit is discarded",
+          "misconception": "reverses ownership"
+        },
+        {
+          "id": "B",
+          "text": "Server owns it and the client pending edit is discarded",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Neither owns it, the row is deleted",
+          "misconception": "overreacts with deletion"
+        },
+        {
+          "id": "D",
+          "text": "Both own it via a merged version",
+          "misconception": "invents merge semantics"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The server is authoritative. Rollback restores its version and discards the client's pending edit. No deletion or merge occurs. B is correct.",
+      "hint": "Server is authoritative.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0024",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Design a payload that preserves untouched fields",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Uma wants to update only cost via PUT but keep unit unchanged. How should she structure the request?",
+      "answer": {
+        "exemplar": "She should send a PATCH with only the cost field, or include the current unit value in the PUT payload fetched first. PATCH is safer because it preserves omitted fields by contract, while PUT replaces the whole resource."
+      },
+      "explanation": "PUT replaces the whole resource, so preserving fields requires sending them too. PATCH applies only provided fields, which is the safer contract for partial changes.",
+      "hint": "Use PATCH or resend current values.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.6-0025",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Explain why a composite index cannot seek on a later column alone",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Vera's index is (unit, ingredient). Query filters only ingredient = 'salt'. Why is the index not seekable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the leading unit column has no predicate",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Because ingredient is not the first column alphabetically",
+          "misconception": "index order is not alphabetical"
+        },
+        {
+          "id": "C",
+          "text": "Because the index is not clustered",
+          "misconception": "clustering is unrelated to seekability"
+        },
+        {
+          "id": "D",
+          "text": "Because salt is a common value",
+          "misconception": "selectivity does not block seeking"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A composite index is sorted by its leading column first. Without a predicate on unit, the engine cannot seek to the ingredient range. A is correct.",
+      "hint": "Leading column needs a predicate.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0026",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Add an included column to make an index covering",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Walt's query selects ingredient and cost. Index is (ingredient). What single change makes it covering?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add cost to the key columns: (ingredient, cost)",
+          "misconception": "works but changes sort order unnecessarily"
+        },
+        {
+          "id": "B",
+          "text": "Add cost as an included column: (ingredient) INCLUDE (cost)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Add a separate index on cost alone",
+          "misconception": "does not cover the combined query"
+        },
+        {
+          "id": "D",
+          "text": "Cluster the table on ingredient",
+          "misconception": "clustering is not covering"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Including cost keeps the index sorted only by ingredient while still carrying cost, so lookups stay efficient and covering. Adding to key columns also works but alters ordering. B is the minimal change.",
+      "hint": "INCLUDE keeps sort order.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.6-0027",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Compare index scan versus table scan on a small table",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Xena's table has 50 rows. The planner chooses a seq scan even though an index exists. Is that wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, the index should always be preferred",
+          "misconception": "ignores planner cost model"
+        },
+        {
+          "id": "B",
+          "text": "No, a seq scan can be cheaper on tiny tables",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only because the index is corrupt",
+          "misconception": "invents corruption"
+        },
+        {
+          "id": "D",
+          "text": "No, indexes never work on small tables",
+          "misconception": "overstates, indexes can work"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "On tiny tables, reading all pages sequentially is often cheaper than index navigation plus heap fetches. The planner's cost model picks the cheaper option. B is correct.",
+      "hint": "Small tables favor seq scan.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0028",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Quantify drift magnitude under concurrent deletes",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Yara's offset page 3 (rows 41-60) loses 3 rows above it before fetch. How many rows does page 3 now contain from the original set?",
+      "options": [
+        {
+          "id": "A",
+          "text": "17 rows, the window shifted up by 3",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "20 rows, offset is stable",
+          "misconception": "assumes offset is value-based"
+        },
+        {
+          "id": "C",
+          "text": "23 rows, the window expanded",
+          "misconception": "wrong direction of shift"
+        },
+        {
+          "id": "D",
+          "text": "19 rows, one row deleted inside the page",
+          "misconception": "assumes deletion inside the page"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Three deletions above shift the window up by 3, so 3 original rows that were on page 3 are now on page 2. Page 3 contains 17 of the original rows. A is correct.",
+      "hint": "Window shifts up by delete count.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.6-0029",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Decide client behavior when a seek cursor returns fewer rows",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Zoe's seek page returns 12 rows instead of 20 near the end of data. How should the client interpret this?",
+      "answer": {
+        "exemplar": "A short final page means the data is exhausted, so the client should mark the list complete and stop fetching. It does not indicate an error or a deleted cursor, because seek pagination returns whatever rows exist after the anchor up to the limit."
+      },
+      "explanation": "A short page at the tail means end of data, not an error. The client stops fetching. Seek pagination returns available rows up to the limit.",
+      "hint": "Short tail page means done.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0030",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Handle a duplicate that appears mid-list rather than at the boundary",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Abel's endless list shows the same recipe twice, not at a page boundary. What is the likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A row was updated and reinserted with a new id",
+          "misconception": "assumes id changes on update"
+        },
+        {
+          "id": "B",
+          "text": "The same id exists in two pages due to non-deterministic sort",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The client dropped the dedup filter",
+          "misconception": "possible but less likely than sort instability"
+        },
+        {
+          "id": "D",
+          "text": "The server returned 404 for one page",
+          "misconception": "404 would not add duplicates"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Non-deterministic ordering can place the same row on two pages. A stable sort key plus dedup by id prevents it. B identifies the likely cause.",
+      "hint": "Unstable sort causes mid-list dupes.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0031",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Retry an optimistic update after a rejection",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Bree's optimistic edit is rejected. What is the correct next step to still apply her change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry the same payload without changes",
+          "misconception": "repeats the conflicting edit"
+        },
+        {
+          "id": "B",
+          "text": "Fetch the current version, reapply her change, and resubmit",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Delete the row and recreate it",
+          "misconception": "destructive and loses history"
+        },
+        {
+          "id": "D",
+          "text": "Ignore the rejection and keep the local value",
+          "misconception": "leaves client out of sync"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "To apply her change, she must merge it onto the current server version and resubmit with the new version. Retrying the stale payload repeats the conflict. B is correct.",
+      "hint": "Merge onto current version then resubmit.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "web-8.6-0032",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Detect a silent overwrite in an audit log",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Carl's audit log shows unit changed from kg to g after a cost-only edit. What most likely happened?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A PUT replaced the whole row with a stale unit value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Someone manually edited unit in the database",
+          "misconception": "possible but less direct than PUT"
+        },
+        {
+          "id": "C",
+          "text": "The index on unit was rebuilt",
+          "misconception": "index rebuild does not change data"
+        },
+        {
+          "id": "D",
+          "text": "The cost trigger rewrote unit",
+          "misconception": "invents a trigger"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A PUT that carried a stale unit value would silently overwrite it during a cost edit. That matches the audit pattern. A is the most likely cause.",
+      "hint": "Stale field in a PUT payload.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.6-0033",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Choose between two composite indexes for a query set",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Dana has queries filtering category alone and (category, ingredient) together. Which single index serves both?",
+      "options": [
+        {
+          "id": "A",
+          "text": "(ingredient, category), leading on ingredient",
+          "misconception": "ingredient-only queries are absent"
+        },
+        {
+          "id": "B",
+          "text": "(category, ingredient), leading on category",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Two separate single-column indexes",
+          "misconception": "not a single index"
+        },
+        {
+          "id": "D",
+          "text": "(category) only, dropping ingredient",
+          "misconception": "loses the pair query efficiency"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Leading on category serves category-only queries and also supports the combined predicate. Leading on ingredient would not serve category-only. B is correct.",
+      "hint": "Leading column must cover the narrower query.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0034",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Estimate I/O reduction from a covering index",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Eli's query reads 1000 rows. Before covering index: 1000 index seeks + 1000 heap fetches. After: 1000 index seeks + 0 heap fetches. What is removed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The 1000 heap fetches are removed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The 1000 index seeks are removed",
+          "misconception": "index is still used"
+        },
+        {
+          "id": "C",
+          "text": "Both are removed and a scan runs",
+          "misconception": "coverage does not imply scan"
+        },
+        {
+          "id": "D",
+          "text": "Nothing is removed, only reordered",
+          "misconception": "understates coverage benefit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Covering removes the heap fetches while keeping index seeks. The index still drives access. A is correct.",
+      "hint": "Heap fetches disappear.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0035",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Identify when an index exists but is unused due to type mismatch",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Fiona's predicate is ingredient = 123, but ingredient is text. The index on ingredient is unused. Why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The type mismatch forces a cast that blocks index use",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The index is corrupt and needs rebuild",
+          "misconception": "invents corruption"
+        },
+        {
+          "id": "C",
+          "text": "Text columns cannot be indexed",
+          "misconception": "false, text is indexable"
+        },
+        {
+          "id": "D",
+          "text": "123 is too small to index",
+          "misconception": "value size is irrelevant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Comparing text to a number forces an implicit cast, making the predicate non-sargable. The index on the text column is not used. A is correct.",
+      "hint": "Implicit cast blocks the index.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0036",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Compare offset and cursor stability under load",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef George's costing sheet has concurrent deletes during paging. Why is cursor pagination safer than offset?",
+      "answer": {
+        "exemplar": "Cursor pagination anchors to a stable value, so concurrent deletes above the page do not shift the window. Offset counts positions, which drift under any insert or delete, causing skipped or duplicated rows. Under load, cursor pagination keeps results consistent."
+      },
+      "explanation": "Cursor anchors to a value and is stable under concurrent changes; offset is positional and drifts. Under load, cursor avoids skipped or duplicated rows.",
+      "hint": "Value anchor beats position count.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0037",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Handle a missing cursor in a REST API",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Hannah's API receives a cursor for a deleted row. What response best follows seek semantics?",
+      "options": [
+        {
+          "id": "A",
+          "text": "404, because the cursor resource is gone",
+          "misconception": "cursor is not a resource to fetch"
+        },
+        {
+          "id": "B",
+          "text": "200 with the next page after the cursor value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "410, because the cursor expired",
+          "misconception": "no expiry is implied"
+        },
+        {
+          "id": "D",
+          "text": "400, because the cursor is invalid",
+          "misconception": "the cursor value is still valid"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The cursor is a value, not a resource, so a missing row does not make it invalid. Returning the next page after the value follows seek semantics. B is correct.",
+      "hint": "Cursor is a value, not a resource.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0038",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Choose a dedup key for overlapping pages",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Ivan merges overlapping pages. Which key should he use to drop duplicates?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The row's display position in the list",
+          "misconception": "position changes across pages"
+        },
+        {
+          "id": "B",
+          "text": "The row's stable primary key",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The row's cost value",
+          "misconception": "values can repeat across rows"
+        },
+        {
+          "id": "D",
+          "text": "The page number it came from",
+          "misconception": "page number is not a row identity"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A stable primary key uniquely identifies a row across pages. Position, cost, and page number are not unique row identities. B is correct.",
+      "hint": "Use the primary key.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "web-8.6-0039",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Explain why a rollback does not revert the server",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Judy assumes rollback after rejection reverts the server to her version. Is she right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, rollback syncs both sides to her version",
+          "misconception": "rollback is client-side only"
+        },
+        {
+          "id": "B",
+          "text": "No, rollback only restores client state to server's version",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Yes, if she retries immediately",
+          "misconception": "retry does not change rollback scope"
+        },
+        {
+          "id": "D",
+          "text": "No, rollback deletes the server row",
+          "misconception": "overreacts with deletion"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Rollback is client-side: it discards the pending edit and restores the server's version locally. The server is unchanged. B is correct.",
+      "hint": "Rollback is client-side only.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-8.6-0040",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Add a version column to detect stale writes",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Karl wants to prevent silent overwrites on PUT. What mechanism detects a stale write?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A version column checked with If-Match",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A longer timeout on the request",
+          "misconception": "timeout does not detect staleness"
+        },
+        {
+          "id": "C",
+          "text": "A larger payload including all fields",
+          "misconception": "more fields do not detect staleness"
+        },
+        {
+          "id": "D",
+          "text": "A database trigger on cost",
+          "misconception": "trigger does not compare versions"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An ETag or version column with If-Match detects stale writes and rejects them. Timeouts, bigger payloads, and triggers do not compare versions. A is correct.",
+      "hint": "Use a version with If-Match.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0041",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Recognize that index order should match query order",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Lena recalls that a composite index on (a, b) can serve a query filtering only on a. Is that true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "True, because a is the leading column",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "False, both columns must be filtered",
+          "misconception": "understates leading-column capability"
+        },
+        {
+          "id": "C",
+          "text": "True, but only if b is NULL",
+          "misconception": "adds unnecessary NULL condition"
+        },
+        {
+          "id": "D",
+          "text": "False, unless the index is clustered",
+          "misconception": "clustering is unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A composite index can seek on its leading column alone. Filtering only on a uses the index. A is correct.",
+      "hint": "Leading column alone is seekable.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "web-8.6-0042",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Explain why covering helps read-heavy workloads",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Marco's read-heavy costing sheet is slow due to heap fetches. What does a covering index change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It removes heap fetches by carrying needed columns",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It removes write locks during reads",
+          "misconception": "confuses locking with coverage"
+        },
+        {
+          "id": "C",
+          "text": "It compresses the base table",
+          "misconception": "coverage does not compress base table"
+        },
+        {
+          "id": "D",
+          "text": "It caches results in memory forever",
+          "misconception": "confuses index with cache"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Covering carries the needed columns in the index, removing heap fetches. Locking, compression, and caching are separate concerns. A is correct.",
+      "hint": "Heap fetches disappear.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0043",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Use EXPLAIN to find a scan",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Nina runs EXPLAIN and sees Seq Scan. Which action is the first diagnostic step?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Check whether the predicate is sargable and indexed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Increase the table size to force index use",
+          "misconception": "table size is not a diagnostic step"
+        },
+        {
+          "id": "C",
+          "text": "Drop all indexes and recreate them",
+          "misconception": "destructive and premature"
+        },
+        {
+          "id": "D",
+          "text": "Restart the database to clear the plan cache",
+          "misconception": "restart is not a diagnostic"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first diagnostic step is checking predicate sargability and index presence. Increasing table size, dropping indexes, or restarting are not diagnostics. A is correct.",
+      "hint": "Check sargability and indexes first.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "web-8.6-0044",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Identify when offset paging is acceptable",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Oscar uses offset paging on a static, append-only log. Is drift a concern?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, offset always drifts",
+          "misconception": "ignores append-only stability"
+        },
+        {
+          "id": "B",
+          "text": "No, because no rows are deleted or inserted above",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Yes, unless the log is sorted",
+          "misconception": "sort does not matter for drift"
+        },
+        {
+          "id": "D",
+          "text": "No, because offset is value-based",
+          "misconception": "offset is position-based"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "On an append-only log with no deletes or inserts above, offset positions stay stable. Drift requires changes above the window. B is correct.",
+      "hint": "Append-only means no drift.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0045",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Explain why seek pagination never errors on a deleted cursor",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Paula's cursor row is deleted. Why does her seek query not need error handling for that?",
+      "answer": {
+        "exemplar": "Seek pagination compares the cursor value to column values rather than fetching the cursor row. A deleted anchor leaves the comparison valid, so the query returns the next rows without error. No special handling is needed."
+      },
+      "explanation": "Seek pagination compares values, not rows, so a deleted anchor is harmless. No error handling is needed.",
+      "hint": "Value comparison, not row fetch.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      }
+    },
+    {
+      "id": "web-8.6-0046",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Implement a seen-set for deduplication",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Quinn's client keeps a Set of seen ids. When merging page 2, what check prevents duplicates?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Skip any row whose id is already in the Set",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Skip any row whose cost is already in the Set",
+          "misconception": "cost is not unique"
+        },
+        {
+          "id": "C",
+          "text": "Skip rows from page 2 entirely",
+          "misconception": "loses new rows"
+        },
+        {
+          "id": "D",
+          "text": "Skip rows whose position matches",
+          "misconception": "position is not identity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A seen-set of ids lets the client skip duplicate boundary rows. Cost, position, and skipping whole pages are wrong. A is correct.",
+      "hint": "Track seen ids in a Set.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0047",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Identify the conflict detection mechanism",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Rachel's optimistic update is rejected due to a version mismatch. What detected the conflict?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The version or ETag comparison on the server",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The client's local cache timestamp",
+          "misconception": "client timestamp is not authoritative"
+        },
+        {
+          "id": "C",
+          "text": "The database row lock timeout",
+          "misconception": "lock timeout is not version conflict"
+        },
+        {
+          "id": "D",
+          "text": "The network latency between client and server",
+          "misconception": "latency does not detect conflicts"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The server compares the client's version or ETag against the current row version. A mismatch rejects the update. B, C, D do not detect conflicts. A is correct.",
+      "hint": "Server compares versions.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "web-8.6-0048",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Choose PATCH to preserve untouched fields",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Sam's PATCH request includes only cost. What happens to unit?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Unit is set to null because it is omitted",
+          "misconception": "PATCH preserves omitted fields"
+        },
+        {
+          "id": "B",
+          "text": "Unit keeps its stored value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Unit is recomputed from cost",
+          "misconception": "no recompute is implied"
+        },
+        {
+          "id": "D",
+          "text": "The request fails because unit is required",
+          "misconception": "unit is not required on PATCH"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "PATCH applies only provided fields, so omitted unit keeps its stored value. A, C, D misunderstand PATCH semantics. B is correct.",
+      "hint": "Omitted fields are preserved.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      }
+    },
+    {
+      "id": "web-8.6-0049",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Determine index usage for an ORDER BY on a non-leading column",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Tara's index is (category, ingredient). Query orders by ingredient only. Can the index avoid a sort?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, because ingredient is not the leading column",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, because ingredient is indexed",
+          "misconception": "trailing column alone cannot drive order"
+        },
+        {
+          "id": "C",
+          "text": "Yes, if category is constant",
+          "misconception": "category is not filtered here"
+        },
+        {
+          "id": "D",
+          "text": "No, because indexes never help ORDER BY",
+          "misconception": "overstates, leading column can help"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An index can avoid a sort only when the ORDER BY columns match the index leading order. ingredient alone is not leading, so a sort is needed. A is correct.",
+      "hint": "ORDER BY must match leading order.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0050",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Recognize that covering still reads index pages",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Uma's covering index removes heap fetches. Does it remove all disk reads?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, covering means zero disk reads",
+          "misconception": "confuses coverage with in-memory cache"
+        },
+        {
+          "id": "B",
+          "text": "No, index pages still must be read from disk",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Yes, if the index fits in memory",
+          "misconception": "memory fit is not guaranteed"
+        },
+        {
+          "id": "D",
+          "text": "No, because covering always scans the table",
+          "misconception": "coverage does not scan the table"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Covering removes heap fetches but index pages are still read. Whether they are cached in memory is a separate concern. B is correct.",
+      "hint": "Index pages still read.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "web-8.6-0051",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Rewrite a function-wrapped column to be sargable",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Victor's predicate is UPPER(ingredient) = 'SALT'. How can he keep case-insensitive matching and still use an index?",
+      "answer": {
+        "exemplar": "He can store a normalized lowercase column and index it, or use a functional index on UPPER(ingredient) if his database supports expression indexes. Either makes the predicate sargable without changing the case-insensitive intent."
+      },
+      "explanation": "A function on the column blocks index use. A functional index or a normalized column makes the predicate sargable while preserving case-insensitive matching.",
+      "hint": "Use a functional or normalized index.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "web-8.6-0052",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Estimate skipped rows under concurrent deletes",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Wendy's offset page skips 2 rows after 2 concurrent deletes above it. Is that expected?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, each delete shifts the window up by one",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "No, offset is immune to deletes",
+          "misconception": "offset is positional and drifts"
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only if the deletes are in the same transaction",
+          "misconception": "transaction scope does not change drift"
+        },
+        {
+          "id": "D",
+          "text": "No, only inserts cause drift",
+          "misconception": "deletes also shift positions"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each delete above shifts the offset window up by one, skipping one row per delete. A is correct.",
+      "hint": "One skip per delete above.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0053",
+      "topic": "A cursor whose row is deleted before the next page is asked for",
+      "learningObjective": "Use a seek cursor with a tie-breaker column",
+      "practice": "deleted cursor",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Xavier's costing sheet has duplicate ingredient values. How should his cursor handle ties?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add a unique tie-breaker like id to the cursor",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Use ingredient alone and accept duplicates",
+          "misconception": "ties cause skipped or duplicated rows"
+        },
+        {
+          "id": "C",
+          "text": "Switch to offset pagination for ties",
+          "misconception": "offset reintroduces drift"
+        },
+        {
+          "id": "D",
+          "text": "Sort by cost to break ties",
+          "misconception": "cost may also have ties"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A cursor on a non-unique column needs a unique tie-breaker to avoid skipping or duplicating rows. Adding id makes the cursor unique. A is correct.",
+      "hint": "Add a unique tie-breaker.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0054",
+      "topic": "Overlapping pages and the duplicates an endless list has to drop",
+      "learningObjective": "Measure duplicate rate from overlap size",
+      "practice": "dedup overlap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Chef Yvonne's list has 5% duplicates after merging. Her overlap is 5 rows on 100-row pages. Is the duplicate rate explained?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, 5 overlap rows out of 100 is 5%",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "No, overlap never causes duplicates",
+          "misconception": "overlap intentionally repeats boundary rows"
+        },
+        {
+          "id": "C",
+          "text": "No, 5% is too high for 5-row overlap",
+          "misconception": "5/100 is exactly 5%"
+        },
+        {
+          "id": "D",
+          "text": "Yes, but only if pages are not deduplicated",
+          "misconception": "dedup would reduce it to zero"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A 5-row overlap on 100-row pages yields up to 5% duplicate boundary rows before dedup. That matches the observed rate. A is correct.",
+      "hint": "Overlap rows become duplicates.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "web-8.6-0055",
+      "topic": "A rejected optimistic update and the newer edit a rollback discards",
+      "learningObjective": "Decide between optimistic and pessimistic concurrency",
+      "practice": "rollback discard",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef Zach's recipe costing sheet has high contention on the same rows. Should he use optimistic updates?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, optimistic updates always perform better",
+          "misconception": "ignores contention cost"
+        },
+        {
+          "id": "B",
+          "text": "No, pessimistic locking avoids repeated rollbacks",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Yes, because rollbacks are free",
+          "misconception": "rollbacks cost retries and UX"
+        },
+        {
+          "id": "D",
+          "text": "No, because optimistic updates delete rows",
+          "misconception": "misstates optimistic behavior"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "High contention makes optimistic updates roll back frequently, costing retries and bad UX. Pessimistic locking serializes access and avoids that. B is correct.",
+      "hint": "High contention favors pessimistic locks.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-8.6-0056",
+      "topic": "A whole row write that overwrites a field nobody meant to change",
+      "learningObjective": "Identify the root cause of a silent field revert",
+      "practice": "partial update",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Amber's cost edit via PUT reverted unit to a week-old value. Why did a week-old value appear?",
+      "answer": {
+        "exemplar": "The client's cached copy of the row was a week old, so the PUT payload carried that stale unit value and overwrote the current one. A fresh fetch before PUT or a PATCH would have prevented the stale overwrite."
+      },
+      "explanation": "A stale cached row in a PUT payload overwrites current values. Fetching fresh or using PATCH prevents it.",
+      "hint": "Stale cached payload.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0057",
+      "topic": "A composite index and the order its columns have to be in",
+      "learningObjective": "Add a column to an index without breaking existing queries",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Chef Blake has index (category) and adds ingredient to support a new query. Where should ingredient go?",
+      "options": [
+        {
+          "id": "A",
+          "text": "As the leading column: (ingredient, category)",
+          "misconception": "breaks category-only queries"
+        },
+        {
+          "id": "B",
+          "text": "As the trailing column: (category, ingredient)",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "As a separate index on ingredient",
+          "misconception": "not extending the existing index"
+        },
+        {
+          "id": "D",
+          "text": "Replace category with ingredient",
+          "misconception": "loses category support"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Appending ingredient keeps category as leading, so existing category queries still work while new combined queries gain support. B is correct.",
+      "hint": "Append to keep leading column.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "web-8.6-0058",
+      "topic": "A covering index and the table visit it removes",
+      "learningObjective": "Distinguish index-only scan from heap fetch",
+      "practice": "covering index",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Chef Clara's plan shows 'Index Only Scan'. What does that imply?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All needed columns are in the index, no heap fetch",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The index is stored in memory only",
+          "misconception": "confuses scan type with storage"
+        },
+        {
+          "id": "C",
+          "text": "The table was dropped",
+          "misconception": "index-only does not imply drop"
+        },
+        {
+          "id": "D",
+          "text": "Only the index is scanned, not the data",
+          "misconception": "vague, implies no data at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Index Only Scan means all needed columns are in the index, so no heap fetch occurs. It does not imply in-memory storage or table drop. A is precise.",
+      "hint": "No heap fetch needed.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      }
+    },
+    {
+      "id": "web-8.6-0059",
+      "topic": "A table scan in a plan and three ways to end it",
+      "learningObjective": "Choose between index and partition for a large scan",
+      "practice": "scan removal",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Chef David's 10-million-row costing table scans on a date range. Index or partition?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An index on date is enough for range queries",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Partition by date and prune partitions",
+          "misconception": "also works but heavier to maintain"
+        },
+        {
+          "id": "C",
+          "text": "Both are wrong, only a covering index works",
+          "misconception": "covering is not required for range"
+        },
+        {
+          "id": "D",
+          "text": "Neither, scans are unavoidable on large tables",
+          "misconception": "understates index capability"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An index on the date column supports range queries directly and is the lighter fix. Partitioning also works but adds maintenance. A is the simplest correct choice.",
+      "hint": "Index the range column.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-8.6-0060",
+      "topic": "A cursor and an offset after a row above the page is deleted",
+      "learningObjective": "Summarize when to prefer cursor over offset",
+      "practice": "cursor drift",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Chef Ella's costing sheet is updated concurrently during paging. Summarize when cursor pagination is preferred over offset.",
+      "answer": {
+        "exemplar": "Cursor pagination is preferred when the dataset changes during paging, because it anchors to a stable value and avoids drift, duplicates, and skipped rows. Offset is acceptable only for static or append-only data where positions stay stable."
+      },
+      "explanation": "Cursor is preferred under concurrent changes; offset only suits static data. This summarizes the trade-off.",
+      "hint": "Concurrent changes favor cursor.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      }
+    }
+  ]
+}
