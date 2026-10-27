@@ -1,0 +1,3892 @@
+{
+  "questions": [
+    {
+      "id": "web-8.19-0001",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Identify why a document store accepts varying fields per record",
+      "practice": "schema design",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A collection stores user profiles where some have a phone number and others do not; which storage model permits this without NULL columns?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A document store where each document carries its own fields",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A relational table with a nullable phone column",
+          "misconception": "assumes NULL columns are the only way to omit a value"
+        },
+        {
+          "id": "C",
+          "text": "A key-value cache holding serialized blobs",
+          "misconception": "confuses flexible storage with the schema-less document model"
+        },
+        {
+          "id": "D",
+          "text": "A columnar warehouse optimized for analytics",
+          "misconception": "mistakes analytical storage for document flexibility"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A document store lets each record carry only the fields it needs, so missing attributes need no placeholder column. A relational table would require a nullable column or a separate table for every optional attribute.",
+      "hint": "Think about where the schema lives per record.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-a-document-shape-permits-that-a-table-of-columns-cannot"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0002",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Explain the write amplification an index creates",
+      "practice": "index tradeoffs",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Each insert updates one table and three secondary indexes; how many physical writes does one logical insert cost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1",
+          "misconception": "counts only the table write and ignores the indexes"
+        },
+        {
+          "id": "B",
+          "text": "3",
+          "misconception": "counts the indexes but forgets the table write"
+        },
+        {
+          "id": "C",
+          "text": "4",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "7",
+          "misconception": "adds the writes twice by double counting the table"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "One logical insert writes the table row plus one entry in each of the three secondary indexes, for four physical writes. Skipping either count understates the cost of maintaining indexes on write-heavy tables.",
+      "hint": "Add the table write to the index writes.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "the-write-cost-an-index-adds"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0003",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Classify a plan's declared scope from its wording",
+      "practice": "plan reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A migration plan says 'add column, backfill, drop old'; which phase risks locking the table longest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Adding the column",
+          "misconception": "assumes DDL add is the slowest step"
+        },
+        {
+          "id": "B",
+          "text": "None, all are instant",
+          "misconception": "ignores the row-by-row cost of backfill"
+        },
+        {
+          "id": "C",
+          "text": "Dropping the old column",
+          "misconception": "assumes cleanup is the expensive phase"
+        },
+        {
+          "id": "D",
+          "text": "Backfilling existing rows",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Backfilling touches every existing row and can lock or bloat the table, while adding a nullable column is usually cheap. Dropping the old column happens after traffic has moved away from it, so it is comparatively safe.",
+      "hint": "Which step touches the most rows?",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "reading-the-three-words-a-plan-uses-to-describe-its-work"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0004",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "State the communication direction of server-sent events",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Describe what a server-sent event channel allows and what it does not allow.",
+      "options": [],
+      "answer": {
+        "exemplar": "A server-sent event channel lets the server push updates to the client over a single HTTP connection, but the client cannot send data back on that same channel; it must use a separate request."
+      },
+      "explanation": "Server-sent events are unidirectional from server to client, so any client-to-server message needs its own HTTP request. This keeps the channel simple but means bidirectional traffic needs a different transport.",
+      "hint": "SSE is one way only.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-server-sent-event-and-the-one-direction-it-allows"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0005",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Identify the handshake that reopens a closed socket",
+      "practice": "websocket reconnect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "After a socket closes unexpectedly, which step must happen before messages can flow again?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Perform the opening handshake again on a new socket",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Resume sending on the old socket",
+          "misconception": "assumes a closed socket can be reused"
+        },
+        {
+          "id": "C",
+          "text": "Send a ping to wake the old socket",
+          "misconception": "confuses keepalive with reopening"
+        },
+        {
+          "id": "D",
+          "text": "Wait for the server to push a reconnect token",
+          "misconception": "expects passive recovery instead of a new handshake"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A closed socket is dead, so traffic resumes only after a fresh opening handshake on a new socket. Pings and tokens cannot revive a connection that has already closed.",
+      "hint": "Closed means start over.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-socket-that-closes-and-the-handshake-that-reopens-it"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0006",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Identify what provides an ordering guarantee",
+      "practice": "ordering semantics",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which mechanism actually guarantees messages arrive in order across a network?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A higher message rate",
+          "misconception": "confuses throughput with ordering"
+        },
+        {
+          "id": "B",
+          "text": "UDP with application timestamps",
+          "misconception": "assumes timestamps alone enforce order"
+        },
+        {
+          "id": "C",
+          "text": "TCP sequence numbers and retransmission",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Shorter network paths",
+          "misconception": "mistakes latency for delivery order"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "TCP uses sequence numbers and retransmission to deliver bytes in order. Timestamps, rate, and path length do not by themselves enforce arrival order.",
+      "hint": "Which protocol tracks sequence?",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-actually-delivers-an-ordering-guarantee"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0007",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Explain the latency tradeoff of a batching window",
+      "practice": "batching tradeoff",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A batcher waits up to 50ms before flushing; what latency does it add to a single fast event?",
+      "options": [
+        {
+          "id": "A",
+          "text": "0ms",
+          "misconception": "ignores the wait for the window to close"
+        },
+        {
+          "id": "B",
+          "text": "50ms plus network time",
+          "misconception": "adds unrelated network latency"
+        },
+        {
+          "id": "C",
+          "text": "Exactly 50ms always",
+          "misconception": "treats the maximum as a fixed delay"
+        },
+        {
+          "id": "D",
+          "text": "Up to 50ms",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A single event that arrives early waits until the 50ms window closes, so added latency ranges up to 50ms. It is a maximum, not a fixed delay, and excludes network time.",
+      "hint": "The window is a cap, not a constant.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-batching-window-and-the-latency-it-buys-with"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0008",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Identify the baseline of a delta sync",
+      "practice": "sync baseline",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A delta sync reports changes since version 42; what is version 42?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The current server version",
+          "misconception": "confuses the baseline with the latest state"
+        },
+        {
+          "id": "B",
+          "text": "The first version ever created",
+          "misconception": "mistakes the baseline for the origin"
+        },
+        {
+          "id": "C",
+          "text": "The last version the client already has",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The version being deleted",
+          "misconception": "misreads delta as a removal marker"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A delta sync sends only changes after the client's last known version, so version 42 is the client's baseline. The current server version would already include everything and defeat the purpose of a delta.",
+      "hint": "Delta means difference from what you have.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-delta-sync-and-the-baseline-it-is-measured-from"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0009",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Explain tombstone retention duration",
+      "practice": "tombstone retention",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why must a tombstone outlive the slowest replica or client?",
+      "options": [],
+      "answer": {
+        "exemplar": "A tombstone must remain until every replica and offline client has learned of the deletion, otherwise a stale write can resurrect the removed record."
+      },
+      "explanation": "If a tombstone is removed too early, a lagging replica or offline client can reinsert the deleted data. Retention must cover the maximum replication lag plus client sync interval.",
+      "hint": "Deletion must reach everyone first.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "how-long-a-tombstone-has-to-be-kept"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0010",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Diagnose an empty delta caused by clock skew",
+      "practice": "clock skew",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client clock runs four minutes fast and its delta sync returns no changes; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server has no changes",
+          "misconception": "assumes the empty result is genuine"
+        },
+        {
+          "id": "B",
+          "text": "The delta window expired",
+          "misconception": "invents a window expiry not in play"
+        },
+        {
+          "id": "C",
+          "text": "The clock skew deleted the records",
+          "misconception": "confuses skew with data loss"
+        },
+        {
+          "id": "D",
+          "text": "The client asked for changes after a future timestamp",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A fast client clock asks for changes after a timestamp that has not yet occurred on the server, so nothing qualifies. The fix is to use a server-issued cursor instead of a client clock.",
+      "hint": "The client asked too far ahead.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-client-clock-four-minutes-fast-and-an-empty-delta-set"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0011",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Choose a cache invalidation strategy",
+      "practice": "cache invalidation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Writes are frequent and reads are rare; which invalidation strategy fits best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Write-through invalidation on every write",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Time-to-live expiry only",
+          "misconception": "ignores correctness needs on writes"
+        },
+        {
+          "id": "C",
+          "text": "No invalidation, cache forever",
+          "misconception": "assumes stale data is acceptable"
+        },
+        {
+          "id": "D",
+          "text": "Random eviction on memory pressure",
+          "misconception": "confuses memory management with invalidation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With frequent writes, invalidating on each write keeps the cache correct without waiting for TTL. TTL-only risks stale reads, and never invalidating guarantees staleness.",
+      "hint": "Invalidate when the data changes.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-an-invalidation-strategy-for-a-cache"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0012",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Detect a leaked subscription from unbalanced register and teardown",
+      "practice": "subscription leak",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A component registers a subscription on mount and unregisters on unmount, but mounts twice; what leaks?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, the second mount replaces the first",
+          "misconception": "assumes registration is idempotent"
+        },
+        {
+          "id": "B",
+          "text": "Both subscriptions leak",
+          "misconception": "overcounts; only one extra remains"
+        },
+        {
+          "id": "C",
+          "text": "One subscription remains active after unmount",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The component crashes on unmount",
+          "misconception": "confuses leak with failure"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Two registrations but one teardown leave one subscription active after unmount, leaking callbacks and memory. Registration is not automatically idempotent unless explicitly guarded.",
+      "hint": "Subtract teardowns from registrations.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-subscription-that-is-registered-twice-and-torn-down-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0013",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Evaluate the cost of a polling interval",
+      "practice": "polling cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A dashboard polls every second for 10000 users; what is the main hidden cost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CPU on the client only",
+          "misconception": "ignores server and network load"
+        },
+        {
+          "id": "B",
+          "text": "Browser cache invalidation",
+          "misconception": "misattributes the cost to caching"
+        },
+        {
+          "id": "C",
+          "text": "Database schema bloat",
+          "misconception": "confuses traffic with storage"
+        },
+        {
+          "id": "D",
+          "text": "Server load and bandwidth from redundant requests",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Polling every second across 10000 users generates redundant requests that consume server CPU and bandwidth even when nothing changed. The cost scales with users times frequency, not data size.",
+      "hint": "Multiply users by requests per second.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-polling-interval-chosen-without-counting-the-cost"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0014",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Describe the connection cost of long polling",
+      "practice": "long poll cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What does a long poll hold open while waiting for an event?",
+      "options": [],
+      "answer": {
+        "exemplar": "A long poll keeps an HTTP connection open on both client and server until data arrives or a timeout fires, consuming a connection slot and memory the whole time."
+      },
+      "explanation": "Each long poll occupies a connection and server resources for the entire wait. At scale this limits concurrent clients unless the server supports many open connections efficiently.",
+      "hint": "The connection stays open the whole wait.",
+      "difficulty": 0.85,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-long-poll-and-the-connections-it-holds-open"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0015",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Identify which state wins between client and server",
+      "practice": "authoritative state",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client submits a body with a price field; whose value should the server trust?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server's price computed from its own records",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The client's price, since it was submitted",
+          "misconception": "trusts client-supplied authoritative data"
+        },
+        {
+          "id": "C",
+          "text": "The average of both",
+          "misconception": "invents a compromise with no basis"
+        },
+        {
+          "id": "D",
+          "text": "Whichever is larger",
+          "misconception": "picks by magnitude instead of authority"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The server is authoritative and must compute the price from its own records, ignoring client-supplied values for sensitive fields. Trusting the client invites tampering.",
+      "hint": "The server owns the truth.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "server-authoritative-state-and-a-body-the-client-filled-in"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0016",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Recognize data loss from a last-write-wins merge",
+      "practice": "merge rule",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two clients edit the same field; last-write-wins keeps only the latest. What happens to the earlier edit?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is merged automatically",
+          "misconception": "assumes conflict-free merging"
+        },
+        {
+          "id": "B",
+          "text": "It is queued for review",
+          "misconception": "expects manual conflict handling"
+        },
+        {
+          "id": "C",
+          "text": "It is discarded without record",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It overwrites the later edit",
+          "misconception": "reverses the ordering"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Last-write-wins silently drops the earlier edit, losing work without any record. This is simple but risky for collaborative editing where both contributions matter.",
+      "hint": "Only the latest survives.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-merge-rule-and-the-edit-it-discards-without-record"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0017",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose a transport for update delivery",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Updates are frequent, small, and need bidirectional flow; which transport fits best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Server-sent events",
+          "misconception": "ignores the bidirectional requirement"
+        },
+        {
+          "id": "B",
+          "text": "Long polling",
+          "misconception": "underestimates overhead at high frequency"
+        },
+        {
+          "id": "C",
+          "text": "Periodic full fetch",
+          "misconception": "ignores efficiency for frequent small updates"
+        },
+        {
+          "id": "D",
+          "text": "WebSocket",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "WebSocket provides a persistent bidirectional channel ideal for frequent small messages. SSE is one-way, long polling adds per-message overhead, and full fetch wastes bandwidth.",
+      "hint": "Need both directions and low overhead.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-a-transport-for-updates"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0018",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Spot a contradiction between a consistency claim and a merge rule",
+      "practice": "consistency check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service claims strong consistency but uses last-write-wins; what contradicts the claim?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Last-write-wins can lose concurrent writes silently",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Strong consistency needs a single writer",
+          "misconception": "overstates the requirement"
+        },
+        {
+          "id": "C",
+          "text": "Last-write-wins is actually linearizable",
+          "misconception": "mislabels the merge rule"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, they are compatible",
+          "misconception": "misses the silent loss"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Strong consistency implies no lost updates, but last-write-wins silently discards concurrent writes, contradicting the claim. A truly strongly consistent system would serialize or reject conflicting writes.",
+      "hint": "Can a write disappear?",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-consistency-claim-contradicted-by-the-service-s-own-merge-rule"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0019",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Identify a stale cache entry never invalidated",
+      "practice": "cache staleness",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A cache entry persists though its source data changed; what likely went wrong?",
+      "options": [],
+      "answer": {
+        "exemplar": "No write path invalidated or updated the cache entry, so it stayed stale; the fix is to invalidate on write or use a TTL that bounds staleness."
+      },
+      "explanation": "Without invalidation on write or a TTL, the cache keeps serving old data after the source changes. Either invalidate on write or expire entries to bound staleness.",
+      "hint": "Who clears the cache on write?",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-cache-entry-that-no-write-ever-cleared"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0020",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Detect duplicate handler registration from remount",
+      "practice": "handler duplicate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A component registers an event handler on mount and never unregisters; after a remount, how many handlers fire?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One",
+          "misconception": "assumes the second replaces the first"
+        },
+        {
+          "id": "B",
+          "text": "Three",
+          "misconception": "overcounts remounts"
+        },
+        {
+          "id": "C",
+          "text": "Zero, registration fails",
+          "misconception": "confuses duplicate with failure"
+        },
+        {
+          "id": "D",
+          "text": "Two",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Without unregistration, each mount adds another handler, so two mounts yield two handlers firing. The fix is to unregister on unmount or guard registration.",
+      "hint": "Count mounts minus unmounts.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-handler-registered-again-by-a-second-mount"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0021",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Contrast document flexibility with fixed columns",
+      "practice": "schema design",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A table requires every row to have the same columns; what does a document model instead allow?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each document to carry only its own fields",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Arbitrary column renames at query time",
+          "misconception": "confuses projection with schema flexibility"
+        },
+        {
+          "id": "C",
+          "text": "Automatic joins across collections",
+          "misconception": "mistakes document stores for relational joins"
+        },
+        {
+          "id": "D",
+          "text": "Indexes on every field by default",
+          "misconception": "confuses indexing with schema"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A document model lets each record define its own fields, unlike a table with a fixed column set. This trades uniformity for flexibility and simpler evolution.",
+      "hint": "Where is the schema defined?",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-a-document-shape-permits-that-a-table-of-columns-cannot"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0022",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Quantify index maintenance on updates",
+      "practice": "index tradeoffs",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An update changes an indexed column; besides the row, what else must be updated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing else",
+          "misconception": "ignores index maintenance"
+        },
+        {
+          "id": "B",
+          "text": "All indexes in the database",
+          "misconception": "overstates the scope"
+        },
+        {
+          "id": "C",
+          "text": "The index entry for that column",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The table schema",
+          "misconception": "confuses data change with schema change"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Changing an indexed column requires updating that index's entry to keep lookups correct. Only the affected index changes, not every index or the schema.",
+      "hint": "Which structure tracks that column?",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "the-write-cost-an-index-adds"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0023",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Parse a three-phase migration plan",
+      "practice": "plan reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan reads 'create, populate, switch'; what does 'switch' imply about traffic?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Data stops being written",
+          "misconception": "misreads switch as a freeze"
+        },
+        {
+          "id": "B",
+          "text": "The old structure is deleted",
+          "misconception": "confuses switch with cleanup"
+        },
+        {
+          "id": "C",
+          "text": "No traffic changes",
+          "misconception": "misses the cutover meaning"
+        },
+        {
+          "id": "D",
+          "text": "Traffic moves to the new structure",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "'Switch' means traffic cutover to the new structure, distinct from creation and population. Deletion and freezes are separate later steps, not implied by switch.",
+      "hint": "Switch is the cutover.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "reading-the-three-words-a-plan-uses-to-describe-its-work"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0024",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "State SSE directionality",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can a client not push data over a server-sent event stream?",
+      "options": [],
+      "answer": {
+        "exemplar": "Server-sent events use a single HTTP response stream from server to client, so the client has no channel to send data back on that stream and must make separate requests."
+      },
+      "explanation": "SSE is built on one HTTP response stream flowing server to client. The protocol provides no reverse channel, so client messages need separate requests.",
+      "hint": "One stream, one direction.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-server-sent-event-and-the-one-direction-it-allows"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0025",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Describe WebSocket reopen after close",
+      "practice": "websocket reconnect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client detects a closed socket; what must it do to restore messaging?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reuse the closed socket",
+          "misconception": "assumes closed sockets are reusable"
+        },
+        {
+          "id": "B",
+          "text": "Send data and hope it buffers",
+          "misconception": "ignores the need for a live connection"
+        },
+        {
+          "id": "C",
+          "text": "Open a new socket and complete the handshake",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Wait for automatic server reopen",
+          "misconception": "expects passive recovery"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Restoring messaging requires a new socket and a fresh handshake; a closed socket cannot carry data. Passive waiting or sending into the void will not reopen it.",
+      "hint": "Closed means new connection.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-socket-that-closes-and-the-handshake-that-reopens-it"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0026",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Identify the ordering mechanism",
+      "practice": "ordering semantics",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which property makes a transport deliver messages in order?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It compresses payloads",
+          "misconception": "confuses size with order"
+        },
+        {
+          "id": "B",
+          "text": "It sends messages faster",
+          "misconception": "confuses speed with order"
+        },
+        {
+          "id": "C",
+          "text": "It uses shorter routes",
+          "misconception": "mistakes latency for ordering"
+        },
+        {
+          "id": "D",
+          "text": "It tracks and retransmits by sequence number",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Ordering comes from tracking sequence numbers and retransmitting missing segments, as TCP does. Speed, routes, and compression do not enforce order.",
+      "hint": "Sequence tracking enforces order.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-actually-delivers-an-ordering-guarantee"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0027",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Compute batching latency",
+      "practice": "batching tradeoff",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A batcher flushes every 100ms; an event arrives 10ms after a flush; how long until it ships?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10ms",
+          "misconception": "confuses arrival time with wait time"
+        },
+        {
+          "id": "B",
+          "text": "100ms",
+          "misconception": "treats the window as a fixed delay from arrival"
+        },
+        {
+          "id": "C",
+          "text": "90ms",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "110ms",
+          "misconception": "adds arrival and window"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The event waits for the next flush 90ms later, since 10ms have already passed in the 100ms window. The delay is window minus elapsed time, not the full window.",
+      "hint": "Subtract elapsed time from the window.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-batching-window-and-the-latency-it-buys-with"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0028",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Define the delta baseline",
+      "practice": "sync baseline",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A client sends its last sync version 7; what does the server return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All records ever",
+          "misconception": "ignores the delta concept"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, version 7 is invalid",
+          "misconception": "assumes the cursor is stale"
+        },
+        {
+          "id": "C",
+          "text": "Records up to version 7",
+          "misconception": "reverses the direction"
+        },
+        {
+          "id": "D",
+          "text": "Only changes after version 7",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The server returns only changes after the client's last known version 7, keeping the payload small. Returning everything or the older records defeats delta sync.",
+      "hint": "Delta means after the baseline.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-delta-sync-and-the-baseline-it-is-measured-from"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0029",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Justify tombstone retention",
+      "practice": "tombstone retention",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What risk arises if a tombstone is deleted before all clients sync?",
+      "options": [],
+      "answer": {
+        "exemplar": "A lagging client can resurrect the deleted record because it never saw the tombstone, so retention must exceed maximum sync lag."
+      },
+      "explanation": "Deleting a tombstone too early lets a lagging client reinsert the removed data. Retention must exceed the maximum replication or client sync lag.",
+      "hint": "Lagging clients can resurrect data.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "how-long-a-tombstone-has-to-be-kept"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0030",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Diagnose empty delta from clock skew",
+      "practice": "clock skew",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client clock is four minutes ahead and the delta is empty; what is the real cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Client requested changes after a future server time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Server has no changes",
+          "misconception": "accepts the empty result at face value"
+        },
+        {
+          "id": "C",
+          "text": "Records were deleted",
+          "misconception": "confuses empty with deletion"
+        },
+        {
+          "id": "D",
+          "text": "Network dropped the response",
+          "misconception": "blames transport instead of the query"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The fast client clock asks for changes after a future server timestamp, so nothing matches. The root cause is the client-side timestamp, not missing data or network issues.",
+      "hint": "The query asked too far ahead.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-client-clock-four-minutes-fast-and-an-empty-delta-set"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0031",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Select invalidation for a write-heavy workload",
+      "practice": "cache invalidation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reads are frequent but writes change data often; which strategy keeps cache fresh?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Never cache",
+          "misconception": "gives up the read benefit entirely"
+        },
+        {
+          "id": "B",
+          "text": "Long TTL with no invalidation",
+          "misconception": "allows stale reads between writes"
+        },
+        {
+          "id": "C",
+          "text": "Invalidate on every write",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Random refresh",
+          "misconception": "has no correctness basis"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Invalidating on every write keeps the cache consistent with frequent changes while preserving read speed. Long TTL risks staleness, and never caching wastes the read benefit.",
+      "hint": "Clear the cache when data changes.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-an-invalidation-strategy-for-a-cache"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0032",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Detect unbalanced subscription lifecycle",
+      "practice": "subscription leak",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Two mounts each register a subscription; only one unmount unregisters; what remains?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No subscriptions",
+          "misconception": "assumes full cleanup"
+        },
+        {
+          "id": "B",
+          "text": "A crashed handler",
+          "misconception": "confuses leak with crash"
+        },
+        {
+          "id": "C",
+          "text": "Two active subscriptions",
+          "misconception": "forgets the one teardown"
+        },
+        {
+          "id": "D",
+          "text": "One active subscription",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Two registrations minus one teardown leaves one subscription active. The leak persists until the process exits or the subscription is explicitly removed.",
+      "hint": "Subtract the single teardown.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-subscription-that-is-registered-twice-and-torn-down-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0033",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Evaluate polling frequency cost",
+      "practice": "polling cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A mobile client polls every 5 seconds on a metered connection; what is the main concern?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Database locks",
+          "misconception": "confuses polling with writes"
+        },
+        {
+          "id": "B",
+          "text": "Server CPU only",
+          "misconception": "ignores client-side costs"
+        },
+        {
+          "id": "C",
+          "text": "Battery and data usage from frequent requests",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Cache staleness",
+          "misconception": "misattributes the issue"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Frequent polling on mobile drains battery and consumes metered data even when responses are unchanged. The cost is client-side as much as server-side.",
+      "hint": "What does polling cost the device?",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-polling-interval-chosen-without-counting-the-cost"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0034",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Describe long poll resource use",
+      "practice": "long poll cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can a server handle fewer long-poll clients than short-poll clients?",
+      "options": [],
+      "answer": {
+        "exemplar": "Each long poll occupies a connection and server resources for the entire wait, so concurrency is limited by open connections rather than request rate."
+      },
+      "explanation": "Long polls hold connections open for seconds or minutes, consuming slots and memory. Short polls free connections between requests, allowing higher throughput.",
+      "hint": "Open connections are the bottleneck.",
+      "difficulty": 0.75,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-long-poll-and-the-connections-it-holds-open"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0035",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Enforce server authority over client input",
+      "practice": "authoritative state",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client sends a discount percentage in the request body; how should the server handle it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply the client's percentage",
+          "misconception": "trusts client-supplied pricing"
+        },
+        {
+          "id": "B",
+          "text": "Reject the request entirely",
+          "misconception": "overreacts; the request may be valid otherwise"
+        },
+        {
+          "id": "C",
+          "text": "Average client and server values",
+          "misconception": "invents a compromise"
+        },
+        {
+          "id": "D",
+          "text": "Ignore it and compute discounts server-side",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The server must ignore client-supplied pricing and compute discounts from its own records, preventing tampering while still accepting the rest of the request.",
+      "hint": "The server owns pricing.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "server-authoritative-state-and-a-body-the-client-filled-in"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0036",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Identify silent loss in merge rules",
+      "practice": "merge rule",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a collaborative document, last-write-wins silently drops one author's change; what is lost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The later author's change",
+          "misconception": "reverses the ordering"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, changes merge",
+          "misconception": "assumes automatic merging"
+        },
+        {
+          "id": "C",
+          "text": "The earlier author's change",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The document itself",
+          "misconception": "overstates the loss"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Last-write-wins keeps the later edit and discards the earlier one, losing that author's work without record. Collaborative tools need conflict handling to avoid this.",
+      "hint": "Only the latest edit survives.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-merge-rule-and-the-edit-it-discards-without-record"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0037",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose a transport given constraints",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Updates are one-way from server to many clients with auto-reconnect; which transport fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "WebSocket",
+          "misconception": "overkill for one-way traffic"
+        },
+        {
+          "id": "B",
+          "text": "UDP broadcast",
+          "misconception": "ignores reliability and browser support"
+        },
+        {
+          "id": "C",
+          "text": "Long polling",
+          "misconception": "less efficient than SSE for this case"
+        },
+        {
+          "id": "D",
+          "text": "Server-sent events",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Server-sent events suit one-way server-to-client updates and include built-in reconnection. WebSocket adds unnecessary bidirectional complexity, and long polling is less efficient.",
+      "hint": "One way, many clients, auto-reconnect.",
+      "difficulty": 0.35,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-a-transport-for-updates"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0038",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Find a consistency contradiction",
+      "practice": "consistency check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A database claims serializable isolation but allows lost updates; what is wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Lost updates violate serializability",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Serializable allows lost updates",
+          "misconception": "misdefines serializability"
+        },
+        {
+          "id": "C",
+          "text": "Lost updates are acceptable under serializable",
+          "misconception": "confuses serializable with read committed"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, lost updates are impossible",
+          "misconception": "ignores the contradiction"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Serializable isolation means results match some serial execution, which forbids lost updates. Allowing lost updates contradicts the claim.",
+      "hint": "Can two writes both succeed and one vanish?",
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-consistency-claim-contradicted-by-the-service-s-own-merge-rule"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0039",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Diagnose a never-invalidated cache",
+      "practice": "cache staleness",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A cache serves stale product prices after an update; what is missing?",
+      "options": [],
+      "answer": {
+        "exemplar": "The write path never invalidates or updates the cache entry, so stale prices persist; add invalidation on write or a short TTL."
+      },
+      "explanation": "The cache stays stale because no write path clears or updates it. Add invalidation on write or a TTL to bound how long stale data survives.",
+      "hint": "Who clears the cache on update?",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-cache-entry-that-no-write-ever-cleared"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0040",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Count duplicate handlers from remount",
+      "practice": "handler duplicate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A handler is registered on mount and unregistered on unmount; after two mount cycles, how many are active?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Zero",
+          "misconception": "assumes full cleanup each cycle"
+        },
+        {
+          "id": "B",
+          "text": "Two",
+          "misconception": "forgets the unmount in between"
+        },
+        {
+          "id": "C",
+          "text": "One",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Four",
+          "misconception": "counts registrations without teardowns"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Each full mount-unmount cycle leaves zero net handlers, so two complete cycles leave one active only if the last unmount did not run. With proper cleanup, the count stays zero between cycles.",
+      "hint": "Net count is mounts minus unmounts.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-handler-registered-again-by-a-second-mount"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0041",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Recognize document schema flexibility",
+      "practice": "schema design",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which storage model lets one record have fields another record lacks?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Relational table with fixed columns",
+          "misconception": "assumes all rows share columns"
+        },
+        {
+          "id": "B",
+          "text": "Key-value cache",
+          "misconception": "mistakes opaque blobs for structured documents"
+        },
+        {
+          "id": "C",
+          "text": "Columnar store",
+          "misconception": "confuses columnar layout with per-record fields"
+        },
+        {
+          "id": "D",
+          "text": "Document store with per-document fields",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A document store allows per-document fields, while a relational table enforces a fixed column set. Columnar and key-value stores serve different purposes.",
+      "hint": "Where can fields vary per record?",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-a-document-shape-permits-that-a-table-of-columns-cannot"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0042",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Compute total writes with indexes",
+      "practice": "index tradeoffs",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A table has two secondary indexes; one insert writes how many structures?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "2",
+          "misconception": "counts only the indexes"
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "misconception": "counts only the table"
+        },
+        {
+          "id": "D",
+          "text": "4",
+          "misconception": "double counts"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "One table row plus two index entries equals three physical writes. Counting only the table or only the indexes understates the cost.",
+      "hint": "Table plus indexes.",
+      "difficulty": 0.85,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "the-write-cost-an-index-adds"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0043",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret a three-word plan",
+      "practice": "plan reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan says 'build, migrate, retire'; which word means stop using the old system?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Build",
+          "misconception": "confuses construction with cutover"
+        },
+        {
+          "id": "B",
+          "text": "Migrate",
+          "misconception": "confuses data movement with retirement"
+        },
+        {
+          "id": "C",
+          "text": "None",
+          "misconception": "misses the explicit retirement step"
+        },
+        {
+          "id": "D",
+          "text": "Retire",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "'Retire' means decommissioning the old system after migration. Build creates the new system and migrate moves data, but neither stops old usage.",
+      "hint": "Which word means decommission?",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "reading-the-three-words-a-plan-uses-to-describe-its-work"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0044",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Identify SSE direction",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "In which direction does a server-sent event stream flow?",
+      "options": [],
+      "answer": {
+        "exemplar": "A server-sent event stream flows only from server to client; the client cannot send data back on that same stream and must use separate requests."
+      },
+      "explanation": "SSE is unidirectional server to client. Any client-to-server communication requires a separate HTTP request.",
+      "hint": "Server to client only.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-server-sent-event-and-the-one-direction-it-allows"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0045",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "State the reopen handshake",
+      "practice": "websocket reconnect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "After an unexpected close, what must a client do before sending again?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Complete a new opening handshake",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Send a resume frame",
+          "misconception": "assumes the old socket supports resume"
+        },
+        {
+          "id": "C",
+          "text": "Wait for a server ping",
+          "misconception": "expects passive recovery"
+        },
+        {
+          "id": "D",
+          "text": "Replay the last message",
+          "misconception": "confuses replay with reconnect"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A closed socket cannot carry data, so the client must open a new socket and complete a fresh handshake. Resume frames, pings, and replays do not reopen a closed connection.",
+      "hint": "New socket, new handshake.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-socket-that-closes-and-the-handshake-that-reopens-it"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0046",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Name the ordering mechanism",
+      "practice": "ordering semantics",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which mechanism guarantees in-order delivery?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Payload compression",
+          "misconception": "confuses size with order"
+        },
+        {
+          "id": "B",
+          "text": "Higher bandwidth",
+          "misconception": "confuses capacity with order"
+        },
+        {
+          "id": "C",
+          "text": "Shorter paths",
+          "misconception": "mistakes latency for ordering"
+        },
+        {
+          "id": "D",
+          "text": "Sequence numbers with retransmission",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Sequence numbers and retransmission enforce in-order delivery, as in TCP. Bandwidth, paths, and compression do not guarantee order.",
+      "hint": "Sequence tracking is key.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "what-actually-delivers-an-ordering-guarantee"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0047",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Compute batching delay",
+      "practice": "batching tradeoff",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A batcher flushes every 60ms; an event arrives 50ms after a flush; how long until it ships?",
+      "options": [
+        {
+          "id": "A",
+          "text": "60ms",
+          "misconception": "treats window as fixed delay"
+        },
+        {
+          "id": "B",
+          "text": "50ms",
+          "misconception": "confuses arrival with wait"
+        },
+        {
+          "id": "C",
+          "text": "10ms",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "110ms",
+          "misconception": "adds arrival and window"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The event waits 10ms more to reach the 60ms window, since 50ms have already elapsed. The delay is window minus elapsed time.",
+      "hint": "Subtract elapsed from the window.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-batching-window-and-the-latency-it-buys-with"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0048",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Define delta baseline",
+      "practice": "sync baseline",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A client sends cursor 12; the server returns changes; what is cursor 12?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server's latest version",
+          "misconception": "confuses baseline with latest"
+        },
+        {
+          "id": "B",
+          "text": "An invalid cursor",
+          "misconception": "assumes staleness"
+        },
+        {
+          "id": "C",
+          "text": "The first version",
+          "misconception": "mistakes baseline for origin"
+        },
+        {
+          "id": "D",
+          "text": "The client's last known version",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Cursor 12 is the client's last known version, so the server returns only later changes. It is not the latest server version, the origin, or invalid.",
+      "hint": "Cursor marks what the client has.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-delta-sync-and-the-baseline-it-is-measured-from"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0049",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Explain tombstone retention",
+      "practice": "tombstone retention",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why must tombstone retention exceed the slowest client's sync interval?",
+      "options": [],
+      "answer": {
+        "exemplar": "If a tombstone expires before the slowest client syncs, that client can resurrect the deleted record, so retention must cover maximum lag."
+      },
+      "explanation": "A tombstone removed too early lets a lagging client reinsert deleted data. Retention must exceed the slowest client's sync interval to prevent resurrection.",
+      "hint": "Slow clients can resurrect data.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "how-long-a-tombstone-has-to-be-kept"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0050",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Diagnose clock skew empty delta",
+      "practice": "clock skew",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A fast client clock yields an empty delta; what is the fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase the delta window",
+          "misconception": "treats symptom not cause"
+        },
+        {
+          "id": "B",
+          "text": "Disable delta sync",
+          "misconception": "abandons the feature"
+        },
+        {
+          "id": "C",
+          "text": "Use a server-issued cursor instead of client time",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Slow the client clock manually",
+          "misconception": "unreliable workaround"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Replacing client time with a server-issued cursor removes clock-skew errors. Window tweaks or manual clock changes do not address the root cause.",
+      "hint": "Use server time, not client time.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-client-clock-four-minutes-fast-and-an-empty-delta-set"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0051",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Pick invalidation strategy",
+      "practice": "cache invalidation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Writes are rare but correctness matters; which invalidation approach is simplest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Probabilistic expiry",
+          "misconception": "adds complexity without benefit"
+        },
+        {
+          "id": "B",
+          "text": "Short TTL only",
+          "misconception": "risks stale reads between writes"
+        },
+        {
+          "id": "C",
+          "text": "No cache at all",
+          "misconception": "loses read performance"
+        },
+        {
+          "id": "D",
+          "text": "Invalidate on write",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "With rare writes, invalidating on write is cheap and keeps the cache correct. TTL-only risks serving stale data, and skipping the cache wastes read performance.",
+      "hint": "Invalidate when data changes.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-an-invalidation-strategy-for-a-cache"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0052",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Detect subscription leak",
+      "practice": "subscription leak",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Registrations exceed teardowns by one; what is the consequence?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A crash on next event",
+          "misconception": "confuses leak with crash"
+        },
+        {
+          "id": "B",
+          "text": "All callbacks stop",
+          "misconception": "reverses the outcome"
+        },
+        {
+          "id": "C",
+          "text": "One callback keeps firing after teardown",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Nothing, extras are ignored",
+          "misconception": "assumes idempotent registration"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An extra registration means one callback keeps firing after the intended teardown, leaking work and memory. Registration is not automatically deduplicated.",
+      "hint": "Extras keep firing.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-subscription-that-is-registered-twice-and-torn-down-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0053",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Count polling cost",
+      "practice": "polling cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service polls a third-party API every 100ms for each user; what risk dominates?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CSS rendering lag",
+          "misconception": "completely unrelated"
+        },
+        {
+          "id": "B",
+          "text": "Client storage overflow",
+          "misconception": "confuses traffic with storage"
+        },
+        {
+          "id": "C",
+          "text": "Schema migration failures",
+          "misconception": "unrelated to polling"
+        },
+        {
+          "id": "D",
+          "text": "Rate limiting and cost from the provider",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Polling every 100ms per user risks hitting provider rate limits and incurring cost. The dominant risk is external throttling and billing, not client storage or schema.",
+      "hint": "What does the provider see?",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-polling-interval-chosen-without-counting-the-cost"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0054",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Explain long poll scaling limit",
+      "practice": "long poll cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What limits how many long-poll clients one server can support?",
+      "options": [],
+      "answer": {
+        "exemplar": "Open connection slots and memory, since each long poll holds a connection for the whole wait, so concurrency is capped by connection capacity."
+      },
+      "explanation": "Each long poll holds a connection and memory for the entire wait, so the server's connection capacity caps concurrent clients. Shorter polls free slots between requests.",
+      "hint": "Open connections cap concurrency.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-long-poll-and-the-connections-it-holds-open"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0055",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Identify authoritative state",
+      "practice": "authoritative state",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client posts an order total in the body; whose value should win?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The client's total",
+          "misconception": "trusts client pricing"
+        },
+        {
+          "id": "B",
+          "text": "The higher of the two",
+          "misconception": "picks by magnitude"
+        },
+        {
+          "id": "C",
+          "text": "The server's recomputed total",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The lower of the two",
+          "misconception": "picks by magnitude the other way"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The server must recompute the total from its own records and ignore the client's value. Trusting either extreme or the client invites tampering.",
+      "hint": "The server owns the total.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "server-authoritative-state-and-a-body-the-client-filled-in"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0056",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Recognize data loss in merges",
+      "practice": "merge rule",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two users edit the same note simultaneously; last-write-wins keeps one. What is lost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, they merge",
+          "misconception": "assumes conflict-free merge"
+        },
+        {
+          "id": "B",
+          "text": "The later edit",
+          "misconception": "reverses the ordering"
+        },
+        {
+          "id": "C",
+          "text": "Both edits",
+          "misconception": "overstates the loss"
+        },
+        {
+          "id": "D",
+          "text": "The earlier edit",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Last-write-wins keeps the later edit and discards the earlier one, losing that contributor's work. Collaborative editing needs conflict handling to preserve both.",
+      "hint": "Only the latest survives.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-merge-rule-and-the-edit-it-discards-without-record"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0057",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose transport by constraints",
+      "practice": "transport choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Bidirectional, frequent, small messages between browser and server; best transport?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Server-sent events",
+          "misconception": "one-way only"
+        },
+        {
+          "id": "B",
+          "text": "Long polling",
+          "misconception": "too much overhead"
+        },
+        {
+          "id": "C",
+          "text": "WebSocket",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Periodic fetch",
+          "misconception": "inefficient for frequent small data"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "WebSocket provides a persistent bidirectional channel suited to frequent small messages. SSE is one-way, long polling adds overhead, and periodic fetch wastes bandwidth.",
+      "hint": "Both directions, low overhead.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "choosing-a-transport-for-updates"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0058",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Spot consistency contradiction",
+      "practice": "consistency check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A store claims strong consistency but uses last-write-wins; what is contradicted?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing contradicts",
+          "misconception": "misses the silent loss"
+        },
+        {
+          "id": "B",
+          "text": "Last-write-wins is strongly consistent",
+          "misconception": "mislabels the rule"
+        },
+        {
+          "id": "C",
+          "text": "Strong consistency allows lost writes",
+          "misconception": "misdefines strong consistency"
+        },
+        {
+          "id": "D",
+          "text": "Strong consistency forbids silent lost writes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Strong consistency implies no silently lost writes, but last-write-wins discards concurrent writes, contradicting the claim. A strongly consistent store would serialize or reject conflicts.",
+      "hint": "Can a write vanish silently?",
+      "difficulty": 0.35,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-consistency-claim-contradicted-by-the-service-s-own-merge-rule"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0059",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Diagnose stale cache",
+      "practice": "cache staleness",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A cache keeps serving old data after source updates; what is missing?",
+      "options": [],
+      "answer": {
+        "exemplar": "No invalidation or TTL update occurs on writes, so stale entries persist; add write-time invalidation or an expiry bound."
+      },
+      "explanation": "Stale entries persist because no write path invalidates or expires them. Add invalidation on write or a TTL to bound staleness.",
+      "hint": "Who clears the cache on write?",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-cache-entry-that-no-write-ever-cleared"
+      ],
+      "version": 1
+    },
+    {
+      "id": "web-8.19-0060",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Count handlers from remount",
+      "practice": "handler duplicate",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A handler registers on mount without unregistering; after two mounts, how many fire?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One",
+          "misconception": "assumes replacement"
+        },
+        {
+          "id": "B",
+          "text": "Zero",
+          "misconception": "confuses with failure"
+        },
+        {
+          "id": "C",
+          "text": "Two",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Three",
+          "misconception": "overcounts"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Without unregistration, each mount adds a handler, so two mounts yield two handlers. Unregister on unmount or guard registration to prevent duplicates.",
+      "hint": "Count mounts minus unmounts.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-8",
+        "a-handler-registered-again-by-a-second-mount"
+      ],
+      "version": 1
+    }
+  ]
+}
