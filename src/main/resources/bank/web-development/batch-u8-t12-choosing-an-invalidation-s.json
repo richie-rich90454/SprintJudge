@@ -1,0 +1,2580 @@
+{
+  "meta": {
+    "subject": "WEB_DEVELOPMENT",
+    "unit": "Unit 8",
+    "unitNum": 8,
+    "dir": "web-development",
+    "prefix": "web",
+    "slot": 12,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-web-development",
+    "reviewer": "bank-review-web-development",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "web-8.12-0001",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Choose invalidation by write frequency",
+      "practice": "invalidation choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect's cache serves a product catalog updated hourly; which invalidation strategy fits best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Time-to-live of one hour matches update cadence",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Never invalidate and serve stale forever",
+          "misconception": "ignores freshness needs"
+        },
+        {
+          "id": "C",
+          "text": "Invalidate on every read",
+          "misconception": "defeats caching purpose"
+        },
+        {
+          "id": "D",
+          "text": "Randomly invalidate entries",
+          "misconception": "unpredictable freshness"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A TTL aligned with the update cadence balances freshness and cache hits. The tempting extremes serve stale forever, invalidate too often, or act randomly.",
+      "hint": "Align TTL with updates.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0002",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Detect leaked subscriptions",
+      "practice": "subscription leak",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect registers a cache invalidation subscription twice but tears it down once; what remains?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing remains because teardown is total",
+          "misconception": "ignores duplicate registration"
+        },
+        {
+          "id": "B",
+          "text": "One active subscription keeps firing after teardown",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both subscriptions stop immediately",
+          "misconception": "assumes teardown removes all"
+        },
+        {
+          "id": "D",
+          "text": "The cache clears itself automatically",
+          "misconception": "unrelated to subscriptions"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Registering twice and tearing down once leaves one active subscription, causing leaks and duplicate events. The tempting assumptions treat teardown as total.",
+      "hint": "Count registrations versus teardowns.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0003",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Account for polling cost",
+      "practice": "polling cost",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect sets a one-second polling interval without counting request cost; what is the main risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Data becomes more accurate automatically",
+          "misconception": "confuses frequency with accuracy"
+        },
+        {
+          "id": "B",
+          "text": "Polling becomes free at one second",
+          "misconception": "ignores per-request cost"
+        },
+        {
+          "id": "C",
+          "text": "Server load and client battery drain spike",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The cache never expires",
+          "misconception": "unrelated to polling"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Frequent polling multiplies requests, raising server load and client battery use. The tempting shortcuts assume polling is free or improves accuracy.",
+      "hint": "Each poll costs a request.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0004",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Explain long-poll resource use",
+      "practice": "long poll",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "An architect uses long polling for updates; what resource cost does it impose on the server?",
+      "answer": {
+        "exemplar": "Long polling holds one connection open per client until data arrives or a timeout occurs, consuming server connections and memory for the whole wait."
+      },
+      "explanation": "Each long-poll client occupies a connection for the entire wait, limiting concurrency. The tempting assumption that it is free like SSE ignores held connections.",
+      "hint": "One connection per waiting client.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0005",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Validate client-filled bodies",
+      "practice": "authoritative state",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An architect trusts a client-filled request body over server state; what should happen instead?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Accept the body and overwrite server state",
+          "misconception": "trusts client input"
+        },
+        {
+          "id": "B",
+          "text": "Return the body unchanged to the client",
+          "misconception": "echoes untrusted data"
+        },
+        {
+          "id": "C",
+          "text": "Ignore the request entirely",
+          "misconception": "overreacts to client input"
+        },
+        {
+          "id": "D",
+          "text": "Validate the body against server-authoritative state",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Server state is authoritative, so client bodies must be validated rather than trusted. The tempting shortcuts overwrite state, ignore requests, or echo data.",
+      "hint": "Server state wins.",
+      "difficulty": 0.65,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.12-0006",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Detect silent discard in merges",
+      "practice": "merge discard",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect's merge rule keeps the later edit and drops the earlier one silently; what is lost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The later edit is discarded instead",
+          "misconception": "reverses merge direction"
+        },
+        {
+          "id": "B",
+          "text": "Nothing is lost because later is always right",
+          "misconception": "assumes recency implies correctness"
+        },
+        {
+          "id": "C",
+          "text": "The earlier edit leaves no audit trail",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Both edits are preserved automatically",
+          "misconception": "ignores discard behavior"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Silently dropping the earlier edit loses its history and audit trail. The tempting assumptions favor recency, reverse the rule, or imagine preservation.",
+      "hint": "Silent drops lose history.",
+      "difficulty": 0.75,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0007",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Match transport to update pattern",
+      "practice": "transport choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect needs frequent small updates with low latency; which transport fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Manual database dumps",
+          "misconception": "not real-time"
+        },
+        {
+          "id": "B",
+          "text": "Hourly batch file transfers",
+          "misconception": "too slow for frequent updates"
+        },
+        {
+          "id": "C",
+          "text": "Email notifications",
+          "misconception": "not a data transport"
+        },
+        {
+          "id": "D",
+          "text": "Websocket for bidirectional low-latency updates",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Websockets provide low-latency bidirectional updates suited to frequent small messages. The tempting alternatives are too slow or not data transports.",
+      "hint": "Low latency favors sockets.",
+      "difficulty": 0.85,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0008",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Spot consistency contradictions",
+      "practice": "consistency check",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service claims strong consistency but its merge rule is last-write-wins; what contradicts the claim?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Last-write-wins guarantees no data loss",
+          "misconception": "misstates LWW behavior"
+        },
+        {
+          "id": "B",
+          "text": "Last-write-wins can lose concurrent edits",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Strong consistency requires no merges",
+          "misconception": "confuses consistency with absence of merges"
+        },
+        {
+          "id": "D",
+          "text": "Merge rules never affect consistency",
+          "misconception": "denies merge impact"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Last-write-wins can silently lose concurrent edits, contradicting strong consistency. The tempting assumptions treat LWW as lossless or ignore merge effects.",
+      "hint": "LWW loses concurrent writes.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.12-0009",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Detect stale cache entries",
+      "practice": "stale cache",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "An architect finds a cache entry that no write ever cleared; why might it be stale?",
+      "answer": {
+        "exemplar": "If invalidation is missing on the write path, the cache keeps the old value indefinitely, so reads return stale data even after the source changes."
+      },
+      "explanation": "Missing invalidation lets stale entries persist forever. The tempting assumption that caches self-update ignores write-path invalidation.",
+      "hint": "No invalidation means stale forever.",
+      "difficulty": 0.35,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0010",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Prevent duplicate handlers",
+      "practice": "handler duplicate",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An architect's component mounts twice and registers a handler each time without cleanup; what results?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The second mount replaces the first handler",
+          "misconception": "assumes replacement"
+        },
+        {
+          "id": "B",
+          "text": "The handler fires once because duplicates collapse",
+          "misconception": "assumes deduplication"
+        },
+        {
+          "id": "C",
+          "text": "The handler fires twice per event",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No handler fires at all",
+          "misconception": "assumes cancellation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Registering on each mount without cleanup leaves duplicate handlers that fire multiple times. The tempting assumptions imagine dedup, replacement, or cancellation.",
+      "hint": "Duplicates accumulate.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0011",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Use version-based invalidation",
+      "practice": "version invalidation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect versions cache entries by data version; when does invalidation occur?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Never, versions are ignored",
+          "misconception": "defeats versioning"
+        },
+        {
+          "id": "B",
+          "text": "On every read regardless of version",
+          "misconception": "defeats caching"
+        },
+        {
+          "id": "C",
+          "text": "Only when the cache is full",
+          "misconception": "confuses eviction with invalidation"
+        },
+        {
+          "id": "D",
+          "text": "When the data version changes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Version-based invalidation triggers when the data version changes. The tempting alternatives invalidate too often, confuse eviction, or ignore versions.",
+      "hint": "Version change triggers invalidation.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0012",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Ensure matching teardown counts",
+      "practice": "teardown match",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect wants no leaked subscriptions; what rule should be followed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Teardown once is always enough",
+          "misconception": "ignores duplicates"
+        },
+        {
+          "id": "B",
+          "text": "Teardown count must equal registration count",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Registrations can be ignored",
+          "misconception": "skips cleanup"
+        },
+        {
+          "id": "D",
+          "text": "Teardown is optional for performance",
+          "misconception": "leaks resources"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Teardowns must match registrations to avoid leaks. The tempting shortcuts assume one teardown suffices or skip cleanup.",
+      "hint": "Match counts exactly.",
+      "difficulty": 0.65,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0013",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Set polling by change rate",
+      "practice": "polling rate",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect polls a rarely changing resource every second; what should change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Polling rate does not matter",
+          "misconception": "ignores cost"
+        },
+        {
+          "id": "B",
+          "text": "Shorten the interval to milliseconds",
+          "misconception": "increases waste"
+        },
+        {
+          "id": "C",
+          "text": "Lengthen the interval to match change rate",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Replace polling with random delays",
+          "misconception": "unpredictable updates"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Polling interval should match the resource's change rate to avoid waste. The tempting extremes shorten intervals, ignore cost, or randomize delays.",
+      "hint": "Match interval to change rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0014",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Limit long-poll concurrency",
+      "practice": "long poll limit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How can an architect reduce server strain from long polling many clients?",
+      "answer": {
+        "exemplar": "Use connection limits, timeouts, and a fallback to shorter polls or server-sent events so no single client holds a connection indefinitely."
+      },
+      "explanation": "Limits and timeouts prevent indefinite connection holding; alternatives like SSE reduce strain. The tempting assumption of unlimited connections risks exhaustion.",
+      "hint": "Cap connections and timeouts.",
+      "difficulty": 0.85,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0015",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Reject client overrides of server state",
+      "practice": "client override",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client submits a body claiming a different account balance; what should the server do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trust the body and update the balance",
+          "misconception": "trusts client input"
+        },
+        {
+          "id": "B",
+          "text": "Return the body without checking",
+          "misconception": "echoes untrusted data"
+        },
+        {
+          "id": "C",
+          "text": "Delete the account",
+          "misconception": "overreacts"
+        },
+        {
+          "id": "D",
+          "text": "Recompute or validate against authoritative state",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The server must validate or recompute against authoritative state rather than trust client claims. The tempting shortcuts trust, delete, or echo data.",
+      "hint": "Validate against server state.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0016",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Audit discarded edits",
+      "practice": "audit merge",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect wants to keep a record of discarded edits during merges; what should be added?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Overwrite the log with the final value",
+          "misconception": "loses conflict history"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, discarded edits are irrelevant",
+          "misconception": "ignores audit needs"
+        },
+        {
+          "id": "C",
+          "text": "An audit log of conflicting versions",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Delete the earlier edit permanently",
+          "misconception": "destroys evidence"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An audit log preserves conflicting versions for later review. The tempting shortcuts dismiss, overwrite, or delete evidence.",
+      "hint": "Log conflicts for audit.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0017",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose SSE for one-way server push",
+      "practice": "sse transport",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect needs server-to-client updates only; which transport is simplest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Email delivery",
+          "misconception": "not a live transport"
+        },
+        {
+          "id": "B",
+          "text": "A full duplex websocket",
+          "misconception": "overkill for one way"
+        },
+        {
+          "id": "C",
+          "text": "Manual file polling",
+          "misconception": "too slow and wasteful"
+        },
+        {
+          "id": "D",
+          "text": "Server-sent events over HTTP",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "SSE is the simplest one-way server push transport. The tempting alternatives are heavier, slower, or unsuitable.",
+      "hint": "One way favors SSE.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0018",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Align claims with merge semantics",
+      "practice": "claim alignment",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service advertises eventual consistency but merges with last-write-wins; is the claim consistent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, eventual consistency forbids merges",
+          "misconception": "misstates eventual consistency"
+        },
+        {
+          "id": "B",
+          "text": "Yes, LWW is a valid eventual consistency strategy",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No, LWW makes it strongly consistent",
+          "misconception": "confuses LWW with strong consistency"
+        },
+        {
+          "id": "D",
+          "text": "Merges are unrelated to consistency",
+          "misconception": "denies merge impact"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Last-write-wins is a legitimate eventual consistency merge strategy. The tempting answers misstate consistency or merge relationships.",
+      "hint": "LWW is eventually consistent.",
+      "difficulty": 0.55,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0019",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Add invalidation on writes",
+      "practice": "write invalidation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How should an architect ensure writes clear the relevant cache entries?",
+      "answer": {
+        "exemplar": "The write path must invalidate or update the affected cache keys, either synchronously or via an event, so stale values cannot persist after a change."
+      },
+      "explanation": "Writes must trigger cache invalidation or updates to avoid stale entries. The tempting assumption that caches expire on their own ignores write paths.",
+      "hint": "Invalidate on writes.",
+      "difficulty": 0.65,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0020",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Clean up handlers on unmount",
+      "practice": "handler cleanup",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "How should an architect prevent duplicate handlers across mounts?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Register once globally and never clean up",
+          "misconception": "leaks on unmount"
+        },
+        {
+          "id": "B",
+          "text": "Register on every render without cleanup",
+          "misconception": "causes duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Register on mount and unregister on unmount",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Skip registration entirely",
+          "misconception": "breaks functionality"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Registering on mount and unregistering on unmount prevents duplicates. The tempting shortcuts register repeatedly, leak, or skip functionality.",
+      "hint": "Register and unregister in pairs.",
+      "difficulty": 0.75,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.12-0021",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Choose write-through invalidation",
+      "practice": "write-through",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect writes data and updates the cache in the same operation; what strategy is this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No caching at all",
+          "misconception": "ignores cache involvement"
+        },
+        {
+          "id": "B",
+          "text": "Write-behind caching",
+          "misconception": "defers cache update"
+        },
+        {
+          "id": "C",
+          "text": "Cache-aside only",
+          "misconception": "application manages cache separately"
+        },
+        {
+          "id": "D",
+          "text": "Write-through caching",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Updating cache and store together is write-through. The tempting alternatives defer updates or leave caching to the application.",
+      "hint": "Write through means together.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0022",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Track subscription references",
+      "practice": "reference count",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "How can an architect avoid leaking a subscription registered multiple times?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Teardown after the first registration",
+          "misconception": "premature teardown"
+        },
+        {
+          "id": "B",
+          "text": "Use reference counting and teardown when count reaches zero",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Never teardown to be safe",
+          "misconception": "leaks resources"
+        },
+        {
+          "id": "D",
+          "text": "Register only once globally",
+          "misconception": "may miss lifecycle needs"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Reference counting ensures teardown only when all registrations are done. The tempting shortcuts teardown too early, leak, or avoid lifecycle handling.",
+      "hint": "Count references.",
+      "difficulty": 0.25,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0023",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Estimate polling server load",
+      "practice": "polling load",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect's polling interval is one second for ten thousand clients; what is the request rate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One hundred requests per second",
+          "misconception": "underestimates load"
+        },
+        {
+          "id": "B",
+          "text": "Ten thousand requests per minute",
+          "misconception": "off by sixty"
+        },
+        {
+          "id": "C",
+          "text": "Ten thousand requests per second",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "One request per second total",
+          "misconception": "ignores client count"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Ten thousand clients polling once per second produce ten thousand requests per second. The tempting calculations undercount or ignore clients.",
+      "hint": "Clients times frequency.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0024",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Compare long poll to SSE",
+      "practice": "long poll vs sse",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why might an architect prefer SSE over long polling for many clients?",
+      "answer": {
+        "exemplar": "SSE uses a single persistent connection with server push and automatic reconnect, whereas long polling repeatedly opens connections and holds them open, consuming more resources."
+      },
+      "explanation": "SSE is more efficient than repeated long polls. The tempting equivalence ignores connection overhead differences.",
+      "hint": "SSE reuses one connection.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0025",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Use conditional updates",
+      "practice": "conditional update",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "How can an architect apply a client update only if server state matches?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ignore the server state entirely",
+          "misconception": "defeats authority"
+        },
+        {
+          "id": "B",
+          "text": "Always overwrite with the client body",
+          "misconception": "loses concurrency control"
+        },
+        {
+          "id": "C",
+          "text": "Reject all client updates",
+          "misconception": "too restrictive"
+        },
+        {
+          "id": "D",
+          "text": "Use a version or etag in a conditional request",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Conditional requests with version or etag ensure updates apply only to matching server state. The tempting alternatives overwrite, reject all, or ignore authority.",
+      "hint": "Use etag or version.",
+      "difficulty": 0.55,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.12-0026",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Prefer three-way merge",
+      "practice": "three-way merge",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect wants to avoid silently discarding edits; which merge approach helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Last-write-wins without conflict detection",
+          "misconception": "silently discards"
+        },
+        {
+          "id": "B",
+          "text": "Three-way merge that surfaces conflicts",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Always keep the first edit",
+          "misconception": "discards later edits"
+        },
+        {
+          "id": "D",
+          "text": "Randomly pick an edit",
+          "misconception": "unpredictable loss"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Three-way merge surfaces conflicts instead of silently discarding. The tempting alternatives silently drop or randomly choose edits.",
+      "hint": "Surface conflicts.",
+      "difficulty": 0.65,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0027",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose polling for simple low-frequency updates",
+      "practice": "polling choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect needs occasional updates with minimal complexity; which transport fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Continuous video streaming",
+          "misconception": "wrong modality"
+        },
+        {
+          "id": "B",
+          "text": "A persistent websocket cluster",
+          "misconception": "overkill for occasional updates"
+        },
+        {
+          "id": "C",
+          "text": "Simple polling at a modest interval",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Manual file transfers",
+          "misconception": "too slow and manual"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Simple polling suits occasional updates with low complexity. The tempting alternatives are heavier or inappropriate.",
+      "hint": "Occasional favors polling.",
+      "difficulty": 0.75,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0028",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Match consistency claim to merge",
+      "practice": "claim match",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service claims strong consistency but uses asynchronous replication; what is the contradiction?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Replication never affects consistency",
+          "misconception": "denies replication impact"
+        },
+        {
+          "id": "B",
+          "text": "Asynchronous replication is always instant",
+          "misconception": "misstates async behavior"
+        },
+        {
+          "id": "C",
+          "text": "Strong consistency allows lag",
+          "misconception": "confuses strong with eventual"
+        },
+        {
+          "id": "D",
+          "text": "Asynchronous replication can lag behind writes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Asynchronous replication can lag, contradicting strong consistency. The tempting assumptions treat async as instant or ignore replication effects.",
+      "hint": "Async can lag.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.12-0029",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Detect missing invalidation paths",
+      "practice": "missing invalidation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How can an architect find writes that fail to invalidate cache entries?",
+      "answer": {
+        "exemplar": "Audit the write paths and compare touched data keys with cache keys, adding invalidation or update hooks where a write changes data without clearing its cache."
+      },
+      "explanation": "Auditing write paths reveals missing invalidation hooks. The tempting assumption that caches manage themselves ignores write-path gaps.",
+      "hint": "Audit write paths.",
+      "difficulty": 0.25,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0030",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Use idempotent registration",
+      "practice": "idempotent register",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "How can an architect make handler registration safe across repeated mounts?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Register on every render without guards",
+          "misconception": "causes duplicates"
+        },
+        {
+          "id": "B",
+          "text": "Guard registration with a mounted flag or cleanup",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Register once at module load",
+          "misconception": "misses per-instance needs"
+        },
+        {
+          "id": "D",
+          "text": "Skip unmount cleanup",
+          " misconsception": "leaks resources"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Guarding registration or cleaning up on unmount prevents duplicates. The tempting shortcuts register repeatedly, leak, or skip lifecycle needs.",
+      "hint": "Guard and clean up.",
+      "difficulty": 0.35,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0031",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Use TTL for time-based invalidation",
+      "practice": "ttl invalidation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect sets a cache TTL of five minutes; when is an entry invalidated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Never, TTL is advisory",
+          "misconception": "ignores TTL enforcement"
+        },
+        {
+          "id": "B",
+          "text": "Only when memory is full",
+          "misconception": "confuses TTL with eviction"
+        },
+        {
+          "id": "C",
+          "text": "Five minutes after it is written or refreshed",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Immediately on every read",
+          "misconception": "defeats caching"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "TTL invalidates entries after the specified time. The tempting alternatives confuse TTL with eviction, ignore it, or invalidate too often.",
+      "hint": "TTL expires after time.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0032",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Prevent duplicate event handling",
+      "practice": "duplicate events",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What symptom appears when a subscription is registered twice and torn down once?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The subscription disappears immediately",
+          "misconception": "assumes teardown removes all"
+        },
+        {
+          "id": "B",
+          "text": "No events are handled",
+          "misconception": "assumes cancellation"
+        },
+        {
+          "id": "C",
+          "text": "Events are handled once",
+          "misconception": "assumes deduplication"
+        },
+        {
+          "id": "D",
+          "text": "Events are handled multiple times",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Duplicate registration with single teardown leaves an active subscription, so events fire multiple times. The tempting assumptions imagine cancellation, dedup, or total removal.",
+      "hint": "Duplicates cause double handling.",
+      "difficulty": 0.55,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0033",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Balance polling interval and freshness",
+      "practice": "interval balance",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect must choose between one-second and one-minute polling; what guides the choice?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Always pick the shortest interval",
+          "misconception": "ignores load cost"
+        },
+        {
+          "id": "B",
+          "text": "Required freshness versus acceptable load",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Always pick the longest interval",
+          "misconception": "ignores freshness needs"
+        },
+        {
+          "id": "D",
+          "text": "Pick randomly for variety",
+          "misconception": "unpredictable behavior"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The interval balances freshness requirements against load costs. The tempting extremes ignore one side or randomize.",
+      "hint": "Balance freshness and load.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0034",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Set long-poll timeout",
+      "practice": "poll timeout",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should an architect set a timeout on long-poll requests?",
+      "answer": {
+        "exemplar": "A timeout releases held connections when no data arrives, preventing indefinite resource occupation and allowing clients to reconnect cleanly."
+      },
+      "explanation": "Timeouts free held connections and enable clean reconnects. The tempting indefinite wait risks resource exhaustion.",
+      "hint": "Timeouts free connections.",
+      "difficulty": 0.75,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0035",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Validate client-computed values",
+      "practice": "client computed",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client sends a computed total in the request body; how should the server handle it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ignore the total entirely",
+          "misconception": "loses useful data"
+        },
+        {
+          "id": "B",
+          "text": "Trust the client's total",
+          "misconception": "trusts client input"
+        },
+        {
+          "id": "C",
+          "text": "Recompute the total server-side and compare",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Store both and decide later",
+          "misconception": "defers validation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The server should recompute and compare rather than trust client totals. The tempting shortcuts trust, ignore, or defer validation.",
+      "hint": "Recompute server-side.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0036",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Record discarded merge edits",
+      "practice": "merge audit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Where should an architect store edits discarded by a merge?",
+      "options": [
+        {
+          "id": "A",
+          "text": "In the client's browser only",
+          "misconception": "not durable"
+        },
+        {
+          "id": "B",
+          "text": "Nowhere, they are gone",
+          "misconception": "loses history"
+        },
+        {
+          "id": "C",
+          "text": "Overwrite the current value",
+          "misconception": "destroys evidence"
+        },
+        {
+          "id": "D",
+          "text": "In an audit or conflict log",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Discarded edits belong in an audit or conflict log for traceability. The tempting shortcuts lose or misplace history.",
+      "hint": "Log discarded edits.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0037",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose websocket for bidirectional chat",
+      "practice": "chat transport",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect builds a live chat; which transport supports two-way real-time messages?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Static HTML pages",
+          "misconception": "no real-time capability"
+        },
+        {
+          "id": "B",
+          "text": "Websocket",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Email threads",
+          "misconception": "not real-time"
+        },
+        {
+          "id": "D",
+          "text": "Batch CSV exports",
+          "misconception": "not interactive"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Websockets support bidirectional real-time chat. The tempting alternatives lack real-time or interactivity.",
+      "hint": "Chat needs bidirectional real-time.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0038",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Detect false strong consistency",
+      "practice": "false strong",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service advertises strong consistency but reads from a replica that may lag; what is the flaw?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Replication is always synchronous",
+          "misconception": "assumes sync replication"
+        },
+        {
+          "id": "B",
+          "text": "Strong consistency allows replica lag",
+          "misconception": "misstates strong consistency"
+        },
+        {
+          "id": "C",
+          "text": "Reads may return stale data before replication catches up",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Reads are always fresh from replicas",
+          "misconception": "ignores lag"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Reading from a lagging replica can return stale data, contradicting strong consistency. The tempting assumptions treat replication as synchronous or lag-free.",
+      "hint": "Replica lag means stale reads.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0039",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Invalidate on related writes",
+      "practice": "related invalidation",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How should an architect handle cache entries affected by writes to related data?",
+      "answer": {
+        "exemplar": "Invalidate or recompute dependent cache entries when related data changes, using tags or dependencies so no stale derived value persists."
+      },
+      "explanation": "Dependent entries must be invalidated on related writes to avoid stale derived values. The tempting assumption that only direct keys matter ignores dependencies.",
+      "hint": "Invalidate dependents too.",
+      "difficulty": 0.55,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0040",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Avoid side effects in render",
+      "practice": "render side effects",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An architect registers a handler during render instead of an effect; what is the risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It registers on unmount only",
+          "misconception": "reverses lifecycle"
+        },
+        {
+          "id": "B",
+          "text": "It registers only once",
+          "misconception": "assumes render is once"
+        },
+        {
+          "id": "C",
+          "text": "It never registers",
+          "misconception": "assumes render skips effects"
+        },
+        {
+          "id": "D",
+          "text": "It registers on every render, causing duplicates",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Registering during render repeats on every render, creating duplicates. The tempting assumptions misunderstand render frequency or lifecycle.",
+      "hint": "Render runs many times.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0041",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Use event-driven invalidation",
+      "practice": "event invalidation",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect invalidates cache entries by listening to data change events; what strategy is this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Time-based TTL only",
+          "misconception": "ignores events"
+        },
+        {
+          "id": "B",
+          "text": "Event-driven invalidation",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Manual invalidation",
+          "misconception": "not automated"
+        },
+        {
+          "id": "D",
+          "text": "No invalidation",
+          "misconception": "ignores freshness"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Listening to change events for invalidation is event-driven. The tempting alternatives rely on time, manual work, or none.",
+      "hint": "Events drive invalidation.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0042",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Use unique subscription ids",
+      "practice": "unique ids",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "How can an architect prevent duplicate subscription registrations?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Teardown before registration",
+          "misconception": "premature teardown"
+        },
+        {
+          "id": "B",
+          "text": "Allow unlimited duplicate registrations",
+          "misconception": "causes leaks"
+        },
+        {
+          "id": "C",
+          "text": "Track registrations by unique id and skip duplicates",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore teardown entirely",
+          "misconception": "leaks resources"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Tracking by unique id prevents duplicate registrations. The tempting alternatives allow leaks or teardown issues.",
+      "hint": "Deduplicate by id.",
+      "difficulty": 0.85,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0043",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Use adaptive polling",
+      "practice": "adaptive polling",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect's system polls faster when changes are likely; what is this called?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Random polling",
+          "misconception": "unpredictable intervals"
+        },
+        {
+          "id": "B",
+          "text": "Fixed polling",
+          "misconception": "constant interval"
+        },
+        {
+          "id": "C",
+          "text": "No polling",
+          "misconception": "not polling at all"
+        },
+        {
+          "id": "D",
+          "text": "Adaptive polling",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Adjusting poll rate based on likelihood of change is adaptive polling. The tempting alternatives are fixed, absent, or random.",
+      "hint": "Adapt to change likelihood.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0044",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Use SSE instead of long poll",
+      "practice": "sse alternative",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "When should an architect replace long polling with SSE?",
+      "answer": {
+        "exemplar": "Replace long polling with SSE when the server pushes frequent updates and clients mostly receive, because SSE reuses one connection and reconnects automatically."
+      },
+      "explanation": "SSE is better for frequent server pushes with mostly receiving clients. The tempting retention of long polling wastes connections.",
+      "hint": "Frequent pushes favor SSE.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0045",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Ignore untrusted client fields",
+      "practice": "untrusted fields",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client body includes a field the server should compute; what should the server do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trust and store the client value",
+          "misconception": "trusts client input"
+        },
+        {
+          "id": "B",
+          "text": "Ignore the field and compute it server-side",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Return an error for any extra field",
+          "misconception": "overly strict"
+        },
+        {
+          "id": "D",
+          "text": "Store both and choose later",
+          "misconception": "defers validation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The server should ignore client-computed fields and compute them itself. The tempting alternatives trust, reject all, or defer.",
+      "hint": "Server computes authoritative values.",
+      "difficulty": 0.45,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.12-0046",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Use operational transforms",
+      "practice": "operational transform",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect wants concurrent edits to merge without silent loss; which technique helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Locking the whole document",
+          "misconception": "blocks concurrency"
+        },
+        {
+          "id": "B",
+          "text": "Last-write-wins only",
+          "misconception": "silently discards"
+        },
+        {
+          "id": "C",
+          "text": "Operational transformation or CRDTs",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Random edit selection",
+          "misconception": "unpredictable loss"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Operational transforms or CRDTs merge concurrent edits without silent loss. The tempting alternatives discard, block, or randomize.",
+      "hint": "Use OT or CRDTs.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0047",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose websocket for gaming",
+      "practice": "gaming transport",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect builds a fast-paced multiplayer game; which transport fits real-time state?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Static file hosting",
+          "misconception": "no updates"
+        },
+        {
+          "id": "B",
+          "text": "Hourly REST polling",
+          "misconception": "too slow"
+        },
+        {
+          "id": "C",
+          "text": "Email updates",
+          "misconception": "not real-time"
+        },
+        {
+          "id": "D",
+          "text": "Websocket for low-latency bidirectional state",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Websockets provide the low-latency bidirectional state updates games need. The tempting alternatives are too slow or static.",
+      "hint": "Games need low-latency bidirectional.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0048",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Reconcile claims and implementation",
+      "practice": "reconcile claim",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A service claims strong consistency but uses last-write-wins across replicas; how to reconcile?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep the claim and ignore the merge rule",
+          "misconception": "misleading users"
+        },
+        {
+          "id": "B",
+          "text": "Downgrade the claim to eventual consistency",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Remove all merges entirely",
+          "misconception": "not feasible"
+        },
+        {
+          "id": "D",
+          "text": "Claim consistency is irrelevant",
+          "misconception": "avoids accountability"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The claim should be downgraded to eventual consistency to match LWW. The tempting alternatives mislead, overreact, or evade.",
+      "hint": "Align claim with behavior.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.12-0049",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Use cache tags for bulk invalidation",
+      "practice": "cache tags",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How can an architect invalidate many related cache entries at once?",
+      "answer": {
+        "exemplar": "Tag cache entries with categories and invalidate by tag when a related write occurs, clearing all affected entries together."
+      },
+      "explanation": "Tag-based invalidation clears groups of related entries efficiently. The tempting key-by-key approach misses related entries.",
+      "hint": "Invalidate by tag.",
+      "difficulty": 0.85,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0050",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Use cleanup in effects",
+      "practice": "effect cleanup",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "In a component, where should a handler be unregistered?",
+      "options": [
+        {
+          "id": "A",
+          "text": "On the next render only",
+          "misconception": "misses unmount"
+        },
+        {
+          "id": "B",
+          "text": "Never, to keep it active",
+          "misconception": "leaks resources"
+        },
+        {
+          "id": "C",
+          "text": "In the effect's cleanup function",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "In a global destructor",
+          "misconception": "too broad"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Unregistering in the effect cleanup handles unmount and dependency changes. The tempting alternatives leak or miss lifecycle events.",
+      "hint": "Clean up in the effect.",
+      "difficulty": 0.25,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0051",
+      "topic": "Choosing an invalidation strategy for a cache",
+      "learningObjective": "Use stale-while-revalidate",
+      "practice": "swr",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "An architect serves stale cache data while fetching fresh data in the background; what strategy is this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No caching",
+          "misconception": "ignores cache"
+        },
+        {
+          "id": "B",
+          "text": "Cache-aside with no revalidation",
+          "misconception": "serves stale forever"
+        },
+        {
+          "id": "C",
+          "text": "Write-through only",
+          "misconception": "not about reads"
+        },
+        {
+          "id": "D",
+          "text": "Stale-while-revalidate",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Serving stale while revalidating in the background is stale-while-revalidate. The tempting alternatives serve stale forever or ignore caching.",
+      "hint": "SWR refreshes in background.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0052",
+      "topic": "A subscription that is registered twice and torn down once",
+      "learningObjective": "Avoid duplicate side effects",
+      "practice": "side effects",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What is the main danger of a leaked subscription in a UI?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The UI becomes faster",
+          "misconception": "leaks do not improve speed"
+        },
+        {
+          "id": "B",
+          "text": "Duplicate side effects like repeated renders or requests",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Nothing happens",
+          "misconception": "ignores side effects"
+        },
+        {
+          "id": "D",
+          "text": "The subscription self-corrects",
+          "misconception": "no auto correction"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Leaked subscriptions cause duplicate side effects such as repeated renders or requests. The tempting assumptions imagine benefits or no impact.",
+      "hint": "Leaks cause duplicate effects.",
+      "difficulty": 0.45,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.12-0053",
+      "topic": "A polling interval chosen without counting the cost",
+      "learningObjective": "Use backoff on errors",
+      "practice": "polling backoff",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect's polling keeps failing; what should happen to the interval?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep it fixed regardless",
+          "misconception": "ignores failures"
+        },
+        {
+          "id": "B",
+          "text": "Decrease the interval to retry faster",
+          "misconception": "worsens load"
+        },
+        {
+          "id": "C",
+          "text": "Increase the interval with backoff",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Stop polling forever",
+          "misconception": "overreacts"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Backing off on failures reduces load and gives the server time to recover. The tempting extremes retry harder, ignore failures, or stop forever.",
+      "hint": "Back off on failure.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.12-0054",
+      "topic": "A long poll and the connections it holds open",
+      "learningObjective": "Use HTTP/2 for long poll",
+      "practice": "http2 multiplex",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How can HTTP/2 reduce long-poll connection overhead?",
+      "answer": {
+        "exemplar": "HTTP/2 multiplexes many long-poll streams over one connection, reducing the per-client connection cost compared with separate HTTP/1 connections."
+      },
+      "explanation": "Multiplexing reduces per-client connection costs. The tempting assumption that each poll needs its own connection ignores HTTP/2.",
+      "hint": "Multiplex over one connection.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0055",
+      "topic": "Server authoritative state and a body the client filled in",
+      "learningObjective": "Use server-computed fields",
+      "practice": "server computed",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client sends a price in the body; how should an e-commerce server handle it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reject all orders with prices",
+          "misconception": "overly strict"
+        },
+        {
+          "id": "B",
+          "text": "Trust the client price",
+          "misconception": "trusts client input"
+        },
+        {
+          "id": "C",
+          "text": "Average client and server prices",
+          "misconception": "nonsensical compromise"
+        },
+        {
+          "id": "D",
+          "text": "Recompute price from catalog and ignore client value",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The server must recompute prices from authoritative catalog data. The tempting alternatives trust, compromise, or overreject.",
+      "hint": "Server recomputes price.",
+      "difficulty": 0.75,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.12-0056",
+      "topic": "A merge rule and the edit it discards without record",
+      "learningObjective": "Prefer manual conflict resolution",
+      "practice": "manual conflict",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "When should an architect require manual conflict resolution instead of auto-merge?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Always auto-merge to save time",
+          "misconception": "risks silent loss"
+        },
+        {
+          "id": "B",
+          "text": "When both edits are meaningful and must not be lost",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Never allow conflicts",
+          "misconception": "unrealistic"
+        },
+        {
+          "id": "D",
+          "text": "Discard all conflicting edits",
+          "misconception": "loses data"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Manual resolution preserves meaningful edits that auto-merge might discard. The tempting shortcuts risk data loss or are unrealistic.",
+      "hint": "Preserve meaningful edits.",
+      "difficulty": 0.85,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.12-0057",
+      "topic": "Choosing a transport for updates",
+      "learningObjective": "Choose SSE for notifications",
+      "practice": "notification transport",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect sends browser notifications from the server only; which transport is lightest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Repeated POST polling",
+          "misconception": "wasteful"
+        },
+        {
+          "id": "B",
+          "text": "Full websocket cluster",
+          "misconception": "overkill for one way"
+        },
+        {
+          "id": "C",
+          "text": "Server-sent events",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Email push",
+          "misconception": "not in-browser live"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "SSE is the lightest for server-only notifications. The tempting alternatives are heavier or unsuitable.",
+      "hint": "One-way favors SSE.",
+      "difficulty": 0.25,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.12-0058",
+      "topic": "A consistency claim contradicted by the service's own merge rule",
+      "learningObjective": "Document consistency limitations",
+      "practice": "document limits",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "An architect must document a service's consistency behavior; what should be stated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only performance metrics",
+          "misconception": "omits correctness"
+        },
+        {
+          "id": "B",
+          "text": "An idealized strong consistency claim",
+          " misconsception": "misleading"
+        },
+        {
+          "id": "C",
+          "text": "Nothing about consistency",
+          "misconception": "lacks transparency"
+        },
+        {
+          "id": "D",
+          "text": "The actual merge rule and its implications",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documentation should state the actual merge rule and its implications. The tempting alternatives mislead or omit correctness.",
+      "hint": "Document actual behavior.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.12-0059",
+      "topic": "A cache entry that no write ever cleared",
+      "learningObjective": "Use TTL as safety net",
+      "practice": "ttl safety",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should an architect set a TTL even with explicit invalidation?",
+      "answer": {
+        "exemplar": "A TTL acts as a safety net so that if an invalidation is missed, stale entries still expire eventually rather than persisting forever."
+      },
+      "explanation": "TTL provides a fallback when invalidation is missed. The tempting reliance on invalidation alone risks permanent staleness.",
+      "hint": "TTL is a safety net.",
+      "difficulty": 0.45,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.12-0060",
+      "topic": "A handler registered again by a second mount",
+      "learningObjective": "Prevent memory leaks from handlers",
+      "practice": "memory leak",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "What is the long-term effect of repeatedly mounting a component that leaks handlers?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Performance improves",
+          "misconception": "leaks do not help"
+        },
+        {
+          "id": "B",
+          "text": "Memory and CPU usage grow over time",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Nothing changes",
+          "misconception": "ignores accumulation"
+        },
+        {
+          "id": "D",
+          "text": "The handlers cancel themselves",
+          "misconception": "no auto cleanup"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Leaked handlers accumulate, increasing memory and CPU usage over time. The tempting assumptions imagine improvement, no change, or auto cleanup.",
+      "hint": "Leaks accumulate.",
+      "difficulty": 0.55,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    }
+  ]
+}
