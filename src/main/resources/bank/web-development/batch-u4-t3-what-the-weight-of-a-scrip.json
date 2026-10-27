@@ -1,0 +1,2739 @@
+{
+  "meta": {
+    "subject": "WEB_DEVELOPMENT",
+    "unit": "Unit 4",
+    "unitNum": 4,
+    "dir": "web-development",
+    "prefix": "web",
+    "slot": 3,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-web-development",
+    "reviewer": "bank-review-web-development",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "web-4.3-0001",
+      "topic": "What the weight of a script bundle is made of",
+      "learningObjective": "Identify what contributes to script bundle size",
+      "practice": "Bundle size",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team ships a minified JavaScript bundle and wonders why it is still large; what usually dominates the weight?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Third-party dependencies pulled in transitively, often the largest share",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The minifier's own output overhead and wrapper code around every module",
+          "misconception": "blames the tooling instead of dependency weight"
+        },
+        {
+          "id": "C",
+          "text": "Whitespace and comments left behind by a misconfigured build step",
+          "misconception": "assumes minification failed entirely"
+        },
+        {
+          "id": "D",
+          "text": "Source maps shipped to production alongside the bundle",
+          "misconception": "confuses dev artifacts with production payload"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Third-party code usually dominates bundle weight, not minifier overhead or whitespace. Source maps are typically excluded from production builds.",
+      "hint": "Check the dependency tree before blaming the minifier.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0002",
+      "topic": "What lets a build drop an unused module",
+      "learningObjective": "Explain tree-shaking of unused exports",
+      "practice": "Tree shaking",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A bundler removes an exported function that no other module imports; which property of the module system makes this safe?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The runtime garbage collector frees unreachable functions",
+          "misconception": "attributes build-time removal to runtime GC"
+        },
+        {
+          "id": "B",
+          "text": "Dynamic require calls resolve at runtime so the bundler can skip them",
+          "misconception": "confuses dynamic requires with static analysis"
+        },
+        {
+          "id": "C",
+          "text": "Static import and export declarations allow whole-module analysis",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "ES modules are always smaller because they use less syntax",
+          "misconception": "equates module format with automatic size reduction"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Static imports and exports let the bundler prove a binding is unused. Dynamic requires and runtime GC are not build-time mechanisms.",
+      "hint": "Static structure enables static analysis.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "web-4.3-0003",
+      "topic": "How a wait after the last keystroke shapes a request curve",
+      "learningObjective": "Describe debounce effect on request rate",
+      "practice": "Debounce",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A search box debounces input by 300 ms; a user types five characters with 50 ms between keystrokes, then stops. How many requests fire?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Five requests, one per keystroke, because each schedules a timer",
+          "misconception": "ignores that debounce resets the timer each keystroke"
+        },
+        {
+          "id": "B",
+          "text": "Two requests, one mid-stream and one at the end",
+          "misconception": "invents an intermediate fire that debounce prevents"
+        },
+        {
+          "id": "C",
+          "text": "Zero requests, because the user never pressed Enter",
+          "misconception": "requires an explicit submit event"
+        },
+        {
+          "id": "D",
+          "text": "One request, fired 300 ms after the final keystroke",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Debounce resets the timer on each keystroke, so only the final pause triggers a request. No Enter key is needed.",
+      "hint": "Each keystroke restarts the countdown.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-4.3-0004",
+      "topic": "A token bucket and the requests it turns away",
+      "learningObjective": "Compute whether a burst exceeds bucket capacity",
+      "practice": "Rate limit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A token bucket holds 10 tokens, refills 2 per second, and a client sends 12 requests in one instant. How many are rejected?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "The bucket can serve 10 immediately; the remaining 2 exceed capacity and are rejected. Refill has not yet occurred.",
+      "hint": "Subtract capacity from the burst size.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-4.3-0005",
+      "topic": "One query per row of a result set",
+      "learningObjective": "Recognize the N+1 query problem",
+      "practice": "N+1 queries",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A page lists 50 posts and runs one query for posts plus one query per post to fetch its author. What is this pattern called?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A deadlock from concurrent transactions",
+          "misconception": "attributes slow reads to lock contention"
+        },
+        {
+          "id": "B",
+          "text": "A Cartesian product explosion",
+          "misconception": "confuses repeated lookups with cross join"
+        },
+        {
+          "id": "C",
+          "text": "An N+1 query problem",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A cache stampede from cold start",
+          "misconception": "mislabels repeated DB hits as cache behavior"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "One query for the list plus one per item is the N+1 pattern. It is not a cross join, deadlock, or cache stampede.",
+      "hint": "Count the queries: 1 plus N.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0006",
+      "topic": "Paging by offset after a row above the page is deleted",
+      "learningObjective": "Predict offset pagination drift after deletion",
+      "practice": "Pagination",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A list is paginated with page size 10 and offset 20; the item at position 5 globally is deleted. How many items on the current page shift into the previous page's range?",
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "Deleting one item above the page shifts every later item up by one position, so one item crosses the boundary into the previous page.",
+      "hint": "One deletion shifts subsequent rows by one.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-4.3-0007",
+      "topic": "Matching a host against an allowed source",
+      "learningObjective": "Evaluate CORS origin matching",
+      "practice": "CORS",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A browser sends an Origin header of https://app.example.com and the server allows https://example.com. Will the browser permit the response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because the host names share a root domain",
+          "misconception": "assumes suffix matching for origins"
+        },
+        {
+          "id": "B",
+          "text": "No, because cross-origin requests are always blocked",
+          "misconception": "overgeneralizes CORS to block all cross-origin traffic"
+        },
+        {
+          "id": "C",
+          "text": "Yes, because HTTPS origins are automatically trusted",
+          "misconception": "believes scheme alone grants trust"
+        },
+        {
+          "id": "D",
+          "text": "No, origins must match exactly including subdomain",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "CORS compares origins exactly, including host and port. Shared root domains do not count.",
+      "hint": "Origin equality is exact, not suffix-based.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0008",
+      "topic": "A stored value written into the page as markup",
+      "learningObjective": "Identify stored XSS from unescaped output",
+      "practice": "XSS",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A comment body is saved to the database and later rendered with innerHTML without escaping. What vulnerability does this create?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CSRF because the comment changes server state",
+          "misconception": "mislabels markup injection as CSRF"
+        },
+        {
+          "id": "B",
+          "text": "Reflected XSS that only affects the submitting user",
+          "misconception": "confuses stored with reflected delivery"
+        },
+        {
+          "id": "C",
+          "text": "Stored XSS that executes when any user views the comment",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "SQL injection because the value reaches the database",
+          "misconception": "confuses output encoding with input querying"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Persisting unescaped markup and rendering it executes script for every viewer. It is not reflected XSS, CSRF, or SQL injection.",
+      "hint": "Persistence plus unescaped rendering equals stored XSS.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "web-4.3-0009",
+      "topic": "A value the build wrote into the shipped file",
+      "learningObjective": "Recognize build-time environment inlining",
+      "practice": "Build config",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A React app reads process.env.API_URL and the value appears in the production bundle. When was that value decided?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At request time, injected by the CDN",
+          "misconception": "attributes static bundling to CDN injection"
+        },
+        {
+          "id": "B",
+          "text": "At runtime, from the server's environment variables",
+          "misconception": "assumes server env reaches the browser"
+        },
+        {
+          "id": "C",
+          "text": "At install time, from package.json scripts",
+          "misconception": "confuses dependency install with build"
+        },
+        {
+          "id": "D",
+          "text": "At build time, by the bundler replacing the reference",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Bundlers inline process.env references during the build. The browser never sees the server environment.",
+      "hint": "process.env in client code is replaced at build.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 33,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "web-4.3-0010",
+      "topic": "A policy so tight the page stops working",
+      "learningObjective": "Identify CSP breaking inline scripts",
+      "practice": "CSP",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A page sets Content-Security-Policy: default-src 'self' and its inline script stops running. Stage 1: what blocked it? Stage 2: which directive change restores it safely?",
+      "options": [
+        {
+          "id": "A",
+          "text": "default-src blocked styles; add style-src 'unsafe-inline'",
+          "misconception": "misidentifies the blocked resource type"
+        },
+        {
+          "id": "B",
+          "text": "script-src 'self' blocked inline; add script-src with a nonce or hash",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "frame-ancestors blocked framing; remove the header",
+          "misconception": "confuses framing policy with script execution"
+        },
+        {
+          "id": "D",
+          "text": "connect-src blocked fetch; allow the API origin",
+          "misconception": "attributes script failure to network policy"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "default-src 'self' disallows inline scripts. A nonce or hash on script-src restores execution without unsafe-inline.",
+      "hint": "Inline scripts need a nonce or hash, not removal.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 21,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "web-4.3-0011",
+      "topic": "Two identical writes from one click",
+      "learningObjective": "Recognize double-submit from missing disable",
+      "practice": "Double submit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A submit button is not disabled after click and the server creates two orders. What is the most direct client-side fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Validate the form twice on the client",
+          "misconception": "believes repeated validation stops duplicates"
+        },
+        {
+          "id": "B",
+          "text": "Add a longer timeout before allowing another submit",
+          "misconception": "uses timing instead of state to prevent duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Disable the button immediately on submit and re-enable on response",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Switch the request to GET so it becomes idempotent",
+          "misconception": "misunderstands HTTP method semantics"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Disabling the button on submit prevents the second click. Timeouts and extra validation do not address the root cause.",
+      "hint": "Guard the action with UI state, not timing.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "web-4.3-0012",
+      "topic": "A health check that only asks the process",
+      "learningObjective": "Distinguish liveness from readiness",
+      "practice": "Health check",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A /health endpoint returns 200 as long as the process is running, even when the database is down. Which check is this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A metrics endpoint in disguise",
+          "misconception": "mistakes health status for metrics"
+        },
+        {
+          "id": "B",
+          "text": "A readiness check that is misconfigured",
+          "misconception": "labels a process check as readiness"
+        },
+        {
+          "id": "C",
+          "text": "A startup probe that never completes",
+          "misconception": "confuses probe types"
+        },
+        {
+          "id": "D",
+          "text": "A liveness check, not a readiness check",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Returning 200 while the process runs is liveness. Readiness would also verify dependencies like the database.",
+      "hint": "Liveness asks if the process lives; readiness asks if it can serve.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0013",
+      "topic": "Counting statements before and after joining a lookup",
+      "learningObjective": "Compare query counts with and without join",
+      "practice": "Query count",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A report runs 1 query for 100 orders, then 100 queries for customers. After rewriting with a join it runs 1 query. How many queries were eliminated?",
+      "answer": {
+        "value": 100,
+        "tolerance": 0.01
+      },
+      "explanation": "Originally 101 queries ran; after the join, 1 runs, so 100 were eliminated.",
+      "hint": "Subtract the new count from the old total.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0014",
+      "topic": "What an index changes about the work a lookup does",
+      "learningObjective": "Explain index lookup cost change",
+      "practice": "Indexing",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Adding a B-tree index on email changes a lookup from scanning every row to what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A hash of the entire table",
+          "misconception": "confuses B-tree with hash lookup"
+        },
+        {
+          "id": "B",
+          "text": "A logarithmic traversal of the index tree",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "A sort of all rows by email",
+          "misconception": "attributes lookup to sorting cost"
+        },
+        {
+          "id": "D",
+          "text": "A full scan of a smaller covering index",
+          "misconception": "assumes the index still scans all entries"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A B-tree lookup traverses tree levels in logarithmic time. It is not a hash, sort, or full scan.",
+      "hint": "Tree depth gives logarithmic steps.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "web-4.3-0015",
+      "topic": "What promising that a file never changes does and does not promise",
+      "learningObjective": "Distinguish immutable URL from immutable content",
+      "practice": "Cache immutable",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A build emits app.a3f9c2.js with Cache-Control: immutable. What does this guarantee about the file?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The browser skips validation even after cache eviction",
+          "misconception": "extends immutable beyond cache lifetime"
+        },
+        {
+          "id": "B",
+          "text": "The file can never be updated by any future deployment",
+          "misconception": "confuses immutable cache entry with immutable product"
+        },
+        {
+          "id": "C",
+          "text": "The URL's content will not change while cached; the URL itself can still be replaced",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The server promises the bytes are cryptographically signed",
+          "misconception": "adds a signing guarantee not implied"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "immutable tells caches not to revalidate while the entry is fresh. A new build simply uses a new hashed URL.",
+      "hint": "Immutable applies to the cached entry, not the product forever.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 37,
+        "p75Sec": 57
+      }
+    },
+    {
+      "id": "web-4.3-0016",
+      "topic": "The stages a service worker passes through",
+      "learningObjective": "Order service worker lifecycle states",
+      "practice": "Service worker",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "ORDERING",
+      "stimulus": null,
+      "stem": "Place the service worker lifecycle stages in order from first to last.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Redundant, then installing, then waiting, then activated",
+          "misconception": "begins with terminal state"
+        },
+        {
+          "id": "B",
+          "text": "Activated, then installing, then waiting, then redundant",
+          "misconception": "reverses the lifecycle order"
+        },
+        {
+          "id": "C",
+          "text": "Waiting, then installing, then activating, then redundant",
+          "misconception": "starts with waiting before install"
+        },
+        {
+          "id": "D",
+          "text": "Installing, then installed/waiting, then activating, then activated",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A service worker installs, waits if another controls the page, activates, then becomes active. Redundant is a terminal failure state.",
+      "hint": "Install comes before activate.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0017",
+      "topic": "Splitting a bundle at a route boundary",
+      "learningObjective": "Explain route-based code splitting",
+      "practice": "Code splitting",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why does a route-based split reduce initial load time?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Routes share a single cached bundle across navigations",
+          "misconception": "confuses splitting with bundling all together"
+        },
+        {
+          "id": "B",
+          "text": "Only the code for the current route is downloaded initially",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The router prefetches every route at startup",
+          "misconception": "describes prefetching, not splitting"
+        },
+        {
+          "id": "D",
+          "text": "CSS is inlined into each route chunk",
+          "misconception": "attributes gain to CSS inlining"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Route-based splitting defers non-current route code. Shared bundles and prefetching describe other strategies.",
+      "hint": "Split by route means load by route.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0018",
+      "topic": "Telling the browser how many pixels an image needs",
+      "learningObjective": "Use width and height to prevent CLS",
+      "practice": "Image sizing",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Adding width and height attributes to an img tag mainly prevents which problem?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CORS errors on the image request",
+          "misconception": "attributes layout to CORS"
+        },
+        {
+          "id": "B",
+          "text": "The image being downloaded twice",
+          "misconception": "confuses sizing with caching"
+        },
+        {
+          "id": "C",
+          "text": "Layout shift as the image loads",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The image being blocked by CSP",
+          "misconception": "confuses dimensions with content policy"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Width and height let the browser reserve space, preventing cumulative layout shift. They do not affect caching or CORS.",
+      "hint": "Reserve space before the bytes arrive.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0019",
+      "topic": "Painting text in a font that is not ready yet",
+      "learningObjective": "Describe font-display swap behavior",
+      "practice": "Font loading",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "With font-display: swap, what happens to text before the web font loads?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It skips rendering entirely to save bandwidth",
+          "misconception": "confuses font loading with resource blocking"
+        },
+        {
+          "id": "B",
+          "text": "It stays invisible until the web font loads",
+          "misconception": "describes block behavior"
+        },
+        {
+          "id": "C",
+          "text": "It renders only after a 3-second timeout",
+          "misconception": "invents a fixed timeout"
+        },
+        {
+          "id": "D",
+          "text": "It renders in a fallback font, then swaps when the web font arrives",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "swap shows fallback text immediately and swaps once the font is ready. block keeps text invisible briefly.",
+      "hint": "Swap means show fallback first.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "web-4.3-0020",
+      "topic": "What a cache directive forbids a shared cache from doing",
+      "learningObjective": "Interpret private cache directive",
+      "practice": "Cache control",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Cache-Control: private means a shared cache (CDN) may not do what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Compress the response body",
+          "misconception": "confuses privacy with compression"
+        },
+        {
+          "id": "B",
+          "text": "Store the response for reuse by other users",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Validate the response with the origin",
+          "misconception": "confuses private with no-store"
+        },
+        {
+          "id": "D",
+          "text": "Serve stale content while revalidating",
+          "misconception": "attributes stale serving to privacy"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "private forbids shared caches from storing the response for other users. The browser cache may still store it.",
+      "hint": "Private means not shared.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "web-4.3-0021",
+      "topic": "What an image format trades away",
+      "learningObjective": "Compare image format tradeoffs",
+      "practice": "Image format",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team chooses WebP over PNG for photos. What is the typical tradeoff?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No transparency support",
+          "misconception": "confuses WebP with JPEG"
+        },
+        {
+          "id": "B",
+          "text": "Lossless only, with larger files than PNG",
+          "misconception": "reverses WebP's typical photo use"
+        },
+        {
+          "id": "C",
+          "text": "Smaller files with lossy compression, at some quality cost",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Unlimited color depth",
+          "misconception": "invents an unsupported capability"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "WebP photos are usually lossy and smaller than PNG. WebP does support transparency.",
+      "hint": "Lossy photos trade quality for size.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 33,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "web-4.3-0022",
+      "topic": "One long task and everything waiting behind it",
+      "learningObjective": "Explain main-thread blocking",
+      "practice": "Long task",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A 200 ms script runs on the main thread. What happens to user input during it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Input runs on a separate thread",
+          "misconception": "confuses main thread with workers"
+        },
+        {
+          "id": "B",
+          "text": "Input cancels the running script",
+          "misconception": "believes user input preempts JS"
+        },
+        {
+          "id": "C",
+          "text": "The browser drops the input event",
+          "misconception": "assumes events are discarded"
+        },
+        {
+          "id": "D",
+          "text": "Input is queued and handled after the task completes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The main thread cannot process events while busy, so input waits. It is not cancelled or dropped.",
+      "hint": "One thread means queued work waits.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "web-4.3-0023",
+      "topic": "Serving a stored copy while checking for a newer one",
+      "learningObjective": "Describe stale-while-revalidate",
+      "practice": "SWR",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Cache-Control: max-age=60, stale-while-revalidate=30 allows a cache to do what after 60 seconds?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Delete the entry immediately at 60 seconds",
+          "misconception": "ignores the stale window"
+        },
+        {
+          "id": "B",
+          "text": "Serve stale content for up to 30 more seconds while fetching fresh",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Serve stale content forever",
+          "misconception": "extends stale window indefinitely"
+        },
+        {
+          "id": "D",
+          "text": "Block requests until fresh content arrives",
+          "misconception": "confuses SWR with blocking revalidation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "After max-age, the cache may serve stale for the SWR window while revalidating in the background.",
+      "hint": "Stale-while-revalidate serves then refreshes.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0024",
+      "topic": "The header that decides whether a page may be framed",
+      "learningObjective": "Identify X-Frame-Options purpose",
+      "practice": "Framing",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which header prevents a page from being embedded in an iframe on another site?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Strict-Transport-Security",
+          "misconception": "attributes framing control to HSTS"
+        },
+        {
+          "id": "B",
+          "text": "X-Content-Type-Options",
+          "misconception": "confuses MIME sniffing protection with framing"
+        },
+        {
+          "id": "C",
+          "text": "X-Frame-Options (or CSP frame-ancestors)",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Referrer-Policy",
+          "misconception": "confuses referrer control with framing"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "X-Frame-Options and CSP frame-ancestors control framing. The others handle MIME, transport, and referrer.",
+      "hint": "Frame control is in the name.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0025",
+      "topic": "The shape of a call curve on a stream of events",
+      "learningObjective": "Identify throttle call pattern",
+      "practice": "Throttle",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A throttle with a 200 ms window receives 10 events in 50 ms. How many calls execute immediately?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All ten calls batched at the end",
+          "misconception": "confuses throttle with debounce"
+        },
+        {
+          "id": "B",
+          "text": "Ten calls, one per event",
+          "misconception": "confuses throttle with no limiting"
+        },
+        {
+          "id": "C",
+          "text": "Zero calls until the window ends",
+          "misconception": "describes trailing-only throttle"
+        },
+        {
+          "id": "D",
+          "text": "One call immediately, the rest during the window",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A leading-edge throttle fires the first event immediately and suppresses the rest within the window.",
+      "hint": "Throttle fires first, then cools down.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0026",
+      "topic": "Grouping the calls made inside one frame",
+      "learningObjective": "Explain requestAnimationFrame batching",
+      "practice": "rAF",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why is requestAnimationFrame preferred over setTimeout for animations?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It runs on a separate thread",
+          "misconception": "attributes rAF to threading"
+        },
+        {
+          "id": "B",
+          "text": "It aligns callbacks to the display refresh, avoiding wasted frames",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It guarantees 60 fps regardless of load",
+          "misconception": "overstates rAF guarantees"
+        },
+        {
+          "id": "D",
+          "text": "It skips frames automatically when the tab is hidden",
+          "misconception": "confuses visibility handling with rAF purpose"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "rAF schedules work before paint, matching the refresh rate and avoiding redundant renders. It does not guarantee fps or thread separation.",
+      "hint": "Align to the paint cycle.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0027",
+      "topic": "Checking a request against the token held for its session",
+      "learningObjective": "Explain CSRF token validation",
+      "practice": "CSRF",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A server rejects a POST because its CSRF token does not match the one in the session. What attack does this prevent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A replay attack using an old token",
+          "misconception": "describes token reuse, not forgery"
+        },
+        {
+          "id": "B",
+          "text": "A SQL injection via the form body",
+          "misconception": "confuses CSRF with SQL injection"
+        },
+        {
+          "id": "C",
+          "text": "A cross-site request forged by another origin",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A man-in-the-middle reading the token",
+          "misconception": "attributes protection to confidentiality"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "CSRF tokens ensure the request originated from the site's own form. They do not prevent SQL injection or MITM.",
+      "hint": "CSRF stops forged cross-site requests.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0028",
+      "topic": "A legacy framing header beside a modern policy",
+      "learningObjective": "Compare X-Frame-Options and CSP",
+      "practice": "Framing headers",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A site sends both X-Frame-Options: DENY and Content-Security-Policy: frame-ancestors 'self'. Which is more flexible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither allows any framing",
+          "misconception": "overgeneralizes DENY"
+        },
+        {
+          "id": "B",
+          "text": "X-Frame-Options, because it supports origin lists",
+          "misconception": "attributes list support to the legacy header"
+        },
+        {
+          "id": "C",
+          "text": "They are identical in capability",
+          "misconception": "ignores CSP's richer syntax"
+        },
+        {
+          "id": "D",
+          "text": "CSP frame-ancestors, because it allows listing specific origins",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "CSP frame-ancestors supports origin lists and wildcards. X-Frame-Options only offers DENY or SAMEORIGIN.",
+      "hint": "CSP is the richer mechanism.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "web-4.3-0029",
+      "topic": "What a recorded version list guarantees",
+      "learningObjective": "Explain SRI hash verification",
+      "practice": "SRI",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A script tag includes integrity=\"sha384-...\". What does the browser verify before executing it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The script is signed by a trusted CA",
+          "misconception": "confuses SRI with code signing"
+        },
+        {
+          "id": "B",
+          "text": "The downloaded bytes hash to the declared value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The script originates from the same origin",
+          "misconception": "confuses integrity with CORS"
+        },
+        {
+          "id": "D",
+          "text": "The script has not expired",
+          "misconception": "attributes freshness to integrity"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "SRI verifies the response body hashes to the declared digest. It is not code signing or origin checks.",
+      "hint": "Integrity means byte-level hash match.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "web-4.3-0030",
+      "topic": "What a failure response puts in the body",
+      "learningObjective": "Describe HTTP error body conventions",
+      "practice": "HTTP errors",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A 404 response often includes an HTML or JSON body. Is that body required by HTTP?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, the body must be empty for 4xx",
+          "misconception": "invents an emptiness rule"
+        },
+        {
+          "id": "B",
+          "text": "Yes, every error must include a human-readable message",
+          "misconception": "adds a requirement not in the spec"
+        },
+        {
+          "id": "C",
+          "text": "No, the status code alone is sufficient; the body is optional",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No, but the body must be a JSON object",
+          "misconception": "restricts optional body format"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "HTTP status codes stand alone; response bodies are optional and format-agnostic.",
+      "hint": "Status code is enough; body is extra.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "web-4.3-0031",
+      "topic": "Finding one request among many identical failures",
+      "learningObjective": "Use correlation IDs for debugging",
+      "practice": "Observability",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Many requests fail with the same 500. What best helps trace one failing request through logs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The user's IP address",
+          "misconception": "IPs are shared and not request-specific"
+        },
+        {
+          "id": "B",
+          "text": "The HTTP status code alone",
+          "misconception": "status codes are not unique per request"
+        },
+        {
+          "id": "C",
+          "text": "The response timestamp to the millisecond",
+          "misconception": "timestamps collide under load"
+        },
+        {
+          "id": "D",
+          "text": "A unique request or correlation ID propagated to all services",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A correlation ID uniquely identifies a request across services. Status codes, timestamps, and IPs are not unique enough.",
+      "hint": "Unique ID beats shared metadata.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0032",
+      "topic": "A page that checks and a server that does not",
+      "learningObjective": "Identify client-only validation risk",
+      "practice": "Validation",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A form validates email format only in JavaScript and the server accepts anything. What is the risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The browser blocks all invalid submissions automatically",
+          "misconception": "overstates client enforcement"
+        },
+        {
+          "id": "B",
+          "text": "Attackers bypass client validation and submit malformed data",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Server-side validation becomes redundant",
+          "misconception": "reverses the dependency"
+        },
+        {
+          "id": "D",
+          "text": "CSS breaks when validation fails",
+          "misconception": "attributes data risk to styling"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Client validation is UX only; without server validation, malformed or malicious data gets through.",
+      "hint": "Client checks are convenience, not security.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0033",
+      "topic": "A dependency the build already knows about",
+      "learningObjective": "Explain peer dependency resolution",
+      "practice": "Dependencies",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A library declares react as a peer dependency. What does that signal?",
+      "options": [
+        {
+          "id": "A",
+          "text": "react is optional and can be omitted",
+          "misconception": "confuses peer with optional dependency"
+        },
+        {
+          "id": "B",
+          "text": "The library bundles its own react copy",
+          "misconception": "confuses peer with bundled dependency"
+        },
+        {
+          "id": "C",
+          "text": "The host project must provide a compatible react version",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The library works with any react version automatically",
+          "misconception": "ignores version compatibility"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Peer dependencies expect the host to supply a compatible version. They are not bundled or automatically compatible.",
+      "hint": "Peer means the host provides it.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0034",
+      "topic": "A build that assumes where it is running",
+      "learningObjective": "Identify hardcoded base URL risk",
+      "practice": "Build config",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A frontend hardcodes API base URL to http://localhost:3000 and breaks in staging. What is the root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The build cached an old bundle",
+          "misconception": "blames caching without evidence"
+        },
+        {
+          "id": "B",
+          "text": "The staging server lacks a localhost interface",
+          "misconception": "blames infrastructure"
+        },
+        {
+          "id": "C",
+          "text": "CORS blocks localhost in staging",
+          "misconception": "attributes failure to CORS"
+        },
+        {
+          "id": "D",
+          "text": "Environment-specific config was baked into source instead of env vars",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Hardcoding environment-specific URLs breaks portability. The fix is externalized configuration via env vars.",
+      "hint": "Keep environment values out of source.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0035",
+      "topic": "Comparing the curves of two rate-shaping rules",
+      "learningObjective": "Compare debounce vs throttle curves",
+      "practice": "Rate shaping",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Stage 1: a user types continuously for 2 seconds. Stage 2: which fires more requests, debounce(300ms) or throttle(300ms)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Debounce fires several times; throttle fires once",
+          "misconception": "reverses the two behaviors"
+        },
+        {
+          "id": "B",
+          "text": "Throttle fires several times; debounce fires once after typing stops",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both fire the same number",
+          "misconception": "equates distinct rate shapes"
+        },
+        {
+          "id": "D",
+          "text": "Neither fires until Enter is pressed",
+          "misconception": "adds a submit requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Throttle fires on a fixed cadence during input; debounce waits for a pause. Over 2 seconds throttle fires multiple times.",
+      "hint": "Throttle paces; debounce waits.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "web-4.3-0036",
+      "topic": "What the first and second readers of a cached file wait for",
+      "learningObjective": "Explain cache hit vs revalidation wait",
+      "practice": "Caching",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The first reader of a cached asset waits for a network fetch; the second reader, while fresh, waits for what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A decompression pass",
+          "misconception": "confuses cache with compression"
+        },
+        {
+          "id": "B",
+          "text": "A revalidation round trip",
+          "misconception": "revalidates on every read"
+        },
+        {
+          "id": "C",
+          "text": "Nothing beyond reading from cache",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A signature verification",
+          "misconception": "adds verification not required"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A fresh cache hit is served without network. Revalidation only happens after expiry.",
+      "hint": "Fresh cache needs no network.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0037",
+      "topic": "Why a performance claim needs the number behind it",
+      "learningObjective": "Require metrics for perf claims",
+      "practice": "Performance",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A developer says a change made the page faster. What makes this claim credible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A passing lint check",
+          "misconception": "confuses code quality with speed"
+        },
+        {
+          "id": "B",
+          "text": "A visual impression of quicker loading",
+          "misconception": "relies on subjective perception"
+        },
+        {
+          "id": "C",
+          "text": "The number of lines of code removed",
+          "misconception": "equates LOC with performance"
+        },
+        {
+          "id": "D",
+          "text": "A before/after measurement with a defined metric and conditions",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Performance claims need reproducible metrics under stated conditions. Impressions and LOC do not suffice.",
+      "hint": "Measure, do not guess.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0038",
+      "topic": "The path from a change to traffic",
+      "learningObjective": "Trace CI/CD deploy path",
+      "practice": "Deployment",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "After a merge to main, what is the typical order before users see the change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Deploy to production, then run tests",
+          "misconception": "reverses test and deploy"
+        },
+        {
+          "id": "B",
+          "text": "Build, test, deploy to staging, promote to production",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Test locally only, then ship",
+          "misconception": "skips CI and staging"
+        },
+        {
+          "id": "D",
+          "text": "Ship to CDN, then build",
+          "misconception": "reverses build and ship"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Standard flow builds and tests, deploys to staging, then promotes to production. Testing after deploy or skipping stages is unsafe.",
+      "hint": "Build, test, stage, then promote.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0039",
+      "topic": "The token that a forged request cannot supply",
+      "learningObjective": "Identify anti-CSRF token role",
+      "practice": "CSRF token",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why can a forged cross-site request not include a valid CSRF token?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Browsers block all POST requests cross-origin",
+          "misconception": "overstates browser blocking"
+        },
+        {
+          "id": "B",
+          "text": "CSRF tokens are encrypted with the user's password",
+          "misconception": "adds password-based encryption"
+        },
+        {
+          "id": "C",
+          "text": "The token is tied to the user's session and not readable cross-origin",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The token changes on every keystroke",
+          "misconception": "invents per-keystroke rotation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "CSRF tokens are session-bound and unreadable by other origins due to same-origin policy. Browsers do not block all cross-origin POSTs.",
+      "hint": "Same-origin policy hides the token.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0040",
+      "topic": "What a recorded version list buys a build",
+      "learningObjective": "Explain lockfile reproducibility",
+      "practice": "Lockfile",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Committing a lockfile (package-lock.json) primarily guarantees what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Smaller node_modules",
+          "misconception": "confuses version pinning with size"
+        },
+        {
+          "id": "B",
+          "text": "Faster downloads by skipping the registry",
+          "misconception": "confuses lockfile with cache"
+        },
+        {
+          "id": "C",
+          "text": "Automatic security patching",
+          "misconception": "attributes patching to lockfile"
+        },
+        {
+          "id": "D",
+          "text": "Reproducible installs with exact dependency versions",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A lockfile pins the full dependency tree for reproducible installs. It does not cache, patch, or shrink installs.",
+      "hint": "Lockfile pins versions.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0041",
+      "topic": "What the weight of a script bundle is made of",
+      "learningObjective": "Identify heavy transitive deps",
+      "practice": "Bundle size",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A bundle analyzer shows moment.js as 300 KB. What is the most impactful first action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Minify the bundle again",
+          "misconception": "minification already applied"
+        },
+        {
+          "id": "B",
+          "text": "Replace with a lighter date library or native Intl",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Move moment.js to devDependencies",
+          "misconception": "devDeps do not reach production anyway"
+        },
+        {
+          "id": "D",
+          "text": "Increase the chunk size limit",
+          "misconception": "raises threshold instead of fixing weight"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Replacing a heavy dependency with a lighter alternative reduces weight directly. Re-minifying or raising limits does not.",
+      "hint": "Swap the heavy dependency.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "web-4.3-0042",
+      "topic": "What lets a build drop an unused module",
+      "learningObjective": "Enable tree-shaking via sideEffects",
+      "practice": "Tree shaking",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A package sets \"sideEffects\": false in package.json. What does this tell the bundler?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The package is safe to load asynchronously",
+          "misconception": "attributes async loading to sideEffects"
+        },
+        {
+          "id": "B",
+          "text": "The package has no runtime dependencies",
+          "misconception": "confuses side effects with dependencies"
+        },
+        {
+          "id": "C",
+          "text": "Unused exports can be safely removed",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The package must be cached forever",
+          "misconception": "confuses build hint with cache policy"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "sideEffects: false declares that importing a module has no global side effects, enabling tree-shaking of unused exports.",
+      "hint": "No side effects means safe removal.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0043",
+      "topic": "How a wait after the last keystroke shapes a request curve",
+      "learningObjective": "Implement debounce correctly",
+      "practice": "Debounce",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A debounce implementation calls the handler on every keystroke and cancels the previous timer. What is wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It requires a Promise",
+          "misconception": "adds an unnecessary async requirement"
+        },
+        {
+          "id": "B",
+          "text": "It leaks memory from cancelled timers",
+          "misconception": "timers are cleared, not leaked"
+        },
+        {
+          "id": "C",
+          "text": "It blocks the main thread",
+          "misconception": "attributes scheduling to blocking"
+        },
+        {
+          "id": "D",
+          "text": "It fires on every keystroke instead of after the pause",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Calling the handler on every keystroke defeats debounce. The handler should run only after the timer expires without reset.",
+      "hint": "Handler runs after the pause, not during typing.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-4.3-0044",
+      "topic": "A token bucket and the requests it turns away",
+      "learningObjective": "Compute refill timing",
+      "practice": "Rate limit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A bucket holds 5 tokens refilling 1 per second. After a burst empties it, how many seconds until 3 tokens are available?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Tokens refill at 1 per second, so 3 tokens require 3 seconds.",
+      "hint": "Divide needed tokens by refill rate.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0045",
+      "topic": "One query per row of a result set",
+      "learningObjective": "Fix N+1 with eager loading",
+      "practice": "N+1 queries",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "How does eager loading resolve an N+1 problem?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It caches each row after the first fetch",
+          "misconception": "confuses eager loading with caching"
+        },
+        {
+          "id": "B",
+          "text": "It fetches related rows in the initial query via a join or batch",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It defers all queries until render",
+          "misconception": "describes lazy loading, the opposite"
+        },
+        {
+          "id": "D",
+          "text": "It runs queries in parallel threads",
+          "misconception": "attributes fix to concurrency"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Eager loading retrieves related data upfront, avoiding per-row queries. It is not caching, deferral, or threading.",
+      "hint": "Fetch related data upfront.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0046",
+      "topic": "Paging by offset after a row above the page is deleted",
+      "learningObjective": "Compare cursor vs offset pagination",
+      "practice": "Pagination",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Why is cursor-based pagination more stable than offset after deletions?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It skips deleted rows automatically",
+          "misconception": "attributes filtering to cursor"
+        },
+        {
+          "id": "B",
+          "text": "It sorts rows randomly",
+          "misconception": "confuses stability with randomness"
+        },
+        {
+          "id": "C",
+          "text": "It anchors to a row value, not a numeric position",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It uses smaller page sizes",
+          "misconception": "confuses page size with stability"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Cursor pagination resumes after a known row value, so deletions do not shift the window. Offset positions shift.",
+      "hint": "Anchor to a value, not a number.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "web-4.3-0047",
+      "topic": "Matching a host against an allowed source",
+      "learningObjective": "Validate origin allowlist securely",
+      "practice": "CORS",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A server reflects the request Origin header back as Access-Control-Allow-Origin. What is the risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cookies are automatically included",
+          "misconception": "confuses origin reflection with credentials"
+        },
+        {
+          "id": "B",
+          "text": "The browser caches the origin",
+          "misconception": "confuses reflection with caching"
+        },
+        {
+          "id": "C",
+          "text": "Preflight requests are skipped",
+          "misconception": "attributes bypass to reflection"
+        },
+        {
+          "id": "D",
+          "text": "Any origin is accepted, defeating CORS protection",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Reflecting Origin allows any site to read responses, nullifying CORS. Proper allowlisting is required.",
+      "hint": "Reflecting Origin trusts everyone.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0048",
+      "topic": "A stored value written into the page as markup",
+      "learningObjective": "Apply output encoding",
+      "practice": "XSS",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which defense best prevents stored XSS when rendering user content?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Input validation alone",
+          "misconception": "validation does not stop all payloads"
+        },
+        {
+          "id": "B",
+          "text": "Context-aware output encoding on render",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Using POST instead of GET",
+          "misconception": "confuses transport method with output safety"
+        },
+        {
+          "id": "D",
+          "text": "Storing content as JSON only",
+          "misconception": "storage format does not guarantee safe rendering"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Output encoding at render time is the primary defense. Input validation helps but is not sufficient alone.",
+      "hint": "Encode on output, not just input.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0049",
+      "topic": "A value the build wrote into the shipped file",
+      "learningObjective": "Avoid leaking secrets via build",
+      "practice": "Build config",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A secret API key is inlined into the client bundle. What is the consequence?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The key rotates automatically",
+          "misconception": "no automatic rotation occurs"
+        },
+        {
+          "id": "B",
+          "text": "The key is hidden by minification",
+          "misconception": "minification is not obfuscation"
+        },
+        {
+          "id": "C",
+          "text": "Anyone can extract the key from the shipped JavaScript",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The server blocks extraction",
+          "misconception": "server cannot protect shipped bytes"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Client bundles are public; any secret in them is extractable. Minification does not protect secrets.",
+      "hint": "Shipped code is public code.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0050",
+      "topic": "A policy so tight the page stops working",
+      "learningObjective": "Debug CSP violations",
+      "practice": "CSP",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A page's console shows a CSP violation for a script. Where should you look first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The service worker cache",
+          "misconception": "attributes policy failure to caching"
+        },
+        {
+          "id": "B",
+          "text": "The network tab for 404s",
+          "misconception": "misattributes CSP to missing files"
+        },
+        {
+          "id": "C",
+          "text": "The cookie settings",
+          "misconception": "confuses CSP with cookie policy"
+        },
+        {
+          "id": "D",
+          "text": "The Content-Security-Policy header and its script-src directive",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "CSP violations name the blocked resource; the policy header's script-src directive is the place to adjust.",
+      "hint": "Read the violation and the policy.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0051",
+      "topic": "Two identical writes from one click",
+      "learningObjective": "Prevent duplicate orders server-side",
+      "practice": "Idempotency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Beyond disabling the button, what server-side mechanism prevents duplicate order creation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A longer session timeout",
+          "misconception": "confuses session length with dedup"
+        },
+        {
+          "id": "B",
+          "text": "An idempotency key unique per submission",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Rate limiting per IP",
+          "misconception": "rate limits do not dedup identical requests"
+        },
+        {
+          "id": "D",
+          "text": "Caching the response",
+          "misconception": "caching does not prevent duplicate writes"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An idempotency key lets the server recognize and dedup a repeated submission. Rate limits and caching do not.",
+      "hint": "Idempotency keys dedup writes.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "web-4.3-0052",
+      "topic": "A health check that only asks the process",
+      "learningObjective": "Design meaningful readiness checks",
+      "practice": "Health check",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "What should a readiness probe verify before reporting healthy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That CPU usage is below 50 percent",
+          "misconception": "CPU is not a readiness signal"
+        },
+        {
+          "id": "B",
+          "text": "Only that the process is listening on a port",
+          "misconception": "describes liveness, not readiness"
+        },
+        {
+          "id": "C",
+          "text": "That dependencies like DB and cache are reachable",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "That no errors were logged in the last minute",
+          "misconception": "log absence is not readiness"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Readiness should confirm the app can serve traffic, including dependency reachability. Port listening alone is liveness.",
+      "hint": "Readiness means able to serve.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "web-4.3-0053",
+      "topic": "Counting statements before and after joining a lookup",
+      "learningObjective": "Measure query reduction",
+      "practice": "Query count",
+      "cognitiveDemand": {
+        "bloom": "NUMERIC",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Before optimization: 1 + 50 queries. After: 2 queries. How many queries were removed?",
+      "answer": {
+        "value": 49,
+        "tolerance": 0.01
+      },
+      "explanation": "Originally 51 queries; after optimization 2 remain, so 49 were removed.",
+      "hint": "Subtract new from old.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "web-4.3-0054",
+      "topic": "What an index changes about the work a lookup does",
+      "learningObjective": "Choose index columns",
+      "practice": "Indexing",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "For a query filtering on (status, created_at), which index is most useful?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No index; the table is small",
+          "misconception": "assumes size without evidence"
+        },
+        {
+          "id": "B",
+          "text": "Two separate single-column indexes always",
+          "misconception": "separate indexes may not compose well"
+        },
+        {
+          "id": "C",
+          "text": "An index on (created_at, status) reversed",
+          "misconception": "reverses leading column priority"
+        },
+        {
+          "id": "D",
+          "text": "A composite index on (status, created_at) in that order",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A composite index matching filter order supports the query. Column order matters for prefix usage.",
+      "hint": "Match index order to filter order.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "web-4.3-0055",
+      "topic": "What promising that a file never changes does and does not promise",
+      "learningObjective": "Set cache headers for versioned assets",
+      "practice": "Caching",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "For a hashed bundle file, which Cache-Control is appropriate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "no-store",
+          "misconception": "prevents caching entirely"
+        },
+        {
+          "id": "B",
+          "text": "public, max-age=31536000, immutable",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "max-age=0, must-revalidate",
+          "misconception": "forces revalidation of immutable asset"
+        },
+        {
+          "id": "D",
+          "text": "private, no-cache",
+          "misconception": "restricts shared caching unnecessarily"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Hashed assets are immutable, so long max-age with immutable is ideal. no-store or no-cache wastes the hash.",
+      "hint": "Hashed files can be cached forever.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 33,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "web-4.3-0056",
+      "topic": "The stages a service worker passes through",
+      "learningObjective": "Skip waiting safely",
+      "practice": "Service worker",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Calling skipWaiting() in a service worker does what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Unregisters the previous worker",
+          "misconception": "unregister is a separate call"
+        },
+        {
+          "id": "B",
+          "text": "Deletes the old cache",
+          "misconception": "confuses activation with cache cleanup"
+        },
+        {
+          "id": "C",
+          "text": "Activates the new worker immediately instead of waiting",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Blocks until all tabs close",
+          "misconception": "describes default waiting behavior"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "skipWaiting lets the installing worker activate immediately. Cache cleanup and unregistration are separate concerns.",
+      "hint": "Skip waiting means activate now.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "web-4.3-0057",
+      "topic": "Splitting a bundle at a route boundary",
+      "learningObjective": "Lazy load a heavy component",
+      "practice": "Code splitting",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In React, which pattern lazy-loads a heavy component?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Context provider wrapping",
+          "misconception": "context does not split bundles"
+        },
+        {
+          "id": "B",
+          "text": "useMemo around the component",
+          "misconception": "memoizes, does not split code"
+        },
+        {
+          "id": "C",
+          "text": "useEffect to fetch the component",
+          "misconception": "manual fetching is not code splitting"
+        },
+        {
+          "id": "D",
+          "text": "React.lazy with dynamic import and Suspense",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "React.lazy plus dynamic import creates a split chunk loaded on demand. useMemo and context do not split code.",
+      "hint": "Lazy plus dynamic import splits.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "web-4.3-0058",
+      "topic": "Telling the browser how many pixels an image needs",
+      "learningObjective": "Use srcset for responsive images",
+      "practice": "Responsive images",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "The srcset attribute on an img tag is used to do what?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Set the image's display size in CSS pixels",
+          "misconception": "confuses srcset with sizes"
+        },
+        {
+          "id": "B",
+          "text": "Offer multiple image resolutions for the browser to choose",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Compress the image at runtime",
+          "misconception": "no runtime compression occurs"
+        },
+        {
+          "id": "D",
+          "text": "Lazy-load the image",
+          "misconception": "confuses srcset with loading attribute"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "srcset lists candidate images; the browser picks based on device pixel ratio and viewport. It does not set CSS size or compress.",
+      "hint": "srcset offers candidates.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "web-4.3-0059",
+      "topic": "Painting text in a font that is not ready yet",
+      "learningObjective": "Reduce font loading impact",
+      "practice": "Font loading",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Which technique reduces layout shift from web fonts?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Disabling the fallback font",
+          "misconception": "invisible text increases CLS risk"
+        },
+        {
+          "id": "B",
+          "text": "Loading the font in an iframe",
+          "misconception": "iframes do not help font metrics"
+        },
+        {
+          "id": "C",
+          "text": "font-display: optional or swap with matched fallback metrics",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Inlining the font as base64 always",
+          "misconception": "base64 increases bundle size and blocks"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "font-display optional or swap with metric-matched fallbacks reduces shift. Disabling fallback or base64 inlining worsens it.",
+      "hint": "Match fallback metrics and use swap/optional.",
+      "difficulty": 0.45,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "web-4.3-0060",
+      "topic": "What a cache directive forbids a shared cache from doing",
+      "learningObjective": "Distinguish no-store from private",
+      "practice": "Cache control",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Cache-Control: no-store differs from private in what way?",
+      "options": [
+        {
+          "id": "A",
+          "text": "no-store only affects CDNs",
+          "misconception": "limits no-store incorrectly"
+        },
+        {
+          "id": "B",
+          "text": "private forbids all caches; no-store allows browser cache",
+          "misconception": "reverses the two directives"
+        },
+        {
+          "id": "C",
+          "text": "They are identical",
+          "misconception": "ignores the distinction"
+        },
+        {
+          "id": "D",
+          "text": "no-store forbids any cache from storing; private allows the browser cache",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "no-store prevents any cache from storing the response. private only excludes shared caches, allowing browser storage.",
+      "hint": "no-store means no storage anywhere.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    }
+  ]
+}
