@@ -1,0 +1,2580 @@
+{
+  "meta": {
+    "subject": "WEB_DEVELOPMENT",
+    "unit": "Unit 8",
+    "unitNum": 8,
+    "dir": "web-development",
+    "prefix": "web",
+    "slot": 11,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-web-development",
+    "reviewer": "bank-review-web-development",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "web-8.11-0001",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Explain heterogeneous fields in one collection",
+      "practice": "shape check",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "In a field biologist's survey, one specimen record gains a wingspan field while every other record omits it; what does the document store permit that a column table cannot?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It stores the extra field only where present without touching other records",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It copies the field to every record with a null default value",
+          "misconception": "confuses document flexibility with column backfill"
+        },
+        {
+          "id": "C",
+          "text": "It creates a separate table to hold the extra field as a join",
+          "misconception": "treats a document like a relational join"
+        },
+        {
+          "id": "D",
+          "text": "It rejects the insert because the collection schema is fixed",
+          "misconception": "assumes tables and documents share schema rules"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A document shape allows heterogeneous fields per record, so one specimen can carry wingspan while others do not; a column table would need the column everywhere. The tempting idea that nulls are auto-filled mistakes document storage for relational defaults.",
+      "hint": "Think about which structure forces every row to share columns.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0002",
+      "topic": "The write cost an index adds",
+      "learningObjective": "State the write-side cost of maintaining an index",
+      "practice": "index cost",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "During a biologist's monthly plant census, adding an index on collection date speeds reads but what write-side cost does it introduce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It doubles storage by copying the whole table into the index",
+          "misconception": "confuses index size with full table duplication"
+        },
+        {
+          "id": "B",
+          "text": "Each insert or update must also modify the index structure",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It removes the need to validate foreign keys on writes",
+          "misconception": "mistakes indexing for constraint relaxation"
+        },
+        {
+          "id": "D",
+          "text": "It converts write operations into read-only lookups",
+          "misconception": "reverses the role of an index"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An index is a separate structure updated on every write, so inserts and updates pay extra work; it is not free storage and does not change validation. The tempting shortcut assumes indexes only help reads.",
+      "hint": "Remember an index is maintained on every write.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0003",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret query plan operators in order",
+      "practice": "plan read",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A field crew's query plan prints Seq Scan, Hash Join, Sort; a reviewer claims the plan description 'reads data, joins, then sorts' is wrong because...",
+      "options": [
+        {
+          "id": "A",
+          "text": "Seq Scan means the rows are already sorted before scanning",
+          "misconception": "misreads a sequential scan as an ordered scan"
+        },
+        {
+          "id": "B",
+          "text": "Hash Join requires a sorted input to build its table",
+          "misconception": "confuses hash join with merge join"
+        },
+        {
+          "id": "C",
+          "text": "The description is accurate: scan reads all rows, join builds hash, sort orders output",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Sort happens before the join in the printed plan order",
+          "misconception": "reverses operator order in the plan"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The plan's three words describe scan, join, and sort in execution order; a sequential scan reads all rows, so calling it reading data is right. The mistaken critique either misreads scan semantics or reverses plan order.",
+      "hint": "Read the plan operators left to right as executed.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0004",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Distinguish server-sent events from two-way channels",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "In a biologist's live species-count dashboard, the server pushes updates to browsers; explain why this is server-sent events and not a two-way channel.",
+      "answer": {
+        "exemplar": "Server-sent events use a single HTTP connection where only the server sends messages to the client; the client cannot push data back over that same stream, so any client-to-server message needs a separate request."
+      },
+      "explanation": "SSE is unidirectional from server to client over one HTTP stream, unlike a socket that allows both sides to send. The tempting confusion treats any live push as full duplex.",
+      "hint": "One direction means server to client only.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0005",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Identify websocket close and reopen steps",
+      "practice": "socket reopen",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A field tablet's websocket drops after a tunnel; which option correctly pairs stage one detect close with stage two perform handshake?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stage one ignores close frames; stage two reuses the old socket",
+          "misconception": "ignores close detection and socket lifecycle"
+        },
+        {
+          "id": "B",
+          "text": "Stage one waits for timeout; stage two sends a plain HTTP GET",
+          "misconception": "mistakes reopen for a normal page request"
+        },
+        {
+          "id": "C",
+          "text": "Stage one treats any byte as close; stage two skips upgrade",
+          "misconception": "misidentifies close frames and upgrade step"
+        },
+        {
+          "id": "D",
+          "text": "Stage one handles the close event; stage two sends an upgrade request with the handshake key",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A websocket close must be observed first, then reopening requires a new HTTP upgrade handshake with the protocol key. The tempting shortcut tries to reuse a dead socket or skip the upgrade.",
+      "hint": "Close first, then upgrade again.",
+      "difficulty": 0.65,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.11-0006",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Identify the mechanism behind ordering guarantees",
+      "practice": "ordering source",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "In a biologist's specimen pipeline, messages arrive out of order; what actually delivers an ordering guarantee across consumers?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A single partition or sequenced log assigns one total order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The network always preserves send order across brokers",
+          "misconception": "assumes network order is guaranteed"
+        },
+        {
+          "id": "C",
+          "text": "Adding more consumers automatically sorts messages",
+          "misconception": "confuses parallelism with ordering"
+        },
+        {
+          "id": "D",
+          "text": "Timestamps alone establish a global order",
+          "misconception": "trusts unsynchronized client clocks"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Ordering comes from a single sequenced partition or log, not from the network or consumer count. The tempting assumption that timestamps or more consumers sort traffic ignores clock skew and concurrency.",
+      "hint": "Look for the one sequence owner.",
+      "difficulty": 0.75,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0007",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Relate batching window to latency tradeoff",
+      "practice": "batch window",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A field biologist batches sensor readings every five seconds; what latency does that window buy and what does it cost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It increases latency to zero while cutting CPU",
+          "misconception": "claims impossible zero latency"
+        },
+        {
+          "id": "B",
+          "text": "It removes all latency by sending once per window",
+          "misconception": "confuses batching with instant delivery"
+        },
+        {
+          "id": "C",
+          "text": "It lowers per-message overhead but delays each reading up to five seconds",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It makes every reading arrive exactly on the second",
+          "misconception": "assumes precise scheduling without jitter"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Batching trades throughput for latency: fewer overheads but each item waits for the window. The tempting belief that batching removes latency ignores the wait time.",
+      "hint": "Window size is the max wait.",
+      "difficulty": 0.85,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0008",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Define the baseline for a delta sync",
+      "practice": "delta baseline",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A biologist's tablet syncs only changed specimens since last sync; an engineer says the baseline is the server's current clock; what is wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The baseline is the number of connected devices",
+          "misconception": "confuses concurrency with versioning"
+        },
+        {
+          "id": "B",
+          "text": "The baseline is always the full dataset size",
+          "misconception": "confuses delta with full snapshot"
+        },
+        {
+          "id": "C",
+          "text": "The baseline is the network round trip time",
+          "misconception": "uses transport metric as data baseline"
+        },
+        {
+          "id": "D",
+          "text": "The baseline must be the client's last known version or cursor",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A delta is measured from the client's last acknowledged version or cursor, not from a clock or device count. The tempting shortcut using server time ignores missed or reordered updates.",
+      "hint": "Delta needs a client cursor.",
+      "difficulty": 0.25,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0009",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Explain tombstone retention duration",
+      "practice": "tombstone ttl",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A deleted specimen marker (tombstone) stays in a biologist's sync log; how long must it be kept and why?",
+      "answer": {
+        "exemplar": "A tombstone must be kept at least until every replica that could still hold the old record has synced and observed the deletion, otherwise a stale replica can resurrect the deleted specimen."
+      },
+      "explanation": "Tombstones persist until all replicas observe the deletion; removing them early lets an offline replica reintroduce the record. The tempting shortcut deletes them immediately to save space.",
+      "hint": "Keep until all replicas see it.",
+      "difficulty": 0.35,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0010",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Diagnose empty delta from clock skew",
+      "practice": "clock skew",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's tablet clock is four minutes fast and the delta sync returns no changes even though specimens changed; what is the likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server rejected the request due to authentication failure",
+          "misconception": "blames auth instead of time comparison"
+        },
+        {
+          "id": "B",
+          "text": "The client's future timestamp makes the server think nothing changed after that time",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The network dropped all packets silently",
+          "misconception": "blames transport without evidence"
+        },
+        {
+          "id": "D",
+          "text": "The database ran out of storage space",
+          "misconception": "blames capacity without evidence"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A fast client clock can make the server's since-time comparison exclude recent changes, yielding an empty delta. The tempting guesses blame auth, network, or storage instead of time skew.",
+      "hint": "Compare the client timestamp to server time.",
+      "difficulty": 0.45,
+      "discrimination": 0.37,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0011",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Recognize optional nested structures in documents",
+      "practice": "nested shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist stores a specimen with an optional nested habitat object; a column table would need what extra handling for the same data?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It rejects nested data as invalid JSON",
+          "misconception": "confuses storage model with JSON validation"
+        },
+        {
+          "id": "B",
+          "text": "It must create a separate table and join on every read",
+          "misconception": "underestimates join cost but right idea"
+        },
+        {
+          "id": "C",
+          "text": "It can embed the nested object directly in the same record",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It stores the nested object as a single string column",
+          "misconception": "collapses structure into opaque text"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Documents can embed nested objects in place, while relational tables split them into related rows and joins. The tempting simplification stores JSON as text or rejects nesting.",
+      "hint": "Embedding avoids joins.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0012",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Estimate index maintenance on bulk writes",
+      "practice": "bulk index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist bulk-imports ten thousand specimen records with three indexes; why does the import take longer than the table size suggests?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reads are blocked and queued",
+          "misconception": "confuses read contention with write cost"
+        },
+        {
+          "id": "B",
+          "text": "The table is locked for the entire import",
+          "misconception": "assumes a single lock explains all delay"
+        },
+        {
+          "id": "C",
+          "text": "Network compression slows the transfer",
+          "misconception": "blames transfer instead of writes"
+        },
+        {
+          "id": "D",
+          "text": "Indexes are rebuilt for each row, multiplying write work",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Each inserted row updates every index, so three indexes triple maintenance work beyond storing rows. The tempting explanations blame locks, network, or reads instead of index upkeep.",
+      "hint": "Count indexes times rows.",
+      "difficulty": 0.65,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0013",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Distinguish scan types in a plan",
+      "practice": "scan type",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan shows Index Scan instead of Seq Scan for a biologist's specimen lookup; a junior says this means the database reads fewer rows; is that always true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, index scan always reads exactly one row",
+          "misconception": "assumes index scan is point lookup"
+        },
+        {
+          "id": "B",
+          "text": "No, it may still scan many index entries before fetching rows",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No, index scan ignores the table entirely",
+          "misconception": "thinks index replaces table storage"
+        },
+        {
+          "id": "D",
+          "text": "Yes, index scan skips all nonmatching rows",
+          "misconception": "overstates index pruning"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An index scan can traverse many entries and then fetch rows, so it is not guaranteed to read one row. The tempting overstatement treats any index use as a point lookup.",
+      "hint": "Index scans can be range scans.",
+      "difficulty": 0.75,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0014",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Choose SSE for server push only",
+      "practice": "sse choice",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A biologist wants live counts pushed to a browser with no client uploads; why is SSE a fit?",
+      "answer": {
+        "exemplar": "SSE fits because it provides a simple server-to-client stream over HTTP, automatically reconnects, and avoids the overhead of a full duplex socket when the client never needs to send data."
+      },
+      "explanation": "SSE is designed for server push with built-in reconnect and less complexity than a socket when no client messages are needed. The tempting alternative opens a duplex channel unnecessarily.",
+      "hint": "No client uploads means no socket needed.",
+      "difficulty": 0.85,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0015",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Handle websocket close and reopen correctly",
+      "practice": "socket reopen",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "After a biologist's tablet loses wifi, the websocket closes; what should the client do next to resume updates?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reuse the closed socket object immediately",
+          "misconception": "ignores that closed sockets cannot be reused"
+        },
+        {
+          "id": "B",
+          "text": "Poll the REST endpoint forever instead",
+          "misconception": "abandons socket protocol unnecessarily"
+        },
+        {
+          "id": "C",
+          "text": "Create a new connection and complete the upgrade handshake",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Send a close frame and wait for the server",
+          "misconception": "duplicates close handling"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A closed websocket cannot be reused, so the client must open a new connection and repeat the upgrade handshake. The tempting workarounds reuse dead sockets or switch protocols entirely.",
+      "hint": "Open fresh and upgrade.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0016",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Recognize ordering requires a single owner",
+      "practice": "ordering owner",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist's event log claims global order; which setup actually provides it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Multiple partitions with round-robin producers",
+          "misconception": "scatters order across partitions"
+        },
+        {
+          "id": "B",
+          "text": "Random broker assignment per message",
+          "misconception": "destroys any sequence"
+        },
+        {
+          "id": "C",
+          "text": "Many consumers reading the same topic",
+          "misconception": "confuses fan-out with ordering"
+        },
+        {
+          "id": "D",
+          "text": "A single partition consumed by one consumer",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Global order requires a single sequence owner like one partition; fanning out across partitions or consumers breaks it. The tempting scale-out patterns destroy the very guarantee.",
+      "hint": "One partition, one order.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0017",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Compute max latency from batch window",
+      "practice": "batch latency",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "If a biologist's batch window is two seconds, what is the maximum added latency for a reading that arrives just after a batch sends?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Zero seconds because batching is instant",
+          "misconception": "ignores window wait"
+        },
+        {
+          "id": "B",
+          "text": "Exactly one second on average always",
+          "misconception": "confuses average with maximum"
+        },
+        {
+          "id": "C",
+          "text": "Up to two seconds until the next window closes",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Four seconds due to double buffering",
+          "misconception": "invents extra delay"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A reading arriving right after a send waits for the full two-second window. The tempting answers claim instant delivery, fixed averages, or invented delays.",
+      "hint": "Max wait equals window size.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0018",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Use a version cursor for delta sync",
+      "practice": "cursor sync",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A sync returns too many records because the biologist's tablet sends a timestamp instead of a version cursor; what is the flaw?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Timestamps always return fewer records",
+          "misconception": "assumes timestamps are more selective"
+        },
+        {
+          "id": "B",
+          "text": "Version cursors are slower to compare",
+          "misconception": "prefers timestamps for speed"
+        },
+        {
+          "id": "C",
+          "text": "The server ignores all client input",
+          "misconception": "misreads server behavior"
+        },
+        {
+          "id": "D",
+          "text": "Timestamps can collide or skew across devices",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Timestamps suffer from clock skew and collisions, so a version cursor is safer for deltas. The tempting preference for timestamps ignores time inconsistencies.",
+      "hint": "Cursors avoid clock problems.",
+      "difficulty": 0.55,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0019",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Avoid premature tombstone deletion",
+      "practice": "tombstone gc",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A biologist's sync log deletes tombstones after one day to save space; what risk does that create?",
+      "answer": {
+        "exemplar": "Deleting tombstones early can let an offline replica that has not synced the deletion resurrect the removed specimen, because it never sees the delete marker."
+      },
+      "explanation": "Premature tombstone removal allows stale replicas to reintroduce deleted records. The tempting space-saving shortcut breaks eventual consistency.",
+      "hint": "Offline replicas still need the marker.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0020",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Fix clock skew in sync requests",
+      "practice": "clock fix",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's tablet clock is four minutes fast, causing empty deltas; which fix addresses the root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase the batch size to ten thousand",
+          "misconception": "unrelated to time comparison"
+        },
+        {
+          "id": "B",
+          "text": "Disable delta sync and always full sync",
+          "misconception": "avoids rather than fixes the cause"
+        },
+        {
+          "id": "C",
+          "text": "Sync server time to the client before requesting deltas",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Compress the payload to zero bytes",
+          "misconception": "unrelated to timestamp logic"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Aligning client time with server time fixes the since-time comparison; scaling batches or disabling deltas only masks it. The tempting workarounds avoid the root cause.",
+      "hint": "Align clocks first.",
+      "difficulty": 0.75,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.11-0021",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Compare array storage in documents and tables",
+      "practice": "array field",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist stores a specimen's tag list as an array field; how does a document handle this compared with a column table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It splits tags across multiple records automatically",
+          "misconception": "confuses embedding with sharding"
+        },
+        {
+          "id": "B",
+          "text": "It requires one column per possible tag",
+          "misconception": "applies relational column thinking"
+        },
+        {
+          "id": "C",
+          "text": "It rejects arrays as non-scalar values",
+          "misconception": "assumes only scalars allowed"
+        },
+        {
+          "id": "D",
+          "text": "It stores the whole array in one field without a join table",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documents embed arrays directly in the record, avoiding a separate join table. The tempting relational approaches add columns, reject arrays, or split records.",
+      "hint": "Embed arrays in place.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0022",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Recognize index cost on updates",
+      "practice": "update index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "When a biologist updates a specimen's location, which additional work occurs if an index exists on location?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The table is fully scanned to rebuild the index",
+          "misconception": "confuses update with reindex"
+        },
+        {
+          "id": "B",
+          "text": "The index is dropped and recreated from scratch",
+          "misconception": "overstates maintenance cost"
+        },
+        {
+          "id": "C",
+          "text": "The index entry for the old value is removed and a new one inserted",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No index work occurs on updates",
+          "misconception": "ignores index maintenance"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An update on an indexed field removes the old index entry and inserts a new one. The tempting extremes say the whole index rebuilds or that no work happens.",
+      "hint": "Update means delete plus insert in the index.",
+      "difficulty": 0.25,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0023",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Read a plan's join type",
+      "practice": "join type",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan says Nested Loop Join for a biologist's specimen-to-habitat lookup; a reviewer claims it is always slower than hash join; what is missing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Join type has no effect on performance",
+          "misconception": "denies performance differences"
+        },
+        {
+          "id": "B",
+          "text": "Hash join cannot use indexes at all",
+          "misconception": "misstates hash join capabilities"
+        },
+        {
+          "id": "C",
+          "text": "Nested loop always scans the whole table",
+          "misconception": "overstates nested loop cost"
+        },
+        {
+          "id": "D",
+          "text": "Nested loop can be faster when the outer set is small and indexed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Nested loops excel for small outer sets with index lookups, so declaring them always slower is wrong. The tempting absolutes ignore input size and index availability.",
+      "hint": "Consider outer size and indexes.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0024",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Handle SSE reconnect behavior",
+      "practice": "sse reconnect",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A biologist's dashboard loses connection; how does SSE recover without custom code?",
+      "answer": {
+        "exemplar": "The browser's EventSource automatically reconnects to the SSE endpoint and can resume using the last event id if the server supports it, so no manual retry loop is needed."
+      },
+      "explanation": "EventSource handles reconnection automatically and may resume from the last event id. The tempting custom retry duplicates built-in behavior.",
+      "hint": "EventSource reconnects by itself.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0025",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Distinguish close codes and reopen",
+      "practice": "close code",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A websocket closes with code 1006 (abnormal); what does that imply about the reopen process?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server will reopen the socket automatically",
+          "misconception": "expects server-side reopen"
+        },
+        {
+          "id": "B",
+          "text": "The client must initiate a new connection and handshake",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The socket can be resumed with the same id",
+          "misconception": "confuses close with pause"
+        },
+        {
+          "id": "D",
+          "text": "No reopen is possible after 1006",
+          "misconception": "overstates finality of abnormal close"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An abnormal close ends the connection, so reopening requires a new client-initiated connection and handshake. The tempting assumptions expect auto-reopen or permanent failure.",
+      "hint": "Client opens a new one.",
+      "difficulty": 0.55,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.11-0026",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Explain sequence numbers in logs",
+      "practice": "sequence numbers",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist's append-only log assigns sequence numbers; what guarantees order to consumers?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consumers sort by arrival time",
+          "misconception": "uses arrival instead of sequence"
+        },
+        {
+          "id": "B",
+          "text": "Brokers reorder messages on demand",
+          "misconception": "assumes broker sorting"
+        },
+        {
+          "id": "C",
+          "text": "The log's monotonic sequence numbers define order",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Network FIFO guarantees order end to end",
+          "misconception": "trusts network ordering"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Monotonic sequence numbers in the log define order; arrival time, broker reordering, or network FIFO are unreliable. The tempting alternatives ignore the assigned sequence.",
+      "hint": "Trust the sequence number.",
+      "difficulty": 0.65,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0027",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Balance batch size and latency",
+      "practice": "batch tradeoff",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist can shrink the batch window to reduce latency; what tradeoff should be considered?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Smaller windows remove the need for ordering",
+          "misconception": "unrelated to ordering"
+        },
+        {
+          "id": "B",
+          "text": "Smaller windows eliminate all overhead",
+          "misconception": "ignores per-batch fixed costs"
+        },
+        {
+          "id": "C",
+          "text": "Smaller windows guarantee zero latency",
+          "misconception": "confuses small with instant"
+        },
+        {
+          "id": "D",
+          "text": "Smaller windows raise per-message overhead and lower throughput",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Smaller windows reduce wait time but increase per-batch overhead and lower throughput. The tempting answers promise free gains or unrelated benefits.",
+      "hint": "Overhead per batch remains.",
+      "difficulty": 0.75,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0028",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Avoid full sync when delta possible",
+      "practice": "delta vs full",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A biologist's app always full-syncs a large dataset; an engineer proposes delta sync but worries about missed deletes; how are deletes handled?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Deletes are ignored and never synced",
+          " misconception": "loses deletions entirely"
+        },
+        {
+          "id": "B",
+          "text": "Deletes require a full sync each time",
+          "misconception": "defeats delta purpose"
+        },
+        {
+          "id": "C",
+          "text": "Tombstones carry deletions in the delta stream",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Deletes are inferred from missing records",
+          "misconception": "unreliable inference"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Tombstones propagate deletions through delta streams, so deltas can stay incremental. The tempting shortcuts ignore deletes or force full syncs.",
+      "hint": "Tombstones carry deletes.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.11-0029",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Set tombstone retention by sync frequency",
+      "practice": "retention policy",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How long should a biologist's sync system keep tombstones if devices sync at least weekly?",
+      "answer": {
+        "exemplar": "Keep tombstones longer than the longest expected offline interval, such as two to three weeks, so every device that syncs weekly observes the deletion before the marker is removed."
+      },
+      "explanation": "Retention must exceed the longest offline gap; weekly sync implies at least two weeks. The tempting short retention risks resurrection by offline devices.",
+      "hint": "Exceed the longest offline gap.",
+      "difficulty": 0.25,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0030",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Detect clock skew from empty deltas",
+      "practice": "empty delta",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist sees an empty delta despite recent changes; which diagnosis best fits clock skew?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The client clock is behind the server and excludes nothing",
+          "misconception": "reverses skew direction"
+        },
+        {
+          "id": "B",
+          "text": "The table is empty on the server",
+          "misconception": "contradicts reported changes"
+        },
+        {
+          "id": "C",
+          "text": "The network is too slow to return rows",
+          "misconception": "blames transport without evidence"
+        },
+        {
+          "id": "D",
+          "text": "The client clock is ahead, so the since-time is in the future",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A fast client clock makes the since-time future, excluding changes. The tempting alternatives reverse skew or blame network or empty data.",
+      "hint": "Ahead means future since-time.",
+      "difficulty": 0.35,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0031",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Identify schema evolution ease",
+      "practice": "schema evolution",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist adds a new field to specimen records over time; why is this easier in a document store?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The field is added to every record automatically",
+          "misconception": "backfills without request"
+        },
+        {
+          "id": "B",
+          "text": "All records must be rewritten immediately",
+          "misconception": "requires migration upfront"
+        },
+        {
+          "id": "C",
+          "text": "No migration is needed for old records to coexist",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Schema changes are forbidden in documents",
+          "misconception": "denies flexibility"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Documents allow new fields without migrating old records, which can remain as-is. The tempting misconceptions demand immediate rewrites or backfills.",
+      "hint": "Old records stay unchanged.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0032",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Weigh index count against write throughput",
+      "practice": "index count",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist's write throughput drops after adding five indexes; what is the primary cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The table has too few rows",
+          "misconception": "irrelevant to index cost"
+        },
+        {
+          "id": "B",
+          "text": "Reads are blocked by write locks",
+          "misconception": "blames read contention"
+        },
+        {
+          "id": "C",
+          "text": "Network bandwidth is exhausted",
+          "misconception": "blames transfer"
+        },
+        {
+          "id": "D",
+          "text": "Each write updates five index structures",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Five indexes mean five extra structures updated per write, reducing throughput. The tempting explanations blame locks, network, or row count instead of index maintenance.",
+      "hint": "Count the indexes.",
+      "difficulty": 0.55,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0033",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Spot a sort node in a plan",
+      "practice": "sort node",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan for a biologist's specimen list shows Sort with high cost; what does that indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The sort is free because data is already ordered",
+          "misconception": "assumes pre-sorted input"
+        },
+        {
+          "id": "B",
+          "text": "Sort means the query returns no rows",
+          "misconception": "confuses sort with filter"
+        },
+        {
+          "id": "C",
+          "text": "The database must reorder a large result set",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Sort eliminates duplicate rows automatically",
+          "misconception": "confuses sort with distinct"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A costly sort means the database is ordering a large result set, which takes CPU and memory. The tempting shortcuts assume free ordering, no rows, or distinct behavior.",
+      "hint": "Sort cost scales with rows.",
+      "difficulty": 0.65,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0034",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Reject SSE when client must send data",
+      "practice": "sse limits",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A biologist's app needs to send commands from browser to server frequently; why is SSE alone insufficient?",
+      "answer": {
+        "exemplar": "SSE only carries server-to-client messages, so frequent client commands require separate HTTP requests or a bidirectional socket; relying on SSE alone would leave client input without a channel."
+      },
+      "explanation": "SSE is unidirectional, so client commands need another channel. The tempting assumption that SSE covers both directions leaves input unsupported.",
+      "hint": "SSE is server to client only.",
+      "difficulty": 0.75,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0035",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Use heartbeat to detect stale sockets",
+      "practice": "heartbeat",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's websocket appears open but no data flows; what should happen before reopen?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Wait indefinitely for data to resume",
+          "misconception": "ignores stale connections"
+        },
+        {
+          "id": "B",
+          "text": "Switch to polling permanently",
+          "misconception": "abandons socket prematurely"
+        },
+        {
+          "id": "C",
+          "text": "Close the browser tab and reopen it",
+          "misconception": "overly disruptive recovery"
+        },
+        {
+          "id": "D",
+          "text": "Send a ping and reopen only if no pong returns",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A heartbeat ping detects stale sockets before reopening, avoiding unnecessary reconnects. The tempting extremes wait forever, disrupt users, or abandon sockets.",
+      "hint": "Ping before reopen.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0036",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Explain why partitions break global order",
+      "practice": "partition order",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist uses multiple partitions for throughput; why does global order disappear?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consumers reorder messages randomly",
+          "misconception": "blames consumers instead of partitions"
+        },
+        {
+          "id": "B",
+          "text": "Partitions sort messages alphabetically",
+          " misconception": "invents alphabetical ordering"
+        },
+        {
+          "id": "C",
+          "text": "Each partition has its own independent sequence",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The network drops ordering only on Tuesdays",
+          "misconception": "nonsensical condition"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Each partition maintains its own sequence, so no global order exists across partitions. The tempting explanations blame consumers or invent conditions.",
+      "hint": "Partition means separate sequence.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0037",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Estimate throughput gain from batching",
+      "practice": "batch throughput",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist batches ten readings per window; what is the main throughput benefit?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Storage size becomes zero",
+          "misconception": "irrelevant to batching"
+        },
+        {
+          "id": "B",
+          "text": "Each reading arrives ten times faster",
+          "misconception": "confuses batch count with speed"
+        },
+        {
+          "id": "C",
+          "text": "Latency drops to zero for all readings",
+          "misconception": "ignores window wait"
+        },
+        {
+          "id": "D",
+          "text": "Fewer round trips and less per-message overhead",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Batching improves throughput by reducing round trips and per-message overhead, not by making each item faster. The tempting claims promise zero latency or storage.",
+      "hint": "Throughput, not per-item speed.",
+      "difficulty": 0.35,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0038",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Handle gaps in delta cursors",
+      "practice": "cursor gap",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A biologist's delta cursor jumps by ten; what does that imply about the sync?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The cursor is working perfectly",
+          "misconception": "ignores gap semantics"
+        },
+        {
+          "id": "B",
+          "text": "Ten records were duplicated",
+          "misconception": "confuses gap with duplicate"
+        },
+        {
+          "id": "C",
+          "text": "Ten records were skipped and may be missing",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The server has no data",
+          "misconception": "contradicts cursor advance"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A cursor jump indicates skipped records that may be missing and need reconciliation. The tempting interpretations claim duplicates, perfection, or empty data.",
+      "hint": "Gaps mean missing records.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0039",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Avoid deleting tombstones early",
+      "practice": "tombstone risk",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why is deleting a tombstone immediately after marking a specimen deleted dangerous?",
+      "answer": {
+        "exemplar": "Immediate deletion removes the only evidence of the delete, so any replica that has not synced can reintroduce the specimen, breaking eventual consistency."
+      },
+      "explanation": "Tombstones must outlive the slowest replica's sync interval. The tempting space-saving deletion risks resurrection of deleted records.",
+      "hint": "Slow replicas need the marker.",
+      "difficulty": 0.55,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0040",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Use server time for since parameter",
+      "practice": "server time",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "How should a biologist's sync request determine the since-time to avoid clock skew?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use the client's local clock directly",
+          "misconception": "reintroduces skew"
+        },
+        {
+          "id": "B",
+          "text": "Always use zero to fetch everything",
+          "misconception": "defeats delta purpose"
+        },
+        {
+          "id": "C",
+          "text": "Use the network latency as the since value",
+          "misconception": "confuses timing metrics"
+        },
+        {
+          "id": "D",
+          "text": "Use the server's last sync timestamp returned previously",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Using the server's previously returned sync timestamp avoids client clock skew. The tempting choices reuse local time, latency, or full syncs.",
+      "hint": "Trust server timestamps.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0041",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Explain polymorphic records in one collection",
+      "practice": "polymorphic records",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist stores bird and insect specimens in one collection with different fields; why is this natural for documents?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Documents enforce one schema for all records",
+          "misconception": "denies polymorphism"
+        },
+        {
+          "id": "B",
+          "text": "Documents split records into separate tables automatically",
+          "misconception": "confuses collections with tables"
+        },
+        {
+          "id": "C",
+          "text": "Documents allow each record its own field set",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Documents require all fields to be null first",
+          "misconception": "backfills nulls unnecessarily"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Documents permit each record to have its own fields, supporting polymorphic specimens in one collection. The tempting misconceptions enforce uniformity or backfill nulls.",
+      "hint": "Each record defines its own shape.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0042",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Compare write cost with and without indexes",
+      "practice": "index tradeoff",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist considers removing an index to speed writes; what is the tradeoff?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Storage becomes infinite",
+          "misconception": "nonsensical"
+        },
+        {
+          "id": "B",
+          "text": "Writes slow down further",
+          "misconception": "reverses the effect"
+        },
+        {
+          "id": "C",
+          "text": "Reads become instant",
+          "misconception": "overstates read improvement"
+        },
+        {
+          "id": "D",
+          "text": "Writes speed up but reads on that field slow down",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Removing an index reduces write maintenance but removes read acceleration on that field. The tempting answers reverse effects or overstate gains.",
+      "hint": "Trade write speed for read speed.",
+      "difficulty": 0.85,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0043",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret filter predicate in a plan",
+      "practice": "filter predicate",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan's Filter node removes rows after a scan; a junior says it is useless because the scan already read them; what is the flaw?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Filter adds rows to the result",
+          "misconception": "reverses filter effect"
+        },
+        {
+          "id": "B",
+          "text": "Filter rewrites the table permanently",
+          "misconception": "confuses filter with delete"
+        },
+        {
+          "id": "C",
+          "text": "Filter reduces rows before later operators and output",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Filter only works on indexes",
+          "misconception": "limits filter to indexes"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Filter reduces the row set for subsequent operators and final output, even though the scan read them. The tempting misconceptions treat filter as useless, destructive, or index-only.",
+      "hint": "Filter shrinks downstream work.",
+      "difficulty": 0.25,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0044",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Use SSE for live notifications",
+      "practice": "sse notify",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why is SSE a good fit for a biologist's live alert feed that only the server generates?",
+      "answer": {
+        "exemplar": "SSE is ideal because the server alone generates alerts, the browser handles reconnection automatically, and no client-to-server channel is required for a one-way notification feed."
+      },
+      "explanation": "One-way server-generated alerts match SSE's strengths and avoid duplex complexity. The tempting alternative opens an unnecessary socket.",
+      "hint": "One-way alerts fit SSE.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0045",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Handle reopen backoff",
+      "practice": "reopen backoff",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's websocket repeatedly fails to reopen; what strategy prevents hammering the server?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry immediately in a tight loop",
+          "misconception": "causes server overload"
+        },
+        {
+          "id": "B",
+          "text": "Open ten sockets at once",
+          "misconception": "multiplies load"
+        },
+        {
+          "id": "C",
+          "text": "Never retry after first failure",
+          "misconception": "gives up too soon"
+        },
+        {
+          "id": "D",
+          "text": "Use exponential backoff between reopen attempts",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Exponential backoff spaces reopen attempts and reduces server load. The tempting extremes retry instantly, give up, or multiply connections.",
+      "hint": "Back off between retries.",
+      "difficulty": 0.45,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.11-0046",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Use a single writer for order",
+      "practice": "single writer",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist needs strict order across all specimen events; what configuration achieves it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Random partition selection per event",
+          "misconception": "scatters sequence"
+        },
+        {
+          "id": "B",
+          "text": "Many partitions with many producers",
+          "misconception": "destroys global order"
+        },
+        {
+          "id": "C",
+          "text": "One partition with one producer",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Consumers reordering by type",
+          "misconception": "cannot recover global order"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A single partition and producer preserve a total order; scaling out partitions or producers breaks it. The tempting scale-out patterns destroy ordering.",
+      "hint": "One partition, one producer.",
+      "difficulty": 0.55,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0047",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Choose window by latency budget",
+      "practice": "window choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist needs p99 latency under one second; how should the batch window be set?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Set the window to exactly one second",
+          "misconception": "leaves no safety margin"
+        },
+        {
+          "id": "B",
+          "text": "Set the window to five seconds for throughput",
+          "misconception": "violates latency budget"
+        },
+        {
+          "id": "C",
+          "text": "Disable batching entirely always",
+          "misconception": "overreacts to latency"
+        },
+        {
+          "id": "D",
+          "text": "Set the window well below one second",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The window must stay below the latency budget with margin; five seconds violates it and disabling batching is unnecessary. The tempting extremes either break the budget or overcorrect.",
+      "hint": "Keep window below budget.",
+      "difficulty": 0.65,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0048",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Recover from stale cursor",
+      "practice": "stale cursor",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A biologist's device has a cursor older than server retention; what should the server do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Return an empty delta and pretend success",
+          "misconception": "hides missing data"
+        },
+        {
+          "id": "B",
+          "text": "Return an error forcing a full resync",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Return random records",
+          "misconception": "corrupts sync"
+        },
+        {
+          "id": "D",
+          "text": "Delete the client's data",
+          "misconception": "destructive and unsafe"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "When the cursor is too old, the server should signal the client to full resync rather than return incomplete or false data. The tempting shortcuts hide gaps or destroy data.",
+      "hint": "Signal full resync.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.11-0049",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Compaction and tombstone cleanup",
+      "practice": "compaction",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "When can a biologist's sync store safely compact tombstones?",
+      "answer": {
+        "exemplar": "Compaction is safe only after confirming all replicas have synced past the tombstone's deletion point, ensuring no offline device can resurrect the record."
+      },
+      "explanation": "Compaction requires all replicas to have observed the deletion. The tempting early compaction risks resurrection by lagging devices.",
+      "hint": "Wait for all replicas.",
+      "difficulty": 0.85,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0050",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Explain empty delta from future since-time",
+      "practice": "empty delta cause",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's delta is empty despite changes; which root cause matches a fast client clock?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server has no changes at all",
+          "misconception": "contradicts known changes"
+        },
+        {
+          "id": "B",
+          "text": "The client's since-time is in the past and returns too much",
+          "misconception": "reverses the effect"
+        },
+        {
+          "id": "C",
+          "text": "The client's since-time is in the future relative to server",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The network compressed the response to empty",
+          "misconception": "blames transport"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A fast client clock makes the since-time future, so the server returns no changes. The tempting alternatives reverse skew or blame data or network.",
+      "hint": "Fast clock means future since-time.",
+      "difficulty": 0.25,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0051",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Recognize lack of join requirement",
+      "practice": "no join",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist's specimen and its habitat details live in one document; what does this avoid?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Concurrency control entirely",
+          "misconception": "unrelated to concurrency"
+        },
+        {
+          "id": "B",
+          "text": "All validation of input data",
+          "misconception": "confuses embedding with validation"
+        },
+        {
+          "id": "C",
+          "text": "The need for any indexes",
+          "misconception": "unrelated to indexing"
+        },
+        {
+          "id": "D",
+          "text": "A join between separate tables on every read",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Embedding avoids joins on every read; it does not remove validation, indexing, or concurrency concerns. The tempting overstatements confuse embedding with unrelated features.",
+      "hint": "Embedding avoids joins.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0052",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Index cost on deletes",
+      "practice": "delete index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "When a biologist deletes a specimen, what index-related work occurs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All indexes are rebuilt from scratch",
+          "misconception": "overstates delete cost"
+        },
+        {
+          "id": "B",
+          "text": "The matching index entry is removed",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No index work occurs on delete",
+          "misconception": "ignores index maintenance"
+        },
+        {
+          "id": "D",
+          "text": "The table is fully scanned regardless",
+          "misconception": "confuses delete with reindex"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Deleting a row removes its index entries; it does not rebuild all indexes or scan the table. The tempting extremes overstate or ignore index maintenance.",
+      "hint": "Delete removes index entries.",
+      "difficulty": 0.45,
+      "discrimination": 0.32,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "web-8.11-0053",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Read an aggregate node",
+      "practice": "aggregate node",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A plan shows Aggregate for a biologist's species count; a junior says it only counts rows; what else can it do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It deletes duplicate rows",
+          "misconception": "confuses aggregate with distinct"
+        },
+        {
+          "id": "B",
+          "text": "It only counts and cannot group",
+          "misconception": "understates aggregate capabilities"
+        },
+        {
+          "id": "C",
+          "text": "It can group, sum, average, and compute min or max",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It sorts the output automatically",
+          "misconception": "confuses aggregate with sort"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Aggregate nodes can group and compute sums, averages, min, and max, not just count. The tempting understatements limit aggregates to counting or confuse them with distinct or sort.",
+      "hint": "Aggregates do more than count.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "web-8.11-0054",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Keep SSE connection alive",
+      "practice": "sse keepalive",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How does a biologist's SSE endpoint prevent proxies from closing an idle stream?",
+      "answer": {
+        "exemplar": "It sends periodic comment lines or heartbeat events over the stream, keeping the connection active so proxies and browsers do not time it out."
+      },
+      "explanation": "Periodic heartbeats keep idle SSE streams alive against proxy timeouts. The tempting assumption that the connection stays open forever ignores proxy idle limits.",
+      "hint": "Send periodic heartbeats.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0055",
+      "topic": "A socket that closes and the handshake that reopens it",
+      "learningObjective": "Handle reopen authentication",
+      "practice": "reopen auth",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "When a biologist's websocket reopens after a drop, what must be repeated to keep data flowing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing; the old session persists forever",
+          "misconception": "ignores session expiry"
+        },
+        {
+          "id": "B",
+          "text": "The entire database migration",
+          "misconception": "irrelevant to socket reopen"
+        },
+        {
+          "id": "C",
+          "text": "Only the close frame",
+          "misconception": "insufficient for resume"
+        },
+        {
+          "id": "D",
+          "text": "The authentication and subscription steps",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Reopening requires repeating authentication and subscriptions because the old session is gone. The tempting shortcuts assume persistence or minimal frames.",
+      "hint": "Re-authenticate and resubscribe.",
+      "difficulty": 0.75,
+      "discrimination": 0.33,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 42,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "web-8.11-0056",
+      "topic": "What actually delivers an ordering guarantee",
+      "learningObjective": "Use sequence numbers for replay",
+      "practice": "replay order",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A biologist replays specimen events; what ensures they process in original order?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Processing by arrival time at the consumer",
+          "misconception": "arrival order may differ"
+        },
+        {
+          "id": "B",
+          "text": "Processing by event size"
+        },
+        {
+          "id": "C",
+          "text": "Processing by the log's sequence number",
+          " misconception": "irrelevant to order",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Processing by random selection",
+          "misconception": "destroys order"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Replay must follow the log's sequence numbers, not arrival time or size. The tempting alternatives cannot reconstruct original order.",
+      "hint": "Follow sequence numbers.",
+      "difficulty": 0.85,
+      "discrimination": 0.36,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 44,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "web-8.11-0057",
+      "topic": "A batching window and the latency it buys with",
+      "learningObjective": "Explain adaptive batching",
+      "practice": "adaptive window",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A biologist's system shrinks the batch window under low load; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "To double storage usage",
+          "misconception": "irrelevant"
+        },
+        {
+          "id": "B",
+          "text": "To increase latency for all readings",
+          "misconception": "reverses goal"
+        },
+        {
+          "id": "C",
+          "text": "To disable ordering guarantees",
+          "misconception": "unrelated to batching"
+        },
+        {
+          "id": "D",
+          "text": "To reduce latency when throughput demand is low",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Adaptive batching shrinks windows under low load to reduce latency while throughput demand is low. The tempting alternatives reverse goals or invoke unrelated effects.",
+      "hint": "Low load favors low latency.",
+      "difficulty": 0.25,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 46,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "web-8.11-0058",
+      "topic": "A delta sync and the baseline it is measured from",
+      "learningObjective": "Measure delta from last acknowledged version",
+      "practice": "ack version",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A biologist's delta baseline uses the last sent version instead of last acknowledged; what can go wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server deletes all data",
+          "misconception": "extreme and false"
+        },
+        {
+          "id": "B",
+          "text": "The sync becomes faster always",
+          "misconception": "ignores failure case"
+        },
+        {
+          "id": "C",
+          "text": "Unacknowledged changes may be skipped on failure",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No difference exists between sent and acknowledged",
+          "misconception": "ignores network failures"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Using sent rather than acknowledged versions can skip changes if delivery fails. The tempting assumptions ignore network failures.",
+      "hint": "Acknowledge before advancing.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 48,
+        "p75Sec": 68
+      }
+    },
+    {
+      "id": "web-8.11-0059",
+      "topic": "How long a tombstone has to be kept",
+      "learningObjective": "Set retention based on offline devices",
+      "practice": "offline retention",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A biologist has devices offline for up to a month; how long should tombstones remain?",
+      "answer": {
+        "exemplar": "Tombstones should remain for at least a month plus safety margin, covering the longest offline device so it can observe deletions before compaction."
+      },
+      "explanation": "Retention must exceed the longest offline interval. The tempting shorter retention risks resurrection by offline devices.",
+      "hint": "Exceed longest offline time.",
+      "difficulty": 0.45,
+      "discrimination": 0.31,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "web-8.11-0060",
+      "topic": "A client clock four minutes fast and an empty delta set",
+      "learningObjective": "Resolve empty delta from clock skew",
+      "practice": "resolve skew",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A biologist's empty delta persists after time sync; what should be checked next?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the user changed passwords",
+          "misconception": "unrelated to delta"
+        },
+        {
+          "id": "B",
+          "text": "Whether the network is unplugged",
+          "misconception": "too coarse"
+        },
+        {
+          "id": "C",
+          "text": "Whether the database is deleted",
+          "misconception": "extreme and false"
+        },
+        {
+          "id": "D",
+          "text": "Whether the cursor was reset to zero",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "After fixing clock skew, a stuck cursor may still cause empty deltas, so check the cursor state. The tempting alternatives are unrelated or extreme.",
+      "hint": "Check cursor state next.",
+      "difficulty": 0.55,
+      "discrimination": 0.34,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      }
+    }
+  ]
+}
