@@ -1,0 +1,2660 @@
+{
+  "meta": {
+    "subject": "PYTHON",
+    "unit": "Unit 4",
+    "unitNum": 4,
+    "dir": "python",
+    "prefix": "py",
+    "slot": 5,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-python",
+    "reviewer": "bank-review-python",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "py-4.5-0001",
+      "topic": "A Class And The Object Made From It",
+      "learningObjective": "Trace instance creation from a class definition",
+      "practice": "class basics",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner writes class Route: pass then r = Route(). What does r.__class__ return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The Route class itself",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The module object that holds the class definition",
+          "misconception": "confuses the defining module with the class object"
+        },
+        {
+          "id": "C",
+          "text": "An instance of Route created at import time",
+          "misconception": "thinks instances exist before construction"
+        },
+        {
+          "id": "D",
+          "text": "None because pass leaves the class empty",
+          "misconception": "assumes an empty body prevents class creation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Instantiating Route calls the class and returns an object whose __class__ is Route. An empty body is still a valid class, and construction happens at call time.",
+      "hint": "Instantiating a class returns an instance of it.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0002",
+      "topic": "One Attribute Held By The Class",
+      "learningObjective": "Distinguish class attributes from instance attributes",
+      "practice": "class attrs",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a transit planner's Route class, color = 'blue' is set in the class body. Two Route instances are made. What is true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each instance gets its own separate copy of color",
+          "misconception": "treats a class attribute as an instance attribute"
+        },
+        {
+          "id": "B",
+          "text": "color is deleted after the first instance is created",
+          "misconception": "assumes instantiation consumes class attributes"
+        },
+        {
+          "id": "C",
+          "text": "Both instances share the same color binding",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "color becomes a method because it lacks self",
+          "misconception": "confuses attribute binding with method definition"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Attributes defined in the class body belong to the class and are shared by all instances until an instance rebinds its own. Nothing is consumed on instantiation.",
+      "hint": "Class body names are shared by default.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "py-4.5-0003",
+      "topic": "What A Double-Under Method Is For",
+      "learningObjective": "Identify the role of a dunder method",
+      "practice": "dunder role",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks what __init__ is for in a Stop class. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It defines how instances are compared for equality",
+          "misconception": "confuses __init__ with __eq__"
+        },
+        {
+          "id": "B",
+          "text": "It runs when the class is subclassed by another",
+          "misconception": "confuses __init__ with __init_subclass__"
+        },
+        {
+          "id": "C",
+          "text": "It returns the printable text of an instance",
+          "misconception": "confuses __init__ with __repr__"
+        },
+        {
+          "id": "D",
+          "text": "It initializes a newly created instance",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "__init__ is the initializer called after instance creation to set up state. Comparison, subclassing, and text forms use other dunders.",
+      "hint": "__init__ sets up instance state.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.5-0004",
+      "topic": "Two Hooks Driving One Operation",
+      "learningObjective": "Explain the split between __new__ and __init__",
+      "practice": "new vs init",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A transit planner wonders why Python has both __new__ and __init__. Explain in one model answer.",
+      "options": null,
+      "answer": {
+        "exemplar": "__new__ creates and returns the instance before __init__ receives it to set up state, so creation and initialization stay separate concerns in Python classes."
+      },
+      "explanation": "__new__ is the constructor that allocates the object, while __init__ only initializes it. Separating them lets immutable types and metaclasses control creation.",
+      "hint": "Creation happens before initialization.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      }
+    },
+    {
+      "id": "py-4.5-0005",
+      "topic": "When The Construction Hook Runs",
+      "learningObjective": "State when __init__ executes",
+      "practice": "init timing",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner defines class Trip with __init__. When does __init__ run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "When an instance is created by calling the class",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "When the class object itself is created at definition",
+          "misconception": "confuses class creation with instance creation"
+        },
+        {
+          "id": "C",
+          "text": "When a subclass overrides a method",
+          "misconception": "confuses method override with construction"
+        },
+        {
+          "id": "D",
+          "text": "When the module finishes importing",
+          "misconception": "confuses import completion with instantiation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Calling the class triggers __new__ then __init__. Class definition, overriding, and import do not call __init__.",
+      "hint": "Calling the class builds an instance.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.5-0006",
+      "topic": "The Two Text Forms Of An Object",
+      "learningObjective": "Name the two string representations",
+      "practice": "str repr",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks which two dunders define an object's text forms. Which pair?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__print__ and __display__",
+          "misconception": "invents nonexistent dunders"
+        },
+        {
+          "id": "B",
+          "text": "__str__ and __format__",
+          "misconception": "confuses formatting protocol with repr"
+        },
+        {
+          "id": "C",
+          "text": "__repr__ and __bytes__",
+          "misconception": "confuses byte representation with text"
+        },
+        {
+          "id": "D",
+          "text": "__str__ and __repr__",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "__str__ gives the readable form and __repr__ gives the developer form. __format__ and __bytes__ serve other purposes.",
+      "hint": "Readable form and developer form.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0007",
+      "topic": "Who Each Text Form Is Written For",
+      "learningObjective": "Match str and repr to audiences",
+      "practice": "str audience",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner prints an object in a user report versus a debugger. Which form suits each?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__repr__ for users and __str__ for developers",
+          "misconception": "swaps the two audiences"
+        },
+        {
+          "id": "B",
+          "text": "Both forms are identical in every case",
+          "misconception": "assumes str and repr never differ"
+        },
+        {
+          "id": "C",
+          "text": "__str__ for users and __repr__ for developers",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Neither form is ever shown to users",
+          "misconception": "ignores str's user-facing purpose"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "__str__ targets end users with readable text, while __repr__ targets developers with unambiguous detail. They often differ.",
+      "hint": "Users read str, developers read repr.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "py-4.5-0008",
+      "topic": "Equality And Hashing That Disagree",
+      "learningObjective": "Spot inconsistent __eq__ and __hash__",
+      "practice": "eq hash",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A transit planner defines __eq__ on Stop but leaves __hash__ as None. What breaks?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stop instances can no longer be compared with ==",
+          "misconception": "thinks __eq__ removal accompanies __hash__ loss"
+        },
+        {
+          "id": "B",
+          "text": "Only mutable attributes are affected",
+          "misconception": "limits the impact to mutable attributes"
+        },
+        {
+          "id": "C",
+          "text": "Hashing speed improves because None skips work",
+          "misconception": "assumes None optimizes hashing"
+        },
+        {
+          "id": "D",
+          "text": "Stop instances become unhashable and unusable in sets",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Defining __eq__ sets __hash__ to None, making instances unhashable. They cannot be used in sets or as dict keys.",
+      "hint": "Custom equality removes hashing by default.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 38,
+        "p75Sec": 60
+      }
+    },
+    {
+      "id": "py-4.5-0009",
+      "topic": "A Method The Subclass Replaces",
+      "learningObjective": "Recognize method overriding",
+      "practice": "override",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner subclasses ExpressRoute from Route and redefines fare(). Which method runs on ExpressRoute()?",
+      "options": [
+        {
+          "id": "A",
+          "text": "ExpressRoute.fare because the subclass replaces it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Route.fare because the subclass inherits unchanged",
+          "misconception": "ignores the override in the subclass"
+        },
+        {
+          "id": "C",
+          "text": "Both methods run in sequence",
+          "misconception": "assumes overrides chain automatically"
+        },
+        {
+          "id": "D",
+          "text": "Neither runs because fare is not called explicitly",
+          "misconception": "confuses definition with invocation"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A subclass method with the same name overrides the parent method. Calling fare on an instance uses the subclass version.",
+      "hint": "Same name in subclass wins.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.5-0010",
+      "topic": "Reaching The Parent Explicitly",
+      "learningObjective": "Use super to call a parent method",
+      "practice": "super call",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner writes super().__init__() inside ExpressRoute.__init__. What does it do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Creates a new unrelated Route instance",
+          "misconception": "treats super as a constructor call for a new object"
+        },
+        {
+          "id": "B",
+          "text": "Replaces ExpressRoute with Route permanently",
+          "misconception": "assumes super changes the class identity"
+        },
+        {
+          "id": "C",
+          "text": "Calls Route.__init__ on the current instance",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Skips ExpressRoute initialization entirely",
+          "misconception": "confuses delegation with skipping"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "super() returns a proxy to the parent class, so super().__init__() initializes the current instance using Route's logic.",
+      "hint": "super delegates to the parent.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "py-4.5-0011",
+      "topic": "Arranging Two Parents",
+      "learningObjective": "Understand multiple inheritance declaration",
+      "practice": "mro basics",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner writes class MetroBus(Route, Vehicle). What is the parent order?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vehicle then Route",
+          "misconception": "reverses the declared parent order"
+        },
+        {
+          "id": "B",
+          "text": "Only the first parent is kept",
+          "misconception": "thinks multiple inheritance drops later parents"
+        },
+        {
+          "id": "C",
+          "text": "Alphabetical by class name",
+          "misconception": "assumes automatic alphabetical ordering"
+        },
+        {
+          "id": "D",
+          "text": "Route then Vehicle",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Parents are listed left to right in the declaration. The MRO uses that order as a starting point.",
+      "hint": "Declaration order is left to right.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "py-4.5-0012",
+      "topic": "The Order A Search Walks",
+      "learningObjective": "Name the method resolution order",
+      "practice": "mro order",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks what MRO stands for. Which expansion is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Method Resolution Order",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Module Resolution Object",
+          "misconception": "confuses modules with methods"
+        },
+        {
+          "id": "C",
+          "text": "Method Return Order",
+          "misconception": "invents a return-focused expansion"
+        },
+        {
+          "id": "D",
+          "text": "Memory Reference Offset",
+          "misconception": "confuses memory layout with lookup order"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "MRO is Method Resolution Order, the linearized search path Python uses for attributes and methods.",
+      "hint": "It is the lookup path for methods.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 24,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.5-0013",
+      "topic": "A Value Computed On Every Read",
+      "learningObjective": "Explain property getter behavior",
+      "practice": "property get",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner wraps distance with @property. What happens on each access?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The value is cached after the first read",
+          "misconception": "assumes property caches automatically"
+        },
+        {
+          "id": "B",
+          "text": "Access raises an error without a setter",
+          "misconception": "thinks setters are required for reads"
+        },
+        {
+          "id": "C",
+          "text": "The value is computed only at construction",
+          "misconception": "confuses property with instance attribute"
+        },
+        {
+          "id": "D",
+          "text": "The getter runs every time the attribute is read",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A property invokes its getter on every access, so the value is recomputed each time unless you cache manually.",
+      "hint": "Property access calls the getter.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.5-0014",
+      "topic": "A Value Shared Until An Object Sets Its Own",
+      "learningObjective": "Explain class attribute sharing and override",
+      "practice": "shared attr",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A transit planner sets a class attribute fare then assigns instance.fare = 5. Explain the result.",
+      "options": null,
+      "answer": {
+        "exemplar": "The instance now has its own fare attribute that shadows the class attribute, while other instances still see the shared class value."
+      },
+      "explanation": "Instance assignment creates an instance attribute that shadows the class attribute. Other instances keep seeing the shared class value.",
+      "hint": "Instance assignment shadows the class value.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "py-4.5-0015",
+      "topic": "An Attribute That Arrives On Its Own",
+      "learningObjective": "Describe __getattr__ fallback",
+      "practice": "getattr",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner defines __getattr__ on Route. When does it run?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only when normal lookup fails",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "On every attribute access including existing ones",
+          "misconception": "confuses __getattr__ with __getattribute__"
+        },
+        {
+          "id": "C",
+          "text": "Only during class creation",
+          "misconception": "limits it to class creation time"
+        },
+        {
+          "id": "D",
+          "text": "Only for private names starting with underscore",
+          "misconception": "restricts it to private names"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "__getattr__ is a fallback called only when normal attribute lookup fails. __getattribute__ runs on every access.",
+      "hint": "It is the fallback hook.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0016",
+      "topic": "Catching A Parent Class",
+      "learningObjective": "Use except with a base exception",
+      "practice": "except base",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner writes except Exception as e. Which errors does it catch?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only errors raised in the try block",
+          "misconception": "ignores the exception hierarchy"
+        },
+        {
+          "id": "B",
+          "text": "Only the exact Exception class",
+          "misconception": "thinks except is exact-match only"
+        },
+        {
+          "id": "C",
+          "text": "Exception and its subclasses",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "BaseException and all subclasses",
+          "misconception": "confuses Exception with BaseException"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An except clause catches the named exception and all its subclasses. BaseException is broader and includes SystemExit.",
+      "hint": "Subclasses are caught too.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.5-0017",
+      "topic": "A Fault That Carries Its Own Numbers",
+      "learningObjective": "Store data in a custom exception",
+      "practice": "custom exc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner raises DelayError(minutes=12). Where can minutes be read?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only in the traceback text",
+          "misconception": "thinks data lives only in traceback"
+        },
+        {
+          "id": "B",
+          "text": "It cannot be read after raising",
+          "misconception": "assumes raised exceptions lose data"
+        },
+        {
+          "id": "C",
+          "text": "From the class docstring",
+          "misconception": "confuses docstring with instance data"
+        },
+        {
+          "id": "D",
+          "text": "From the exception instance attribute",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A custom exception can store data as instance attributes accessible after catching. Tracebacks and docstrings are not the channel.",
+      "hint": "Store it on the instance.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "py-4.5-0018",
+      "topic": "A Hand-Written Context Manager",
+      "learningObjective": "Implement __enter__ and __exit__",
+      "practice": "context mgr",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner writes a class with __enter__ and __exit__. What protocol is it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Context manager protocol",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Descriptor protocol",
+          "misconception": "confuses context manager with descriptor"
+        },
+        {
+          "id": "C",
+          "text": "Iterator protocol",
+          "misconception": "confuses context manager with iterator"
+        },
+        {
+          "id": "D",
+          "text": "Callable protocol",
+          "misconception": "confuses context manager with callable"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "__enter__ and __exit__ implement the context manager protocol used by with statements.",
+      "hint": "with statements use this protocol.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 26,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "py-4.5-0019",
+      "topic": "One Check Over Several Cases",
+      "learningObjective": "Use parametrize to run multiple cases",
+      "practice": "parametrize",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner uses pytest.mark.parametrize. What does it produce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A single test run with all cases combined",
+          "misconception": "thinks cases collapse into one run"
+        },
+        {
+          "id": "B",
+          "text": "A fixture shared across tests",
+          "misconception": "confuses parametrize with fixture"
+        },
+        {
+          "id": "C",
+          "text": "A skipped test for each case",
+          "misconception": "confuses parametrize with skip"
+        },
+        {
+          "id": "D",
+          "text": "Multiple test invocations from one function",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "parametrize generates one test invocation per parameter set, reported separately. It is not skipping or fixture sharing.",
+      "hint": "One function, many invocations.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0020",
+      "topic": "One Assertion Over Several Cases",
+      "learningObjective": "Use pytest.raises for exception checks",
+      "practice": "pytest raises",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner wraps code in pytest.raises(ValueError). What is checked?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That ValueError is raised",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That no exception is raised",
+          "misconception": "reverses the expectation"
+        },
+        {
+          "id": "C",
+          "text": "That the test always passes",
+          "misconception": "thinks raises makes tests pass"
+        },
+        {
+          "id": "D",
+          "text": "That the value equals zero",
+          "misconception": "confuses raises with equality check"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "pytest.raises asserts that the block raises the named exception. It fails if no exception or a different one occurs.",
+      "hint": "It expects the exception.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "py-4.5-0021",
+      "topic": "A Method That Needs Neither Self Nor The Class",
+      "learningObjective": "Choose staticmethod over classmethod",
+      "practice": "staticmethod",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner has a helper that uses no instance or class state. Which decorator fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "@classmethod because it receives the class",
+          "misconception": "uses classmethod when no class state is needed"
+        },
+        {
+          "id": "B",
+          "text": "@property because it computes a value",
+          "misconception": "confuses computed property with helper"
+        },
+        {
+          "id": "C",
+          "text": "@staticmethod because it receives neither",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "@abstractmethod because it must be overridden",
+          "misconception": "confuses abstract requirement with helper"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "staticmethod defines a function with no implicit self or cls. classmethod, property, and abstractmethod serve different purposes.",
+      "hint": "No implicit first argument.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 31,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.5-0022",
+      "topic": "Shared Setup That Survives Between Tests",
+      "learningObjective": "Identify fixture scope default",
+      "practice": "fixture scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner defines a pytest fixture with no scope argument. What is its scope?",
+      "options": [
+        {
+          "id": "A",
+          "text": "session",
+          "misconception": "overestimates default scope"
+        },
+        {
+          "id": "B",
+          "text": "module",
+          "misconception": "confuses default with module scope"
+        },
+        {
+          "id": "C",
+          "text": "class",
+          "misconception": "confuses default with class scope"
+        },
+        {
+          "id": "D",
+          "text": "function",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The default fixture scope is function, so setup runs once per test function. Other scopes must be requested explicitly.",
+      "hint": "Default is per test function.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 22,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "py-4.5-0023",
+      "topic": "What A Setup Can Be Narrowed To",
+      "learningObjective": "Explain fixture scope choices",
+      "practice": "scope choice",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A transit planner asks why choose session scope for a database fixture. Explain briefly.",
+      "options": null,
+      "answer": {
+        "exemplar": "Session scope builds the database once for the whole run, saving setup cost when tests only read shared state."
+      },
+      "explanation": "A broader scope reduces repeated setup cost but risks shared mutable state. Choose scope based on isolation needs.",
+      "hint": "Broader scope saves setup cost.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 64
+      }
+    },
+    {
+      "id": "py-4.5-0024",
+      "topic": "Standing In For A Collaborator",
+      "learningObjective": "Use a mock object",
+      "practice": "mocking",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner replaces a network client with a fake in a test. What is this called?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mocking",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Refactoring",
+          "misconception": "confuses test double with code restructuring"
+        },
+        {
+          "id": "C",
+          "text": "Linting",
+          "misconception": "confuses test double with static analysis"
+        },
+        {
+          "id": "D",
+          "text": "Profiling",
+          "misconception": "confuses test double with performance measurement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Replacing a collaborator with a controlled fake is mocking. Refactoring, linting, and profiling are unrelated activities.",
+      "hint": "It is a test double.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.5-0025",
+      "topic": "Two Calls Recorded And Counted",
+      "learningObjective": "Inspect mock call counts",
+      "practice": "mock calls",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A transit planner mocks a client and calls send twice. How many calls does mock.send.call_count equal?",
+      "options": null,
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "Each call increments call_count, so two calls yield 2. The count reflects invocations, not arguments.",
+      "hint": "Count the invocations.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 20,
+        "p75Sec": 35
+      }
+    },
+    {
+      "id": "py-4.5-0026",
+      "topic": "Why Equality And Hashing Must Agree",
+      "learningObjective": "Explain the hash/eq contract",
+      "practice": "hash contract",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A transit planner asks why equal objects must have equal hashes. Explain briefly.",
+      "options": null,
+      "answer": {
+        "exemplar": "If two objects compare equal but hash differently, a set or dict may store both and break lookup invariants."
+      },
+      "explanation": "The contract requires equal objects to share a hash so sets and dicts can find them. Violating it causes duplicate storage and failed lookups.",
+      "hint": "Sets rely on matching hashes.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 23,
+        "medianSec": 41,
+        "p75Sec": 63
+      }
+    },
+    {
+      "id": "py-4.5-0027",
+      "topic": "An Assertion That Stops The Test",
+      "learningObjective": "Describe assert behavior",
+      "practice": "assert stop",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner writes assert x == 5 in a test. What happens if x is 3?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The test is skipped",
+          "misconception": "confuses assertion failure with skip"
+        },
+        {
+          "id": "B",
+          "text": "A warning is logged and test continues",
+          "misconception": "confuses assert with warning"
+        },
+        {
+          "id": "C",
+          "text": "The value is silently corrected",
+          "misconception": "assumes assert fixes values"
+        },
+        {
+          "id": "D",
+          "text": "An AssertionError stops the test",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A failed assert raises AssertionError and stops the test. It does not skip, correct, or warn.",
+      "hint": "Failure raises an error.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.5-0028",
+      "topic": "An Assertion That Checks Almost Nothing",
+      "learningObjective": "Spot a weak assertion",
+      "practice": "weak assert",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A transit planner's test ends with assert result is not None. Why is this weak?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It passes for almost any non-None value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It rejects valid None results",
+          "misconception": "reverses the weakness"
+        },
+        {
+          "id": "C",
+          "text": "It raises an error on booleans",
+          "misconception": "invents boolean handling issue"
+        },
+        {
+          "id": "D",
+          "text": "It only works in pytest",
+          "misconception": "limits assert to pytest"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "assert result is not None passes for many wrong values, so it checks almost nothing. A stronger assertion compares the expected value.",
+      "hint": "It allows too many values.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.5-0029",
+      "topic": "A Total Over No Values",
+      "learningObjective": "Compute sum of empty iterable",
+      "practice": "sum empty",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A transit planner calls sum([]) for an empty list of delays. What is the result?",
+      "options": null,
+      "answer": {
+        "value": 0,
+        "tolerance": 0.01
+      },
+      "explanation": "sum of an empty iterable is 0, the default start. No items contribute to the total.",
+      "hint": "Empty sum starts at zero.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 8,
+        "medianSec": 18,
+        "p75Sec": 32
+      }
+    },
+    {
+      "id": "py-4.5-0030",
+      "topic": "A Default That Was Never Replaced",
+      "learningObjective": "Explain mutable default argument pitfall",
+      "practice": "mutable default",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A transit planner uses def add_stop(stops=[]). What is the pitfall?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The list is recreated each call",
+          "misconception": "assumes fresh default each call"
+        },
+        {
+          "id": "B",
+          "text": "The default cannot be overridden",
+          "misconception": "thinks defaults are immutable"
+        },
+        {
+          "id": "C",
+          "text": "The same list is shared across calls",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It raises a syntax error",
+          "misconception": "invents syntax error"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A mutable default is evaluated once at definition time, so the same list persists across calls and accumulates state.",
+      "hint": "Defaults are evaluated once.",
+      "difficulty": 0.35,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      }
+    },
+    {
+      "id": "py-4.5-0031",
+      "topic": "What A Setup Scope Decides",
+      "learningObjective": "State what scope controls",
+      "practice": "scope effect",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner changes a fixture scope from function to module. What changes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It becomes a parametrized test",
+          "misconception": "confuses scope with parametrize"
+        },
+        {
+          "id": "B",
+          "text": "The fixture runs after every test",
+          "misconception": "reverses setup and teardown timing"
+        },
+        {
+          "id": "C",
+          "text": "Only one test can use it",
+          "misconception": "confuses scope with usage limit"
+        },
+        {
+          "id": "D",
+          "text": "The fixture value is cached across tests in the module",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Module scope runs setup once per module and reuses the value across tests in that module. It does not restrict usage or parametrize.",
+      "hint": "Scope sets reuse lifetime.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 31,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.5-0032",
+      "topic": "A Row Shorter Than The Header",
+      "learningObjective": "Handle short rows in CSV reading",
+      "practice": "csv row",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner reads CSV rows and one row has fewer fields than the header. What is likely?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The reader raises an error automatically",
+          "misconception": "assumes automatic error on short rows"
+        },
+        {
+          "id": "B",
+          "text": "The header shrinks to match",
+          "misconception": "thinks header adapts to row length"
+        },
+        {
+          "id": "C",
+          "text": "Missing fields are filled with None or empty",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The row is silently skipped",
+          "misconception": "assumes short rows are dropped"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "CSV readers typically pad short rows with None or empty strings rather than raising or skipping. Check your reader's behavior.",
+      "hint": "Short rows are padded.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "py-4.5-0033",
+      "topic": "Comparing Two Kinds Of Instant",
+      "learningObjective": "Compare datetime with and without tzinfo",
+      "practice": "datetime tz",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A transit planner compares a naive datetime with an aware one. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "They compare equal if wall times match",
+          "misconception": "ignores timezone awareness in comparison"
+        },
+        {
+          "id": "B",
+          "text": "The aware one loses its tzinfo",
+          "misconception": "thinks comparison strips timezone"
+        },
+        {
+          "id": "C",
+          "text": "The naive one is treated as UTC",
+          "misconception": "assumes implicit UTC conversion"
+        },
+        {
+          "id": "D",
+          "text": "Python raises TypeError",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Comparing naive and aware datetimes raises TypeError because Python cannot reconcile the missing timezone.",
+      "hint": "Awareness mismatch raises.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0034",
+      "topic": "Records Filed Under A Key",
+      "learningObjective": "Group records with defaultdict",
+      "practice": "defaultdict",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner uses defaultdict(list) and accesses a missing key. What happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An empty list is created and returned",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "KeyError is raised",
+          "misconception": "treats defaultdict like dict"
+        },
+        {
+          "id": "C",
+          "text": "None is returned",
+          "misconception": "assumes missing gives None"
+        },
+        {
+          "id": "D",
+          "text": "The key is deleted",
+          "misconception": "confuses access with deletion"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "defaultdict calls the factory for missing keys, so accessing a missing key creates and returns an empty list.",
+      "hint": "Factory fills missing keys.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.5-0035",
+      "topic": "What A Declaration Writes For You",
+      "learningObjective": "Describe dataclass generated methods",
+      "practice": "dataclass",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner decorates a class with @dataclass. What is generated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only a constructor",
+          "misconception": "underestimates generated methods"
+        },
+        {
+          "id": "B",
+          "text": "A database table"
+        },
+        {
+          "id": "C",
+          "text": "__init__, __repr__, and __eq__ by default",
+          " misconn": "confuses dataclass with ORM",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Nothing unless methods are written",
+          "misconception": "thinks the decorator is inert"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "@dataclass generates __init__, __repr__, and __eq__ by default, with options to add more. It does not create tables.",
+      "hint": "It generates common dunder methods.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0036",
+      "topic": "A Fault That Names The Family",
+      "learningObjective": "Create exception hierarchy",
+      "practice": "exc family",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner defines class DelayError(TransitError). What relationship exists?",
+      "options": [
+        {
+          "id": "A",
+          "text": "DelayError is unrelated to TransitError",
+          "misconception": "ignores inheritance"
+        },
+        {
+          "id": "B",
+          "text": "They are aliases of the same class",
+          "misconception": "confuses subclassing with aliasing"
+        },
+        {
+          "id": "C",
+          "text": "TransitError subclasses DelayError",
+          "misconception": "reverses inheritance direction"
+        },
+        {
+          "id": "D",
+          "text": "DelayError subclasses TransitError",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Declaring DelayError(TransitError) makes DelayError a subclass, so catching TransitError also catches DelayError.",
+      "hint": "Parentheses name the parent.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 26,
+        "p75Sec": 46
+      }
+    },
+    {
+      "id": "py-4.5-0037",
+      "topic": "The Three Parts Of A Test",
+      "learningObjective": "Name the arrange-act-assert pattern",
+      "practice": "aaa pattern",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner structures a test as setup, call, check. What is this pattern?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Arrange-Act-Assert",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Given-When-Then",
+          "misconception": "confuses BDD phrasing with AAA"
+        },
+        {
+          "id": "C",
+          "text": "Input-Process-Output",
+          "misconception": "generic I/O phrasing"
+        },
+        {
+          "id": "D",
+          "text": "Plan-Do-Check",
+          "misconception": "invents a PDCA variant"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Arrange-Act-Assert names the three phases: set up, invoke, verify. Given-When-Then is the BDD equivalent.",
+      "hint": "Three A words.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 23,
+        "p75Sec": 43
+      }
+    },
+    {
+      "id": "py-4.5-0038",
+      "topic": "How Many Calls One Request Made",
+      "learningObjective": "Count calls recorded by a mock",
+      "practice": "mock count",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A transit planner's mock records 3 calls to fetch and 2 calls to save. How many total calls?",
+      "options": null,
+      "answer": {
+        "value": 5,
+        "tolerance": 0.01
+      },
+      "explanation": "Add the recorded calls: 3 plus 2 equals 5. The total reflects distinct invocations.",
+      "hint": "Add the two counts.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 19,
+        "p75Sec": 34
+      }
+    },
+    {
+      "id": "py-4.5-0039",
+      "topic": "A Total Built From A Table Of Records",
+      "learningObjective": "Compute a total from records",
+      "practice": "table total",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A transit planner sums fares [2,3,4,5] for four riders. What is the total fare?",
+      "options": null,
+      "answer": {
+        "value": 14,
+        "tolerance": 0.01
+      },
+      "explanation": "2 plus 3 plus 4 plus 5 equals 14. Sum each record's fare once.",
+      "hint": "Add the four fares.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 20,
+        "p75Sec": 35
+      }
+    },
+    {
+      "id": "py-4.5-0040",
+      "topic": "Reaching The Class And Not The Object",
+      "learningObjective": "Use __class__ to reach the class",
+      "practice": "class access",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner accesses obj.__class__. What does it return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The instance dictionary",
+          "misconception": "confuses __class__ with __dict__"
+        },
+        {
+          "id": "B",
+          "text": "The parent module",
+          "misconception": "confuses class with module"
+        },
+        {
+          "id": "C",
+          "text": "The class that created the instance",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A copy of the instance",
+          "misconception": "thinks __class__ clones"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "__class__ points to the class that created the instance. __dict__ holds instance attributes, not the class.",
+      "hint": "It names the creating class.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.5-0041",
+      "topic": "A Class And The Object Made From It",
+      "learningObjective": "Trace instance creation from a class definition",
+      "practice": "class basics",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A transit planner writes class Stop: pass. First, is Stop callable? Second, what does Stop() return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No; it returns None",
+          "misconception": "thinks classes are not callable"
+        },
+        {
+          "id": "B",
+          "text": "No; it raises TypeError",
+          "misconception": "assumes pass makes it uncallable"
+        },
+        {
+          "id": "C",
+          "text": "Yes; it returns the class",
+          "misconception": "confuses instance with class return"
+        },
+        {
+          "id": "D",
+          "text": "Yes; it returns an instance",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Classes are callable and calling one creates an instance. pass does not prevent instantiation.",
+      "hint": "Classes are callable.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.5-0042",
+      "topic": "One Attribute Held By The Class",
+      "learningObjective": "Distinguish class attributes from instance attributes",
+      "practice": "class attrs",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner changes a class attribute on one instance. Do other instances see the change?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, only that instance changes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, all instances share the new value",
+          "misconception": "thinks instance change propagates to class"
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only after reload",
+          "misconception": "introduces nonexistent reload step"
+        },
+        {
+          "id": "D",
+          "text": "No, and the instance change is ignored",
+          "misconception": "thinks instance assignment is ignored"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Assigning on an instance creates an instance attribute that shadows the class value; other instances keep the original.",
+      "hint": "Instance assignment shadows.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0043",
+      "topic": "What A Double-Under Method Is For",
+      "learningObjective": "Identify the role of a dunder method",
+      "practice": "dunder role",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks what __len__ is for. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It converts an object to an integer index",
+          "misconception": "confuses len with int conversion"
+        },
+        {
+          "id": "B",
+          "text": "It returns the memory size in bytes",
+          "misconception": "confuses len with sys.getsizeof"
+        },
+        {
+          "id": "C",
+          "text": "It returns the number of items",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It checks whether the object is empty",
+          "misconception": "confuses len with truthiness"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "__len__ returns the number of items so len() works. It is not about conversion, memory, or truthiness.",
+      "hint": "It counts items.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.5-0044",
+      "topic": "Two Hooks Driving One Operation",
+      "learningObjective": "Explain the split between __new__ and __init__",
+      "practice": "new vs init",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks which hook can return a different class instance. Which one?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__init__ because it controls setup",
+          "misconception": "gives creation power to init"
+        },
+        {
+          "id": "B",
+          "text": "__call__ because it makes instances callable",
+          "misconception": "confuses callability with creation"
+        },
+        {
+          "id": "C",
+          "text": "__del__ because it finalizes objects",
+          "misconception": "confuses finalization with creation"
+        },
+        {
+          "id": "D",
+          "text": "__new__ because it creates the object",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "__new__ creates and can return an instance of a different class. __init__ only initializes the already created object.",
+      "hint": "Creation controls the class.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 17,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "py-4.5-0045",
+      "topic": "When The Construction Hook Runs",
+      "learningObjective": "State when __init__ executes",
+      "practice": "init timing",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner calls Route() inside a loop of 3 iterations. How many times does __init__ run?",
+      "options": null,
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Each call to Route() runs __init__ once, so 3 iterations yield 3 runs.",
+      "hint": "Once per call.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 9,
+        "medianSec": 19,
+        "p75Sec": 34
+      }
+    },
+    {
+      "id": "py-4.5-0046",
+      "topic": "The Two Text Forms Of An Object",
+      "learningObjective": "Name the two string representations",
+      "practice": "str repr",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks which function uses __repr__ by default. Which one?",
+      "options": [
+        {
+          "id": "A",
+          "text": "repr()",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "str()",
+          "misconception": "confuses str with repr"
+        },
+        {
+          "id": "C",
+          "text": "print()",
+          "misconception": "print uses str, not repr"
+        },
+        {
+          "id": "D",
+          "text": "input()",
+          "misconception": "confuses input with repr"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "repr() uses __repr__, while str() and print() use __str__. input() reads text and is unrelated.",
+      "hint": "repr matches __repr__.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 24,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.5-0047",
+      "topic": "Who Each Text Form Is Written For",
+      "learningObjective": "Match str and repr to audiences",
+      "practice": "str audience",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner wants an unambiguous developer string. Which dunder should they implement carefully?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__str__",
+          "misconception": "chooses user-facing form for debugging"
+        },
+        {
+          "id": "B",
+          "text": "__format__",
+          "misconception": "confuses format with repr"
+        },
+        {
+          "id": "C",
+          "text": "__repr__",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "__bytes__",
+          "misconception": "confuses bytes with text"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "__repr__ should be unambiguous and ideally eval-able. __str__ is for readable user output.",
+      "hint": "repr is for developers.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "py-4.5-0048",
+      "topic": "Equality And Hashing That Disagree",
+      "learningObjective": "Spot inconsistent __eq__ and __hash__",
+      "practice": "eq hash",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner defines __eq__ and wants instances hashable. What must they do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing; hashability is automatic",
+          "misconception": "assumes eq keeps hash"
+        },
+        {
+          "id": "B",
+          "text": "Make the class final",
+          "misconception": "confuses finality with hashing"
+        },
+        {
+          "id": "C",
+          "text": "Remove __eq__",
+          "misconception": "sacrifices equality for hashing"
+        },
+        {
+          "id": "D",
+          "text": "Implement __hash__ explicitly",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Defining __eq__ sets __hash__ to None, so you must implement __hash__ explicitly to keep instances hashable.",
+      "hint": "Reimplement hash manually.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.5-0049",
+      "topic": "A Method The Subclass Replaces",
+      "learningObjective": "Recognize method overriding",
+      "practice": "override",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner calls super().fare() inside an override. What does it do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Runs the parent version on the same instance",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Skips the subclass version",
+          "misconception": "thinks super replaces rather than delegates"
+        },
+        {
+          "id": "C",
+          "text": "Creates a parent instance",
+          "misconception": "treats super as construction"
+        },
+        {
+          "id": "D",
+          "text": "Raises an error",
+          "misconception": "assumes super is invalid in methods"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "super().fare() delegates to the parent implementation on the current instance, allowing reuse of parent logic.",
+      "hint": "It delegates to parent.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 31,
+        "p75Sec": 51
+      }
+    },
+    {
+      "id": "py-4.5-0050",
+      "topic": "Reaching The Parent Explicitly",
+      "learningObjective": "Use super to call a parent method",
+      "practice": "super call",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner writes Route.__init__(self). Is this equivalent to super().__init__()?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Always equivalent",
+          "misconception": "ignores MRO differences"
+        },
+        {
+          "id": "B",
+          "text": "Never equivalent",
+          "misconception": "overstates the difference"
+        },
+        {
+          "id": "C",
+          "text": "Not always; super follows MRO",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Equivalent only in Python 2",
+          "misconception": "confuses version differences"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Explicit parent calls bypass the MRO and can break cooperative multiple inheritance. super() follows the MRO.",
+      "hint": "super follows MRO.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 19,
+        "medianSec": 34,
+        "p75Sec": 54
+      }
+    },
+    {
+      "id": "py-4.5-0051",
+      "topic": "Arranging Two Parents",
+      "learningObjective": "Understand multiple inheritance declaration",
+      "practice": "mro basics",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks whether Python supports multiple inheritance. Is it supported?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, only single inheritance",
+          "misconception": "denies multiple inheritance"
+        },
+        {
+          "id": "B",
+          "text": "Yes, via mixins only",
+          "misconception": "limits it to mixin pattern"
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only for built-in types",
+          "misconception": "restricts it to built-ins"
+        },
+        {
+          "id": "D",
+          "text": "Yes, with multiple base classes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Python supports multiple inheritance by listing multiple base classes. It is not restricted to built-ins or mixins.",
+      "hint": "Multiple bases are allowed.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 10,
+        "medianSec": 22,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "py-4.5-0052",
+      "topic": "The Order A Search Walks",
+      "learningObjective": "Name the method resolution order",
+      "practice": "mro order",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner wants to inspect the MRO of a class. Which attribute helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "__mro__",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "__bases__",
+          "misconception": "confuses direct bases with full MRO"
+        },
+        {
+          "id": "C",
+          "text": "__dict__",
+          "misconception": "confuses namespace with MRO"
+        },
+        {
+          "id": "D",
+          "text": "__class__",
+          "misconception": "confuses instance class with MRO"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "__mro__ is a tuple of classes in resolution order. __bases__ only lists direct parents.",
+      "hint": "MRO is in __mro__.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 25,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "py-4.5-0053",
+      "topic": "A Value Computed On Every Read",
+      "learningObjective": "Explain property getter behavior",
+      "practice": "property get",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner deletes a property's setter. What happens on assignment?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The value is stored in __dict__",
+          "misconception": "assumes fallback storage"
+        },
+        {
+          "id": "B",
+          "text": "The assignment is ignored",
+          "misconception": "thinks missing setter is no-op"
+        },
+        {
+          "id": "C",
+          "text": "AttributeError is raised",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A default setter is used",
+          "misconception": "invents default setter"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A property without a setter raises AttributeError on assignment. There is no fallback storage or default setter.",
+      "hint": "No setter means error.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 29,
+        "p75Sec": 49
+      }
+    },
+    {
+      "id": "py-4.5-0054",
+      "topic": "A Value Shared Until An Object Sets Its Own",
+      "learningObjective": "Explain class attribute sharing and override",
+      "practice": "shared attr",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A transit planner mutates a shared list class attribute via one instance. Do other instances see the mutation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, each instance has its own list",
+          "misconception": "thinks mutation copies the list"
+        },
+        {
+          "id": "B",
+          "text": "Yes, but only after garbage collection",
+          "misconception": "introduces unrelated GC step"
+        },
+        {
+          "id": "C",
+          "text": "No, mutation raises an error",
+          "misconception": "invents mutation restriction"
+        },
+        {
+          "id": "D",
+          "text": "Yes, because the same list object is shared",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Mutating a shared mutable class attribute affects all instances because they reference the same object. Rebinding would shadow instead.",
+      "hint": "Mutation shares the object.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 33,
+        "p75Sec": 53
+      }
+    },
+    {
+      "id": "py-4.5-0055",
+      "topic": "An Attribute That Arrives On Its Own",
+      "learningObjective": "Describe __getattr__ fallback",
+      "practice": "getattr",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner asks whether __getattr__ is called for existing attributes. Is it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, only missing attributes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Yes, every access triggers it",
+          "misconception": "confuses with __getattribute__"
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only in subclasses",
+          "misconception": "adds nonexistent subclass rule"
+        },
+        {
+          "id": "D",
+          "text": "No, and it is never called",
+          "misconception": "denies __getattr__ entirely"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "__getattr__ runs only when normal lookup fails, so existing attributes bypass it. __getattribute__ runs on every access.",
+      "hint": "Only missing triggers it.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 28,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "py-4.5-0056",
+      "topic": "Catching A Parent Class",
+      "learningObjective": "Use except with a base exception",
+      "practice": "except base",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner catches TransitError. Does it catch DelayError(TransitError)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, only exact matches",
+          "misconception": "thinks except is exact-match"
+        },
+        {
+          "id": "B",
+          "text": "No, unless re-raised",
+          "misconception": "adds unnecessary re-raise"
+        },
+        {
+          "id": "C",
+          "text": "Yes, subclasses are caught",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Yes, but only the first time",
+          "misconception": "invents one-time catch rule"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An except clause catches subclasses, so TransitError catches DelayError. No re-raise or one-time rule applies.",
+      "hint": "Subclasses are included.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 44
+      }
+    },
+    {
+      "id": "py-4.5-0057",
+      "topic": "A Fault That Carries Its Own Numbers",
+      "learningObjective": "Store data in a custom exception",
+      "practice": "custom exc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner wants to attach a code to an exception. Best approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Print it to stdout",
+          "misconception": "uses output instead of exception data"
+        },
+        {
+          "id": "B",
+          "text": "Raise a different exception type",
+          "misconception": "avoids carrying data"
+        },
+        {
+          "id": "C",
+          "text": "Put it in the class name",
+          "misconception": "overloads class name with data"
+        },
+        {
+          "id": "D",
+          "text": "Store it as an instance attribute",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Storing data as an instance attribute keeps it accessible after catching. Printing or renaming does not.",
+      "hint": "Attach data to the instance.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "py-4.5-0058",
+      "topic": "A Hand-Written Context Manager",
+      "learningObjective": "Implement __enter__ and __exit__",
+      "practice": "context mgr",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner's __exit__ returns True. What effect does that have?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It suppresses the exception",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It re-raises the exception",
+          "misconception": "reverses the return meaning"
+        },
+        {
+          "id": "C",
+          "text": "It logs the exception only",
+          "misconception": "confuses return with logging"
+        },
+        {
+          "id": "D",
+          "text": "It retries the block",
+          "misconception": "confuses return with retry"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Returning True from __exit__ suppresses the exception. False or None lets it propagate.",
+      "hint": "True suppresses.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 13,
+        "medianSec": 27,
+        "p75Sec": 47
+      }
+    },
+    {
+      "id": "py-4.5-0059",
+      "topic": "One Check Over Several Cases",
+      "learningObjective": "Use parametrize to run multiple cases",
+      "practice": "parametrize",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner parametrizes a test with 4 cases. How many test results appear?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 combined result",
+          "misconception": "thinks cases collapse"
+        },
+        {
+          "id": "B",
+          "text": "0 because parametrize only collects",
+          "misconception": "confuses collection with execution"
+        },
+        {
+          "id": "C",
+          "text": "4 separate results",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "8 because each case runs twice",
+          "misconception": "invents double execution"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "parametrize produces one result per case, so 4 cases yield 4 results. They are not collapsed or doubled.",
+      "hint": "One result per case.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 11,
+        "medianSec": 23,
+        "p75Sec": 43
+      }
+    },
+    {
+      "id": "py-4.5-0060",
+      "topic": "One Assertion Over Several Cases",
+      "learningObjective": "Use pytest.raises for exception checks",
+      "practice": "pytest raises",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A transit planner's pytest.raises block completes without raising. What is the test outcome?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pass",
+          "misconception": "thinks absence of exception passes"
+        },
+        {
+          "id": "B",
+          "text": "Error",
+          "misconception": "confuses failure with error"
+        },
+        {
+          "id": "C",
+          "text": "Skip",
+          "misconception": "confuses failure with skip"
+        },
+        {
+          "id": "D",
+          "text": "Fail",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "pytest.raises fails if the expected exception is not raised. It does not pass, skip, or error.",
+      "hint": "Missing exception fails.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 24,
+        "p75Sec": 44
+      }
+    }
+  ]
+}
