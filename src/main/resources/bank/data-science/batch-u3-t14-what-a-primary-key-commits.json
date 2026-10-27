@@ -1,0 +1,2328 @@
+{
+  "meta": {
+    "subject": "DATA_SCIENCE",
+    "unit": "Unit 3",
+    "unitNum": 3,
+    "dir": "data-science",
+    "prefix": "datasci",
+    "slot": 14,
+    "idFrom": 1,
+    "idTo": 60,
+    "scope": "core-scope",
+    "version": 1,
+    "author": "bank-team-data-science",
+    "reviewer": "bank-review-data-science",
+    "reviewedAt": "2026-09-18T00:00:00Z",
+    "aiAssisted": true,
+    "aiModel": "muse-spark",
+    "aiRunId": "sprint2-bank-fill",
+    "humanReviewer": "orchestrator-spotcheck",
+    "attestation": "authored from first principles; no protected content used"
+  },
+  "questions": [
+    {
+      "id": "datasci-3.14-0001",
+      "topic": "What a primary key commits a table to",
+      "learningObjective": "State what a primary key guarantees about rows",
+      "practice": "key commit",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A train dispatcher's log lists every train by a unique number; what does that number commit the table to?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every row is uniquely identified by that column",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The column may contain duplicate values across rows",
+          "misconception": "assumes primary keys allow duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Each row must have a distinct value in that column",
+          "misconception": "confuses uniqueness with non-nullability only"
+        },
+        {
+          "id": "D",
+          "text": "The column is optional for each inserted row",
+          "misconception": "treats the key as nullable and optional"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A primary key commits the table to unique identification of every row; duplicates or nulls would break that commitment.",
+      "hint": "Think about what uniquely identifying a row requires.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0002",
+      "topic": "What a foreign key rules out",
+      "learningObjective": "Identify what a foreign key forbids",
+      "practice": "fk rule",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher Mira checks a train's route code against the route table before logging it; what does a foreign key rule out?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Duplicate route codes inside the route table",
+          "misconception": "confuses foreign key with primary key uniqueness"
+        },
+        {
+          "id": "B",
+          "text": "A train row referencing a route code absent from routes",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Null values in every column of the train row",
+          "misconception": "overstates null handling of foreign keys"
+        },
+        {
+          "id": "D",
+          "text": "Updates to the route table's own primary key",
+          "misconception": "confuses referential action with rule-out"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A foreign key rules out child rows whose referenced parent value does not exist; the other choices describe different constraints.",
+      "hint": "Ask which child value has no matching parent.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-3.14-0003",
+      "topic": "What an inner join drops",
+      "learningObjective": "Explain which rows an inner join discards",
+      "practice": "inner drop",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher Chen joins train runs to stations on station code; which rows does an inner join drop?",
+      "answer": {
+        "exemplar": "An inner join drops every train run whose station code has no matching station, and every station with no train run, keeping only pairs that match on both sides."
+      },
+      "explanation": "Inner join keeps only matching pairs, so unmatched trains and unmatched stations both disappear from the result.",
+      "hint": "Inner means intersection, not preservation.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.14-0004",
+      "topic": "What a left join introduces",
+      "learningObjective": "State what a left join adds for unmatched rows",
+      "practice": "left intro",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A left join of 5 trains to stations yields 5 rows; 2 trains have no station match. How many rows carry null station fields?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "A left join preserves all left rows, filling nulls for the 2 unmatched trains, so 2 rows carry null station fields.",
+      "hint": "Left join keeps every left row.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.14-0005",
+      "topic": "Row multiplication on a non-unique column",
+      "learningObjective": "Recognize row multiplication from non-unique joins",
+      "practice": "row mult",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher Rao joins trains to crew on crew_id, but crew_id repeats across 3 crew rows; what happens to one train row?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It appears once with the first crew row only",
+          "misconception": "assumes join picks one match arbitrarily"
+        },
+        {
+          "id": "B",
+          "text": "It appears once with null crew fields",
+          "misconception": "confuses non-unique join with left join"
+        },
+        {
+          "id": "C",
+          "text": "It disappears because the join is ambiguous",
+          "misconception": "thinks non-unique keys drop rows"
+        },
+        {
+          "id": "D",
+          "text": "It appears three times, once per matching crew",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A non-unique join value multiplies the left row once per match, so one train becomes three rows.",
+      "hint": "Count the matching crew rows.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0006",
+      "topic": "Which rows an aggregate after a join sees",
+      "learningObjective": "Determine which rows an aggregate counts after a join",
+      "practice": "agg join",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "After joining trains to crew on crew_id, dispatcher counts trains per station; which rows does the aggregate see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only original train rows, ignoring multiplication",
+          "misconception": "assumes aggregates deduplicate join output"
+        },
+        {
+          "id": "B",
+          "text": "One row per distinct train regardless of crew",
+          "misconception": "confuses count distinct with count star"
+        },
+        {
+          "id": "C",
+          "text": "Every row produced by the join, including duplicates",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Only crew rows without a matching train",
+          "misconception": "reverses the join direction"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Aggregates run over the join result set, so multiplied rows are counted; deduplication must be explicit.",
+      "hint": "Aggregate follows the join output.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0007",
+      "topic": "Filtering before or after an aggregate",
+      "learningObjective": "Distinguish WHERE from HAVING filtering",
+      "practice": "filter agg",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher filters trains before grouping by station versus after grouping by station; which clause filters rows before the aggregate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Neither clause filters before the aggregate",
+          "misconception": "denies pre-aggregate filtering"
+        },
+        {
+          "id": "B",
+          "text": "HAVING filters rows before the aggregate runs",
+          "misconception": "swaps WHERE and HAVING timing"
+        },
+        {
+          "id": "C",
+          "text": "Both clauses filter before the aggregate",
+          "misconception": "merges clause responsibilities"
+        },
+        {
+          "id": "D",
+          "text": "WHERE filters rows before the aggregate runs",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "WHERE removes rows before grouping, while HAVING filters groups after aggregation; their timing differs.",
+      "hint": "WHERE precedes GROUP BY.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0008",
+      "topic": "Subquery in a filter versus a join",
+      "learningObjective": "Compare subquery-in-filter with join approaches",
+      "practice": "subquery join",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher can filter trains using a subquery or join to routes; what changes about duplicate risk?",
+      "answer": {
+        "exemplar": "A subquery in a filter tests membership without multiplying rows, while a join can duplicate a train once per matching route, inflating counts unless deduplicated."
+      },
+      "explanation": "Filter subqueries avoid row multiplication, whereas joins may duplicate rows; choose based on whether duplicates matter.",
+      "hint": "Join multiplies, filter does not.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0009",
+      "topic": "How often a correlated subquery runs",
+      "learningObjective": "State execution frequency of a correlated subquery",
+      "practice": "corr freq",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A correlated subquery references the outer train row; for 120 trains, how many times does it execute?",
+      "answer": {
+        "value": 120,
+        "tolerance": 0.01
+      },
+      "explanation": "A correlated subquery runs once per outer row, so 120 trains mean 120 executions.",
+      "hint": "Once per outer row.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.14-0010",
+      "topic": "Window function against group-by",
+      "learningObjective": "Distinguish window functions from group-by aggregation",
+      "practice": "window group",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher wants per-train rank within station while keeping every train row; why not use GROUP BY?",
+      "options": [
+        {
+          "id": "A",
+          "text": "GROUP BY always sorts the output",
+          "misconception": "confuses grouping with ordering"
+        },
+        {
+          "id": "B",
+          "text": "GROUP BY cannot filter by station",
+          "misconception": "understates GROUP BY capability"
+        },
+        {
+          "id": "C",
+          "text": "GROUP BY collapses rows, losing individual trains",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "GROUP BY requires a numeric column",
+          "misconception": "invents a type restriction"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "GROUP BY collapses rows into groups, so individual trains vanish; window functions keep rows while adding aggregates.",
+      "hint": "GROUP BY reduces row count.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0011",
+      "topic": "What a window frame can see",
+      "learningObjective": "Describe the rows a window frame includes",
+      "practice": "frame see",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A frame of ROWS BETWEEN 2 PRECEDING AND CURRENT ROW; which rows can the running total see?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Two rows after the current row",
+          "misconception": "reverses preceding and following"
+        },
+        {
+          "id": "B",
+          "text": "All rows in the partition",
+          "misconception": "confuses frame with partition"
+        },
+        {
+          "id": "C",
+          "text": "Only the current row",
+          "misconception": "ignores preceding rows"
+        },
+        {
+          "id": "D",
+          "text": "The current row and two rows before it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The frame includes the current row plus the two preceding rows, so the running total sees three rows.",
+      "hint": "PRECEDING means before.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.14-0012",
+      "topic": "Rank, dense rank and row number",
+      "learningObjective": "Differentiate RANK, DENSE_RANK, and ROW_NUMBER",
+      "practice": "rank diff",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Two trains tie for first arrival; what does DENSE_RANK assign to the next train?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rank 3 because the tie consumes two ranks",
+          "misconception": "applies RANK behavior to DENSE_RANK"
+        },
+        {
+          "id": "B",
+          "text": "Rank 2 because dense rank skips no ranks",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Rank 1 because ties share rank one",
+          "misconception": "confuses tie handling with next rank"
+        },
+        {
+          "id": "D",
+          "text": "Rank 4 because row numbers continue",
+          "misconception": "mixes ROW_NUMBER with dense rank"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "DENSE_RANK assigns consecutive ranks with no gaps, so the next train after a tie at first gets rank 2.",
+      "hint": "Dense means no gaps.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0013",
+      "topic": "The base case a recursive query needs",
+      "learningObjective": "Identify the base case in a recursive CTE",
+      "practice": "recur base",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher writes a recursive CTE to walk train connections; what is the base case?",
+      "answer": {
+        "exemplar": "The base case is the non-recursive SELECT that seeds the recursion with starting stations, without which the recursive step has no rows to expand."
+      },
+      "explanation": "A recursive CTE needs an anchor query as its base case; otherwise recursion never starts.",
+      "hint": "The anchor seeds the recursion.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0014",
+      "topic": "What a named subquery buys the reader",
+      "learningObjective": "Explain the value of a named subquery",
+      "practice": "named sub",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A CTE named late_trains is referenced twice in the main query; how many times is its body evaluated?",
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "A named subquery (CTE) is evaluated once and reused, so referencing it twice still evaluates the body once.",
+      "hint": "CTE materializes once.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0015",
+      "topic": "Rows surviving a key constraint",
+      "learningObjective": "Determine rows surviving a unique constraint",
+      "practice": "key survive",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A unique constraint on train_number rejects a duplicate insert; how many of the two rows survive?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Both rows survive with a warning",
+          "misconception": "assumes constraint is advisory only"
+        },
+        {
+          "id": "B",
+          "text": "Zero rows survive, both are rolled back",
+          "misconception": "overstates constraint rollback scope"
+        },
+        {
+          "id": "C",
+          "text": "One row survives, the duplicate is rejected",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The duplicate overwrites the original",
+          "misconception": "confuses unique with upsert"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A unique constraint allows the original row and rejects the duplicate, so one row survives.",
+      "hint": "Constraint rejects the duplicate.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0016",
+      "topic": "Rows an inner join returns",
+      "learningObjective": "Count rows an inner join returns",
+      "practice": "inner rows",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Trains table has 8 rows, stations table has 5; 3 trains match stations. How many rows does inner join return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 rows, all trains preserved",
+          "misconception": "treats inner join as left join"
+        },
+        {
+          "id": "B",
+          "text": "5 rows, all stations preserved",
+          "misconception": "treats inner join as right join"
+        },
+        {
+          "id": "C",
+          "text": "13 rows, the union of both",
+          "misconception": "confuses join with union"
+        },
+        {
+          "id": "D",
+          "text": "3 rows, only matching pairs",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Inner join returns only matching pairs, so 3 matching trains yield 3 rows.",
+      "hint": "Inner join intersects.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-3.14-0017",
+      "topic": "Rows a left join preserves",
+      "learningObjective": "Count rows a left join preserves",
+      "practice": "left rows",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Left join trains (8) to stations on code; 5 trains match. How many rows does the result have?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 rows, only matches",
+          "misconception": "drops unmatched left rows"
+        },
+        {
+          "id": "B",
+          "text": "3 rows, unmatched only",
+          "misconception": "keeps only unmatched"
+        },
+        {
+          "id": "C",
+          "text": "13 rows, union of both",
+          "misconception": "confuses join with union"
+        },
+        {
+          "id": "D",
+          "text": "8 rows, all left rows preserved",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A left join preserves all left rows, so 8 trains yield 8 result rows regardless of matches.",
+      "hint": "Left join keeps every left row.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0018",
+      "topic": "Row multiplication from a shared join value",
+      "learningObjective": "Compute row multiplication from a shared join value",
+      "practice": "shared mult",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher joins trains to crew where crew_id 7 appears in 4 crew rows and 2 train rows; how many result rows for crew_id 7?",
+      "answer": {
+        "exemplar": "Each of the 2 train rows matches each of the 4 crew rows, producing 8 result rows for crew_id 7 through Cartesian multiplication."
+      },
+      "explanation": "Shared join values multiply: 2 trains times 4 crew rows gives 8 result rows.",
+      "hint": "Multiply matching counts.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.14-0019",
+      "topic": "How much a duplicating join inflates a sum",
+      "learningObjective": "Quantify sum inflation from a duplicating join",
+      "practice": "sum inflate",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Sum of train miles is 1000; after join to crew each train duplicates 3 times. What is the inflated sum?",
+      "answer": {
+        "value": 3000,
+        "tolerance": 0.01
+      },
+      "explanation": "Each train's miles are counted 3 times, so 1000 times 3 equals 3000 inflated miles.",
+      "hint": "Multiply by duplication factor.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.14-0020",
+      "topic": "What an earlier filter removed",
+      "learningObjective": "Identify rows removed by an earlier filter",
+      "practice": "early filter",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher filters trains to on-time before joining to stations; what does that earlier filter remove?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Late and cancelled train rows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Stations with no trains",
+          "misconception": "confuses train filter with station filter"
+        },
+        {
+          "id": "C",
+          "text": "Duplicate crew rows",
+          "misconception": "unrelated to the train filter"
+        },
+        {
+          "id": "D",
+          "text": "All rows after the join",
+          "misconception": "overstates filter scope"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Filtering trains to on-time removes late and cancelled trains before the join ever sees them.",
+      "hint": "Filter acts on trains.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0021",
+      "topic": "What a primary key commits a table to",
+      "learningObjective": "Apply primary key uniqueness to a new table",
+      "practice": "pk apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Dispatcher adds a primary key on train_number to a new log; what must be true of existing data?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Train numbers must be alphabetic",
+          "misconception": "invents a type rule"
+        },
+        {
+          "id": "B",
+          "text": "Every train number may be null",
+          "misconception": "reverses nullability rule"
+        },
+        {
+          "id": "C",
+          "text": "No two rows may share a train number",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Duplicates are allowed if timestamps differ",
+          "misconception": "weakens uniqueness with a caveat"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Adding a primary key requires all existing train numbers to be unique and non-null.",
+      "hint": "Uniqueness must already hold.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0022",
+      "topic": "What a foreign key rules out",
+      "learningObjective": "Apply foreign key rule to a new insert",
+      "practice": "fk apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher inserts a train with route code X9 that is absent from routes; what happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The constraint is deferred and ignored",
+          "misconception": "assumes deferral by default"
+        },
+        {
+          "id": "B",
+          "text": "The row is inserted with a null route",
+          "misconception": "assumes silent null coercion"
+        },
+        {
+          "id": "C",
+          "text": "The routes table gains a new row",
+          "misconception": "reverses insert direction"
+        },
+        {
+          "id": "D",
+          "text": "The insert is rejected by the foreign key",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The foreign key rejects the insert because route code X9 has no matching parent row.",
+      "hint": "No parent means rejection.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0023",
+      "topic": "What an inner join drops",
+      "learningObjective": "Apply inner join drop rule to a scenario",
+      "practice": "inner apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher inner-joins trains to maintenance logs; a train with no log disappears. Why?",
+      "answer": {
+        "exemplar": "An inner join keeps only rows with matches on both sides, so a train lacking a maintenance log has no matching log row and is dropped."
+      },
+      "explanation": "Inner join requires a match in both tables, so trains without maintenance logs are excluded.",
+      "hint": "No match means dropped.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0024",
+      "topic": "What a left join introduces",
+      "learningObjective": "Identify nulls introduced by a left join",
+      "practice": "left nulls",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Left join of 10 trains to maintenance logs; 4 trains have no log. How many rows have null log fields?",
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "Left join preserves all 10 trains and fills nulls for the 4 without logs, so 4 rows have null log fields.",
+      "hint": "Unmatched left rows get nulls.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.14-0025",
+      "topic": "Row multiplication on a non-unique column",
+      "learningObjective": "Analyze multiplication from a non-unique crew column",
+      "practice": "crew mult",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher joins trains to crew on crew_id where one crew_id maps to 5 crew rows; one train row becomes how many?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1 row, crew chosen arbitrarily",
+          "misconception": "assumes join picks one match"
+        },
+        {
+          "id": "B",
+          "text": "5 rows, one per crew match",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "0 rows, join fails on ambiguity",
+          "misconception": "thinks non-unique keys drop rows"
+        },
+        {
+          "id": "D",
+          "text": "5 rows all with null crew",
+          "misconception": "confuses multiplication with left join"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Each matching crew row produces a result row, so one train becomes 5 rows.",
+      "hint": "One per match.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0026",
+      "topic": "Which rows an aggregate after a join sees",
+      "learningObjective": "Analyze aggregate behavior over multiplied rows",
+      "practice": "agg mult",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "After a duplicating join, dispatcher sums train miles by station; what does the sum reflect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only distinct train miles",
+          "misconception": "confuses sum with sum distinct"
+        },
+        {
+          "id": "B",
+          "text": "Original totals, duplicates ignored",
+          "misconception": "assumes aggregates deduplicate"
+        },
+        {
+          "id": "C",
+          "text": "Inflated totals due to duplicated train rows",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Zero because duplicates cancel",
+          "misconception": "invents cancellation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Aggregates sum every join output row, so duplicates inflate the total unless deduplicated.",
+      "hint": "Duplicates inflate.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0027",
+      "topic": "Filtering before or after an aggregate",
+      "learningObjective": "Apply HAVING to filter groups",
+      "practice": "having apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher groups trains by station and keeps only stations with more than 5 trains; which clause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "WHERE station count greater than 5",
+          "misconception": "filters rows, not groups"
+        },
+        {
+          "id": "B",
+          "text": "ORDER BY count greater than 5",
+          "misconception": "confuses ordering with filtering"
+        },
+        {
+          "id": "C",
+          "text": "Both WHERE and HAVING together",
+          "misconception": "splits one condition across clauses"
+        },
+        {
+          "id": "D",
+          "text": "HAVING count greater than 5",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "HAVING filters aggregated groups, so keeping stations with more than 5 trains uses HAVING.",
+      "hint": "Groups filter after aggregation.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0028",
+      "topic": "Subquery in a filter versus a join",
+      "learningObjective": "Evaluate duplicate risk of subquery filter",
+      "practice": "subq eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher uses a subquery to keep trains whose station is in a list; does row multiplication occur?",
+      "answer": {
+        "exemplar": "No row multiplication occurs because the subquery only tests membership in a filter, leaving each train row intact without joining to the list."
+      },
+      "explanation": "A filter subquery tests membership without multiplying rows, so each train appears once.",
+      "hint": "Filter does not multiply.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0029",
+      "topic": "How often a correlated subquery runs",
+      "learningObjective": "Compute executions for a correlated subquery",
+      "practice": "corr compute",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Correlated subquery runs per outer row; 45 stations in outer query. How many executions?",
+      "answer": {
+        "value": 45,
+        "tolerance": 0.01
+      },
+      "explanation": "Correlated subquery executes once per outer row, so 45 stations yield 45 executions.",
+      "hint": "Once per outer row.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.14-0030",
+      "topic": "Window function against group-by",
+      "learningObjective": "Evaluate window versus group for a ranking need",
+      "practice": "window eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher needs rank of each train within station while retaining all train rows; which approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use DISTINCT on station",
+          "misconception": "removes duplicates, not ranking"
+        },
+        {
+          "id": "B",
+          "text": "Use GROUP BY station with count",
+          "misconception": "collapses rows, loses trains"
+        },
+        {
+          "id": "C",
+          "text": "Use RANK over partition by station",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Use ORDER BY station only",
+          "misconception": "sorts but does not rank"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "RANK over a partition keeps all rows while assigning ranks, unlike GROUP BY which collapses.",
+      "hint": "Window keeps rows.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0031",
+      "topic": "What a window frame can see",
+      "learningObjective": "Analyze frame bounds for a running total",
+      "practice": "frame analyze",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Frame ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW; running total sees which rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rows after current row",
+          "misconception": "reverses direction"
+        },
+        {
+          "id": "B",
+          "text": "Only the current row",
+          "misconception": "ignores preceding"
+        },
+        {
+          "id": "C",
+          "text": "All rows in the partition",
+          "misconception": "confuses frame with full partition"
+        },
+        {
+          "id": "D",
+          "text": "All rows from partition start to current row",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Unbounded preceding to current row includes every row from partition start through current.",
+      "hint": "Unbounded means from start.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.14-0032",
+      "topic": "Rank, dense rank and row number",
+      "learningObjective": "Apply dense rank to a tie scenario",
+      "practice": "dense apply",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Three trains tie for first; DENSE_RANK assigns what rank to the fourth train?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rank 4",
+          "misconception": "applies RANK gap behavior"
+        },
+        {
+          "id": "B",
+          "text": "Rank 2",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Rank 1",
+          "misconception": "keeps tie rank"
+        },
+        {
+          "id": "D",
+          "text": "Rank 3",
+          "misconception": "counts tied rows"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Dense rank gives consecutive ranks, so after a tie at first the next rank is 2.",
+      "hint": "Dense has no gaps.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0033",
+      "topic": "The base case a recursive query needs",
+      "learningObjective": "Evaluate a recursive CTE missing its base case",
+      "practice": "base eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher's recursive CTE has only the recursive step, no anchor; what result?",
+      "answer": {
+        "exemplar": "The query returns no rows because recursion has no seed rows to expand, so the recursive step never produces output."
+      },
+      "explanation": "Without an anchor base case, the recursive step has no starting rows and yields nothing.",
+      "hint": "No seed, no output.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0034",
+      "topic": "What a named subquery buys the reader",
+      "learningObjective": "Evaluate readability benefit of a CTE",
+      "practice": "cte eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A CTE named late_trains improves readability; how many times must it be referenced to justify a CTE over an inline subquery?",
+      "answer": {
+        "value": 2,
+        "tolerance": 0.01
+      },
+      "explanation": "A CTE pays off when referenced more than once, so at least 2 references justify naming it.",
+      "hint": "Reuse justifies naming.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0035",
+      "topic": "Rows surviving a key constraint",
+      "learningObjective": "Evaluate rows surviving a not-null constraint",
+      "practice": "notnull survive",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A not-null constraint on train_number; an insert with null train_number; how many rows survive?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The row survives with null stored",
+          "misconception": "ignores constraint enforcement"
+        },
+        {
+          "id": "B",
+          "text": "The row survives with a generated number",
+          "misconception": "assumes auto-generation"
+        },
+        {
+          "id": "C",
+          "text": "The row is rejected, zero survive from that insert",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "All prior rows are deleted",
+          "misconception": "overstates rollback"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A not-null constraint rejects the insert, so no row survives from that statement.",
+      "hint": "Null violates not-null.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0036",
+      "topic": "Rows an inner join returns",
+      "learningObjective": "Analyze inner join row count with duplicates",
+      "practice": "inner dup",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Trains 8, stations 5, join on code where one station matches 3 trains; inner join rows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 rows, all stations",
+          "misconception": "treats as right join"
+        },
+        {
+          "id": "B",
+          "text": "1 row per station only",
+          "misconception": "ignores multiplication"
+        },
+        {
+          "id": "C",
+          "text": "8 rows, all trains",
+          "misconception": "treats as left join"
+        },
+        {
+          "id": "D",
+          "text": "3 rows for that station plus other matches",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Inner join returns one row per matching pair, so a station matching 3 trains yields 3 rows.",
+      "hint": "One per matching pair.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      }
+    },
+    {
+      "id": "datasci-3.14-0037",
+      "topic": "Rows a left join preserves",
+      "learningObjective": "Analyze left join with multiplied matches",
+      "practice": "left mult",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Left join trains to stations; one train matches 2 stations. Does that train appear once or twice?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Once, left join deduplicates",
+          "misconception": "assumes deduplication"
+        },
+        {
+          "id": "B",
+          "text": "Twice, once per matching station",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Zero, join fails",
+          "misconception": "thinks ambiguity drops rows"
+        },
+        {
+          "id": "D",
+          "text": "Once with both stations merged",
+          "misconception": "invents merging"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Left join still multiplies on multiple matches, so one train matching 2 stations appears twice.",
+      "hint": "Join multiplies regardless of type.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0038",
+      "topic": "Row multiplication from a shared join value",
+      "learningObjective": "Compute multiplication from shared value",
+      "practice": "shared compute",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Shared crew_id 9 appears in 3 crew rows and 2 train rows; how many result rows?",
+      "answer": {
+        "exemplar": "The shared crew_id multiplies to 6 result rows because 3 crew rows times 2 train rows equals 6 combinations."
+      },
+      "explanation": "Shared join values produce a Cartesian product of matches: 3 times 2 equals 6 rows.",
+      "hint": "Multiply the counts.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.14-0039",
+      "topic": "How much a duplicating join inflates a sum",
+      "learningObjective": "Compute inflation factor from duplication",
+      "practice": "inflate factor",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Each train duplicated 4 times by a join; original sum 500. What is inflated sum?",
+      "answer": {
+        "value": 2000,
+        "tolerance": 0.01
+      },
+      "explanation": "4 duplications multiply the sum by 4, so 500 times 4 equals 2000.",
+      "hint": "Multiply by duplication factor.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.14-0040",
+      "topic": "What an earlier filter removed",
+      "learningObjective": "Analyze effect of early filter on join",
+      "practice": "early analyze",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Filtering trains to on-time before join; late trains with stations are removed. What is lost?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All station rows",
+          "misconception": "overstates filter scope"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, filter is harmless",
+          "misconception": "ignores removed rows"
+        },
+        {
+          "id": "C",
+          "text": "Late trains and their station matches",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Only duplicate crew rows",
+          "misconception": "unrelated to train filter"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Early filter removes late trains, so their station matches never enter the join.",
+      "hint": "Filter removes rows before join.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0041",
+      "topic": "What a primary key commits a table to",
+      "learningObjective": "Evaluate primary key on a nullable column",
+      "practice": "pk eval",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Dispatcher declares primary key on a column containing nulls; what happens?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only first null is kept",
+          "misconception": "invents partial allowance"
+        },
+        {
+          "id": "B",
+          "text": "Nulls are allowed in primary keys",
+          "misconception": "reverses nullability"
+        },
+        {
+          "id": "C",
+          "text": "Nulls become empty strings",
+          "misconception": "invents coercion"
+        },
+        {
+          "id": "D",
+          "text": "Declaration fails because nulls violate non-null",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Primary keys require non-null values, so declaring one on a nullable column fails.",
+      "hint": "Primary keys are non-null.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0042",
+      "topic": "What a foreign key rules out",
+      "learningObjective": "Evaluate foreign key with null child value",
+      "practice": "fk null",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A train row has null route code; foreign key on route code; is the row allowed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, foreign key rejects nulls",
+          "misconception": "confuses fk with not-null"
+        },
+        {
+          "id": "B",
+          "text": "Yes, null is allowed unless not-null also set",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No, routes table gains null row",
+          "misconception": "reverses insert"
+        },
+        {
+          "id": "D",
+          "text": "Yes, but route becomes default",
+          "misconception": "invents default"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Foreign keys allow null child values unless a not-null constraint also applies.",
+      "hint": "Null bypasses fk check.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0043",
+      "topic": "What an inner join drops",
+      "learningObjective": "Evaluate inner join on a null join key",
+      "practice": "inner null",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher inner-joins trains to stations on a nullable code; a train with null code; what happens?",
+      "answer": {
+        "exemplar": "The train with a null join key matches no station because null comparisons yield unknown, so the inner join drops it."
+      },
+      "explanation": "Null join keys never match, so inner join drops rows with null keys.",
+      "hint": "Null never matches.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0044",
+      "topic": "What a left join introduces",
+      "learningObjective": "Evaluate left join null introduction count",
+      "practice": "left null count",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Left join 12 trains to stations; 7 match. How many rows have null station fields?",
+      "answer": {
+        "value": 5,
+        "tolerance": 0.01
+      },
+      "explanation": "5 unmatched trains get null station fields, since 12 minus 7 equals 5.",
+      "hint": "Unmatched count.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.14-0045",
+      "topic": "Row multiplication on a non-unique column",
+      "learningObjective": "Create a plan to avoid row multiplication",
+      "practice": "mult avoid",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher wants train counts without crew multiplication; which fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add ORDER BY to the join",
+          "misconception": "ordering does not deduplicate"
+        },
+        {
+          "id": "B",
+          "text": "Use inner join instead of left join",
+          "misconception": "join type does not fix multiplication"
+        },
+        {
+          "id": "C",
+          "text": "Join on a unique key or aggregate before joining",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Filter nulls after the join",
+          "misconception": "does not address duplicates"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Joining on a unique key or pre-aggregating prevents row multiplication.",
+      "hint": "Unique key or pre-aggregate.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0046",
+      "topic": "Which rows an aggregate after a join sees",
+      "learningObjective": "Create a query avoiding inflated aggregates",
+      "practice": "agg fix",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Dispatcher needs accurate station train counts after a crew join; best approach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use a cross join",
+          "misconception": "worsens multiplication"
+        },
+        {
+          "id": "B",
+          "text": "Use sum of train miles",
+          "misconception": "still inflated by duplicates"
+        },
+        {
+          "id": "C",
+          "text": "Filter crew rows first",
+          "misconception": "may drop needed crew"
+        },
+        {
+          "id": "D",
+          "text": "Count distinct train ids after the join",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Counting distinct train ids corrects for duplicated rows from the crew join.",
+      "hint": "Distinct corrects duplication.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0047",
+      "topic": "Filtering before or after an aggregate",
+      "learningObjective": "Create a filtered aggregate query",
+      "practice": "filter create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher wants stations whose on-time train count exceeds 5; query structure?",
+      "options": [
+        {
+          "id": "A",
+          "text": "HAVING status on-time and count > 5",
+          "misconception": "filters rows in HAVING"
+        },
+        {
+          "id": "B",
+          "text": "WHERE status on-time then GROUP BY with HAVING count > 5",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "WHERE count > 5 before grouping",
+          "misconception": "aggregates before grouping"
+        },
+        {
+          "id": "D",
+          "text": "GROUP BY only, no filters",
+          "misconception": "omits both filters"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Filter on-time rows with WHERE, then group and keep groups with HAVING count > 5.",
+      "hint": "WHERE then HAVING.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0048",
+      "topic": "Subquery in a filter versus a join",
+      "learningObjective": "Create a deduplicated lookup with subquery",
+      "practice": "subq create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher wants trains at stations in a list without duplicating trains; which construct?",
+      "answer": {
+        "exemplar": "Use a WHERE station_code IN (subquery) filter so each train is tested for membership and appears once, avoiding join multiplication."
+      },
+      "explanation": "An IN subquery filters without multiplying rows, keeping each train once.",
+      "hint": "IN filter, not join.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0049",
+      "topic": "How often a correlated subquery runs",
+      "learningObjective": "Create an efficient alternative to correlated subquery",
+      "practice": "corr optimize",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Correlated subquery runs 1000 times; rewriting as join runs once. Executions saved?",
+      "answer": {
+        "value": 999,
+        "tolerance": 0.01
+      },
+      "explanation": "Join executes once instead of 1000, saving 999 executions.",
+      "hint": "Subtract one.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 38
+      }
+    },
+    {
+      "id": "datasci-3.14-0050",
+      "topic": "Window function against group-by",
+      "learningObjective": "Create a running total query",
+      "practice": "running total",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher needs cumulative train miles by date while keeping daily rows; which query?",
+      "options": [
+        {
+          "id": "A",
+          "text": "COUNT(*) OVER ()",
+          "misconception": "counts rows, not miles"
+        },
+        {
+          "id": "B",
+          "text": "SUM(miles) GROUP BY date",
+          "misconception": "collapses to one row per date"
+        },
+        {
+          "id": "C",
+          "text": "SUM(miles) OVER (ORDER BY date)",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "AVG(miles) OVER (PARTITION BY date)",
+          "misconception": "averages, not cumulative"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "SUM over an ordered window produces a cumulative total while retaining each daily row.",
+      "hint": "Ordered window sum.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0051",
+      "topic": "What a window frame can see",
+      "learningObjective": "Create a frame for a 3-day moving average",
+      "practice": "frame create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Dispatcher wants 3-day moving average including current day; frame?",
+      "options": [
+        {
+          "id": "A",
+          "text": "ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING",
+          "misconception": "only 3 rows but centered"
+        },
+        {
+          "id": "B",
+          "text": "ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING",
+          "misconception": "looks forward, not back"
+        },
+        {
+          "id": "C",
+          "text": "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
+          "misconception": "includes all history"
+        },
+        {
+          "id": "D",
+          "text": "ROWS BETWEEN 2 PRECEDING AND CURRENT ROW",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Two preceding plus current row gives the 3-day window for a moving average.",
+      "hint": "2 preceding + current.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 52
+      }
+    },
+    {
+      "id": "datasci-3.14-0052",
+      "topic": "Rank, dense rank and row number",
+      "learningObjective": "Create a top-N per group query",
+      "practice": "topn create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher needs top 2 trains per station by miles; which function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "RANK over all rows",
+          "misconception": "no partition by station"
+        },
+        {
+          "id": "B",
+          "text": "ROW_NUMBER partitioned by station ordered by miles desc",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "COUNT(*) group by station",
+          "misconception": "aggregates, not ranks"
+        },
+        {
+          "id": "D",
+          "text": "DENSE_RANK over all rows",
+          "misconception": "no partition"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "ROW_NUMBER partitioned by station and ordered by miles desc assigns 1 and 2 to top trains per station.",
+      "hint": "Partition and order.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0053",
+      "topic": "The base case a recursive query needs",
+      "learningObjective": "Create a recursive walk of a network",
+      "practice": "recur create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Dispatcher writes recursive CTE to list all stations reachable from hub A; first SELECT?",
+      "answer": {
+        "exemplar": "The first SELECT is the anchor that selects hub A as the starting station, seeding the recursive step to find directly connected stations."
+      },
+      "explanation": "The anchor selects the starting station, seeding recursion to discover reachable stations.",
+      "hint": "Anchor seeds start.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      }
+    },
+    {
+      "id": "datasci-3.14-0054",
+      "topic": "What a named subquery buys the reader",
+      "learningObjective": "Create a readable multi-step query with CTE",
+      "practice": "cte create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A CTE breaks a query into 3 named steps; how many SELECT statements in the WITH clause?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Three named steps mean three SELECT statements inside the WITH clause.",
+      "hint": "One per step.",
+      "difficulty": 0.65,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 45
+      }
+    },
+    {
+      "id": "datasci-3.14-0055",
+      "topic": "Rows surviving a key constraint",
+      "learningObjective": "Create a table with composite primary key",
+      "practice": "composite pk",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher needs unique (train, date) pairs; constraint?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Foreign key to trains",
+          "misconception": "references, not uniqueness"
+        },
+        {
+          "id": "B",
+          "text": "Single primary key on train only",
+          "misconception": "allows duplicate dates per train"
+        },
+        {
+          "id": "C",
+          "text": "Composite primary key on (train, date)",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Unique index on date only",
+          "misconception": "allows duplicate trains per date"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A composite primary key on (train, date) enforces uniqueness of the pair.",
+      "hint": "Composite key for pair.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    },
+    {
+      "id": "datasci-3.14-0056",
+      "topic": "Rows an inner join returns",
+      "learningObjective": "Create an inner join for matching trains",
+      "practice": "inner create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Dispatcher wants only trains that have maintenance logs; which join?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CROSS JOIN maintenance",
+          "misconception": "multiplies all rows"
+        },
+        {
+          "id": "B",
+          "text": "LEFT JOIN maintenance ON train id",
+          "misconception": "keeps trains without logs"
+        },
+        {
+          "id": "C",
+          "text": "RIGHT JOIN maintenance ON train id",
+          "misconception": "keeps logs without trains"
+        },
+        {
+          "id": "D",
+          "text": "INNER JOIN maintenance ON train id",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Inner join keeps only trains with matching maintenance logs.",
+      "hint": "Inner keeps matches only.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 66
+      }
+    },
+    {
+      "id": "datasci-3.14-0057",
+      "topic": "Rows a left join preserves",
+      "learningObjective": "Create a left join to keep all trains",
+      "practice": "left create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Dispatcher wants all trains even without maintenance logs; which join?",
+      "options": [
+        {
+          "id": "A",
+          "text": "INNER JOIN maintenance ON train id",
+          "misconception": "drops trains without logs"
+        },
+        {
+          "id": "B",
+          "text": "LEFT JOIN maintenance ON train id",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "RIGHT JOIN maintenance ON train id",
+          "misconception": "keeps logs, not trains"
+        },
+        {
+          "id": "D",
+          "text": "CROSS JOIN maintenance",
+          "misconception": "multiplies rows"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Left join preserves all trains, filling nulls where no maintenance log exists.",
+      "hint": "Left keeps all left rows.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 30,
+        "p75Sec": 48
+      }
+    },
+    {
+      "id": "datasci-3.14-0058",
+      "topic": "Row multiplication from a shared join value",
+      "learningObjective": "Create a deduplication after multiplication",
+      "practice": "dedup create",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "After a duplicating join, dispatcher wants one row per train; how?",
+      "answer": {
+        "exemplar": "Use SELECT DISTINCT train_id or GROUP BY train_id after the join to collapse duplicated train rows back to one."
+      },
+      "explanation": "DISTINCT or GROUP BY collapses duplicated train rows to one per train.",
+      "hint": "Distinct or group by train.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      }
+    },
+    {
+      "id": "datasci-3.14-0059",
+      "topic": "How much a duplicating join inflates a sum",
+      "learningObjective": "Create a corrected sum using distinct",
+      "practice": "sum fix",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Inflated sum 3000 from 3x duplication; original sum?",
+      "answer": {
+        "value": 1000,
+        "tolerance": 0.01
+      },
+      "explanation": "Divide inflated sum by duplication factor: 3000 divided by 3 equals 1000.",
+      "hint": "Divide by factor.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      }
+    },
+    {
+      "id": "datasci-3.14-0060",
+      "topic": "What an earlier filter removed",
+      "learningObjective": "Create a query reordering filters safely",
+      "practice": "filter reorder",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Dispatcher moves a filter after the join; what must be checked?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That duplicates disappear automatically",
+          "misconception": "duplicates persist regardless"
+        },
+        {
+          "id": "B",
+          "text": "That join type changes to inner",
+          "misconception": "join type independent of filter order"
+        },
+        {
+          "id": "C",
+          "text": "That the filter still removes the same trains",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "That stations are filtered instead",
+          "misconception": "filter target changes"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Moving a filter requires verifying it still removes the same rows in the new position.",
+      "hint": "Verify same rows removed.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 58
+      }
+    }
+  ]
+}
