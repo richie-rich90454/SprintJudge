@@ -7,6 +7,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,6 +38,12 @@ public class GameSessionRepository {
     public Optional<GameSession> findByPin(String pin) {
         return dsl.selectFrom(Tables.GAME_SESSIONS).where(Tables.SESS_PIN.eq(pin))
                 .fetchOptional(this::toSession);
+    }
+
+    public List<GameSession> findAllNonEnded() {
+        return dsl.selectFrom(Tables.GAME_SESSIONS)
+                .where(Tables.SESS_STATUS.ne("ENDED"))
+                .fetch(this::toSession);
     }
 
     public Optional<GameSession> findById(String id) {
