@@ -1,4 +1,4 @@
-import { animate, type AnimationPlaybackControls, type Easing } from "framer-motion";
+import { animate, type AnimationPlaybackControls } from "../motion/animate";
 
 export type MotionPreset = "card" | "page" | "modal" | "bar" | "pin" | "podium" | "ticker";
 
@@ -26,7 +26,7 @@ function clearInline(el: Element): void {
 
 /**
  * Central motion service. All animation is transform/opacity/scale only and is
- * driven by framer-motion. Motion is skipped entirely when the user prefers
+ * driven by GSAP. Motion is skipped entirely when the user prefers
  * reduced motion. Public method signatures are unchanged so views keep working.
  */
 export class MotionService {
@@ -44,7 +44,7 @@ export class MotionService {
         if (!el || this.reduced) return;
         const map: Record<
             MotionPreset,
-            { keyframes: Record<string, number[]>; duration: number; ease: Easing }
+            { keyframes: Record<string, number[]>; duration: number; ease: string }
         > = {
             card: { keyframes: { y: [24, 0], opacity: [0, 1] }, duration: 0.5, ease: "easeOut" },
             page: { keyframes: { y: [12, 0], opacity: [0, 1] }, duration: 0.4, ease: "easeOut" },
@@ -116,7 +116,7 @@ export class MotionService {
             const controls = animate(0, target, {
                 duration: 0.9,
                 ease: "easeOut",
-                onUpdate: (v) => {
+                onUpdate: (v: number) => {
                     el.textContent = String(Math.round(v));
                 },
             });
