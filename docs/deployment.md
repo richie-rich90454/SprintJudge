@@ -144,3 +144,82 @@ Configure nginx to set both so per-client limiting is accurate:
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 proxy_set_header X-Real-IP $remote_addr;
 ```
+
+## Upgrade and rollback (production)
+
+### Pre-upgrade
+
+1. Verify the toolchain on the host:
+   ```bash
+   java -version          # JDK 25 LTS
+   command -v nsjail && nsjail --version
+   systemctl is-active sprintjudge
+   ```
+2. Take a WAL-safe backup:
+   ```bash
+   make backup-db DB=/var/lib/sprintjudge/sprintjudge.db OUT=backups/pre-upgrade-$(date +%Y%m%d-%H%M%S).db
+   ```
+3. Record the current jar checksum for rollback:
+   ```bash
+   sha256sum /opt/sprintjudge/sprintjudge.jar > /opt/sprintjudge/sprintjudge.jar.sha256
+   ```
+
+### Upgrade
+
+1. Stop the service: `sudo systemctl stop sprintjudge`.
+2. Replace `sprintjudge.jar` (and the SPA assets inside it).
+3. Start: `sudo systemctl start sprintjudge`.
+4. Probe: `curl -fsS http://127.0.0.1:8080/actuator/health` and run `deploy/health-check.sh`.
+5. Open one quiz end to end (join, submit, console run).
+
+### Rollback
+
+SQLite migrations are forward-only, so a jar rollback requires the matching
+database backup.
+
+1. `sudo systemctl stop sprintjudge`.
+2. Restore the database: `make restore-db FILE=backups/pre-upgrade-*.db DB=/var/lib/sprintjudge/sprintjudge.db`.
+3. Put the previous jar back (use the recorded checksum / a saved copy).
+4. `sudo systemctl start sprintjudge`.
+5. Probe health and run `deploy/health-check.sh`.
+
+### Health checks
+
+- HTTP: `curl -fsS http://127.0.0.1:8080/actuator/health` (expect `{"status":"UP"}`).
+- Database: `sqlite3 /var/lib/sprintjudge/sprintjudge.db 'PRAGMA integrity_check;'` (expect `ok`).
+- Executor: `command -v nsjail && nsjail --version`.
+- Combined: `deploy/health-check.sh` (exits non-zero on any failure).
+
+### Log rotation
+
+- App logs go to journald by default (`journalctl -u sprintjudge -f`).
+- File-based logs and nginx vhost logs rotate via `deploy/sprintjudge.logrotate`
+  (install to `/etc/logrotate.d/sprintjudge`).
+
+### Firewall (LAN port)
+
+The app listens on `:8080` locally and nginx on `:80`/`:443`. Only expose what
+the clients need. Example with ufw:
+
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp          # SSH (restrict to admin subnet if possible)
+sudo ufw allow 80/tcp          # HTTP (redirect to HTTPS)
+sudo ufw allow 443/tcp         # HTTPS / WSS
+# Do NOT expose 8080 publicly; nginx is the only client on localhost.
+sudo ufw deny 8080/tcp
+sudo ufw enable
+sudo ufw status verbose
+```
+
+For an intranet deployment without TLS, use the plain-HTTP server block in
+`deploy/nginx-sprintjudge.conf` (commented) and set
+`SPRINTJUDGE_COOKIE_SECURE=false`. Do not enable HSTS in that case.
+
+### TLS policy
+
+- Production: TLS terminates in nginx (Let's Encrypt). Set
+  `SPRINTJUDGE_COOKIE_SECURE=true`.
+- Intranet: plain HTTP on a trusted LAN is acceptable; keep HSTS disabled and
+  cookies non-secure. Document the choice in the host's runbook.
