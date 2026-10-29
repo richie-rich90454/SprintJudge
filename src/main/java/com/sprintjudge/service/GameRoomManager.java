@@ -962,7 +962,65 @@ public class GameRoomManager implements LeaderboardBroadcaster {
     }
 
     @jakarta.annotation.PostConstruct
+    void restoreRooms() {
+        java.util.List<GameSession> sessions;
+        try {
+            sessions = sessionRepository.findAllNonEnded();
+        } catch (RuntimeException e) {
+            log.warn("Room restore failed to load sessions", e);
+            return;
+        }
+        if (sessions == null) return;
+        for (GameSession s : sessions) {
+            if (s == null || s.pinCode() == null || s.pinCode().isBlank()) continue;
+            int key;
+            try {
+                key = Integer.parseInt(s.pinCode());
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (registry.get(key) != null) continue;
+            GameRoom.GameMode mode;
+            try {
+                mode = GameRoom.GameMode.valueOf(s.gameMode() == null || s.gameMode().isBlank()
+                        ? "STANDARD" : s.gameMode());
+            } catch (IllegalArgumentException e) {
+                mode = GameRoom.GameMode.STANDARD;
+            }
+            GameRoom room = new GameRoom(s.id(), s.quizId(), s.pinCode(),
+                    s.status() == null ? "LOBBY" : s.status(), maxPlayers, mode);
+            room.setCurrentQuestionIndex(s.currentQuestionIndex());
+            try {
+                java.util.List<Submission> subs = submissionRepository.findBySession(s.id());
+                if (subs != null) {
+                    java.util.Map<String, String> names = new java.util.HashMap<>();
+                    java.util.Map<String, Integer> scores = new java.util.HashMap<>();
+                    for (Submission sub : subs) {
+                        if (sub == null || sub.playerUuid() == null || sub.playerUuid().isBlank()) continue;
+                        names.putIfAbsent(sub.playerUuid(), sub.playerName());
+                        scores.merge(sub.playerUuid(), sub.scoreEarned(), Integer::sum);
+                    }
+                    for (java.util.Map.Entry<String, String> e : names.entrySet()) {
+                        String uuid = e.getKey();
+                        String name = e.getValue();
+                        if (name == null || name.isBlank()) name = "Player";
+                        int score = scores.getOrDefault(uuid, 0);
+                        Player p = new Player(uuid, name, 0, null, false, null);
+                        if (room.addPlayer(p) && score != 0) {
+                            room.applyScore(uuid, score);
+                        }
+                    }
+                }
+            } catch (RuntimeException e) {
+                log.warn("Room {} submission restore failed", s.pinCode(), e);
+            }
+            registry.put(key, room);
+        }
+    }
+
+    @jakarta.annotation.PostConstruct
     void startSweep() {
+        restoreRooms();
         sweeper.scheduleWithFixedDelay(this::sweepIdleRooms, 60, 60, java.util.concurrent.TimeUnit.SECONDS);
     }
 
