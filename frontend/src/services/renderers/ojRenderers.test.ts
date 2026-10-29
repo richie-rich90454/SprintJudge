@@ -101,9 +101,6 @@ vi.mock("tone", () => {
     };
 });
 
-vi.mock("framer-motion", () => ({
-    animate: vi.fn(() => ({ stop: vi.fn() })),
-}));
 
 import { OjFullRenderer } from "./OjFullRenderer";
 import { OjPatchRenderer } from "./OjPatchRenderer";
