@@ -98,9 +98,6 @@ vi.mock("tone", () => {
     };
 });
 
-vi.mock("framer-motion", () => ({
-    animate: vi.fn(() => ({ stop: vi.fn() })),
-}));
 
 import { McqRenderer } from "./McqRenderer";
 import { TrueFalseRenderer } from "./TrueFalseRenderer";
