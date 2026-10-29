@@ -3,6 +3,9 @@ package com.sprintjudge.repository;
 import com.sprintjudge.TestDb;
 import com.sprintjudge.domain.models.GameSession;
 import org.jooq.DSLContext;
+
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +23,21 @@ class GameSessionRepositoryTest {
     void setup() throws Exception {
         dsl = TestDb.inMemory();
         repo = new GameSessionRepository(dsl);
+    }
+
+    @Test
+    void findAllNonEndedEmpty() {
+        assertTrue(repo.findAllNonEnded().isEmpty());
+    }
+
+    @Test
+    void findAllNonEndedFiltersEnded() {
+        repo.create("quiz1", "host1", "111111", "{}");
+        GameSession s = repo.create("quiz1", "host1", "222222", "{}");
+        repo.updateStatus(s.id(), "ENDED");
+        java.util.List<GameSession> all = repo.findAllNonEnded();
+        assertEquals(1, all.size());
+        assertEquals("111111", all.get(0).pinCode());
     }
 
     @Test
