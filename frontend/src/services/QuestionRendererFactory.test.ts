@@ -75,9 +75,6 @@ vi.mock("tone", () => ({
     now: () => 0,
     Frequency: () => ({ toNote: () => "C4" }),
 }));
-vi.mock("framer-motion", () => ({
-    animate: vi.fn(() => ({ stop: vi.fn() })),
-}));
 
 import { QuestionRendererFactory } from "./QuestionRendererFactory";
 import { createCodeEditor } from "./CodeEditor";
