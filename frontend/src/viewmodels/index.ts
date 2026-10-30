@@ -1,0 +1,1 @@
+// Pure selectors and mappers for screens. Kept framework-free.
