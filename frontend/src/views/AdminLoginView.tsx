@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { TextInput } from "../components/ui/TextInput";
 import { Shell } from "../components/Shell";
 import { LogoMark } from "../components/LogoMark";
 
@@ -18,29 +19,27 @@ export function AdminLoginView() {
                             <label className="label-caps block mb-1" htmlFor="al-user">
                                 Username
                             </label>
-                            <input
+                            <TextInput
                                 id="al-user"
                                 name="username"
                                 placeholder="admin"
                                 autoComplete="username"
                                 aria-required="true"
-                                aria-invalid="false"
+                                aria-invalid={false}
                                 aria-describedby="al-error"
-                                className="input-underline"
                             />
                             <label className="label-caps block mb-1" htmlFor="al-pass">
                                 Password
                             </label>
-                            <input
+                            <TextInput
                                 id="al-pass"
                                 name="password"
                                 type="password"
                                 placeholder="password"
                                 autoComplete="current-password"
-                                aria-required="true"
-                                aria-invalid="false"
+                                aria-required={true}
+                                aria-invalid={false}
                                 aria-describedby="al-error"
-                                className="input-underline"
                             />
                             <p
                                 id="al-error"
