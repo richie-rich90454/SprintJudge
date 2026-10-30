@@ -26,9 +26,9 @@ const fakeWs = vi.hoisted(() => {
     };
 });
 
-vi.mock("./WebSocketService", () => ({ webSocketService: fakeWs }));
+vi.mock("../game/WebSocketService", () => ({ webSocketService: fakeWs }));
 
-import { gameStateManager } from "./GameStateManager";
+import { gameStateManager } from "../game/GameStateManager";
 import { useTimerStore } from "../stores/useTimerStore";
 
 type Msg = Record<string, unknown>;
