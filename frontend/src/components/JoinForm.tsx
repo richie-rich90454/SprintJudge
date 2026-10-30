@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Button } from "./ui/Button";
-import { TextInput } from "./ui/TextInput";
-import { Field } from "./ui/Primitives";
+import { Button } from "../ui/Button";
+import { TextInput } from "../ui/TextInput";
+import { Field } from "../ui/Primitives";
 import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
 import { audio } from "../services/AudioEngine";
