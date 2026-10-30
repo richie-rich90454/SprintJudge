@@ -1,0 +1,130 @@
+import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Shell } from "../components/Shell";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { TextInput } from "../ui/TextInput";
+import { EmptyState, Skeleton } from "../ui/Primitives";
+import { adminApi } from "../services/AdminApiService";
+
+export function ExploreView() {
+    const [query, setQuery] = useState("");
+    const [limit, setLimit] = useState(24);
+    const { data, isPending, isError, refetch } = useQuery({
+        queryKey: ["banks"],
+        queryFn: () => adminApi.listBanks(),
+    });
+
+    const needle = query.trim().toLowerCase();
+    const visible = (data ?? []).filter(
+        (quiz) =>
+            !needle ||
+            quiz.title.toLowerCase().includes(needle) ||
+            (quiz.description ?? "").toLowerCase().includes(needle),
+    );
+
+    return (
+        <Shell>
+            <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
+                <div className="max-w-2xl">
+                    <p className="label-caps mb-3">Quiz library</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        Browse quizzes
+                    </h1>
+                    <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
+                        Drill any bank solo at your own pace, or join a live game with a PIN
+                        from your host.
+                    </p>
+                </div>
+                <div className="max-w-md">
+                    <TextInput
+                        value={query}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setLimit(24);
+                        }}
+                        placeholder="Search quizzes…"
+                        aria-label="Search quizzes"
+                    />
+                </div>
+                {isPending && (
+                    <div className="grid gap-4 md:grid-cols-2" aria-label="Loading quizzes">
+                        <Skeleton className="h-36" />
+                        <Skeleton className="h-36" />
+                        <Skeleton className="h-36" />
+                    </div>
+                )}
+                {isError && (
+                    <Card className="p-4">
+                        <EmptyState
+                            title="Could not load the library"
+                            hint="Check your connection and try again."
+                            action={
+                                <Button variant="secondary" onClick={() => refetch()}>
+                                    Retry
+                                </Button>
+                            }
+                        />
+                    </Card>
+                )}
+                {data && data.length === 0 && (
+                    <Card className="p-4">
+                        <EmptyState
+                            title="No quizzes yet"
+                            hint="Ask your teacher to publish one."
+                        />
+                    </Card>
+                )}
+                {data && data.length > 0 && visible.length === 0 && (
+                    <Card className="p-4">
+                        <EmptyState
+                            title="No matches"
+                            hint={`Nothing in the library matches "${query.trim()}".`}
+                        />
+                    </Card>
+                )}
+                {visible.length > 0 && (
+                    <div>
+                        <p className="label-caps mb-3" aria-live="polite">
+                            {visible.length} of {data?.length ?? 0} quizzes
+                        </p>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {visible.slice(0, limit).map((quiz) => (
+                                <Card key={quiz.id} className="p-6 flex flex-col gap-2">
+                                    <h2 className="text-lg font-extrabold">{quiz.title}</h2>
+                                    {quiz.description && (
+                                        <p className="text-sm text-[var(--oq-ink-soft)] leading-relaxed">
+                                            {quiz.description}
+                                        </p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        <Link
+                                            to="/practice"
+                                            className="btn btn-primary btn-sm font-bold"
+                                        >
+                                            Practice solo
+                                        </Link>
+                                        <Link
+                                            to="/join"
+                                            className="btn btn-secondary btn-sm font-bold"
+                                        >
+                                            Join with PIN
+                                        </Link>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                        {visible.length > limit && (
+                            <div className="mt-6 flex justify-center">
+                                <Button variant="secondary" onClick={() => setLimit((n) => n + 24)}>
+                                    Show more ({visible.length - limit} remaining)
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </Shell>
+    );
+}
