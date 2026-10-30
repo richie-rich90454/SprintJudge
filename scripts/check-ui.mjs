@@ -5,7 +5,7 @@ import path from "node:path";
 
 const ROOT = "frontend/src";
 const ALLOW_HEX = new Set([
-  path.join(ROOT, "design", "kahoot.ts"),
+  path.join(ROOT, "ui", "kahoot.ts"),
   path.join(ROOT, "index.css"),
   // xterm requires concrete colors; these mirror the stage tokens.
   path.join(ROOT, "services", "renderers", "OjBase.ts"),
