@@ -324,7 +324,8 @@ export function BankBrowser() {
                                     {detail.data.topic}, {scopeLabel(detail.data.scope)}
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                                    Reference: {detail.data.id}
+                                    Reference:{" "}
+                                    <span className="mono">{detail.data.id}</span>
                                 </p>
                             </div>
                         )}
