@@ -81,6 +81,13 @@ Rollback: stop the service, restore the backup, put the previous jar back,
 start, and probe health again. SQLite migrations are forward-only, so a jar
 rollback without the matching database backup is not supported.
 
+## Verified on Linux (WSL Ubuntu 24.04, 2026-10-30)
+
+- `bash -n` passes for `scripts/backup-db.sh`, `scripts/restore-db.sh`, and `deploy/health-check.sh`.
+- `systemd-analyze` and `nginx` are not installed in the WSL image used, so the unit and reverse-proxy configs were not machine-verified here; review them by hand before go-live.
+- OpenJDK 25 is not available in the Ubuntu 24.04 archive (only OpenJDK 21), so the production jar was not booted under Linux on this host. Boot it on the target host with the bundled `make prod` flow and probe `/actuator/health`.
+- The jar builds and boots on Windows with the `prod` profile (see `make verify-prod`).
+
 ## Public runner policy
 
 `POST /api/public/run` is refused with 403 in the `prod` profile unless
