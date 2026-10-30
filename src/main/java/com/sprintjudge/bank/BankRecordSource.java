@@ -29,6 +29,7 @@ public class BankRecordSource {
     private final Resource[] resources;
     private final ObjectMapper mapper;
     private final Map<String, List<Map<String, Object>>> cache = new ConcurrentHashMap<>();
+    private volatile Set<String> subjectsCache;
 
     public BankRecordSource() throws IOException {
         this(new PathMatchingResourcePatternResolver().getResources(BANK_GLOB), new ObjectMapper());
@@ -62,6 +63,29 @@ public class BankRecordSource {
             }
         }
         return List.copyOf(out);
+    }
+
+    /**
+     * Distinct subject names present in the bank. Scans every classpath bank
+     * resource once and caches the result.
+     */
+    public Set<String> subjects() {
+        Set<String> cached = subjectsCache;
+        if (cached != null) return cached;
+        Set<String> out = new java.util.TreeSet<>();
+        for (Resource resource : resources) {
+            try (InputStream in = resource.getInputStream()) {
+                for (Map<String, Object> record : BankStore.recordsOf(mapper.readTree(in), mapper)) {
+                    String subject = text(record, "subject");
+                    if (!subject.isBlank()) out.add(subject);
+                }
+            } catch (IOException | RuntimeException e) {
+                log.error("Skipping unreadable bank resource: {}", resource.getFilename(), e);
+            }
+        }
+        Set<String> copy = Set.copyOf(out);
+        subjectsCache = copy;
+        return copy;
     }
 
     /** Playable records for a unit, filtered to the mapped question formats. */
