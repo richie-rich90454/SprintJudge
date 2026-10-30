@@ -132,29 +132,26 @@ export function VolumeReport() {
                             {rows.length} subjects at 3,000
                         </p>
                         <Card className="p-0 overflow-x-auto">
-                            <table className="w-full text-left text-sm">
+                            <table className="table-dotted w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-[var(--oq-border)]">
-                                        <th scope="col" className="font-bold p-4">
+                                    <tr>
+                                        <th scope="col" className="p-4">
                                             Subject
                                         </th>
-                                        <th scope="col" className="font-bold p-4">
+                                        <th scope="col" className="p-4">
                                             Ready now
                                         </th>
-                                        <th scope="col" className="font-bold p-4">
+                                        <th scope="col" className="p-4">
                                             Progress to 3,000
                                         </th>
-                                        <th scope="col" className="font-bold p-4">
+                                        <th scope="col" className="p-4">
                                             Status
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {rows.map((row) => (
-                                        <tr
-                                            key={row.code}
-                                            className="border-b border-[var(--oq-border)] last:border-0"
-                                        >
+                                        <tr key={row.code}>
                                             <td className="p-4 font-bold leading-snug">
                                                 {row.name}
                                             </td>
