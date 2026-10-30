@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { gameStateManager } from "../services/GameStateManager";
+import { gameStateManager } from "../game/GameStateManager";
 import { GameState } from "../types";
 
 interface GameStore extends GameState {
