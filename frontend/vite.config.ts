@@ -26,7 +26,10 @@ export default defineConfig({
     },
     test: {
         environment: "jsdom",
-        include: ["src/**/*.test.ts"],
+        globals: true,
+        maxWorkers: 8,
+        include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+        setupFiles: ["src/test/setup.ts"],
         // Unit tests never load the real 3MB Monaco bundle (or its worker):
         // the stub below implements the exact surface CodeEditor uses.
         alias: [
