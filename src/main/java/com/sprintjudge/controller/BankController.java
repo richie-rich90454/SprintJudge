@@ -2,6 +2,7 @@ package com.sprintjudge.controller;
 
 import com.sprintjudge.bank.BankStore;
 import com.sprintjudge.service.BankQuizBuilder;
+import com.sprintjudge.service.TeachNextService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ public class BankController {
 
     private final BankStore store;
     private final BankQuizBuilder builder;
+    private final TeachNextService teachNextService;
 
     /**
      * Creates the controller over the shared bank store and quiz builder.
@@ -33,8 +35,21 @@ public class BankController {
      * @param builder playable quiz generator
      */
     public BankController(BankStore store, BankQuizBuilder builder) {
+        this(store, builder, null);
+    }
+
+    /**
+     * Creates the controller with a teach-next recommendation service.
+     *
+     * @param store classpath question bank
+     * @param builder playable quiz generator
+     * @param teachNextService recommendation service (may be null in tests)
+     */
+    @org.springframework.beans.factory.annotation.Autowired
+    public BankController(BankStore store, BankQuizBuilder builder, TeachNextService teachNextService) {
         this.store = store;
         this.builder = builder;
+        this.teachNextService = teachNextService;
     }
 
     /**
@@ -103,16 +118,26 @@ public class BankController {
         }
     }
 
-    /** Four CSA-aligned class presets for the teacher home. */
-    @GetMapping("/csa")
-    public List<CsaPreset> csaPresets() {
-        return List.of(
-                new CsaPreset(1, "Using Objects and Methods", "Objects, methods, primitives, strings", 16),
-                new CsaPreset(2, "Selection and Iteration", "Boolean logic, if statements, loops", 16),
-                new CsaPreset(3, "Class Creation", "Encapsulation, constructors, invariants", 16),
-                new CsaPreset(4, "Data Collections", "Arrays, lists, 2D arrays, recursion, files", 16),
-                new CsaPreset(5, "Mixed CSA", "Four questions from each CSA unit", 16));
+    /**
+     * Turns a finished game's weakest topic into a bank practice suggestion.
+     *
+     * @param sessionId finished game session id
+     * @return subject, unit, topic, and count
+     */
+    @GetMapping("/teach-next")
+    public TeachNextService.Recommendation teachNext(@RequestParam String sessionId) {
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sessionId is required");
+        }
+        if (teachNextService == null) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "teach-next service unavailable");
+        }
+        return teachNextService.recommendPractice(sessionId);
     }
 
-    public record CsaPreset(int unit, String title, String description, int questions) {}
+    /** Four CSA-aligned class presets for the teacher home, sourced from the featured manifest. */
+    @GetMapping("/csa")
+    public List<BankQuizBuilder.CsaPreset> csaPresets() {
+        return builder.csaPresets();
+    }
 }
