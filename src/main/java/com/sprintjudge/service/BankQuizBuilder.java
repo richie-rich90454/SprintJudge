@@ -1,12 +1,16 @@
 package com.sprintjudge.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprintjudge.bank.BankRecordSource;
 import com.sprintjudge.domain.dto.export.ExportBundle;
 import com.sprintjudge.util.Ids;
 import com.sprintjudge.util.Json;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,23 +34,18 @@ public class BankQuizBuilder {
             "DATA_INTERPRETATION", "CONCEPTUAL_REASONING", "RHETORICAL_ANALYSIS",
             "SYNTHESIS", "DIAGRAM", "CODE_TRACING", "BUG_SPOTTING", "CODE_COMPLETION", "MCQ");
 
-    private static final Map<Integer, List<String>> CSA_UNITS = Map.of(
-            1, List.of("Unit 1", "Unit 2"),
-            2, List.of("Unit 3", "Unit 4"),
-            3, List.of("Unit 5"),
-            4, List.of("Unit 6", "Unit 7", "Unit 9", "Unit 10"));
-
-    private static final Map<Integer, String> CSA_TITLES = Map.of(
-            1, "CSA 1: Using Objects and Methods",
-            2, "CSA 2: Selection and Iteration",
-            3, "CSA 3: Class Creation",
-            4, "CSA 4: Data Collections",
-            5, "Mixed CSA: Units 1 to 4");
-
     private final BankRecordSource records;
     private final ImportExportService importExportService;
     private final String codingBundle;
+    private final Map<Integer, List<String>> csaUnits;
+    private final Map<Integer, String> csaTitles;
+    private final List<CsaPreset> csaPresets;
     private volatile ExportBundle.QuestionExport codingQuestion;
+
+    public record CsaPreset(int unit, String title, String description, int questions) {}
+
+    record LoadedManifest(Map<Integer, List<String>> units, Map<Integer, String> titles,
+                          List<CsaPreset> presets) {}
 
     @Autowired
     public BankQuizBuilder(BankRecordSource records, ImportExportService importExportService) {
@@ -55,15 +54,59 @@ public class BankQuizBuilder {
 
     BankQuizBuilder(BankRecordSource records, ImportExportService importExportService,
                     String codingBundle) {
+        this(records, importExportService, codingBundle, loadCsaManifest());
+    }
+
+    BankQuizBuilder(BankRecordSource records, ImportExportService importExportService,
+                    String codingBundle, LoadedManifest manifest) {
         this.records = records;
         this.importExportService = importExportService;
         this.codingBundle = codingBundle;
+        this.csaUnits = Map.copyOf(manifest.units());
+        this.csaTitles = Map.copyOf(manifest.titles());
+        this.csaPresets = List.copyOf(manifest.presets());
+    }
+
+    static LoadedManifest loadCsaManifest() {
+        try (InputStream in = new ClassPathResource("seed/csa-featured.json").getInputStream()) {
+            return loadCsaManifest(in);
+        } catch (Exception e) {
+            throw new IllegalStateException("csa featured manifest unavailable", e);
+        }
+    }
+
+    static LoadedManifest loadCsaManifest(InputStream in) throws Exception {
+        JsonNode root = new ObjectMapper().readTree(in);
+        JsonNode presets = root.get("presets");
+        if (presets == null || !presets.isArray()) {
+            throw new IllegalArgumentException("presets missing");
+        }
+        Map<Integer, List<String>> units = new HashMap<>();
+        Map<Integer, String> titles = new HashMap<>();
+        List<CsaPreset> list = new ArrayList<>();
+        for (JsonNode p : presets) {
+            int unit = p.get("unit").asInt();
+            String title = p.get("title").asText();
+            String quizTitle = p.get("quizTitle").asText();
+            String description = p.get("description").asText();
+            int questions = p.get("questions").asInt();
+            List<String> bankUnits = new ArrayList<>();
+            for (JsonNode u : p.get("bankUnits")) bankUnits.add(u.asText());
+            units.put(unit, List.copyOf(bankUnits));
+            titles.put(unit, quizTitle);
+            list.add(new CsaPreset(unit, title, description, questions));
+        }
+        return new LoadedManifest(units, titles, list);
     }
 
     public record BuildRequest(String subject, String unit, int csaUnit, int count,
                                String title, long seed, boolean includeCoding) {}
 
     public record BuildResult(String quizId, int questions, int skipped) {}
+
+    public List<CsaPreset> csaPresets() {
+        return csaPresets;
+    }
 
     public BuildResult build(BuildRequest request) {
         int count = Math.max(1, Math.min(30, request.count() <= 0 ? 12 : request.count()));
@@ -82,7 +125,7 @@ public class BankQuizBuilder {
             int perUnit = Math.max(1, (bankTarget + 3) / 4);
             for (int csaUnit = 1; csaUnit <= 4; csaUnit++) {
                 List<Map<String, Object>> group = new ArrayList<>();
-                for (String unit : CSA_UNITS.get(csaUnit)) {
+                for (String unit : csaUnits.get(csaUnit)) {
                     group.addAll(records.playable(subject, unit, playableFormats));
                 }
                 Collections.shuffle(group, random);
@@ -94,7 +137,7 @@ public class BankQuizBuilder {
             }
         } else {
             List<String> units = request.csaUnit() >= 1 && request.csaUnit() <= 4
-                    ? CSA_UNITS.get(request.csaUnit())
+                    ? csaUnits.get(request.csaUnit())
                     : blank(request.unit()) ? List.of("") : List.of(request.unit().trim());
             for (String unit : units) {
                 List<Map<String, Object>> unitRecords = records.playable(
@@ -126,7 +169,7 @@ public class BankQuizBuilder {
         }
 
         String title = blank(request.title())
-                ? csa ? CSA_TITLES.get(request.csaUnit()) : "Java practice"
+                ? csa ? csaTitles.get(request.csaUnit()) : "Java practice"
                 : request.title().trim();
         String quizId = Ids.uuid();
         ExportBundle bundle = new ExportBundle(
