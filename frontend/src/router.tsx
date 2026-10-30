@@ -6,11 +6,11 @@ import {
     lazyRouteComponent,
     useRouterState,
 } from "@tanstack/react-router";
-import { LandingView } from "./views/LandingView";
-import { JoinView } from "./views/JoinView";
-import { SoloView } from "./views/SoloView";
-import { ExploreView } from "./views/ExploreView";
-import { AdminLoginView } from "./views/AdminLoginView";
+import { LandingView } from "./screens/LandingView";
+import { JoinView } from "./screens/JoinView";
+import { SoloView } from "./screens/SoloView";
+import { ExploreView } from "./screens/ExploreView";
+import { AdminLoginView } from "./screens/AdminLoginView";
 import { requireAdmin } from "./services/adminGuard";
 
 function Root() {
@@ -51,7 +51,7 @@ const soloRoute = createRoute({
 const practiceRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/practice",
-    component: lazyRouteComponent(() => import("./views/PracticeView"), "PracticeView"),
+    component: lazyRouteComponent(() => import("./screens/PracticeView"), "PracticeView"),
 });
 
 const exploreRoute = createRoute({
@@ -63,7 +63,7 @@ const exploreRoute = createRoute({
 const playRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/play",
-    component: lazyRouteComponent(() => import("./views/QuestionView"), "QuestionView"),
+    component: lazyRouteComponent(() => import("./screens/QuestionView"), "QuestionView"),
 });
 
 const hostRoute = createRoute({
@@ -78,26 +78,26 @@ const hostRoute = createRoute({
                   : undefined,
         projector: s.projector === true || s.projector === "1" || s.projector === 1,
     }),
-    component: lazyRouteComponent(() => import("./views/HostView"), "HostView"),
+    component: lazyRouteComponent(() => import("./screens/HostView"), "HostView"),
 });
 
 const resultsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/results",
-    component: lazyRouteComponent(() => import("./views/ResultView"), "ResultView"),
+    component: lazyRouteComponent(() => import("./screens/ResultView"), "ResultView"),
 });
 
 const watchRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/watch/$pin",
-    component: lazyRouteComponent(() => import("./views/SpectatorView"), "SpectatorView"),
+    component: lazyRouteComponent(() => import("./screens/SpectatorView"), "SpectatorView"),
 });
 
 const adminRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin",
     beforeLoad: requireAdmin,
-    component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
+    component: lazyRouteComponent(() => import("./screens/AdminDashboard"), "AdminDashboard"),
 });
 
 // Spring Security's form-login success URL; alias of the dashboard.
@@ -105,7 +105,7 @@ const adminDashboardAliasRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/dashboard",
     beforeLoad: requireAdmin,
-    component: lazyRouteComponent(() => import("./views/AdminDashboard"), "AdminDashboard"),
+    component: lazyRouteComponent(() => import("./screens/AdminDashboard"), "AdminDashboard"),
 });
 
 const adminLoginRoute = createRoute({
@@ -118,14 +118,14 @@ const bankRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/bank",
     beforeLoad: requireAdmin,
-    component: lazyRouteComponent(() => import("./views/BankBrowser"), "BankBrowser"),
+    component: lazyRouteComponent(() => import("./screens/BankBrowser"), "BankBrowser"),
 });
 
 const volumeRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/volume",
     beforeLoad: requireAdmin,
-    component: lazyRouteComponent(() => import("./views/VolumeReport"), "VolumeReport"),
+    component: lazyRouteComponent(() => import("./screens/VolumeReport"), "VolumeReport"),
 });
 
 const routeTree = rootRoute.addChildren([
