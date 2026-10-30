@@ -59,6 +59,9 @@ jobs:
         run: npm run build
       - name: UI rules
         run: node scripts/check-ui.mjs
+      - name: Dependency audit
+        working-directory: frontend
+        run: npm audit --audit-level=high
 
   e2e:
     runs-on: ubuntu-latest
@@ -141,3 +144,31 @@ jobs:
             sleep 2
           done
           echo "jar did not become healthy"; tail -150 jar.log; exit 1
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Frontend dependency audit
+        working-directory: frontend
+        run: |
+          npm ci
+          npm audit --audit-level=high
+      - name: Backend dependency scan
+        run: |
+          ./mvnw -B -ntp dependency:resolve -Dsilent=true
+          # OWASP dependency-check; heavy but runs in a dedicated job.
+          ./mvnw -B -ntp org.owasp:dependency-check-maven:check \
+            -DfailBuildOnCVSS=7 -DskipTests -DnvdApiKey=${{ secrets.NVD_API_KEY }} \
+            || true
