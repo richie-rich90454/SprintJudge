@@ -53,4 +53,13 @@ class BankRecordSourceTest {
         List<?> all = source.records("JAVA_PROGRAMMING", null);
         assertEquals(2, all.size());
     }
+
+    @Test
+    void subjectsCollectsDistinctSubjectsAndCaches() {
+        BankRecordSource source = source();
+        Set<String> first = source.subjects();
+        assertEquals(Set.of("JAVA_PROGRAMMING", "BIOLOGY"), first);
+        // second call exercises the cache-hit branch
+        assertEquals(first, source.subjects());
+    }
 }
