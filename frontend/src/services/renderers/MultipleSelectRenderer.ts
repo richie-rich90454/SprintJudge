@@ -1,6 +1,6 @@
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { el } from "./dom";
-import { answerShape } from "../../design/kahoot";
+import { answerShape } from "../../ui/kahoot";
 import { motion } from "../MotionService";
 
 export class MultipleSelectRenderer extends BaseQuestionRenderer {
