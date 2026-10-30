@@ -80,7 +80,7 @@ function SettingsTab() {
                     {[0, 1, 2].map((i) => (
                         <div
                             key={i}
-                            className="h-11 animate-pulse rounded-[6px] bg-[var(--oq-border)] opacity-40"
+                            className="h-11 animate-pulse rounded-[2px] bg-[var(--oq-border)] opacity-40"
                         />
                     ))}
                 </div>
@@ -94,37 +94,39 @@ function SettingsTab() {
             {Object.keys(settings).length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
             ) : (
-                <div className="flex flex-col gap-4 max-w-lg">
-                    {Object.entries(settings).map(([key, value]) => (
-                        <div key={key} className="flex flex-col gap-1">
-                            <label className="label-caps">{key}</label>
-                            <TextInput
-                                value={value}
-                                onChange={(e) =>
-                                    setSettings({ ...settings, [key]: e.target.value })
-                                }
-                            />
+                <Card className="max-w-lg p-6">
+                    <div className="flex flex-col gap-4">
+                        {Object.entries(settings).map(([key, value]) => (
+                            <div key={key} className="flex flex-col gap-1">
+                                <label className="label-caps">{key}</label>
+                                <TextInput
+                                    value={value}
+                                    onChange={(e) =>
+                                        setSettings({ ...settings, [key]: e.target.value })
+                                    }
+                                />
+                            </div>
+                        ))}
+                        <div className="flex gap-4 pt-2">
+                            <Button variant="primary" onClick={handleSave} disabled={saving}>
+                                {saving ? "Saving..." : "Save"}
+                            </Button>
+                            {saved && (
+                                <span className="text-sm text-[var(--oq-success)] self-center">
+                                    Saved!
+                                </span>
+                            )}
+                            {saveError && (
+                                <span
+                                    role="alert"
+                                    className="text-sm text-[var(--oq-danger)] self-center"
+                                >
+                                    {saveError}
+                                </span>
+                            )}
                         </div>
-                    ))}
-                    <div className="flex gap-4 pt-2">
-                        <Button variant="primary" onClick={handleSave} disabled={saving}>
-                            {saving ? "Saving..." : "Save"}
-                        </Button>
-                        {saved && (
-                            <span className="text-sm text-[var(--oq-success)] self-center">
-                                Saved!
-                            </span>
-                        )}
-                        {saveError && (
-                            <span
-                                role="alert"
-                                className="text-sm text-[var(--oq-danger)] self-center"
-                            >
-                                {saveError}
-                            </span>
-                        )}
                     </div>
-                </div>
+                </Card>
             )}
         </div>
     );
