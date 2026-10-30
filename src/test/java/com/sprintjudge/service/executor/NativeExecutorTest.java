@@ -749,7 +749,9 @@ class NativeExecutorTest {
     @Test
     void judgeCacheHitCopiesBinaryWithoutCompiling(@TempDir Path tmp) throws IOException {
         Path fakeBin = tmp.resolve("fake-bin");
-        Files.write(fakeBin, new byte[]{1, 2, 3});
+        // Use a real, immediately-exiting executable so Windows does not pop a
+        // "cannot run" dialog that would hang the suite in CI.
+        Files.copy(Path.of("C:/Windows/System32/whoami.exe"), fakeBin);
         CompileArtifactCache cache = mock(CompileArtifactCache.class);
         when(cache.get(CompileArtifactCache.keyFor("c", "int x;"))).thenReturn(java.util.Optional.of(fakeBin));
         NativeExecutor ex = new NativeExecutor(cache);
