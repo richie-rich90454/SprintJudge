@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
 import { SoundToggle } from "./SoundToggle";
 import { MotionToggle } from "./MotionToggle";
-import { webSocketService } from "../services/WebSocketService";
+import { webSocketService } from "../game/WebSocketService";
 import { useEffect, useState } from "react";
 
 /** Shared outer shell: header (logo, sound, motion, connection) + footer. */
