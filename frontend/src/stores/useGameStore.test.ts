@@ -46,7 +46,7 @@ const fakeManager = vi.hoisted(() => {
     };
 });
 
-vi.mock("../services/GameStateManager", () => ({ gameStateManager: fakeManager }));
+vi.mock("../game/GameStateManager", () => ({ gameStateManager: fakeManager }));
 
 import { useGameStore } from "./useGameStore";
 
