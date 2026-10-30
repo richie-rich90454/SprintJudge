@@ -124,7 +124,7 @@ export function PracticeView() {
                                     {filteredBanks.slice(0, limit).map((bank) => (
                                         <label
                                             key={bank.id}
-                                            className={`flex items-start gap-3 p-3 border-2 cursor-pointer ${
+                                            className={`flex items-start gap-3 p-3 border rounded-[2px] cursor-pointer ${
                                                 bankId === bank.id
                                                     ? "border-[var(--oq-accent)]"
                                                     : "border-[var(--oq-border)]"
