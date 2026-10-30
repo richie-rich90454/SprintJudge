@@ -3,6 +3,7 @@ package com.sprintjudge.service;
 import com.sprintjudge.bank.BankRecordSource;
 import com.sprintjudge.domain.dto.export.ExportBundle;
 import com.sprintjudge.util.Json;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -327,5 +328,18 @@ class BankQuizBuilderTest {
                 .map(ExportBundle.QuestionExport::config).toList();
         assertTrue(configs.stream().anyMatch(c -> c.containsKey("correctIndex")));
         assertTrue(configs.stream().anyMatch(c -> c.containsKey("correctIndices")));
+    }
+
+    @Test
+    void csaManifestLoadsFromResources() {
+        BankQuizBuilder.LoadedManifest m = BankQuizBuilder.loadCsaManifest();
+        org.junit.jupiter.api.Assertions.assertFalse(m.presets().isEmpty());
+        org.junit.jupiter.api.Assertions.assertTrue(m.units().containsKey(1));
+    }
+
+    @Test
+    void malformedCsaManifestThrows() {
+        assertThrows(Exception.class, () ->
+                BankQuizBuilder.loadCsaManifest(new ByteArrayInputStream("{}".getBytes())));
     }
 }
