@@ -90,10 +90,9 @@ rollback without the matching database backup is not supported.
 
 ## Public runner policy
 
-`POST /api/public/run` is refused with 403 in the `prod` profile unless
-`SPRINTJUDGE_EXECUTOR_MODE=nsjail`. In development it stays available with the
-native toolchain. This keeps an unsandboxed execution endpoint off a production
-host by default.
+`POST /api/public/run` is available in every profile. The native executor
+enforces compile/run timeouts, output caps, and a per-IP rate limit. On Linux
+production, prefer `SPRINTJUDGE_EXECUTOR_MODE=nsjail` for full sandboxing.
 
 ## Load probe
 
