@@ -165,6 +165,19 @@ describe("AdminApiService endpoints", () => {
         expect(client.put).toHaveBeenCalledWith("/admin/settings", { a: "b" });
     });
 
+    test("buildBankQuiz POSTs the CSA preset and returns the generated quiz", async () => {
+        const svc = new AdminApiService();
+        client.post.mockResolvedValue(ok({ quizId: "q1", questions: 16, skipped: 0 }));
+        await expect(
+            svc.buildBankQuiz({ csaUnit: 2, count: 16, includeCoding: true }),
+        ).resolves.toEqual({ quizId: "q1", questions: 16, skipped: 0 });
+        expect(client.post).toHaveBeenCalledWith("/admin/bank/build", {
+            csaUnit: 2,
+            count: 16,
+            includeCoding: true,
+        });
+    });
+
     test("createGame defaults to STANDARD mode", async () => {
         const svc = new AdminApiService();
         client.post.mockResolvedValue(ok({ id: "g", pinCode: "1" }));

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
 import { SoundToggle } from "./SoundToggle";
 import { MotionToggle } from "./MotionToggle";
-import { webSocketService } from "../services/WebSocketService";
+import { webSocketService } from "../game/WebSocketService";
 import { useEffect, useState } from "react";
 
 /** Shared outer shell: header (logo, sound, motion, connection) + footer. */
@@ -53,7 +53,7 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
             <footer className="border-t border-[var(--oq-border)] py-3">
                 <div className="page-shell flex justify-between text-xs text-[var(--oq-ink-soft)]">
                     <span>GPLv3</span>
-                    <span>Self-hosted · Real-time code judge</span>
+                    <span>Self-hosted classroom quiz and code judge</span>
                 </div>
             </footer>
         </div>

@@ -98,9 +98,6 @@ vi.mock("tone", () => {
     };
 });
 
-vi.mock("framer-motion", () => ({
-    animate: vi.fn(() => ({ stop: vi.fn() })),
-}));
 
 import { McqRenderer } from "./McqRenderer";
 import { TrueFalseRenderer } from "./TrueFalseRenderer";
@@ -195,8 +192,8 @@ beforeEach(() => {
     });
     vi.stubGlobal("fetch", fetchMock);
     window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
-        cb(0);
-        return 42;
+        const id = window.setTimeout(() => cb(0), 0);
+        return id as unknown as number;
     }) as typeof window.requestAnimationFrame;
     window.cancelAnimationFrame = (() => {}) as typeof window.cancelAnimationFrame;
     editorMock.create.mockReset();

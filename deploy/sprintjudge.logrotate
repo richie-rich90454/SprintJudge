@@ -1,0 +1,27 @@
+# Log rotation for SprintJudge (file-based logs).
+# The systemd unit logs to journald by default; journald rotates on its own.
+# This file covers the optional file-based app log and the nginx vhost logs.
+# Install: cp deploy/sprintjudge.logrotate /etc/logrotate.d/sprintjudge
+
+/var/log/sprintjudge/sprintjudge.log
+/var/log/nginx/sprintjudge-access.log
+/var/log/nginx/sprintjudge-error.log
+{
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 sprintjudge adm
+    sharedscripts
+    postrotate
+        # Reload nginx so it reopens rotated log files.
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl reload nginx >/dev/null 2>&1 || true
+        elif command -v nginx >/dev/null 2>&1; then
+            nginx -s reload >/dev/null 2>&1 || true
+        fi
+    endscript
+}
+EOF

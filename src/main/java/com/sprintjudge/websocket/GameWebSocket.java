@@ -103,6 +103,16 @@ public class GameWebSocket {
                         }
                     }
                 }
+                case "LEAVE_TEAM" -> {
+                    String uuid = (String) session.getUserProperties().get(UUID_KEY);
+                    if (uuid != null) {
+                        try {
+                            roomManager.leaveTeam(pinOf(session), uuid);
+                        } catch (IllegalArgumentException | IllegalStateException e) {
+                            send(session, new ErrorMessage("ERROR", e.getMessage()));
+                        }
+                    }
+                }
                 case "GET_TEAMS" -> {
                     String pin = pinOf(session);
                     if (pin == null) {
@@ -119,8 +129,7 @@ public class GameWebSocket {
                         send(session, new ErrorMessage("ERROR", "Join a room first"));
                         break;
                     }
-                    var bracket = roomManager.getBracket(pin);
-                    send(session, Map.of("type", "BRACKET", "rounds", bracket));
+                    send(session, roomManager.getBracketView(pin));
                 }
                 default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
@@ -190,6 +199,10 @@ public class GameWebSocket {
         String pin = pinOf(session);
         if (uuid == null || pin == null) {
             send(session, new ErrorMessage("ERROR", "Join a room first"));
+            return;
+        }
+        if ("spectator".equals(session.getUserProperties().get(ROLE_KEY))) {
+            send(session, new ErrorMessage("ERROR", "Spectators cannot submit answers"));
             return;
         }
         // Schema validation: SUBMIT requires a questionId and a response payload.

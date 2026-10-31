@@ -646,8 +646,9 @@ class GameWebSocketExtraTest {
     @Test
     void mxGetBracketAfterJoinSendsBracket() {
         mxJoinPlayer("123456", "Bob");
-        when(roomManager.getBracket("123456"))
-                .thenReturn(java.util.List.<String[]>of(new String[]{"a", "b"}));
+        when(roomManager.getBracketView("123456"))
+                .thenReturn(new com.sprintjudge.domain.dto.BattleBracket("BRACKET", java.util.List.of(),
+                        null, null));
         ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
         assertTrue(lastMessage().contains("BRACKET"));
     }
@@ -655,7 +656,7 @@ class GameWebSocketExtraTest {
     @Test
     void mxGetBracketManagerErrorBecomesInternalError() {
         props.put("pin", "123456");
-        when(roomManager.getBracket("123456")).thenThrow(new RuntimeException("db"));
+        when(roomManager.getBracketView("123456")).thenThrow(new RuntimeException("db"));
         ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
         assertTrue(lastMessage().contains("Internal error"));
     }

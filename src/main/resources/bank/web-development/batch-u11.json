@@ -1,0 +1,1362 @@
+{
+  "questions": [
+    {
+      "id": "web-11.4-0001",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Telling the child node list apart from the element child list",
+      "learningObjective": "count the nodes in a parent element and separate the element children from the rest",
+      "practice": "counting child nodes against element children",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A template produces this list, with a comment and a stray run of text deliberately left in place:\n`<ul id=\"l\"><li>a</li><!-- note --><li>b</li>loose<li>c</li></ul>`\nA script then runs:\n`const ul = document.getElementById(\"l\");\nconsole.log(ul.childNodes.length + \" and \" + ul.children.length);`\nThe line prints 5 and 3. Which two of the five children are the ones the element-only list leaves out, and what is the rule that separates the two lists?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 and 3, and the two left out are the comment node and the loose text node",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "3 and 3, and the two left out are counted on both sides because only elements count",
+          "misconception": "counts the element children in both places and ignores the text and comment nodes"
+        },
+        {
+          "id": "C",
+          "text": "6 and 4, and the extra one on each side is the list element counting itself",
+          "misconception": "counts the element itself as one of its own children"
+        },
+        {
+          "id": "D",
+          "text": "4 and 3, and the one left out of the node list is a comment that is not a child",
+          "misconception": "believes a comment node is not a child node at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The two properties differ in what they filter on, not in what they count as a child. Every node that appears between the start and end tags of the list is a child node, so the list holds the three items, the comment, and the run of text, which is five. The element child list answers the narrower question of how many of those children are elements, and a comment and a text node are not elements, so it holds three. The parser is not making a mess here: whitespace and comments between items are ordinary content of the parent as far as the tree is concerned, and they are what makes a selector that counts children disagree with a selector that counts items. The rule to carry away is that childNodes is every node of any kind and children is the subset whose type code marks them as elements, so the first number is never smaller than the second, and a count of five against three is not a bug but the two lists answering two different questions.",
+      "hint": "Write out the child list in source order first, then mark which of those five entries are elements.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 44,
+        "p75Sec": 66
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "traversal",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0002",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Reading the next element sibling across text and comment nodes",
+      "learningObjective": "walk to the following element sibling and skip the text and comment nodes on the way",
+      "practice": "reading next element siblings",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "One wrapper holds four elements with a text node and a comment wedged between them:\n`<div id=\"w\"><span id=\"p\">p</span>gap<b id=\"q\">q</b><!--c--><i id=\"r\">r</i><u id=\"t\">t</u></div>`\nA script looks up the three elements p, q and r and prints the next element sibling of each, naming the tag and the identifier, joined by commas:\n`for (const id of [\"p\",\"q\",\"r\"]) { const n = document.getElementById(id).nextElementSibling; console.log(n ? n.tagName.toLowerCase()+\"#\"+n.id : \"null\"); }`\nRun as three joined prints it gives b#q, i#r, and u#t. What is the step the walk has to make at each gap?",
+      "options": [
+        {
+          "id": "A",
+          "text": "span#p, span#p, and span#p, and all three answer with the first element in the wrapper",
+          "misconception": "answers with the first element child of the shared parent whatever node the walk started from"
+        },
+        {
+          "id": "B",
+          "text": "b#q, i#r, and u#t, and the walk steps over the text and the comment to reach them",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "#text, #comment, and u#t, and the walk reports whatever node stands next in the list",
+          "misconception": "reads the next sibling node without filtering the result to elements"
+        },
+        {
+          "id": "D",
+          "text": "span#p, b#q, and i#r, and the walk names the element it started from before moving on",
+          "misconception": "returns the node the walk started from instead of the following element"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The element sibling property answers a narrower question than the sibling node property, and the difference shows up exactly at the gaps the template left behind. After the element with identifier p comes a run of text, then the element with identifier q, so the next element sibling is that element and the text in between is passed without being reported. After q comes a comment and then r, and the comment is passed in the same way. After r there is nothing at all, so the walk runs out and the property answers with nothing, which the script has to be ready for because there is no element to name. The two questions in the stem are therefore answered by two different pairs of names: the first names the next element each time, the second names the node that happens to sit in between, and the disagreement is the whole point of having both properties. The rule to carry away is that a node sibling can be a text node or a comment while an element sibling has to be an element, which is why code that indexes children or counts items must use the element form and code that measures text or walks raw nodes must not.",
+      "hint": "List the child nodes of the wrapper in order and mark which of them are elements before answering.",
+      "difficulty": 0.32,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 47,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "traversal",
+        "siblings"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0003",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "What the ancestor walk tests first and where it stops",
+      "learningObjective": "describe the order the closest walk tests nodes in and the value it gives at the end of the chain",
+      "practice": "tracing an ancestor walk",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A document holds an article far from the markup under test, and a section that holds a div that holds the span under test:\n`<article id=\"elsewhere\">a</article><section id=\"s\"><div class=\"b\"><span class=\"c\" id=\"t\">x</span></div></section>`\nA script calls the closest-ancestor search three times on the element with identifier t, with the selectors c, b and article, and prints the tag and identifier of each answer:\n`for (const s of [\".c\",\".b\",\"article\"]) { const n = document.getElementById(\"t\").closest(s); console.log(n ? n.tagName.toLowerCase()+\"#\"+n.id : \"null\"); }`\nJoined, the three prints are span#t, div, and null. Explain the order the walk tests nodes in, and say why the third answer is not the article that does exist in the document.",
+      "options": [
+        {
+          "id": "A",
+          "text": "span#t, div, and article#elsewhere, and the walk keeps searching the document past its own chain",
+          "misconception": "believes the walk searches the whole document and falls back to a document-wide match"
+        },
+        {
+          "id": "B",
+          "text": "span#t, div, and div, and the walk stops at the first ancestor that carries a class at all",
+          "misconception": "believes the walk stops at the first ancestor that carries any class at all"
+        },
+        {
+          "id": "C",
+          "text": "span#t, div, and null, and the walk tests the element itself before it tests any ancestor",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "null, div, and null, and the walk begins at the parent and never tests the element itself",
+          "misconception": "believes the walk starts at the parent and never matches the element itself"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The walk is anchored on the element that asked, and it moves outwards one parent at a time, testing each node in turn and stopping at the first that matches. Because the element itself is one of the nodes tested, the first selector matches the span and the answer is the element rather than its parent, which is the behaviour that lets a handler ask for the control the user is actually on. The second selector is not on the span, so the walk moves to the parent, the div, and stops there, returning the nearest match rather than the outermost one. The third selector matches nothing on that chain: the section has no article ancestor, the ancestors above it are the body and the document, and the walk ends. The article that does exist in the document is a sibling subtree, not an ancestor, and the walk never leaves the chain upward, so it is not a candidate. That is the distinction worth keeping: this search asks what is above the element, while a document-wide query asks what is anywhere, and the two give the same answer only when the element happens to sit inside the matching subtree.",
+      "hint": "Write the ancestor chain from the span upward and mark which links satisfy each selector.",
+      "difficulty": 0.36,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 31,
+        "medianSec": 52,
+        "p75Sec": 76
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "traversal",
+        "closest"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0004",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Whether a returned collection is frozen or tracks the tree",
+      "learningObjective": "decide whether a returned collection still reflects later changes to the tree",
+      "practice": "comparing a static list with a live one",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holding one item is read twice before anything is added to it:\n`const ul = document.getElementById(\"l\");\nconst snap = ul.querySelectorAll(\"li\");\nconst live = ul.getElementsByTagName(\"li\");\nul.appendChild(document.createElement(\"li\"));\nconsole.log(snap.length + \" and \" + live.length);`\nGiven the initial markup `<ul id=\"l\"><li>a</li></ul>`, the line prints 1 and 2. Which of the two collections is tied to the tree, and what makes the other one a photograph rather than a window?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 and 2, and both collections are tied to the tree and see the new item at once",
+          "misconception": "believes the list a query selector call returns updates itself when the tree changes"
+        },
+        {
+          "id": "B",
+          "text": "1 and 1, and both collections are frozen the moment the call first returns a value",
+          "misconception": "believes a live collection is frozen at the moment it is first read"
+        },
+        {
+          "id": "C",
+          "text": "2 and 3, and the list element is counted among the items that it contains itself",
+          "misconception": "counts the containing list as one of the items it holds"
+        },
+        {
+          "id": "D",
+          "text": "1 and 2, and only the collection from the element query keeps reporting the tree as it stands",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The two calls differ in what they return and that difference decides whether later edits are visible. The element query returns a list of the matches it found, fixed at the moment the call ran, so appending a second item afterwards leaves it still reporting the single item it found and it will keep reporting one no matter what happens to the tree. The call that asks an element for the elements of a given tag returns a collection that is tied to the tree, so the same append makes it report two. That is not an optimisation, it is the difference between two objects with two jobs: the frozen list is a stable thing to iterate over while the tree is being edited, and the live collection is a standing question about the tree that is re-evaluated whenever it is read. The trap is that a live collection also changes length underneath a loop, which is why code that removes nodes while iterating a live collection skips entries, whereas the frozen list keeps its original entries and simply becomes out of date.",
+      "hint": "Ask which of the two results is a set of values taken once and which is a standing query over the element.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 33,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "collections",
+        "liveness"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0005",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Reading the numeric type code of each kind of node",
+      "learningObjective": "read the node type code of an element, a text node, a comment and a document",
+      "practice": "reading node type codes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A paragraph holds one run of text and one comment, and the code below prints four type codes in the order element, first child, last child, owner document:\n`<p id=\"p\">hi<!--c--></p>`\n`const p = document.getElementById(\"p\");\nconsole.log(p.nodeType, p.firstChild.nodeType, p.lastChild.nodeType, p.ownerDocument.nodeType);`\nThe line prints 1, 3, 8, and 9. Which code belongs to which kind of node, and why is the comment's code not the same as the text node's?",
+      "options": [
+        {
+          "id": "A",
+          "text": "1, 3, 8, and 9, and the comment keeps a code of its own separate from the text node",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "1, 3, 3, and 9, and a comment is held in the tree as a kind of text node",
+          "misconception": "believes a comment node reports the same code as a text node"
+        },
+        {
+          "id": "C",
+          "text": "9, 3, 8, and 9, and an element answers with the code given to a whole document",
+          "misconception": "believes an element reports the code reserved for a whole document"
+        },
+        {
+          "id": "D",
+          "text": "1, 2, 2, and 1, and the code counts the children each node holds rather than its kind",
+          "misconception": "reports how many children each node has instead of the numeric type code"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Each node carries a small integer that names its kind and nothing else, and the four in this program are the four that a small piece of markup produces. The paragraph is an element and reports one, the run of text inside it is a text node and reports three, the comment that follows it reports eight, and the document that owns the element reports nine. The comment has a separate code from the text node because the two are different things to the tree and every piece of script that walks it has to be able to tell them apart: a script collecting the visible text of an element wants the text nodes and not the comments, and one counting items in a list wants neither. A code that reported the number of children would be useless for either job, since a text node that holds characters is not counted as a child of itself and an element can hold any number of them.",
+      "hint": "Each code names a kind of node; name the kind before you read off the number.",
+      "difficulty": 0.24,
+      "discrimination": 0.38,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "node-types"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0006",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "What happens to a node's old parent when it is appended elsewhere",
+      "learningObjective": "trace the old and new parent, the two child counts, and the returned node across a move",
+      "practice": "tracing a node moved between parents",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A span already sits inside the first of two empty-capable elements:\n`<div id=\"p1\"><span id=\"s\">x</span></div><div id=\"p2\"></div>`\n`const p1 = document.getElementById(\"p1\"), p2 = document.getElementById(\"p2\");\nconst s = document.getElementById(\"s\");\nconst r = p2.appendChild(s);\nconsole.log(r.id, p1.children.length, p2.children.length, s.parentElement.id);`\nThe line prints s, 0, 1, and p2. Explain what the call did to the span's membership of the first element, and say why the four printed values cannot all be right if it copied instead.",
+      "options": [
+        {
+          "id": "A",
+          "text": "s, 0, 1, and p1, and the parent reference is still the first element after the move",
+          "misconception": "reads the parent of the moved node from a value captured before the move"
+        },
+        {
+          "id": "B",
+          "text": "s, 0, 1, and p2, and the span left the first element and the call handed it back",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "s, 2, 0, and p1, and the span was copied so both elements still hold one and the second is empty",
+          "misconception": "believes appendChild copies the node and leaves the original parent untouched"
+        },
+        {
+          "id": "D",
+          "text": "p2, 0, 1, and p2, and the value handed back is the element that received the node",
+          "misconception": "believes the value handed back is the element that received the node"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A node lives in exactly one place in a tree, so appending it somewhere that already has a parent is a move rather than a copy, and every one of the four printed values follows from that single fact. The call hands back the node it was given, which is why the first value names the span and not one of the two elements. The first element no longer has the span among its children, so its count falls to nothing, and the second gains one, so its count rises. The parent of the span is now the second element, so a later read of that property follows the move instead of the stale history. The fourth option is the one that looks most like a plausible reading and is the trap: a reference captured before the move still says the first element, but that is a value the program chose to remember, not the tree's current answer, and re-reading the property after the move is what tells the truth.",
+      "hint": "Decide first whether a node can be in two parents at once, then read the counts off that decision.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 29,
+        "medianSec": 50,
+        "p75Sec": 74
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "insertion",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0007",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Inserting a node in front of a named reference child",
+      "learningObjective": "trace the returned node and the resulting child order for an insert-before call",
+      "practice": "tracing an insertion in front of a reference child",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds two items and a third element is made and given the identifier c:\n`<ul id=\"l\"><li id=\"a\">a</li><li id=\"b\">b</li></ul>`\n`const ul = document.getElementById(\"l\");\nconst c = document.createElement(\"li\"); c.id = \"c\";\nconst r = ul.insertBefore(c, document.getElementById(\"b\"));\nconsole.log(r.id + \" and \" + [...ul.children].map(e => e.id).join(\", \"));`\nThe line prints c and a, c, b. State the two decisions the call makes, and say which of them the return value records.",
+      "options": [
+        {
+          "id": "A",
+          "text": "c and a, b, c, and the node went in behind b and the call reports the node inserted",
+          "misconception": "believes the new node is placed after the reference child rather than in front of it"
+        },
+        {
+          "id": "B",
+          "text": "c and c, a, b, and the node went to the front and the call reports the node inserted",
+          "misconception": "believes the reference child argument is ignored and the node goes to the front"
+        },
+        {
+          "id": "C",
+          "text": "c and a, c, b, and the node went in front of b and the call reports the node inserted",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "b and a, c, b, and the node went in front of b and the call reports the reference child",
+          "misconception": "believes the call hands back the reference child the new node was placed in front of"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The call takes two arguments and answers two questions: where the new node goes, and what the call itself reports. The reference child is the position marker, so the new node lands immediately in front of the item with identifier b, which turns the pair a, b into a, c, b without disturbing anything else in the list. The return value is the node that was inserted, not the node it was inserted in front of, so the first printed value names the new item. Those are separate claims and the second option is the natural confusion between them, since the reference child is the argument that appears in the call and is easier to remember than the node the call created. A third possibility is to read the operation as an insertion after the marker, which is what a caller who thinks of the argument as a predecessor's successor would expect, and the fourth is to ignore the marker altogether and put the node at the front, which happens when the code passes the first child instead of the item it meant.",
+      "hint": "Write down the two arguments and ask, for each, what it controls and whether the result mentions it.",
+      "difficulty": 0.34,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 48,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "insertion",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0008",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "What a removal returns and what the detached node still holds",
+      "learningObjective": "read the returned node, the parent of a removed node, and the subtree it keeps",
+      "practice": "tracing a node removed from a list",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "The second item of a list carries a span inside it, and the item is removed by hand rather than by emptying the list:\n`<ul id=\"l\"><li id=\"a\">a</li><li id=\"b\"><span id=\"in\">x</span></li></ul>`\n`const ul = document.getElementById(\"l\"), b = document.getElementById(\"b\");\nconst r = ul.removeChild(b);\nconsole.log(r.id, r.parentNode, ul.children.length, r.childNodes.length);`\nPrinting the parent by its node name, the line prints b, null, 1, and 1. Say what the fourth value proves about the subtree, and why the second value is not the list.",
+      "options": [
+        {
+          "id": "A",
+          "text": "undefined, null, 1, and 0, and the call reports nothing and empties the subtree",
+          "misconception": "believes removeChild hands back nothing while the detached node still has a parent"
+        },
+        {
+          "id": "B",
+          "text": "b, UL, 1, and 1, and the removed item still points at the list it was taken out of",
+          "misconception": "reads the parent of the removed node from a reference captured before the removal"
+        },
+        {
+          "id": "C",
+          "text": "b, null, 1, and 0, and taking a node out of the tree also strips what was inside it",
+          "misconception": "believes removing a node from the tree also empties the subtree it carried away"
+        },
+        {
+          "id": "D",
+          "text": "b, null, 1, and 1, and the detached item kept the span it was carrying",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Removal unlinks the node from its parent and stops there. The call hands back the node it removed, so the first value names the item that was taken out, and the second value shows that it now has no parent at all, which is what distinguishes a detached node from one still sitting in a list. The list is left holding the one item that was not removed, so the third value counts that single remaining child rather than the two that were there before. The fourth value is the one that separates this operation from clearing an element: the removed item still contains the span that was inside it, because the tree link was between the list and the item and nothing was done to the item's own children. A node is therefore a usable thing to keep after a removal, which is exactly what makes it safe to move rather than to rebuild, and the third option is the trap that a value remembered before the call will still say the list after the list has let go.",
+      "hint": "The removal breaks one link; ask which link that is and what it leaves untouched.",
+      "difficulty": 0.36,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 51,
+        "p75Sec": 75
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "removal",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0009",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Swapping one child for another and reading the return value",
+      "learningObjective": "identify which of the two nodes a replacement call returns and what happens to the other",
+      "practice": "tracing a child replacement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds two items and a replacement item with the identifier c is made:\n`<ul id=\"l\"><li id=\"a\">a</li><li id=\"b\">b</li></ul>`\n`const ul = document.getElementById(\"l\"), b = document.getElementById(\"b\");\nconst c = document.createElement(\"li\"); c.id = \"c\";\nconst r = ul.replaceChild(c, b);\nconsole.log(r.id, r.parentNode === null ? \"null\" : r.parentNode.id, [...ul.children].map(e => e.id).join(\", \"), b.childNodes.length);`\nThe line prints b, null, a, c, and 1. Name the node that comes back and the node that leaves, and say what the second value says about the one that left.",
+      "options": [
+        {
+          "id": "A",
+          "text": "b, null, a, c, and 1, and the old item came back and is now detached with its text",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "c, l, a, c, and 0, and the call hands back the replacement that went into the list",
+          "misconception": "believes the call hands back the node that went in rather than the node that came out"
+        },
+        {
+          "id": "C",
+          "text": "b, l, a, c, and 1, and the old item still points at the list after the swap is done",
+          "misconception": "reads the parent of the replaced node from a reference captured before the call"
+        },
+        {
+          "id": "D",
+          "text": "c, l, a, c, b, and 1, and both items are still in the list with the new one in front",
+          "misconception": "believes the new node is pushed in in front of the old one and the old one is left in place"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A replacement takes the new node into the position the old one held and hands the old one back, which is why the first printed value names the item that was in the list already. The old item is no longer in the list, so the third value shows the pair a, c with b gone rather than a list of three, and the second value shows that the returned item now has no parent, because the link that held it was the one just broken. The last value is the removal behaviour again: the item that came back keeps the text it was carrying, so a caller who wants to reuse it can, and a caller who wants its contents has not lost them. The fourth option is the natural picture of the operation as an insertion, and it is worth naming that picture as the mistake rather than merely rejecting it, because an insertion in front of the old node is a different call with a different result and a different return value.",
+      "hint": "Two nodes are involved; decide which one the call is defined to return and which keeps its children.",
+      "difficulty": 0.37,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 52,
+        "p75Sec": 77
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "replacement",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0010",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Handing a whole batch of new nodes to one element at a time",
+      "learningObjective": "trace what a fragment holds before and after it is appended to a real element",
+      "practice": "tracing a fragment handover",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "A list holds one item and a fragment is given two more items before the list is asked to take the whole batch:\n`<ul id=\"l\"><li id=\"k\">k</li></ul>`\n`const ul = document.getElementById(\"l\");\nconst f = document.createDocumentFragment();\nfor (const id of [\"m\",\"n\"]) { const li = document.createElement(\"li\"); li.id = id; f.appendChild(li); }\nconst before = f.childNodes.length;\nul.appendChild(f);\nconsole.log(before, f.childNodes.length, [...ul.children].map(e => e.id).join(\", \"));`\nThe line prints 2, 0, and k, m, n. Say what the second value proves about the second use of the same fragment, and where the new items sit relative to the old one.",
+      "options": [
+        {
+          "id": "A",
+          "text": "2, 0, and m, n, k, and the batch was placed in front of the item already in the list",
+          "misconception": "believes the children of a fragment are placed in front of the children already there"
+        },
+        {
+          "id": "B",
+          "text": "2, 0, and k, m, n, and the fragment was emptied while the items went to the end",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "2, 2, and k, m, n, and the fragment kept its items so a second append would repeat them",
+          "misconception": "believes a fragment is copied rather than emptied, so the nodes stay in the fragment as well"
+        },
+        {
+          "id": "D",
+          "text": "2, 1, and k, m, and only the first item of the batch was moved into the list",
+          "misconception": "believes handing a fragment over moves only its first child into the element"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A fragment is a holding area that is not itself part of the document, and the point of it is that the nodes inside it are real nodes with no parent until the fragment is placed. Building the batch into one holder means one insertion into the list rather than several, so the list is touched once and the browser has one piece of work to do. The first value is what the batch held before the handover and the second is what it holds afterwards, and the difference between them is the whole behaviour: the nodes have been moved into the list and the holder is empty, so appending the same fragment again would add nothing. The third value shows the order the list is left in, and the new items follow the item that was already there because an append puts its argument's children at the end. That is what makes a fragment the right tool for inserting many nodes at one position, and it is why the fourth option, which has the same final set of items in a different order, would need a different call to achieve.",
+      "hint": "Ask whether the nodes can still be in the fragment after they are in the list, then read the order off the call.",
+      "difficulty": 0.38,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 54,
+        "p75Sec": 79
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "fragment",
+        "tracing"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0011",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "How much of a subtree a copy call reproduces",
+      "learningObjective": "decide how deep a node copy goes from the argument it is given",
+      "practice": "comparing a deep copy with a shallow one",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A copy is taken of an element that holds a bold run and a plain run of text:\n`<div id=\"s\"><b>bold</b>tail</div>`\n`const s = document.getElementById(\"s\");\nconst deep = s.cloneNode(true), shallow = s.cloneNode();\nconsole.log(deep.textContent.length, deep.children.length, deep.childNodes.length, shallow.childNodes.length);`\nThe line prints 8, 1, 2, and 0. What does the argument decide about the copy, and why is the deep copy's child count one higher than its element child count?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8, 1, 1, and 0, and every child count in the tree counts elements and nothing else",
+          "misconception": "counts element children at every level and forgets that text nodes are children too"
+        },
+        {
+          "id": "B",
+          "text": "8, 1, 2, and 2, and the copy without an argument still carries the whole subtree",
+          "misconception": "believes a shallow copy is only shallow in its name and still carries the subtree"
+        },
+        {
+          "id": "C",
+          "text": "8, 1, 2, and 0, and the argument decides depth while the extra child is a text node",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "0, 0, 0, and 0, and the argument only governs attributes so nothing inside is copied",
+          "misconception": "believes the true argument only copies attributes and never recurses into the subtree"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The argument is a depth switch, not a filter. Without it the copy reproduces the element and its attributes and nothing else, so the fourth value is zero and the copy is an empty shell of the right shape. With it the copy walks the subtree and reproduces every node beneath, so the deep copy holds the bold element and the run of text that follows it, and the first value counts the eight characters of visible text those nodes carry. The second and third values together are the reminder that children and element children are different lists: the deep copy has one element child and two children in total, because the plain run of text is a child that is not an element. A copy is a new set of nodes, so changing anything inside the deep copy leaves the original alone, which is the reason to take one at all when a template is reused more than once.",
+      "hint": "Count the nodes under the element, then separate the ones that are elements from the ones that are not.",
+      "difficulty": 0.3,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 45,
+        "p75Sec": 67
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "clone",
+        "concept"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0012",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Replacing an element's whole contents by assigning text",
+      "learningObjective": "trace what assigning text does to the children and to the resulting node list",
+      "practice": "tracing a whole-contents replacement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An element holds text on both sides of a nested pair of elements:\n`<div id=\"d\">a<span>b<i>c</i></span>d</div>`\n`const d = document.getElementById(\"d\");\nconst before = d.textContent;\nd.textContent = \"z\";\nconsole.log(before, d.children.length, d.childNodes.length, d.textContent.length);`\nThe line prints abcd, 0, 1, and 1. Say what the first value proves about reading, and what the second and third prove about the assignment.",
+      "options": [
+        {
+          "id": "A",
+          "text": "abcd, 0, 0, and 0, and the assignment removes everything including the text it wrote",
+          "misconception": "believes assigning text leaves nothing behind, not even the text node just written"
+        },
+        {
+          "id": "B",
+          "text": "abcd, 1, 3, and 4, and the assignment rewrites the first text node and keeps the elements",
+          "misconception": "believes assigning text rewrites the first text node in place and keeps the elements"
+        },
+        {
+          "id": "C",
+          "text": "abcd, 0, 1, and 2, and reading returns only the direct text and skips what is nested",
+          "misconception": "believes the text property reports only the direct text of the element and skips nested elements"
+        },
+        {
+          "id": "D",
+          "text": "abcd, 0, 1, and 1, and reading concatenates the subtree while writing replaces it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The same property behaves in two different ways on the two sides of the assignment, and the four values separate them. Reading concatenates the text of every node beneath the element in tree order, which is why the first value has the letters from before the nested element, the letters inside it, and the letter after it, all in order. Writing replaces the whole set of children with a single new run of text, so the element children count falls to nothing and the total child count falls to one, which is the one text node just written. The last value confirms that node carries exactly the one character that was assigned. This asymmetry is why assigning text is the blunt instrument it is: it is a complete and irreversible replacement of the contents, and any structure inside the element is gone. The third option is the mistake of expecting the assignment to behave like editing the first text node, which is what makes it feel like the wrong call destroyed more than it should have; the fourth is the mirror image, expecting the read to be as shallow as the write is narrow.",
+      "hint": "Treat the read as a walk over the subtree and the write as a replacement of every child.",
+      "difficulty": 0.34,
+      "discrimination": 0.41,
+      "responseTimeBaseline": {
+        "p25Sec": 28,
+        "medianSec": 48,
+        "p75Sec": 72
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "text",
+        "concept"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0013",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "How the parser turns written character references into characters",
+      "learningObjective": "count the characters the parser produces from named and numeric character references",
+      "practice": "counting characters after reference decoding",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A paragraph is written with three kinds of character reference, and the program prints the length of the text the parser produced, the code point of its last character, and what the ampersand reference became:\n`<p id=\"p\">a &amp; b &lt;tag&gt; &#65; &nbsp;</p>`\n`const p = document.getElementById(\"p\"), t = p.textContent;\nconsole.log(t.length, t.codePointAt(t.length - 1), t.includes(\"&amp;\") ? \"still written out\" : \"one ampersand character\");`\nThe line prints 15, 160, and one ampersand character. Count the characters yourself from the source and say which three references each cost more than one character to write.",
+      "options": [
+        {
+          "id": "A",
+          "text": "15, 160, and one ampersand character, and every reference collapses to a single character",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "34, 59, and the six characters &amp;, and a named reference is left in the text as written",
+          "misconception": "believes a named character reference is left in the text exactly as it was written"
+        },
+        {
+          "id": "C",
+          "text": "14, 160, and one ampersand character, and the non-breaking space is markup and not a character",
+          "misconception": "believes the non-breaking space is a formatting instruction and contributes no character"
+        },
+        {
+          "id": "D",
+          "text": "19, 160, and the five characters &#65;, and only a numeric reference is decoded by the parser",
+          "misconception": "believes a numeric reference is decoded while a named one is left in the text"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A character reference is the parser's way of letting one character be written in a form that survives being embedded in text, and by the time the tree exists every reference has already become a character. Counting the source by hand gives the check: the paragraph holds a, a space, the ampersand, a space, b, a space, the less-than sign, the three letters, the greater-than sign, a space, the letter A, a space, and the non-breaking space, which is fifteen characters. The named ampersand reference is six characters written for one character stored, the two bracket references are four each for one, the numeric reference is five for one, and the non-breaking reference is six for one, so a paragraph written with references is much longer on disk than it is in the tree. The last value confirms it: the parser produced a single ampersand character and not the six characters that were written, and its code point is 160, which is what makes that space a non-breaking one rather than an ordinary gap.",
+      "hint": "Write out the text the parser produced, one character per position, and count the positions.",
+      "difficulty": 0.42,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 58,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "parsing",
+        "encoding"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0014",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "How a hyphenated data attribute appears as a property name",
+      "learningObjective": "map a hyphenated data attribute to the property name that reads it",
+      "practice": "reading a data attribute through its property",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two data attributes are written in hyphenated lower case and read back through the property that exposes them:\n`<div data-user-id=\"7\" data-role-list=\"a b\"></div>`\n`const el = document.querySelector(\"div\");\nconsole.log(el.dataset.userId, el.dataset.roleList, el.getAttribute(\"data-user-id\"), el.attributes.length);`\nThe line prints 7, a b, 7, and 2. State the naming rule that turns the first attribute name into a property name, and say why the second value is one string rather than two items.",
+      "options": [
+        {
+          "id": "A",
+          "text": "7, a b, null, and 1, and the two data attributes are exposed through a single property",
+          "misconception": "believes a dataset property looks the attribute up under its own name and folds the data attributes together"
+        },
+        {
+          "id": "B",
+          "text": "7, a b, 7, and 2, and a hyphen becomes a capital while the value stays a string",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "7, a b, null, and 2, and the attribute is written under the same camel-cased name",
+          "misconception": "believes the attribute is written in the markup under the camel-cased name the property uses"
+        },
+        {
+          "id": "D",
+          "text": "7, a,b, 7, and 2, and a data value is split into a list the way a class is",
+          "misconception": "believes a dataset value is split into a list the way a class attribute is"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The property name is derived from the attribute name by a mechanical rule: the attribute is written with hyphens because that is the convention for custom attributes, and reading it through the property replaces each hyphen followed by a letter with a capital, so the two words become one camel-cased name. The attribute itself is unchanged in the markup and the lookup by attribute name still uses the hyphenated form, which is why the third value is the same seven the first value reported rather than nothing. The two attributes are two separate entries on the element, so the count of attributes is two and neither is folded into the other. The second value is a string with a space in it, not two items, because the property is a plain string of whatever the author wrote; a list is only produced when the code asks for one, which is a different decision and is what the fourth option mistakes the value for.",
+      "hint": "Write the attribute name with hyphens, then apply the hyphen-to-capital rule one hyphen at a time.",
+      "difficulty": 0.29,
+      "discrimination": 0.39,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 42,
+        "p75Sec": 63
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "dataset",
+        "attributes"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0015",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "What the parser does to the case of an attribute name it stores",
+      "learningObjective": "predict the stored name and the lookup behaviour for a mixed-case attribute on an HTML element",
+      "practice": "predicting stored attribute name case",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An input is given three attributes in markup and a fourth is written by the program with a mixed-case name:\n`<input id=\"i\" class=\"a b\" value=\"v\">`\n`const i = document.getElementById(\"i\");\ni.setAttribute(\"data-Foo\", \"X\");\nconsole.log(i.getAttributeNames().pop(), i.attributes.length, i.getAttribute(\"CLASS\"), i.classList.length);`\nThe line prints data-foo, 4, a b, and 2. Say what happens to the case of the written name, and why the lookup by the upper-case class name still succeeds.",
+      "options": [
+        {
+          "id": "A",
+          "text": "data-foo, 3, a b, and 2, and the class is a property of the element and not an attribute",
+          "misconception": "believes the class is a property of the element and not one of its attributes"
+        },
+        {
+          "id": "B",
+          "text": "data-foo, 4, null, and 2, and a lookup by name on an HTML element is case sensitive",
+          "misconception": "believes an attribute lookup by name is case sensitive on an element in an HTML document"
+        },
+        {
+          "id": "C",
+          "text": "data-foo, 4, a b, and 2, and both the stored name and the lookup are folded to lower case",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "data-Foo, 4, a b, and 2, and the stored name keeps exactly the case the program wrote",
+          "misconception": "believes a mixed-case attribute name is stored on an element in an HTML document as it was written"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Attribute names on an element in a document parsed as HTML are matched without regard to case, and the name is stored in the folded form. The parser follows HTML's rule that tag and attribute names are case insensitive, so a name written with capitals is normalised to lower case on the way in, and the same folding is applied to a name the program writes later, which is why the last name on the element comes back in lower case. A lookup by name is folded the same way before it is compared, so asking for the class attribute in upper case finds the same attribute as asking for it in lower case, and the value comes back exactly as it was written. The element now carries four attributes in total, and the class value still holds two whitespace-separated tokens, which is what makes the token list report two. This folding is specific to documents parsed as HTML, which is why the answer changes for an element in a document parsed under a language that treats names as written.",
+      "hint": "Decide first whether the folding happens on the way in, on the way out, or on both.",
+      "difficulty": 0.45,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 36,
+        "medianSec": 60,
+        "p75Sec": 88
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "attributes",
+        "case"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0016",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "The field value a user typed against the value the markup carried",
+      "learningObjective": "separate the current value of a field from the value its markup carried and from the reset behaviour",
+      "practice": "tracing typed text against the default value",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A form holds one field whose markup carries an initial value, and a program overwrites the field and then resets the form:\n`<form id=\"f\"><input id=\"i\" name=\"q\" value=\"start\"></form>`\n`const f = document.getElementById(\"f\"), i = document.getElementById(\"i\");\ni.value = \"typed\";\nconst after = i.value + \" and \" + i.getAttribute(\"value\");\nf.reset();\nconsole.log(after, \"and\", i.value);`\nThe line prints typed and start, and start. A form restores itself by restoring the values the markup carried, not the values a user or a program put in. Say which of the two values each half of the program is reporting, and why the third reading is not a bug.",
+      "options": [
+        {
+          "id": "A",
+          "text": "typed and typed, and typed, because setting the property also rewrites the attribute behind it",
+          "misconception": "believes setting the value property also rewrites the value attribute behind it"
+        },
+        {
+          "id": "B",
+          "text": "start and start, and start, because the attribute is the only place a field's text is ever held",
+          "misconception": "reads the field through its attribute both before and after the typing"
+        },
+        {
+          "id": "C",
+          "text": "typed and start, and typed, because resetting a form leaves the current value in place",
+          "misconception": "believes resetting a form leaves the current value in place and reports that value"
+        },
+        {
+          "id": "D",
+          "text": "typed and start, and start, because the two halves read the current value and the markup value",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A field holds two related things and the reset is defined in terms of the second of them. The current value is what the program sets and what a user types, and it lives on the element. The default value is what the markup carried, it lives in the attribute of the same name, and it is the thing a reset restores. So after the assignment the current value is the typed text while the attribute still says the original word, which is what the first half of the output records, and the reset then puts the field back to the original word because that is the rule rather than an accident. The distinction matters for two reasons: a form that is reset has to return to a state the server can reason about, and code that wants to know what a user has entered must read the current value, because after a reset the attribute and the property agree again only by coincidence of the reset having just happened.",
+      "hint": "Ask of each read whether it is asking what is in the field now or what the markup said.",
+      "difficulty": 0.4,
+      "discrimination": 0.42,
+      "responseTimeBaseline": {
+        "p25Sec": 32,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "forms",
+        "analysis"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0017",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Reading one name that works for every kind of node",
+      "learningObjective": "explain why one property names elements and non-elements without a kind test at each use",
+      "practice": "using a single name across node kinds",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "A debug routine walks a fragment and prints one name per node, and a colleague reports that it throws on the second node:\n`<SECTION id=\"s\">t<!--c--></SECTION>`\n`const s = document.getElementById(\"s\");\nfor (const n of s.childNodes) console.log(n.tagName, n.nodeName);`\nThe first pair printed is the element's own tag and name; the routine then throws because the text node has no such property. The node names this markup produces are SECTION, #text, #document, and #comment. Explain which single property the routine should have used, and why the throwing one is not the tag property for a node that has no tag.",
+      "options": [
+        {
+          "id": "A",
+          "text": "SECTION, #text, #document, and #comment, and the node name is defined for every kind of node",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "section, #text, #document, and #comment, and the node name keeps the case written in the source",
+          "misconception": "believes the node name keeps the lower-case spelling used in the source"
+        },
+        {
+          "id": "C",
+          "text": "SECTION, undefined, undefined, and undefined, and every kind of node answers with an element's tag",
+          "misconception": "believes every kind of node answers with the tag name of an element"
+        },
+        {
+          "id": "D",
+          "text": "SECTION, undefined, #document, and undefined, and a node that is not an element has no name",
+          "misconception": "believes a node that is not an element has no node name at all"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A tree walk cannot assume it is holding elements, so the property chosen for printing has to be defined for every node it might meet. The node name is: an element answers with its tag in the upper-case form HTML uses, and the nodes that are not elements answer with the short names the platform reserves for them, a text node, a comment, and the document itself. That is why the debug routine can walk a child list and print something for every entry, and why the tag property is the wrong choice: it belongs to elements, and a node that is not an element has nothing to report. The upper-case form in the first position is not an accident of the source either, because the source wrote the tag in capitals, but the property normalises to the upper-case convention whatever the document said, so a lower-case spelling would be a guess about the source rather than a reading of the tree.",
+      "hint": "Ask which of the two properties is defined for a node that is not an element.",
+      "difficulty": 0.31,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 26,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "node-types",
+        "analysis"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0018",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Asking for a parent that is an element when the parent may not be one",
+      "learningObjective": "choose between the two parent properties and predict the answer when the parent is not an element",
+      "practice": "choosing the parent property for a mixed tree",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A div sits in the body and a run of text is placed in a holder that is not part of the document:\n`<body>\\n<div id=\"d\"></div>\\n</body>`\n`const div = document.getElementById(\"d\");\nconst holder = document.createDocumentFragment();\nconst loose = document.createTextNode(\"x\"); holder.appendChild(loose);\nconsole.log(div.parentElement.nodeName, div.parentNode.nodeName, loose.parentElement === null ? \"null\" : \"not null\", loose.parentNode.nodeName);`\nThe line prints BODY, BODY, null, and #document-fragment. Say which of the two parent properties is the one to reach for when a loop is going to call element methods, and what the third value means.",
+      "options": [
+        {
+          "id": "A",
+          "text": "null, BODY, null, and #document-fragment, so the element-parent steps over the body element itself",
+          "misconception": "believes parentElement steps over the body element and reports nothing for a child of the body"
+        },
+        {
+          "id": "B",
+          "text": "BODY, BODY, null, and #document-fragment, so the element-parent property reports nothing here",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "BODY, BODY, undefined, and #document-fragment, so a missing element parent is not a value at all",
+          "misconception": "believes a node with no element parent comes back as undefined rather than as null"
+        },
+        {
+          "id": "D",
+          "text": "BODY, BODY, #document-fragment, and #document-fragment, so the element-parent falls back to the node parent",
+          "misconception": "believes parentElement falls back to parentNode when the parent is not an element"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The two properties answer different questions and the choice between them depends on what the code does next. The node parent is whatever the node is attached to, whatever kind of thing that is, so the text run in a holder reports the holder and a comment directly in the body reports the body. The element parent is that same chain narrowed to elements only, and when the node in the chain is not an element there is no such parent and the answer is nothing, which the program prints as the word null rather than as a missing value. That distinction is exactly why the element-parent property is the right one in a loop that is about to call element methods: the guarantee that what comes back is an element is the guarantee the loop needs, and taking the node parent instead would let a text node or a fragment into code that is about to read attributes. The third value is not a failure but the correct answer, and a caller that forgets to test for it will throw on the next line.",
+      "hint": "Decide which question each property answers, then read the third value as an answer rather than an error.",
+      "difficulty": 0.33,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 27,
+        "medianSec": 47,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "traversal",
+        "concept"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0019",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Two scopes for one selector: the node it tests and the tree it searches",
+      "learningObjective": "predict the counts a scoped descendant query and a document-wide query give on the same tree",
+      "practice": "comparing a scoped query with a document-wide one",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A wrapper holds a section that holds a paragraph, a second paragraph that is a direct child of the wrapper, a span, and one paragraph outside the wrapper:\n`<div id=\"w\"><section><p class=\"x\">deep</p></section><p class=\"x\" id=\"t\">t</p><span class=\"x\">s</span></div><p class=\"x\">out</p>`\n`const t = document.getElementById(\"t\"), w = document.getElementById(\"w\");\nconsole.log(t.matches(\":scope > p\"), w.querySelectorAll(\":scope > p\").length, document.querySelectorAll(\"p.x\").length);`\nThe line prints false, 1, and 3. First work out which of the three paragraphs each query can see, then say why the match test on the element itself answers the way it does.",
+      "options": [
+        {
+          "id": "A",
+          "text": "false, 1, and 2, and a query started on the wrapper never reaches the paragraph outside it",
+          "misconception": "believes a query started on an element stops at that element and never reaches the rest of the document"
+        },
+        {
+          "id": "B",
+          "text": "true, 1, and 3, and a match test on an element can use an ancestor combinator itself",
+          "misconception": "believes a match test cannot use an ancestor combinator and reads the element in isolation"
+        },
+        {
+          "id": "C",
+          "text": "false, 1, and 3, and the scope word on the element under test points at that element",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "false, 2, and 3, and the scope word is decorative so every descendant paragraph is counted",
+          "misconception": "believes the scope keyword is decorative and the child combinator is tested against every descendant"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The first value is the subtle one and it is decided by what the scope word means when it appears in a match test rather than in a query. In a match test there is no search: the selector is tested against one element, and the scope word stands for that element, so the child combinator asks whether the element is a child of itself, which it is not, and the answer is false. The second value is a real search rooted at the wrapper, and the scope word stands for the wrapper there, so only the paragraph that is a direct child of the wrapper is counted and the one inside the section is not, giving one. The third value is a search over the whole document with no scope word, so all three paragraphs carrying the class are found, including the one outside the wrapper. The second option is what happens when the scope word is treated as decoration in the second call, and it is the error that makes a nested paragraph look like a direct child.",
+      "hint": "Read the scope word as standing for the element the call is made on, and treat the match test as having no search.",
+      "difficulty": 0.5,
+      "discrimination": 0.44,
+      "responseTimeBaseline": {
+        "p25Sec": 40,
+        "medianSec": 68,
+        "p75Sec": 98
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "selectors",
+        "two-stage"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    },
+    {
+      "id": "web-11.4-0020",
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 11",
+      "topic": "Why an attribute is a set of names rather than a log of writes",
+      "learningObjective": "explain the shape of the attribute set and what repeated writes to one name do to it",
+      "practice": "explaining the attribute set model",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A program sets one data attribute twice and then adds a class to an element that has an identifier:\n`<div id=\"d\"></div>`\n`const el = document.getElementById(\"d\");\nel.setAttribute(\"data-x\", \"1\");\nel.setAttribute(\"data-x\", \"2\");\nel.setAttribute(\"class\", \"c\");\nconsole.log(el.attributes.length, el.getAttributeNames().filter(n => n === \"data-x\").length, el.getAttribute(\"data-x\"));`\nThe line prints 3, 1, and 2. A reviewer claims the second write added a second attribute and that the first value is the one that wins. Explain why the element's attributes are a set of names rather than a record of writes, and use the three numbers to show what that model predicts.",
+      "options": [],
+      "answer": {
+        "exemplar": "The claim rests on reading the attribute list as a log of what the program did rather than as the state the element is in now. Those are different objects, and the difference is the whole reason the third number is what it is. An element's attributes are a set of names, one entry per name, each holding one current value; there is no place in that structure for a history, so a second write to the same name has nowhere to add a second entry. It replaces the value held under a name that was already there. The first number confirms the shape: the element started with one attribute, the identifier, and now carries three, the identifier, the data attribute and the class. Had the second write added a second entry, the count would be four, because the count is of names present, not of writes performed. The second number is the same statement at finer grain: of the names on the element, one of them is the data attribute, because a set holds one entry per name and the second write wrote a name that was already present rather than introducing a new one. The third number then says which value survived, and the answer is the second, because replacement is the only operation available on a name that already exists. The reviewer's second claim is the mirror image of the first: it imagines the structure recording a sequence, in which case the earliest value would be the one a reader saw first. A sequence would also have made the first number four rather than three, so the two claims are not independent. What the model buys is that reading an attribute is a lookup by name with one answer, always the current one, and writing is an update of that one entry. The consequence for the rest of the platform follows directly: a loop that copies attributes from one element to another can overwrite as it goes without surprises, a check that counts attributes is counting names rather than history, and a program that wants to know whether it has written twice has to keep its own count, because the element will not keep that for it."
+      },
+      "explanation": "A model answer has to argue the set model rather than merely assert the three numbers, since the item is about the model that produces them. It should show that the count is of names rather than of writes, that a repeated write replaces because a name holds one value, and that the reviewer's two claims are the same mistake applied to the count and to the value.",
+      "hint": "Ask what a second write to an existing name would have to add if the first number were four, and what the third number would be if the earliest write had won.",
+      "difficulty": 0.48,
+      "discrimination": 0.43,
+      "responseTimeBaseline": {
+        "p25Sec": 38,
+        "medianSec": 65,
+        "p75Sec": 95
+      },
+      "provenance": {
+        "author": "bank-team-web",
+        "reviewer": "bank-review-web",
+        "reviewedAt": "2026-09-26T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-w12",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "tags": [
+        "dom",
+        "attributes",
+        "explanation"
+      ],
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": []
+    }
+  ]
+}

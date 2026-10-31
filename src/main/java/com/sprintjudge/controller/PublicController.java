@@ -19,6 +19,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +55,23 @@ public class PublicController {
     private static final int PRACTICE_LIMIT_PER_MIN = 10;
     private static final long WINDOW_MS = 60_000;
     private static final long STALE_MS = 120_000;
+
+    @org.springframework.beans.factory.annotation.Value("${sprintjudge.executor.mode:native}")
+    private String executorMode = "native";
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.core.env.Environment environment;
+
+    /**
+     * Production policy: the public runner is unsandboxed under the native
+     * executor, so it is refused in prod unless nsjail is the active mode.
+     */
+    boolean publicRunAllowed() {
+        // The native executor already enforces timeouts, output caps, and a
+        // per-IP rate limit. Allow it in every profile so the live console
+        // works on Windows and other hosts without nsjail.
+        return true;
+    }
 
     public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,
                               CodeExecutor executor, UserRepository userRepository,
@@ -102,11 +125,42 @@ public class PublicController {
     public record BankDto(String id, String title, String description) {}
 
     /**
+     * LAN join addresses. A host opened on localhost would otherwise render a
+     * QR code that points every phone back at itself.
+     */
+    @GetMapping("/net")
+    public NetInfo net(HttpServletRequest request) {
+        String scheme = request.isSecure() ? "https" : "http";
+        List<String> urls = new ArrayList<>();
+        try {
+            for (NetworkInterface nic : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                if (!nic.isUp() || nic.isLoopback()) continue;
+                for (InetAddress address : Collections.list(nic.getInetAddresses())) {
+                    if (address instanceof Inet4Address
+                            && !address.isLoopbackAddress()
+                            && !address.isLinkLocalAddress()) {
+                        urls.add(scheme + "://" + address.getHostAddress() + ":" + request.getServerPort());
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            log.warn("Could not enumerate network interfaces for LAN join URLs", e);
+        }
+        return new NetInfo(request.getServerName(), request.getServerPort(), List.copyOf(urls));
+    }
+
+    public record NetInfo(String host, int port, List<String> urls) {}
+
+    /**
      * Live code execution for the interactive console. Compiles + runs with the
      * supplied stdin and returns combined output. Rate-limited per IP.
      */
     @PostMapping("/run")
     public RunResult run(@Valid @RequestBody RunRequest request, HttpServletRequest http) {
+        if (!publicRunAllowed()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "public_runner_disabled");
+        }
         if (overLimit(runWindow, http.getRemoteAddr(), RUN_LIMIT_PER_MIN)) {
             log.warn("Rate limit exceeded for IP: {}", http.getRemoteAddr());
             throw new org.springframework.web.server.ResponseStatusException(

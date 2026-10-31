@@ -1,14 +1,21 @@
 [Unit]
 Description=SprintJudge
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=sprintjudge
+Group=sprintjudge
 WorkingDirectory=/opt/sprintjudge
 # Optional: SPRINTJUDGE_PORT / SPRINTJUDGE_DB_PATH / SPRINTJUDGE_ADMIN_* live
 # here (dash prefix = ignore when absent). CLI flags below always win.
 EnvironmentFile=-/opt/sprintjudge/.env
+
+# Fail fast if the toolchain is missing instead of crash-looping.
+ExecStartPre=/usr/bin/test -x /usr/bin/java
+ExecStartPre=/usr/bin/test -x /usr/bin/nsjail
+
 ExecStart=/usr/bin/java -XX:+UseZGC -Xms2g -Xmx2g \
   -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem -XX:+UseCompactObjectHeaders \
   -jar /opt/sprintjudge/sprintjudge.jar \
@@ -17,6 +24,15 @@ ExecStart=/usr/bin/java -XX:+UseZGC -Xms2g -Xmx2g \
 SuccessExitStatus=143
 Restart=on-failure
 RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+LimitNOFILE=65536
+
+# Logging goes to the journal (journald); see deploy/sprintjudge.logrotate for
+# the optional file-based fallback and nginx log rotation.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sprintjudge
 
 [Install]
 WantedBy=multi-user.target

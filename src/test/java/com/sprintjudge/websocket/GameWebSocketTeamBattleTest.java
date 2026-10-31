@@ -114,6 +114,52 @@ class GameWebSocketTeamBattleTest {
     }
 
     @Test
+    void leaveTeamRequiresAPlayerUuid() {
+        props.put("pin", "123456");
+        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+        verify(roomManager, never()).leaveTeam(anyString(), anyString());
+    }
+
+    @Test
+    void leaveTeamHappyPathDelegates() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-9");
+        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+        verify(roomManager).leaveTeam("123456", "uuid-9");
+    }
+
+    @Test
+    void leaveTeamLockedTeamSendsError() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-9");
+        doThrow(new IllegalStateException("Teams are locked once the game starts"))
+                .when(roomManager).leaveTeam("123456", "uuid-9");
+        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+        assertTrue(lastMessage().contains("locked"));
+    }
+
+    @Test
+    void leaveTeamUnknownTeamSendsError() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-9");
+        doThrow(new IllegalArgumentException("Unknown team: team-9"))
+                .when(roomManager).leaveTeam("123456", "uuid-9");
+        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+        assertTrue(lastMessage().contains("Unknown team"));
+    }
+
+    @Test
+    void spectatorSubmitIsRejected() {
+        props.put("pin", "123456");
+        props.put("playerUuid", "uuid-9");
+        props.put("role", "spectator");
+        ws().onMessage(session,
+                "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"response\":{\"selectedIndex\":0}}");
+        assertTrue(lastMessage().contains("Spectators cannot submit"));
+        verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
     void joinTeamHappyPathSendsTeamJoined() {
         props.put("pin", "123456");
         props.put("playerUuid", "uuid-9");
@@ -183,7 +229,8 @@ class GameWebSocketTeamBattleTest {
     @Test
     void getBracketHappyPathSendsBracket() {
         props.put("pin", "123456");
-        when(roomManager.getBracket("123456")).thenReturn(java.util.List.<String[]>of(new String[]{"a", "b"}));
+        when(roomManager.getBracketView("123456")).thenReturn(
+                new com.sprintjudge.domain.dto.BattleBracket("BRACKET", java.util.List.of(), null, null));
         ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
         assertTrue(lastMessage().contains("BRACKET"));
     }

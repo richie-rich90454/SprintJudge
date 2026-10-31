@@ -40,6 +40,9 @@ public class GameRoom {
     private final GameMode gameMode;
 
     private final Map<String, Player> players = new ConcurrentHashMap<>();
+    // Read-only projector connections. They receive every broadcast but never
+    // score, never count toward the roster, and never take the host seat.
+    private final Map<String, Player> spectators = new ConcurrentHashMap<>();
     private final LiveLeaderboard board = new LiveLeaderboard();
 
     // In-memory per-(question,player) attempt counter (authoritative; the async
@@ -69,7 +72,15 @@ public class GameRoom {
                                String p1Answer, String p2Answer, boolean p1Correct, boolean p2Correct,
                                String winnerUuid) {}
     private final java.util.concurrent.CopyOnWriteArrayList<BattleMatch> battleMatches = new CopyOnWriteArrayList<>();
-    private final java.util.concurrent.CopyOnWriteArrayList<String[]> bracket = new CopyOnWriteArrayList<>();
+    public record BattlePair(String p1Uuid, String p2Uuid, String winnerUuid, boolean bye) {
+        public BattlePair withWinner(String winner) { return new BattlePair(p1Uuid, p2Uuid, winner, bye); }
+    }
+    public record BattleRound(int number, List<BattlePair> pairs) {}
+    private final java.util.concurrent.CopyOnWriteArrayList<BattleRound> bracketRounds = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<String, Long> battleAnswerTimes = new ConcurrentHashMap<>();
+    private volatile int battleRound;
+    private volatile List<String> battleWinners = List.of();
+    private volatile String championUuid;
 
     private volatile long lastActivityMs = System.currentTimeMillis();
 
@@ -105,6 +116,21 @@ public class GameRoom {
         if (players.size() >= maxPlayers) return false;
         players.put(p.uuid(), p);
         return true;
+    }
+
+    /** Spectators watch the room without a roster seat or a score. */
+    public synchronized boolean addSpectator(Player p) {
+        if (players.size() >= maxPlayers) return false;
+        spectators.put(p.uuid(), p);
+        return true;
+    }
+
+    public synchronized void removeSpectator(String uuid) {
+        if (uuid != null) spectators.remove(uuid);
+    }
+
+    public synchronized List<Player> spectators() {
+        return new ArrayList<>(spectators.values());
     }
 
     /** Disconnect: keep the board row so standings/rankings survive the gap. */
@@ -175,7 +201,7 @@ public class GameRoom {
     }
 
     public int connectedCount() {
-        int n = 0;
+        int n = spectators.size();
         for (Player p : players.values()) if (p.connected()) n++;
         return n;
     }
@@ -274,14 +300,37 @@ public class GameRoom {
     }
 
     public Team joinTeam(String teamId, String playerUuid) {
+        // A player belongs to exactly one team: move between teams without
+        // leaving a duplicate membership that would double-count scores.
+        leaveTeam(playerUuid);
         return teams.compute(teamId, (id, t) -> {
             if (t == null) return null;
             return t.addMember(playerUuid);
         });
     }
 
+    public void leaveTeam(String playerUuid) {
+        for (Team t : teams.values()) {
+            if (t.memberUuids().contains(playerUuid)) {
+                teams.computeIfPresent(t.id(), (id, cur) -> {
+                    var m = new java.util.HashSet<>(cur.memberUuids());
+                    m.remove(playerUuid);
+                    return new Team(cur.id(), cur.name(), m, cur.score());
+                });
+            }
+        }
+    }
+
     public Team getTeam(String teamId) { return teams.get(teamId); }
     public java.util.Collection<Team> allTeams() { return teams.values(); }
+
+    /** Score-ranked team standings (host board and review). */
+    public List<Team> teamsSorted() {
+        return teams.values().stream()
+                .sorted(java.util.Comparator.comparingLong(Team::score).reversed()
+                        .thenComparing(Team::name))
+                .toList();
+    }
 
     public String teamIdOf(String playerUuid) {
         for (Team t : teams.values()) {
@@ -302,9 +351,60 @@ public class GameRoom {
 
     public void addBattleMatch(BattleMatch m) { battleMatches.add(m); }
     public java.util.List<BattleMatch> battleMatches() { return battleMatches; }
-    public synchronized void setBracket(java.util.List<String[]> rounds) {
-        bracket.clear();
-        bracket.addAll(rounds);
+
+    /** Clears every artifact of a previous battle so a restart never stacks rounds. */
+    public void resetBattle() {
+        battleMatches.clear();
+        bracketRounds.clear();
+        battleAnswerTimes.clear();
+        battleRound = 0;
+        battleWinners = List.of();
+        championUuid = null;
     }
-    public java.util.List<String[]> bracket() { return bracket; }
+
+    /** Opens the next round and appends it to the bracket history. */
+    public synchronized void beginBattleRound(List<BattlePair> pairs) {
+        battleRound++;
+        battleWinners = List.of();
+        bracketRounds.add(new BattleRound(battleRound, List.copyOf(pairs)));
+    }
+
+    public int battleRound() { return battleRound; }
+
+    public List<BattleRound> bracketRounds() { return List.copyOf(bracketRounds); }
+
+    /** The most recently opened round, or null before the battle starts. */
+    public BattleRound currentBattleRound() {
+        return bracketRounds.isEmpty() ? null : bracketRounds.get(bracketRounds.size() - 1);
+    }
+
+    /** Replaces the open round's pairs with their winners (same round number). */
+    public synchronized void resolveCurrentBattleRound(List<BattlePair> resolved) {
+        if (bracketRounds.isEmpty()) return;
+        BattleRound cur = bracketRounds.get(bracketRounds.size() - 1);
+        bracketRounds.set(bracketRounds.size() - 1, new BattleRound(cur.number(), List.copyOf(resolved)));
+    }
+
+    /** The pair the player fights in, or null when they are not in this round. */
+    public BattlePair pairOf(String playerUuid) {
+        BattleRound cur = currentBattleRound();
+        if (cur == null || playerUuid == null) return null;
+        for (BattlePair p : cur.pairs()) {
+            if (playerUuid.equals(p.p1Uuid()) || playerUuid.equals(p.p2Uuid())) return p;
+        }
+        return null;
+    }
+
+    public void setBattleWinners(List<String> winners) { battleWinners = List.copyOf(winners); }
+    public List<String> battleWinners() { return battleWinners; }
+    public void setChampionUuid(String uuid) { championUuid = uuid; }
+    public String championUuid() { return championUuid; }
+
+    public void markBattleAnswer(String playerUuid, long epochMs) {
+        battleAnswerTimes.putIfAbsent(playerUuid, epochMs);
+    }
+
+    public Long battleAnswerMs(String playerUuid) { return battleAnswerTimes.get(playerUuid); }
+
+    public void clearBattleAnswerTimes() { battleAnswerTimes.clear(); }
 }

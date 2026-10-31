@@ -1,0 +1,3827 @@
+{
+  "questions": [
+    {
+      "id": "cyber-11.6-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Identify why a port-only health check can pass while requests fail",
+      "practice": "Port check blindness",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A dispatcher's health check reports that the platform port is accepting connections, and the dashboard still times out.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The check only proves a socket is open, so it reports health while requests are failing behind it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The check is sound, because a listening port means the service is ready to answer requests",
+          "misconception": "assumes a listening port means ready service"
+        },
+        {
+          "id": "C",
+          "text": "The check is sound, because the timeout comes from a separate network fault outside the service",
+          "misconception": "blames an external network fault by assumption"
+        },
+        {
+          "id": "D",
+          "text": "The check is sound, because the dashboard and the platform service use different protocols",
+          "misconception": "invents a protocol difference to dismiss the symptom"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A port check confirms only that something is listening. Requests can still fail on the connection path, the pool, or the dependency behind it, so a green probe can coexist with failures.",
+      "hint": "Ask what the probe actually exercises.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Explain how a leaking pool shrinks while the service still appears healthy",
+      "practice": "Pool shrinkage",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two service instances each report a healthy pool size of 50, and both keep refusing new work after 30 minutes.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The pool is being drained by the two instances sharing one set of slots between them",
+          "misconception": "assumes the instances share a single pool"
+        },
+        {
+          "id": "B",
+          "text": "Each early return gives its slot back only at the end of the shift, so the pool shrinks over time",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The slots are in use by long-running timetable queries, so the pool is only apparently short",
+          "misconception": "misreads a busy pool as a leaking one"
+        },
+        {
+          "id": "D",
+          "text": "The pool is drained by the health checker, which opens a connection for every probe it runs",
+          "misconception": "blames the health checker for taking slots"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A slot handed out and never given back stays gone from the pool for the lifetime of the process. The service keeps reporting itself up while the usable pool shrinks underneath it.",
+      "hint": "Think about what happens to a slot that is never released.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Interpret profile data showing the cost of a nested quantifier",
+      "practice": "Nested cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Profiles from a timetable service show 4 ms per record with one quantifier and 190 ms with a nested one.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The nested quantifier makes the records longer, so more characters have to be scanned",
+          "misconception": "blames record length for the slowdown"
+        },
+        {
+          "id": "B",
+          "text": "The nested quantifier forces the pattern to be recompiled on each record",
+          "misconception": "claims recompilation happens per record"
+        },
+        {
+          "id": "C",
+          "text": "The nested quantifier enlarges the compiled tables, so cache misses dominate the extra time",
+          "misconception": "attributes the cost to table size"
+        },
+        {
+          "id": "D",
+          "text": "The nested quantifier multiplies the repetition choices, so one record costs far more",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Record size is unchanged between the profiles, so reading cannot explain the jump. Nesting quantifiers multiplies the combinations the matcher explores, which is where the time goes.",
+      "hint": "Check what stayed the same in both profiles.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Explain why an edge without limits fails in the worst case",
+      "practice": "Unlimited edge",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why an edge configuration with no body limit and no connection cap fails in the worst case.",
+      "options": [],
+      "answer": {
+        "exemplar": "With neither limit in place, a single client controls both dimensions of the load the edge carries: how many connections exist, and how many bytes each of them holds. Those two quantities multiply, so a modest number of clients can fill the edge's memory and every connection it has, and other clients are refused because nothing is left. A body limit alone still leaves many large bodies possible, and a connection cap alone still leaves a large body possible on each permitted connection, so neither limit on its own would have prevented that outcome."
+      },
+      "explanation": "Body size and connection count multiply under load, so with neither bounded one source can take the whole edge. A cap alone still permits large bodies, and a size limit alone still permits many bodies.",
+      "hint": "Ask which two quantities multiply under load.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Compute the usable pool size after a run of failed tasks",
+      "practice": "Lost slots",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A dispatcher pool has 64 worker slots, and during one shift 9 tasks raise an error so their slot is never returned. How many slots remain usable for the rest of the shift?",
+      "options": [],
+      "answer": {
+        "value": 55,
+        "tolerance": 0.01
+      },
+      "explanation": "Nine of the 64 slots are lost because the raising path skips the return, so 64 minus 9 remains: 55 slots. Each of those failures removed capacity for the rest of the shift.",
+      "hint": "Subtract the unreturned slots from the pool size.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Interpret a zero failure counter across a shift of scattered errors",
+      "practice": "Streak reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "shift-log",
+        "body": "Over one shift the yard signalling gateway returned errors at 2 am, 3 am, 4 am and again just before handover. The on-call engineer's dashboard showed the failure count at zero for most of the night.",
+        "license": "original"
+      },
+      "stem": "Given the shift log, what does a failure counter that reads zero at handover indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It indicates the gateway recovered fully, since the counter only reports the current state",
+          "misconception": "reads a zero counter as proof of full recovery"
+        },
+        {
+          "id": "B",
+          "text": "It indicates the counter resets on any success, so scattered errors leave it near zero",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It indicates the errors came from a different service, since the counter covers one gateway only",
+          "misconception": "blames a different service for the zero count"
+        },
+        {
+          "id": "D",
+          "text": "It indicates the errors were never reported to the counter, because the log writer failed",
+          "misconception": "invents a broken log writer"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A counter that resets on the first success forgets the earlier failures. Errors scattered across a shift therefore never accumulate, so the reading understates how broken the service was.",
+      "hint": "Ask what happens to the count after one success.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Evaluate combining a connection cap with a read timeout",
+      "practice": "Two limit types",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two changes are proposed for the yard API edge: per-source connection caps and a read timeout.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add only per-source caps, because limiting connections alone removes every overload path",
+          "misconception": "believes connection caps alone remove all overload paths"
+        },
+        {
+          "id": "B",
+          "text": "Add only a read timeout, because limiting how long a body may take is sufficient by itself",
+          "misconception": "believes a read timeout alone is sufficient"
+        },
+        {
+          "id": "C",
+          "text": "Add both, since the caps bound how many bodies arrive and the timeout bounds how long each holds",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Add neither, because overload is best handled by scaling the edge tier as demand grows",
+          "misconception": "prefers scaling to explicit limits"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The two limits cover different failure modes: a cap stops one source opening unlimited connections, and a timeout stops one body holding a connection indefinitely. Applying both closes both paths.",
+      "hint": "Ask what each limit fails to stop on its own.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Identify why a bounded queue does not protect the dependency behind it",
+      "practice": "Queue limits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A bounded queue was added in front of the slow timetable feed, but the feed still falls over.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The queue is too large, because a deeper buffer lets more work pile up before it is refused",
+          "misconception": "believes a deeper queue reduces overload"
+        },
+        {
+          "id": "B",
+          "text": "The queue is useless because the feed is slow, so nothing ever drains it fast enough",
+          "misconception": "concludes a queue can never help a slow feed"
+        },
+        {
+          "id": "C",
+          "text": "The queue must be drained by a single thread, so its own processing rate becomes the limit",
+          "misconception": "assumes the queue's drain rate sets the limit"
+        },
+        {
+          "id": "D",
+          "text": "The queue only protects the callers, since the feed itself is still overloaded and unbounded",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A bounded queue absorbs bursts by making callers wait, but it does nothing to the dependency's own load. The feed still receives work at its own rate, so it also needs an arrival limit.",
+      "hint": "Ask whether the queue slows the feed or only the callers.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Compare a socket probe with a request-based probe",
+      "practice": "Probe strength",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Two probes on the same platform service disagree, because one opens a socket and the other sends a real request.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The socket probe is the better test, because a refused connection would prove the service is broken",
+          "misconception": "prefers the weaker probe without justification"
+        },
+        {
+          "id": "B",
+          "text": "The request probe is stronger, because it exercises the pool and the path behind the port",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both probes are equally good, since they target the same interface on the same host",
+          "misconception": "assumes equal probes give equal coverage"
+        },
+        {
+          "id": "D",
+          "text": "The request probe is weaker, because it depends on the health of every downstream service",
+          "misconception": "dismisses the request probe for touching dependencies"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A socket probe touches only the listener, so it stays green while the pool or a dependency behind it fails. A request probe travels the whole path, so its failure is informative.",
+      "hint": "Think about how much of the path each probe walks.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Read pool usage figures against a fixed pool size",
+      "practice": "Pool sizing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Logs from a coach positioning service show 412 connections wanted at the peak and 260 at the quiet hour, while the pool is fixed at 300 slots.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The pool is smaller than the peak demand, so requests wait or fail even though the service is up",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The pool is larger than needed, so the quiet-hour usage shows capacity that should be removed",
+          "misconception": "reads a high peak figure as evidence of waste"
+        },
+        {
+          "id": "C",
+          "text": "The pool size is unrelated to demand, because connections are opened per coach and never reused",
+          "misconception": "assumes connections are never reused"
+        },
+        {
+          "id": "D",
+          "text": "The pool scaled during the peak, so the two figures show healthy automatic scaling",
+          "misconception": "assumes the pool scaled between the two readings"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Peak demand above the pool size forces requests to wait or fail even though the service runs. The quiet-hour figure is much lower, so the pool is sized for neither case.",
+      "hint": "Compare peak usage with the available slots.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Explain why nesting quantifiers multiplies matching work",
+      "practice": "Repetition product",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a quantifier nested inside another quantifier multiplies the work a matcher does.",
+      "options": [],
+      "answer": {
+        "exemplar": "An outer quantifier repeats a group, and the group it repeats contains a quantifier of its own, so the matcher must decide how many times to repeat the inner part on each of the outer repetitions. Each outer choice is paired with every inner choice, so the total number of possibilities is the product of the two counts rather than their sum. A short record can therefore cost a large number of checks, and the cost grows even though the record never changes size."
+      },
+      "explanation": "Outer and inner repetition choices pair up, so the possibilities multiply rather than add. That is why a nested quantifier makes short records expensive to validate.",
+      "hint": "Think about how the two repetition counts combine.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Compute the body volume an unbounded edge may hold",
+      "practice": "Edge body volume",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An edge accepts 300 concurrent connections and each may carry a request body of 5 MB. How many megabytes of bodies could be held at once?",
+      "options": [],
+      "answer": {
+        "value": 1500,
+        "tolerance": 0.01
+      },
+      "explanation": "The 300 connections each holding 5 MB give 300 times 5, which is 1,500 megabytes of bodies in memory at once. Neither factor is bounded, so the total grows with either.",
+      "hint": "Multiply the connection count by the body size.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Attribute lost pool slots to the failing job path",
+      "practice": "Slot loss",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "shift-log",
+        "body": "During the morning handover at a depot, the shift scheduler raised errors for 6 of the 9 planned jobs. The runbook says worker slots are returned when a job finishes, and the pool afterwards reported 24 slots for a pool configured at 32.",
+        "license": "original"
+      },
+      "stem": "Given the shift log, what is the most likely reason the pool lost eight slots?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The error path skipped the slot return, so each failed job permanently removed a slot",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The scheduler timed out while loading the roster, so the pool shrank to fit the shorter roster",
+          "misconception": "invents a roster-driven pool resize"
+        },
+        {
+          "id": "C",
+          "text": "Eight jobs were still running, so the slots are in use rather than lost",
+          "misconception": "misreads a busy pool as a leaked one"
+        },
+        {
+          "id": "D",
+          "text": "The pool was resized by an operator during the handover, which is routine at a depot",
+          "misconception": "invents an operator action with no evidence"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The pool is configured for 32 and only 24 remain after six failures, which is exactly the number of jobs that raised. The error path is the obvious place where the slot return is skipped.",
+      "hint": "Compare the lost slots with the number of failures.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Choose the counter that should drive an on-call page",
+      "practice": "Counter choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two candidate counters are compared for the yard signalling service: one counts consecutive failures, the other counts total failures in a window.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The consecutive counter, because a run of failures means the service is definitely down",
+          "misconception": "believes a short run always means a full outage"
+        },
+        {
+          "id": "B",
+          "text": "The consecutive counter, because total counters miss a service that fails intermittently",
+          "misconception": "misses that a run also hides earlier errors"
+        },
+        {
+          "id": "C",
+          "text": "The total counter, because it ignores recoveries that make no difference to reliability",
+          "misconception": "assumes recoveries never matter"
+        },
+        {
+          "id": "D",
+          "text": "The total counter, because a run-based counter hides errors spread across a shift",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Scattered errors never form a long run, so a consecutive counter can read zero through a badly broken shift. A window total records the same faults without needing them to be adjacent in time.",
+      "hint": "Ask which counter can miss errors spread over time.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Find the overload path left open when only one limit is added",
+      "practice": "Partial limits",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Review a yard API edge where the per-source connection cap was added but the read timeout was left unset.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The edge is safe now, because capping connections also bounds how long any body can take",
+          "misconception": "believes a connection cap implies a time limit"
+        },
+        {
+          "id": "B",
+          "text": "The edge is safe now, because bodies arrive over the local link in under a second",
+          "misconception": "assumes fast links remove the need for a timeout"
+        },
+        {
+          "id": "C",
+          "text": "One connection can still hold a body open indefinitely, so a single source can pin capacity",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The edge is unsafe only when the source count exceeds the cap, which the cap already prevents",
+          "misconception": "misses that the cap is per source not global"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A connection cap limits how many connections exist, not how long one may be occupied. Without a read timeout a source can hold its allowance open with a trickling body.",
+      "hint": "Ask what still lets one source keep a connection.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Correct the belief that a bounded queue throttles the dependency",
+      "practice": "Queue myth",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Some operators believe that a bounded queue removes the need for a limit on the dependency itself.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The belief is correct, because a bounded queue reduces the number of requests reaching the dependency",
+          "misconception": "believes the queue throttles the dependency"
+        },
+        {
+          "id": "B",
+          "text": "The belief is wrong, because a queue moves the waiting to the callers and leaves the dependency load alone",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The belief is correct, because a full queue automatically refuses calls before the dependency sees them",
+          "misconception": "assumes a full queue protects the dependency"
+        },
+        {
+          "id": "D",
+          "text": "The belief is wrong, but only because the queue must be sized to the dependency's exact rate",
+          "misconception": "misses that the queue never throttles arrivals"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A bounded queue decides who waits, not how much work the dependency receives. Unless arrivals are separately limited, the dependency can still be handed more than it can serve.",
+      "hint": "Ask who waits when the queue is full.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Interpret a passing port probe beside a poor request success rate",
+      "practice": "Probe versus requests",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Measurements taken across three probes show that the port check passes while request success sits at 61 percent.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The port check passes because it never performs a request, so it cannot observe the failures",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The port check passes because the failures are all caused by the network path",
+          "misconception": "blames the network for the passing probe"
+        },
+        {
+          "id": "C",
+          "text": "The port check passes because the service restarts often enough to answer the probe",
+          "misconception": "invents frequent restarts to explain the probe"
+        },
+        {
+          "id": "D",
+          "text": "The port check passes because request success is measured over a different hour",
+          "misconception": "assumes the two figures cover different periods"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The port probe and the request probe test different things, and the port probe is the weaker of the two. A high failure rate on real requests is invisible to a check that never makes one.",
+      "hint": "Ask what the port probe never does.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Explain how a slowly leaking pool degrades over a long shift",
+      "practice": "Slow leak",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain how a pool that leaks a slot on an early return degrades over a long shift.",
+      "options": [],
+      "answer": {
+        "exemplar": "Each early return leaves one slot checked out forever, so the pool shrinks a little at every occurrence rather than failing loudly. The service keeps serving until the remaining slots are fewer than the concurrent demand, at which point callers block waiting for a slot that will not come back. Because the loss is spread thinly across the shift, the first symptoms look like a gradual traffic increase rather than a leak, and the pool is often blamed for being sized too small."
+      },
+      "explanation": "A leaked slot is never returned, so capacity shrinks slowly and then falls off a cliff. The gradual shape hides the leak behind an apparent traffic growth problem.",
+      "hint": "Think about what happens to a slot that is never returned.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Count the combinations a nested quantifier produces",
+      "practice": "Combination count",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A validator applies an outer quantifier over a group that itself contains a quantifier, with 3 possible outer repetitions and 4 possible inner repetitions. How many combinations does the matcher consider?",
+      "options": [],
+      "answer": {
+        "value": 12,
+        "tolerance": 0.01
+      },
+      "explanation": "Each of the 3 outer repetitions can be paired with each of the 4 inner ones, so the matcher considers 3 times 4, which is 12 combinations for a single record.",
+      "hint": "Multiply the outer count by the inner count.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Choose the limits that would keep a stalled upload from taking the edge",
+      "practice": "Stalled upload",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-report",
+        "body": "A yard camera feed posts still images to the platform service over a radio link that stalls for minutes at a time. The edge accepted every connection and read every body at whatever speed the link provided, and memory use on the edge climbed until it was restarted twice in one shift.",
+        "license": "original"
+      },
+      "stem": "Given the field report, what change would have kept the edge stable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase the edge's memory limit, since the slow link is the only cause of the growth",
+          "misconception": "treats memory growth as a capacity tuning problem"
+        },
+        {
+          "id": "B",
+          "text": "Cache the received images at the edge, so repeated frames do not need to be transferred again",
+          "misconception": "invents a cache the report does not describe"
+        },
+        {
+          "id": "C",
+          "text": "Require clients to retry from scratch, so a stalled upload is abandoned sooner",
+          "misconception": "moves the problem to the client with no server change"
+        },
+        {
+          "id": "D",
+          "text": "Add a body size limit and a read timeout, so a stalled upload cannot hold an edge connection",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "With no body limit and no read timeout, one stalled upload holds memory and a connection for as long as the link is bad. Bounding both ends of the upload caps what any single client can occupy.",
+      "hint": "Ask what limits how much one upload can take.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Explain how raising tasks shrink a worker pool mid-batch",
+      "practice": "Batch degradation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two batches of shift assignments were handled by the same worker pool: the first had 40 jobs that all completed, the second had 40 jobs of which 11 raised.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each raised job consumed a slot that was never returned, so the pool shrank during the batch",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Raised jobs free their slots immediately, so the second batch ran with more capacity than the first",
+          "misconception": "assumes failure returns capacity"
+        },
+        {
+          "id": "C",
+          "text": "Throughput was unchanged, because the number of jobs assigned was the same in both batches",
+          "misconception": "ignores that capacity, not job count, sets throughput"
+        },
+        {
+          "id": "D",
+          "text": "Throughput fell because raising an error made each remaining job run more slowly",
+          "misconception": "invents a slowdown caused by the exception"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Capacity comes from slots, not from the number of jobs assigned. With eleven slots never returned, the second batch ran with fewer workers than its job count implied.",
+      "hint": "Ask how many workers were actually available.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Diagnose a counter that reads healthy during an obvious outage",
+      "practice": "Counter blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Investigate a signalling gateway whose failure counter reports a healthy service during an obvious outage.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The counter is broken because it cannot count above a hundred",
+          "misconception": "invents a counter ceiling with no basis"
+        },
+        {
+          "id": "B",
+          "text": "The counter resets on the first success, so intermittent errors never build a streak",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The counter is broken because it only samples errors once a minute",
+          "misconception": "invents a sampling interval not shown"
+        },
+        {
+          "id": "D",
+          "text": "The counter is broken because it is shared with the platform service and mixes sources",
+          "misconception": "invents a shared counter with no evidence"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A consecutive counter can read zero through an intermittent outage because any single success clears the streak. The counter is working as designed and is simply the wrong measure for this failure.",
+      "hint": "Ask what a single success does to the streak.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Argue why connection caps alone cannot protect the database",
+      "practice": "Cap versus timeout",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A team argues that adding connection caps alone will protect the downstream timetable database.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The argument is right, because fewer connections means fewer concurrent database transactions",
+          "misconception": "assumes connection count equals database load"
+        },
+        {
+          "id": "B",
+          "text": "The argument is right, because a capped connection cannot carry an unbounded body",
+          "misconception": "believes the cap also limits body size"
+        },
+        {
+          "id": "C",
+          "text": "The argument is wrong, because a slow body on one capped connection can still hold a query open",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The argument is wrong, but only because the cap must be set per query rather than per source",
+          "misconception": "misses that the missing limit is time, not count"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A cap bounds how many sessions exist, not how long one session may hold a database resource. A read timeout is needed to bound the duration of each.",
+      "hint": "Ask what a slow body can still hold open.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Interpret a growing backlog against a flat service rate",
+      "practice": "Backlog reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Two weeks of queue-depth logs from the platform feed show the backlog growing while the feed's own rate stays flat.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Arrivals now exceed the feed's capacity, so the queue absorbs the difference",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The feed is failing to keep up because arrivals have risen above the rate it can serve",
+          "misconception": "blames the feed's throughput rather than the arrival rate"
+        },
+        {
+          "id": "C",
+          "text": "The queue is growing because the feed is processing jobs more slowly than before",
+          "misconception": "ignores that the processing rate stayed flat"
+        },
+        {
+          "id": "D",
+          "text": "The queue is growing because the feed stopped consuming from it during a planned outage",
+          "misconception": "invents a planned outage not shown"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "With the service rate unchanged, a growing backlog can only mean more work is arriving than can be served. The queue is doing its job by holding the difference.",
+      "hint": "Hold the service rate constant and see what moved.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Explain why a port-only probe can stay green during a service failure",
+      "practice": "Probe blind spot",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a health check that confirms only a listening port can stay green while the service fails.",
+      "options": [],
+      "answer": {
+        "exemplar": "A port check opens a socket and closes it again, so it confirms only that some process is accepting connections on that address. Everything the service actually does on each request is outside the probe: taking work from the pool, reading a body, calling the timetable feed, and writing the response. Any of those can fail while the listener stays open and the probe keeps reporting green, which makes the check good at detecting a stopped process and useless at detecting a broken service."
+      },
+      "explanation": "A port probe touches only the listener, so failures in the pool, the body read, or the dependency behind it stay invisible. It detects a stopped process, not a broken service.",
+      "hint": "Ask what part of the path the probe exercises.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Compute the remaining pool size after a run of leaked slots",
+      "practice": "Leaked slot count",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A connection pool starts with 200 slots. Over an hour, 45 handlers return early and skip the release step. How many slots remain available?",
+      "options": [],
+      "answer": {
+        "value": 155,
+        "tolerance": 0.01
+      },
+      "explanation": "Each of the 45 early returns keeps its slot, so the usable pool falls from 200 to 200 minus 45, which is 155. Nothing in the hour gave those slots back.",
+      "hint": "Subtract the leaked slots from the starting size.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Compare two validation runs that differ only in quantifier nesting",
+      "practice": "Run comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "audit-note",
+        "body": "A ticket-code validator processed 9,000 strings in 2.1 seconds. A second run over 9,000 strings of the same average length, containing one nested quantifier instead of a single one, took 47 seconds.",
+        "license": "original"
+      },
+      "stem": "Given the audit note, what does the difference between the two runs suggest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The second run was slower because the strings were stored differently in memory",
+          "misconception": "blames storage layout for the slowdown"
+        },
+        {
+          "id": "B",
+          "text": "The second run was slower because the extra quantifier forced a recompilation per string",
+          "misconception": "claims recompilation per string"
+        },
+        {
+          "id": "C",
+          "text": "The nested quantifier multiplied the repetition choices, so each string cost far more to check",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The second run was slower because the validator was running with a cold cache on average",
+          "misconception": "blames cache warmth for the difference"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "String count and average length are the same in both runs, so neither explains the gap. The nested quantifier multiplies the choices the matcher explores, which is where the extra time goes.",
+      "hint": "Compare the two runs on the things they share.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Compare two edge configurations against a hostile client",
+      "practice": "Edge comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two edge configurations are compared for the platform API: one keeps a body limit and no connection cap, the other has both limits.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first, because a body limit alone stops a client from holding memory indefinitely",
+          "misconception": "believes a body limit ends a slow upload"
+        },
+        {
+          "id": "B",
+          "text": "The first, because a connection cap is usually harder to set fairly than a size limit",
+          "misconception": "dismisses the cap on fairness grounds alone"
+        },
+        {
+          "id": "C",
+          "text": "The second, because connection caps alone remove the risk from untrusted sources",
+          "misconception": "believes the cap alone is sufficient"
+        },
+        {
+          "id": "D",
+          "text": "The second, because the cap bounds how many bodies arrive and the limit bounds each one",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A size limit bounds what each body may be but not how many arrive at once, and a cap bounds the count but not the size of each. Together they bound both dimensions of the risk.",
+      "hint": "Ask what each limit leaves unbounded on its own.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Find the missing cleanup on the failing task path",
+      "practice": "Missing cleanup",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Review a depot maintenance service where a raising task leaves its worker slot occupied.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The slot is released by the scheduler, which reassigns it to the next queued job",
+          "misconception": "assumes the scheduler reclaims slots"
+        },
+        {
+          "id": "B",
+          "text": "The error path skips the release step, so the pool loses one slot for every failure",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The slot is released when the process restarts, which the depot does every night",
+          "misconception": "relies on a restart that may be far away"
+        },
+        {
+          "id": "D",
+          "text": "The slot is released because the raising task returns a status code the pool reads",
+          "misconception": "assumes status codes drive slot release"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Cleanup written only on the success path is skipped when the task raises. Unless the release is guaranteed in a finally block, the pool loses capacity with every failure.",
+      "hint": "Ask which code path returns the slot.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Correct the belief that a zero failure count proves health",
+      "practice": "Zero counter",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A discussion begins when someone claims that a failure counter of zero proves the service is healthy.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The claim is right, because the counter only rises when the service truly breaks",
+          "misconception": "assumes the counter cannot be fooled"
+        },
+        {
+          "id": "B",
+          "text": "The claim is right, because a zero counter means the last probe attempt succeeded",
+          "misconception": "confuses the counter with the last probe result"
+        },
+        {
+          "id": "C",
+          "text": "The claim is wrong, because one success clears the count and hides earlier failures",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The claim is wrong, but only because the counter should use a slower decay constant",
+          "misconception": "proposes a tuning fix for a design flaw"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A consecutive counter forgets earlier errors as soon as any success arrives, so zero can mean one recovery after many failures. It reports the recent run, not the shift.",
+      "hint": "Ask what a success does to the running count.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Predict how a per-source cap would redistribute connection counts",
+      "practice": "Cap redistribution",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Counts recorded by the edge show 60 connections from one source and 3 from each of nine others.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A per-source cap of 10 would limit the largest source while leaving the others untouched",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A per-source cap of 10 would block the nine small sources and spare the largest one",
+          "misconception": "confuses per-source limits with a global limit"
+        },
+        {
+          "id": "C",
+          "text": "A per-source cap of 10 would cut the total from 87 connections down to about 20",
+          "misconception": "assumes the cap applies to the total rather than each source"
+        },
+        {
+          "id": "D",
+          "text": "A per-source cap of 10 would have no effect, because the largest source uses only three more slots",
+          "misconception": "misreads 60 connections as three"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A per-source cap applies to each source separately, so the source with 60 connections is cut to 10 while the nine small sources are unaffected. The total falls unevenly.",
+      "hint": "Ask whether the cap is per source or overall.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Explain why a bounded queue protects callers but not the dependency",
+      "practice": "Queue boundary",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why placing a bounded queue in front of a slow dependency protects the caller but not the dependency.",
+      "options": [],
+      "answer": {
+        "exemplar": "A bounded queue accepts work only while it has room, so when it is full the callers are told to wait or come back later instead of piling more requests onto an already struggling service. The dependency, however, still receives work at whatever rate the queue releases it, and that release rate is normally set to match the dependency's capacity. The queue therefore moves the waiting from the dependency's callers to the dependency's own backlog, which protects the caller's own resources but leaves the slow component exactly as loaded as it was."
+      },
+      "explanation": "The queue makes callers wait rather than sending more work, so the caller's resources are protected. The dependency's own load is unchanged unless arrivals are limited separately.",
+      "hint": "Ask who waits and who keeps the same load.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Compute the number of failing requests behind a passing port check",
+      "practice": "Failure volume",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "During one shift, a dispatcher's check reports the platform port as listening, and 4 of every 5 requests to that service fail. Out of 2,000 requests in the shift, how many failed?",
+      "options": [],
+      "answer": {
+        "value": 1600,
+        "tolerance": 0.01
+      },
+      "explanation": "Four fifths of the requests fail, so 2,000 times 4 over 5 is 1,600 failures. The port check still reported green because it never made one of those requests.",
+      "hint": "Take four fifths of the request count.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Attribute a shrinking pool to the leaking code path",
+      "practice": "Pool forensics",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "shift-log",
+        "body": "A platform pooling service started the morning with 120 slots and ended it with 74, while the number of train-registration requests stayed within its normal range. The log shows a dozen early returns from the handler where the new registration had already been accepted.",
+        "license": "original"
+      },
+      "stem": "Given the shift log, what best explains the shrinking pool?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The pool was resized down during the shift by a configuration reload",
+          "misconception": "invents a reload the log does not mention"
+        },
+        {
+          "id": "B",
+          "text": "Each early return skipped the release, so the pool lost roughly the number of early returns",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The service was restarted partway through the shift, which reset the pool to a smaller size",
+          "misconception": "invents a restart the log does not mention"
+        },
+        {
+          "id": "D",
+          "text": "The extra slots were taken by the monitoring system, which holds connections open",
+          "misconception": "invents a monitoring client holding connections"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The pool fell by 46 while traffic stayed normal, and the early returns are the only recorded path that removes a slot without releasing it. Each one keeps its slot for the rest of the shift.",
+      "hint": "Match the lost slots against the recorded early returns.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Choose a validation design for untrusted input",
+      "practice": "Pattern choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two designs are compared for validating coach identifiers: one uses a single quantifier, the other nests a quantifier inside it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The nested design, because nesting lets the rule express a stricter constraint in one place",
+          "misconception": "values expressiveness over matching cost"
+        },
+        {
+          "id": "B",
+          "text": "The nested design, because nesting reduces the number of characters the matcher reads",
+          "misconception": "believes nesting shortens the input"
+        },
+        {
+          "id": "C",
+          "text": "The single-quantifier design, because nesting multiplies the work on every record",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Either is fine, because the two designs produce identical results on valid input",
+          "misconception": "ignores that matching cost differs"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Nesting multiplies the repetition choices the matcher explores, so untrusted input costs more to check. Where the nested rule is not required, the simpler design keeps that cost linear.",
+      "hint": "Ask which design multiplies the repetition choices.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Find the unbounded load path in an edge with no limits",
+      "practice": "Unbounded edge",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Examine a platform staffing service whose edge accepts unlimited bodies and unlimited connections.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The edge is safe because the platform clients are internal and therefore well behaved",
+          "misconception": "assumes internal clients cannot misbehave"
+        },
+        {
+          "id": "B",
+          "text": "The edge is safe because the database rejects oversized bodies on its own",
+          "misconception": "relies on a downstream check that is not described"
+        },
+        {
+          "id": "C",
+          "text": "The edge is unsafe only if the bodies are larger than the memory the machine has",
+          "misconception": "reduces the risk to total memory size"
+        },
+        {
+          "id": "D",
+          "text": "One client can open many connections and hold large bodies on each, so nothing bounds the load",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "With neither limit in place, one client controls both dimensions of the load: how many connections exist and how much each carries. A single client can occupy the whole edge.",
+      "hint": "Ask what bounds the number and the size together.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Assess a cleanup block as the fix for a leaking pool",
+      "practice": "Cleanup fix",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An engineer proposes adding a finally block to guarantee every worker slot is returned.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The fix guarantees the release on every path, so a raising task no longer loses its slot",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The fix guarantees the release only for the raising path, leaving normal returns as they were",
+          "misconception": "misses that the finally block covers every path"
+        },
+        {
+          "id": "C",
+          "text": "The fix works only if the task is retried, since a failed task is otherwise discarded",
+          "misconception": "assumes retries are required for cleanup"
+        },
+        {
+          "id": "D",
+          "text": "The fix is unnecessary, because the pool already returns slots it detects as idle",
+          "misconception": "invents an idle reaper for the pool"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A finally block runs on both the normal and the raising path, so the slot comes back however the task ends. That removes the leak without changing the success path's behaviour.",
+      "hint": "Ask which paths the finally block covers.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Reconcile a zero failure counter with a high error rate",
+      "practice": "Counter mismatch",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Telemetry from the timetable feed shows the failure counter at 0 while the error rate for the same hour was 18 percent.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The counter must be misconfigured, because an 18 percent error rate cannot coexist with a zero count",
+          "misconception": "assumes the counter cannot be behaving as designed"
+        },
+        {
+          "id": "B",
+          "text": "The counter must be measuring a different service, since the two figures describe the same hour",
+          "misconception": "invents a misconfigured metric target"
+        },
+        {
+          "id": "C",
+          "text": "The counter resets on the first success, so it reads 0 while errors keep arriving",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The counter must be updated only at the end of each hour, which hides errors until rollover",
+          "misconception": "invents a rollover schedule not shown"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The counter tracks a run of failures, so any success in the hour returns it to zero. An 18 percent error rate that includes successes will therefore show a counter sitting near zero.",
+      "hint": "Ask whether the errors were consecutive.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Explain the distinct protections given by a cap and a timeout",
+      "practice": "Limit protection",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain what per-source connection caps and a read timeout protect that neither of them protects alone.",
+      "options": [],
+      "answer": {
+        "exemplar": "A per-source cap bounds how many connections one client may hold, so a single misbehaving source cannot take the whole edge's capacity for itself, but it says nothing about how long any of those connections stays busy. A read timeout bounds the duration of one upload, so a slow link cannot hold a connection open forever, but it does nothing about how many clients are on the edge at the same time. The first defends against one source taking too much; the second defends against one request taking too long, and a burst of slow uploads needs both."
+      },
+      "explanation": "The cap bounds how many connections one source holds, and the timeout bounds how long one upload may last. One defends against volume, the other against duration, so a burst needs both.",
+      "hint": "Ask what each limit leaves unbounded alone.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Compute the backlog a bounded queue can absorb",
+      "practice": "Queue capacity",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A bounded queue of 200 jobs sits in front of a feed that processes 25 jobs per minute. How many minutes of backlog can that queue hold?",
+      "options": [],
+      "answer": {
+        "value": 8,
+        "tolerance": 0.01
+      },
+      "explanation": "The queue holds 200 jobs and the feed clears 25 of them each minute, so 200 divided by 25 is 8. After that the queue is full and further jobs wait or are refused.",
+      "hint": "Divide the queue depth by the service rate.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Explain what a green probe can and cannot tell an operator",
+      "practice": "Operator readout",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "shift-log",
+        "body": "A regional depot reported green health checks on its platform service for the whole morning. During the same period the timetable queries issued by the control room failed roughly two times in five, and the operators saw empty platform boards.",
+        "license": "original"
+      },
+      "stem": "Given the shift log, what does the green health check actually tell the operators?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It tells them the platform service is healthy, so the failures must come from elsewhere",
+          "misconception": "takes a port probe as proof of a working service"
+        },
+        {
+          "id": "B",
+          "text": "It tells them the control room's own network is at fault, since the service itself keeps answering",
+          "misconception": "redirects blame to the control room network"
+        },
+        {
+          "id": "C",
+          "text": "It only tells them a port is listening, which says nothing about the failing queries",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It tells them the service recovered quickly, because the checks were run throughout the morning",
+          "misconception": "reads repeated probes as repeated recovery"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The check exercises the listener and nothing else, so it stays green while queries fail further down the path. The operators need a probe that sends a real request to learn anything useful.",
+      "hint": "Ask what the probe actually sends.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Compare two designs for releasing a pooled connection",
+      "practice": "Release design",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two candidate designs are considered for releasing pooled connections: one releases on the success path only, the other releases in a guaranteed cleanup block.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The success path only, because it keeps the release cost off the error path",
+          "misconception": "values a cheaper release over a guaranteed one"
+        },
+        {
+          "id": "B",
+          "text": "The success path only, because error paths are rare enough not to matter",
+          "misconception": "dismisses the leak as too rare to matter"
+        },
+        {
+          "id": "C",
+          "text": "Either, because the pool tolerates a small number of permanently lost slots",
+          "misconception": "invents a tolerance for lost slots"
+        },
+        {
+          "id": "D",
+          "text": "The guaranteed cleanup block, because an error path must not be able to lose a slot",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Any path that can leave without releasing costs a slot for the lifetime of the pool. A guaranteed cleanup block removes that possibility, and the extra cost on the success path is negligible.",
+      "hint": "Ask what a lost slot costs over a long shift.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Find the cost created by nesting a quantifier in a validator",
+      "practice": "Nested quantifier cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Review the code path that validates a coach identifier against a pattern with a nested quantifier.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each record can cost the product of the two repetition counts, so untrusted input drives the matching work",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The pattern is compiled once, so the nesting cannot affect the per-record cost",
+          "misconception": "confuses compilation with matching cost"
+        },
+        {
+          "id": "C",
+          "text": "The nesting only affects which records are accepted, never how long the check takes",
+          "misconception": "believes nesting has no cost effect"
+        },
+        {
+          "id": "D",
+          "text": "The nesting is safe because the outer quantifier is bounded to a small maximum",
+          "misconception": "assumes one bounded level removes the multiplication"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Compilation is not the issue; matching is. A nested quantifier pairs the two repetition counts, so the work per record is their product, and untrusted input controls it.",
+      "hint": "Ask what the two repetition counts do together.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Assess the risk of removing the edge body limit",
+      "practice": "Limit removal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A signalling service requires every platform request to complete, so the team removes the body limit from the edge.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The removal is safe, because the platform clients are trusted and always send sensible bodies",
+          "misconception": "assumes trusted clients cannot send large bodies"
+        },
+        {
+          "id": "B",
+          "text": "The removal is unsafe, because it removes the only bound on how much one request may carry",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The removal is safe, because the edge still caps how many connections exist at once",
+          "misconception": "believes a connection cap implies a size cap"
+        },
+        {
+          "id": "D",
+          "text": "The removal is unsafe only for external clients, and the platform clients are internal",
+          "misconception": "misses that internal clients also fail"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Removing the body limit leaves the edge with nothing but a connection count to bound the load. A single client can then hold large bodies on every connection it is allowed.",
+      "hint": "Ask what still bounds the size of a body.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Distinguish a busy pool from a leaking pool",
+      "practice": "Pool forensics",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Counters on a second depot pool show 64 slots at the start of a shift and 41 usable slots an hour later.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The pool grew smaller because 23 jobs were still running and had not yet returned their slots",
+          "misconception": "reads a busy pool as a leaked one"
+        },
+        {
+          "id": "B",
+          "text": "The pool grew smaller because the shift ended early and the pool was reconfigured to 41",
+          "misconception": "invents a reconfiguration the counters do not show"
+        },
+        {
+          "id": "C",
+          "text": "The pool grew smaller because the service restarted and rebuilt the pool at a smaller size",
+          "misconception": "invents a restart the counters do not show"
+        },
+        {
+          "id": "D",
+          "text": "The pool grew smaller because 23 slots were lost on raising tasks and never returned",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Slots in use are still returned when the job finishes, so only a missing release can shrink the usable count. The falling number is the signature of the raising path skipping cleanup.",
+      "hint": "Ask what a slot looks like when its task raises.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Explain why a consecutive-failure counter understates an outage",
+      "practice": "Misleading counter",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a failure counter that only counts consecutive failures understates an intermittent outage.",
+      "options": [],
+      "answer": {
+        "exemplar": "A consecutive counter records only the current run of failures, so the first success clears everything that came before it. An intermittent service fails, succeeds, and fails again, which means the run restarts on every recovery and the counter spends most of its time near zero. Anyone watching that number sees a service that is mostly healthy, while the error totals show a large fraction of requests failing. The measurement is not broken; it is simply answering a different question from the one the on-call engineer needs answered."
+      },
+      "explanation": "The counter records the current run of failures only, so any success erases the earlier errors. Intermittent faults therefore read as a healthy service while the totals disagree.",
+      "hint": "Ask what the counter remembers after a success.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Compute the connection ceiling imposed by per-source caps",
+      "practice": "Cap ceiling",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A signalling gateway allows each source at most 10 concurrent connections, and 4 sources connect. What is the maximum number of concurrent connections the gateway accepts?",
+      "options": [],
+      "answer": {
+        "value": 40,
+        "tolerance": 0.01
+      },
+      "explanation": "Each of the 4 sources may hold up to 10 connections, so the ceiling is 4 times 10, which is 40. The read timeout then bounds how long any one of those connections may stay busy.",
+      "hint": "Multiply the number of sources by the per-source cap.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Identify what a bounded queue achieved for the callers",
+      "practice": "Queue outcome",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-report",
+        "body": "A dispatcher moved the platform timetable lookups behind a queue of 200 jobs. Callers began to receive a busy reply when the queue filled, and the timetable feed's own error rate stopped rising during the morning peak.",
+        "license": "original"
+      },
+      "stem": "Given the field report, what has the queue achieved for the service?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It stopped callers adding more work, so the feed's arrival rate stayed within what it could serve",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It has made the feed faster, because the queue gave the feed more time per job",
+          "misconception": "believes the queue speeds up the feed"
+        },
+        {
+          "id": "C",
+          "text": "It has made the feed redundant, because the queue now serves the requests itself",
+          "misconception": "treats the queue as a replacement for the feed"
+        },
+        {
+          "id": "D",
+          "text": "It has changed nothing, because a queue only hides errors and never alters the workload",
+          "misconception": "assumes a queue has no effect on arrivals"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "When the queue is full, callers are turned away instead of adding to the backlog, so the feed is never handed more work than it can serve. That is the arrival control a queue provides, not a speed-up.",
+      "hint": "Ask what happens to a caller when the queue is full.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Choose a health check that reflects real request outcomes",
+      "practice": "Check redesign",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two experiments were run to compare the platform health probe against a request-based probe: the port probe passed 300 times while the request probe failed 74 times.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It should stay as the port probe, because it is the cheapest check that still catches a stopped process",
+          "misconception": "values the cheap check over the informative one"
+        },
+        {
+          "id": "B",
+          "text": "It should combine both into a single pass/fail, so a failure of either marks the service down",
+          "misconception": "misses that combining preserves the blind spot"
+        },
+        {
+          "id": "C",
+          "text": "It should become the request probe only, because the port probe has no value at all",
+          "misconception": "dismisses the port probe entirely"
+        },
+        {
+          "id": "D",
+          "text": "It should use the request probe, because the port probe cannot see the failures it missed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Three hundred port checks passed while seventy-four real requests failed, so the port check has no predictive value for this failure. The health check should exercise the path that actually breaks.",
+      "hint": "Ask which probe saw the failures the other missed.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Find the misplaced release that leaks pooled connections",
+      "practice": "Release placement",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "Spot the defect in a pool whose release call sits after an early return in the handler.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The early return skips the release, so every such request permanently consumes a slot",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The defect is that the release happens too early, before the connection has finished its work",
+          "misconception": "mislocates the release relative to the work"
+        },
+        {
+          "id": "C",
+          "text": "The defect is that the release is called twice when the handler completes normally",
+          "misconception": "invents a double release not shown"
+        },
+        {
+          "id": "D",
+          "text": "The defect is that the release runs on the error path only and never on the success path",
+          "misconception": "reverses which path is broken"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Code placed after an early return is unreachable for any request that returns early. Those requests therefore keep their connections checked out for the life of the process.",
+      "hint": "Ask which requests can reach the release call.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Correct the belief that short records keep a nested pattern safe",
+      "practice": "Short record myth",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Some architects assume that a nested quantifier is safe because the records are short.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The assumption holds, because the matcher checks at most as many characters as the record has",
+          "misconception": "believes character count bounds match attempts"
+        },
+        {
+          "id": "B",
+          "text": "The assumption fails, because the work depends on repetition choices, not on record length",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The assumption holds, because short records cannot contain enough repetitions to matter",
+          "misconception": "assumes repetition count follows record length"
+        },
+        {
+          "id": "D",
+          "text": "The assumption fails, but only because the records must be normalised before validation",
+          "misconception": "blames data normalisation for the cost"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The number of combinations the matcher explores is set by the pattern's repetition counts, and a short record can still trigger all of them. Record length is not what bounds the work.",
+      "hint": "Think about what sets the number of attempts.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Infer unbounded body retention from memory measurements",
+      "practice": "Memory reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Test data collected during a yard trial shows memory use rising in proportion to the number of open bodies and holding there after the uploads finish.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Memory use rises because the trial also installed a larger logging agent on each host",
+          "misconception": "invents a logging agent to explain the growth"
+        },
+        {
+          "id": "B",
+          "text": "Memory use rises because the database is caching every body it has ever received",
+          "misconception": "blames a database cache for edge memory"
+        },
+        {
+          "id": "C",
+          "text": "Memory use rises because the edge holds each body until it is read, with no size limit",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Memory use rises because the operating system keeps freed memory reserved rather than returning it",
+          "misconception": "invents allocator behaviour not shown"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Memory tracks the number of open bodies and does not fall when uploads finish, which means the edge is retaining them. A body size limit would bound exactly this growth.",
+      "hint": "Ask what the memory use is proportional to.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A worker slot that is never returned when a task raises",
+      "learningObjective": "Explain the lasting effect of an unreturned worker slot",
+      "practice": "Permanent slot loss",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain how a worker slot that is never returned reduces the capacity of a pool for the rest of the shift.",
+      "options": [],
+      "answer": {
+        "exemplar": "A slot represents one unit of concurrent work. When a task raises and the release step is skipped, that slot stays checked out even though nothing is running in it, so the pool can never offer it again. Capacity therefore falls by one per failure and stays down, and it does not recover at the end of the job because the slot was never returned to the pool in the first place. The effect on a long shift is a slow, steady erosion of parallelism that looks like rising demand until the remaining slots fall below the number of jobs that need to run at once."
+      },
+      "explanation": "An unreturned slot is capacity that will never come back, so each failure reduces the pool for the rest of the shift. The parallel work available falls while the assigned job count stays the same.",
+      "hint": "Ask what an unreturned slot does to the pool forever.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-worker-slot-that-is-never-returned-when-a-task-raises"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A failure counter that only counts consecutive failures",
+      "learningObjective": "Compute the reading of a consecutive-failure counter",
+      "practice": "Counter value",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A failure counter increments on each failure and resets to zero on any success. A feed fails 3 times, succeeds once, then fails 4 times. What value does the counter hold at the end?",
+      "options": [],
+      "answer": {
+        "value": 4,
+        "tolerance": 0.01
+      },
+      "explanation": "The success resets the count to zero, so the three earlier failures are forgotten. Only the four failures after the success are counted, leaving the counter at 4 despite seven failures in total.",
+      "hint": "Reset the count at the success, then count what follows.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-failure-counter-that-only-counts-consecutive-failures"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Adding per-source connection caps and a read timeout",
+      "learningObjective": "Identify the limits a governance review should require",
+      "practice": "Governance gap",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "governance-note",
+        "body": "A review of the platform edge found no limit on request bodies and no limit on concurrent connections per source. The note recorded that one trial source opened 400 connections and held a 200 MB body on each of them for the length of the test.",
+        "license": "original"
+      },
+      "stem": "Given the governance note, what would have bounded that trial source?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because limits only apply to sources outside the depot network",
+          "misconception": "assumes limits apply only to external sources"
+        },
+        {
+          "id": "B",
+          "text": "Only a body size limit, since the number of connections is the edge's own concern",
+          "misconception": "misses that the connection count was the larger share"
+        },
+        {
+          "id": "C",
+          "text": "Only a connection cap, since limiting the count also limits how much can be sent",
+          "misconception": "believes a connection cap implies a body limit"
+        },
+        {
+          "id": "D",
+          "text": "Both a per-source connection cap and a read timeout, which bound the count and the hold",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Four hundred connections each holding a large body is a product of two unbounded factors. A per-source cap bounds the count and a read timeout bounds how long each body may be held.",
+      "hint": "Ask which two quantities need bounding.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "adding-per-source-connection-caps-and-a-read-timeout"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Placing a bounded queue in front of a slow dependency",
+      "learningObjective": "Sequence the steps that protect a slow dependency",
+      "practice": "Change order",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Two alternatives are considered for absorbing a slow timetable feed: a bounded queue in front of it, or a per-source cap on the requests that reach it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The per-source cap first, because it lets every caller through and simply slows the whole system",
+          "misconception": "believes the cap makes the system slower overall"
+        },
+        {
+          "id": "B",
+          "text": "The bounded queue first, because it protects callers now while the feed's capacity is raised",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both together, because neither measure alone can protect the edge from a burst",
+          "misconception": "misses that sequencing matters here"
+        },
+        {
+          "id": "D",
+          "text": "Neither yet, because the feed should be measured for a week before any limit is added",
+          "misconception": "proposes delay instead of a first step"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A bounded queue is the quickest way to stop callers adding work to a slow feed, and it can go in while the feed's capacity is increased. The per-source cap is the second step.",
+      "hint": "Ask which change stops callers adding load today.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "placing-a-bounded-queue-in-front-of-a-slow-dependency"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A health check that only confirms a port is listening",
+      "learningObjective": "Find the flaw in a socket-only health check",
+      "practice": "Socket check flaw",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Find the flaw in a health check that opens a socket and reports success without sending anything.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It only proves a listener exists, so it stays green while requests fail everywhere else",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is flawed because the socket is opened and closed too quickly for the service to notice",
+          "misconception": "invents a handshake requirement not shown"
+        },
+        {
+          "id": "C",
+          "text": "It is flawed because the check runs from the same host, so it cannot see network problems",
+          "misconception": "misses that the real gap is the missing request"
+        },
+        {
+          "id": "D",
+          "text": "It is flawed because a health check should verify that the process is the expected version",
+          "misconception": "adds a version check nobody asked about"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A socket open proves a listener and nothing more. Every step a request actually takes is untested, so the check cannot fail for the reasons that matter to users.",
+      "hint": "Ask what the check never exercises.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-health-check-that-only-confirms-a-port-is-listening"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A pool that leaks a slot when the handler returns early",
+      "learningObjective": "Correct the belief that pooling bounds concurrency",
+      "practice": "Pooling myth",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A claim in the operations review states that pooling removes the need for limits on concurrency.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The claim is right, because a pool refuses connections once it reaches its configured size",
+          "misconception": "believes a pool enforces a limit on callers"
+        },
+        {
+          "id": "B",
+          "text": "The claim is right, because a pooled connection is reused often enough to keep the total low",
+          "misconception": "confuses reuse with a hard bound"
+        },
+        {
+          "id": "C",
+          "text": "The claim is wrong, because a pool reuses connections without limiting how many callers hold them",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The claim is wrong, but only because the pool size should be set from memory rather than load",
+          "misconception": "misses that pooling never bounds concurrency"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Pooling amortises the cost of establishing connections; it does not cap how many callers are active at once. Concurrency limits are still needed for the requests in flight.",
+      "hint": "Ask what pooling does to the number of active callers.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-pool-that-leaks-a-slot-when-the-handler-returns-early"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "A quantifier nested inside another quantifier",
+      "learningObjective": "Use a trace to locate the cost of nested repetition",
+      "practice": "Trace reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A long-running trace of the ticket validator shows most of its time inside nested repetition handling.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The validator spends most of its time reading input, so shortening the pattern will not help",
+          "misconception": "reads the trace as evidence that reading dominates"
+        },
+        {
+          "id": "B",
+          "text": "The validator spends most of its time on repetition choices, so nesting is the cost to remove",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The validator spends most of its time on network waits, since repetition happens while waiting",
+          "misconception": "misplaces the cost in network time"
+        },
+        {
+          "id": "D",
+          "text": "The validator spends most of its time compiling the pattern once per batch",
+          "misconception": "attributes the time to compilation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Nearly all of the time sits in the nested repetition path, not in reading or compiling. The change that pays is the one that removes the nesting or bounds the repetition counts.",
+      "hint": "Read where the trace places the time.",
+      "difficulty": 0.45,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "a-quantifier-nested-inside-another-quantifier"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.6-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "An edge configuration with no body limit and no connection cap",
+      "learningObjective": "Explain why an unlimited edge collapses under a burst",
+      "practice": "Burst collapse",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why an edge with no body limit and no connection cap fails badly under a burst.",
+      "options": [],
+      "answer": {
+        "exemplar": "An edge without a body limit lets a single request occupy as much memory as the client chooses to send, and an edge without a connection cap lets one client open as many connections as it likes. Under a burst those two unbounded quantities multiply, so a modest number of clients can fill the edge's memory and every connection it has, and other clients are refused because nothing is left. Neither limit on its own would have prevented that outcome: the body limit alone still allows many large bodies, and the connection cap alone still allows a large body on each of the permitted connections, so the edge needs both to keep one noisy source from taking it over."
+      },
+      "explanation": "Body size and connection count are the two factors that multiply, and with neither bounded one source can take the whole edge. Both limits are needed to stop that.",
+      "hint": "Ask which two quantities multiply under load.",
+      "difficulty": 0.55,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 50,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "an-edge-configuration-with-no-body-limit-and-no-connection-cap"
+      ],
+      "version": 1
+    }
+  ]
+}

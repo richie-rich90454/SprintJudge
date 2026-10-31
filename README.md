@@ -52,6 +52,25 @@ make dev                # both side by side (make -j2)
 The frontend dev server proxies `/api` and `/ws` to the backend, so both processes run
 side by side during development.
 
+## Run a CSA class
+
+1. Start the packaged app with `make prod` or `java -jar target/sprintjudge.jar`.
+2. Sign in at `/admin/login`.
+3. On the dashboard, pick a CSA unit or **Mixed CSA** under **Start a CSA class**.
+   Each set has sixteen questions and one judged Java problem.
+4. Share the PIN or QR from the host screen. Students join at `/j/<PIN>` on the same
+   network, with no account.
+5. Use **Full screen** on the host screen when projecting. The stage shows the
+   question, timer, answer distribution, the correct answer, the named
+   misconception, and the explanation.
+6. Open **Results** after the game for the podium, answer key, per-student review,
+   class analysis, and CSV export.
+
+Standard, Auto-pilot, Practice, Exam, Team, and Battle are supported. Team mode
+scores every member's answers into a shared team total; students pick a team in
+the lobby. Battle mode runs 1v1 rounds with byes, a full bracket, and a champion.
+See `docs/teacher-runbook.md` for the classroom flow.
+
 ## Configuration
 
 All runtime knobs are plain environment variables:
@@ -114,6 +133,16 @@ playbooks, and the complete question-format reference):
 One logical change per commit; messages follow `feat(scope): description` /
 `fix(scope): description`. Strict OOP on both sides of the wire, no raw SQL, no `any`
 in TypeScript, flat UI only.
+
+## Legal notice
+
+This project is not affiliated with, endorsed by, or sponsored by any
+external testing program. Official course frameworks may serve as
+reference documents for scope and accuracy; no copyrighted materials
+are reproduced. Every question is authored from first principles,
+reviewed by a human, and attested as original. No model used here is
+trained on protected testing-program content. See `docs/no-ap-branding.md`,
+`docs/subject-rename-map.md`, and `docs/legal-safety.md`.
 
 ## License
 

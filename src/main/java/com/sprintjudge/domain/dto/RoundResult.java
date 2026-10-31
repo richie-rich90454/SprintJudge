@@ -3,6 +3,7 @@ package com.sprintjudge.domain.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Round reveal. {@code correctAnswer} carries only the answer-bearing config
@@ -15,7 +16,8 @@ public record RoundResult(
         String questionId,
         boolean revealed,
         JsonNode correctAnswer,
-        List<PlayerScore> scores
+        List<PlayerScore> scores,
+        Map<String, Integer> answerCounts
 ) {
     public record PlayerScore(String uuid, String name, int score, boolean correct,
                               int roundScore, int streak, int bonus) {}

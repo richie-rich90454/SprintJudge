@@ -1,12 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 
-vi.mock("framer-motion", () => ({
-    animate: vi.fn((...args: unknown[]) => {
-        const opts = args[args.length - 1] as { onComplete?: () => void };
-        opts?.onComplete?.();
-        return { stop: vi.fn() };
-    }),
-}));
 
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { McqRenderer } from "./McqRenderer";

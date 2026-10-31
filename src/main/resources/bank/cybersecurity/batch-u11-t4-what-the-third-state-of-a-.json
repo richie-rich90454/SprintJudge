@@ -1,0 +1,3827 @@
+{
+  "questions": [
+    {
+      "id": "cyber-11.4-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Identify the missing state that prevents recovery",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A circuit breaker implementation records only closed and open, and the reviewer asks why a client that recovers never gets traffic again.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is the missing half-open state, so the breaker never lets a probe request through to test recovery",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The bug is the failure threshold, because 50 percent is too high a number of failures",
+          "misconception": "blames the threshold instead of the missing state"
+        },
+        {
+          "id": "C",
+          "text": "The bug is the reset timer, because it runs too often for the breaker to notice recovery",
+          "misconception": "blames the timer for the missing test request"
+        },
+        {
+          "id": "D",
+          "text": "The bug is in the metrics, because the state is not exported so operators cannot see it",
+          "misconception": "blames observability for the missing probe"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Without a state that admits a limited number of real calls, the breaker has no way to learn that the dependency healed. It therefore stays open until something else changes its mind.",
+      "hint": "Ask how the breaker discovers that a dependency has healed.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Explain what a liveness probe fails to establish",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A load balancer sends liveness probes to every instance and removes any that fail. A reviewer asks why a probe cannot tell the balancer the instance is worth keeping.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because a failed liveness probe always means the process has crashed and the instance is unusable",
+          "misconception": "equates a failed probe with a crashed process"
+        },
+        {
+          "id": "B",
+          "text": "Because the probe only answers whether the process answers, not whether it can serve real traffic",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because the balancer sends the probe to the wrong port, so the answer never reflects real work",
+          "misconception": "blames probe routing rather than probe scope"
+        },
+        {
+          "id": "D",
+          "text": "Because probes are answered from a cached response, so they report the state at the last check",
+          "misconception": "invents cached probe responses"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A liveness probe asks one narrow question and the balancer turns it into a routing decision, so a saturated instance stays in rotation. Readiness is the probe that answers the routing question.",
+      "hint": "Ask what question the liveness probe actually asks.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Interpret the load a cache stampede creates",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service caches a popular reference table with a 60 second lifetime. 400 concurrent readers find the key missing every minute and each one starts its own database query.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The database sees 400 extra queries a minute, which is a small addition to its normal traffic",
+          "misconception": "ignores that all 400 arrive in the same instant"
+        },
+        {
+          "id": "B",
+          "text": "The database sees 400 times the intended load, so the cache should be given a longer lifetime",
+          "misconception": "prescribes a longer lifetime as the fix for the spike"
+        },
+        {
+          "id": "C",
+          "text": "The database sees 400 queries in one instant where one was intended, so the load jumps to 400 times normal",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The cache serves stale data to everyone, so the database is protected from the spike",
+          "misconception": "claims the cache absorbs the spike"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "One miss should cause one query, but here 400 readers miss together and each starts its own. The spike is instantaneous, so an average rate would hide it completely.",
+      "hint": "Compare the intended number of queries with the number actually made.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Explain what a single-flight lock prevents",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to a new architect what a single-flight lock on a cache miss prevents.",
+      "options": [],
+      "answer": {
+        "exemplar": "When a key is not in the cache, one thread takes a lock for that key and loads it while every other thread asking for the same key waits on the same result. Without it, each waiting thread starts its own load, so a popular key that expires turns one query into as many as there are readers, and the backing service is hit by the very traffic that made the key popular. The lock does not make loading faster; it makes loading happen once, so the herd is replaced by a single request and a short wait."
+      },
+      "explanation": "The lock makes a popular miss cost one load rather than one per reader. It does not speed the load up, it stops the herd from multiplying it.",
+      "hint": "Ask how many loads a single miss causes.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Compute how many connections a request rate demands",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A service opens 120 requests per second against a database and each request holds its connection for 50 milliseconds. How many simultaneous connections does that demand?",
+      "options": [],
+      "answer": {
+        "value": 6,
+        "tolerance": 0.01
+      },
+      "explanation": "Each connection serves 20 requests a second at 50 milliseconds, so 120 requests a second need 6 connections at once. Pool sizing follows from rate times hold time.",
+      "hint": "Multiply the request rate by the time each one holds a connection.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Explain what a per-process descriptor cap protects",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A platform runs each tenant in a separate process, and each process is capped at 256 open file descriptors to keep one tenant from exhausting the machine. A service inside one process opens a socket per request and holds it while the request is in flight, so a slow dependency makes sockets pile up.",
+        "license": "original"
+      },
+      "stem": "Using the design note, explain what the per-process file limit does when the sockets pile up.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It slows that one tenant down, because the cap applies only to the process that hit it",
+          "misconception": "ignores the blast radius of a shared per-process limit"
+        },
+        {
+          "id": "B",
+          "text": "It spreads the failure across tenants, because each process has its own quota",
+          "misconception": "claims the cap spreads the failure rather than concentrating it"
+        },
+        {
+          "id": "C",
+          "text": "It protects the machine, because the cap guarantees the total file count stays within the limit",
+          "misconception": "assumes per-process caps bound the machine-wide total"
+        },
+        {
+          "id": "D",
+          "text": "It fails that whole process at once, because every request in it needs the same capped resource",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Every request in the process needs a descriptor from the same 256, so a pile-up takes down the whole tenant at once. Per-process caps concentrate the failure instead of spreading it.",
+      "hint": "Ask what the limit is shared by inside one process.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Explain how an unbounded queue changes a thread pool",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A worker service hands tasks to a thread pool through an unbounded queue, and the reviewer asks what that arrangement does to the pool.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It gives the pool unlimited work, so threads are never idle and throughput is always maximal",
+          "misconception": "treats an unbounded queue as free extra throughput"
+        },
+        {
+          "id": "B",
+          "text": "It hides the overload in the queue, so threads stay busy while latency grows without limit",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It makes the pool scale automatically, because a long queue is a signal to add threads",
+          "misconception": "invents automatic scaling from queue depth"
+        },
+        {
+          "id": "D",
+          "text": "It protects memory, because queued tasks are stored on disk rather than in the heap",
+          "misconception": "claims queued tasks are stored on disk"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The queue absorbs the overload into a growing backlog while the pool's threads stay busy, so no failure is visible. Latency climbs and the pool looks healthy on every busy-thread metric.",
+      "hint": "Ask what the busy-thread metric hides.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Identify what a memory limit contains and where it moves the failure",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A platform caps each process at 512 megabytes of memory and kills any process that exceeds it. A reviewer asks what that limit contains and what it moves.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It contains the memory use and keeps the process running, because the kernel reclaims the excess pages",
+          "misconception": "claims the process survives the limit"
+        },
+        {
+          "id": "B",
+          "text": "It contains the memory use and spreads the cost, because other processes borrow the freed pages",
+          "misconception": "claims the freed memory is shared automatically"
+        },
+        {
+          "id": "C",
+          "text": "It contains the memory use and improves throughput, because a smaller heap caches more of the working set",
+          "misconception": "claims a smaller heap always performs better"
+        },
+        {
+          "id": "D",
+          "text": "It contains the memory use and moves the failure, because the process is killed and its work is lost",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The limit contains one process's memory appetite and the blast radius of that appetite. It does not preserve the work, so the failure is contained but the work is still lost.",
+      "hint": "Ask what happens to the work inside the killed process.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "State the purpose of the third breaker state",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks what the third state of a circuit breaker is for.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It lets the breaker try a limited number of real calls after a failure to see if the dependency healed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It records the failure count so operators can see the trend on a dashboard",
+          "misconception": "reduces the third state to a reporting aid"
+        },
+        {
+          "id": "C",
+          "text": "It holds queued calls while the dependency is down, so no request is lost",
+          "misconception": "confuses the third state with a queue"
+        },
+        {
+          "id": "D",
+          "text": "It marks the dependency as permanently broken so it is removed from the deployment",
+          "misconception": "confuses the third state with permanent removal"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Refusing everything forever is not a recovery strategy, so the third state admits a small number of real calls as a probe. Success closes the breaker, failure reopens it.",
+      "hint": "Ask how the breaker discovers that a dependency has healed.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Interpret probe results against real service behaviour",
+      "practice": "Incident Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "An instance answers its liveness probe in 5 milliseconds while its real requests take 4000 milliseconds and its queue holds 300 requests. A load balancer keeps routing to it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The instance is healthy, because the probe answered within 5 milliseconds as designed",
+          "misconception": "takes the probe result as proof of service health"
+        },
+        {
+          "id": "B",
+          "text": "The instance is unhealthy, because a probe that takes 5 milliseconds is suspiciously fast",
+          "misconception": "treats a fast probe as a symptom of failure"
+        },
+        {
+          "id": "C",
+          "text": "The instance looks alive but is saturated, because the probe only shows the process answers",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The instance is unhealthy, because 300 queued requests exceed any sensible limit",
+          "misconception": "jumps to a queue limit that was never defined"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The probe answered, so the balancer keeps the instance in rotation, yet each real request waits seconds behind a growing queue. Liveness says the process runs, not that it can serve.",
+      "hint": "Compare the probe latency with the request latency.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Explain why a stampede peaks when the cache is cold",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain why a cache stampede multiplies load exactly when the cache is coldest.",
+      "options": [],
+      "answer": {
+        "exemplar": "A stampede happens when a key that many readers want expires. One reader's miss should cause one load, but if each reader starts its own load, then the number of loads equals the number of readers, which is highest precisely when the key is popular. That is the cruel part of it: the load spike appears at the moment the key expires, and the backing service is hit by the whole readership at once. The result is that the slowest moment for the cache is also the heaviest moment for the database behind it."
+      },
+      "explanation": "Popularity makes the reader count high, and expiry makes them all miss together, so the loads multiply exactly when the backing service can least afford them.",
+      "hint": "Ask how many readers a popular key has.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Count the loads a single-flight lock removes",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A cache key with 500 readers misses and all 500 start their own load, each load taking 40 milliseconds. With a single-flight lock in place, how many loads are performed?",
+      "options": [],
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "The lock lets one reader perform the load and the other 499 wait for that result, so exactly one load happens. Without it the backing service sees 500 loads for one key.",
+      "hint": "Count the loads the lock allows for one key.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Describe the outside symptoms of pool exhaustion",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A service keeps a pool of 25 database connections. During a slow period the database takes 800 milliseconds to answer, so connections stay checked out longer. Requests that find the pool empty wait, then eventually fail with a timeout. The team notes that the database itself is not under heavy load.",
+        "license": "original"
+      },
+      "stem": "Using the design note, describe what the outside symptoms of pool exhaustion look like.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Requests time out at the service while the database stays idle, because the pool, not the database, is full",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The database becomes overloaded, because waiting requests are forwarded to it as extra connections",
+          "misconception": "confuses waiting requests with extra database load"
+        },
+        {
+          "id": "C",
+          "text": "The service slows down smoothly, because the pool grows to match the waiting requests",
+          "misconception": "assumes the pool grows on demand"
+        },
+        {
+          "id": "D",
+          "text": "Clients receive errors from the database directly, because the pool passes its rejections along",
+          "misconception": "claims the database itself returns the errors"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The pool is the constraint: connections stay checked out, so waiting requests pile up inside the service while the database has spare capacity. The symptom is timeouts on an idle database.",
+      "hint": "Ask whether the database is the busy part.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Explain how a shared descriptor budget fails collectively",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A platform caps each process at 256 open file descriptors, and an architect asks how that cap behaves when many requests in one process need sockets.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The cap degrades gracefully, because each request fails on its own descriptor",
+          "misconception": "assumes the cap isolates individual requests"
+        },
+        {
+          "id": "B",
+          "text": "The cap fails the whole process at once, because all its requests share one descriptor budget",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The cap protects the machine, because the total descriptors across all processes stay bounded",
+          "misconception": "assumes per-process caps bound the machine-wide total"
+        },
+        {
+          "id": "D",
+          "text": "The cap has no effect, because descriptors are counted per process and processes are small",
+          "misconception": "dismisses the limit because it is per process"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Every request in the process draws on the same 256 descriptors, so exhausting them stops all of those requests together. A per-request bound would spread the pain instead.",
+      "hint": "Ask what the descriptor budget is shared by.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Identify the missing bound behind an overloaded queue",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A worker service pushes tasks into an unbounded queue, and during an incident the queue held 4 million tasks while every thread was blocked on a slow downstream call.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is the thread pool size, because eight threads are too few for four million tasks",
+          "misconception": "blames the pool size rather than the missing bound"
+        },
+        {
+          "id": "B",
+          "text": "The bug is the task priority, because the oldest tasks should have been run first",
+          "misconception": "blames ordering rather than the missing bound"
+        },
+        {
+          "id": "C",
+          "text": "The bug is the missing bound, because queued tasks hide the overload instead of slowing intake",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The bug is the task serialisation, because the queue should have been written to disk",
+          "misconception": "claims the queue should be persisted"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Without a bound, the queue absorbs the overload and the threads stay busy waiting on a slow dependency. Nothing signals that intake has outrun completion.",
+      "hint": "Ask why the queue never told anyone it was too long.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Explain where a memory cap sends the problem",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks what a per-process memory limit contains and where it moves the problem.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It contains the memory use and keeps the service available by reclaiming pages from the process",
+          "misconception": "claims the process survives by reclaiming its own pages"
+        },
+        {
+          "id": "B",
+          "text": "It contains the memory use and improves latency, because a smaller working set fits in cache",
+          "misconception": "assumes a smaller working set always lowers latency"
+        },
+        {
+          "id": "C",
+          "text": "It contains the memory use and spreads the load, because the work moves to neighbouring processes",
+          "misconception": "claims the work is redistributed automatically"
+        },
+        {
+          "id": "D",
+          "text": "It contains the memory use and moves the failure, because the process dies and its in-flight work is lost",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The cap bounds one process's appetite for memory, which protects the machine. It does not keep the work, so the failure is contained but the in-flight work still disappears.",
+      "hint": "Ask what happens to the work inside the killed process.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Interpret the outcome of a probe round",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A breaker opens after 10 failures, then half-opens and allows 3 probe calls. Two of the three probes succeed and one fails.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The breaker opens again, because any single failure counts while half-open",
+          "misconception": "counts one failure as a majority verdict"
+        },
+        {
+          "id": "B",
+          "text": "The breaker closes, because a majority of the probe calls succeeded",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The breaker stays half-open, because it only closes after three consecutive successes",
+          "misconception": "invents a stricter success rule than the policy states"
+        },
+        {
+          "id": "D",
+          "text": "The breaker opens, because the earlier 10 failures still count towards the threshold",
+          "misconception": "counts the pre-open failures against the probe results"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The probe round is the evidence the breaker waits for, and two successes out of three is a majority in its favour. The failures that opened it are already behind it.",
+      "hint": "Ask what the probe round was for.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Explain what a liveness probe cannot report",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Ask the team to explain what a liveness probe cannot tell a load balancer about an instance.",
+      "options": [],
+      "answer": {
+        "exemplar": "A liveness probe asks one narrow question and answers it: does this process still answer on the expected port. The load balancer reads that as a routing decision, so an instance that is alive but saturated, stuck on a slow dependency, or serving errors from a broken dependency looks perfectly healthy to it. A readiness probe is the one that answers a different question, namely whether this instance should receive traffic now, and the two must be separated for the balancer to route around a process that is up but useless."
+      },
+      "explanation": "The liveness probe answers whether the process responds, not whether it can serve traffic, so a saturated instance stays in rotation. Readiness is the probe that answers the routing question.",
+      "hint": "Ask what question the liveness probe actually asks.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Compute how long a herd of loads takes to clear",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A popular cache key expires and 800 concurrent readers miss it. Without protection each reader starts a load, and the backing service can handle 250 loads per second. How many seconds does the herd of loads take to clear?",
+      "options": [],
+      "answer": {
+        "value": 3.2,
+        "tolerance": 0.01
+      },
+      "explanation": "800 loads at 250 per second takes 3.2 seconds, and every one of them hits the service that is already struggling. A single-flight lock would make it one load instead.",
+      "hint": "Divide the number of loads by the service's load rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Identify the mechanism that handles a miss once",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A reference-data service caches a table of tax codes that every request in the platform reads. The entry lives for 30 seconds. When the entry expires, several hundred requests notice the miss at the same moment and each one queries the database. The architect wants the miss handled once and shared.",
+        "license": "original"
+      },
+      "stem": "Using the design note, identify the mechanism that handles the miss once.",
+      "options": [
+        {
+          "id": "A",
+          "text": "A longer cache lifetime, so the entry expires less often and misses are rarer",
+          "misconception": "reduces the frequency of misses without removing the herd"
+        },
+        {
+          "id": "B",
+          "text": "A larger connection pool, so the queries that do arrive are served faster",
+          "misconception": "makes the herd faster without reducing it"
+        },
+        {
+          "id": "C",
+          "text": "A random refresh timer, so entries expire at unpredictable times across keys",
+          "misconception": "spreads expiry across keys rather than fixing one key's herd"
+        },
+        {
+          "id": "D",
+          "text": "A single-flight lock, so one reader loads the entry and the others wait for it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The lock turns hundreds of concurrent misses into one load with a short wait for the rest. Longer lifetimes and bigger pools change the symptom rather than the count of loads.",
+      "hint": "Ask what makes the number of loads equal to one.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Sequence the checks for a pool exhaustion incident",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A service's pool holds 30 connections and 200 requests arrive per second, each holding a connection for 120 milliseconds. The reviewer asks what the first checks should be.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Check the arrival rate and hold time against the pool size, since both set the concurrency needed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Check the database's query plan first, since slow plans are the usual cause of exhaustion",
+          "misconception": "jumps to the database before checking the pool arithmetic"
+        },
+        {
+          "id": "C",
+          "text": "Check the number of servers in the pool first, since adding machines is the cheapest fix",
+          "misconception": "leads with adding capacity instead of measuring demand"
+        },
+        {
+          "id": "D",
+          "text": "Check the client timeouts first, since shorter timeouts will drain the pool faster",
+          "misconception": "suggests shortening timeouts as the primary remedy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first step is arithmetic: rate times hold time gives the connections the service needs. The second is to compare that with the pool size, which is where the shortfall appears.",
+      "hint": "Ask what concurrency the arrival pattern demands.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Identify the leak that empties a descriptor budget",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A platform sets a limit of 256 open file descriptors, and one service in that process leaks a descriptor per request. After a few hours requests start failing.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is that the cap is too low for a service that opens a file per request",
+          "misconception": "blames the numeric cap rather than the leak"
+        },
+        {
+          "id": "B",
+          "text": "The bug is that the limit is per process, because the whole machine should have one shared cap",
+          "misconception": "blames the per-process scoping rather than the leak"
+        },
+        {
+          "id": "C",
+          "text": "The bug is that descriptors are counted per thread rather than per process",
+          "misconception": "invents per-thread counting that was never described"
+        },
+        {
+          "id": "D",
+          "text": "The bug is the leak, because one process exhausts the shared budget and every request in it suffers",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A descriptor leaked per request drains the one budget the whole process shares. Once it is empty every request in that process fails, which is why the blast radius matches the process.",
+      "hint": "Ask what the leak spends from.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Explain what an unbounded queue does to observed latency",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks what an unbounded work queue does to the thread pool that drains it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It hides overload in the queue, so workers stay busy while the wait for every task grows",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It starves the pool, because the queue's own overhead uses the workers' time",
+          "misconception": "invents a queue overhead that starves workers"
+        },
+        {
+          "id": "C",
+          "text": "It improves fairness, because the queue orders work by arrival time for the workers",
+          "misconception": "credits the queue with fairness"
+        },
+        {
+          "id": "D",
+          "text": "It scales the pool automatically, because a long queue proves more threads are needed",
+          "misconception": "invents automatic scaling from queue depth"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Arrival that outruns completion grows the backlog, so every task waits longer while the threads never idle. Nothing in the pool's own metrics shows the problem.",
+      "hint": "Ask what the busy-thread metric hides.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Judge whether a memory cap will kill a process",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A process is capped at 1024 megabytes of memory. It holds 700 megabytes of live data, 250 megabytes of cached entries and is allocating a further 200 megabyte batch.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The process is killed, because 700 plus 250 already passes the 1024 megabyte cap",
+          "misconception": "forgets the new allocation and overstates the total"
+        },
+        {
+          "id": "B",
+          "text": "The process survives if the cache is reclaimed, because 700 plus 200 megabytes is below the cap",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The process is safe, because the cache is reclaimable and only 700 megabytes is live",
+          "misconception": "ignores the incoming 200 megabyte allocation"
+        },
+        {
+          "id": "D",
+          "text": "The process is killed, because a memory cap counts all allocations including reclaimable cache",
+          "misconception": "claims reclaimable memory counts against the cap"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Live data of 700 megabytes plus the incoming 200 leaves 900, which fits under the cap of 1024 once the cache is reclaimed. The cache is the part that can be given up.",
+      "hint": "Add the live data to the incoming allocation, not the cache.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Explain the purpose of the third breaker state",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the team what the third state of a circuit breaker is for.",
+      "options": [],
+      "answer": {
+        "exemplar": "A circuit breaker has two obvious states: closed, where calls flow, and open, where calls are refused. The third state, usually called half-open, exists because refusing everything forever is not a recovery strategy. When the timer for the open state expires, the breaker lets through a small, deliberately limited number of real calls as a probe. If they succeed, the dependency is healthy again and the breaker closes; if they fail, the breaker opens again and waits out a longer interval. The state exists so recovery is tested with real traffic at a bounded risk rather than guessed at or waited for indefinitely."
+      },
+      "explanation": "The third state lets a small number of real calls test whether the dependency has healed, so recovery is observed rather than assumed. The probe traffic is deliberately limited.",
+      "hint": "Ask how the breaker discovers that a dependency has healed.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Compute how long a failing instance stays in rotation",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A load balancer removes an instance after 3 consecutive failed liveness probes, and probes run every 10 seconds. How many seconds pass between the first failed probe and the removal?",
+      "options": [],
+      "answer": {
+        "value": 20,
+        "tolerance": 0.01
+      },
+      "explanation": "Three failures span two intervals of 10 seconds, so 20 seconds pass from the first failure to the removal. Traffic therefore reaches a dead instance for one full probe interval more.",
+      "hint": "Count the gaps between the three failed probes.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Explain why a refresh pattern multiplies load",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A catalogue service caches a product list that every browse request reads. The list is refreshed by a job every 60 seconds, which deletes the old key and writes a new one. During the gap the catalogue is cold, and requests that arrive in that moment each start their own query. The architect wants to know what the refresh pattern is costing.",
+        "license": "original"
+      },
+      "stem": "Using the design note, explain why the refresh pattern multiplies load.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The refresh deletes the key, so the load is doubled because both the old and new entries are queried",
+          "misconception": "invents a double query from the delete alone"
+        },
+        {
+          "id": "B",
+          "text": "The refresh runs every 60 seconds, so the load is multiplied by 60 against a normal request rate",
+          "misconception": "treats the interval as the multiplier"
+        },
+        {
+          "id": "C",
+          "text": "The refresh makes every request miss at once, so the cold window carries a herd rather than a trickle",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The refresh is harmless, because requests arriving in the gap are served from the old cache entry",
+          "misconception": "assumes deleted entries remain readable"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Deleting the key makes the whole readership miss at the same instant, so the cold window carries a herd of loads instead of a trickle. A single-flight lock would collapse that herd into one.",
+      "hint": "Ask what every request sees in the cold window.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Sequence what a single-flight lock must guarantee",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A service must avoid a herd on a hot cache miss, and the architect asks what a single-flight lock provides and what happens if the load fails.",
+      "options": [
+        {
+          "id": "A",
+          "text": "One load per key, and a failed load should be cached so later readers get the error fast",
+          "misconception": "caches a failure as if it were data"
+        },
+        {
+          "id": "B",
+          "text": "One load per key, and a failed load should be retried inside the lock until it succeeds",
+          "misconception": "holds the lock through endless internal retries"
+        },
+        {
+          "id": "C",
+          "text": "One load per key, and the waiters should be left blocked until some later load succeeds",
+          "misconception": "leaves readers blocked behind a failed load"
+        },
+        {
+          "id": "D",
+          "text": "One load per key, and a failed load must release the waiters with the error and cache nothing",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The lock reduces a popular miss to one load, and a failed load must let the waiters go with the error rather than trapping them. Caching the failure would turn one outage into a permanent one.",
+      "hint": "Ask what happens to the waiters when the load fails.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Identify the leak that empties a connection pool",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A service opens a database connection per request but never returns it to the pool on the error path, and requests start timing out.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is that the pool is too small, because 30 connections is too few for the request rate",
+          "misconception": "blames the pool size rather than the leak"
+        },
+        {
+          "id": "B",
+          "text": "The bug leaks pool connections, so the pool empties and later requests wait for connections that never come back",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The bug is the error handling, because the service should retry the request instead of failing",
+          "misconception": "suggests retries rather than returning the connection"
+        },
+        {
+          "id": "D",
+          "text": "The bug is the database, because it holds connections open after the client releases them",
+          "misconception": "blames the database for the leak"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Each failed request takes a connection out of the pool permanently, so the pool drains until nothing can be checked out. The symptom is timeouts on an idle database.",
+      "hint": "Ask what happens to the connection on the error path.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Explain why a per-process file cap fails collectively",
+      "practice": "Incident Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks why a per-process limit on open files fails everything at once.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the limit is measured in bytes rather than in descriptors, so the check is imprecise",
+          "misconception": "misstates what a file limit counts"
+        },
+        {
+          "id": "B",
+          "text": "Because the limit only applies to network sockets, so local file access is unaffected",
+          "misconception": "claims the limit excludes local files"
+        },
+        {
+          "id": "C",
+          "text": "Because every process in the container shares one pool, so one process starves the others",
+          "misconception": "claims processes share a descriptor pool"
+        },
+        {
+          "id": "D",
+          "text": "Because every request in the process needs a descriptor from the same capped budget",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "One budget is shared by all the requests inside the process, so exhausting it stops all of them together. A limit per process rather than per request is what makes the failure collective.",
+      "hint": "Ask what the budget is shared by.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Compute how fast an unbounded backlog grows",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service has 20 worker threads and an unbounded task queue. During a spike 2000 tasks arrive per second and the workers complete 1500 per second.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The queue grows by 500 tasks per second, so 30000 tasks are waiting after one minute",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The queue grows by 500 tasks per second, so 30000 tasks are waiting after 500 seconds",
+          "misconception": "misplaces the time by confusing the rate with the duration"
+        },
+        {
+          "id": "C",
+          "text": "The queue stays flat, because the workers take the tasks as fast as they arrive",
+          "misconception": "ignores that arrival exceeds completion"
+        },
+        {
+          "id": "D",
+          "text": "The queue grows by 1500 tasks per second, because the workers add to the queue as they finish",
+          "misconception": "adds the completion rate to the arrival rate"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Arrival exceeds completion by 500 tasks a second, so a minute of overload leaves 30000 tasks waiting. With no bound, that backlog is where the latency goes.",
+      "hint": "Subtract the completion rate from the arrival rate, then multiply by 60.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Explain what a memory cap contains and where it pushes the problem",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the team what a per-process memory limit contains and where it pushes the problem.",
+      "options": [],
+      "answer": {
+        "exemplar": "A per-process memory limit contains one tenant's appetite for memory. When a process crosses the line it is killed, so the limit reliably stops that process from starving its neighbours, and the blast radius is one process rather than the whole machine. What it does not do is keep the service running. The work inside that process is lost, in-flight requests are lost with it, and the limit decides the point of failure rather than the point of recovery, so the system trades an unbounded memory problem for a scheduled outage."
+      },
+      "explanation": "The limit contains one process's memory appetite and its blast radius. It does not preserve the work, so the failure is contained but the work is still lost.",
+      "hint": "Ask what happens to the work inside the killed process.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Compute the calls refused during one open period",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A circuit breaker opens after 5 consecutive failures and its open state lasts 30 seconds before it allows a probe. Calls arrive at 10 per second. How many calls are refused during one open period?",
+      "options": [],
+      "answer": {
+        "value": 300,
+        "tolerance": 0.01
+      },
+      "explanation": "Thirty seconds at 10 calls per second is 300 refused calls. The open state trades availability for a cheap way to find out when the dependency is healthy again.",
+      "hint": "Multiply the open duration by the arrival rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Judge what a liveness-only setup will do",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A service exposes two endpoints: one that answers a liveness probe in 2 milliseconds and one that reports readiness. An instance's dependency on the database slows to 4 seconds per query. The platform's load balancer currently uses only the liveness endpoint when deciding where to send traffic.",
+        "license": "original"
+      },
+      "stem": "Using the design note, judge what the balancer's current setup will do.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It will route around the instance, because the liveness probe fails when queries slow down",
+          "misconception": "assumes the liveness probe measures query latency"
+        },
+        {
+          "id": "B",
+          "text": "It will route around every instance, because the readiness endpoint is failing for all of them",
+          "misconception": "invents a cluster-wide readiness failure"
+        },
+        {
+          "id": "C",
+          "text": "It will keep sending traffic, because the liveness probe still answers while queries are slow",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It will route around the instance, because a slow dependency causes the liveness endpoint to time out",
+          "misconception": "claims the liveness endpoint inherits query latency"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The liveness endpoint still answers in 2 milliseconds while the real work crawls, so the balancer keeps the instance in rotation and sends it more traffic. The readiness endpoint exists precisely to stop that.",
+      "hint": "Ask whether the probe touches the slow dependency.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Sequence what a cache refresh design must achieve",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A cache entry expires under heavy read traffic, and the architect asks what the refresh design must achieve and what it must avoid.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It must make one load serve the herd, and it must avoid deleting the old entry before the new one is ready",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It must make the entry live longer, and it must avoid re-reading it more than once a minute",
+          "misconception": "reduces the problem to a longer lifetime"
+        },
+        {
+          "id": "C",
+          "text": "It must fail requests during the refresh, and it must avoid serving partially written data",
+          "misconception": "makes refusal the answer instead of a single load"
+        },
+        {
+          "id": "D",
+          "text": "It must make the entry expire more often, and it must avoid giving every reader its own copy",
+          "misconception": "treats more frequent expiry as the remedy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first requirement is that one load serves the whole readership, so the herd never reaches the backing service. The second is that the old entry stays until the new one exists, so no gap opens.",
+      "hint": "Ask what happens to the entry during the refresh.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Identify the flaw that leaves a herd partly unsuppressed",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A single-flight implementation takes the per-key lock and then loads the value, but it releases the lock before writing the result into the cache.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is that the lock is held for too short a time, because loading takes longer than expected",
+          "misconception": "describes the symptom as if a longer hold were needed"
+        },
+        {
+          "id": "B",
+          "text": "The bug lets a second reader start its own load in the gap, so the herd is only partly suppressed",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The bug is that the lock should be per key rather than per value, since keys repeat",
+          "misconception": "invent a key and value distinction that is not the issue"
+        },
+        {
+          "id": "D",
+          "text": "The bug is that the cache write happens after the release, so the value is written twice",
+          "misconception": "blames the cache write for the duplicate load"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Releasing the lock before the value is published opens a window where another reader finds the key still missing and starts a second load. The lock must cover the write as well as the read.",
+      "hint": "Ask what a reader sees between the release and the write.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Describe what pool exhaustion looks like from outside",
+      "practice": "Incident Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks what connection pool exhaustion looks like from outside the service.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The database reports too many connections, because the pool opens new connections on demand",
+          "misconception": "describes the database as the visible symptom"
+        },
+        {
+          "id": "B",
+          "text": "Clients see slower responses, because the service holds requests until a connection frees up",
+          "misconception": "describes queueing delay as the only symptom"
+        },
+        {
+          "id": "C",
+          "text": "Clients see timeouts and errors while the database stays relatively idle, because the pool is the constraint",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The service restarts, because pool exhaustion always triggers a crash of the whole process",
+          "misconception": "assumes pool exhaustion always crashes the process"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The constraint is the pool, so requests wait inside the service while the database looks idle. Clients see timeouts that appear to have nothing to do with the database.",
+      "hint": "Ask whether the database is the busy part.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Compute how much of a descriptor budget remains",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A process is limited to 300 open file descriptors. It runs 40 worker threads, each holding 2 sockets while a request is in flight, and the process also holds 30 files for configuration.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The process uses 80 descriptors, because the configuration files do not count as open files",
+          "misconception": "claims configuration files are exempt from the limit"
+        },
+        {
+          "id": "B",
+          "text": "The process uses 110 descriptors, so the limit leaves room for only 40 more sockets",
+          "misconception": "gives the right total but the wrong remaining headroom"
+        },
+        {
+          "id": "C",
+          "text": "The process uses 330 descriptors, so it is 30 over the limit and requests will fail",
+          "misconception": "adds the limit to the usage instead of subtracting"
+        },
+        {
+          "id": "D",
+          "text": "The process uses 110 descriptors, so the limit leaves room for 190 more sockets",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Forty threads holding two sockets each use 80 descriptors, and the 30 configuration files make 110 of the 300. The remaining 190 are shared by anything else the process opens.",
+      "hint": "Add the sockets in flight to the configuration files, then subtract.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Explain what an unbounded queue does to a thread pool",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the architect what an unbounded work queue does to a thread pool that drains it.",
+      "options": [],
+      "answer": {
+        "exemplar": "An unbounded queue accepts work without limit, which looks like an improvement because nothing is ever rejected and the pool's threads never sit idle. The trouble is that the queue absorbs the overload and converts it into waiting. When arrival exceeds completion, the backlog grows faster and faster while every thread stays fully busy, so the pool looks healthy on every dashboard that counts busy threads while the latency seen by callers climbs without bound. A bounded queue turns the same condition into a visible refusal or a visible slowdown at the intake, which is the information the pool needs in order to shed load rather than absorb it indefinitely."
+      },
+      "explanation": "The queue absorbs overload into a growing backlog while the pool's threads stay busy, so latency climbs and no failure is visible. A bound converts that into a visible refusal.",
+      "hint": "Ask what the busy-thread metric hides.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Compute the headroom left under a container memory limit",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A container allows 2048 megabytes of memory in total. One process uses 1200 megabytes, a second uses 500 megabytes, and a third is growing by 200 megabytes per second. How many megabytes remain for the third process?",
+      "options": [],
+      "answer": {
+        "value": 348,
+        "tolerance": 0.01
+      },
+      "explanation": "1200 plus 500 megabytes leaves 348 megabytes of the 2048 available. At 200 megabytes a second the third process has under two seconds before the container is at its limit.",
+      "hint": "Subtract both processes' usage from the container's allowance.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Identify the missing state in a two-state breaker",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A service calls a database through a breaker that currently has only a closed and an open state. When the open timer expires the breaker simply closes and sends all traffic straight back to the dependency, which immediately fails again and reopens the breaker.",
+        "license": "original"
+      },
+      "stem": "Using the design note, say what the breaker is missing.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is missing a longer open period, because the dependency needs more time to come back",
+          "misconception": "blames the timer length rather than the missing state"
+        },
+        {
+          "id": "B",
+          "text": "It is missing a half-open state, because recovery must be tested with a few calls before traffic returns",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It is missing a fallback response, because the service should return cached data during the failure",
+          "misconception": "prescribes a fallback instead of the missing state"
+        },
+        {
+          "id": "D",
+          "text": "It is missing a per-call timeout, because the dependency is holding requests open for too long",
+          "misconception": "blames missing timeouts instead of the missing state"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Closing straight into full traffic repeats the outage each time the timer expires. A third state lets a few probe calls test recovery before normal traffic is restored.",
+      "hint": "Ask how the breaker would learn that the dependency healed.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Sequence what a probe can and cannot establish",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A platform sends liveness probes to every instance and removes any that fail, and the architect asks what a liveness probe can and cannot establish.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It can establish that the process answers and cannot establish that the instance is doing useful work",
+          "misconception": "confuses which of the two the probe does"
+        },
+        {
+          "id": "B",
+          "text": "It can establish that the dependency is healthy and cannot establish that the process is alive",
+          "misconception": "reverses what the probe checks"
+        },
+        {
+          "id": "C",
+          "text": "It can establish that the instance is free of memory leaks and cannot establish its latency",
+          "misconception": "credits the probe with a memory check"
+        },
+        {
+          "id": "D",
+          "text": "It can establish that the process answers and cannot establish that the instance is worth routing to",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The probe asks one narrow question and the balancer turns it into a routing decision, so a saturated instance stays in rotation. Readiness is the probe that answers the routing question.",
+      "hint": "Ask what question the liveness probe actually asks.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Identify the ordering flaw that opens a cold window",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A service's cache entry for a hot key is refreshed by a background job that deletes the old entry before the new one is written.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug opens a window where every reader misses and starts its own load of the new value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The bug is that the job runs on the same timer as the entry's expiry, so the two collide",
+          "misconception": "blames timer collision rather than the delete-before-write order"
+        },
+        {
+          "id": "C",
+          "text": "The bug is that the cache is not large enough to hold both versions of the entry",
+          "misconception": "blames cache capacity rather than ordering"
+        },
+        {
+          "id": "D",
+          "text": "The bug is that the job writes the new value with the old key, so readers get stale data",
+          "misconception": "invents a key mix-up that was never described"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Deleting first creates a gap in which every reader misses at once, so the refresh itself produces the herd it was meant to avoid. Writing the new value before retiring the old one closes the gap.",
+      "hint": "Ask what readers see in the gap between the delete and the write.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "State what a single-flight lock prevents",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks what a single-flight lock on a cache miss actually prevents.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It prevents the cache entry from expiring while the first load is still running",
+          "misconception": "claims the lock stops expiry during a load"
+        },
+        {
+          "id": "B",
+          "text": "It prevents the backing service from being hit by one load for every reader of a hot key",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It prevents the readers from waiting, because each one returns a stale value immediately",
+          "misconception": "claims the lock removes the wait"
+        },
+        {
+          "id": "D",
+          "text": "It prevents the cache from filling with duplicate entries for the same key",
+          "misconception": "claims the lock stops duplicate cache entries"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "One load serves every reader of that key, so the backing service sees one request instead of hundreds. The lock does not make the load faster and it does not remove the wait.",
+      "hint": "Ask how many loads a single miss produces.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Compute the connection demand behind pool exhaustion",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service has a pool of 40 database connections. At 200 requests per second, each request holds its connection for 300 milliseconds. Another 15 requests per second are rejected before reaching the database.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The service needs 60 connections, so raising the pool to 60 would remove the rejections",
+          "misconception": "adds the rejection rate to the connection demand"
+        },
+        {
+          "id": "B",
+          "text": "The service needs 60 connections at once but has 40, so about 15 requests a second are turned away",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The service needs 40 connections and has them, so the rejections must come from elsewhere",
+          "misconception": "ignores the hold time when computing demand"
+        },
+        {
+          "id": "D",
+          "text": "The service needs 200 connections, because each request opens its own connection for a second",
+          "misconception": "misreads the hold time as a full second"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Two hundred requests a second each holding a connection for 0.3 seconds need 60 connections at once, and the pool supplies only 40. The shortfall is what turns into rejected requests.",
+      "hint": "Multiply the arrival rate by the hold time.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Explain why a per-process file cap fails collectively",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the team why a per-process limit on open files fails everything at once.",
+      "options": [],
+      "answer": {
+        "exemplar": "The limit is a budget shared by every request inside the process, not a quota handed out per request. A service that opens a socket per request spends from that one budget, so a slow dependency leaves sockets open, the budget drains, and the next request to ask for a descriptor is refused. Because the refusal is not specific to the request that caused the leak, every other request in the same process fails too, and the tenant goes down as one unit. A per-request bound would spread the pain; a per-process bound concentrates it, which is safe for the machine but bad for the tenant that owns the failure."
+      },
+      "explanation": "All the requests in the process share one descriptor budget, so one leak takes down every request in it. The limit protects the machine and concentrates the failure.",
+      "hint": "Ask what the descriptor budget is shared by.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Compute how much backlog an unbounded queue accumulates",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A service accepts 3000 tasks per second into an unbounded queue and its workers complete 2500 per second. How many tasks accumulate in the queue in one minute?",
+      "options": [],
+      "answer": {
+        "value": 30000,
+        "tolerance": 0.01
+      },
+      "explanation": "The queue grows by 500 tasks a second, so 30000 tasks accumulate in a minute. With no bound, that backlog is where the waiting time goes.",
+      "hint": "Subtract the completion rate from the arrival rate, then multiply by 60.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Identify what a memory cap protects and what it costs",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A platform runs each tenant in its own process and kills any process whose memory exceeds 400 megabytes. One tenant's job reads a large export into memory and normally uses 250 megabytes. The platform team wants to know what the limit protects and what it costs the tenant when the job runs big.",
+        "license": "original"
+      },
+      "stem": "Using the design note, state what the limit protects and what it costs.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It protects the other tenants' memory and costs nothing, because the job simply fails gracefully",
+          "misconception": "claims the limit has no cost for the tenant"
+        },
+        {
+          "id": "B",
+          "text": "It protects the machine's memory and costs the tenant its in-flight work when the job is killed",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It protects the tenant's data and costs the machine nothing, because the limit only bounds one process",
+          "misconception": "claims the limit protects the tenant's data"
+        },
+        {
+          "id": "D",
+          "text": "It protects the job's correctness and costs the platform a restart of every other tenant",
+          "misconception": "invents a platform-wide restart as the cost"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The cap keeps one tenant from starving the machine. When the job crosses it the process dies and the work in flight is lost, so the limit contains the damage and imposes a cost.",
+      "hint": "Ask what happens to the work inside the killed process.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Sequence what a recovery design must achieve and bound",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A breaker opens on a failing dependency and the architect asks what the recovery design must achieve and what it must bound.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It must fail fast until the timer expires, and the backoff between open periods must be bounded",
+          "misconception": "makes the backoff the first requirement"
+        },
+        {
+          "id": "B",
+          "text": "It must let every call through during recovery, so the dependency sees its real traffic again",
+          "misconception": "removes the point of limiting probe traffic"
+        },
+        {
+          "id": "C",
+          "text": "It must test recovery with a few real calls, and the number of probe calls must stay small",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It must reset the failure counter when the timer expires, and the counter must be bounded",
+          "misconception": "makes counter reset the first requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The first requirement is to learn whether the dependency healed, which takes real calls. The second is that only a few of them are made, so a probe cannot repeat the outage.",
+      "hint": "Ask what evidence tells the breaker the dependency is healthy.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Identify the flaw in a liveness probe's scope",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A platform configures its liveness probe to hit the application's deepest health check, which runs a query against the database and takes 400 milliseconds.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is the probe interval, because five seconds is too long a period for a health check",
+          "misconception": "blames the interval rather than the probe's scope"
+        },
+        {
+          "id": "B",
+          "text": "The bug is the database, because a 400 millisecond query is too slow for any health check",
+          "misconception": "blames the database rather than the probe's scope"
+        },
+        {
+          "id": "C",
+          "text": "The bug is the threshold, because three failures is too many attempts before an instance is removed",
+          "misconception": "blames the failure threshold"
+        },
+        {
+          "id": "D",
+          "text": "The bug is the probe's scope, because a probe that runs a query can fail while the instance is otherwise healthy",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A probe that runs a query reports the database's health, not the process's, so a slow dependency removes healthy instances. A liveness probe must stay independent of what it protects.",
+      "hint": "Ask what the probe depends on.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Explain why a stampede peaks on a cold cache",
+      "practice": "Incident Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks why a cache stampede hits hardest exactly when the cache is coldest.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because a cold cache holds entries with no expiry time, so lookups scan the whole cache",
+          "misconception": "invents a scan of the cache as the cost"
+        },
+        {
+          "id": "B",
+          "text": "Because the popular key expires and every reader misses at once, so one value produces many loads",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because the cache is compressed when cold, so every read pays for decompression",
+          "misconception": "invents compression as the mechanism"
+        },
+        {
+          "id": "D",
+          "text": "Because a cold cache disables the single-flight lock, so every reader loads independently",
+          "misconception": "claims the lock is disabled when the cache is cold"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Popularity means many readers, and expiry means they all miss together, so the loads multiply at the worst moment. A cold cache on its own is cheap; the herd is the cost.",
+      "hint": "Ask how many readers a popular key has.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Compare the loads made with and without the lock",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A cache key with 600 concurrent readers misses. Without a single-flight lock each reader loads the value separately and each load takes 30 milliseconds. With the lock in place, one reader loads and the rest wait for that result.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Without the lock the backing service sees 600 loads and with the lock it sees 1",
+          "misconception": "correct counts but wrong about what the data shows"
+        },
+        {
+          "id": "B",
+          "text": "Without the lock the backing service sees 1 load and with the lock it sees 600",
+          "misconception": "reverses which case has the herd"
+        },
+        {
+          "id": "C",
+          "text": "Without the lock the backing service sees 300 loads and with the lock it sees 300",
+          "misconception": "halves both counts without basis"
+        },
+        {
+          "id": "D",
+          "text": "Without the lock the backing service sees 600 loads and with it, 1 load and 599 waits",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Each of the 600 readers would otherwise start its own 30 millisecond load, so the service sees 600 requests for one value. The lock reduces that to one load while the others wait.",
+      "hint": "Count the loads in each case.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What connection pool exhaustion looks like from outside",
+      "learningObjective": "Explain what pool exhaustion looks like from outside",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the architect what connection pool exhaustion looks like from outside the service.",
+      "options": [],
+      "answer": {
+        "exemplar": "A connection pool is a fixed number of database connections shared by every request. When the pool is exhausted, the requests that cannot get a connection are not failing at the database, they are waiting inside the service, and the visible symptom appears on the client side as slow responses and then timeouts. The database in that picture looks healthy, because its own counters show few queries and low utilisation. The confusing part is that a fault in an unrelated dependency, such as a slow call that holds a connection while it waits, will empty the pool and take down endpoints that never touch the slow dependency at all."
+      },
+      "explanation": "Requests wait for a connection inside the service, so clients see timeouts while the database looks idle. One slow dependency can empty the shared pool and take down unrelated endpoints.",
+      "hint": "Ask whether the database is the busy part.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-connection-pool-exhaustion-looks-like-from-outside"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a per-process limit on open files fails everything at once",
+      "learningObjective": "Compute the descriptor budget left for other use",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A process is limited to 200 open file descriptors and runs 50 worker threads that each hold 1 socket while in flight. How many descriptors are left for anything else?",
+      "options": [],
+      "answer": {
+        "value": 150,
+        "tolerance": 0.01
+      },
+      "explanation": "Fifty threads holding one socket each use 50 of the 200 descriptors, leaving 150 for logs, configuration and any further sockets. The budget is shared by everything in the process.",
+      "hint": "Subtract the sockets in flight from the limit.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-per-process-limit-on-open-files-fails-everything-at-once"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What an unbounded work queue does to a thread pool",
+      "learningObjective": "Explain what an unbounded queue does to a service",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A reporting service accepts work into a queue with no size limit and hands it to a pool of 40 threads. When the downstream system slows, the queue grows without bound while every thread stays occupied. Users report that reports arrive eventually but hours late, and the on-call engineer notes that the service never rejects anything and never restarts.",
+        "license": "original"
+      },
+      "stem": "Using the design note, explain what the design is doing to the service.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is absorbing the overload, so the backlog grows and the delay to users grows with it",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is protecting the threads, because the queue takes the strain instead of the workers",
+          "misconception": "credits the queue with protecting the workers"
+        },
+        {
+          "id": "C",
+          "text": "It is hiding the fault, because no error is raised for the downstream slowdown",
+          "misconception": "focuses on error reporting rather than the growing delay"
+        },
+        {
+          "id": "D",
+          "text": "It is self-limiting, because the pool's threads slow as the queue lengthens",
+          "misconception": "claims the pool slows itself as the queue grows"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The queue absorbs the overload into a growing backlog, so the threads look busy and the service looks healthy while users wait longer. Nothing fails, so nothing prompts a change.",
+      "hint": "Ask where the delay to users is being held.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-an-unbounded-work-queue-does-to-a-thread-pool"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a per-process memory limit contains and what it moves",
+      "learningObjective": "Sequence what a memory cap must and must not do",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A sandbox applies a memory cap of 512 megabytes to every process it starts, and the architect asks what the cap must contain and what it must not do.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It must contain one process's memory appetite and must not affect the memory used by the other tenants",
+          "misconception": "misses that the kill still affects the tenant's own work"
+        },
+        {
+          "id": "B",
+          "text": "It must keep the process running and must not interrupt any work in flight",
+          "misconception": "requires the cap to preserve the running process"
+        },
+        {
+          "id": "C",
+          "text": "It must contain one process's appetite and must not be confused with keeping that process alive",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It must spread the load across processes and must not leave one process holding all of it",
+          "misconception": "prescribes automatic redistribution as the cap's job"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The cap bounds one process's appetite so it cannot starve the machine, and the consequence is a kill rather than a slowdown. It contains the blast radius without preserving the work.",
+      "hint": "Ask what the cap does to the process it catches.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-per-process-memory-limit-contains-and-what-it-moves"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What the third state of a circuit breaker is for",
+      "learningObjective": "Identify the closing rule that makes a breaker flicker",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A breaker opens after 10 failures and closes again as soon as one call succeeds, and during a partial outage the breaker flickers open and closed for hours.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is the closing rule, because one success does not mean the dependency is healthy again",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The bug is the failure threshold, because 10 failures is too many for a reliable dependency",
+          "misconception": "blames the threshold rather than the closing rule"
+        },
+        {
+          "id": "C",
+          "text": "The bug is the probe traffic, because the breaker should open on a single failure",
+          "misconception": "suggests a more aggressive opening rule"
+        },
+        {
+          "id": "D",
+          "text": "The bug is the missing timer, because the breaker should never close before its timer expires",
+          "misconception": "invents a timer requirement for closing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Closing on a single success lets traffic flood back into a dependency that is still failing, which is what makes the breaker flicker. Recovery needs a defined number of successes, not one.",
+      "hint": "Ask how many successes should be required to close.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-the-third-state-of-a-circuit-breaker-is-for"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a liveness probe cannot tell a load balancer",
+      "learningObjective": "Explain why the two probes must be separate",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "An architect asks why a liveness probe and a readiness probe have to be separate endpoints.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because a liveness probe may run on the host while readiness must run inside the container",
+          "misconception": "invents a placement rule for the two probes"
+        },
+        {
+          "id": "B",
+          "text": "Because liveness asks whether to restart the process while readiness asks whether to send it traffic",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because liveness probes are cached by the orchestrator while readiness probes are not",
+          "misconception": "invents a caching difference between the probes"
+        },
+        {
+          "id": "D",
+          "text": "Because readiness must include dependency checks while liveness must never touch a dependency",
+          "misconception": "states the difference but treats it as the whole purpose"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The two probes lead to different actions: one restarts the process, the other removes it from rotation. A failing readiness check means send traffic elsewhere, not kill the instance.",
+      "hint": "Ask what action each probe triggers.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-liveness-probe-cannot-tell-a-load-balancer"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a cache stampede multiplies load exactly when the cache is coldest",
+      "learningObjective": "Convert a cache herd into a per-second load",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service caches a hot key for 30 seconds. The entry expires every 30 seconds and 250 readers arrive in the same 100 millisecond window each time. The backing store can handle 1000 loads per second.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Each expiry produces 250 loads, which is within the store's capacity of 1000 loads per second",
+          "misconception": "compares a burst of loads with a per-second rate"
+        },
+        {
+          "id": "B",
+          "text": "Each expiry produces 250 loads, which the store absorbs comfortably because its capacity is 1000",
+          "misconception": "assumes the store absorbs the herd comfortably"
+        },
+        {
+          "id": "C",
+          "text": "Each expiry produces 250 loads in 0.1 seconds, so the store sees 2500 loads a second against a limit of 1000",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Each expiry produces 250 loads, so the store is used for half of every 30 second period",
+          "misconception": "divides the burst by the whole window length"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "250 loads arriving inside a tenth of a second is 2500 loads per second, well past the store's capacity of 1000. The herd arrives faster than the store can answer.",
+      "hint": "Convert the burst into a per-second rate.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-cache-stampede-multiplies-load-exactly-when-the-cache-is-coldest"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.4-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a single-flight lock on a cache miss prevents",
+      "learningObjective": "Explain what a single-flight lock prevents and what it costs",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the architect what a single-flight lock on a cache miss prevents and what it costs.",
+      "options": [],
+      "answer": {
+        "exemplar": "A single-flight lock means that when a key is missing, one thread performs the load and every other thread asking for the same key waits for that one result rather than starting a load of its own. This matters most for keys that many readers want, because the number of loads would otherwise equal the number of readers, and the backing service is hit hardest exactly when it is already struggling. The cost is that a slow load now delays every waiter, so a lock that is held too long turns a cache miss into a queueing problem, and a load that fails must release the waiters rather than block them."
+      },
+      "explanation": "The lock makes a popular miss cost one load instead of one per reader. The price is that a slow load delays every waiter, and a failure must release them.",
+      "hint": "Ask what the waiters experience while the load runs.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-single-flight-lock-on-a-cache-miss-prevents"
+      ],
+      "version": 1
+    }
+  ]
+}

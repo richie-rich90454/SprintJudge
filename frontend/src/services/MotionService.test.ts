@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 
-vi.mock("framer-motion", () => ({
+vi.mock("../motion/animate", () => ({
     animate: vi.fn((...args: unknown[]) => {
         const opts = args[args.length - 1] as {
             onComplete?: () => void;
@@ -14,7 +14,7 @@ vi.mock("framer-motion", () => ({
     }),
 }));
 
-import { animate } from "framer-motion";
+import { animate } from "../motion/animate";
 import { motion, MotionService } from "./MotionService";
 
 const anim = () => vi.mocked(animate);

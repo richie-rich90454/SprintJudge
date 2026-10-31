@@ -1,0 +1,3787 @@
+{
+  "questions": [
+    {
+      "id": "cyber-11.3-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Identify the flaw that makes a leaky bucket reject bursts",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A field data pipeline claims it applies a leaky bucket to uploads from remote sensor stations, but the reviewer finds the code returns an error whenever a station sends more than the average rate.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The implementation rejects bursts instead of queueing them, so the bucket never smooths anything",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The implementation is correct, because a leaky bucket is supposed to reject traffic above the average",
+          "misconception": "confuses leaky bucket smoothing with hard rejection"
+        },
+        {
+          "id": "C",
+          "text": "The implementation is correct, because the stations are sending data faster than the radio link allows",
+          "misconception": "blames the stations' sending rate instead of the code"
+        },
+        {
+          "id": "D",
+          "text": "The implementation is incomplete, because a leaky bucket must also cap the number of stations served",
+          "misconception": "invents a station-count requirement for bucket smoothing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A leaky bucket holds work above the steady rate and releases it gradually. Rejecting the excess instead of holding it removes the smoothing the pattern exists to provide.",
+      "hint": "Ask whether the extra work is delayed or refused.",
+      "difficulty": 0.25,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "Explain why a boundary reset lets a burst through twice",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A station uploads a burst at the last seconds of every minute and the survey's quota service lets all of those uploads through. Why does the fixed window fail here?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the counter overflows when the burst arrives faster than the window can record",
+          "misconception": "blames integer overflow in the counter"
+        },
+        {
+          "id": "B",
+          "text": "Because the counter resets on the boundary, so a burst can spend the whole allowance twice in a minute",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Because the reset is applied before the upload is recorded, so every upload is counted twice",
+          "misconception": "describes a double-counting bug rather than the reset behaviour"
+        },
+        {
+          "id": "D",
+          "text": "Because the window is measured in minutes while the stations measure their work in hours",
+          "misconception": "invents a unit mismatch between the two sides"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Each request is checked against the allowance for the block it lands in, so a burst just before a reset is not compared with a burst just after it. The limit holds inside a block and fails between blocks.",
+      "hint": "Ask what the counter compares a request against.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Estimate the memory a sliding window log needs",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A quota service keeps a log of every upload timestamp in the current 60 second window and drops entries older than 60 seconds. A station uploads 5 records every second.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The log holds about 300 timestamps at any moment, which is small enough for any field notebook",
+          "misconception": "understates the per-station log size"
+        },
+        {
+          "id": "B",
+          "text": "The log holds 300 timestamps per minute but must also store the full payload of each record",
+          "misconception": "assumes the log stores record contents"
+        },
+        {
+          "id": "C",
+          "text": "The log holds about 300 timestamps per station, so a hundred stations need 30000 entries",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The log holds one timestamp per station, because older timestamps overwrite newer ones",
+          "misconception": "assumes a single slot per station suffices"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Five uploads a second inside a 60 second window is 300 entries per station, and a hundred stations need 30000 of them. The cost scales with clients as well as with rate.",
+      "hint": "Multiply the rate by the window length, then by the client count.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Explain why an account limit does not bound a person",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the survey lead why a per-account upload quota does not limit what one researcher can send.",
+      "options": [],
+      "answer": {
+        "exemplar": "The quota is attached to the account, and the account is attached to the key or token that the software uses. A researcher who signs in on several devices, or who shares a station token with colleagues, presents the same quota several times over, and a team that pools one account spreads the work of many people behind a single allowance. The limit therefore bounds a credential rather than a person, and the only way to make it a limit on people is to bind it to something they cannot duplicate."
+      },
+      "explanation": "The quota counts accounts, and a person can hold several accounts or share one. A limit on accounts is therefore not a limit on people.",
+      "hint": "Ask what the quota is actually keyed on.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Compute how much work load shedding lets through",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A telemetry gateway receives 800 sensor readings per second and can process 500. When its queue is full, 300 readings per second are shed. How many readings per second are actually processed?",
+      "options": [],
+      "answer": {
+        "value": 500,
+        "tolerance": 0.01
+      },
+      "explanation": "Shedding removes the excess so the processor keeps working at its full 500 readings per second. Queueing instead keeps all 800 and leaves the late ones waiting.",
+      "hint": "The processed rate is the limit the gateway can sustain.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Explain what a bound interrupts in a cascade",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A remote sensing hub forwards readings from 40 field stations to a processing cluster. The forwarding queue is currently unbounded, so when the cluster slows down the queue on each station grows until two stations run out of disk and drop offline. The team proposes capping each queue at 5000 readings and dropping the oldest on overflow.",
+        "license": "original"
+      },
+      "stem": "Using the design note, explain what the cap changes about the failure.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The cap prevents the cluster slowdown entirely, because the hub stops forwarding at 5000 readings",
+          "misconception": "claims the cap prevents the upstream slowdown"
+        },
+        {
+          "id": "B",
+          "text": "The cap has no effect, because an unbounded queue is what keeps the stations running at all",
+          "misconception": "treats unbounded queues as essential for continuity"
+        },
+        {
+          "id": "C",
+          "text": "The cap removes the disk problem, because a bounded queue never needs disk space for backlog",
+          "misconception": "claims a bounded queue needs no storage at all"
+        },
+        {
+          "id": "D",
+          "text": "The cap contains the damage, because a station's queue stops growing once it hits 5000 readings",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The bound stops each station's queue growing without limit, so the cascade stops at the stations. It does not stop the cluster slowing, and dropping the oldest still loses readings.",
+      "hint": "Ask which stage of the cascade the bound interrupts.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Explain how an unbounded retry loop worsens a fault",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A field station retries a failed upload in a loop with no limit and no pause, and the survey lead asks what that does during a brief radio outage.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The retry loop fills the radio channel with the same upload, so the outage lasts longer",
+          "misconception": "blames channel congestion as the only mechanism"
+        },
+        {
+          "id": "B",
+          "text": "The retry loop adds load exactly when the link is weakest, so recovery is delayed",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The retry loop is harmless, because a failed upload costs nothing to repeat",
+          "misconception": "assumes repeating a failed upload is free"
+        },
+        {
+          "id": "D",
+          "text": "The retry loop is harmless, because the station has no other work to do while offline",
+          "misconception": "assumes idle stations make retries harmless"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Retries with no ceiling and no delay add work while the link is already struggling, so the small fault spreads into an outage. A bounded, delayed retry keeps the recovery path open.",
+      "hint": "Ask what the retries add while the link is degraded.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Identify the missing random component in a backoff schedule",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A client library computes a wait time as the base delay multiplied by two to the power of the attempt number, but every retry in a batch wakes at the same instant. The reviewer asks what is missing.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The missing piece is a maximum attempt count, because unbounded retries never stop on their own",
+          "misconception": "blames missing attempt limits rather than synchronised wake-ups"
+        },
+        {
+          "id": "B",
+          "text": "The missing piece is a fixed delay, because a constant wait is easier to reason about",
+          "misconception": "suggests a constant delay solves synchronised retries"
+        },
+        {
+          "id": "C",
+          "text": "The missing piece is a cap on the exponent, because the growth should always stop at eight",
+          "misconception": "misreads the doubling series as needing a different cap"
+        },
+        {
+          "id": "D",
+          "text": "The missing piece is a random component, because identical schedules make every client retry at once",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Exponential growth alone gives every client the same schedule, so they collide again at the next attempt. A random component spreads the wake-ups across the window.",
+      "hint": "Ask what two clients with the same attempt count will do.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Describe how a leaky bucket smooths a burst",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A colleague describes a leaky bucket as a queue that releases work at a steady rate, and asks whether that matches what the pipeline does.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, it matches, because the bucket holds the excess and releases it steadily over time",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It matches, because the bucket drops everything that arrives above the steady rate",
+          "misconception": "describes dropping rather than delaying"
+        },
+        {
+          "id": "C",
+          "text": "It does not match, because a leaky bucket enforces a limit and a token bucket enforces a burst",
+          "misconception": "swaps the roles of the two bucket types"
+        },
+        {
+          "id": "D",
+          "text": "It does not match, because a leaky bucket counts work over a window rather than over time",
+          "misconception": "confuses the bucket with a windowed counter"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Holding the excess and releasing it at the steady rate is exactly what a leaky bucket does, so the colleague's description is right. What it does not do is discard the burst.",
+      "hint": "Ask whether the extra work is delayed or lost.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "Compute how much a boundary reset lets a client exceed",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A quota allows 100 uploads per minute and resets on the minute boundary. One client sends 90 uploads in the last 5 seconds of a minute and 90 in the first 5 seconds of the next.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The client sends 180 uploads in 10 seconds, which is over the limit but only slightly",
+          "misconception": "treats a two-times overrun as slight"
+        },
+        {
+          "id": "B",
+          "text": "The client sends 180 uploads and is allowed 100 of them, so 80 are rejected",
+          "misconception": "counts the rejection total wrongly"
+        },
+        {
+          "id": "C",
+          "text": "The client sends 180 uploads in 10 seconds, twice the allowance, because the counter reset in between",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The client sends 100 uploads, because the counter keeps only the uploads from the last minute",
+          "misconception": "assumes the counter keeps a rolling minute"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Both batches of 90 fall under the limit of 100 in their own block, and the reset means neither is compared with the other. The client therefore uses its allowance twice in ten seconds.",
+      "hint": "Check whether the two batches share a counter.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Explain what a sliding window log provides and what it costs",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the team what a sliding window log gives the quota service and what it costs in memory.",
+      "options": [],
+      "answer": {
+        "exemplar": "Keeping a log of recent timestamps lets the service apply the limit to any window of the last minute rather than to a fixed block, so a client cannot send its whole allowance at the end of one block and again at the start of the next. The cost is that one timestamp must be held per request inside the window, so a busy service keeps a great many small entries in memory, and the work of discarding expired entries must happen on every check rather than once at the boundary."
+      },
+      "explanation": "The log makes the limit apply to any rolling window, so boundary bursts no longer work. The price is one stored timestamp per request inside the window.",
+      "hint": "Ask how many timestamps the service must hold.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Compute the effective allowance one worker can reach",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A survey service allows 40 uploads per hour per account. A research team runs three accounts for one field worker, who uploads at the limit on each. How many uploads per hour can that worker make in total?",
+      "options": [],
+      "answer": {
+        "value": 120,
+        "tolerance": 0.01
+      },
+      "explanation": "Three accounts at 40 uploads each give one worker 120 uploads an hour. A quota counted per account counts credentials, and this worker holds three of them.",
+      "hint": "Multiply the per-account allowance by the number of accounts.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Compare shedding and queueing for a burst of readings",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-note",
+        "body": "A gateway for acoustic sensors receives bursts of readings when a bat detector finishes a night of recording. The team has two options: hold the readings in a queue, or discard some of them and process the rest immediately. The field lead says late readings are less useful than complete coverage of the survey area.",
+        "license": "original"
+      },
+      "stem": "Using the field note, explain the difference the two options make to the survey.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shedding keeps the gateway responsive and loses the excess, while queueing preserves data but makes every reading late",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Shedding preserves every reading, while queueing discards the readings that arrive too fast",
+          "misconception": "reverses what shedding and queueing each do"
+        },
+        {
+          "id": "C",
+          "text": "Shedding and queueing differ only in cost, since both eventually deliver the same readings",
+          "misconception": "claims both options deliver the same set of readings"
+        },
+        {
+          "id": "D",
+          "text": "Shedding suits only continuous streams, so a nightly burst must always be queued",
+          "misconception": "restricts shedding to continuous traffic"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Discarding the excess keeps the gateway answering promptly, at the cost of those readings. Queueing keeps everything but makes the whole batch late.",
+      "hint": "Ask what each option does with the excess readings.",
+      "difficulty": 0.35,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Explain what an unbounded retry loop costs a failing service",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "An upload worker retries a failed request immediately and forever, and the team asks what happens when the receiving service returns one error after another.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The worker spins uselessly but does no harm, because the retries are all rejected",
+          "misconception": "assumes rejected retries cost the target nothing"
+        },
+        {
+          "id": "B",
+          "text": "The worker keeps the service busy handling retries it will never succeed at",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The worker recovers automatically, because retries always succeed once the service recovers",
+          "misconception": "believes retries always succeed after recovery"
+        },
+        {
+          "id": "D",
+          "text": "The worker is the only thing keeping the service alive, because it holds the connection open",
+          "misconception": "treats an endless retry loop as a health mechanism"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A loop with no ceiling and no delay keeps asking a service that is already unwell. Each attempt consumes capacity that recovery needed, which is how a small fault becomes an outage.",
+      "hint": "Ask what each retry costs the struggling service.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Identify why synchronised clients defeat a plain backoff",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A retry helper doubles the wait after each failure, but the survey's forty stations share a start time, so every station retries in lockstep after the radio comes back.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The helper is wrong, because exponential growth should be applied to the failure count only",
+          "misconception": "invents a rule about which counter the growth uses"
+        },
+        {
+          "id": "B",
+          "text": "The helper is wrong, because the first retry should not wait at all",
+          "misconception": "claims the first retry should be immediate"
+        },
+        {
+          "id": "C",
+          "text": "The helper is missing a random component, so every station still wakes at the same moment",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The helper is wrong, because the wait should be capped rather than doubled each time",
+          "misconception": "misreads doubling as an incorrect cap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Deterministic doubling gives every station an identical schedule, so they collide when the link returns. A random component spreads them across the interval.",
+      "hint": "Ask why all the stations wake at once.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Explain what a leaky bucket does with a burst of readings",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A station normally sends 4 readings a minute but bursts with 40 when its buffer uploads, and the reviewer asks what a leaky bucket does with that burst.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bucket discards the 36 extra readings, because a bucket only admits the average rate",
+          "misconception": "describes dropping instead of smoothing"
+        },
+        {
+          "id": "B",
+          "text": "The bucket lets all 40 through at once, because stored capacity absorbs the whole burst",
+          "misconception": "describes token bucket semantics instead"
+        },
+        {
+          "id": "C",
+          "text": "The bucket passes the 40 on unchanged, because smoothing happens only inside the client",
+          "misconception": "assigns the smoothing to the wrong side of the link"
+        },
+        {
+          "id": "D",
+          "text": "The bucket holds the extra readings and releases them steadily at the average rate",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A leaky bucket converts the burst into a steady release, so the far end sees a constant rate. It does not discard the burst, it delays it.",
+      "hint": "Ask whether the extra readings are lost or delayed.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "Interpret a boundary overrun across two resets",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A daily allowance of 500 uploads resets at midnight. On two consecutive nights a client uploads 480 in the last minute before midnight and 480 in the first minute after.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The client sent 960 uploads, which is under the daily allowance for the two days combined",
+          "misconception": "compares two days' traffic against one day's allowance"
+        },
+        {
+          "id": "B",
+          "text": "The client sent 960 uploads in two minutes across the reset, so the boundary hid a full extra allowance",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The client sent 480 uploads, because the counter only keeps the uploads since the last reset",
+          "misconception": "assumes the counter keeps a rolling day"
+        },
+        {
+          "id": "D",
+          "text": "The client sent 960 uploads but was rejected, because the second batch arrived in a new window",
+          "misconception": "claims the second batch was rejected"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Each batch of 480 is inside the allowance of 500 for its own block, and the reset means the two batches are never compared. Nearly a full allowance was therefore used twice within two minutes.",
+      "hint": "Check whether the two batches share a counter.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Explain what would make an upload quota follow a person",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Ask the field team to explain why a per-account upload quota does not bound what one researcher can send.",
+      "options": [],
+      "answer": {
+        "exemplar": "The quota counts an account, and an account is tied to a key or shared station login rather than to a person. One researcher can hold several accounts, or share a team account with colleagues, and each of those keys presents its own allowance, so the same person can multiply the limit. The quota therefore bounds credentials. To bound people it has to attach to something a person cannot duplicate, such as a named seat, a personal device, or a per-person allocation negotiated in advance."
+      },
+      "explanation": "The quota counts credentials, and a person can hold several or share one. Bounding people needs a key that cannot be duplicated.",
+      "hint": "Ask what the quota is keyed on.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Compute how much work shedding discards per second",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A gateway receives 1200 readings per second, processes 900, and sheds 300 whenever its queue is full. How many readings per second are lost rather than processed?",
+      "options": [],
+      "answer": {
+        "value": 300,
+        "tolerance": 0.01
+      },
+      "explanation": "Of the 1200 arriving, 900 are processed and 300 are shed, so 300 readings per second are lost. Shedding trades completeness for responsiveness.",
+      "hint": "Subtract the processed rate from the arrival rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Explain what bounding a queue would have contained",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A hub forwards readings from 40 field stations to a processing cluster. The cluster slows for ten minutes during a nightly job. Each station keeps an unbounded queue of readings waiting to upload, and two stations fill their disks and fail while the others continue.",
+        "license": "original"
+      },
+      "stem": "Using the design note, describe what a bounded queue would have changed.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It would have kept every reading, because a bound only affects how quickly they leave",
+          "misconception": "claims a bound preserves all the data"
+        },
+        {
+          "id": "B",
+          "text": "It would have kept every station online, because the bound removes the disk pressure entirely",
+          "misconception": "claims the bound removes the pressure rather than containing it"
+        },
+        {
+          "id": "C",
+          "text": "It would have protected the cluster, because the bound reduces what the cluster receives",
+          "misconception": "claims the bound protects the slow downstream service"
+        },
+        {
+          "id": "D",
+          "text": "It would have contained the failure at the two stations, because their queues stop growing",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A bound limits how much each station buffers, so a slow cluster no longer fills a station's disk. The two failing stations would have dropped old readings instead of dying.",
+      "hint": "Ask which stations the bound protects.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Sequence the changes that stop a retry cascade",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A client library retries a failed call with no attempt limit and no delay, and the reviewer asks what design change would stop a brief fault becoming an outage.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cap the attempts and back the delay off, so retries stop when the fault persists",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Retry the call twice as fast, so the client reaches the service sooner after a failure",
+          "misconception": "suggests faster retries as the remedy"
+        },
+        {
+          "id": "C",
+          "text": "Keep retrying until the service answers, since persistence always beats a small outage",
+          "misconception": "treats unbounded persistence as the better design"
+        },
+        {
+          "id": "D",
+          "text": "Move the retries to a different thread, so the client appears healthy to operators",
+          "misconception": "moves the load rather than reducing it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first change bounds the attempts so the loop cannot run forever; the second spaces them so the struggling service gets breathing room. Both are needed to stop the cascade.",
+      "hint": "Ask what two things a retry loop needs.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Identify why a fixed backoff schedule synchronises clients",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A scheduling service retries failed uploads after 1, 2, 4 and 8 seconds, and the survey lead reports that all 60 stations retry in the same second each time.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The schedule is wrong, because the first retry should happen immediately rather than after one second",
+          "misconception": "blames the first delay rather than the missing randomness"
+        },
+        {
+          "id": "B",
+          "text": "The schedule is wrong, because the delay should grow by a fixed amount each time",
+          "misconception": "believes linear growth is what exponential growth requires"
+        },
+        {
+          "id": "C",
+          "text": "The schedule is missing a random component, because every station wakes at the same instant",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The schedule is wrong, because the delay must be capped at eight seconds for every attempt",
+          "misconception": "misreads the doubling series as an incorrect cap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A fixed doubling schedule makes every client collide at the same moments. A random component spreads the retries so the recovering service sees a trickle instead of a wave.",
+      "hint": "Ask why all the stations retry together.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Compare a sliding window log with a boundary counter",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A colleague asks what a sliding window log gives a quota service compared with a counter that resets on a fixed boundary.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It applies the limit to any rolling window, so a burst cannot straddle two boundaries",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It applies the limit more strictly, because every request must be stored forever",
+          "misconception": "claims the log keeps requests indefinitely"
+        },
+        {
+          "id": "C",
+          "text": "It uses less memory, because only the count is kept and the timestamps are discarded",
+          "misconception": "claims the log discards the timestamps it needs"
+        },
+        {
+          "id": "D",
+          "text": "It removes the need for a quota, because the window describes the client's own behaviour",
+          "misconception": "claims the window replaces the limit"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A sliding window applies the limit to any rolling period, so a burst cannot straddle two boundaries. The cost is a stored timestamp per request inside that period.",
+      "hint": "Ask what period the limit is measured over.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Compute the allowance one researcher can reach with several accounts",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service allows 250 uploads per hour per account. Six researchers share one team account, and one researcher also holds three personal accounts.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The shared account's 250 uploads are shared six ways, so each researcher gets about 42 uploads",
+          "misconception": "ignores the personal accounts in the calculation"
+        },
+        {
+          "id": "B",
+          "text": "One researcher can send 1000 uploads an hour, from three personal accounts of 250 each",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "One researcher can send 250 uploads an hour, because a person is limited regardless of account",
+          "misconception": "assumes the limit follows the person automatically"
+        },
+        {
+          "id": "D",
+          "text": "One researcher can send 1500 uploads an hour, because six researchers share the team account",
+          "misconception": "adds the shared account to the personal ones for one person"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The three personal accounts allow 750 uploads an hour, and the shared team account adds another 250 that this researcher can use. The quota counts the accounts, not the person.",
+      "hint": "Add the personal accounts to the shared account for that person.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Explain what a leaky bucket achieves for a burst",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the survey lead what a leaky bucket does to a burst that the average rate never showed.",
+      "options": [],
+      "answer": {
+        "exemplar": "A leaky bucket holds arriving work above the steady rate and releases it gradually, so the far end of the link receives a constant trickle instead of a spike. That matters when the receiving side is a small radio link or a single processing slot that a sudden burst would knock over, even though the long-run average is unchanged and unremarkable. The cost is delay: the extra work is not lost but it arrives late, and if the bucket is full the surplus is usually discarded rather than queued."
+      },
+      "explanation": "The bucket turns a spike into a steady release, so the receiving end is not knocked over. The extra work is delayed rather than lost, unless the bucket overflows.",
+      "hint": "Ask what happens to the burst's timing.",
+      "difficulty": 0.45,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Compute the elapsed time of a bounded retry policy",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A station retries an upload with a limit of 5 attempts and a 30 second delay between them. How many seconds pass from the first attempt to the last attempt?",
+      "options": [],
+      "answer": {
+        "value": 120,
+        "tolerance": 0.01
+      },
+      "explanation": "Five attempts have four gaps between them, and four times 30 seconds is 120. Counting five delays would overstate the wait by one interval that never happens.",
+      "hint": "Count the gaps between the attempts, not the attempts.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "State how many uploads a boundary reset lets through",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-note",
+        "body": "A cellular modem uploads a day's photos the moment it regains signal. The quota service allows 200 uploads per hour and resets on the hour. The modem sends 150 photos in the last minute of an hour and 150 more in the first minute of the next.",
+        "license": "original"
+      },
+      "stem": "Using the field note, state how many photos the quota lets through.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The quota lets through 150 photos, because the counter only counts the current hour",
+          "misconception": "treats the counter as a rolling hour"
+        },
+        {
+          "id": "B",
+          "text": "The quota lets through 200 photos, because 150 fits inside the limit of 200",
+          "misconception": "checks only the first batch against the limit"
+        },
+        {
+          "id": "C",
+          "text": "The quota lets through 300 photos, because the counter reset between the two batches",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The quota lets through 150 photos, because the second batch is counted as part of the next hour",
+          "misconception": "counts the second batch against the wrong allowance"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Each batch of 150 is under the limit of 200, and the reset between them means neither is compared with the other. The service therefore accepts 300 photos in two minutes.",
+      "hint": "Ask whether the two batches share a counter.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Sequence what bounding a queue changes in a cascade",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A hub has an unbounded upload queue and a reviewer asks what bounding it would change about a slow processing cluster.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It would keep the cluster fast, because a bounded queue reduces the work the cluster receives",
+          "misconception": "claims the bound protects the slow cluster"
+        },
+        {
+          "id": "B",
+          "text": "It would keep every reading, because the bound only limits how long readings wait",
+          "misconception": "claims bounding preserves all the data"
+        },
+        {
+          "id": "C",
+          "text": "It would remove the need for backpressure, because the hub would simply wait for space",
+          "misconception": "claims the bound removes the need for backpressure"
+        },
+        {
+          "id": "D",
+          "text": "It would contain the damage at the hub, because the queue stops growing and the surplus is dropped",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The first step shows the bound caps the queue, so the hub's own resources stay bounded. The second shows the surplus must be dropped, which contains the cascade but loses readings.",
+      "hint": "Ask what happens to the surplus once the bound is reached.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Explain the purpose of the random factor in a backoff",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A backoff helper waits for the base delay multiplied by a random factor between 0.5 and 1.5, and a reviewer asks why the random factor was added.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The random factor was added so the delay is never exactly zero for any attempt",
+          "misconception": "claims the random factor exists to avoid a zero delay"
+        },
+        {
+          "id": "B",
+          "text": "The random factor was added so clients recovering together do not all retry at once",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The random factor was added because the base delay is not known precisely on embedded hardware",
+          "misconception": "invents timing imprecision as the reason"
+        },
+        {
+          "id": "D",
+          "text": "The random factor was added so the total wait can be computed exactly before the attempt",
+          "misconception": "claims the factor makes the wait predictable"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A shared schedule makes every client retry simultaneously, which re-creates the overload the backoff was meant to prevent. Randomness breaks the synchronisation.",
+      "hint": "Ask what happens without the random factor.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Explain why retry loops escalate a fault",
+      "practice": "Incident Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reviewer asks why an unbounded retry loop turns a small fault into an outage rather than simply waiting it out.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because every retry resets the other end's timeout, so the fault never looks resolved",
+          "misconception": "invents timeout resets caused by retries"
+        },
+        {
+          "id": "B",
+          "text": "Because retries consume the battery faster, so the field station fails for a different reason",
+          "misconception": "reduces the problem to battery drain"
+        },
+        {
+          "id": "C",
+          "text": "Because the retry loop keeps the connection open, so the server can never free the slot",
+          "misconception": "claims the open connection is the mechanism"
+        },
+        {
+          "id": "D",
+          "text": "Because retries add load to a service that is already unwell, so recovery is pushed further away",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A loop with no ceiling and no delay adds work exactly when the service is least able to take it. The fault stops being small because the recovery attempt became the load.",
+      "hint": "Ask what the retries add while the service is struggling.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Compute how long a queue buffers at a given arrival rate",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A sensor hub reads 2000 measurements per second during a rain event and its processor handles 1400. The queue holds 20000 measurements before readings are discarded.",
+      "options": [
+        {
+          "id": "A",
+          "text": "At 1400 handled and 600 shed, the 20000 queue holds about 33 seconds of readings",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "At 1400 handled and 600 shed, the queue holds about 14 seconds of readings",
+          "misconception": "divides the queue by the shed rate instead of the arrival rate"
+        },
+        {
+          "id": "C",
+          "text": "At 1400 handled and 600 shed, the queue holds about 14 seconds of shed readings",
+          "misconception": "divides the queue by the processed rate rather than by arrivals"
+        },
+        {
+          "id": "D",
+          "text": "At 1400 handled and 600 shed, the queue holds about 100 seconds of readings",
+          "misconception": "misdivides the queue by the handled rate"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Readings arrive at 2000 a second while only 1400 are processed, so the queue drains at 600 a second. A backlog of 20000 therefore covers about 33 seconds.",
+      "hint": "Divide the queue depth by the rate at which it grows.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Explain how a bound changes the travel of a fault",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to a reviewer what a bounded queue changes about the way a failure travels through a pipeline.",
+      "options": [],
+      "answer": {
+        "exemplar": "An unbounded queue has no limit on how much work it will hold, so when the stage behind it slows down the backlog grows without limit and the failure travels upstream until the components at the front exhaust their own memory or disk. A bounded queue caps that backlog, so the growth stops at the bound and the surplus is either dropped or refused. The failure no longer travels, but it is also no longer silent: something has to be thrown away, and the bound decides how much and which."
+      },
+      "explanation": "The bound stops backlog growth, so the failure stops travelling upstream. It does not remove the fault, it converts a silent pile-up into explicit loss.",
+      "hint": "Ask where the backlog stops growing.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Compute the expected delay of a randomised backoff",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Two stations fail together and retry after delays drawn uniformly between 8 and 12 seconds. What is the expected delay, in seconds, for each retry?",
+      "options": [],
+      "answer": {
+        "value": 10,
+        "tolerance": 0.01
+      },
+      "explanation": "The mean of a range from 8 to 12 is its midpoint, which is 10 seconds. The spread is what breaks the synchronisation; the midpoint only sets the centre.",
+      "hint": "Use the midpoint of the range.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Estimate the entries a sliding window log must hold",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-note",
+        "body": "A quota service keeps every upload timestamp for the last 120 seconds so the limit applies to any rolling window. One busy station uploads 3 records per second, and the service handles 25 such stations. The engineer notes that each timestamp entry is small but that there are a great many of them.",
+        "license": "original"
+      },
+      "stem": "Using the field note, estimate how many timestamp entries the service must hold for these stations.",
+      "options": [
+        {
+          "id": "A",
+          "text": "About 900 entries, because 3 records per second over 120 seconds gives 360 per station",
+          "misconception": "gives the per-station figure and calls it the total"
+        },
+        {
+          "id": "B",
+          "text": "About 75 entries, because the window is divided among the 25 stations",
+          "misconception": "divides the window between stations instead of multiplying"
+        },
+        {
+          "id": "C",
+          "text": "About 9000 entries, because 25 stations at 360 entries each fill the window",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "About 9000 entries, because each record carries three separate timestamps",
+          "misconception": "invents three timestamps per record"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Three records a second inside a 120 second window is 360 entries per station, and 25 such stations need 9000 entries held at once. The log's size follows clients times rate times window.",
+      "hint": "Multiply the rate by the window, then by the station count.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Sequence how to size a leaky bucket for a backlog",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A survey station's link fails and 500 buffered readings pile up. The reviewer asks what a leaky bucket should do with that pile and how to size it.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Release them at the steady rate the link can carry, so the far end is never overwhelmed",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Release them as fast as the link allows, so the backlog clears before the next survey window",
+          "misconception": "sends the whole backlog at once, defeating the smoothing"
+        },
+        {
+          "id": "C",
+          "text": "Send them on a second radio channel, so both channels carry part of the backlog",
+          "misconception": "adds a second link rather than sizing the bucket"
+        },
+        {
+          "id": "D",
+          "text": "Keep them until the next scheduled upload window, so the backlog is never sent early",
+          "misconception": "defers the whole backlog instead of pacing it"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The first decision is the release rate, which must match what the link carries. The second is the bucket size, which decides how much can be held before some readings are dropped.",
+      "hint": "Ask what rate the far end can actually accept.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Identify the keying flaw that lets a quota be multiplied",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A quota service counts uploads per account, but the field lead notices that one student can send everything the team sends by rotating through six logins.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is in the quota value, because 200 uploads per hour is too high for any account",
+          "misconception": "blames the numeric limit rather than the account keying"
+        },
+        {
+          "id": "B",
+          "text": "The bug is the account keying, because rotating logins presents the same allowance repeatedly",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The bug is in the upload client, because it should refuse to switch accounts mid-session",
+          "misconception": "blames the client instead of the service's keying"
+        },
+        {
+          "id": "D",
+          "text": "The bug is in the disk quota, because the student's uploads fill the station's storage",
+          "misconception": "confuses an upload quota with a disk quota"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Rotating logins simply presents the per-account allowance several times over. The fix is to key the limit on something the person cannot duplicate.",
+      "hint": "Ask what the limit is keyed on.",
+      "difficulty": 0.25,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Explain what load shielding protects that queueing does not",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A field lead asks what load shedding protects that simply queueing the work does not.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Load shedding protects the memory of the queue itself, because queued work is not stored at all",
+          "misconception": "claims shed work is never stored anywhere"
+        },
+        {
+          "id": "B",
+          "text": "Load shedding protects the far end of the link, because fewer readings are forwarded downstream",
+          "misconception": "credits shedding with protecting the downstream consumer"
+        },
+        {
+          "id": "C",
+          "text": "Load shedding protects the processing capacity, because excess work is refused before it queues",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Load shedding protects the battery, because fewer readings need transmitting",
+          "misconception": "claims shedding reduces transmission energy"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Shedding refuses work that could not be processed anyway, so processors and memory stay usable. Queueing preserves the work but consumes both.",
+      "hint": "Ask what happens to work that would only wait anyway.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Compute the largest delay a randomised backoff can produce",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A retry policy uses delays of 1, 2, 4 and 8 seconds with a random factor between 0.8 and 1.2 applied to each. What is the largest delay the policy can produce?",
+      "options": [],
+      "answer": {
+        "value": 9.6,
+        "tolerance": 0.01
+      },
+      "explanation": "The largest base delay is 8 seconds and the largest random factor is 1.2, so the largest possible delay is 9.6 seconds. The factor scales the delay, it does not replace it.",
+      "hint": "Multiply the longest delay by the largest factor.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Explain how a retry loop becomes self-sustaining",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the survey lead why an unbounded retry loop turns a small fault into an outage.",
+      "options": [],
+      "answer": {
+        "exemplar": "A retry loop with no attempt limit and no delay keeps asking a service that is already unwell, and each attempt consumes capacity that the service needed in order to recover. The first few retries may be reasonable, but the loop has no idea that the service has not recovered, so it keeps adding load to a system whose problem is that it lacks load headroom. The result is self-sustaining: the retries are a large part of why the service cannot get well, and the outage continues long after the original fault is fixed."
+      },
+      "explanation": "Retries add load exactly when capacity is scarce, so the recovery attempt becomes part of the outage. An unbounded loop has no way to notice that healing.",
+      "hint": "Ask what the retries do to the service's recovery capacity.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Compute the loss a bounded queue imposes under overload",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A hub's upload queue is bounded at 3000 readings. When the queue is full the hub drops the oldest reading to make room. If 500 readings arrive per second while the link sends 200 per second, how many readings per second are lost?",
+      "options": [],
+      "answer": {
+        "value": 300,
+        "tolerance": 0.01
+      },
+      "explanation": "The queue gains 500 per second and loses 200 per second as the link drains it, so it grows by 300 per second. Once bounded, that growth becomes 300 readings per second discarded.",
+      "hint": "Subtract the drained rate from the arrival rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Identify what a bounded queue trades away",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "design-note",
+        "body": "A processing cluster slows during a nightly aggregation job. An unbounded queue in front of it lets each station buffer until two stations run out of disk and drop offline. The team bounds the queue at 4000 readings and drops the oldest on overflow, and the field lead asks what the team has traded away.",
+        "license": "original"
+      },
+      "stem": "Using the design note, identify what the bounded queue trades away.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing, because the cluster slowdown is caused by the unbounded queue in the first place",
+          "misconception": "claims the queue caused the downstream slowdown"
+        },
+        {
+          "id": "B",
+          "text": "Readings are discarded, because a bound means the oldest readings must be dropped to make room",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Nothing, because the stations were already failing under the unbounded queue",
+          "misconception": "claims the bound loses nothing compared with the old behaviour"
+        },
+        {
+          "id": "D",
+          "text": "The stations' batteries, because bounded queues require the radios to transmit more often",
+          "misconception": "claims the bound changes transmission frequency"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A bound can only be maintained by discarding something, and the policy here discards the oldest readings. The trade is explicit loss instead of silent station failure.",
+      "hint": "Ask what the hub must do to keep the queue at its bound.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Sequence the sizing of a leaky bucket for a slow link",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A reviewer proposes a leaky bucket in front of a 2 kilobit per second radio link and asks what the bucket's size and drain rate should be.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Size the bucket to hold a whole survey's readings, then drain it at twice the link rate",
+          "misconception": "drains faster than the link, which cannot be sustained"
+        },
+        {
+          "id": "B",
+          "text": "Size the bucket to one reading, then drain it at the link rate to minimise latency",
+          "misconception": "removes the smoothing the bucket exists to provide"
+        },
+        {
+          "id": "C",
+          "text": "Size the bucket to the daily allowance, then drain it whenever the surveyor connects",
+          "misconception": "defers the whole backlog instead of pacing it"
+        },
+        {
+          "id": "D",
+          "text": "Size the bucket for the expected burst, then drain it at the link rate the far end can take",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The size decides how much of a burst can be smoothed without loss, and the drain rate must match the link. A drain above the link rate only shifts the backlog.",
+      "hint": "Ask what rate the far end can actually accept.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Identify the bug that turns a sliding window into a fixed one",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "BUG_SPOTTING",
+      "stimulus": null,
+      "stem": "A quota service is meant to keep timestamps for the last 120 seconds, but its cleanup removes entries as soon as the window that contains them closes.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug turns the sliding window back into a fixed window, so boundary bursts are not limited",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The bug only delays cleanup, because the entries are still removed once the window closes",
+          "misconception": "describes the cleanup rule as harmless"
+        },
+        {
+          "id": "C",
+          "text": "The bug doubles the memory use, because entries are kept for two windows instead of one",
+          "misconception": "invents a doubling of memory use"
+        },
+        {
+          "id": "D",
+          "text": "The bug has no effect, because the limit is applied to the timestamps that remain",
+          "misconception": "claims the limit still works on the remaining entries"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Removing entries when a block closes is the behaviour of a fixed window, so bursts across the boundary slip through. The sliding window only works if entries expire by age.",
+      "hint": "Check whether expiry is by age or by window closing.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Explain why accounts and people are different units",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reviewer asks why a quota that is keyed on an account cannot be described as a limit on a person.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because accounts are billed per person, so the two measures always match in practice",
+          "misconception": "claims billing makes the two measures identical"
+        },
+        {
+          "id": "B",
+          "text": "Because a person cannot hold more than one account on the same service",
+          "misconception": "assumes one account per person as a platform rule"
+        },
+        {
+          "id": "C",
+          "text": "Because one person can hold several accounts or share one, so the counts drift apart",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Because the service does not know the real name behind any of its accounts",
+          "misconception": "treats the absence of identity as the whole reason"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Accounts and people are different units, and people can hold several accounts or share one. Any key that follows the credential follows the credential, not the person.",
+      "hint": "Ask what a person can do with several accounts.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Compute the retry load added during a sustained fault",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A service returns one error for every request during a ten minute fault. A client retries without limit and without delay, and makes 4 requests per second per station across 30 stations.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The retries add 120 requests per second to a service that is already failing",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The retries add 120 requests per second, which the service absorbs because errors are cheap",
+          "misconception": "claims failed requests cost the service nothing"
+        },
+        {
+          "id": "C",
+          "text": "The retries add 4 requests per second in total, because the stations share one client process",
+          "misconception": "treats the stations as one client"
+        },
+        {
+          "id": "D",
+          "text": "The retries add 120 requests per second, which is under the rate the service normally handles",
+          "misconception": "compares the retry load to normal load without noticing the fault"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Thirty stations each retrying four times a second add 120 requests per second to a service that is already returning errors. The recovery attempt is the load that keeps the fault alive.",
+      "hint": "Multiply the per-station retry rate by the number of stations.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "Explain why a boundary reset defeats a fixed window limit",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the field team why a counter that resets on a fixed boundary can be overrun.",
+      "options": [],
+      "answer": {
+        "exemplar": "A fixed window counter starts a fresh allowance at every boundary, and it checks each request against the allowance for the block it falls in. A client that spends its whole allowance just before a boundary gets a fresh allowance immediately afterwards, so in a few seconds around the boundary it can send twice the intended rate. The limit is still respected inside each block, which is why the behaviour is easy to miss in testing; it only appears when traffic is timed to the boundary."
+      },
+      "explanation": "The counter checks each request against the block it lands in, so a client can spend the allowance twice around a boundary. The limit holds inside each block and fails between them.",
+      "hint": "Ask what a client can do right before the counter resets.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Compute the shared allowance one group of people can reach",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A survey service allows 60 uploads per hour per account. A field team shares one account across 8 people, and 3 of those people also each hold a personal account. How many uploads per hour can those 3 people send in total?",
+      "options": [],
+      "answer": {
+        "value": 240,
+        "tolerance": 0.01
+      },
+      "explanation": "Three personal accounts allow 180 uploads an hour and the shared account adds 60 more to be split among them, giving 240. The shared allowance is one allowance, not one per person.",
+      "hint": "Add the personal allowances to the single shared allowance.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a leaky bucket does to a burst the average never showed",
+      "learningObjective": "Explain what a leaky bucket achieves for a camera trap burst",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-note",
+        "body": "A camera trap sends a burst of 500 images when its buffer fills and then idles for hours. The receiving hub has a slow link and the survey lead is worried about losing the nightly count. The team proposes a leaky bucket in front of the link.",
+        "license": "original"
+      },
+      "stem": "Using the field note, explain what the leaky bucket does for the nightly count.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It guarantees every image arrives, because the bucket holds the burst until the link catches up",
+          "misconception": "promises lossless delivery that a bounded bucket cannot give"
+        },
+        {
+          "id": "B",
+          "text": "It paces the burst so the link stays usable, at the risk of losing images if the bucket fills",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It compresses the images, so the burst becomes small enough to send without delay",
+          "misconception": "claims the bucket reduces the amount of data"
+        },
+        {
+          "id": "D",
+          "text": "It spreads the burst over the whole day, so no single hour carries more than the link allows",
+          "misconception": "assumes the bucket can spread a burst across the whole day"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Pacing keeps the link within its limit, but a bucket that fills during the burst has to discard images. Lossless delivery would need storage rather than a bucket.",
+      "hint": "Ask what happens if more images arrive than the bucket holds.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-leaky-bucket-does-to-a-burst-the-average-never-showed"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Sequence how a shedding policy should be designed",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A gateway has a queue of 5000 readings and a processor that handles 800 per second, and the reviewer asks how load shedding should be designed to protect the processor.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Shed at the front of the queue, so the readings that arrive first are the ones dropped",
+          "misconception": "sheds the oldest work rather than the newest"
+        },
+        {
+          "id": "B",
+          "text": "Shed only when the processor is idle, so nothing is dropped while capacity exists",
+          "misconception": "sheds at the wrong moment to relieve load"
+        },
+        {
+          "id": "C",
+          "text": "Shed when the queue is full and keep the newest readings, so fresh data still arrives",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Shed nothing and grow the queue, since a larger queue gives the processor more time to catch up",
+          "misconception": "prefers unbounded buffering to shedding"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The trigger must be a full queue, so the processor is never asked to exceed its rate. The policy then decides which readings go, and keeping the newest preserves fresh data.",
+      "hint": "Ask when the shedding starts and what it keeps.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Identify why a fixed retry delay synchronises devices",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A survey device retries its upload with a fixed 5 second delay and 3 attempts, and the field lead reports that all devices in a valley fail together and retry together.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug is the attempt count, because three attempts are never enough for a radio link",
+          "misconception": "blames the attempt count rather than the fixed delay"
+        },
+        {
+          "id": "B",
+          "text": "The bug is the delay length, because five seconds is shorter than the radio's recovery time",
+          "misconception": "blames the delay length rather than the synchronisation"
+        },
+        {
+          "id": "C",
+          "text": "The bug is the retry policy, because the device should retry on a different radio channel",
+          "misconception": "suggests a channel change instead of a timing fix"
+        },
+        {
+          "id": "D",
+          "text": "The bug is the missing random component, because a fixed delay keeps every device in step",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A constant delay gives every device the same schedule, so a shared failure produces a shared retry wave. A random factor breaks the step.",
+      "hint": "Ask why all the devices wake at the same moment.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Explain what a bound changes about a travelling failure",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reviewer asks what a bounded queue changes about a failure that would otherwise spread through a pipeline.",
+      "options": [
+        {
+          "id": "A",
+          "text": "It removes the fault, because a queue that cannot grow cannot pass the fault on",
+          "misconception": "claims bounding removes the underlying fault"
+        },
+        {
+          "id": "B",
+          "text": "It stops the backlog growing without limit, so the failure does not travel upstream",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It doubles the throughput, because a bounded queue keeps the workers fed with steady work",
+          "misconception": "claims bounding increases throughput"
+        },
+        {
+          "id": "D",
+          "text": "It changes nothing, because upstream components fail for reasons unrelated to queues",
+          "misconception": "denies any relationship between backlog and upstream failure"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A bound caps the backlog, so the pressure that would travel upstream runs out of room. The fault itself is still there and something has to be discarded to keep the bound.",
+      "hint": "Ask what the bound does to the backlog.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Compute the elapsed time of a capped retry policy",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A client library gives up after 4 attempts with delays of 2, 4 and 8 seconds between them. How many seconds pass between the first attempt and the final attempt?",
+      "options": [],
+      "answer": {
+        "value": 14,
+        "tolerance": 0.01
+      },
+      "explanation": "Four attempts have three gaps between them, and 2 plus 4 plus 8 seconds is 14. Counting four delays would add a gap that never happens.",
+      "hint": "Add the delays that actually occur between attempts.",
+      "difficulty": 0.85,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a random component adds to exponential backoff",
+      "learningObjective": "Explain what randomness adds to a doubling schedule",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain to the survey lead what a random component adds to exponential backoff.",
+      "options": [],
+      "answer": {
+        "exemplar": "Exponential backoff sets the wait for attempt n as a multiple of the base delay that grows with each failure, which stops a client from hammering a service that is unwell. On its own it has one weakness: every client that started at the same moment computes the same waits, so they all come back together and reproduce the overload the backoff was meant to prevent. A random component spreads each wait across a range, so recovering clients return one after another instead of in a single wave."
+      },
+      "explanation": "Doubling stops clients hammering a sick service, but it makes them wake together. Randomness spreads the returns so the recovering service sees a trickle.",
+      "hint": "Ask what two clients with the same failure count will do.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-random-component-adds-to-exponential-backoff"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a bounded queue changes about a failure cascade",
+      "learningObjective": "Compute the loss imposed by a queue bound",
+      "practice": "Applied Arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A queue is bounded at 8000 items and the producer adds 1200 items per second while the consumer removes 500 per second. How many items per second must be discarded once the queue sits at its bound?",
+      "options": [],
+      "answer": {
+        "value": 700,
+        "tolerance": 0.01
+      },
+      "explanation": "The queue grows by 1200 minus 500, which is 700 items per second. At the bound those 700 items per second must be discarded, which is the price of the bound.",
+      "hint": "Subtract the removal rate from the arrival rate.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 45,
+        "p75Sec": 68
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-bounded-queue-changes-about-a-failure-cascade"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Judge whether an account quota bounds the intended person",
+      "practice": "Scenario Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "field-note",
+        "body": "A survey portal limits each account to 300 uploads a day. The field lead notices that one volunteer uploads through the team account, their own account, and a shared tablet account that four volunteers rotate between. The portal team is asked whether the daily limit is working.",
+        "license": "original"
+      },
+      "stem": "Using the field note, judge whether the daily limit is working as intended.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The limit is not working as intended, because the volunteer reaches it several times over through several accounts",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The limit is working as intended, because every upload is still counted somewhere in the portal",
+          "misconception": "equates being counted with being limited"
+        },
+        {
+          "id": "C",
+          "text": "The limit is working as intended, because three accounts are still fewer than one upload per minute",
+          "misconception": "compares accounts to a rate that means nothing here"
+        },
+        {
+          "id": "D",
+          "text": "The limit is not working as intended, because 300 uploads a day is too low for any field survey",
+          "misconception": "blames the numeric limit instead of the keying"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The limit follows the account, and this volunteer presents several accounts in one day. The portal counts the uploads correctly and still fails to bound the person.",
+      "hint": "Ask how many allowances the volunteer reaches in a day.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 25,
+        "p75Sec": 38
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What a sliding window log buys and what it costs in memory",
+      "learningObjective": "Sequence the decisions required to specify a sliding window log",
+      "practice": "Design Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A service must limit a client to 100 uploads per minute at any moment, and the reviewer asks what a sliding window log buys and what must be decided first.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Decide the memory budget first, then log timestamps until that budget is reached",
+          "misconception": "leads with the storage limit instead of the requirement"
+        },
+        {
+          "id": "B",
+          "text": "Decide the window length first, then choose a counter that resets when the window closes",
+          "misconception": "leads with a fixed window and abandons the sliding log"
+        },
+        {
+          "id": "C",
+          "text": "Decide the window length first, then log every timestamp inside that window",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Decide the client's own limit first, then trust it to stay within the window",
+          "misconception": "trusts the client to enforce the limit"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The window length defines what the limit means at any moment, and only then can the log be specified to hold every timestamp inside it. The memory cost follows from that decision.",
+      "hint": "Ask what the window length must be defined against.",
+      "difficulty": 0.65,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-a-sliding-window-log-buys-and-what-it-costs-in-memory"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a counter that resets on a fixed boundary can be overrun",
+      "learningObjective": "Identify the boundary overrun a reset permits",
+      "practice": "Bug Analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A quota service intends to limit clients to 100 uploads per minute, but its counter resets when the minute changes, and a station sends 95 uploads in the last seconds of a minute.",
+      "options": [
+        {
+          "id": "A",
+          "text": "The bug lets that station send 95 more immediately, so it uses 190 in two minutes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The bug is harmless, because 95 uploads is below the limit of 100 in any window",
+          "misconception": "checks only the first burst against the limit"
+        },
+        {
+          "id": "C",
+          "text": "The bug only affects clients that upload near the hour, because the counter resets hourly",
+          "misconception": "invents an hourly reset on a per-minute counter"
+        },
+        {
+          "id": "D",
+          "text": "The bug is fixed by lowering the limit to 50 uploads per minute for every client",
+          "misconception": "cures a boundary problem by halving the allowance"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The reset hands out a fresh allowance immediately, so the same station can use its allowance twice within seconds. The limit holds inside each block and fails between them.",
+      "hint": "Ask what the station can do right after the reset.",
+      "difficulty": 0.25,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 20,
+        "p75Sec": 32
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-counter-that-resets-on-a-fixed-boundary-can-be-overrun"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "What load shedding protects that queueing does not",
+      "learningObjective": "Explain what load shedding protects over queueing",
+      "practice": "Concept Check",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A reviewer asks what load shedding protects that leaving the work in the queue does not.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Load shedding protects the sender, because fewer readings are accepted so the sender can transmit faster",
+          "misconception": "claims shedding benefits the producer"
+        },
+        {
+          "id": "B",
+          "text": "Load shedding protects the processing capacity, because excess work is refused rather than accumulated",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Load shedding protects the disk, because queued readings are never written to the log",
+          "misconception": "claims the queue is never persisted"
+        },
+        {
+          "id": "D",
+          "text": "Load shedding protects the reading accuracy, because dropped readings are later re-sent",
+          "misconception": "invents automatic re-sending of shed work"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Shedding refuses work that would only wait, so processors and memory stay free for work that can be completed. Queueing keeps everything and consumes both.",
+      "hint": "Ask what happens to work that would only wait anyway.",
+      "difficulty": 0.55,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 35,
+        "p75Sec": 52
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "what-load-shedding-protects-that-queueing-does-not"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why an unbounded retry loop turns a small fault into an outage",
+      "learningObjective": "Count how many retries fit inside a fault window",
+      "practice": "Capacity Reasoning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A station's retry policy allows 5 attempts with a delay that doubles from 4 seconds. The station's uplink fails for 2 minutes, and the reviewer asks how many attempts fit in that window.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Six attempts, because the attempt that starts at 124 seconds still counts as inside the window",
+          "misconception": "counts an attempt beyond the window"
+        },
+        {
+          "id": "B",
+          "text": "Five attempts, because the waits of 4, 8, 16 and 32 seconds place attempts at 0, 4, 12, 28 and 60 seconds",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Three attempts, because only the first three waits of 4, 8 and 16 seconds fit inside two minutes",
+          "misconception": "stops counting once the waits get large"
+        },
+        {
+          "id": "D",
+          "text": "Seven attempts, because the policy counts the attempt after the window as part of it",
+          "misconception": "counts attempts beyond the window"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The waits place attempts at 0, 4, 12, 28 and 60 seconds, and the next would be at 124 seconds, so five attempts fall inside the two minutes.",
+      "hint": "Add the doubling waits to find each attempt's time.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 35,
+        "medianSec": 55,
+        "p75Sec": 80
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-an-unbounded-retry-loop-turns-a-small-fault-into-an-outage"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-11.3-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 11",
+      "topic": "Why a limit keyed on one account is not a limit on one person",
+      "learningObjective": "Describe what would make a quota follow a person",
+      "practice": "Design Review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Ask the team to explain what it would take for an upload quota to be a limit on a person rather than on an account.",
+      "options": [],
+      "answer": {
+        "exemplar": "A quota counted against an account bounds the credentials, and credentials are cheap: one person can hold several accounts or share a team one, so the effective allowance multiplies without any change in the number of people uploading. To make the limit follow a person the quota has to be attached to something that cannot be duplicated or shared, such as a named licence, a personal device registration, or a per-person allocation agreed with the survey lead. The cost of that is administrative, and the benefit is that the number in the policy means what everyone assumes it means."
+      },
+      "explanation": "An account is a credential, and a person can hold several or share one. Bounding people requires a key that cannot be duplicated, and that costs administration.",
+      "hint": "Ask what cannot be duplicated or shared.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 30,
+        "p75Sec": 45
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-11",
+        "why-a-limit-keyed-on-one-account-is-not-a-limit-on-one-person"
+      ],
+      "version": 1
+    }
+  ]
+}

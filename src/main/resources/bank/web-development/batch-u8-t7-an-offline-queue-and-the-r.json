@@ -1,0 +1,3691 @@
+{
+  "questions": [
+    {
+      "id": "web-8.7-0001",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Identify a retry policy that empties an offline queue",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Aria's offline queue retries failed sends every 2 seconds forever. What is the flaw?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It never empties because failures retry indefinitely",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It empties too fast and drops messages",
+          "misconception": "opposite of the actual flaw"
+        },
+        {
+          "id": "C",
+          "text": "It requires a network connection to start",
+          "misconception": "queue already works offline"
+        },
+        {
+          "id": "D",
+          "text": "It encrypts messages before sending",
+          "misconception": "unrelated to retry policy"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Retrying forever on failure never empties the queue when the endpoint stays down. A bounded retry with backoff and a dead-letter path is needed. A identifies the flaw.",
+      "hint": "Bound retries and add backoff.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0002",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Recognize idempotency as the fix for duplicate delivery",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Ben's consumer applies a message three times because delivery is at-least-once. What property makes application safe?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Exactly-once delivery from the broker",
+          "misconception": "brokers rarely guarantee exactly-once end to end"
+        },
+        {
+          "id": "B",
+          "text": "Idempotency, so repeated application has no extra effect",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Faster consumer throughput",
+          "misconception": "speed does not prevent duplicate effects"
+        },
+        {
+          "id": "D",
+          "text": "Message compression",
+          "misconception": "unrelated to duplicate application"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "At-least-once delivery means duplicates happen; idempotency makes repeated application safe. Exactly-once end to end is rare and not required. A is correct.",
+      "hint": "Make the consumer idempotent.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0003",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Hold later messages until a missing sequence arrives",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Cara receives messages 1, 3, 4 but 2 is missing. What should she do with 3 and 4?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply them immediately to keep latency low",
+          "misconception": "breaks ordering and state correctness"
+        },
+        {
+          "id": "B",
+          "text": "Drop them because the sequence is broken",
+          "misconception": "loses valid data"
+        },
+        {
+          "id": "C",
+          "text": "Buffer them until message 2 arrives or times out",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Reorder them by arrival time",
+          "misconception": "arrival order is not sequence order"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Out-of-order messages must be buffered until the missing one arrives or a timeout fires, preserving sequence semantics. Applying or dropping them loses correctness. B is correct.",
+      "hint": "Buffer until the gap fills.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0004",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Resolve a stale edit against a newer delete",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Dan's device missed a delete and later syncs an old edit to that row. What should the server do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply the edit and recreate the row",
+          "misconception": "resurrects a deleted row"
+        },
+        {
+          "id": "B",
+          "text": "Queue the edit for manual review forever",
+          "misconception": "defers instead of resolving"
+        },
+        {
+          "id": "C",
+          "text": "Apply the edit to a new row with the same id",
+          "misconception": "creates a duplicate identity"
+        },
+        {
+          "id": "D",
+          "text": "Reject the edit because the row no longer exists",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A delete is authoritative; a stale edit targeting a deleted row must be rejected, not resurrect the row. B is correct.",
+      "hint": "Delete wins over stale edit.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0005",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Contrast document flexibility with relational columns",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Eva stores events in a document store. What can its shape do that a fixed column table cannot?",
+      "answer": {
+        "exemplar": "A document can hold nested, variable, and sparse fields per record without schema changes, while a relational table requires a column for every attribute and NULLs where absent. This lets event shapes evolve without migrations."
+      },
+      "explanation": "Documents allow nested, variable, sparse fields without schema changes; relational tables need columns for every attribute. That is the key difference.",
+      "hint": "Variable nested fields without migration.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0006",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Account for index maintenance on writes",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Finn adds three indexes to a write-heavy dashboard table. What happens to insert throughput?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It stays the same because indexes are read-only",
+          "misconception": "indexes are maintained on writes"
+        },
+        {
+          "id": "B",
+          "text": "It rises because indexes speed up writes",
+          "misconception": "indexes speed reads, not writes"
+        },
+        {
+          "id": "C",
+          "text": "It drops because each insert updates every index",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It doubles because pages are smaller",
+          "misconception": "page size is unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Each insert must update every index, so more indexes lower write throughput. Indexes help reads, not writes. A is correct.",
+      "hint": "Each index is updated on write.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0007",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret plan node names",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Grace sees 'Seq Scan' in a plan. What does it mean?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The result is returned in sequence",
+          "misconception": "output order is separate"
+        },
+        {
+          "id": "B",
+          "text": "The engine uses a sequential index",
+          "misconception": "seq scan is not an index scan"
+        },
+        {
+          "id": "C",
+          "text": "The query is sorted sequentially",
+          "misconception": "confuses sort with scan"
+        },
+        {
+          "id": "D",
+          "text": "The engine reads every row in the table",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Seq Scan means the engine reads every row in the table. It is not an index scan or a sort. A is correct.",
+      "hint": "Reads all rows.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0008",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Identify SSE as server-to-client only",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Hugo tries to send a message back to the server over an SSE connection. Why does it fail?",
+      "options": [
+        {
+          "id": "A",
+          "text": "SSE messages are too small to carry replies",
+          "misconception": "size is not the constraint"
+        },
+        {
+          "id": "B",
+          "text": "SSE requires HTTPS to send",
+          "misconception": "transport security is not the issue"
+        },
+        {
+          "id": "C",
+          "text": "SSE is server-to-client only; use a separate request to reply",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "SSE only works for text, not JSON",
+          "misconception": "SSE carries text including JSON"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "SSE is a one-way server-to-client channel. Client-to-server communication needs a separate HTTP request. A is correct.",
+      "hint": "SSE is one-way server to client.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0009",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Choose exponential backoff for retries",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Iris needs a retry policy for a flaky endpoint. Which is best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fixed 1-second retries forever",
+          "misconception": "hammers the endpoint and never gives up"
+        },
+        {
+          "id": "B",
+          "text": "Retry once after 1 hour",
+          "misconception": "too coarse and slow"
+        },
+        {
+          "id": "C",
+          "text": "No retries, fail immediately",
+          "misconception": "loses recoverable messages"
+        },
+        {
+          "id": "D",
+          "text": "Exponential backoff with a max cap and jitter",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Exponential backoff with a cap and jitter avoids thundering herd and gives the endpoint time to recover. Fixed forever hammers; none loses data; one retry is too coarse. B is correct.",
+      "hint": "Exponential backoff with jitter.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0010",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Implement dedup with a processed-message store",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Jack's consumer must not apply the same message twice. How can he ensure that?",
+      "answer": {
+        "exemplar": "He should record each message id in a processed-message store within the same transaction as the application, and skip messages whose id is already present. This makes reprocessing a no-op even under at-least-once delivery."
+      },
+      "explanation": "Recording processed ids in the same transaction makes reprocessing a no-op under at-least-once delivery. That ensures single application.",
+      "hint": "Track processed ids transactionally.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0011",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Set a timeout for waiting on a missing sequence number",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Kate buffers out-of-order messages. How long should she wait for a missing one?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Forever, to never lose data",
+          "misconception": "buffers grow unbounded and stall delivery"
+        },
+        {
+          "id": "B",
+          "text": "Zero, apply everything immediately",
+          "misconception": "breaks ordering"
+        },
+        {
+          "id": "C",
+          "text": "A bounded timeout, then skip or error",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Exactly one second, fixed",
+          "misconception": "arbitrary fixed value without justification"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A bounded timeout prevents unbounded buffering and stalls while still allowing recovery. Forever stalls; zero breaks ordering; one second is arbitrary. B is correct.",
+      "hint": "Bound the wait with a timeout.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0012",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Use tombstones to detect stale edits",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Liam's deleted row is represented by a tombstone. Why does that help with stale edits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It hides the row from all clients forever",
+          "misconception": "tombstones are temporary, not permanent"
+        },
+        {
+          "id": "B",
+          "text": "It speeds up queries on deleted rows",
+          "misconception": "tombstones are not for query speed"
+        },
+        {
+          "id": "C",
+          "text": "It compresses the deleted row data",
+          "misconception": "compression is unrelated"
+        },
+        {
+          "id": "D",
+          "text": "It lets the server detect and reject edits to deleted rows",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A tombstone records that a row was deleted, so a later stale edit can be detected and rejected. B, C, D misstate tombstone purpose. A is correct.",
+      "hint": "Tombstone marks the deletion.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0013",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Identify schema evolution without migration",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Mia adds a new field to some events but not others. A relational table would need a migration. Why doesn't a document store?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Migrations happen automatically in the background",
+          "misconception": "no automatic migration is implied"
+        },
+        {
+          "id": "B",
+          "text": "The document store ignores unknown fields",
+          "misconception": "it stores them, not ignores"
+        },
+        {
+          "id": "C",
+          "text": "Documents are schemaless per record, so fields vary freely",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Fields are stored in a separate table",
+          "misconception": "not how document stores work"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Document stores are schemaless per record, so fields can vary without a migration. B misstates behavior; C and D are not how document stores work. A is correct.",
+      "hint": "Schemaless per record.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0014",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Decide whether to index a write-heavy table",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Noah's table is 95% writes and 5% reads. Should he add five indexes?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, indexes always help performance",
+          "misconception": "ignores write cost"
+        },
+        {
+          "id": "B",
+          "text": "No, because indexes cannot be added to write-heavy tables",
+          "misconception": "overstates, they can but cost more"
+        },
+        {
+          "id": "C",
+          "text": "Yes, but only on the primary key",
+          "misconception": "primary key is already indexed"
+        },
+        {
+          "id": "D",
+          "text": "No, the write cost outweighs read benefit",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "On a write-heavy table, five indexes impose heavy maintenance cost for little read benefit. B is correct; A ignores write cost; C is redundant; D overstates.",
+      "hint": "Write cost dominates here.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0015",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Distinguish Index Scan from Seq Scan",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Olivia's plan shows 'Index Scan'. What does that mean?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The engine sorts results using the index",
+          "misconception": "sort is a separate node"
+        },
+        {
+          "id": "B",
+          "text": "The engine reads every row in the table",
+          "misconception": "that is a Seq Scan"
+        },
+        {
+          "id": "C",
+          "text": "The engine reads index entries and fetches table rows",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The engine compresses the index first",
+          "misconception": "unrelated to scan"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Index Scan reads index entries and fetches corresponding table rows. It is not a full table scan or a sort. A is correct.",
+      "hint": "Index plus heap fetch.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0016",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Choose SSE versus WebSocket for a use case",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Paul needs server-to-client push only, with auto-reconnect and text events. Which transport fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "UDP, because it is fast",
+          "misconception": "unreliable and not HTTP-based"
+        },
+        {
+          "id": "B",
+          "text": "WebSocket, because it is always better",
+          "misconception": "overkill for one-way push"
+        },
+        {
+          "id": "C",
+          "text": "Long polling, because it is simpler",
+          "misconception": "less efficient than SSE"
+        },
+        {
+          "id": "D",
+          "text": "SSE, because it is one-way with built-in reconnect",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "SSE provides one-way server push with built-in reconnect over HTTP, matching the need. WebSocket is bidirectional overkill; long polling is less efficient; UDP is unreliable. A is correct.",
+      "hint": "SSE fits one-way push.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0017",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Persist the queue across app restarts",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Quinn's offline queue is in memory and empties on restart. What is the fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Retry faster to empty it before restart",
+          "misconception": "does not survive restart"
+        },
+        {
+          "id": "B",
+          "text": "Persist the queue to disk or IndexedDB",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Increase memory size",
+          "misconception": "still lost on restart"
+        },
+        {
+          "id": "D",
+          "text": "Disable restarts",
+          "misconception": "not a real fix"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An in-memory queue is lost on restart. Persisting to disk or IndexedDB survives restarts. B, C, D do not. A is correct.",
+      "hint": "Persist the queue.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0018",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Identify at-least-once versus exactly-once delivery",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Rosa sees a message applied twice. Which delivery guarantee is in play?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At-most-once, because duplicates cannot happen",
+          "misconception": "at-most-once drops, not duplicates"
+        },
+        {
+          "id": "B",
+          "text": "Exactly-once, because it applied twice",
+          "misconception": "exactly-once would not duplicate"
+        },
+        {
+          "id": "C",
+          "text": "At-least-once, because duplicates are possible",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Best-effort, because nothing is guaranteed",
+          "misconception": "best-effort is vague and not the standard term"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "At-least-once delivery can deliver duplicates; at-most-once can drop; exactly-once would not duplicate. B is correct.",
+      "hint": "Duplicates imply at-least-once.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0019",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Handle a missing message that never arrives",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Sam's missing message 2 never arrives. What should happen to buffered 3 and 4?",
+      "answer": {
+        "exemplar": "After a bounded timeout, the system should either skip the gap and apply 3 and 4 with a noted hole, or error the stream, depending on the contract. Holding them forever stalls the consumer, so a timeout-driven decision is required."
+      },
+      "explanation": "A missing message cannot stall forever. After a timeout, skip with a noted hole or error per contract. That unblocks the consumer.",
+      "hint": "Timeout then skip or error.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0020",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Implement version vectors for sync conflicts",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Tina uses version vectors to detect a stale edit. What does a version vector compare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The number of fields in the document",
+          "misconception": "field count is not causality"
+        },
+        {
+          "id": "B",
+          "text": "The file size of the document",
+          "misconception": "size is not causality"
+        },
+        {
+          "id": "C",
+          "text": "The timestamp of the last save",
+          "misconception": "wall clocks are unreliable across devices"
+        },
+        {
+          "id": "D",
+          "text": "The causal history of edits per device",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Version vectors track causal history per device, detecting concurrent edits and stale ones. Timestamps, sizes, and field counts do not. A is correct.",
+      "hint": "Causal history per device.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0021",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Store heterogeneous event types in one collection",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Uma stores login, purchase, and error events in one collection. How does a document shape help?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Events are stored as binary blobs",
+          "misconception": "not necessarily binary"
+        },
+        {
+          "id": "B",
+          "text": "All documents must share the same fields",
+          "misconception": "that is the relational constraint"
+        },
+        {
+          "id": "C",
+          "text": "Each document can have different fields without a shared schema",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "A separate table is created per event type",
+          "misconception": "that is the relational approach"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Documents allow heterogeneous fields per record without a shared schema, so mixed event types coexist. B, C, D misstate or avoid the benefit. A is correct.",
+      "hint": "Heterogeneous fields per record.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0022",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Measure index maintenance overhead on updates",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Victor updates an indexed column frequently. Why is write latency high?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Updates skip the index entirely",
+          "misconception": "updates maintain the index"
+        },
+        {
+          "id": "B",
+          "text": "Indexes are read-only and block writes",
+          "misconception": "indexes are maintained, not blocking"
+        },
+        {
+          "id": "C",
+          "text": "The table is locked for every read",
+          "misconception": "reads do not lock the table here"
+        },
+        {
+          "id": "D",
+          "text": "Each update rewrites the index entry and may split pages",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Updating an indexed column rewrites index entries and can split pages, adding latency. B, C, D misstate index behavior. A is correct.",
+      "hint": "Index entry rewrite and page splits.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0023",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret a Bitmap Heap Scan node",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Wendy's plan shows 'Bitmap Heap Scan'. What does it indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The table is stored as a bitmap",
+          "misconception": "bitmap is an access method, not storage"
+        },
+        {
+          "id": "B",
+          "text": "Index matches many rows, then heap is visited in page order",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Only index pages are read, no heap",
+          "misconception": "that is Index Only Scan"
+        },
+        {
+          "id": "D",
+          "text": "Rows are returned sorted by the index",
+          "misconception": "bitmap scan does not preserve order"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Bitmap Heap Scan collects many index matches, sorts them by heap page, then visits heap pages once. It is for moderate selectivity. A is correct.",
+      "hint": "Batched heap access by page.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0024",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Handle client-to-server messages alongside SSE",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Xavier uses SSE for live updates but also needs to send commands. How should he do it?",
+      "answer": {
+        "exemplar": "He should keep the SSE stream for server-to-client push and send commands over separate HTTP POST requests, or use fetch with keepalive. SSE cannot carry client-to-server messages, so a second channel is required."
+      },
+      "explanation": "SSE is one-way, so commands need a separate HTTP channel. That keeps push and command paths clear.",
+      "hint": "Use separate POSTs for commands.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0025",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Add a dead-letter queue for poison messages",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Yara has a message that fails every retry. What should she do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Delete it silently",
+          "misconception": "loses data without diagnosis"
+        },
+        {
+          "id": "B",
+          "text": "Retry it forever until it succeeds",
+          "misconception": "blocks the queue indefinitely"
+        },
+        {
+          "id": "C",
+          "text": "Move it to a dead-letter queue after max retries",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Increase the retry interval to a day",
+          "misconception": "delays diagnosis without resolving"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A poison message should move to a dead-letter queue after max retries, preserving it for diagnosis without blocking the main queue. A is correct.",
+      "hint": "Dead-letter after max retries.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0026",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Use a natural key for idempotency",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Zach's message has no message id but has a business key. How can he make processing idempotent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hash the timestamp only",
+          "misconception": "timestamp varies per delivery"
+        },
+        {
+          "id": "B",
+          "text": "Generate a random id per delivery",
+          "misconception": "random id defeats dedup"
+        },
+        {
+          "id": "C",
+          "text": "Ignore dedup and accept duplicates",
+          "misconception": "loses correctness"
+        },
+        {
+          "id": "D",
+          "text": "Use the business key as the idempotency key",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A stable business key serves as an idempotency key across deliveries. Random ids, ignoring dedup, or hashing timestamps do not. A is correct.",
+      "hint": "Use a stable business key.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0027",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Distinguish sequence numbers from timestamps for ordering",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Amber uses wall-clock timestamps to order messages. Why can gaps be ambiguous?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Timestamps are always unique",
+          "misconception": "they can collide"
+        },
+        {
+          "id": "B",
+          "text": "Clocks can drift and reorder messages",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Timestamps are too small to sort",
+          "misconception": "size is not the issue"
+        },
+        {
+          "id": "D",
+          "text": "Timestamps cannot be stored",
+          "misconception": "they can be stored"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Wall-clock drift and skew can reorder messages, making gaps ambiguous. Monotonic sequence numbers avoid this. A is correct.",
+      "hint": "Clocks drift and skew.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0028",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Compare last-write-wins versus merge for stale edits",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Blake uses last-write-wins and a stale edit overwrites a newer delete. What is the flaw?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Last-write-wins requires more storage",
+          "misconception": "storage is not the issue"
+        },
+        {
+          "id": "B",
+          "text": "Last-write-wins is too slow",
+          "misconception": "speed is not the issue"
+        },
+        {
+          "id": "C",
+          "text": "Last-write-wins ignores deletion causality",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Last-write-wins prevents all edits",
+          "misconception": "it allows edits, incorrectly"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Last-write-wins by timestamp ignores that a delete happened, letting a stale edit resurrect the row. Causal tracking is needed. A is correct.",
+      "hint": "Timestamps ignore deletion causality.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0029",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Embed related data to avoid joins",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Cara embeds line items in an order document. What does this avoid?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All validation of line items",
+          "misconception": "validation still applies"
+        },
+        {
+          "id": "B",
+          "text": "Indexing the order id",
+          "misconception": "indexing is still possible"
+        },
+        {
+          "id": "C",
+          "text": "Storing the order id",
+          "misconception": "id is still stored"
+        },
+        {
+          "id": "D",
+          "text": "A join between orders and line items",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Embedding related data in one document avoids a join between collections. Indexing, ids, and validation remain. A is correct.",
+      "hint": "Embedding avoids joins.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0030",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Choose which indexes to keep on a write-heavy table",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst David's write-heavy table has eight indexes. How should he reduce write cost?",
+      "answer": {
+        "exemplar": "He should drop indexes that are unused or redundant, keep only those serving frequent queries, and consider partial or covering indexes. Fewer indexes mean fewer writes per row and lower latency."
+      },
+      "explanation": "Dropping unused and redundant indexes reduces per-write maintenance. Keeping only needed indexes lowers latency. That is the fix.",
+      "hint": "Drop unused indexes.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0031",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret 'Index Only Scan'",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Ella sees 'Index Only Scan'. What does it mean?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the index is read, data is ignored",
+          "misconception": "data is still returned from the index"
+        },
+        {
+          "id": "B",
+          "text": "All needed columns are in the index, no heap fetch",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The table does not exist",
+          "misconception": "table still exists"
+        },
+        {
+          "id": "D",
+          "text": "The query returns no rows",
+          "misconception": "scan type does not imply empty result"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Index Only Scan means all needed columns are in the index, avoiding heap fetches. It does not imply missing table or empty result. A is correct.",
+      "hint": "No heap fetch needed.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0032",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Handle SSE reconnection and last-event-id",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Finn's SSE client reconnects and misses events. What mechanism recovers them?",
+      "options": [
+        {
+          "id": "A",
+          "text": "SSE automatically buffers all events forever",
+          "misconception": "buffering is server-dependent"
+        },
+        {
+          "id": "B",
+          "text": "The client re-requests the whole stream from the start",
+          "misconception": "inefficient and not the standard"
+        },
+        {
+          "id": "C",
+          "text": "The Last-Event-ID header resumes from the last received event",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The client polls instead",
+          "misconception": "abandons SSE"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "SSE supports resume via Last-Event-ID, letting the server replay from the last received event. Re-requesting all or polling are not the standard. A is correct.",
+      "hint": "Use Last-Event-ID to resume.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0033",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Order queue processing by priority",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst George has urgent and normal messages in one offline queue. How should he prioritize?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Drop normal messages under load",
+          "misconception": "loses data unnecessarily"
+        },
+        {
+          "id": "B",
+          "text": "Process in arrival order only",
+          "misconception": "ignores urgency"
+        },
+        {
+          "id": "C",
+          "text": "Process normal first to clear backlog",
+          "misconception": "reverses priority"
+        },
+        {
+          "id": "D",
+          "text": "Process urgent first using a priority queue",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A priority queue processes urgent messages first while retaining normal ones. Arrival-only ignores urgency; dropping loses data. A is correct.",
+      "hint": "Use a priority queue.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0034",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Handle a duplicate that arrives after a delay",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Hannah's consumer processed message 7, then a delayed duplicate arrives. What should happen?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply it again because it is a new delivery",
+          "misconception": "ignores idempotency"
+        },
+        {
+          "id": "B",
+          "text": "Skip it because its id is already in the processed store",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Apply it and overwrite the previous result",
+          "misconception": "creates duplicate effects"
+        },
+        {
+          "id": "D",
+          "text": "Fail the consumer to alert operators",
+          "misconception": "overreacts to normal duplicate"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A delayed duplicate should be skipped based on the processed store. Applying or failing is wrong. A is correct.",
+      "hint": "Skip already-processed ids.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0035",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Choose between buffering and skipping gaps",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Ivan has a gap that will never arrive. How should his consumer proceed?",
+      "answer": {
+        "exemplar": "He should time out after a bounded wait, then either skip the missing sequence and apply later messages with a recorded hole, or fail the stream per its contract. Buffering forever stalls the consumer, so a timeout-driven decision is required."
+      },
+      "explanation": "A permanent gap requires a timeout-driven decision: skip with a recorded hole or fail per contract. Buffering forever stalls. That is the fix.",
+      "hint": "Timeout then skip or fail.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0036",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Reconcile a stale edit using a merge function",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Judy's device sends an old edit after a delete. Which reconciliation is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Apply the edit and then re-delete",
+          "misconception": "unnecessary churn"
+        },
+        {
+          "id": "B",
+          "text": "Merge the edit into a new row",
+          "misconception": "resurrects deleted data"
+        },
+        {
+          "id": "C",
+          "text": "Reject the edit and keep the row deleted",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Ignore the delete and apply the edit",
+          "misconception": "loses the deletion"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The delete is authoritative; the stale edit must be rejected and the row stays deleted. Merging, re-deleting, or ignoring the delete is wrong. A is correct.",
+      "hint": "Delete is authoritative.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0037",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Avoid null columns with sparse documents",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Karl has many optional attributes per entity. Why might a document store fit better than a wide table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tables are faster for sparse data",
+          "misconception": "not generally true"
+        },
+        {
+          "id": "B",
+          "text": "Wide tables cannot have NULLs",
+          "misconception": "they can, but waste space"
+        },
+        {
+          "id": "C",
+          "text": "Documents require all fields to be present",
+          "misconception": "opposite of document flexibility"
+        },
+        {
+          "id": "D",
+          "text": "Sparse fields are omitted rather than stored as NULL columns",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Documents omit absent fields instead of storing NULL columns, saving space and avoiding schema changes. B, C, D misstate. A is correct.",
+      "hint": "Omit absent fields.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0038",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Estimate write amplification from indexes",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Lena's table has 4 indexes. Each insert triggers 5 writes. Is that plausible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No, inserts only touch the base table",
+          "misconception": "ignores index maintenance"
+        },
+        {
+          "id": "B",
+          "text": "Yes, one base row plus four index entries",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "No, indexes are updated asynchronously only",
+          "misconception": "not by default"
+        },
+        {
+          "id": "D",
+          "text": "Yes, but only for updates, not inserts",
+          "misconception": "inserts also maintain indexes"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An insert writes the base row plus one entry per index, so 4 indexes means 5 writes. B, C, D misstate. A is correct.",
+      "hint": "Base row plus index entries.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0039",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret 'Hash Join' in a plan",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Mike's plan shows 'Hash Join'. What does it indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The join uses a nested loop over indexes",
+          "misconception": "that is Nested Loop"
+        },
+        {
+          "id": "B",
+          "text": "The join sorts both inputs first",
+          "misconception": "that is Merge Join"
+        },
+        {
+          "id": "C",
+          "text": "The smaller input is hashed and probed by the larger",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The join compresses rows before comparing",
+          "misconception": "compression is unrelated"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Hash Join builds a hash table on the smaller input and probes it with the larger. Sort-based is Merge Join; index-based is Nested Loop. A is correct.",
+      "hint": "Hash the smaller side.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0040",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Choose SSE versus WebSocket for bidirectional needs",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Nina needs bidirectional real-time chat. Why is SSE alone insufficient?",
+      "answer": {
+        "exemplar": "SSE is server-to-client only, so client-to-server messages need a separate HTTP channel, which adds latency and complexity. WebSocket provides a single bidirectional channel, making it the better fit for chat."
+      },
+      "explanation": "SSE is one-way, so bidirectional chat needs WebSocket for a single channel. SSE plus separate POSTs works but is clumsier.",
+      "hint": "Chat needs bidirectional.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0041",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Implement queue persistence with replay",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Oscar's queue must survive a crash and replay on startup. What is required?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Disabling crashes",
+          "misconception": "not a real control"
+        },
+        {
+          "id": "B",
+          "text": "In-memory buffer with larger size",
+          "misconception": "not durable"
+        },
+        {
+          "id": "C",
+          "text": "Faster retry interval",
+          "misconception": "speed is not durability"
+        },
+        {
+          "id": "D",
+          "text": "Durable storage plus idempotent replay",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Surviving a crash needs durable storage and idempotent replay to avoid duplicate application. In-memory, faster retry, or disabling crashes do not. A is correct.",
+      "hint": "Durable storage plus idempotent replay.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0042",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Choose at-least-once with idempotency over exactly-once",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Paula can choose at-least-once plus idempotency or exactly-once. Which is usually better?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Exactly-once, because it is always available",
+          "misconception": "exactly-once is costly and rare end to end"
+        },
+        {
+          "id": "B",
+          "text": "At-least-once plus idempotency, simpler and robust",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "At-most-once, because duplicates never happen",
+          "misconception": "at-most-once can drop messages"
+        },
+        {
+          "id": "D",
+          "text": "No delivery guarantee, to keep it simple",
+          "misconception": "loses correctness"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "At-least-once plus idempotency is simpler and robust; exactly-once is costly and rare end to end. A is correct.",
+      "hint": "At-least-once plus idempotency.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0043",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Use a retransmission request for a missing sequence",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Quinn detects a missing sequence number. What request should she send?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A duplicate of the last received message",
+          "misconception": "does not request the missing one"
+        },
+        {
+          "id": "B",
+          "text": "A disconnect and reconnect",
+          "misconception": "disruptive and unnecessary"
+        },
+        {
+          "id": "C",
+          "text": "A NACK or retransmit request for the missing number",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Nothing, wait forever",
+          "misconception": "stalls the consumer"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A NACK or retransmit request targets the missing sequence number specifically. Disconnecting, duplicating, or waiting forever are wrong. A is correct.",
+      "hint": "Request retransmission of the gap.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0044",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Apply operational transformation or CRDT for concurrent edits",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Rosa needs to merge concurrent edits from multiple devices. What approach fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reject all concurrent edits",
+          "misconception": "loses valid work"
+        },
+        {
+          "id": "B",
+          "text": "Last-write-wins by clock",
+          "misconception": "loses concurrent edits"
+        },
+        {
+          "id": "C",
+          "text": "Manual merge by an admin",
+          "misconception": "does not scale"
+        },
+        {
+          "id": "D",
+          "text": "Operational transformation or CRDTs",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Operational transformation and CRDTs merge concurrent edits deterministically. Last-write-wins loses edits; manual merge does not scale; rejecting loses work. A is correct.",
+      "hint": "Use OT or CRDTs.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0045",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Nest arrays of varying length in a document",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Sam stores a variable number of tags per article. How does a document shape help?",
+      "answer": {
+        "exemplar": "A document can store tags as an array of varying length per record, while a relational table needs a separate join table or fixed columns. This keeps the data local and avoids joins for a variable-length list."
+      },
+      "explanation": "Documents store variable-length arrays inline, avoiding join tables or fixed columns. That keeps data local and simple.",
+      "hint": "Variable-length arrays inline.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0046",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Use partial indexes to reduce write cost",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Tina wants an index only on active rows to cut write cost. What index type fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A full index on all rows",
+          "misconception": "higher write cost"
+        },
+        {
+          "id": "B",
+          "text": "A partial index with a WHERE active = true clause",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "A unique index on id",
+          "misconception": "already exists, not the goal"
+        },
+        {
+          "id": "D",
+          "text": "No index at all",
+          "misconception": "loses query support"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A partial index covers only active rows, reducing index size and write cost for inactive rows. Full index costs more; unique id is unrelated; none loses support. A is correct.",
+      "hint": "Partial index on active rows.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0047",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret 'Nested Loop' in a plan",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Uma sees 'Nested Loop' in a plan. What does it mean?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The smaller input is hashed",
+          "misconception": "that is Hash Join"
+        },
+        {
+          "id": "B",
+          "text": "Both inputs are sorted and merged",
+          "misconception": "that is Merge Join"
+        },
+        {
+          "id": "C",
+          "text": "For each outer row, scan the inner input",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "All rows are read once in sequence",
+          "misconception": "that is Seq Scan"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Nested Loop iterates the inner input for each outer row. Sorting is Merge Join; hashing is Hash Join; single read is Seq Scan. A is correct.",
+      "hint": "Outer drives inner scan.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0048",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Set SSE retry and event id fields",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Victor sends SSE events. Which field lets a client resume after a disconnect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The retry field sets the id",
+          "misconception": "retry sets interval, not id"
+        },
+        {
+          "id": "B",
+          "text": "The data field only",
+          "misconception": "data alone has no resume anchor"
+        },
+        {
+          "id": "C",
+          "text": "The event name field",
+          "misconception": "name is for routing, not resume"
+        },
+        {
+          "id": "D",
+          "text": "The id field on each event",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The id field on each event gives the client a resume anchor via Last-Event-ID. data alone, event name, and retry do not serve as resume ids. A is correct.",
+      "hint": "Use the id field.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0049",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Avoid retry storms with jitter",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Wendy's many clients retry at the same fixed interval and overwhelm the server. What is missing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A longer fixed interval",
+          "misconception": "still synchronized"
+        },
+        {
+          "id": "B",
+          "text": "Jitter to spread retry times",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "More clients",
+          "misconception": "worsens the storm"
+        },
+        {
+          "id": "D",
+          "text": "Faster retries",
+          "misconception": "worsens the storm"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Jitter spreads retry times across clients, preventing synchronized storms. Longer fixed intervals still synchronize. A is correct.",
+      "hint": "Add jitter.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0050",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Store idempotency keys with a TTL",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Xavier stores idempotency keys. Why add a TTL?",
+      "options": [
+        {
+          "id": "A",
+          "text": "To speed up lookups",
+          "misconception": "TTL is not for speed"
+        },
+        {
+          "id": "B",
+          "text": "To make keys unique faster",
+          "misconception": "TTL does not affect uniqueness"
+        },
+        {
+          "id": "C",
+          "text": "To expire old keys and bound storage",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "To retry messages automatically",
+          "misconception": "TTL does not trigger retries"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A TTL expires old idempotency keys, bounding storage while keeping recent dedup effective. B, C, D misstate TTL purpose. A is correct.",
+      "hint": "Expire old keys.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 36
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0051",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Distinguish gaps caused by loss from reordering",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Yvonne sees a gap. How can she tell if it is loss versus reordering?",
+      "answer": {
+        "exemplar": "She should wait a bounded timeout: if the missing number arrives later, it was reordering; if not, it is loss. Sequence numbers alone cannot distinguish the two, so a time-based observation is required."
+      },
+      "explanation": "A bounded wait distinguishes reordering from loss: arrival later means reordering, absence means loss. Sequence numbers alone cannot tell. That is the method.",
+      "hint": "Wait, then classify.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0052",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Use a tombstone retention window",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst Zach's tombstones are purged after 7 days. A device offline for 10 days syncs. What risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The server rejects all edits",
+          "misconception": "only stale ones are at risk"
+        },
+        {
+          "id": "B",
+          "text": "The sync is faster",
+          "misconception": "speed is not the risk"
+        },
+        {
+          "id": "C",
+          "text": "The device crashes",
+          "misconception": "no crash is implied"
+        },
+        {
+          "id": "D",
+          "text": "The stale edit may resurrect a deleted row",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Purged tombstones mean the server no longer knows the row was deleted, so a stale edit can resurrect it. A is the risk.",
+      "hint": "Purged tombstone loses delete memory.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0053",
+      "topic": "What a document shape permits that a table of columns cannot",
+      "learningObjective": "Use polymorphic documents in one collection",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Amber stores users and admins in one collection with different fields. What enables this?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A separate table per type",
+          "misconception": "that is the relational approach"
+        },
+        {
+          "id": "B",
+          "text": "Polymorphic documents without a fixed schema",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Fixed columns with NULLs for unused fields",
+          "misconception": "wasteful and rigid"
+        },
+        {
+          "id": "D",
+          "text": "Binary serialization of each type",
+          "misconception": "not required"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Polymorphic documents allow different shapes in one collection without a fixed schema. Separate tables, NULL columns, or binary serialization are not needed. A is correct.",
+      "hint": "Polymorphic documents.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 40
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0054",
+      "topic": "The write cost an index adds",
+      "learningObjective": "Balance read and write performance when adding indexes",
+      "practice": "index write cost",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Blake adds an index to speed a rare query on a busy write table. Is it worth it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because indexes are free on writes",
+          "misconception": "indexes cost writes"
+        },
+        {
+          "id": "B",
+          "text": "Yes, any index improves performance",
+          "misconception": "ignores write cost"
+        },
+        {
+          "id": "C",
+          "text": "No, the constant write cost exceeds the rare read benefit",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "No, because indexes cannot be added to busy tables",
+          "misconception": "overstates, they can but cost more"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An index on a rare query imposes constant write cost on a busy table, so it is not worth it. A is correct; B and C ignore write cost; D overstates.",
+      "hint": "Rare reads do not justify write cost.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0055",
+      "topic": "Reading the three words a plan uses to describe its work",
+      "learningObjective": "Interpret 'Sort' node in a plan",
+      "practice": "plan reading",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Analyst Cara sees a 'Sort' node in a plan. What does it indicate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The engine compresses sorted data",
+          "misconception": "compression is unrelated"
+        },
+        {
+          "id": "B",
+          "text": "The engine reads rows in sorted order from an index",
+          "misconception": "that is Index Scan"
+        },
+        {
+          "id": "C",
+          "text": "The engine removes duplicate rows",
+          "misconception": "that is Unique or HashAggregate"
+        },
+        {
+          "id": "D",
+          "text": "The engine sorts rows, often for ORDER BY or merge join",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A Sort node means the engine sorts rows, often for ORDER BY or merge join. Reading sorted from an index is Index Scan. A is correct.",
+      "hint": "Engine sorts rows.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 24,
+        "p75Sec": 38
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0056",
+      "topic": "A server-sent event and the one direction it allows",
+      "learningObjective": "Use SSE for live dashboard updates",
+      "practice": "sse direction",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Analyst David's dashboard needs live server push only. Which transport fits SSE?",
+      "options": [
+        {
+          "id": "A",
+          "text": "WebSocket, because it is bidirectional",
+          "misconception": "bidirectional is unnecessary here"
+        },
+        {
+          "id": "B",
+          "text": "SSE, one-way server to client over HTTP",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Long polling, because SSE is deprecated",
+          "misconception": "SSE is not deprecated"
+        },
+        {
+          "id": "D",
+          "text": "gRPC, because it is faster",
+          "misconception": "overkill for simple push"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "SSE provides one-way server push over HTTP with auto-reconnect, fitting live dashboard updates. WebSocket is unnecessary; long polling is less efficient; gRPC is overkill. A is correct.",
+      "hint": "SSE fits one-way push.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0057",
+      "topic": "An offline queue and the retry policy that empties it",
+      "learningObjective": "Summarize an effective offline queue policy",
+      "practice": "retry policy",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Ella needs a policy that empties an offline queue reliably. Summarize it.",
+      "answer": {
+        "exemplar": "Persist the queue durably, retry with exponential backoff and jitter, cap attempts, move poison messages to a dead-letter queue, and replay idempotently on restart. This empties the queue without losing data or overwhelming the endpoint."
+      },
+      "explanation": "A reliable policy combines durable storage, backoff with jitter, capped retries, dead-letter handling, and idempotent replay. That empties the queue safely.",
+      "hint": "Persist, backoff, cap, dead-letter, replay.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 62
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0058",
+      "topic": "A message delivered three times and the consumer that applies it once",
+      "learningObjective": "Summarize idempotent consumer design",
+      "practice": "idempotent consumer",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Finn wants a consumer that applies a message once despite duplicates. Summarize the design.",
+      "answer": {
+        "exemplar": "Record each message id in a processed store within the same transaction as the application, check before processing, and make the operation a no-op if already present. Use a stable business key when no message id exists, with a TTL to bound storage."
+      },
+      "explanation": "Idempotent processing records ids transactionally, checks before processing, and uses stable keys with TTL. That ensures single application despite duplicates.",
+      "hint": "Record ids transactionally with TTL.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0059",
+      "topic": "A gap in a sequence and the messages that must wait for it",
+      "learningObjective": "Summarize gap handling strategy",
+      "practice": "sequence gap",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst George needs to handle sequence gaps in a stream. Summarize the strategy.",
+      "answer": {
+        "exemplar": "Buffer out-of-order messages, wait a bounded timeout for the missing number, then either request retransmission, skip with a recorded hole, or fail per contract. Never buffer forever, and use monotonic sequence numbers rather than wall clocks."
+      },
+      "explanation": "Gap handling buffers, waits a bounded time, then retransmits, skips, or fails per contract, using monotonic sequence numbers. That avoids stalls and ambiguity.",
+      "hint": "Buffer, timeout, then decide.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.7-0060",
+      "topic": "A device that missed a delete and comes back with an old edit",
+      "learningObjective": "Summarize stale-edit reconciliation",
+      "practice": "stale edit",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Analyst Hannah needs to reconcile stale edits against newer deletes. Summarize the approach.",
+      "answer": {
+        "exemplar": "Keep tombstones for a retention window longer than the max offline duration, detect stale edits via version vectors or causal history, and reject edits targeting deleted rows. This prevents resurrection of deleted data without manual intervention."
+      },
+      "explanation": "Stale-edit reconciliation uses tombstones with sufficient retention, causal detection, and rejection of edits to deleted rows. That prevents resurrection of deleted data.",
+      "hint": "Tombstones plus causal detection.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    }
+  ]
+}

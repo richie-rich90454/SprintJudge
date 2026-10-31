@@ -26,9 +26,9 @@ const fakeWs = vi.hoisted(() => {
     };
 });
 
-vi.mock("./WebSocketService", () => ({ webSocketService: fakeWs }));
+vi.mock("../game/WebSocketService", () => ({ webSocketService: fakeWs }));
 
-import { gameStateManager } from "./GameStateManager";
+import { gameStateManager } from "../game/GameStateManager";
 import { useTimerStore } from "../stores/useTimerStore";
 
 type Msg = Record<string, unknown>;
@@ -520,7 +520,7 @@ describe("GameFlows disconnect and reconnect arcs", () => {
         delta(0, [entry("u-f", 1, 12)]);
         fakeWs.emitStatus("failed");
         expect(gameStateManager.state.error).toBe(
-            "Connection failed after 10 retries — refresh to rejoin",
+            "Connection failed after 10 retries. Refresh to rejoin.",
         );
         expect(gameStateManager.state.leaderboard.map((e) => e.uuid)).toEqual(["u-f"]);
         gameStateManager.join("5656", "Unlucky");

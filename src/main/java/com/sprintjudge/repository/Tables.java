@@ -68,4 +68,22 @@ public final class Tables {
     public static final Field<String> SET_KEY = DSL.field("key", SQLDataType.VARCHAR);
     public static final Field<String> SET_VALUE = DSL.field("value", SQLDataType.VARCHAR);
     public static final Field<Long> SET_UPDATED = DSL.field("updated_at", SQLDataType.BIGINT);
+
+    public static final Table<?> ROOM_EVENTS = DSL.table("room_events");
+    public static final Field<String> EVT_ROOM = DSL.field("room_id", SQLDataType.VARCHAR);
+    public static final Field<Long> EVT_SEQ = DSL.field("seq", SQLDataType.BIGINT);
+    public static final Field<String> EVT_TYPE = DSL.field("type", SQLDataType.VARCHAR);
+    public static final Field<String> EVT_ACTOR = DSL.field("actor_id", SQLDataType.VARCHAR);
+    public static final Field<String> EVT_PAYLOAD = DSL.field("payload_json", SQLDataType.VARCHAR);
+    public static final Field<String> EVT_AT = DSL.field("created_at", SQLDataType.VARCHAR);
+
+    public static final Table<?> CALIBRATION = DSL.table("question_calibration");
+    public static final Field<String> CAL_QID = DSL.field("question_id", SQLDataType.VARCHAR);
+    public static final Field<Double> CAL_PVALUE = DSL.field("p_value", SQLDataType.DOUBLE);
+    public static final Field<Double> CAL_DISC = DSL.field("discrimination", SQLDataType.DOUBLE);
+    public static final Field<Double> CAL_P25 = DSL.field("p25_sec", SQLDataType.DOUBLE);
+    public static final Field<Double> CAL_MED = DSL.field("median_sec", SQLDataType.DOUBLE);
+    public static final Field<Double> CAL_P75 = DSL.field("p75_sec", SQLDataType.DOUBLE);
+    public static final Field<Integer> CAL_ATTEMPTS = DSL.field("attempts", SQLDataType.INTEGER);
+    public static final Field<Long> CAL_UPDATED = DSL.field("updated_at", SQLDataType.BIGINT);
 }

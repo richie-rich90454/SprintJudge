@@ -1,0 +1,3382 @@
+{
+  "questions": [
+    {
+      "id": "datasci-3.10-0001",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Identify the correlated subquery that compares each row to its group average",
+      "practice": "group average",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A city planner memo asks which districts have population above their own region average. Which SQL pattern answers it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Filter rows where population exceeds a correlated subquery returning region average",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Use a self join grouped by region with HAVING population greater than AVG of all rows",
+          "misconception": "compares each row to the global average not its group"
+        },
+        {
+          "id": "C",
+          "text": "Rank districts with ROW_NUMBER and keep those whose rank is one",
+          "misconception": "confuses top rank with above-average membership"
+        },
+        {
+          "id": "D",
+          "text": "Group by district and use HAVING count greater than average population",
+          "misconception": "mixes count with average comparison"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The correlated subquery recomputes the average per region for each outer row, so only districts above their own region average remain. The self-join variant compares against the global average instead.",
+      "hint": "Think per-group comparison not global.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0002",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Count how many times a correlated subquery executes",
+      "practice": "subquery evals",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo lists 12 districts across 4 regions, each region holding 3 districts. A query filters districts whose population exceeds their region average using a correlated subquery.",
+        "license": "original"
+      },
+      "stem": "How many times does the correlated subquery evaluate for the memo's 12 districts?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4 evaluations, one per region in the outer table",
+          "misconception": "counts distinct groups rather than outer rows"
+        },
+        {
+          "id": "B",
+          "text": "12 evaluations, once per outer row",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "1 evaluation, because the result is cached for all rows",
+          "misconception": "assumes automatic caching of correlated results"
+        },
+        {
+          "id": "D",
+          "text": "48 evaluations, multiplying districts by regions",
+          "misconception": "multiplies outer and inner cardinalities"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A correlated subquery runs once for each outer row, so 12 districts mean 12 evaluations. Caching is not guaranteed and the count is not a product of cardinalities.",
+      "hint": "One evaluation per outer row.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0003",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Describe what a running total at frame end represents",
+      "practice": "running total",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A city planner memo tracks cumulative population by district ordered by year. Explain what a running total at the end of a frame means.",
+      "answer": {
+        "exemplar": "A running total at the end of a frame is the sum of all values from the first row of the frame through the current row inclusive. It grows as each new district-year is added and never drops within the ordered partition. In the memo it shows cumulative population up to that year."
+      },
+      "explanation": "The frame end includes the current row, so the running total accumulates every prior and current value. It differs from a trailing sum that excludes the current row.",
+      "hint": "Accumulate through current row.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0004",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Compute dense rank when two rows tie",
+      "practice": "dense rank",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo ranks 5 districts by population with values 100, 90, 90, 80, 70. What dense rank does the district with 80 receive?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Dense rank gives 1,2,2,3,4 for the sorted values, so 80 gets rank 3. Unlike RANK it does not skip numbers after a tie.",
+      "hint": "No gaps after ties.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 30,
+        "p75Sec": 48
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0005",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Decide how many rows a top-two-per-group query returns with a tie",
+      "practice": "top two tie",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A planner memo wants the top two districts per region by population. In region X populations are 100, 100, 90. How many rows does a DENSE_RANK filter of rank <= 2 return?",
+      "options": [
+        {
+          "id": "A",
+          "text": "2 rows because top two means exactly two districts",
+          "misconception": "assumes a fixed count regardless of ties"
+        },
+        {
+          "id": "B",
+          "text": "1 row because only the first tie counts",
+          "misconception": "drops tied peers incorrectly"
+        },
+        {
+          "id": "C",
+          "text": "3 rows because both 100s share rank 1 and 90 is rank 2",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "4 rows because rank 2 expands to include all lower values",
+          "misconception": "misreads the rank boundary"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "With values 100,100,90 dense ranks are 1,1,2, so rank <= 2 includes all three rows. A fixed count would miss a tied leader.",
+      "hint": "Ties share a rank.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0006",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Count rows produced by a recursive CTE walk",
+      "practice": "recursive rows",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A memo models district adjacency as a graph. A recursive CTE walks from district A through 3 levels. How many rows can it produce at most with branching factor 2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3 rows, one per level",
+          "misconception": "counts levels not nodes"
+        },
+        {
+          "id": "B",
+          "text": "6 rows excluding the seed",
+          "misconception": "omits the starting node"
+        },
+        {
+          "id": "C",
+          "text": "8 rows doubling each level",
+          "misconception": "forgets the seed row"
+        },
+        {
+          "id": "D",
+          "text": "7 rows including the seed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A full binary tree of depth 3 including the seed has 1+2+4=7 nodes. Excluding the seed or counting only levels undercounts the walk.",
+      "hint": "Sum powers of two plus seed.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0007",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Determine which predicate can use a composite index seek",
+      "practice": "index seek",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner database has a composite index on (region, district, year). A memo lists queries filtering on region only, district only, region and district, and region district and year.",
+        "license": "original"
+      },
+      "stem": "Which query can seek the composite index (region, district, year)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Filter on region and district",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Filter on district only",
+          "misconception": "skips the leading column"
+        },
+        {
+          "id": "C",
+          "text": "Filter on year only",
+          "misconception": "uses a trailing column alone"
+        },
+        {
+          "id": "D",
+          "text": "Filter on population only",
+          "misconception": "column not in index"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A composite index supports seeks when predicates use a prefix of its columns. Region and district form a valid prefix; district alone or year alone do not.",
+      "hint": "Prefix columns matter.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0008",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Compute inner rows read by a nested-loop join",
+      "practice": "nested loop",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo joins 4 outer districts to an inner table of 10 rows per district via nested loop. How many inner rows are read?",
+      "answer": {
+        "value": 40,
+        "tolerance": 0.01
+      },
+      "explanation": "Nested loop reads inner rows once per outer row: 4 times 10 equals 40. A hash join would differ but the question specifies nested loop.",
+      "hint": "Multiply outer by inner.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0009",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Explain the effect of a missing join predicate",
+      "practice": "lost join",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner query omits the join condition between district and population tables. Explain what happens to the row count.",
+      "answer": {
+        "exemplar": "Omitting the join condition turns the join into a Cartesian product, so every district row pairs with every population row. The result size becomes the product of the two table sizes and the memo's planning figures become meaningless. Restoring the equality predicate fixes it."
+      },
+      "explanation": "Without a predicate the engine pairs all combinations, exploding the row count. Adding the equality predicate restores the intended one-to-one mapping.",
+      "hint": "Cartesian product explosion.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0010",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Compute rows repeated across offset pages",
+      "practice": "offset repeat",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A memo pages 20 rows per page using OFFSET. Page 2 overlaps page 1 by 3 rows due to inserts. How many distinct rows appear across the first two pages?",
+      "options": [
+        {
+          "id": "A",
+          "text": "34 distinct rows",
+          "misconception": "subtracts overlap twice"
+        },
+        {
+          "id": "B",
+          "text": "40 distinct rows",
+          "misconception": "ignores the overlap entirely"
+        },
+        {
+          "id": "C",
+          "text": "37 distinct rows",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "23 distinct rows",
+          "misconception": "adds only one page plus overlap"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Two pages of 20 with 3 overlapping rows yield 20+20-3=37 distinct rows. Ignoring overlap overcounts and double subtraction undercounts.",
+      "hint": "Union minus overlap.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 34,
+        "p75Sec": 52
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0011",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Identify the window function that compares a row to its group average",
+      "practice": "window avg",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo needs each district's population compared to its region average in one pass. Which window function helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "COUNT(*) OVER (ORDER BY population)",
+          "misconception": "counts rows not population"
+        },
+        {
+          "id": "B",
+          "text": "SUM(population) OVER (ORDER BY region)",
+          "misconception": "sums instead of averaging and orders wrong"
+        },
+        {
+          "id": "C",
+          "text": "ROW_NUMBER() OVER (PARTITION BY region)",
+          "misconception": "assigns ranks not averages"
+        },
+        {
+          "id": "D",
+          "text": "AVG(population) OVER (PARTITION BY region)",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "AVG over a partition by region computes each district's region average alongside its own value. SUM, ROW_NUMBER, and COUNT do not produce an average.",
+      "hint": "Average over partition.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0012",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Estimate cost of repeated correlated subquery evaluations",
+      "practice": "cost estimate",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo's query runs a correlated subquery over 1000 districts grouped into 50 regions. Each subquery scans its region's 20 districts.",
+        "license": "original"
+      },
+      "stem": "Approximately how many inner rows does the correlated subquery scan in total?",
+      "options": [
+        {
+          "id": "A",
+          "text": "50 scans of 20 rows each",
+          "misconception": "counts regions not outer rows"
+        },
+        {
+          "id": "B",
+          "text": "1 scan of 1000 rows",
+          "misconception": "assumes one global evaluation"
+        },
+        {
+          "id": "C",
+          "text": "1000 scans of 20 rows each",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "20 scans of 50 rows each",
+          "misconception": "swaps counts"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Each of the 1000 outer rows triggers a scan of 20 inner rows, totaling 1000 times 20. Region count only affects grouping, not evaluation count.",
+      "hint": "Outer rows drive evaluations.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 24,
+        "medianSec": 40,
+        "p75Sec": 60
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0013",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Compute a running total value at a given row",
+      "practice": "running value",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo lists district populations 10, 20, 30 by year. What is the running total at the end of the second row?",
+      "answer": {
+        "value": 30,
+        "tolerance": 0.01
+      },
+      "explanation": "The running total through the second row is 10 plus 20 equals 30. The third row is not yet included.",
+      "hint": "Sum first two values.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0014",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Explain dense rank behavior with ties",
+      "practice": "dense explain",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo ranks districts by population and two districts tie for first. Explain how DENSE_RANK assigns ranks.",
+      "answer": {
+        "exemplar": "DENSE_RANK assigns the same rank to tied rows and the next distinct value gets the immediately following integer with no gap. So two first-place districts both get 1 and the next district gets 2. RANK would instead skip to 3."
+      },
+      "explanation": "Dense rank never leaves gaps after ties, unlike RANK. This keeps ranks contiguous and predictable for reporting.",
+      "hint": "No gaps in dense rank.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0015",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Choose between RANK and DENSE_RANK for top-N per group",
+      "practice": "rank choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A memo wants exactly the top two distinct population levels per region. Which function filters correctly?",
+      "options": [
+        {
+          "id": "A",
+          "text": "NTILE(2) to capture two distinct levels",
+          "misconception": "buckets rows not ranks"
+        },
+        {
+          "id": "B",
+          "text": "RANK <= 2 to capture two distinct levels",
+          "misconception": "RANK can skip levels after ties"
+        },
+        {
+          "id": "C",
+          "text": "ROW_NUMBER <= 2 to capture two distinct levels",
+          "misconception": "row number breaks ties arbitrarily"
+        },
+        {
+          "id": "D",
+          "text": "DENSE_RANK <= 2 to capture two distinct levels",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "DENSE_RANK <= 2 selects the top two distinct levels even with ties. RANK may skip, ROW_NUMBER breaks ties, and NTILE buckets rather than ranks.",
+      "hint": "Distinct levels need dense rank.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0016",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Identify termination risk in a recursive CTE",
+      "practice": "recursive risk",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo's recursive CTE walks district adjacency with no cycle guard and the graph contains a cycle between districts A and B.",
+        "license": "original"
+      },
+      "stem": "What happens to the recursive CTE when it meets the cycle?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It stops after visiting each node once",
+          "misconception": "assumes automatic visited tracking"
+        },
+        {
+          "id": "B",
+          "text": "It skips the cycle and continues",
+          "misconception": "assumes graceful skip"
+        },
+        {
+          "id": "C",
+          "text": "It loops indefinitely or hits a depth limit",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It returns only the seed row",
+          "misconception": "assumes failure aborts output"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Without a cycle guard the recursion revisits nodes forever or until a depth limit stops it. Automatic visited tracking and graceful skips do not exist by default.",
+      "hint": "Guard cycles explicitly.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0017",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Explain why a leading-column predicate enables a seek",
+      "practice": "leading col",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A memo's composite index is (region, district, year). Explain why filtering on region alone can still seek.",
+      "answer": {
+        "exemplar": "Region is the leading column of the composite index, so the engine can navigate the B-tree directly to region entries without scanning. Trailing columns alone cannot do this because the index is sorted by region first."
+      },
+      "explanation": "Leading-column predicates match the index sort order, enabling a seek. Trailing-only predicates require scanning because the leading prefix is unspecified.",
+      "hint": "Leading column drives seek.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0018",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Compare nested-loop inner reads with and without an index",
+      "practice": "index benefit",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A memo joins 5 outer districts to an inner table of 100 rows. With an index on the join key, about how many inner rows does nested loop read?",
+      "options": [
+        {
+          "id": "A",
+          "text": "25 rows, half the table",
+          "misconception": "arbitrary reduction"
+        },
+        {
+          "id": "B",
+          "text": "500 rows, full scan each time",
+          "misconception": "ignores index benefit"
+        },
+        {
+          "id": "C",
+          "text": "100 rows, one full scan total",
+          "misconception": "assumes single scan"
+        },
+        {
+          "id": "D",
+          "text": "5 rows, one index lookup per outer row",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "An index lets each outer row probe a few inner rows instead of scanning all 100, so roughly 5 lookups total. Without an index it would scan 500.",
+      "hint": "Index turns scan into probe.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0019",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Compute Cartesian product size from lost join",
+      "practice": "cartesian size",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo's district table has 8 rows and its population table has 5 rows. A lost join condition produces how many rows?",
+      "answer": {
+        "value": 40,
+        "tolerance": 0.01
+      },
+      "explanation": "The Cartesian product is 8 times 5 equals 40 rows. Restoring the join predicate would reduce this to the intended matches.",
+      "hint": "Multiply table sizes.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0020",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Explain why OFFSET pagination repeats rows",
+      "practice": "offset explain",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo paginates results with OFFSET and new rows are inserted between pages. Explain why rows repeat.",
+      "answer": {
+        "exemplar": "OFFSET counts from the start each time, so inserted rows shift later rows into the next page's window and cause repeats or skips. Keyset pagination using a cursor avoids this by anchoring to the last seen value."
+      },
+      "explanation": "OFFSET is position-based and unstable under inserts. A cursor anchor keeps pagination consistent because it does not recount from the beginning.",
+      "hint": "Position shifts under inserts.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0021",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Compute how many rows exceed their group average",
+      "practice": "count above",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo has group values 10,20,30 with average 20. How many values are above their group average?",
+      "answer": {
+        "value": 1,
+        "tolerance": 0.01
+      },
+      "explanation": "Only 30 exceeds the average of 20, so one row qualifies. 10 and 20 are not strictly above.",
+      "hint": "Compare to 20.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0022",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Identify a scenario needing a correlated subquery",
+      "practice": "when correlated",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo must compare each district to its own region average. When is a correlated subquery needed?",
+      "options": [
+        {
+          "id": "A",
+          "text": "When no join columns exist",
+          "misconception": "correlation needs a shared column"
+        },
+        {
+          "id": "B",
+          "text": "When the inner query is identical for every outer row",
+          "misconception": "describes an uncorrelated subquery"
+        },
+        {
+          "id": "C",
+          "text": "When the inner query depends on the outer row's region",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "When results must be sorted",
+          "misconception": "sorting is unrelated to correlation"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Correlation exists precisely when the inner query references an outer column such as region. An identical inner query is uncorrelated.",
+      "hint": "Outer reference defines correlation.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0023",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Distinguish running total from moving average",
+      "practice": "running vs moving",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A memo shows a running total and a 3-row moving average. Which statement is true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Moving average includes all rows ever",
+          "misconception": "moving average is bounded"
+        },
+        {
+          "id": "B",
+          "text": "Both include all prior rows",
+          "misconception": "moving average is windowed"
+        },
+        {
+          "id": "C",
+          "text": "Running total includes only the current row",
+          "misconception": "running total accumulates"
+        },
+        {
+          "id": "D",
+          "text": "Running total includes all prior rows; moving average includes only recent rows",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A running total accumulates from the start, while a moving average is bounded to a recent window. Confusing them misreads the memo's trend.",
+      "hint": "Accumulate vs window.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0024",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Compute dense rank for a given value set",
+      "practice": "dense calc",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Values 50,40,40,30,20 are ranked descending with DENSE_RANK. What rank does 30 receive?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Dense ranks are 1,2,2,3,4, so 30 gets 3. No gap follows the tie at 40.",
+      "hint": "Count distinct higher values plus one.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0025",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Explain top-two-per-group with ties",
+      "practice": "top2 explain",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo requests top two districts per region and ties exist. Explain why the result may have more than two rows.",
+      "answer": {
+        "exemplar": "When multiple districts tie at a rank boundary, a rank-based filter keeps all tied peers, so a top-two request can return three or more rows. Using ROW_NUMBER would force exactly two but break ties arbitrarily."
+      },
+      "explanation": "Rank-based filters preserve ties, expanding the result. ROW_NUMBER avoids expansion but chooses winners arbitrarily.",
+      "hint": "Ties expand rank filters.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0026",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Compute rows from a recursive walk with depth 2",
+      "practice": "recursive depth2",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A recursive CTE seed has 1 row and each row produces 3 children to depth 2. How many rows total?",
+      "answer": {
+        "value": 13,
+        "tolerance": 0.01
+      },
+      "explanation": "Depth 2 gives 1 + 3 + 9 = 13 rows. Each level triples the previous level's count.",
+      "hint": "Geometric sum.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0027",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Identify a query that cannot seek a composite index",
+      "practice": "non-seek",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A memo's composite index is (region, district, year). Which query cannot seek it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Filter on region and district",
+          "misconception": "valid prefix seek"
+        },
+        {
+          "id": "B",
+          "text": "Filter on region only",
+          "misconception": "valid prefix seek"
+        },
+        {
+          "id": "C",
+          "text": "Filter on region and year",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Filter on district and year",
+          "misconception": "valid prefix seek"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Region and year skips district, the middle column, so the index cannot seek on year directly. Region alone or region plus district are valid prefixes.",
+      "hint": "No skipping columns.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0028",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Explain nested-loop inner reads",
+      "practice": "nested explain",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo uses a nested-loop join. Explain how many inner rows are read.",
+      "answer": {
+        "exemplar": "A nested-loop join reads the inner table once for each outer row, so total inner reads equal outer rows times inner rows per probe. An index can reduce inner reads by turning scans into probes, but the loop structure remains."
+      },
+      "explanation": "The loop multiplies cardinalities unless an index narrows each probe. The structure itself always iterates over outer rows.",
+      "hint": "Outer times inner.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0029",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Identify the symptom of a lost join condition",
+      "practice": "lost symptom",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner query shows far more rows than expected. What is the likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A missing GROUP BY",
+          "misconception": "grouping changes aggregation not joins"
+        },
+        {
+          "id": "B",
+          "text": "Too few indexes",
+          "misconception": "indexes affect speed not row count"
+        },
+        {
+          "id": "C",
+          "text": "Wrong sort order",
+          "misconception": "sorting does not multiply rows"
+        },
+        {
+          "id": "D",
+          "text": "A lost join condition creating a Cartesian product",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "An unexpectedly huge result usually signals a missing join predicate producing a Cartesian product. Indexes, sorting, and grouping do not multiply rows like that.",
+      "hint": "Check join predicates.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0030",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Compute distinct rows across three offset pages with overlaps",
+      "practice": "three pages",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Three pages of 10 rows each overlap by 2 rows between consecutive pages. How many distinct rows?",
+      "answer": {
+        "value": 26,
+        "tolerance": 0.01
+      },
+      "explanation": "30 total minus 2 minus 2 overlaps equals 26 distinct rows. Each consecutive overlap removes 2 duplicates.",
+      "hint": "Subtract consecutive overlaps.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0031",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Distinguish correlated subquery from window average",
+      "practice": "subquery vs window",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A memo compares each district to its region average. Which approach computes the comparison in one pass?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Correlated subquery in WHERE",
+          "misconception": "works but re-evaluates per row"
+        },
+        {
+          "id": "B",
+          "text": "Window AVG over partition by region",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "GROUP BY region with HAVING",
+          "misconception": "returns groups not rows"
+        },
+        {
+          "id": "D",
+          "text": "Self join on district",
+          "misconception": "pairs rows incorrectly"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A window AVG computes the group average alongside each row in one pass. A correlated subquery also works but evaluates repeatedly.",
+      "hint": "One pass needs window.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0032",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Explain why correlated subqueries can be slow",
+      "practice": "slow correlated",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo's correlated subquery is slow. Explain the main reason.",
+      "answer": {
+        "exemplar": "A correlated subquery re-executes for every outer row, so cost multiplies with outer cardinality. Without an index on the inner predicate each execution scans its group, making the total work outer rows times inner scan size."
+      },
+      "explanation": "Repeated execution plus inner scans drives cost. Indexing the inner predicate or rewriting as a join reduces it.",
+      "hint": "Repeated execution multiplies cost.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0033",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Identify the frame clause for a running total",
+      "practice": "frame clause",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A memo needs a running total through the current row. Which frame clause is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "RANGE BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING",
+          "misconception": "looks forward not backward"
+        },
+        {
+          "id": "B",
+          "text": "ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING",
+          "misconception": "sliding window not running total"
+        },
+        {
+          "id": "C",
+          "text": "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING",
+          "misconception": "whole partition not running"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "UNBOUNDED PRECEDING to CURRENT ROW accumulates from the start through the current row. Other clauses create sliding or whole-partition windows.",
+      "hint": "Start to current row.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0034",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Compare RANK and DENSE_RANK after a tie",
+      "practice": "rank compare",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo ranks 4 districts with populations 100,100,90,80. RANK and DENSE_RANK are both applied descending.",
+        "license": "original"
+      },
+      "stem": "What rank does the district with 80 receive under RANK versus DENSE_RANK?",
+      "options": [
+        {
+          "id": "A",
+          "text": "RANK 3 and DENSE_RANK 4",
+          "misconception": "swaps the two functions"
+        },
+        {
+          "id": "B",
+          "text": "RANK 3 and DENSE_RANK 3",
+          "misconception": "RANK skips after tie"
+        },
+        {
+          "id": "C",
+          "text": "RANK 4 and DENSE_RANK 4",
+          "misconception": "DENSE_RANK does not skip"
+        },
+        {
+          "id": "D",
+          "text": "RANK 4 and DENSE_RANK 3",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "RANK gives 1,1,3,4 so 80 is 4. DENSE_RANK gives 1,1,2,3 so 80 is 3. The gap after the tie separates them.",
+      "hint": "RANK skips, dense does not.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0035",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Compute rows returned by top-two with ties",
+      "practice": "top2 count",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A region has populations 100,100,95,90. A DENSE_RANK <= 2 filter returns how many rows?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Dense ranks are 1,1,2,3, so rank <= 2 includes the two 100s and 95, totaling 3. The 90 is rank 3 and excluded.",
+      "hint": "Count ranks 1 and 2.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0036",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Describe a recursive CTE structure",
+      "practice": "recursive structure",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo uses a recursive CTE to walk district hierarchy. Explain its two parts.",
+      "answer": {
+        "exemplar": "A recursive CTE has an anchor member that selects the starting rows and a recursive member that references the CTE to extend the walk. The database repeatedly applies the recursive member until no new rows appear, then returns the union."
+      },
+      "explanation": "The anchor seeds the result and the recursive member extends it. Repetition continues until no new rows are produced, yielding the full reachable set.",
+      "hint": "Anchor plus recursive member.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0037",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Explain composite index ordering",
+      "practice": "index order",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A memo's composite index is (region, district, year). Explain its sort order.",
+      "answer": {
+        "exemplar": "The index sorts first by region, then within each region by district, then within each district by year. This nested ordering lets seeks on a leading prefix skip whole subtrees, but a predicate on district alone cannot use the index efficiently."
+      },
+      "explanation": "Nested sort order means seeks require a leading prefix. Skipping the first column forces scanning because entries are not globally sorted by later columns.",
+      "hint": "Nested sort order.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0038",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Compute nested-loop reads without an index",
+      "practice": "nested no index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo joins 6 outer districts to an inner table of 50 rows with no index. How many inner rows are read?",
+      "answer": {
+        "value": 300,
+        "tolerance": 0.01
+      },
+      "explanation": "Without an index each outer row scans all 50 inner rows: 6 times 50 equals 300. An index would reduce this sharply.",
+      "hint": "Multiply 6 by 50.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 16,
+        "medianSec": 28,
+        "p75Sec": 44
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0039",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Choose the fix for a lost join condition",
+      "practice": "lost fix",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner query has a Cartesian product from a lost join condition. Which fix is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add an index on the population column",
+          "misconception": "index speeds but does not filter pairs"
+        },
+        {
+          "id": "B",
+          "text": "Add the equality predicate between the two tables",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Increase the result limit",
+          "misconception": "truncates instead of fixing"
+        },
+        {
+          "id": "D",
+          "text": "Change INNER JOIN to LEFT JOIN",
+          "misconception": "still missing the predicate"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Restoring the equality predicate links rows correctly and eliminates the Cartesian product. Indexes, limits, and join type changes do not repair a missing predicate.",
+      "hint": "Restore the predicate.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0040",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Recommend an alternative to OFFSET pagination",
+      "practice": "offset alt",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A planner memo's OFFSET pagination repeats rows after inserts. Which alternative is best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Adding an index",
+          "misconception": "does not stabilize positions"
+        },
+        {
+          "id": "B",
+          "text": "Larger page sizes",
+          "misconception": "reduces pages not repeats"
+        },
+        {
+          "id": "C",
+          "text": "Keyset pagination using the last seen id",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Random ordering",
+          "misconception": "makes repeats worse"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Keyset pagination anchors to the last seen value, so inserts do not shift the window. Larger pages, indexes, and random ordering do not solve positional instability.",
+      "hint": "Anchor to last value.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0041",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Interpret a correlated subquery result",
+      "practice": "interpret result",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo shows district populations 5,15,25 in region R with region average 15. A correlated subquery keeps rows above average.",
+        "license": "original"
+      },
+      "stem": "Which districts remain after the filter?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Only the district with population 5",
+          "misconception": "reverses the comparison"
+        },
+        {
+          "id": "B",
+          "text": "Districts with 15 and 25",
+          "misconception": "includes equal not strictly above"
+        },
+        {
+          "id": "C",
+          "text": "All three districts",
+          "misconception": "ignores the filter"
+        },
+        {
+          "id": "D",
+          "text": "Only the district with population 25",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Only 25 is strictly greater than the region average of 15. 15 is equal, not above, and 5 is below.",
+      "hint": "Strictly greater than average.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0042",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Compute evaluations for a subset filter",
+      "practice": "subset evals",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo's outer query returns 7 districts and the correlated subquery runs per outer row. How many evaluations?",
+      "answer": {
+        "value": 7,
+        "tolerance": 0.01
+      },
+      "explanation": "The correlated subquery evaluates once per outer row returned, so 7 districts mean 7 evaluations.",
+      "hint": "One per outer row.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0043",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Compute running total for three rows",
+      "practice": "running 3",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo lists populations 4,6,10 by year. What is the running total at the end of the third row?",
+      "answer": {
+        "value": 20,
+        "tolerance": 0.01
+      },
+      "explanation": "The running total through the third row is 4 plus 6 plus 10 equals 20.",
+      "hint": "Sum all three.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0044",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Select the right function for contiguous ranks",
+      "practice": "contiguous ranks",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo needs contiguous ranks with no gaps after ties. Which function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "RANK",
+          "misconception": "leaves gaps after ties"
+        },
+        {
+          "id": "B",
+          "text": "DENSE_RANK",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "ROW_NUMBER",
+          "misconception": "no ties allowed"
+        },
+        {
+          "id": "D",
+          "text": "NTILE",
+          "misconception": "buckets not ranks"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "DENSE_RANK produces contiguous ranks with no gaps after ties. RANK leaves gaps, ROW_NUMBER disallows ties, and NTILE buckets rows.",
+      "hint": "Dense means no gaps.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0045",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Explain when top-two returns more than two rows",
+      "practice": "top2 more",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo's top-two-per-region query returns four rows for one region. Explain why.",
+      "answer": {
+        "exemplar": "A three-way tie at first place plus one row at second place yields four rows under a rank filter, because all tied leaders share rank 1 and the next value is rank 2. The filter keeps every tied peer rather than an arbitrary subset."
+      },
+      "explanation": "Rank filters retain all tied peers at a boundary, so ties can expand the result beyond the requested count.",
+      "hint": "Ties keep all peers.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0046",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Identify a recursive CTE use case",
+      "practice": "recursive use",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo needs all descendants of a district in an org chart. Which feature fits?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Window function",
+          "misconception": "computes over partitions not paths"
+        },
+        {
+          "id": "B",
+          "text": "GROUP BY with ROLLUP",
+          "misconception": "aggregates not traverses"
+        },
+        {
+          "id": "C",
+          "text": "Recursive CTE",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Correlated subquery",
+          "misconception": "compares values not paths"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A recursive CTE traverses hierarchical paths such as descendants. GROUP BY, window functions, and correlated subqueries do not walk paths.",
+      "hint": "Traversal needs recursion.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0047",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Compute index seek eligibility for a prefix",
+      "practice": "prefix check",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A composite index has 3 columns. How many non-empty column prefixes can seek it?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Prefixes of length 1, 2, and 3 can seek, so there are 3. The empty prefix is not a seek.",
+      "hint": "One per length.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0048",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Compare nested loop with hash join reads",
+      "practice": "join compare",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A planner memo joins two large tables. Which join is usually better when no index exists?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Merge join, because it sorts nothing",
+          "misconception": "merge join needs sorted inputs"
+        },
+        {
+          "id": "B",
+          "text": "Nested loop, because it is always fastest",
+          "misconception": "nested loop scans repeatedly"
+        },
+        {
+          "id": "C",
+          "text": "Cross join, because it is simplest",
+          "misconception": "multiplies all rows"
+        },
+        {
+          "id": "D",
+          "text": "Hash join, because it avoids repeated inner scans",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A hash join builds a hash table once and probes it, avoiding the repeated inner scans of a nested loop. Nested loops shine with indexes; merge joins need sorted inputs.",
+      "hint": "Hash avoids repeated scans.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0049",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Estimate impact of a lost join condition",
+      "practice": "lost impact",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner memo's district table has 100 rows and population table has 80 rows. A lost join condition is suspected.",
+        "license": "original"
+      },
+      "stem": "How many rows would the lost join produce?",
+      "options": [
+        {
+          "id": "A",
+          "text": "100 rows",
+          "misconception": "assumes correct join"
+        },
+        {
+          "id": "B",
+          "text": "8000 rows",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "80 rows",
+          "misconception": "assumes correct join"
+        },
+        {
+          "id": "D",
+          "text": "180 rows",
+          "misconception": "adds instead of multiplying"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The Cartesian product is 100 times 80 equals 8000 rows, far beyond either input. A correct join would return at most 100 or 80 rows.",
+      "hint": "Multiply the counts.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0050",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Explain cursor-based pagination benefit",
+      "practice": "cursor benefit",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo switches from OFFSET to cursor pagination. Explain the benefit.",
+      "answer": {
+        "exemplar": "Cursor pagination uses the last seen key value to fetch the next page, so inserts and deletes between requests do not shift the window or cause repeats and skips. OFFSET recomputes positions each request and is unstable."
+      },
+      "explanation": "Anchoring to a key value makes pagination stable under concurrent changes. OFFSET recomputes positions and repeats or skips rows.",
+      "hint": "Anchor to last key.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0051",
+      "topic": "Rows above their own group average",
+      "learningObjective": "Identify a common mistake with group averages",
+      "practice": "group mistake",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo's query compares each district to the average of all districts. What is the mistake?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It uses the maximum instead of the average",
+          "misconception": "maximum is not involved here"
+        },
+        {
+          "id": "B",
+          "text": "It uses the median instead of the mean",
+          "misconception": "median is not involved here"
+        },
+        {
+          "id": "C",
+          "text": "It uses the global average instead of the region average",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It uses the minimum instead of the average",
+          "misconception": "minimum is not involved here"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Comparing to the global average ignores regional differences and mislabels districts. The memo needs a per-region average.",
+      "hint": "Global vs group average.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0052",
+      "topic": "Evaluations of a correlated subquery",
+      "learningObjective": "Choose a rewrite for a slow correlated subquery",
+      "practice": "rewrite choice",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A planner memo's correlated subquery is slow. Which rewrite is best?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Increase work memory",
+          "misconception": "may help but not root cause"
+        },
+        {
+          "id": "B",
+          "text": "Add DISTINCT to the outer query",
+          "misconception": "does not reduce evaluations"
+        },
+        {
+          "id": "C",
+          "text": "Sort the results",
+          "misconception": "sorting does not change evaluation count"
+        },
+        {
+          "id": "D",
+          "text": "Join to a grouped derived table of region averages",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Joining to a derived table computes region averages once, eliminating repeated evaluation. DISTINCT, sorting, and memory do not address the root cause.",
+      "hint": "Compute averages once.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 36,
+        "p75Sec": 56
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0053",
+      "topic": "Running total at the end of a frame",
+      "learningObjective": "Identify when a running total resets",
+      "practice": "reset condition",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo partitions a running total by region. When does it reset?",
+      "options": [
+        {
+          "id": "A",
+          "text": "At the end of each year",
+          "misconception": "year is ordering not partition"
+        },
+        {
+          "id": "B",
+          "text": "At the start of each region partition",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Never, it accumulates all rows",
+          "misconception": "partition resets it"
+        },
+        {
+          "id": "D",
+          "text": "At every tied value",
+          "misconception": "ties do not reset"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "PARTITION BY region resets the running total at each new region. Ordering by year controls sequence within the partition, not resets.",
+      "hint": "Partition boundary resets.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0054",
+      "topic": "Dense rank across a tie",
+      "learningObjective": "Compute dense rank for a mid value",
+      "practice": "dense mid",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Values 90,80,80,70,60 ranked descending with DENSE_RANK. What rank does 70 receive?",
+      "answer": {
+        "value": 3,
+        "tolerance": 0.01
+      },
+      "explanation": "Dense ranks are 1,2,2,3,4, so 70 receives 3. The tie at 80 does not create a gap.",
+      "hint": "Distinct higher values plus one.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 46
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0055",
+      "topic": "Top two per group with a tie",
+      "learningObjective": "Select ROW_NUMBER for a strict top-two",
+      "practice": "strict top2",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A planner memo needs exactly two districts per region even when ties exist. Which function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "RANK <= 2",
+          "misconception": "may return more than two"
+        },
+        {
+          "id": "B",
+          "text": "DENSE_RANK <= 2",
+          "misconception": "may return more than two"
+        },
+        {
+          "id": "C",
+          "text": "ROW_NUMBER with an ORDER BY tie-breaker",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "COUNT(*) OVER",
+          "misconception": "counts not ranks"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "ROW_NUMBER assigns unique numbers, so filtering <= 2 returns exactly two rows when a tie-breaker orders ties deterministically.",
+      "hint": "Unique numbers enforce count.",
+      "difficulty": 0.75,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0056",
+      "topic": "Rows a recursive walk produces",
+      "learningObjective": "Explain cycle handling in recursive CTE",
+      "practice": "cycle guard",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner memo's recursive CTE can loop forever on a cyclic graph. Explain the guard.",
+      "answer": {
+        "exemplar": "A cycle guard tracks visited nodes, often with a path column or a visited set, and stops extending when a node already appears. Some engines support CYCLE detection, but portable code must guard explicitly to avoid infinite recursion."
+      },
+      "explanation": "Tracking visited nodes prevents infinite loops. Engine-specific CYCLE clauses exist, but explicit guards are portable.",
+      "hint": "Track visited nodes.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0057",
+      "topic": "Which queries a composite index can seek",
+      "learningObjective": "Identify seekable query among options",
+      "practice": "seekable query",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": {
+        "kind": "table",
+        "body": "A planner database has a composite index on (region, district, year). Memo queries filter on region only, district and year, region and year, region and district.",
+        "license": "original"
+      },
+      "stem": "Which query can seek the index?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Filter on year only",
+          "misconception": "trailing column alone"
+        },
+        {
+          "id": "B",
+          "text": "Filter on district and year",
+          "misconception": "missing leading column"
+        },
+        {
+          "id": "C",
+          "text": "Filter on region and year",
+          "misconception": "skips middle column"
+        },
+        {
+          "id": "D",
+          "text": "Filter on region and district",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Only region and district form a valid leading prefix. The other options skip or omit the leading column, preventing a seek.",
+      "hint": "Leading prefix required.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 38,
+        "p75Sec": 58
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0058",
+      "topic": "Inner rows a nested-loop join reads",
+      "learningObjective": "Compute inner reads for a small outer set",
+      "practice": "small outer",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A memo joins 2 outer districts to an inner table of 15 rows with no index. How many inner rows are read?",
+      "answer": {
+        "value": 30,
+        "tolerance": 0.01
+      },
+      "explanation": "Without an index each outer row scans 15 inner rows: 2 times 15 equals 30.",
+      "hint": "Multiply 2 by 15.",
+      "difficulty": 0.35,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0059",
+      "topic": "Rows produced by a lost join condition",
+      "learningObjective": "Explain how to detect a lost join condition",
+      "practice": "detect lost",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "A planner query result is unexpectedly large. Explain how to detect a lost join condition.",
+      "answer": {
+        "exemplar": "Compare the result row count to the product of input table sizes; a value near the product suggests a Cartesian product. Then inspect the query for a missing ON or WHERE equality predicate between the joined tables and add it back."
+      },
+      "explanation": "A result near the product of table sizes signals a Cartesian product. Inspecting join predicates reveals the missing equality.",
+      "hint": "Check for missing ON predicate.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 50
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "datasci-3.10-0060",
+      "topic": "Rows an offset page repeats",
+      "learningObjective": "Compute distinct rows for two pages with overlap 5",
+      "practice": "page overlap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "Two pages of 25 rows each overlap by 5 rows. How many distinct rows appear?",
+      "answer": {
+        "value": 45,
+        "tolerance": 0.01
+      },
+      "explanation": "25 plus 25 minus 5 equals 45 distinct rows. The overlap removes duplicate appearances.",
+      "hint": "Subtract overlap.",
+      "difficulty": 0.55,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 14,
+        "medianSec": 26,
+        "p75Sec": 42
+      },
+      "subject": "DATA_SCIENCE",
+      "unit": "Unit 3",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-data-science",
+        "reviewer": "bank-review-data-science",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    }
+  ]
+}

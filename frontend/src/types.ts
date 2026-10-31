@@ -37,6 +37,7 @@ export interface RoomState {
     type: "ROOM_STATE";
     status: GameStatus;
     questionCount: number;
+    currentQuestionIndex: number;
     currentQuestionId: string | null;
     players: PlayerInfo[];
     gameMode: GameMode;
@@ -74,13 +75,32 @@ export interface SubmissionResult {
     };
 }
 
+export interface RoundScore {
+    uuid: string;
+    name: string;
+    score: number;
+    correct: boolean;
+    roundScore: number;
+    streak: number;
+    bonus: number;
+}
+
+export interface RoundResult {
+    type: "ROUND_RESULT";
+    questionId: string;
+    revealed: boolean;
+    correctAnswer: Record<string, unknown> | null;
+    scores: RoundScore[];
+    answerCounts?: Record<string, number>;
+}
+
 export interface GameState {
     status: GameStatus;
     pin: string | null;
     playerUuid: string | null;
     rejoinToken: string | null;
     playerName: string | null;
-    role: "player" | "host";
+    role: "player" | "host" | "spectator";
     quizId: string | null;
     currentQuestion: QuestionDto | null;
     leaderboard: LeaderboardEntry[];
@@ -89,6 +109,11 @@ export interface GameState {
     error: string | null;
     gameMode: GameMode;
     review: GameReview | null;
+    teams: TeamInfo[];
+    bracket: BattleBracket | null;
+    battleOpponent: BattleOpponent | null;
+    battleResult: BattleResultMessage | null;
+    champion: BattleChampionMessage | null;
 }
 
 export interface GameReview {
@@ -97,6 +122,69 @@ export interface GameReview {
     questions: QuestionReview[];
     players: PlayerReview[];
     classStats: ClassStats;
+    sessionId: string;
+    teams: TeamReview[];
+}
+
+export interface TeamInfo {
+    id: string;
+    name: string;
+    memberUuids: string[];
+    score: number;
+}
+
+export interface TeamReview {
+    id: string;
+    name: string;
+    score: number;
+    memberUuids: string[];
+}
+
+export interface BattlePair {
+    p1Uuid: string;
+    p2Uuid: string | null;
+    winnerUuid: string | null;
+    bye: boolean;
+}
+
+export interface BattleRound {
+    number: number;
+    pairs: BattlePair[];
+}
+
+export interface BattleBracket {
+    type: "BRACKET";
+    rounds: BattleRound[];
+    championUuid: string | null;
+    championName: string | null;
+}
+
+export interface BattleOpponent {
+    type: "BATTLE_OPPONENT";
+    round: number;
+    opponentUuid: string;
+    opponentName: string;
+    bye: boolean;
+}
+
+export interface BattleResultMatch {
+    p1Uuid: string;
+    p2Uuid: string | null;
+    winnerUuid: string | null;
+    bye: boolean;
+}
+
+export interface BattleResultMessage {
+    type: "BATTLE_RESULT";
+    round: number;
+    matches: BattleResultMatch[];
+    winners: string[];
+}
+
+export interface BattleChampionMessage {
+    type: "BATTLE_CHAMPION";
+    championUuid: string;
+    championName: string;
 }
 
 export interface QuestionReview {

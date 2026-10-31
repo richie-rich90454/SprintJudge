@@ -1,31 +1,40 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("SprintJudge critical paths", () => {
-    test("player can join with a PIN and nickname", async ({ page }) => {
-        await page.goto("/");
-        await page.getByPlaceholder("Alice").fill("Alice");
-        await page.getByPlaceholder("123456").fill("123456");
+/**
+ * Requires a running backend with a seeded library and the Vite dev server.
+ * `make dev` is the intended runner. The tests use the public practice API so
+ * they never depend on an admin session.
+ */
+test.describe("SprintJudge live loop", () => {
+    test("student joins a practice room, sees a question, and survives refresh", async ({
+        page,
+        request,
+    }) => {
+        const banksResponse = await request.get("/api/public/banks");
+        expect(banksResponse.ok()).toBeTruthy();
+        const banks = (await banksResponse.json()) as Array<{ id: string; title: string }>;
+        expect(banks.length).toBeGreaterThan(0);
+
+        const start = await request.post("/api/public/practice", {
+            data: { quizId: banks[0].id },
+        });
+        expect(start.ok()).toBeTruthy();
+        const { pinCode } = (await start.json()) as { pinCode: string };
+        expect(pinCode).toMatch(/^\d{6}$/);
+
+        await page.goto(`/j/${pinCode}`);
+        await page.getByLabel("Your name").fill("Ada");
         await page.getByRole("button", { name: "Join game" }).click();
-        await expect(page.getByText("Waiting for the host")).toBeVisible();
+
+        await expect(page.getByText("Question", { exact: true })).toBeVisible({
+            timeout: 15000,
+        });
+
+        await page.reload();
+        await expect(page.getByText("Question", { exact: true })).toBeVisible({
+            timeout: 15000,
+        });
+        await expect(page.getByText("No game", { exact: true })).toHaveCount(0);
     });
 
-    test("MCQ answer submission is accepted", async ({ page }) => {
-        await page.goto("/");
-        await page.getByPlaceholder("Alice").fill("Alice");
-        await page.getByPlaceholder("123456").fill("123456");
-        await page.getByRole("button", { name: "Join game" }).click();
-        await expect(page.getByText("Waiting for the host")).toBeVisible();
-    });
-
-    test("OJ full round caches code in localStorage", async ({ page }) => {
-        await page.goto("/");
-        await page.getByPlaceholder("Alice").fill("Alice");
-        await page.getByPlaceholder("123456").fill("123456");
-        await page.getByRole("button", { name: "Join game" }).click();
-        await expect(page.getByText("Waiting for the host")).toBeVisible();
-        // The renderer host persists drafts under sprintjudge_code_<id> on submit.
-        await page.evaluate(() => localStorage.setItem("sprintjudge_code_q1", "print(1)"));
-        const stored = await page.evaluate(() => localStorage.getItem("sprintjudge_code_q1"));
-        expect(stored).toBe("print(1)");
-    });
 });

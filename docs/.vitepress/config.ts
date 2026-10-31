@@ -26,6 +26,7 @@ export default defineConfig({
         text: "Introduction",
         items: [
           { text: "Getting Started", link: "/getting-started" },
+          { text: "Teacher Runbook", link: "/teacher-runbook" },
           { text: "Player Guide", link: "/player-guide" },
           { text: "Admin Guide", link: "/admin-guide" },
         ],

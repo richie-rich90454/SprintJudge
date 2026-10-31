@@ -19,13 +19,24 @@ const fakeManager = vi.hoisted(() => {
             error: null,
             gameMode: "STANDARD",
             review: null,
+            teams: [],
+            bracket: null,
+            battleOpponent: null,
+            battleResult: null,
+            champion: null,
         } as Record<string, unknown>,
         connect: vi.fn(),
         join: vi.fn(),
+        resume: vi.fn(() => true),
         submit: vi.fn(),
         hostCommand: vi.fn(),
         extendTimer: vi.fn(),
         kickPlayer: vi.fn(),
+        joinTeam: vi.fn(),
+        leaveTeam: vi.fn(),
+        createTeam: vi.fn(),
+        requestTeams: vi.fn(),
+        requestBracket: vi.fn(),
         observe: () => ({
             subscribe: (cb: (s: Record<string, unknown>) => void) => {
                 listeners.push(cb);
@@ -35,7 +46,7 @@ const fakeManager = vi.hoisted(() => {
     };
 });
 
-vi.mock("../services/GameStateManager", () => ({ gameStateManager: fakeManager }));
+vi.mock("../game/GameStateManager", () => ({ gameStateManager: fakeManager }));
 
 import { useGameStore } from "./useGameStore";
 
@@ -55,6 +66,11 @@ afterEach(() => {
 });
 
 describe("useGameStore delegation", () => {
+    test("resume delegates to the manager", () => {
+        expect(useGameStore.getState().resume()).toBe(true);
+        expect(fakeManager.resume).toHaveBeenCalledTimes(1);
+    });
+
     test("exposes manager state initially", () => {
         expect(useGameStore.getState().status).toBe("LOBBY");
         expect(useGameStore.getState().gameMode).toBe("STANDARD");
@@ -114,6 +130,20 @@ describe("useGameStore delegation", () => {
     test("kick delegates to kickPlayer", () => {
         useGameStore.getState().kick("uuid-9");
         expect(fakeManager.kickPlayer).toHaveBeenCalledWith("uuid-9");
+    });
+
+    test("team and bracket actions delegate to the manager", () => {
+        const s = useGameStore.getState();
+        s.joinTeam("team-1");
+        s.leaveTeam();
+        s.createTeam("Alpha");
+        s.requestTeams();
+        s.requestBracket();
+        expect(fakeManager.joinTeam).toHaveBeenCalledWith("team-1");
+        expect(fakeManager.leaveTeam).toHaveBeenCalledTimes(1);
+        expect(fakeManager.createTeam).toHaveBeenCalledWith("Alpha");
+        expect(fakeManager.requestTeams).toHaveBeenCalledTimes(1);
+        expect(fakeManager.requestBracket).toHaveBeenCalledTimes(1);
     });
 
     test("clearError nulls the error", () => {

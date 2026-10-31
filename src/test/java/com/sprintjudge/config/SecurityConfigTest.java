@@ -33,7 +33,8 @@ class SecurityConfigTest {
 
     @Test
     void userDetailsContainsAdmin() {
-        var service = config("boss", "s3cret").userDetailsService();
+        var service = config("boss", "s3cret")
+                .userDetailsService(new org.springframework.mock.env.MockEnvironment());
         var user = service.loadUserByUsername("boss");
         assertNotNull(user);
         assertEquals("boss", user.getUsername());
@@ -41,9 +42,27 @@ class SecurityConfigTest {
     }
 
     @Test
-    void defaultPasswordStillBuildsUser() {
-        var service = config("admin", "changeme").userDetailsService();
+    void defaultPasswordStillBuildsUserOutsideProd() {
+        var service = config("admin", "changeme")
+                .userDetailsService(new org.springframework.mock.env.MockEnvironment());
         assertNotNull(service.loadUserByUsername("admin"));
+    }
+
+    @Test
+    void defaultPasswordRefusesToBootInProd() {
+        var prod = new org.springframework.mock.env.MockEnvironment();
+        prod.setActiveProfiles("prod");
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> config("admin", "changeme").userDetailsService(prod));
+        assertTrue(e.getMessage().contains("default admin password"));
+    }
+
+    @Test
+    void explicitPasswordBootsInProd() {
+        var prod = new org.springframework.mock.env.MockEnvironment();
+        prod.setActiveProfiles("prod");
+        assertNotNull(config("admin", "s3cret").userDetailsService(prod)
+                .loadUserByUsername("admin"));
     }
 
     @Test

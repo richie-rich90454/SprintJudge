@@ -1,0 +1,3712 @@
+{
+  "questions": [
+    {
+      "id": "web-8.2-0001",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Explain why a surrogate key stabilizes references",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Priya adds a surrogate key to a table whose rows have no natural identifier; which query still needs a composite key?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A lookup by surrogate id alone uses the single key",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A lookup by email alone now needs created_at",
+          "misconception": "confuses uniqueness with ordering"
+        },
+        {
+          "id": "C",
+          "text": "A lookup by surrogate id alone still needs email",
+          "misconception": "reverses the dependency between keys"
+        },
+        {
+          "id": "D",
+          "text": "A lookup by created_at alone now needs email",
+          "misconception": "assumes ordering implies identity"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The surrogate key identifies the row, but queries on other attributes still need their own predicates. A composite key remains when no single column is unique.",
+      "hint": "Surrogate keys identify rows, not queries.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0002",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Identify which query a nested document cannot serve",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Developer Marcus stores an order with its line items nested inside; which query cannot be served without scanning every order?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Find an order by its own id",
+          "misconception": "ignores the primary lookup path"
+        },
+        {
+          "id": "B",
+          "text": "Find every order containing a given product",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Find the total value of one order",
+          "misconception": "confuses aggregate with filter"
+        },
+        {
+          "id": "D",
+          "text": "Find orders placed on one date",
+          "misconception": "assumes date is always indexed"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Nested arrays are not independently indexed by default, so filtering by an array element scans documents. A separate collection or index supports that query.",
+      "hint": "Nested arrays need their own index.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0003",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Spot the stale query after a column rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Dana renames column user_name to display_name but leaves an old report query; what breaks first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The report fails with an unknown column error",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The report returns null for every row",
+          "misconception": "expects silent coercion"
+        },
+        {
+          "id": "C",
+          "text": "The report returns stale cached values",
+          "misconception": "confuses cache with schema"
+        },
+        {
+          "id": "D",
+          "text": "The report sorts rows incorrectly",
+          "misconception": "mixes rename with ordering"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A renamed column makes references to the old name invalid, so the query errors rather than returning wrong data. Update queries before deploying.",
+      "hint": "Old column names stop resolving.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0004",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Explain why small batches reduce lock contention",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why does a backfill that updates ten thousand rows in small batches avoid a long table lock?",
+      "answer": {
+        "exemplar": "Small batches commit between updates, releasing row and table locks so concurrent readers and writers proceed; one large update holds locks until completion."
+      },
+      "explanation": "Each batch commits and releases locks, letting other transactions progress. A single large update blocks them for the whole duration.",
+      "hint": "Commit between batches to release locks.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0005",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Recognize why a unique index blocks reinsertion",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A row is deleted but its unique index entry lingers; what happens when the same key is inserted again?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The insert succeeds and overwrites the old entry",
+          "misconception": "expects index to follow deletes instantly"
+        },
+        {
+          "id": "B",
+          "text": "The insert fails with a duplicate key error",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The insert succeeds with a new surrogate id",
+          "misconception": "confuses surrogate with unique key"
+        },
+        {
+          "id": "D",
+          "text": "The insert waits for a lock timeout",
+          "misconception": "mistakes delay for blocking"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A lingering unique entry still enforces uniqueness, so reinsertion fails until the index is cleaned. Rebuild or purge the stale entry.",
+      "hint": "Stale unique entries still enforce rules.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0006",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Explain why swapping unique values fails midway",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Designer Leo swaps two unique usernames in one statement; why does the database reject it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The first assignment creates a duplicate before the second runs",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Unique indexes cannot be updated at all",
+          "misconception": "overstates index immutability"
+        },
+        {
+          "id": "C",
+          "text": "The swap needs a transaction with deferrable constraints",
+          "misconception": "jumps to advanced fix"
+        },
+        {
+          "id": "D",
+          "text": "The database sorts usernames before updating",
+          "misconception": "invents a sort step"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Row-by-row evaluation hits the duplicate intermediate state. Use a deferred constraint or a temporary value to swap safely.",
+      "hint": "Intermediate duplicates violate uniqueness.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0007",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Describe foreign key enforcement on delete",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Manager Sam deletes a parent row while children still reference it; what does the foreign key do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It silently deletes the children too",
+          "misconception": "assumes cascade by default"
+        },
+        {
+          "id": "B",
+          "text": "It blocks the delete until children are removed",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "It sets children to null automatically",
+          "misconception": "assumes set null by default"
+        },
+        {
+          "id": "D",
+          "text": "It allows the delete and orphans children",
+          "misconception": "expects no enforcement"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Default foreign key behavior prevents orphan rows by blocking the parent delete. Cascade or set null must be declared explicitly.",
+      "hint": "Default action is restrict.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0008",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Choose a stable identifier for a natural-keyless row",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Tester Quinn sees duplicate business rows after a retry; which key choice prevents it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use a natural key from mutable attributes",
+          "misconception": "trusts changing attributes"
+        },
+        {
+          "id": "B",
+          "text": "Use a generated idempotency key per request",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Use the insertion timestamp as the key",
+          "misconception": "confuses time with identity"
+        },
+        {
+          "id": "D",
+          "text": "Use a random display name as the key",
+          "misconception": "trusts non-unique labels"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "An idempotency key makes retries safe by deduplicating requests. Mutable or non-unique attributes cannot identify rows reliably.",
+      "hint": "Idempotency keys deduplicate retries.",
+      "difficulty": 0.25,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0009",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Decide when to flatten a nested document",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "When should a nested document be split into its own collection?",
+      "answer": {
+        "exemplar": "Split it when queries filter, sort, or aggregate on its elements independently, or when the array grows unbounded and bloats the parent document."
+      },
+      "explanation": "Independent access patterns and unbounded growth favor separate collections. Keeping data nested helps only when it is always read together.",
+      "hint": "Split for independent access or growth.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0010",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Plan a safe column rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Architect Uma must rename a heavily used column with zero downtime; what is the safest first step?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rename the column directly in production",
+          "misconception": "ignores dependent code"
+        },
+        {
+          "id": "B",
+          "text": "Add the new column and dual-write both",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Drop the old column immediately",
+          "misconception": "loses data before migration"
+        },
+        {
+          "id": "D",
+          "text": "Freeze all writes during rename",
+          "misconception": "breaks availability"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Dual-writing lets old and new code coexist during rollout. Direct rename or drop breaks callers that still use the old name.",
+      "hint": "Dual-write before cutover.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0011",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Size a backfill batch",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Operator Vera backfills a large table; how should batch size be chosen?",
+      "options": [
+        {
+          "id": "A",
+          "text": "As large as possible to finish quickly",
+          "misconception": "ignores lock duration"
+        },
+        {
+          "id": "B",
+          "text": "Small enough to keep each transaction under lock timeout",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Exactly one row per batch",
+          "misconception": "overcorrects and wastes round trips"
+        },
+        {
+          "id": "D",
+          "text": "Randomly varying sizes",
+          "misconception": "adds unpredictability"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Batch size balances throughput against lock duration and replication lag. Too large blocks others; too small wastes work.",
+      "hint": "Fit each batch under lock limits.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0012",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Fix a stale unique index entry",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Will finds a unique index still holds a deleted value; what is the safest remediation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Insert with a different value and ignore it",
+          "misconception": "leaves data inconsistency"
+        },
+        {
+          "id": "B",
+          "text": "Rebuild the index to remove stale entries",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Disable uniqueness checks globally",
+          "misconception": "weakens integrity for all tables"
+        },
+        {
+          "id": "D",
+          "text": "Rename the column to bypass the index",
+          "misconception": "misunderstands index binding"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Rebuilding the index removes stale entries while preserving the constraint. Bypassing or ignoring it risks duplicates.",
+      "hint": "Rebuild to clean stale entries.",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0013",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Choose a safe swap technique",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Admin Xena must swap two unique values without errors; which approach works?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Update both rows in one statement",
+          "misconception": "still hits intermediate duplicate"
+        },
+        {
+          "id": "B",
+          "text": "Update one row to a temporary placeholder first",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Delete both rows then reinsert",
+          "misconception": "risks data loss on failure"
+        },
+        {
+          "id": "D",
+          "text": "Disable the index during swap",
+          "misconception": "opens window for duplicates"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A temporary placeholder avoids the intermediate duplicate. Deleting rows risks loss; disabling the index risks integrity.",
+      "hint": "Use a temporary placeholder value.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0014",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Select a delete policy for child rows",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How do cascade and restrict differ when a parent row is deleted?",
+      "answer": {
+        "exemplar": "Cascade removes dependent child rows automatically, while restrict blocks the parent delete until children are handled manually or by another process."
+      },
+      "explanation": "Cascade propagates deletion to children; restrict enforces manual cleanup first. Choose based on ownership and audit needs.",
+      "hint": "Cascade removes children; restrict blocks.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0015",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Distinguish natural and surrogate keys",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Which key type is generated by the system rather than derived from business data?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Natural key",
+          "misconception": "confuses business data with generated"
+        },
+        {
+          "id": "B",
+          "text": "Surrogate key",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Composite key",
+          "misconception": "confuses multi-column with generated"
+        },
+        {
+          "id": "D",
+          "text": "Candidate key",
+          "misconception": "confuses eligibility with generation"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A surrogate key is system-generated and independent of business attributes. Natural keys come from business data.",
+      "hint": "Surrogate keys are system-generated.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0016",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Predict index behavior on nested fields",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Developer Yara queries a nested field with a multikey index; what does the index store?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One entry per array element value",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "One entry for the whole array",
+          "misconception": "undercounts index entries"
+        },
+        {
+          "id": "C",
+          "text": "No entries for nested fields",
+          "misconception": "ignores multikey support"
+        },
+        {
+          "id": "D",
+          "text": "Entries only for the first element",
+          "misconception": "assumes partial indexing"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A multikey index creates an entry for each array element, enabling queries on nested values. Whole-array entries would miss elements.",
+      "hint": "Multikey indexes one entry per element.",
+      "difficulty": 0.35,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0017",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Detect stale references after rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Zoe audits a renamed column; which artifact most likely still references the old name?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The primary key constraint",
+          "misconception": "confuses constraint with column"
+        },
+        {
+          "id": "B",
+          "text": "A stored view definition",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The table storage engine",
+          "misconception": "confuses storage with metadata"
+        },
+        {
+          "id": "D",
+          "text": "The connection pool",
+          "misconception": "confuses connections with schema"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Views store their SQL text and can reference old column names. Constraints and engines do not retain such references.",
+      "hint": "Views store old SQL text.",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0018",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Monitor backfill progress",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Operator Aaron's backfill stalls; what is the most likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Batches are too small and commit too often",
+          "misconception": "blames commit frequency"
+        },
+        {
+          "id": "B",
+          "text": "A long-running transaction blocks each batch",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The primary key is too short",
+          "misconception": "confuses key length with locking"
+        },
+        {
+          "id": "D",
+          "text": "Indexes are too narrow",
+          "misconception": "confuses index width with blocking"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A concurrent long transaction can block batch updates. Small batches alone do not prevent external blockers.",
+      "hint": "External transactions can block batches.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0019",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Explain phantom duplicate after delete",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can a deleted row's value still cause a duplicate error on insert?",
+      "answer": {
+        "exemplar": "If the delete and index cleanup are not atomic or the index is stale, the old value remains and enforces uniqueness against the new insert."
+      },
+      "explanation": "Non-atomic cleanup leaves stale entries that enforce uniqueness. Rebuild or ensure atomic delete-index updates.",
+      "hint": "Stale entries enforce old uniqueness.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0020",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Recognize swap ordering hazard",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Tester Bella swaps unique values by updating row one then row two; what error appears?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A deadlock between the two updates",
+          "misconception": "confuses ordering with locking"
+        },
+        {
+          "id": "B",
+          "text": "A duplicate key error on the first update",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "A foreign key violation",
+          "misconception": "confuses unrelated constraint"
+        },
+        {
+          "id": "D",
+          "text": "A syntax error in the update",
+          "misconception": "blames statement form"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Updating row one first creates a duplicate against row two's existing value. Use a placeholder or deferred constraint.",
+      "hint": "First update creates a duplicate.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0021",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Handle child rows before parent delete",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Cara deletes children first then parent; what is the risk if a crash occurs between?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Children are deleted but parent remains",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Parent is deleted but children remain",
+          "misconception": "reverses crash ordering"
+        },
+        {
+          "id": "C",
+          "text": "Both are deleted automatically",
+          "misconception": "assumes atomic cascade"
+        },
+        {
+          "id": "D",
+          "text": "Nothing changes due to rollback",
+          "misconception": "assumes transaction without one"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Without a transaction, a crash after child deletion leaves the parent. Wrap both steps in one transaction.",
+      "hint": "Wrap deletes in one transaction.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0022",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Avoid key reuse after delete",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Designer Dan reuses a deleted row's id for a new record; what goes wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Old references now point to the new row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The database rejects the insert",
+          "misconception": "assumes automatic prevention"
+        },
+        {
+          "id": "C",
+          "text": "Indexes become fragmented",
+          "misconception": "confuses reuse with fragmentation"
+        },
+        {
+          "id": "D",
+          "text": "Queries slow down slightly",
+          "misconception": "understates correctness risk"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Reusing ids breaks referential and audit history. Generate new ids for new rows.",
+      "hint": "Never reuse deleted ids.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0023",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Choose a query pattern for nested data",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Eli's query on a nested array returns duplicate parent documents; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The array contains duplicate values",
+          "misconception": "blames data not query"
+        },
+        {
+          "id": "B",
+          "text": "The query matches multiple array elements per document",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The index is corrupted",
+          "misconception": "blames index health"
+        },
+        {
+          "id": "D",
+          "text": "The document is too large",
+          "misconception": "confuses size with duplication"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "When several array elements satisfy the predicate, the parent document is returned once per match. Use distinct or elemMatch.",
+      "hint": "Multiple matches duplicate parents.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0024",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Update dependent code after rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What must be updated besides the table when a column is renamed?",
+      "answer": {
+        "exemplar": "Update queries, views, ORM mappings, application code, tests, and any exported reports or integrations that reference the old column name."
+      },
+      "explanation": "Renaming touches all dependents, not just the table. Missing one leaves runtime failures.",
+      "hint": "Update all dependents, not just table.",
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0025",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Avoid lock escalation during backfill",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Manager Fiona's backfill escalates to a table lock; how to prevent it?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Run it during peak traffic",
+          "misconception": "increases contention"
+        },
+        {
+          "id": "B",
+          "text": "Use smaller batches with commits between them",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Add more indexes first",
+          "misconception": "adds write overhead"
+        },
+        {
+          "id": "D",
+          "text": "Disable foreign key checks",
+          "misconception": "risks integrity"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Smaller committed batches prevent lock escalation and reduce contention. Adding indexes or disabling checks is not a fix.",
+      "hint": "Smaller committed batches prevent escalation.",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0026",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Detect stale index before reinsert",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Operator Greg reinserts a deleted unique value and gets an error; what should he check first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the old row is truly gone from the table",
+          "misconception": "table absence is not enough"
+        },
+        {
+          "id": "B",
+          "text": "Whether the index still contains the value",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Whether the connection is read-only",
+          "misconception": "confuses permission with data"
+        },
+        {
+          "id": "D",
+          "text": "Whether the value is null",
+          "misconception": "irrelevant to duplicate"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The table may be empty of the value while the index still holds it. Check index entries, not just table rows.",
+      "hint": "Check index entries, not table rows.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0027",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Use deferred constraints for swaps",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Hana needs to swap unique values transactionally; which constraint feature helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Immediate uniqueness checking",
+          "misconception": "causes intermediate failure"
+        },
+        {
+          "id": "B",
+          "text": "Deferred uniqueness checking",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Partial index filtering",
+          "misconception": "does not defer checks"
+        },
+        {
+          "id": "D",
+          "text": "Case-insensitive collation",
+          "misconception": "irrelevant to swap"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Deferred checks validate uniqueness at commit time, allowing intermediate duplicates within the transaction.",
+      "hint": "Deferred checks validate at commit.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0028",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Choose referential action",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Ivan sets a foreign key to cascade delete; what unintended consequence may occur?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Child rows are removed silently",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Parent deletion is blocked",
+          "misconception": "reverses cascade behavior"
+        },
+        {
+          "id": "C",
+          "text": "Indexes are rebuilt automatically",
+          "misconception": "confuses cascade with maintenance"
+        },
+        {
+          "id": "D",
+          "text": "Transactions become read-only",
+          "misconception": "invents side effect"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Cascade deletes children without warning, which can remove more data than intended. Use restrict when auditability matters.",
+      "hint": "Cascade removes children silently.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0029",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Explain key stability across updates",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why should a primary key remain unchanged when other columns update?",
+      "answer": {
+        "exemplar": "A stable primary key keeps foreign references and audit links valid; changing it forces cascading updates and risks broken references."
+      },
+      "explanation": "Stable keys preserve relationships and history. Changing them propagates complexity and risk.",
+      "hint": "Stable keys preserve relationships.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0030",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Avoid scanning for nested queries",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Developer Jane needs to query nested tags efficiently; what should she add?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A multikey index on the tags array",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A larger document size limit",
+          "misconception": "does not add query support"
+        },
+        {
+          "id": "C",
+          "text": "A read replica",
+          "misconception": "scales reads not queries"
+        },
+        {
+          "id": "D",
+          "text": "A full text search on the parent",
+          "misconception": "wrong tool for tags"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A multikey index supports queries on array elements. Size limits, replicas, or full text do not.",
+      "hint": "Use a multikey index for arrays.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0031",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Use a view to hide rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Architect Kyle wants to rename without breaking old clients; which compatibility layer helps?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A view exposing the old column name",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "A larger connection pool",
+          "misconception": "does not address schema"
+        },
+        {
+          "id": "C",
+          "text": "A read replica",
+          "misconception": "scales reads not names"
+        },
+        {
+          "id": "D",
+          "text": "A cache layer",
+          "misconception": "hides latency not names"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A compatibility view keeps old clients working during migration. Pooling, replicas, or caches do not rename columns.",
+      "hint": "Use a compatibility view.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0032",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Avoid one long transaction",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Operator Liam runs a backfill in one transaction; what risk arises?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Faster completion",
+          "misconception": "prioritizes speed over safety"
+        },
+        {
+          "id": "B",
+          "text": "Automatic rollback on failure",
+          "misconception": "assumes transactional safety"
+        },
+        {
+          "id": "C",
+          "text": "No impact on readers",
+          "misconception": "ignores lock effects"
+        },
+        {
+          "id": "D",
+          "text": "A long lock blocks concurrent writes",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "One transaction holds locks for the whole backfill, blocking writers. Split into smaller committed batches.",
+      "hint": "One transaction holds long locks.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0033",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Diagnose stale unique entry",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Tester Mia reinserts a deleted unique value and sees an error; root cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stale unique index entry remains",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Table still has the row",
+          "misconception": "confuses table with index"
+        },
+        {
+          "id": "C",
+          "text": "Foreign key blocks insert",
+          "misconception": "wrong constraint"
+        },
+        {
+          "id": "D",
+          "text": "Value is null",
+          "misconception": "irrelevant null check"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The table may be empty while the index still holds the value. Check index entries, not just table rows.",
+      "hint": "Check index entries, not table rows.",
+      "difficulty": 0.65,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0034",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Swap unique values safely",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain how to swap two unique values safely.",
+      "answer": {
+        "exemplar": "Update one value to a temporary placeholder, then update the second, then replace the placeholder with the final value, all in one transaction."
+      },
+      "explanation": "A placeholder avoids the intermediate duplicate. Committing the sequence in one transaction keeps it atomic.",
+      "hint": "Use a temporary placeholder value.",
+      "difficulty": 0.75,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0035",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Default foreign key action",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Architect Noah deletes a parent with children present; default action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cascade delete children",
+          "misconception": "assumes cascade default"
+        },
+        {
+          "id": "B",
+          "text": "Set children to null",
+          "misconception": "assumes set null default"
+        },
+        {
+          "id": "C",
+          "text": "Block the delete until children are removed",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Allow orphaned children",
+          "misconception": "expects no enforcement"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Default foreign key behavior prevents orphan rows by blocking the parent delete. Cascade or set null must be declared explicitly.",
+      "hint": "Default action is restrict.",
+      "difficulty": 0.85,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0036",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Surrogate key scope",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Olivia adds a surrogate key; what remains unchanged?",
+      "options": [
+        {
+          "id": "A",
+          "text": "All queries use surrogate id",
+          "misconception": "overstates surrogate key"
+        },
+        {
+          "id": "B",
+          "text": "Natural keys become unnecessary always",
+          "misconception": "ignores business lookups"
+        },
+        {
+          "id": "C",
+          "text": "Indexes are removed",
+          "misconception": "confuses key with index"
+        },
+        {
+          "id": "D",
+          "text": "Queries on business attributes still need predicates",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The surrogate key identifies the row, but queries on other attributes still need their own predicates. Business lookups remain.",
+      "hint": "Surrogate keys identify rows, not queries.",
+      "difficulty": 0.25,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0037",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Cheap nested query",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Developer Paul nests line items; which query is cheap?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Find an order by its own id",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Find orders containing a product",
+          "misconception": "ignores nested scan"
+        },
+        {
+          "id": "C",
+          "text": "Find total value of all orders",
+          "misconception": "confuses aggregate scope"
+        },
+        {
+          "id": "D",
+          "text": "Find orders by product and date",
+          "misconception": "assumes compound index"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The primary key lookup is cheap. Filtering by nested array elements scans documents unless indexed.",
+      "hint": "Primary key lookup is cheap.",
+      "difficulty": 0.35,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0038",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Stale references after rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Quinn renames a column; which breaks first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Primary key constraint",
+          "misconception": "confuses constraint with column"
+        },
+        {
+          "id": "B",
+          "text": "Stored procedures referencing old name",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Storage engine",
+          "misconception": "confuses storage with metadata"
+        },
+        {
+          "id": "D",
+          "text": "Connection pool",
+          "misconception": "confuses connections with schema"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Stored procedures store SQL text referencing old column names. Constraints and engines do not retain such references.",
+      "hint": "Stored procedures store old SQL.",
+      "difficulty": 0.45,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0039",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Small batch rationale",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why run a backfill in small batches instead of one statement?",
+      "answer": {
+        "exemplar": "Small batches commit frequently, releasing locks and reducing replication lag, while one statement holds locks and may time out."
+      },
+      "explanation": "Frequent commits release locks and keep replication current. One long statement risks timeouts and blocking.",
+      "hint": "Commit frequently to release locks.",
+      "difficulty": 0.55,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0040",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Safe reuse after delete",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Reviewer Rose deletes a row; when can its value be reused safely?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Immediately after table delete",
+          "misconception": "ignores index lag"
+        },
+        {
+          "id": "B",
+          "text": "After a backup completes",
+          "misconception": "irrelevant backup"
+        },
+        {
+          "id": "C",
+          "text": "After a day passes",
+          "misconception": "time does not clean index"
+        },
+        {
+          "id": "D",
+          "text": "After the unique index entry is removed",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The index must be cleaned before reuse. Table deletion alone leaves a stale enforcing entry.",
+      "hint": "Clean index entry before reuse.",
+      "difficulty": 0.65,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0041",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Swap technique",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Admin Sam swaps unique values; first step?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Move one value to a temporary placeholder",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Update both rows together",
+          "misconception": "still intermediate duplicate"
+        },
+        {
+          "id": "C",
+          "text": "Delete both rows",
+          "misconception": "risks data loss"
+        },
+        {
+          "id": "D",
+          "text": "Disable the index",
+          "misconception": "opens duplicate window"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A temporary placeholder avoids the intermediate duplicate. Deleting rows risks loss; disabling the index risks integrity.",
+      "hint": "Use a temporary placeholder value.",
+      "difficulty": 0.75,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0042",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "When cascade is appropriate",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Manager Tara chooses a delete policy; when is cascade appropriate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "When audit history is required",
+          "misconception": "cascade loses history"
+        },
+        {
+          "id": "B",
+          "text": "When children are owned by the parent",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "When children are shared",
+          "misconception": "cascade removes shared data"
+        },
+        {
+          "id": "D",
+          "text": "When manual cleanup is preferred",
+          "misconception": "restrict fits that"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Cascade fits owned child rows. Shared or audited data needs restrict or set null instead.",
+      "hint": "Cascade for owned children.",
+      "difficulty": 0.85,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0043",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Fix duplicate rows after retry",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Tester Uma sees duplicate rows after retry; fix?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use insertion timestamp as key",
+          "misconception": "time is not identity"
+        },
+        {
+          "id": "B",
+          "text": "Use random display name",
+          "misconception": "not unique"
+        },
+        {
+          "id": "C",
+          "text": "Add an idempotency key per request",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Use mutable email as key",
+          "misconception": "changes over time"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "An idempotency key deduplicates retries. Mutable or non-unique attributes cannot identify rows reliably.",
+      "hint": "Idempotency keys deduplicate retries.",
+      "difficulty": 0.25,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0044",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Split nested document",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "When should a nested document be split into its own collection?",
+      "answer": {
+        "exemplar": "Split when queries filter or aggregate on its elements independently, or when the array grows unbounded and bloats the parent document."
+      },
+      "explanation": "Independent access patterns and unbounded growth favor separate collections. Keeping data nested helps only when it is always read together.",
+      "hint": "Split for independent access or growth.",
+      "difficulty": 0.35,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0045",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Safe rename first step",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Analyst Vera renames a column; safest first step?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Add new column and dual-write both",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Rename directly in production",
+          "misconception": "breaks old callers"
+        },
+        {
+          "id": "C",
+          "text": "Drop old column immediately",
+          "misconception": "loses data"
+        },
+        {
+          "id": "D",
+          "text": "Freeze writes during rename",
+          "misconception": "breaks availability"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Dual-writing lets old and new code coexist during rollout. Direct rename or drop breaks callers that still use the old name.",
+      "hint": "Dual-write before cutover.",
+      "difficulty": 0.45,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0046",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Batch sizing",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Operator Will backfills; how to size batches?",
+      "options": [
+        {
+          "id": "A",
+          "text": "As large as possible",
+          "misconception": "long locks"
+        },
+        {
+          "id": "B",
+          "text": "Small enough to stay under lock timeout",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "One row per batch",
+          "misconception": "wastes round trips"
+        },
+        {
+          "id": "D",
+          "text": "Random sizes",
+          "misconception": "unpredictable"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Batch size balances throughput against lock duration and replication lag. Too large blocks others; too small wastes work.",
+      "hint": "Fit each batch under lock limits.",
+      "difficulty": 0.55,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0047",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Remediate stale unique entry",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Xena finds stale unique entry; remediation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Insert different value",
+          "misconception": "leaves inconsistency"
+        },
+        {
+          "id": "B",
+          "text": "Disable uniqueness globally",
+          "misconception": "weakens integrity"
+        },
+        {
+          "id": "C",
+          "text": "Rebuild the index",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Rename column",
+          "misconception": "misunderstands index"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Rebuilding the index removes stale entries while preserving the constraint. Bypassing or ignoring it risks duplicates.",
+      "hint": "Rebuild to clean stale entries.",
+      "difficulty": 0.65,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0048",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Diagnose swap failure",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Tester Yara swaps unique values and sees duplicate; cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Deadlock between updates",
+          "misconception": "confuses locking"
+        },
+        {
+          "id": "B",
+          "text": "Foreign key violation",
+          "misconception": "wrong constraint"
+        },
+        {
+          "id": "C",
+          "text": "Syntax error",
+          "misconception": "blames statement"
+        },
+        {
+          "id": "D",
+          "text": "First update creates intermediate duplicate",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Updating row one first creates a duplicate against row two's existing value. Use a placeholder or deferred constraint.",
+      "hint": "First update creates a duplicate.",
+      "difficulty": 0.75,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0049",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Cascade vs restrict",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "How do cascade and restrict differ on parent delete?",
+      "answer": {
+        "exemplar": "Cascade removes dependent child rows automatically, while restrict blocks the parent delete until children are handled manually."
+      },
+      "explanation": "Cascade propagates deletion to children; restrict enforces manual cleanup first. Choose based on ownership and audit needs.",
+      "hint": "Cascade removes children; restrict blocks.",
+      "difficulty": 0.85,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0050",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Identify system-generated key",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Designer Zoe distinguishes key types; which is system-generated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Natural key",
+          "misconception": "business data"
+        },
+        {
+          "id": "B",
+          "text": "Surrogate key",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Composite key",
+          "misconception": "multi-column"
+        },
+        {
+          "id": "D",
+          "text": "Candidate key",
+          "misconception": "eligibility"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A surrogate key is system-generated and independent of business attributes. Natural keys come from business data.",
+      "hint": "Surrogate keys are system-generated.",
+      "difficulty": 0.25,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0051",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Multikey index contents",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Developer Aaron queries nested field; what does multikey index store?",
+      "options": [
+        {
+          "id": "A",
+          "text": "One entry for whole array",
+          "misconception": "undercounts"
+        },
+        {
+          "id": "B",
+          "text": "No entries for nested fields",
+          "misconception": "ignores multikey"
+        },
+        {
+          "id": "C",
+          "text": "One entry per array element value",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Entries only for first element",
+          "misconception": "partial indexing"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A multikey index creates an entry for each array element, enabling queries on nested values. Whole-array entries would miss elements.",
+      "hint": "Multikey indexes one entry per element.",
+      "difficulty": 0.35,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0052",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Find stale artifact",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Reviewer Bella audits renamed column; which artifact likely stale?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Primary key constraint",
+          "misconception": "confuses constraint"
+        },
+        {
+          "id": "B",
+          "text": "Table storage engine",
+          "misconception": "confuses storage"
+        },
+        {
+          "id": "C",
+          "text": "Connection pool",
+          "misconception": "confuses connections"
+        },
+        {
+          "id": "D",
+          "text": "A stored view definition",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Views store their SQL text and can reference old column names. Constraints and engines do not retain such references.",
+      "hint": "Views store old SQL text.",
+      "difficulty": 0.45,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0053",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Diagnose stalled backfill",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Operator Cara's backfill stalls; likely cause?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A long-running transaction blocks each batch",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Batches too small",
+          "misconception": "blames commit frequency"
+        },
+        {
+          "id": "C",
+          "text": "Primary key too short",
+          "misconception": "confuses key length"
+        },
+        {
+          "id": "D",
+          "text": "Indexes too narrow",
+          "misconception": "confuses index width"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A concurrent long transaction can block batch updates. Small batches alone do not prevent external blockers.",
+      "hint": "External transactions can block batches.",
+      "difficulty": 0.55,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0054",
+      "topic": "A deleted row that a unique index still remembers",
+      "learningObjective": "Phantom duplicate cause",
+      "practice": "unique index",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Why can a deleted row's value still cause duplicate error?",
+      "answer": {
+        "exemplar": "If delete and index cleanup are not atomic, the old value remains and enforces uniqueness against the new insert."
+      },
+      "explanation": "Non-atomic cleanup leaves stale entries that enforce uniqueness. Rebuild or ensure atomic delete-index updates.",
+      "hint": "Stale entries enforce old uniqueness.",
+      "difficulty": 0.65,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0055",
+      "topic": "A unique index that refuses a swap of two values",
+      "learningObjective": "Swap error",
+      "practice": "unique swap",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Tester Dan swaps unique values by updating row one then two; error?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Deadlock",
+          "misconception": "confuses locking"
+        },
+        {
+          "id": "B",
+          "text": "Foreign key violation",
+          "misconception": "wrong constraint"
+        },
+        {
+          "id": "C",
+          "text": "Duplicate key error on first update",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Syntax error",
+          "misconception": "blames statement"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Updating row one first creates a duplicate against row two's existing value. Use a placeholder or deferred constraint.",
+      "hint": "First update creates a duplicate.",
+      "difficulty": 0.75,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0056",
+      "topic": "A foreign key that refuses an orphan and then a parent",
+      "learningObjective": "Crash risk in manual deletes",
+      "practice": "foreign key",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CODE_TRACING",
+      "stimulus": null,
+      "stem": "Engineer Eli deletes children then parent; crash risk?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Parent deleted but children remain",
+          "misconception": "reverses crash order"
+        },
+        {
+          "id": "B",
+          "text": "Both deleted automatically",
+          "misconception": "assumes atomic cascade"
+        },
+        {
+          "id": "C",
+          "text": "Nothing changes due to rollback",
+          "misconception": "assumes transaction"
+        },
+        {
+          "id": "D",
+          "text": "Children deleted but parent remains",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Without a transaction, a crash after child deletion leaves the parent. Wrap both steps in one transaction.",
+      "hint": "Wrap deletes in one transaction.",
+      "difficulty": 0.85,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0057",
+      "topic": "What a key does for a row that carries no key of its own",
+      "learningObjective": "Key reuse risk",
+      "practice": "key design",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "Designer Fiona reuses deleted id; what goes wrong?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Old references point to new row",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "Database rejects insert",
+          "misconception": "assumes prevention"
+        },
+        {
+          "id": "C",
+          "text": "Indexes fragment",
+          "misconception": "confuses reuse with fragmentation"
+        },
+        {
+          "id": "D",
+          "text": "Queries slow slightly",
+          "misconception": "understates risk"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Reusing ids breaks referential and audit history. Generate new ids for new rows.",
+      "hint": "Never reuse deleted ids.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0058",
+      "topic": "Reading a nested document and the query it cannot serve",
+      "learningObjective": "Duplicate parents cause",
+      "practice": "document shape",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "ERROR_ANALYSIS",
+      "stimulus": null,
+      "stem": "Analyst Greg queries nested array and gets duplicate parents; why?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Array contains duplicates",
+          "misconception": "blames data"
+        },
+        {
+          "id": "B",
+          "text": "Query matches multiple array elements per document",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Index corrupted",
+          "misconception": "blames index health"
+        },
+        {
+          "id": "D",
+          "text": "Document too large",
+          "misconception": "confuses size with duplication"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "When several array elements satisfy the predicate, the parent document is returned once per match. Use distinct or elemMatch.",
+      "hint": "Multiple matches duplicate parents.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0059",
+      "topic": "A column rename and the query it leaves behind",
+      "learningObjective": "Dependents of rename",
+      "practice": "migration safety",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "What must be updated besides table on column rename?",
+      "answer": {
+        "exemplar": "Update queries, views, ORM mappings, application code, tests, and any exported reports or integrations referencing the old column name."
+      },
+      "explanation": "Renaming touches all dependents, not just the table. Missing one leaves runtime failures.",
+      "hint": "Update all dependents, not just table.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "options": [],
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    },
+    {
+      "id": "web-8.2-0060",
+      "topic": "A backfill run in small batches and the lock it avoids holding",
+      "learningObjective": "Prevent lock escalation",
+      "practice": "backfill",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Manager Hana's backfill escalates to table lock; prevent how?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Run during peak traffic",
+          "misconception": "increases contention"
+        },
+        {
+          "id": "B",
+          "text": "Add more indexes first",
+          "misconception": "adds write overhead"
+        },
+        {
+          "id": "C",
+          "text": "Disable foreign key checks",
+          "misconception": "risks integrity"
+        },
+        {
+          "id": "D",
+          "text": "Use smaller batches with commits between them",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Smaller committed batches prevent lock escalation and reduce contention. Adding indexes or disabling checks is not a fix.",
+      "hint": "Smaller committed batches prevent escalation.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "subject": "WEB_DEVELOPMENT",
+      "unit": "Unit 8",
+      "scope": "core-scope",
+      "provenance": {
+        "author": "bank-team-web-development",
+        "reviewer": "bank-review-web-development",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "version": 1,
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": []
+    }
+  ]
+}

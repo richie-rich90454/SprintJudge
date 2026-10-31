@@ -119,12 +119,13 @@ class GameRoomTeamBattleTest {
     @Test
     void roomBracketRoundTrip() {
         GameRoom room = new GameRoom("s", "q", "pin", "LOBBY");
-        assertTrue(room.bracket().isEmpty());
+        assertTrue(room.bracketRounds().isEmpty());
         assertTrue(room.battleMatches().isEmpty());
         room.addBattleMatch(new GameRoom.BattleMatch("m1", "a", "b", "q1", null, null, false, false, null));
         assertEquals(1, room.battleMatches().size());
-        room.setBracket(java.util.List.<String[]>of(new String[]{"a", "b"}));
-        assertEquals(1, room.bracket().size());
+        room.beginBattleRound(java.util.List.of(new GameRoom.BattlePair("a", "b", null, false)));
+        assertEquals(1, room.bracketRounds().size());
+        assertEquals(1, room.currentBattleRound().number());
     }
 
     @Test

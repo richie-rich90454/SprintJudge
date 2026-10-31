@@ -41,6 +41,7 @@ flowchart LR
 | POST | `/api/admin/games` | Create a game for a quiz; host is resolved from the login session |
 | GET | `/api/admin/export` | Export entire bank as JSON |
 | POST | `/api/admin/import` | Import bank (`{ json, replace }`); non-replace rejects colliding ids with 400 |
+| GET | `/api/admin/bank/teach-next?sessionId=...` | Recommend a bank subject/unit/topic from a finished game's weakest topic |
 | GET | `/api/admin/metrics` | Runtime metrics: memory/GC/threads, judge latency percentiles, compile-cache ratio, write-buffer depth |
 
 Question payloads embed answer keys in their `config`, so they are admin-only by design —
@@ -60,7 +61,7 @@ the public surface never exposes them.
 ## Live-run example
 
 ```bash
-curl -X POST http://localhost:3000/api/public/run \
+curl -X POST http://localhost:8080/api/public/run \
   -H 'Content-Type: application/json' \
   -d '{"language":"python","sourceCode":"print(41+1)","stdin":"","timeoutSec":10}'
 ```

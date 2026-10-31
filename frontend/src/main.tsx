@@ -5,6 +5,9 @@ import { App } from "./App";
 import { applyStoredTheme, motionReduced, useUIStore, watchSystemTheme } from "./stores/useUIStore";
 import { audio } from "./services/AudioEngine";
 import { motion } from "./services/MotionService";
+import "@fontsource/noto-sans-mono/400.css";
+import "@fontsource/noto-sans-mono/500.css";
+import "@fontsource/noto-sans-mono/600.css";
 import "./index.css";
 
 // Sync the <html> class with the persisted theme (also handled inline in

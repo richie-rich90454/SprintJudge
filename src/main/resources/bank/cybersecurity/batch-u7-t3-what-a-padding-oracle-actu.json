@@ -1,0 +1,3774 @@
+{
+  "questions": [
+    {
+      "id": "cyber-7.3-0001",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "State what information a padding oracle reveals",
+      "practice": "oracle leaks",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "In a revision session, a student asks what a padding oracle actually reveals to an attacker. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Whether the padding was valid, which leaks information about the plaintext bytes",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The plaintext in full, one byte at a time",
+          "misconception": "believes the oracle hands over plaintext directly"
+        },
+        {
+          "id": "C",
+          "text": "The encryption key, since padding is checked with it",
+          "misconception": "confuses padding checks with key recovery"
+        },
+        {
+          "id": "D",
+          "text": "Nothing, since padding carries no information about the data",
+          "misconception": "denies that any signal leaks"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "An oracle that answers yes or no on padding validity still returns a signal, and repeated queries on modified ciphertexts turn that signal into knowledge of the plaintext bytes. The attacker never receives the plaintext itself, which is why the leak is easy to underestimate.",
+      "hint": "A yes or no answer is still a signal.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0002",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Interpret repeated ciphertext blocks as revealed plaintext structure",
+      "practice": "block structure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "In a revision sample, the first 16-byte block of a ciphertext appears three times in a row. What does the sample reveal about the plaintext?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The key was reused across three different messages",
+          "misconception": "confuses block repetition with key reuse"
+        },
+        {
+          "id": "B",
+          "text": "The plaintext contains three identical blocks of 16 bytes",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The encryption mode is a stream mode with a long keystream",
+          "misconception": "guesses the mode wrongly"
+        },
+        {
+          "id": "D",
+          "text": "The ciphertext was truncated after the first block",
+          "misconception": "invents a truncation event"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A repeated ciphertext block means the same plaintext block was encrypted the same way again, so identical content is visible to anyone reading the ciphertext. The mode is a block mode rather than a stream mode, and no key reuse or truncation needs to be assumed.",
+      "hint": "Repeated ciphertext blocks mean repeated plaintext blocks.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0003",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Explain why a reused keystream is worse than it first appears",
+      "practice": "keystream reuse",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes why a reused keystream is a far bigger problem than the ciphertext suggests.",
+      "options": [],
+      "answer": {
+        "exemplar": "A reused keystream looks harmless at first because the ciphertext still looks random and the key never changes. But two messages encrypted with the same keystream can be XORed together, which cancels the keystream and leaves the XOR of the two plaintexts, so any structure in one message appears in the result. A single known plaintext then recovers the other message completely, and with a stream mode the keystream can be reused across many messages, so the damage scales with the archive."
+      },
+      "explanation": "The visible randomness of the ciphertext hides a structural weakness, so the reuse has to be reasoned about rather than judged by appearance. Once the keystream cancels, one known plaintext exposes all the traffic under it.",
+      "hint": "XOR two ciphertexts and look at what is left.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0004",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Compute how many blocks a record occupies once padded",
+      "practice": "block count",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A cipher with a 16-byte block encrypts a 100-byte record. How many blocks does it occupy, counting the final padded block?",
+      "options": [],
+      "answer": {
+        "value": 7,
+        "tolerance": 0.01
+      },
+      "explanation": "One hundred bytes is six full blocks of sixteen with four bytes left, so a seventh block carries the remainder and the padding. The padded size is 112 bytes, and the ciphertext length therefore reveals a range rather than the exact record length.",
+      "hint": "Divide by the block size and round up.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0005",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Identify the property shown by a key schedule description",
+      "practice": "schedule reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 1
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes on a block cipher show that the key schedule splits the 128-bit key into 4 words, rotates them through a fixed sequence, and adds a round constant to the first word of each round. Every round key differs from the previous one in every word.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what property of the key schedule does this show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Round keys are unrelated to one another, so recovering one gives little help",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The cipher uses more rounds than the key schedule needs",
+          "misconception": "invented a round count issue"
+        },
+        {
+          "id": "C",
+          "text": "The key is stored in a form that the hardware can use directly",
+          "misconception": "assumes a storage property from the schedule"
+        },
+        {
+          "id": "D",
+          "text": "The schedule compensates for a weak block cipher underneath",
+          "misconception": "invents a compensating role for the schedule"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A schedule that changes every word every round means no round key can be derived from another by simple relations, so an attacker who recovers one has little to work with. The notes show exactly this property and say nothing about round counts, storage or the underlying cipher.",
+      "hint": "Look at how much each round key changes.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0006",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Choose the steps that close the gaps in a bare key exchange",
+      "practice": "exchange hardening",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for turning a bare key exchange into one that resists interception.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: increase the group size; Last: rely on the key length",
+          "misconception": "mistakes parameter strength for authentication"
+        },
+        {
+          "id": "B",
+          "text": "First: authenticate both parties' signatures; Last: bind the derived key to the transcript",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "First: encrypt the exchange with a password; Last: rotate the password monthly",
+          "misconception": "prescribes a shared secret as an identity proof"
+        },
+        {
+          "id": "D",
+          "text": "First: add a nonce to each message; Last: send the nonce in the clear",
+          "misconception": "mistakes freshness for authentication"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A bare exchange leaves the peer's identity and the transcript unestablished, so an attacker can relay it. Signing each party's contribution establishes identity, and binding the derived key to the full transcript closes the relay.",
+      "hint": "Identify the parties, then bind the transcript.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0007",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "State what certificate pinning makes hard for an attacker",
+      "practice": "pinning effect",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks what certificate pinning makes hard. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It makes traffic interception impossible on the network",
+          "misconception": "overstates the protection as absolute"
+        },
+        {
+          "id": "B",
+          "text": "It makes certificate renewal easy when a supplier rotates",
+          "misconception": "reverses the effect of pinning"
+        },
+        {
+          "id": "C",
+          "text": "It makes it hard for a wrong or rogue authority to be accepted",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "It makes the client's own certificate harder to read",
+          "misconception": "confuses which certificate is pinned"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Pinning restricts the client to a named key or certificate, so a misissued, coerced or compromised authority cannot slip in unnoticed. It does not defeat an attacker on the network path who holds the pinned private key, and it makes rotation a deliberate, planned task.",
+      "hint": "Ask what an unexpected certificate can no longer do.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0008",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Identify where trust comes from in a self-signed certificate deployment",
+      "practice": "trust source",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A study group examines an internal site that uses a self-signed certificate. Which observation shows that trust here comes from outside the certificate chain?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The certificate was issued in 2019 and renewed twice",
+          "misconception": "reads validity history as a trust source"
+        },
+        {
+          "id": "B",
+          "text": "The certificate lists the correct company name",
+          "misconception": "treats a name claim as trust"
+        },
+        {
+          "id": "C",
+          "text": "The private key is stored in a hardware module",
+          "misconception": "treats key custody as trust in the identity"
+        },
+        {
+          "id": "D",
+          "text": "The client compares the certificate against a copy embedded in the app",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A self-signed certificate proves only that its holder controls the matching private key. The trust in the identity comes from the comparison against an embedded copy, which is a separate out-of-band act that a substituted certificate cannot satisfy.",
+      "hint": "Look for where the trust actually comes from.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0009",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "Explain why a padding oracle is dangerous despite revealing no plaintext",
+      "practice": "oracle severity",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 4
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes why a padding oracle is dangerous even though it never returns any plaintext.",
+      "options": [],
+      "answer": {
+        "exemplar": "The oracle returns only a yes or no answer about padding validity, which looks harmless, but each answer narrows the possible values of the final plaintext byte, and by choosing modified ciphertexts an attacker can ask the question repeatedly until the byte is known. That converts a one-bit oracle into full plaintext recovery for most of the message, which is why a mode that reports padding errors must never be used to protect anything an attacker can submit to."
+      },
+      "explanation": "Repeated adaptive queries turn a weak signal into full recovery, so the severity does not match the apparent amount of information returned. The defence is to remove the distinguishable error path or to check the tag before decrypting.",
+      "hint": "One bit, asked many times.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0010",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Compute the ciphertext length produced by a stream-based mode",
+      "practice": "length exposure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 1
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In a revision exercise, a stream-based mode encrypts a 37-byte message and the ciphertext is exactly the same length as the plaintext. How many bytes does the ciphertext occupy?",
+      "options": [],
+      "answer": {
+        "value": 37,
+        "tolerance": 0.01
+      },
+      "explanation": "A stream-based mode encrypts byte by byte, so a thirty-seven-byte message produces a thirty-seven-byte ciphertext with no padding. The ciphertext length therefore gives the exact message length to anyone who can see it.",
+      "hint": "The length is unchanged in this mode.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0011",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Identify nonce reuse caused by a counter reset",
+      "practice": "reset analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 2
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "The group captured two ciphertexts from a stream-mode sender. Both were 96 bytes long and both were produced in the same minute. The notes also record that the sender's nonce counter was reset at midnight and the device had not restarted since.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what is the most likely explanation?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The sender used a key that was too long for the messages",
+          "misconception": "invents a key length problem"
+        },
+        {
+          "id": "B",
+          "text": "The two messages were encrypted with different keys",
+          "misconception": "contradicts a single sender assumption"
+        },
+        {
+          "id": "C",
+          "text": "Both messages share the same nonce and therefore the same keystream",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The device buffers messages and sends them in pairs",
+          "misconception": "invents a buffering behaviour"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A nonce counter reset at midnight reuses values for the same device and key, so the two messages share a nonce and therefore the keystream. XORing them would cancel the keystream and expose the relationship between the plaintexts.",
+      "hint": "Ask what a counter reset does to nonce values.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0012",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Choose the criteria for selecting between block sizes",
+      "practice": "block choice",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 3
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "A revision group must choose between an 8-byte block cipher and a 16-byte block cipher for a protocol. Choose the first criterion and the last criterion.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: pick the larger block; Last: confirm the vendor is well known",
+          "misconception": "chooses size first and a non-criterion last"
+        },
+        {
+          "id": "B",
+          "text": "First: pick the smaller block; Last: confirm it runs faster on the server",
+          "misconception": "chooses on speed without regard to leakage"
+        },
+        {
+          "id": "C",
+          "text": "First: confirm both are approved; Last: pick whichever is faster",
+          "misconception": "leaves the leakage question out entirely"
+        },
+        {
+          "id": "D",
+          "text": "First: consider how each leaks plaintext structure; Last: confirm the approved list allows it",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Block size decides how much plaintext structure can show up in the ciphertext, so that belongs in the decision before performance. A protocol also has to use a cipher on the approved list, but the leakage question is the one that belongs first.",
+      "hint": "Structure leakage first, approval second.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0013",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "State what a key schedule has to prevent",
+      "practice": "schedule goal",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks what a key schedule has to prevent. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That two different master keys produce the same or strongly related round keys",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "That the cipher runs for an unnecessarily large number of rounds",
+          "misconception": "invents a limit on rounds as the goal"
+        },
+        {
+          "id": "C",
+          "text": "That the key is too long to store in hardware",
+          "misconception": "confuses key length with schedule design"
+        },
+        {
+          "id": "D",
+          "text": "That the plaintext is longer than the block",
+          "misconception": "invents a length constraint"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The schedule must spread every key bit across the round keys and keep distinct master keys far apart, so no two keys produce overlapping or related round keys. Rounds, storage size and message length are separate design choices that the schedule has no say over.",
+      "hint": "Ask what two different keys must not share.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0014",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Interpret a relayed exchange as an authentication failure",
+      "practice": "relay analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Revision notes record that a bare key exchange produced the same shared secret on both sides, yet a proxy sat in the middle and completed both halves without either side noticing. What does this show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The exchange produced a weak shared secret value",
+          "misconception": "confuses interception with a weak secret"
+        },
+        {
+          "id": "B",
+          "text": "Agreement on a secret does not establish who you are talking to",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The group parameters used were too small for the task",
+          "misconception": "invents a parameter problem"
+        },
+        {
+          "id": "D",
+          "text": "The proxy could not decrypt the traffic",
+          "misconception": "claims an outcome the notes do not support"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Both parties can hold the same secret and still be talking to an attacker who relayed the exchange, because nothing in a bare exchange ties the key to an identity or to the transcript. That unestablished binding is what lets the proxy sit in the middle unnoticed.",
+      "hint": "Ask what ties the secret to an identity.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0015",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "Explain what a pinned certificate changes about trust",
+      "practice": "pinning trust",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in a revision session what a pinned certificate changes about the trust decision.",
+      "options": [],
+      "answer": {
+        "exemplar": "Normally the client decides what to trust by following a chain to a root it already trusts, so any authority in that chain can be trusted to have checked the name. A pin replaces that chain with a single named certificate, so the client checks the server against the copy it holds and the root no longer has a say. That makes a misissued, coerced or compromised authority unable to slip in, at the cost of making every rotation an explicit, planned event."
+      },
+      "explanation": "Pinning moves the trust decision from a chain of authorities to one named certificate held by the client, which is why it defeats a rogue authority. The trade is that rotation must be planned, since an unexpected new certificate is simply refused.",
+      "hint": "Trust moves from the chain to the copy you hold.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0016",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Compute the installed life of a pinned certificate",
+      "practice": "pin lifetime",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "An app pins two certificates. Each is valid for 90 days, and the client is meant to replace a pin 30 days before it expires. For how many days can a pin remain installed under that rotation rule?",
+      "options": [],
+      "answer": {
+        "value": 60,
+        "tolerance": 0.01
+      },
+      "explanation": "Ninety days of validity minus the thirty day replacement window leaves sixty days that a pin is installed before the rotation window opens. That overlap is what allows both certificates to be trusted during a planned change.",
+      "hint": "Subtract the replacement window from the validity.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0017",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "Recognise a padding oracle in a described service endpoint",
+      "practice": "oracle spotting",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes on a service API: it accepts a base64 blob in a request body, decrypts it, and answers with either the decrypted content or the string 'invalid padding'. The notes mark this endpoint as reachable without authentication and record 2,000 requests to it in the last hour.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what is the correct characterisation of this endpoint?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is a padding oracle, and the reply distinguishes two outcomes for attacker-chosen input",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It is harmless, because the replies are encrypted in transit",
+          "misconception": "assumes transport hides a response difference"
+        },
+        {
+          "id": "C",
+          "text": "It leaks the key, since the padding check uses it",
+          "misconception": "confuses a check with key recovery"
+        },
+        {
+          "id": "D",
+          "text": "It leaks only whether the request was authenticated",
+          "misconception": "describes a different property"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The endpoint accepts attacker-chosen ciphertexts and returns a distinguishable verdict about padding, which is the definition of an oracle. Transport encryption does not hide a difference the application itself reveals, and no key or authentication is needed to exploit it.",
+      "hint": "Attacker-chosen input plus a visible verdict.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0018",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Choose the steps that conceal message length",
+      "practice": "length concealment",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for keeping message length confidential on a link with fixed-size frames.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: pad every message to the maximum; Last: publish the maximum",
+          "misconception": "hides length only by using the largest size always"
+        },
+        {
+          "id": "B",
+          "text": "First: pad to a fixed frame size; Last: keep the frame size out of the protocol",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "First: compress the payload; Last: encrypt the compressed bytes",
+          "misconception": "assumes compression hides length"
+        },
+        {
+          "id": "D",
+          "text": "First: vary the padding per message; Last: send the padding length in clear",
+          "misconception": "gives the attacker the length being hidden"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Fixed-size frames make every message occupy the same space, so an observer learns nothing about the content length. The frame size itself is not sensitive, and varying the padding while publishing its size would defeat the purpose entirely.",
+      "hint": "Make every message the same size.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0019",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "State what a reused keystream gives an attacker",
+      "practice": "keystream leak",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks what a reused keystream gives away. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The key itself, because the keystream is derived from it",
+          "misconception": "confuses keystream reuse with key recovery"
+        },
+        {
+          "id": "B",
+          "text": "Nothing, as long as the ciphertext is encrypted correctly",
+          "misconception": "assumes correct encryption implies no leakage"
+        },
+        {
+          "id": "C",
+          "text": "The XOR of the two plaintexts, and any known plaintext gives both",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The length of the plaintext and nothing more",
+          "misconception": "reduces the leak to length alone"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "When two messages share a keystream, XORing the ciphertexts cancels the keystream and leaves the plaintexts XORed together. Recovering either plaintext then recovers the other, and a single known plaintext unlocks everything encrypted with that keystream.",
+      "hint": "Cancel the shared part out.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0020",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Compare two block sizes for structure leakage",
+      "practice": "block comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 1
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A revision table lists cipher A with a 16-byte block and cipher B with an 8-byte block. What follows from the comparison?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cipher B encrypts faster because its blocks are smaller",
+          "misconception": "assumes block size sets speed"
+        },
+        {
+          "id": "B",
+          "text": "Cipher B is more secure because it hides more structure",
+          "misconception": "assumes smaller blocks mean more security"
+        },
+        {
+          "id": "C",
+          "text": "Cipher A cannot be used with modern modes",
+          "misconception": "invents a mode restriction"
+        },
+        {
+          "id": "D",
+          "text": "Cipher B's granularity of encryption is finer, so it leaks structure sooner",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A smaller block means less material is encrypted as one indivisible unit, so repeated plaintext structure shows up in the ciphertext more readily. Block size does not by itself decide speed or security, and neither cipher is excluded from modern modes by its block size.",
+      "hint": "Think about the unit of encryption.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0021",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Describe what a key schedule must achieve",
+      "practice": "schedule design",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes what a key schedule must achieve and why.",
+      "options": [],
+      "answer": {
+        "exemplar": "The key schedule has to turn one master key into a distinct round key for every round, and it must do so in a way that spreads every key bit across all of them, so that an attacker who sees several round keys cannot work backwards to the master key or forwards to the others. It also has to keep distinct master keys from producing related round keys, since related round keys across two encryptions break the security the cipher was designed for."
+      },
+      "explanation": "The schedule is where key material is spread and separated, and its failure modes are related round keys and easy backwards recovery from round keys. Rounds, key length and message length are chosen elsewhere and are not the schedule's business.",
+      "hint": "Spread the bits and keep keys apart.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0022",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Compare the public value sizes of two key exchange groups",
+      "practice": "group sizes",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A revision question compares group sizes: one exchange uses a 2048-bit group and another a 4096-bit group, and both produce a 256-bit shared secret. How many bits more are in the 4096-bit group's public value than in the 2048-bit group's?",
+      "options": [],
+      "answer": {
+        "value": 2048,
+        "tolerance": 0.01
+      },
+      "explanation": "The public values differ by four thousand and ninety-six minus two thousand and forty-eight, which is two thousand and forty-eight bits. The shared secret stays 256 bits in both cases, so the group size governs the cost of an attack while the secret governs the strength of the result.",
+      "hint": "Subtract the smaller group size from the larger.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0023",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "Interpret an outage caused by an unplanned certificate rotation",
+      "practice": "rotation outage",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "A mobile app hard-codes one server certificate and refuses to connect if the presented certificate does not match. Six months later the supplier rotated its certificate and the app stopped working for users for eleven days until a patch shipped with the new certificate.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what does the outage demonstrate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the pinned certificate was defective",
+          "misconception": "assumes defect without evidence"
+        },
+        {
+          "id": "B",
+          "text": "That certificate pinning should never be used in mobile apps",
+          "misconception": "generalises one incident into a prohibition"
+        },
+        {
+          "id": "C",
+          "text": "That pinning makes rotation a client-side concern the supplier cannot change",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "That the transport layer failed to protect the session",
+          "misconception": "invents a transport failure"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "The client decided to trust one certificate and nothing else, so a change on the supplier's side had no effect until the client was updated. That is the intended behaviour of pinning and also its operational cost, which is handled by pinning two certificates during a planned rotation.",
+      "hint": "Only the pinned copy was trusted.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0024",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Choose the steps for using a self-signed certificate safely",
+      "practice": "self sign setup",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for using a self-signed certificate safely in a study group's demo service.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: publish the certificate; Last: tell clients to trust any certificate",
+          "misconception": "invites clients to trust everything"
+        },
+        {
+          "id": "B",
+          "text": "First: buy a public certificate; Last: keep the self-signed one as well",
+          "misconception": "confuses two unrelated certificate decisions"
+        },
+        {
+          "id": "C",
+          "text": "First: generate a certificate each year; Last: publish the fingerprints on a webpage",
+          "misconception": "publishes the fingerprints where anyone can edit them"
+        },
+        {
+          "id": "D",
+          "text": "First: generate the certificate and key; Last: pin it in the clients out of band",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A self-signed certificate becomes usable only when the client learns to trust that exact certificate through a channel it already trusts, such as a pinned copy built into the application. Publishing it on a website that anyone can change gives no such assurance.",
+      "hint": "Trust must arrive through a channel you already trust.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0025",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "Distinguish a padding oracle from other kinds of oracle",
+      "practice": "oracle kinds",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 2
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision exercise distinguishes a padding oracle from a message oracle. Which statement is correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The padding oracle leaks a validity bit, which can be turned into plaintext",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The padding oracle leaks the whole key if queried often enough",
+          "misconception": "overstates the leak to key recovery"
+        },
+        {
+          "id": "C",
+          "text": "The padding oracle works only on ciphertexts longer than one block",
+          "misconception": "invents a length restriction"
+        },
+        {
+          "id": "D",
+          "text": "The padding oracle needs the key to be reused at least twice",
+          "misconception": "invents a reuse requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The oracle exposes only whether a padding check passed, but repeated adaptive queries are enough to recover plaintext byte by byte. It does not yield the key, it works on a single message, and it needs no reuse to be devastating.",
+      "hint": "One bit, queried many times.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0026",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Compare plaintext length leakage between block and stream modes",
+      "practice": "mode lengths",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Revision notes show that a block mode produced a 1,008-byte ciphertext for a 1,000-byte plaintext, while a stream mode produced exactly 1,000 bytes for the same input. What does this show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The block mode compressed the plaintext by 24 bytes",
+          "misconception": "invents compression of the plaintext"
+        },
+        {
+          "id": "B",
+          "text": "The block mode rounds the length up to a block boundary, which the stream mode does not",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "The stream mode encrypted less of the message than the block mode",
+          "misconception": "assumes shorter means less encrypted"
+        },
+        {
+          "id": "D",
+          "text": "The block mode leaked the key length rather than the message length",
+          "misconception": "confuses key length with plaintext length"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Block modes encrypt whole blocks, so the length of the plaintext is rounded up to the next boundary and the ciphertext is a little longer than the input. Stream modes work byte by byte, so the length is not padded and the exact size of the message survives in the ciphertext length.",
+      "hint": "Compare the two lengths.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0027",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Compare nonce reuse in a block mode and in a stream mode",
+      "practice": "mode comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain the difference between a reused nonce in a block mode and a reused nonce in a stream mode.",
+      "options": [],
+      "answer": {
+        "exemplar": "In a stream mode the nonce seeds a keystream, so reusing the nonce repeats the keystream exactly, and XORing two ciphertexts cancels it and exposes the relationship between the plaintexts. In a block mode a reused nonce makes the same block encrypt the same way twice, so the leak is that identical plaintext blocks produce identical ciphertext blocks, which reveals structure but not the plaintext itself. The block mode weakness is weaker, but it is also easier to spot."
+      },
+      "explanation": "The two cases fail in different ways: exact keystream reuse exposes plaintext relationships, while block repetition exposes structure. Only the stream case gives an attacker the XOR of two plaintexts directly.",
+      "hint": "Ask what is cancelled out, and what only repeats.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0028",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Compute the padded block count for a given file size",
+      "practice": "padded blocks",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A cipher with a 16-byte block encrypts a 205-byte file. How many blocks does the file occupy once it is padded?",
+      "options": [],
+      "answer": {
+        "value": 13,
+        "tolerance": 0.01
+      },
+      "explanation": "Two hundred and five bytes is twelve full blocks of sixteen with thirteen bytes left over, so the padded file occupies thirteen blocks, which is 208 bytes. The three extra bytes of padding are what separate the ciphertext length from the true file length.",
+      "hint": "Round the byte count up to the next whole block.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0029",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Explain the role of round constants in a key schedule",
+      "practice": "round constants",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 1
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes describe a cipher whose schedule adds a different round constant in each round, so that two different keys producing identical round keys in one round would differ in the next. The notes also record that the constants were chosen from a published table.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what does the round constant contribute?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It separates encryptions that would otherwise share round key material",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "It makes the cipher's output longer than the block size",
+          "misconception": "invents a length effect"
+        },
+        {
+          "id": "C",
+          "text": "It lets the same key be used for two different messages safely",
+          "misconception": "confuses constants with nonce handling"
+        },
+        {
+          "id": "D",
+          "text": "It proves the cipher is free from related key attacks",
+          "misconception": "overstates what a constant guarantees"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Round constants ensure that two encryptions whose key material would otherwise coincide diverge in later rounds, which is what stops a related-key relation from persisting. One constant per round does not by itself certify anything about the whole design.",
+      "hint": "Ask what the constants are for, and whether they do it.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0030",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Choose the steps that detect a relayed key exchange",
+      "practice": "relay defence",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for checking that a key exchange was not relayed.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: compare the derived keys; Last: publish the shared secret",
+          "misconception": "confirms agreement while destroying secrecy"
+        },
+        {
+          "id": "B",
+          "text": "First: sign the exchange transcript; Last: verify the signature before using the key",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "First: check the group parameters; Last: require a larger modulus",
+          "misconception": "treats parameter choice as authentication"
+        },
+        {
+          "id": "D",
+          "text": "First: encrypt the first message; Last: see whether it decrypts",
+          "misconception": "checks confidentiality rather than identity"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "A relay survives because neither side can tell the other from the middle, so each side has to sign what it contributes and the transcript has to be checked before any key is used. The check must come before use, since using the key first hands the attacker the payload.",
+      "hint": "Sign the transcript, verify before use.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0031",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "Compare pinning a leaf certificate with pinning an intermediate",
+      "practice": "pin scope",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks how pinning interacts with an intermediate certificate. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pinning the intermediate certificate is as strong as pinning the leaf",
+          "misconception": "ignores that the intermediate can be misused"
+        },
+        {
+          "id": "B",
+          "text": "Pinning removes the need for a valid chain to the root",
+          "misconception": "overstates what pinning replaces"
+        },
+        {
+          "id": "C",
+          "text": "Pinning the leaf removes the authority's role in the trust decision",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Pinning has no effect once an intermediate is used",
+          "misconception": "denies the effect of pinning"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Pinning a leaf certificate means the client checks that exact certificate, so the root and intermediates stop being part of the trust decision, which is the whole point when a misissuing authority is the concern. Pinning an intermediate instead leaves that intermediate trusted to issue leaves, which is the risk that remains.",
+      "hint": "Ask which certificate the client actually checks.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0032",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Interpret the cost of pinning after an unplanned rotation",
+      "practice": "pin cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A revision case has an app that pins one certificate. The certificate is replaced at the supplier's request and the app refuses to connect for a week. What does this show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pinning makes certificate rotation impossible in practice",
+          "misconception": "overstates the observed week as impossibility"
+        },
+        {
+          "id": "B",
+          "text": "The supplier's new certificate was invalid",
+          "misconception": "assumes fault without evidence"
+        },
+        {
+          "id": "C",
+          "text": "The app's pinning check happens too late to matter",
+          "misconception": "questions the timing without cause"
+        },
+        {
+          "id": "D",
+          "text": "Pinning shifts the burden of trust from authorities to the pinned copy",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A week of downtime after an unplanned replacement is the accepted cost of pinning, because the client trusts only the certificate it holds rather than any authority's word. The fix is to plan a rotation with an overlapping pin list, not to abandon pinning.",
+      "hint": "Think about where the trust now rests.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0033",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "State what an attacker gains and does not gain from a padding oracle",
+      "practice": "oracle scope",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes what an attacker can and cannot get from a padding oracle.",
+      "options": [],
+      "answer": {
+        "exemplar": "An attacker who can submit chosen ciphertexts and read the oracle's verdicts can recover the plaintext of the messages the oracle protects, byte by byte, and in many cases the last blocks are recovered exactly. What the attacker does not get is the encryption key, and the plaintext is not handed over in one response. That gap between what feels like a trivial leak and what it actually yields is exactly why such an oracle must be treated as a full compromise."
+      },
+      "explanation": "The oracle yields plaintext over many queries but not the key and not the plaintext directly, which is what makes the weakness easy to underestimate. Treat it as full compromise of anything it protects.",
+      "hint": "Plaintext yes, key no, all at once no.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0034",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Compute total bytes sent including a published nonce",
+      "practice": "nonce overhead",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In a revision exercise, a 2,048-byte file is sent with a 16-byte nonce prepended to the ciphertext. How many bytes travel in total?",
+      "options": [],
+      "answer": {
+        "value": 2064,
+        "tolerance": 0.01
+      },
+      "explanation": "The nonce adds sixteen bytes to the twenty forty-eight byte ciphertext, so twenty sixty-four bytes travel in total. The nonce must be sent because the receiver cannot derive it, and it is safe to send because it is not secret.",
+      "hint": "Add the nonce to the ciphertext length.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0035",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Determine what two captures of a reused nonce allow an attacker to do",
+      "practice": "capture analysis",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes describe a stream-mode cipher used for voice traffic between two radio sites. The notes record that both sites derive their key from the same pre-shared secret and the same fixed nonce sent in the first packet of each session. A capture from two sessions on the same day is available to the group.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what can the group do with the two captures?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Recover the pre-shared secret by testing the captured traffic",
+          "misconception": "overstates what traffic analysis yields"
+        },
+        {
+          "id": "B",
+          "text": "Read one capture fully, since the key is fixed and short",
+          "misconception": "assumes key length from the notes"
+        },
+        {
+          "id": "C",
+          "text": "XOR the two captures to cancel the keystream and read both",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Nothing, because the nonce was transmitted in the first packet",
+          "misconception": "confuses a published nonce with a secret"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Both sessions reuse the same nonce under the same key, so the keystream is identical and XORing the captures cancels it. The result is the XOR of the two plaintexts, and any known phrase in one voice recording then reveals the other in full.",
+      "hint": "The same nonce means the same keystream.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0036",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Choose the steps that reduce structure leakage in a block cipher",
+      "practice": "structure reduction",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for reducing what a block cipher's structure reveals in a revision exercise.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: use a smaller block; Last: encrypt each record separately",
+          "misconception": "makes the structure worse"
+        },
+        {
+          "id": "B",
+          "text": "First: use a larger block; Last: assume structure is hidden",
+          "misconception": "assumes size removes the problem entirely"
+        },
+        {
+          "id": "C",
+          "text": "First: pad to a fixed size; Last: keep the padding length secret",
+          "misconception": "keeps a secret that is not one"
+        },
+        {
+          "id": "D",
+          "text": "First: chain blocks so identical plaintexts do not repeat; Last: keep the mode authenticated",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Chaining removes the pattern of repeated blocks that reveals structure, and authenticating the result stops an attacker from manipulating the chaining to extract information. A larger block only delays the problem, and padding alone still leaves the size visible.",
+      "hint": "Remove the repetition, then protect the chain.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0037",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Explain why a key schedule is not a repetition of key bytes",
+      "practice": "schedule mixing",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks why a key schedule is not a simple repetition of the key bytes. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The schedule must mix key material so no round key reveals the master key",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The schedule must make the round keys identical to speed up encryption",
+          "misconception": "invents an efficiency goal"
+        },
+        {
+          "id": "C",
+          "text": "The schedule must pad the key to the block size",
+          "misconception": "confuses schedule design with padding"
+        },
+        {
+          "id": "D",
+          "text": "The schedule must generate a new public key for each round",
+          "misconception": "invents a key exchange inside the cipher"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "A good schedule distributes every key bit into every round key and makes recovering the master key from any subset of round keys hard, which a plain repetition would not do. Padding and public keys are outside what a schedule does.",
+      "hint": "Ask what an observer of round keys should learn.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0038",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Compare the guarantees of two key exchange designs",
+      "practice": "guarantee comparison",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Revision notes compare two exchanges: one produces a shared secret in 2 round trips, the other in 3, and only the second binds the transcript and identifies both parties. Which observation is justified?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The extra round trip makes the second exchange less secure",
+          "misconception": "treats cost as a security measure"
+        },
+        {
+          "id": "B",
+          "text": "The second exchange establishes more, and the extra round trip is part of that",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Both exchanges give identical guarantees because the secret matches",
+          "misconception": "assumes equal secrets mean equal guarantees"
+        },
+        {
+          "id": "D",
+          "text": "The first exchange is faster and therefore safer for the users",
+          "misconception": "equates speed with safety"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "The extra round trip is the cost of carrying identities and a transcript binding in the exchange, so the guarantees differ even though the resulting secret is the same. Equal secrets with different binding give an attacker different opportunities, which is exactly what the extra round trip closes.",
+      "hint": "Ask what the extra round trip buys.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0039",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "Explain how pinning and self-signing differ",
+      "practice": "two ideas apart",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes why pinning and self-signing are different ideas.",
+      "options": [],
+      "answer": {
+        "exemplar": "A self-signed certificate describes who generated it and stops there, because its chain of trust ends with itself, so it establishes only control of the private key. Pinning is a client-side decision to trust one specific certificate whatever any authority says, and it can be applied to a properly issued certificate too. The two are independent: a pinned certificate may come from a trusted authority, and a self-signed certificate can be trusted only if the client pins it."
+      },
+      "explanation": "Self-signing is a property of how the certificate was issued, while pinning is a property of how the client decides to trust. They can be combined or separated, and confusing them leads to false confidence in one or the other.",
+      "hint": "One is about issuance, the other is the client.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0040",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Compute the remaining validity of a self-signed certificate",
+      "practice": "validity remaining",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A revision case studies a self-signed certificate valid for 200 days. After 85 days of use, how many days of validity remain?",
+      "options": [],
+      "answer": {
+        "value": 115,
+        "tolerance": 0.01
+      },
+      "explanation": "Two hundred days less the eighty-five days already used leaves a hundred and fifteen days of validity. A self-signed certificate is still subject to expiry, and once it lapses the client that pinned it will simply refuse the connection.",
+      "hint": "Subtract the elapsed days from the validity.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0041",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "Recognise distinguishable failure replies as an oracle",
+      "practice": "failure oracles",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes on a ticket system: a request containing an encrypted session cookie is answered with 'expired' when the padding check fails and with 'invalid' when the key check fails, and the cookie value is under the applicant's control. The group is planning a revision exercise on the endpoint.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what should the group conclude about this endpoint?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Two distinguishable failure replies to attacker-chosen input make this an oracle",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The two error messages are helpful, so the endpoint is well designed",
+          "misconception": "confuses helpful errors with safety"
+        },
+        {
+          "id": "C",
+          "text": "The endpoint is safe because the key is checked as well",
+          "misconception": "assumes a key check prevents padding attacks"
+        },
+        {
+          "id": "D",
+          "text": "The endpoint only matters if the cookie value is guessable",
+          "misconception": "misstates the condition for the attack"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Any difference an attacker can trigger is a usable signal, and here the applicant controls the input, so the endpoint returns two distinguishable verdicts on demand. Checking the key does not remove the padding signal, and the input does not need to be guessable.",
+      "hint": "Attacker-chosen input plus any visible difference.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0042",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Choose the steps that conceal sensitive message lengths",
+      "practice": "length hiding",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for a protocol where message lengths are themselves sensitive.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: choose a stream mode; Last: rely on the transport padding",
+          "misconception": "assumes the transport hides the length"
+        },
+        {
+          "id": "B",
+          "text": "First: pad messages to a small set of fixed sizes; Last: keep the size classes secret from outsiders",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "First: encrypt the length separately; Last: send it before the ciphertext",
+          "misconception": "advertises the very length it hides"
+        },
+        {
+          "id": "D",
+          "text": "First: compress the content; Last: treat compression as concealment",
+          "misconception": "assumes compression removes length information"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Quantising lengths into a small set of fixed sizes hides the exact length, while encrypting the length separately still publishes it. The set of sizes is itself worth protecting, since an outsider who knows the classes can still infer a range.",
+      "hint": "Quantise the length and keep the classes quiet.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0043",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Explain the danger of nonce reuse in a stream mode",
+      "practice": "stream reuse",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks why a stream mode with a reused nonce is dangerous. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Because the reused nonce lets an attacker recover the key directly",
+          "misconception": "overstates the consequence to key recovery"
+        },
+        {
+          "id": "B",
+          "text": "Because the reused nonce reveals the plaintext length",
+          "misconception": "confuses nonce reuse with length leakage"
+        },
+        {
+          "id": "C",
+          "text": "Because the keystream repeats, so XORing two ciphertexts cancels it",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "Because the reused nonce disables the authentication tag",
+          "misconception": "invents an effect on integrity"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A reused nonce in a stream mode reproduces the keystream, so two ciphertexts XORed together cancel it and expose the relationship between their plaintexts. The key stays safe, and the tag is a separate matter, so the danger is the plaintext relationship rather than either of those.",
+      "hint": "Think about what repeats and what cancels.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0044",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Interpret fixed-size padding as concealment of payload length",
+      "practice": "padded frames",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A revision table shows a cipher with a 64-byte block used for 3-byte network packets, padded to 64 bytes. What follows?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The cipher wastes storage but is therefore safer",
+          "misconception": "assumes padding overhead adds security"
+        },
+        {
+          "id": "B",
+          "text": "Each packet leaks its payload length, since all packets are 64 bytes",
+          "misconception": "misreads uniform padding as length leakage"
+        },
+        {
+          "id": "C",
+          "text": "The cipher cannot be used with such small messages",
+          "misconception": "invents a minimum message size rule"
+        },
+        {
+          "id": "D",
+          "text": "Padding to a fixed block hides small differences in payload length",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Because every packet occupies one full block whatever its payload size, the ciphertext length no longer varies with the content, so length no longer leaks. The overhead is real but it buys equality of lengths, not extra strength.",
+      "hint": "Look at what the fixed size conceals.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0045",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Explain the effect of related round keys",
+      "practice": "related keys",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision terms what happens when a key schedule produces related round keys.",
+      "options": [],
+      "answer": {
+        "exemplar": "If two different master keys produce related round keys, then an attacker who can observe encryptions under both keys may be able to cancel shared round-key material between the two encryptions, which is the same trick that breaks a reused keystream. The cipher then starts behaving like a cipher with a smaller effective key space than advertised, and the weakness grows the more rounds are involved, since there are more chances for a related-key relation to be exploited."
+      },
+      "explanation": "Related round keys allow cancellation between encryptions, which is a structural failure rather than a matter of brute force. Keeping distinct master keys well separated is what prevents it.",
+      "hint": "Look for material shared between two encryptions.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0046",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Compute the traffic cost of adding authentication to an exchange",
+      "practice": "authenticated cost",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A revision exercise counts the traffic in two exchanges: the bare exchange sends 1,300 messages of 64 bytes, and the authenticated version sends 2 extra messages of 64 bytes. How many bytes does the authenticated version send in total?",
+      "options": [],
+      "answer": {
+        "value": 83328,
+        "tolerance": 1
+      },
+      "explanation": "The authenticated exchange sends one thousand three hundred and two messages of sixty-four bytes, which is eighty-three thousand three hundred and twenty-eight bytes. The extra hundred and twenty-eight bytes are the price of carrying identities and a transcript binding in the exchange itself.",
+      "hint": "Add the extra messages, then multiply by the message size.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0047",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What certificate pinning makes hard",
+      "learningObjective": "Assess the value of pinning against a future authority failure",
+      "practice": "future failure",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes describe a service whose clients accept two pinned certificates, one for the current year and one for the next, with the second added before the first expires. The notes also record that the supplier's certificate authority was audited without finding any misissued certificates in eleven years.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what is the best reading?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pinning is unnecessary here, because the authority has a clean record",
+          "misconception": "concludes from reputation that pinning is redundant"
+        },
+        {
+          "id": "B",
+          "text": "The two pins mean the authority is still trusted for other names",
+          "misconception": "misreads the pins as extending the authority's role"
+        },
+        {
+          "id": "C",
+          "text": "Pinning limits the damage a future authority failure could cause here",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "The overlap means the older pin should be removed immediately",
+          "misconception": "recommends removing the overlap that prevents outages"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Pinning exists for the case where an authority starts misbehaving, and a clean history says nothing about the future. The overlapping pair of pins is what allows a planned rotation without an outage, so removing the older pin early would remove the very margin that makes the change safe.",
+      "hint": "Think about what a future failure would mean.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-certificate-pinning-makes-hard"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0048",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Choose the steps for rotating a pinned certificate without an outage",
+      "practice": "pin rotation",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for rotating a pinned certificate without an outage.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: stop pinning the old certificate; Last: ship a client update",
+          "misconception": "creates the outage it is meant to avoid"
+        },
+        {
+          "id": "B",
+          "text": "First: rely on the certificate authority's rollover service; Last: wait for it",
+          "misconception": "ignores that pinning blocks the chain's own rollover"
+        },
+        {
+          "id": "C",
+          "text": "First: pin the certificate authority instead; Last: pin the leaf again later",
+          "misconception": "removes the protection pinning provided"
+        },
+        {
+          "id": "D",
+          "text": "First: add the new certificate to the pin list; Last: retire the old one after it expires",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "Rotation is safe when both certificates are trusted for the overlap period, so the new one is added first and the old one retired only once it has expired. Swapping them the other way round is exactly what caused the earlier eleven-day outage.",
+      "hint": "Overlap the pins, then retire the old one.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0049",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "State the conditions that make a padding oracle exploitable",
+      "practice": "exploit conditions",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 1
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks what makes a padding oracle exploitable in practice. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The attacker can submit chosen ciphertexts and observe the oracle's replies",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The attacker needs the encryption key to query the oracle",
+          "misconception": "assumes key knowledge is required"
+        },
+        {
+          "id": "C",
+          "text": "The oracle is only exploitable over encrypted transport",
+          "misconception": "invents a transport requirement"
+        },
+        {
+          "id": "D",
+          "text": "The attacker needs two ciphertexts encrypted under the same key",
+          "misconception": "assumes a reuse requirement"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "The attack needs an interface that accepts attacker-supplied ciphertexts and returns a distinguishable verdict, which is all a padding oracle provides. No key, no transport condition and no second ciphertext are needed for that.",
+      "hint": "Think about what the attacker must be able to do.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0050",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Match ciphertext lengths to the plaintext information they reveal",
+      "practice": "length reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 2
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "Revision notes compare ciphertext lengths for the same 500-byte message: mode one gives 512 bytes, mode two gives 500 bytes and mode three gives 528 bytes. Which statement is justified?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mode three is the most secure because it adds the most bytes",
+          "misconception": "equates overhead with security"
+        },
+        {
+          "id": "B",
+          "text": "Mode two reveals the exact length while mode one rounds it up to a block",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "Mode one hides the length completely, because its length is not exact",
+          "misconception": "confuses rounding with concealment"
+        },
+        {
+          "id": "D",
+          "text": "All three modes reveal the same length information",
+          "misconception": "ignores the different lengths"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Only a mode whose ciphertext length matches the plaintext length exposes the exact size of the message, while a block mode rounds up and so reveals the length only to the nearest block boundary. Extra bytes do not make a mode more secure; they are the price of the block structure.",
+      "hint": "Match each length to what it reveals.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0051",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Explain how a known plaintext yields full recovery",
+      "practice": "known plaintext",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 3
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes how a known plaintext turns a reused keystream into full recovery.",
+      "options": [],
+      "answer": {
+        "exemplar": "XORing the ciphertext with the known plaintext yields the keystream itself, byte for byte, because the keystream was the only unknown term in that equation. Once the keystream is known, every other message encrypted with it is read by XORing the same keystream against its ciphertext, and no further effort is needed per message. This is why reusing a keystream once is as damaging as reusing it many times, and why no amount of extra encryption on the later messages helps."
+      },
+      "explanation": "One known plaintext exposes the keystream, and the keystream exposes everything else under it, so a single reuse ends the protection of the whole set. The chain is short enough that it is rarely appreciated before it happens.",
+      "hint": "Ciphertext XOR plaintext equals keystream.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 20,
+        "medianSec": 35,
+        "p75Sec": 55
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0052",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Compute the padded ciphertext size of a file",
+      "practice": "padded size",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 4
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "A block cipher with a 16-byte block encrypts a 1,024-byte file using the usual scheme that always adds between one byte and a full block of padding. How many bytes does the padded ciphertext occupy?",
+      "options": [],
+      "answer": {
+        "value": 1040,
+        "tolerance": 0.01
+      },
+      "explanation": "One thousand and twenty-four bytes is exactly sixty-four blocks, and the padding scheme adds a full block because the input already fills the last one. The padded ciphertext is therefore sixty-five blocks, which is one thousand and forty bytes.",
+      "hint": "A full extra block is added when the input fills a block.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0053",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a key schedule has to prevent",
+      "learningObjective": "Evaluate a note about weakly separated round constants",
+      "practice": "constant review",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 1
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes on a cipher's schedule: the master key is expanded by a Feistel network of 8 rounds, and each round mixes the key schedule output with a fixed constant. The notes record that the round constants differ only in their last three bits from one round to the next.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what does the note about the constants suggest?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The constants may not separate rounds as strongly as intended",
+          "misconception": ""
+        },
+        {
+          "id": "B",
+          "text": "The constants make the cipher's key space smaller",
+          "misconception": "invents a key space effect"
+        },
+        {
+          "id": "C",
+          "text": "The constants guarantee that no two keys produce related round keys",
+          "misconception": "overstates a constant's guarantee"
+        },
+        {
+          "id": "D",
+          "text": "The constants should be secret to protect the cipher",
+          "misconception": "confuses public constants with secret material"
+        }
+      ],
+      "answer": {
+        "correctId": "A"
+      },
+      "explanation": "Round constants are there to break coincidences between rounds, and constants that barely differ do less of that job than intended, so the note is worth raising with the implementer. They are public by design, and one weak constant does not settle the whole design.",
+      "hint": "Ask whether the constants separate rounds as intended.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-key-schedule-has-to-prevent"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0054",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a bare key exchange leaves unestablished",
+      "learningObjective": "Choose the steps that authenticate both sides of an exchange",
+      "practice": "mutual identity",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "REMEMBER",
+        "dok": 2
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for a protocol where both parties must prove who they are.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: exchange public keys by email; Last: trust the first key received",
+          "misconception": "trusts an unverified first contact"
+        },
+        {
+          "id": "B",
+          "text": "First: obtain identity certificates for both parties; Last: bind the exchange to those identities",
+          "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "First: use a longer shared passphrase; Last: send it once at the start",
+          "misconception": "confuses a shared secret with an identity proof"
+        },
+        {
+          "id": "D",
+          "text": "First: check the server's certificate only; Last: ignore the client's",
+          "misconception": "leaves one side unauthenticated"
+        }
+      ],
+      "answer": {
+        "correctId": "B"
+      },
+      "explanation": "Proving identity on both sides needs each party to hold a credential the other can verify, and the exchange has to be tied to those credentials so a relay cannot substitute them. Checking only one side leaves the other unauthenticated, and a long passphrase proves nothing about who was present.",
+      "hint": "Both sides need a verifiable credential.",
+      "difficulty": 0.65,
+      "discrimination": 0.25,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-bare-key-exchange-leaves-unestablished"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0055",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "State what a self-signed certificate proves on its own",
+      "practice": "self sign meaning",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 3
+      },
+      "format": "CONCEPT_MCQ",
+      "stimulus": null,
+      "stem": "A revision question asks what a self-signed certificate proves on its own. Which answer is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the organisation was vetted by a certificate authority",
+          "misconception": "claims a vetting that does not exist"
+        },
+        {
+          "id": "B",
+          "text": "That the connection to the server is free from interception",
+          "misconception": "confuses key control with transport security"
+        },
+        {
+          "id": "C",
+          "text": "That the holder of the private key controls that name, nothing more",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "That other clients will trust the certificate automatically",
+          "misconception": "assumes trust is automatic"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "A self-signed certificate proves that whoever holds the matching private key controls the named identity, and its trust chain ends with itself. It says nothing about vetting, transport security or what other clients will do, all of which need an external source of trust.",
+      "hint": "Ask what the chain of trust ends with.",
+      "difficulty": 0.75,
+      "discrimination": 0.35,
+      "responseTimeBaseline": {
+        "p25Sec": 15,
+        "medianSec": 28,
+        "p75Sec": 48
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0056",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a self-signed certificate establishes by itself",
+      "learningObjective": "Interpret what a self-signed certificate can and cannot establish",
+      "practice": "self sign reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "UNDERSTAND",
+        "dok": 4
+      },
+      "format": "DATA_INTERPRETATION",
+      "stimulus": null,
+      "stem": "A revision scenario: a self-signed certificate is used for an internal service, and the certificate's subject names a server nobody can verify. Which conclusion is right?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The certificate proves the server is the one the group expects",
+          "misconception": "assumes a name claim proves identity"
+        },
+        {
+          "id": "B",
+          "text": "The certificate proves the server was vetted by a trusted body",
+          "misconception": "claims a vetting that a self-signed certificate lacks"
+        },
+        {
+          "id": "C",
+          "text": "The certificate cannot be used at all, because it is self-signed",
+          "misconception": "overstates the prohibition"
+        },
+        {
+          "id": "D",
+          "text": "The certificate proves only key control, and identity must come from elsewhere",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "A self-signed certificate contains a claim and a key pair, and the chain of trust stops at itself, so it establishes that its holder controls the key and nothing about the holder's identity. Trust has to be supplied out of band, by embedding the certificate or pinning a fingerprint.",
+      "hint": "Ask what stops at the certificate itself.",
+      "difficulty": 0.85,
+      "discrimination": 0.45,
+      "responseTimeBaseline": {
+        "p25Sec": 18,
+        "medianSec": 32,
+        "p75Sec": 60
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-self-signed-certificate-establishes-by-itself"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0057",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a padding oracle actually leaks",
+      "learningObjective": "Describe how to recognise a padding oracle during review",
+      "practice": "review checklist",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "APPLY",
+        "dok": 1
+      },
+      "format": "EXPLANATION",
+      "stimulus": null,
+      "stem": "Explain in revision notes how to recognise a padding oracle in a system you are reviewing.",
+      "options": [],
+      "answer": {
+        "exemplar": "Look for any path where an attacker-supplied ciphertext reaches a decryption routine that distinguishes a padding failure from other failures, and where that distinction is visible in the reply: a different error message, a different response code, a different response time, or a different connection behaviour. The visible distinction is the oracle, and the time-based variants are the ones most often missed because they look like ordinary network jitter to a reader."
+      },
+      "explanation": "The oracle is the visible difference in behaviour, so the review has to look at the whole response rather than only the error text. Timing and connection behaviour count as much as a distinct message.",
+      "hint": "Any visible difference between failure kinds is an oracle.",
+      "difficulty": 0.25,
+      "discrimination": 0.2,
+      "responseTimeBaseline": {
+        "p25Sec": 22,
+        "medianSec": 40,
+        "p75Sec": 65
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-padding-oracle-actually-leaks"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0058",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "Which modes reveal the length of the plaintext",
+      "learningObjective": "Compute the padding overhead a block mode adds",
+      "practice": "overhead count",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "ANALYZE",
+        "dok": 2
+      },
+      "format": "NUMERIC",
+      "stimulus": null,
+      "stem": "In a revision exercise, a 300-byte plaintext is encrypted in a 16-byte block mode, producing 320 bytes of ciphertext. How many of those bytes come from padding and block rounding rather than from the plaintext?",
+      "options": [],
+      "answer": {
+        "value": 20,
+        "tolerance": 0.01
+      },
+      "explanation": "Three hundred bytes of plaintext occupy twenty bytes more than they need once rounded to blocks of sixteen, and that twenty bytes is the padding and rounding overhead. An observer learns the plaintext length only to within a block, which is a weaker leak than the exact length.",
+      "hint": "Subtract the plaintext length from the ciphertext length.",
+      "difficulty": 0.35,
+      "discrimination": 0.3,
+      "responseTimeBaseline": {
+        "p25Sec": 25,
+        "medianSec": 45,
+        "p75Sec": 70
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "which-modes-reveal-the-length-of-the-plaintext"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0059",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a reused keystream gives away",
+      "learningObjective": "Interpret readable output from XORing two ciphertexts",
+      "practice": "xor reading",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "EVALUATE",
+        "dok": 3
+      },
+      "format": "STIMULUS_MCQ",
+      "stimulus": {
+        "kind": "study notes",
+        "body": "Revision notes record that a group compared two ciphertexts produced in a stream-mode session and XORed them together. The result was 128 bytes of readable text that began with the same greeting as one of the two plaintexts. The notes also record that the sender reuses a 64-bit counter as its nonce, starting from zero at each boot.",
+        "license": "original"
+      },
+      "stem": "Given the study notes, what does the readable result show?",
+      "options": [
+        {
+          "id": "A",
+          "text": "That the two messages were identical",
+          "misconception": "misses the point of the readable result"
+        },
+        {
+          "id": "B",
+          "text": "That the sender's key was recovered",
+          "misconception": "overstates the outcome to key recovery"
+        },
+        {
+          "id": "C",
+          "text": "That the keystream repeated, so one plaintext yields the other",
+          "misconception": ""
+        },
+        {
+          "id": "D",
+          "text": "That the greeting in the plaintext is the encryption key",
+          "misconception": "confuses known plaintext with key recovery"
+        }
+      ],
+      "answer": {
+        "correctId": "C"
+      },
+      "explanation": "Readable output after XORing two ciphertexts means the keystream cancelled, which happens only when the same nonce was used twice under one key. With the greeting known, the rest of one message and the whole of the other follow directly.",
+      "hint": "Readable text means the shared part cancelled.",
+      "difficulty": 0.45,
+      "discrimination": 0.4,
+      "responseTimeBaseline": {
+        "p25Sec": 30,
+        "medianSec": 55,
+        "p75Sec": 85
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": "original",
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-reused-keystream-gives-away"
+      ],
+      "version": 1
+    },
+    {
+      "id": "cyber-7.3-0060",
+      "subject": "CYBERSECURITY",
+      "unit": "Unit 7",
+      "topic": "What a block cipher's block size means",
+      "learningObjective": "Choose the steps for computing a padded record's block count",
+      "practice": "block arithmetic",
+      "scope": "core-scope",
+      "cognitiveDemand": {
+        "bloom": "CREATE",
+        "dok": 4
+      },
+      "format": "TWO_STAGE",
+      "stimulus": null,
+      "stem": "Choose the first step and the last step for a revision exercise on how a block cipher handles a 300-byte record.",
+      "options": [
+        {
+          "id": "A",
+          "text": "First: count the bytes; Last: assume the mode adds no padding",
+          "misconception": "ignores the padding step entirely"
+        },
+        {
+          "id": "B",
+          "text": "First: find the block size; Last: divide and round down to whole blocks",
+          "misconception": "drops the final partial block"
+        },
+        {
+          "id": "C",
+          "text": "First: apply the padding rule; Last: assume the ciphertext is shorter than the input",
+          "misconception": "gets the padding direction wrong"
+        },
+        {
+          "id": "D",
+          "text": "First: apply the padding rule; Last: count the blocks in the padded record",
+          "misconception": ""
+        }
+      ],
+      "answer": {
+        "correctId": "D"
+      },
+      "explanation": "The padded size comes from applying the padding rule and then counting blocks, and the result is what determines the ciphertext length an observer sees. Rounding down would discard the final partial block, and padding never shortens a message.",
+      "hint": "Pad first, then count blocks.",
+      "difficulty": 0.55,
+      "discrimination": 0.5,
+      "responseTimeBaseline": {
+        "p25Sec": 12,
+        "medianSec": 22,
+        "p75Sec": 40
+      },
+      "provenance": {
+        "author": "bank-team-cybersecurity",
+        "reviewer": "bank-review-cybersecurity",
+        "reviewedAt": "2026-09-18T00:00:00Z",
+        "aiAssisted": true,
+        "aiModel": "muse-spark",
+        "aiRunId": "sprint2-bank-fill",
+        "humanReviewer": "orchestrator-spotcheck",
+        "stimulusLicense": null,
+        "fairUseRationale": null,
+        "attestation": "authored from first principles; no protected content used"
+      },
+      "relatedQuestionIds": [],
+      "prerequisiteQuestionIds": [],
+      "tags": [
+        "unit-7",
+        "what-a-block-cipher-s-block-size-means"
+      ],
+      "version": 1
+    }
+  ]
+}

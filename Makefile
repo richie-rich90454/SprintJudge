@@ -12,7 +12,7 @@ MVNW := ./mvnw
 JAR := target/sprintjudge.jar
 FRONTEND := frontend
 VERIFY_PORT ?= 8091
-HEAP ?= 1g
+HEAP ?= 2g
 
 # Windows needs the .cmd shims; POSIX shells use the bare names.
 ifeq ($(OS),Windows_NT)
@@ -67,7 +67,7 @@ dev: ## Backend + frontend side by side (parallel).
 dev-backend: ## API + WebSocket on :8080 (dev profile).
 	@$(LOAD_ENV); $(MVNW) spring-boot:run \
 		-Dspring-boot.run.profiles=dev \
-		"-Dspring-boot.run.jvmArguments=-Xms256m -Xmx256m -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
+		"-Dspring-boot.run.jvmArguments=-Xms512m -Xmx768m -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
 
 .PHONY: dev-frontend
 dev-frontend: ## UI on :5173 (proxies /api and /ws).
@@ -156,3 +156,53 @@ format: ## Run the frontend formatter.
 .PHONY: clean
 clean: ## Remove build outputs (target/, frontend/dist/).
 	rm -rf target $(FRONTEND)/dist
+
+##@ Legal and bank checks
+
+.PHONY: check-trademarks
+check-trademarks: ## Fail on branded program names outside policy and enforcement files.
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude-dir=executor --exclude=package-lock.json -e '\bAdvanced Placement\b' -e '\bPre-AP\b' -e 'AP Central' -e 'AP Vertical Teams' -e 'SpringBoard' -e 'PSAT' -e 'NMSQT' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@! grep -rInE --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=target --exclude-dir=dist --exclude-dir=executor --exclude=package-lock.json -e '\bAP\b' . | grep -v 'docs/no-ap-branding.md' | grep -v 'docs/subject-rename-map.md' | grep -v 'scripts/check-bank.mjs' | grep -v '\.env' | grep -v 'Makefile' || (echo "TRADEMARK CHECK FAILED"; exit 1)
+	@echo "trademarks: clean"
+
+.PHONY: check-ai-firewall
+check-ai-firewall: ## Fail when generation scripts read outside blueprints.
+	@! grep -rInE 'readFileSync.*bank|readFileSync.*seed|readFileSync.*docs|fetch\(|axios|node-fetch' tools/gen || (echo "AI FIREWALL CHECK FAILED"; exit 1)
+	@test -f tools/gen/firewall.js || (echo "firewall script missing"; exit 1)
+	@grep -q 'ALLOWED_READ_ROOT' tools/gen/firewall.js || (echo "firewall allowlist missing"; exit 1)
+	@echo "ai firewall: clean"
+
+.PHONY: check-blueprints
+check-blueprints: ## Every blueprint carries first-principles attestation.
+	@test -d blueprints || (echo "no blueprints dir"; exit 1)
+	@missing=$$(grep -rL 'attestedFromFirstPrinciples: true' blueprints || true); \
+	if [ -n "$$missing" ]; then echo "BLUEPRINT ATTESTATION FAILED:"; echo "$$missing"; exit 1; fi
+	@echo "blueprints: attested"
+
+.PHONY: check-volume
+check-volume: ## Every bank subject meets the per-course floor.
+	@node scripts/check-volume.mjs
+
+.PHONY: check-unit-volume
+check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rules.
+	@node scripts/check-unit-volume.mjs
+
+.PHONY: check-bank
+check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
+	@node scripts/check-bank.mjs
+
+.PHONY: backup-db
+backup-db: ## WAL-safe SQLite backup into backups/ (DB=, OUT=).
+	@$(LOAD_ENV); ./scripts/backup-db.sh "$(DB)" "$(OUT)"
+
+.PHONY: restore-db
+restore-db: ## Restore a backup while the server is stopped (FILE=, DB=).
+	@test -n "$(FILE)" || (echo "FILE=<backup.db> is required"; exit 1)
+	@$(LOAD_ENV); ./scripts/restore-db.sh "$(FILE)" "$(DB)"
+
+.PHONY: check-ui
+check-ui: ## Enforce the UI design rules (copy, tokens, typography, resets).
+	@node scripts/check-ui.mjs
+
+.PHONY: check-legal
+check-legal: check-trademarks check-ai-firewall check-blueprints check-bank ## Run all legal checks.
