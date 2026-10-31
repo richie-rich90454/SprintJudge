@@ -147,6 +147,49 @@ test.describe("a11y", () => {
         );
         expect(bad).toEqual([]);
     });
+
+    test("admin bank has no serious/critical a11y violations", async ({ page }) => {
+        await page.goto("/admin/login");
+        await page.waitForLoadState("networkidle");
+        await page.fill('input[name="username"]', "admin");
+        await page.fill('input[name="password"]', "changeme");
+        await page.click('button[type="submit"]');
+        await page.waitForLoadState("networkidle");
+        await page.goto("/admin/bank");
+        await page.waitForLoadState("networkidle");
+        const results = await new AxeBuilder({ page }).analyze();
+        const bad = results.violations.filter(
+            (v) => v.impact === "serious" || v.impact === "critical",
+        );
+        expect(bad).toEqual([]);
+    });
+
+    test("admin volume has no serious/critical a11y violations", async ({ page }) => {
+        await page.goto("/admin/login");
+        await page.waitForLoadState("networkidle");
+        await page.fill('input[name="username"]', "admin");
+        await page.fill('input[name="password"]', "changeme");
+        await page.click('button[type="submit"]');
+        await page.waitForLoadState("networkidle");
+        await page.goto("/admin/volume");
+        await page.waitForLoadState("networkidle");
+        const results = await new AxeBuilder({ page }).analyze();
+        const bad = results.violations.filter(
+            (v) => v.impact === "serious" || v.impact === "critical",
+        );
+        expect(bad).toEqual([]);
+    });
+
+    test("watch has no serious/critical a11y violations", async ({ page, request }) => {
+        const pin = await createPracticePin(request);
+        await page.goto(`/watch/${pin}`);
+        await page.waitForLoadState("networkidle");
+        const results = await new AxeBuilder({ page }).analyze();
+        const bad = results.violations.filter(
+            (v) => v.impact === "serious" || v.impact === "critical",
+        );
+        expect(bad).toEqual([]);
+    });
 });
 
 test.describe("reduced motion", () => {
