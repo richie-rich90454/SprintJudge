@@ -127,6 +127,26 @@ test.describe("a11y", () => {
         );
         expect(bad).toEqual([]);
     });
+
+    test("solo has no serious/critical a11y violations", async ({ page }) => {
+        await page.goto("/solo");
+        await page.waitForLoadState("networkidle");
+        const results = await new AxeBuilder({ page }).analyze();
+        const bad = results.violations.filter(
+            (v) => v.impact === "serious" || v.impact === "critical",
+        );
+        expect(bad).toEqual([]);
+    });
+
+    test("explore has no serious/critical a11y violations", async ({ page }) => {
+        await page.goto("/explore");
+        await page.waitForLoadState("networkidle");
+        const results = await new AxeBuilder({ page }).analyze();
+        const bad = results.violations.filter(
+            (v) => v.impact === "serious" || v.impact === "critical",
+        );
+        expect(bad).toEqual([]);
+    });
 });
 
 test.describe("reduced motion", () => {
