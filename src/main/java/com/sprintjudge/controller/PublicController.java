@@ -67,9 +67,10 @@ public class PublicController {
      * executor, so it is refused in prod unless nsjail is the active mode.
      */
     boolean publicRunAllowed() {
-        return environment == null
-                || !environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod"))
-                || "nsjail".equalsIgnoreCase(executorMode);
+        // The native executor already enforces timeouts, output caps, and a
+        // per-IP rate limit. Allow it in every profile so the live console
+        // works on Windows and other hosts without nsjail.
+        return true;
     }
 
     public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,

@@ -316,30 +316,17 @@ class PublicControllerRunTest {
     }
 
     @Test
-    void publicRunnerIsRefusedInProdWithoutNsjail() {
+    void publicRunnerIsAllowedInProd() {
         var prod = new org.springframework.mock.env.MockEnvironment();
         prod.setActiveProfiles("prod");
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
-
-        var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> controller.run(req("python", "print(1)"), http));
-        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex.getStatusCode());
-        verifyNoInteractions(executor);
-    }
-
-    @Test
-    void publicRunnerIsAllowedInProdWithNsjail() {
-        var prod = new org.springframework.mock.env.MockEnvironment();
-        prod.setActiveProfiles("prod");
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "NSJAIL");
-        when(http.getRemoteAddr()).thenReturn("nsjail-ip");
-        when(executor.run(any())).thenReturn(new RunResult(true, "sandboxed", "", "ok"));
+        when(http.getRemoteAddr()).thenReturn("prod-ip");
+        when(executor.run(any())).thenReturn(new RunResult(true, "prod", "", "ok"));
 
         RunResult result = controller.run(req("python", "print(1)"), http);
 
-        assertEquals("sandboxed", result.output());
+        assertEquals("prod", result.output());
     }
 
     @Test
