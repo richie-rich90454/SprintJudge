@@ -51,8 +51,12 @@ public class SubmissionWriteBuffer {
             @Value("${sprintjudge.persistence.buffer-capacity:20000}") int capacity) {
         this.repository = repository;
         this.queue = new ArrayBlockingQueue<>(capacity);
-        long period = Math.max(25, flushMs);
-        flusher.scheduleWithFixedDelay(this::flushSafely, period, period, TimeUnit.MILLISECONDS);
+        this.flushMs = Math.max(25, flushMs);
+    }
+
+    @PostConstruct
+    void startFlusher() {
+        flusher.scheduleWithFixedDelay(this::flushSafely, flushMs, flushMs, TimeUnit.MILLISECONDS);
     }
 
     /** Non-blocking; warns when the bound is hit so drops are never silent. */

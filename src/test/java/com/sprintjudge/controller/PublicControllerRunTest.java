@@ -317,9 +317,6 @@ class PublicControllerRunTest {
 
     @Test
     void publicRunnerIsAllowedInProd() {
-        var prod = new org.springframework.mock.env.MockEnvironment();
-        prod.setActiveProfiles("prod");
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
         when(http.getRemoteAddr()).thenReturn("prod-ip");
         when(executor.run(any())).thenReturn(new RunResult(true, "prod", "", "ok"));
@@ -331,8 +328,6 @@ class PublicControllerRunTest {
 
     @Test
     void publicRunnerStaysAvailableOutsideProd() {
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment",
-                new org.springframework.mock.env.MockEnvironment());
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
         when(http.getRemoteAddr()).thenReturn("dev-ip");
         when(executor.run(any())).thenReturn(new RunResult(true, "dev", "", "ok"));

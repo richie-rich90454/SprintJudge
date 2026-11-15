@@ -149,6 +149,7 @@ class MetricsServiceBreadthTest {
                 new SubmissionWriteBuffer(mock(SubmissionRepository.class), 100000, 1000),
                 new CompileArtifactCache(tempDir.resolve("g").toString(), 16, 16),
                 mock(GameRoomManager.class), mock(BroadcastScheduler.class), registry);
+        svc.registerGauges();
         svc.recordJudge(5_000_000L, true, false);
         java.util.concurrent.atomic.AtomicInteger scraped = new java.util.concurrent.atomic.AtomicInteger();
         registry.forEachMeter(m -> {
