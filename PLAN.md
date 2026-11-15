@@ -161,6 +161,106 @@ Order, with the suite green after each step:
 - Zero compiler warnings under `-Xlint:all`.
 - `git status` clean at each commit boundary.
 
+## 8a. Conversion conventions (Phase 2 contract)
+
+Every converter MUST follow these rules exactly so the result compiles and reads
+the same everywhere.
+
+**Records -> plain classes**
+
+```java
+public final class RoundResult {
+    private String type;
+    private String questionId;
+    private boolean revealed;
+    private JsonNode correctAnswer;
+    private List<PlayerScore> scores;
+    private Map<String, Integer> answerCounts;
+
+    public RoundResult() {}
+
+    public RoundResult(String type, String questionId, boolean revealed,
+                       JsonNode correctAnswer, List<PlayerScore> scores,
+                       Map<String, Integer> answerCounts) {
+        this.type = type;
+        this.questionId = questionId;
+        this.revealed = revealed;
+        this.correctAnswer = correctAnswer;
+        this.scores = scores;
+        this.answerCounts = answerCounts;
+    }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    // ... one getter/setter per field; booleans use isRevealed()/setRevealed()
+
+    @Override public boolean equals(Object o) { /* all fields */ }
+    @Override public int hashCode() { /* all fields */ }
+    @Override public String toString() { /* all fields */ }
+}
+```
+
+- Record accessors `x()` become `getX()` / `isX()` (booleans). Callers are updated
+  in the same change.
+- Nested records become `public static final class` members.
+- `sealed`/`permits` is removed; interfaces stay plain interfaces.
+- Every class gets a no-arg constructor (Jackson) plus the all-args constructor.
+- `equals`/`hashCode`/`toString` are implemented with all fields.
+
+**Enums -> constant classes**
+
+```java
+public final class GameStatus {
+    public static final String LOBBY = "LOBBY";
+    public static final String ACTIVE = "ACTIVE";
+    public static final String REVIEW = "REVIEW";
+    public static final String ENDED = "ENDED";
+
+    private GameStatus() {}
+}
+```
+(Use `int` constants when the enum was ordinal-based; otherwise String.)
+
+**Lambdas -> anonymous inner classes** (explicit types, explicit `return`):
+
+```java
+Runnable r = new Runnable() {
+    @Override public void run() { doWork(); }
+};
+Function<Player, String> nameOf = new Function<Player, String>() {
+    @Override public String apply(Player p) { return p.getName(); }
+};
+Comparator<Player> byScore = new Comparator<Player>() {
+    @Override public int compare(Player a, Player b) {
+        return Long.compare(b.getScore(), a.getScore());
+    }
+};
+```
+
+**Streams -> explicit loops**: `collect(toList())` -> `new ArrayList<>` + `add`;
+`groupingBy`/`toMap` -> `HashMap`/`TreeMap` + loops; `anyMatch` -> loop with
+`break` and a `boolean`; `findFirst` -> loop returning early; `sorted` ->
+`Collections.sort(list, comparator)`; `limit` -> counter; `flatMap` -> nested
+loops. Preserve short-circuit semantics exactly.
+
+**Other syntax**
+
+- `var x = ...` -> explicit type declaration.
+- Text blocks (`"""`) -> string concatenation.
+- Switch expressions / arrow rules -> classic `switch` statement with `break`, or
+  if/else chains. Pattern-matching `instanceof T t` -> `if (x instanceof T) {
+  T t = (T) x; ... }`.
+- Keep `java.time`, `Optional`, `List.of`, `Map.of`, `Set.of`, streams-free
+  Collections APIs.
+
+**Null safety**: add `@NonNull`/`@Nullable` (org.eclipse.jdt.annotation) at the
+package level using `package-info.java` with `@NonNullByDefault`, and mark every
+nullable field/parameter/return with `@Nullable`. Add the annotation dependency
+to the POM.
+
+**No behaviour change**: preserve semantics, ordering, and logging; the test suite
+(2,717 tests) is the oracle. Do not reformat unrelated code.
+
 ## 9. Commit policy
 
 - Conventional commits: `type(scope): description`.
