@@ -6,7 +6,7 @@ const path = require("node:path");
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const ALLOWED_READ_ROOT = path.join(REPO_ROOT, "blueprints");
-const ALLOWED_WRITE_ROOT = path.join(REPO_ROOT, "drafts");
+const ALLOWED_WRITE_ROOT = path.join(REPO_ROOT, "seed", "drafts");
 const FORBIDDEN_READ = ["src/main/resources/bank", "docs", "seed", "data"];
 
 function assertReadable(file) {
@@ -27,7 +27,7 @@ function assertWritable(file) {
   const abs = path.resolve(REPO_ROOT, file);
   const inside = abs === ALLOWED_WRITE_ROOT || abs.startsWith(ALLOWED_WRITE_ROOT + path.sep);
   if (!inside) {
-    throw new Error("firewall: refusing to write outside drafts/**: " + file);
+    throw new Error("firewall: refusing to write outside seed/drafts/**: " + file);
   }
   return abs;
 }

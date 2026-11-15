@@ -4,7 +4,7 @@
 set -euo pipefail
 
 SRC="${1:?usage: restore-db.sh <backup.db> [target.db]}"
-DB="${2:-${SPRINTJUDGE_DB_PATH:-sprintjudge.db}}"
+DB="${2:-${SPRINTJUDGE_DB_PATH:-database/sprintjudge.db}}"
 
 [ -f "$SRC" ] || { echo "backup not found: $SRC" >&2; exit 1; }
 echo "Stop SprintJudge before restoring."

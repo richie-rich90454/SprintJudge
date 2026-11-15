@@ -192,13 +192,21 @@ check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
 	@node scripts/check-bank.mjs
 
 .PHONY: backup-db
-backup-db: ## WAL-safe SQLite backup into backups/ (DB=, OUT=).
+backup-db: ## WAL-safe SQLite backup into database/backups/ (DB=, OUT=).
 	@$(LOAD_ENV); ./scripts/backup-db.sh "$(DB)" "$(OUT)"
 
 .PHONY: restore-db
 restore-db: ## Restore a backup while the server is stopped (FILE=, DB=).
 	@test -n "$(FILE)" || (echo "FILE=<backup.db> is required"; exit 1)
 	@$(LOAD_ENV); ./scripts/restore-db.sh "$(FILE)" "$(DB)"
+
+.PHONY: lint
+lint: ## Run all static checks: format, checkstyle, PMD, compiler warnings.
+	@$(LOAD_ENV); $(MVNW) -q spotless:check checkstyle:check pmd:check compile test-compile
+
+.PHONY: fix
+fix: ## Apply auto-fixes (formatting + unused imports) under report-and-confirm.
+	@$(LOAD_ENV); $(MVNW) -q spotless:apply rewrite:run
 
 .PHONY: check-ui
 check-ui: ## Enforce the UI design rules (copy, tokens, typography, resets).
