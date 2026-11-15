@@ -59,9 +59,6 @@ public class PublicController {
     @org.springframework.beans.factory.annotation.Value("${sprintjudge.executor.mode:native}")
     private String executorMode = "native";
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private org.springframework.core.env.Environment environment;
-
     /**
      * Production policy: the public runner is unsandboxed under the native
      * executor, so it is refused in prod unless nsjail is the active mode.

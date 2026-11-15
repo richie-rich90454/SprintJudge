@@ -294,7 +294,6 @@ class PracticeSoloFlowTest {
             String q1 = inbox.await("Q1", "QUESTION_START", "q1-flow-full");
             assertNotNull(q1, "Q1 never arrived. seen=" + inbox.seen);
             String joined = inbox.await("join", "\"JOINED\"");
-            String uuid = field(joined, "uuid");
 
             ws.sendText("{\"type\":\"SUBMIT\",\"questionId\":\"q1-flow-full\",\"response\":"
                             + "{\"selectedIndex\":0},\"language\":\"python\"}",

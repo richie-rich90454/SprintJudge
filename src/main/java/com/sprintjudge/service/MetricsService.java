@@ -3,6 +3,7 @@ package com.sprintjudge.service;
 import com.sprintjudge.service.executor.CompileArtifactCache;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class MetricsService {
     private final CompileArtifactCache compileCache;
     private final GameRoomManager roomManager;
     private final BroadcastScheduler scheduler;
+    private final MeterRegistry meterRegistry;
 
     @Value("${sprintjudge.room.max-players:10000}")
     private int maxPlayers;
@@ -55,8 +57,13 @@ public class MetricsService {
         this.compileCache = compileCache;
         this.roomManager = roomManager;
         this.scheduler = scheduler;
+        this.meterRegistry = meterRegistry;
+    }
 
-        // Register Prometheus gauges for key metrics.
+    @PostConstruct
+    void registerGauges() {
+        // Gauges are registered after construction so 'this' never escapes
+        // through a gauge callback before the bean is fully initialised.
         Gauge.builder("sprintjudge.rooms.active", roomManager, r -> r.activeRooms())
                 .description("Number of active game rooms").register(meterRegistry);
         Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, s -> s.availablePermits())

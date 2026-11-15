@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class SubmissionWriteBuffer {
 
     private final SubmissionRepository repository;
     private final BlockingQueue<Submission> queue;
+    private final long flushMs;
     private final ScheduledExecutorService flusher =
             Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "oq-write-flusher");

@@ -424,9 +424,9 @@ class DeltaLedgerBreadthTest {
         for (int i = 0; i < 20; i++) l.record("it" + i, "I" + i, i, i + 1);
         var b = l.drain(false);
         assertEquals(20, b.upserts().size());
-        int first = 0;
+        long first = 0;
         for (var d : b.upserts()) first += d.score();
-        int second = 0;
+        long second = 0;
         for (var d : b.upserts()) second += d.score();
         assertEquals(first, second);
         assertEquals(190, first);

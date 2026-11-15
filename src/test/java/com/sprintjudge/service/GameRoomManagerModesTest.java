@@ -1,6 +1,6 @@
 package com.sprintjudge.service;
 
-import com.sprintjudge.domain.dto.ErrorMessage;
+
 import com.sprintjudge.domain.dto.QuestionStart;
 import com.sprintjudge.domain.dto.SubmissionResult;
 import com.sprintjudge.domain.models.GameSession;

@@ -69,10 +69,6 @@ class GameRoomTeamBattleFlowTest {
                 evaluationService, settingsService, scheduler, writeBuffer, roundTimer, eventPublisher);
     }
 
-    private GameSession session(String pin, String mode) {
-        return new GameSession("s1", "qz", pin, "host", "LOBBY", mode, 0, null, null, null, Instant.now());
-    }
-
     private Question mcq(String id) {
         return new Question(id, "qz", "T" + id, "D", "MCQ", null, 30, 100,
                 Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
