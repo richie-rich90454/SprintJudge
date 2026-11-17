@@ -86,6 +86,9 @@ public class SubmissionWriteBuffer {
 		try {
 			repository.saveAll(batch);
 		} catch (RuntimeException ex) {
+			// Requeue for the next tick. Under a burst that refills the bounded
+			// queue before we finish, the remainder drops with a loud warning
+			// rather than silently; live rankings stay correct either way.
 			for (Submission s : batch) {
 				if (!queue.offer(s)) {
 					log.warn("Write buffer full -?dropped {} submissions on DB failure",
