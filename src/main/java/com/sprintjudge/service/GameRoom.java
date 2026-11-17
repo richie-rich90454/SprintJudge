@@ -72,6 +72,10 @@ public class GameRoom {
 	private final ConcurrentHashMap<String, Integer> streaks = new ConcurrentHashMap<>();
 	// Per-round contribution for the reveal screen: [roundScore, bonus].
 	private final ConcurrentHashMap<String, int[]> lastRound = new ConcurrentHashMap<>();
+	// Authoritative correctness for the last round. Partial credit can score
+	// points while still being an incorrect answer, so correctness cannot be
+	// inferred from the score at reveal time.
+	private final ConcurrentHashMap<String, Boolean> lastRoundCorrect = new ConcurrentHashMap<>();
 
 	// Exam mode: total end time across all questions.
 	private volatile long totalEndEpochMs;
@@ -598,15 +602,25 @@ public class GameRoom {
 	}
 
 	public void recordRound(String uuid, int roundScore, int bonus) {
+		recordRound(uuid, roundScore, bonus, roundScore > 0);
+	}
+
+	public void recordRound(String uuid, int roundScore, int bonus, boolean correct) {
 		lastRound.put(uuid, new int[]{roundScore, bonus});
+		lastRoundCorrect.put(uuid, Boolean.valueOf(correct));
 	}
 
 	public void clearRounds() {
 		lastRound.clear();
+		lastRoundCorrect.clear();
 	}
 
 	public int[] roundOf(String uuid) {
 		return lastRound.getOrDefault(uuid, new int[]{0, 0});
+	}
+
+	public boolean roundCorrect(String uuid) {
+		return lastRoundCorrect.getOrDefault(uuid, Boolean.FALSE).booleanValue();
 	}
 
 	// ---------- lifecycle bookkeeping ----------

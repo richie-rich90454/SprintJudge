@@ -405,7 +405,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		writeBuffer.offer(new Submission(Ids.uuid(), room.getSessionId(), questionId, p.getName(), playerUuid,
 				Json.write(response), total, correct, null, attempts, Instant.now()));
 		room.applyScore(playerUuid, total);
-		room.recordRound(playerUuid, base, bonus);
+		room.recordRound(playerUuid, base, bonus, correct);
 		applyTeamScore(room, playerUuid, total);
 		if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 			room.markBattleAnswer(playerUuid, System.currentTimeMillis());
@@ -456,11 +456,16 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 					String aiFeedback) {
 				int bonus;
 				synchronized (room) {
+					// A judge result is asynchronous: the host may have skipped or
+					// the timer may have expired while the code was running. Never
+					// apply a stale result to a different round (or a removed room).
+					if (!"ACTIVE".equals(room.getStatus()) || !questionId.equals(room.getCurrentQuestionId()))
+						return;
 					boolean correct = allPassed;
 					bonus = streakBonus(room, uuid, correct, baseScore);
 					int total = baseScore + bonus;
 					room.applyScore(uuid, total);
-					room.recordRound(uuid, baseScore, bonus);
+					room.recordRound(uuid, baseScore, bonus, correct);
 					applyTeamScore(room, uuid, total);
 					if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 						room.markBattleAnswer(uuid, System.currentTimeMillis());
@@ -1272,7 +1277,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			if (pl.getUuid().equals(hostUuid))
 				continue;
 			int[] round = room.roundOf(pl.getUuid());
-			boolean correct = round[0] > 0;
+			boolean correct = room.roundCorrect(pl.getUuid());
 			scores.add(
 					new RoundResult.PlayerScore(pl.getUuid(), pl.getName(), (int) room.getBoard().scoreOf(pl.getUuid()),
 							correct, round[0], room.streakOf(pl.getUuid()), round[1]));

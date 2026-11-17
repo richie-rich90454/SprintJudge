@@ -87,8 +87,9 @@ public class EvaluationService {
 				intersect++;
 		int missed = correct.size() - intersect;
 		int extra = chosen.size() - intersect;
-		// Selecting everything must never farm credit: any wrong option
-		// beyond the correct set means the answer is simply wrong.
+		// Partial credit: every missed or extra option costs half a point. Zero
+		// when wrong picks reach the number of correct ones, which stops an
+		// all-options guess from outscoring a genuine partial answer.
 		if (extra > 0 && extra >= intersect)
 			return 0.0;
 		double score = 1.0 - (missed * 0.5 + extra * 0.5) / Math.max(1, correct.size());
