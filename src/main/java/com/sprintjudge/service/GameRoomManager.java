@@ -272,7 +272,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		}
 
 		if (GameRoom.GameMode.EXAM.equals(room.getGameMode())) {
-			// Exam: use the total end time (set at game creation), no per-question timer.
+			// Exam: fix the total budget once on the first question. Recomputing
+			// "now + sum(limits)" each round pushed the deadline forward every
+			// question and extended the exam indefinitely.
 			room.setCurrentQuestionStartEpochMs(now);
 			long end = room.getTotalEndEpochMs();
 			if (end <= 0) {
@@ -280,6 +282,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				for (Question examQuestion : questions)
 					totalSec += examQuestion.getTimeLimitSec();
 				end = now + totalSec * 1000;
+				room.setTotalEndEpochMs(end);
 			}
 			room.setCurrentQuestionEndEpochMs(end);
 			room.setQuestionEndBaseEpochMs(end);

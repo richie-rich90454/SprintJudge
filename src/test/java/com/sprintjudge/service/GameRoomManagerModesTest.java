@@ -397,6 +397,26 @@ class GameRoomManagerModesTest {
 	}
 
 	@Test
+	void examTotalDeadlineDoesNotDriftAcrossQuestions() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		addPlayer(mgr, "Ann");
+		Question q1 = new Question("qa", "qz", "A", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 0,
+				Instant.now());
+		Question q2 = new Question("qb", "qz", "B", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 1,
+				Instant.now());
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1, q2));
+
+		mgr.startQuestion("123456");
+		long firstDeadline = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
+		mgr.startQuestion("123456");
+		long secondDeadline = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
+
+		assertEquals(firstDeadline, secondDeadline,
+				"the exam budget must stay fixed, not restart on every question");
+	}
+
+	@Test
 	void examSubmitKeepsLiveBoard() {
 		GameRoomManager mgr = manager();
 		putRoom(mgr, GameRoom.GameMode.EXAM);
