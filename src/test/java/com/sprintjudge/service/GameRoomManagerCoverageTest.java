@@ -314,6 +314,51 @@ class GameRoomManagerCoverageTest {
 	}
 
 	@Test
+	void joinWithNullGameModeDefaultsToStandard() {
+		GameSession nullMode = new GameSession("s1", "qz", "123456", "host", "LOBBY", null, 0, null, null, null,
+				Instant.now());
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(nullMode));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "A", "sa", "player", null);
+		assertEquals(GameRoom.GameMode.STANDARD, roomOf(mgr).getGameMode());
+	}
+
+	@Test
+	void joinWithBlankGameModeDefaultsToStandard() {
+		GameSession blankMode = new GameSession("s1", "qz", "123456", "host", "LOBBY", "   ", 0, null, null, null,
+				Instant.now());
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(blankMode));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "A", "sa", "player", null);
+		assertEquals(GameRoom.GameMode.STANDARD, roomOf(mgr).getGameMode());
+	}
+
+	@Test
+	void staleCodingQuestionIdResultIsNotApplied() {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+		when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+		GameRoomManager mgr = manager();
+		final com.sprintjudge.service.Player player = mgr.join("123456", "Cody", "sess-c", "player", null);
+		when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(), anyString(),
+				anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+				.thenAnswer(new org.mockito.stubbing.Answer<java.lang.Object>() {
+					@Override
+					public java.lang.Object answer(org.mockito.invocation.InvocationOnMock inv)
+							throws java.lang.Throwable {
+						CodingOutcomeConsumer h = inv.getArgument(10);
+						// Still ACTIVE, but the round advanced while the judge ran.
+						roomOf(mgr).setCurrentQuestionId("a-different-question");
+						h.accept(player.getUuid(), 500, true, 1, 1, null);
+						return java.util.concurrent.CompletableFuture.completedFuture(true);
+					}
+				});
+		armActive(mgr, "oj1");
+		mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+		assertEquals(0, roomOf(mgr).getBoard().scoreOf(player.getUuid()));
+	}
+
+	@Test
 	void handlerRejectedToDepartedPlayerSendsNowhere() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());

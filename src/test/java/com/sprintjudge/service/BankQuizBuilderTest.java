@@ -399,4 +399,41 @@ class BankQuizBuilderTest {
 			}
 		});
 	}
+
+	@Test
+	void csaManifestWithNonArrayPresetsThrows() {
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				BankQuizBuilder.loadCsaManifest(new ByteArrayInputStream("{\"presets\":{}}".getBytes()));
+			}
+		});
+	}
+
+	@Test
+	void missingCsaManifestResourceBecomesIllegalState() {
+		ClassLoader original = Thread.currentThread().getContextClassLoader();
+		ClassLoader empty = new ClassLoader(original) {
+			@Override
+			public java.net.URL getResource(String name) {
+				if (name != null && name.contains("csa-featured.json")) {
+					return null;
+				}
+				return super.getResource(name);
+			}
+		};
+		Thread.currentThread().setContextClassLoader(empty);
+		try {
+			IllegalStateException e = assertThrows(IllegalStateException.class,
+					new org.junit.jupiter.api.function.Executable() {
+						@Override
+						public void execute() throws java.lang.Throwable {
+							BankQuizBuilder.loadCsaManifest();
+						}
+					});
+			assertTrue(e.getMessage().contains("csa featured manifest unavailable"));
+		} finally {
+			Thread.currentThread().setContextClassLoader(original);
+		}
+	}
 }

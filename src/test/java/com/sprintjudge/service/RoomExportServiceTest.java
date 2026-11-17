@@ -74,6 +74,22 @@ class RoomExportServiceTest {
 	}
 
 	@Test
+	void nullQuestionAsRightHandCompareOperand() {
+		Submission nullish = new Submission("id0", "s1", null, "x", "u0", "{}", 0, false, "", 1, Instant.EPOCH);
+		when(submissions.findBySession("s1")).thenReturn(List.of(nullish, row("q1", "b", 1, true, 1)));
+		assertEquals("playerUuid,questionId,scoreEarned,correct,attemptCount\n" + "u0,,0,false,1\nb,q1,1,true,1",
+				exporter.exportCsv("s1"));
+	}
+
+	@Test
+	void nullPlayerAsRightHandCompareOperand() {
+		Submission nullPlayer = new Submission("id0", "s1", "q1", "x", null, "{}", 0, false, "", 1, Instant.EPOCH);
+		when(submissions.findBySession("s1")).thenReturn(List.of(nullPlayer, row("q1", "b", 1, true, 1)));
+		assertEquals("playerUuid,questionId,scoreEarned,correct,attemptCount\n" + ",q1,0,false,1\nb,q1,1,true,1",
+				exporter.exportCsv("s1"));
+	}
+
+	@Test
 	void rowsTiedOnQuestionOrderByPlayerAndNullPlayerSortsFirst() {
 		Submission named = row("q1", "b", 1, true, 1);
 		Submission anonymous = new Submission("id2", "s1", "q1", null, null, "{}", 2, false, "", 1, Instant.EPOCH);

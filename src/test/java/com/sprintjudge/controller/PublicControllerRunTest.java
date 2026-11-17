@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("all")
@@ -364,6 +363,29 @@ class PublicControllerRunTest {
 		RunResult result = controller.run(req("python", "print(1)"), http);
 
 		assertEquals("prod", result.getOutput());
+	}
+
+	@Test
+	void disabledPublicRunnerReturns403() {
+		PublicController disabled = new PublicController(
+				org.mockito.Mockito.mock(com.sprintjudge.repository.QuizRepository.class),
+				org.mockito.Mockito.mock(com.sprintjudge.repository.GameSessionRepository.class), executor,
+				userRepository, roomManager, questionRepository) {
+			@Override
+			boolean publicRunAllowed() {
+				return false;
+			}
+		};
+		org.springframework.web.server.ResponseStatusException ex = assertThrows(
+				org.springframework.web.server.ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						disabled.run(req("python", "x"), http);
+					}
+				});
+		assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex.getStatusCode());
+		assertEquals("public_runner_disabled", ex.getReason());
 	}
 
 	@Test

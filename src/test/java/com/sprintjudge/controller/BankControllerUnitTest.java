@@ -55,6 +55,19 @@ class BankControllerUnitTest {
 	}
 
 	@Test
+	void teachNextNullSessionIdIs400() {
+		BankController controller = new BankController(store, builder, teachNext);
+		ResponseStatusException error = assertThrows(ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						controller.teachNext(null);
+					}
+				});
+		assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
+	}
+
+	@Test
 	void teachNextDelegatesToService() {
 		TeachNextService.Recommendation rec = new TeachNextService.Recommendation("S", "U", "T", 3);
 		when(teachNext.recommendPractice("s1")).thenReturn(rec);

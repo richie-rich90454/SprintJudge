@@ -141,7 +141,9 @@ public class TeachNextService {
 			}
 			list.add(q);
 		}
-		String weakest = null;
+		// byTopic is non-empty (questions is non-empty and every question maps to
+		// a key, possibly ""), so weakest is always assigned in the loop below.
+		String weakest = "";
 		double weakestRate = 2.0;
 		for (Map.Entry<String, List<Question>> e : byTopic.entrySet()) {
 			int total = 0, correct = 0;
@@ -160,13 +162,11 @@ public class TeachNextService {
 				weakest = e.getKey();
 			}
 		}
-		if (weakest == null)
+		// With no attempts yet, fall back to the first question's topic.
+		// (findBySession never returns null, so no null guard is needed here.)
+		if (submissions.isEmpty())
 			weakest = topicOf(questions.get(0));
-		// if no submissions at all, use the first question's topic
-		if (submissions == null || submissions.isEmpty()) {
-			weakest = topicOf(questions.get(0));
-		}
-		return weakest == null ? "" : weakest;
+		return weakest;
 	}
 
 	private List<String> unitsOf(String subject) {
@@ -200,7 +200,7 @@ public class TeachNextService {
 		if (q.getConfig() != null && !q.getConfig().isBlank()) {
 			try {
 				com.fasterxml.jackson.databind.JsonNode node = Json.readTree(q.getConfig());
-				if (node != null && node.has("topic")) {
+				if (node.has("topic")) {
 					String t = node.get("topic").asText("");
 					if (!t.isBlank())
 						return t;

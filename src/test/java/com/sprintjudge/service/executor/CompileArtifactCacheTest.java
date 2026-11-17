@@ -105,6 +105,18 @@ class CompileArtifactCacheTest {
 	}
 
 	@Test
+	void evictionGuardReturnsWhenNoEldestRemains(@TempDir Path tempDir) throws Exception {
+		CompileArtifactCache c = new CompileArtifactCache(tempDir.toString(), 16, 16);
+		java.lang.reflect.Field bytes = CompileArtifactCache.class.getDeclaredField("totalBytes");
+		bytes.setAccessible(true);
+		((java.util.concurrent.atomic.AtomicLong) bytes.get(c)).set(Long.MAX_VALUE);
+		java.lang.reflect.Method evict = CompileArtifactCache.class.getDeclaredMethod("evictIfNeeded");
+		evict.setAccessible(true);
+		evict.invoke(c);
+		assertEquals(0, c.entries());
+	}
+
+	@Test
 	void hitRatioAndKeyFor(@TempDir Path tempDir) throws IOException {
 		CompileArtifactCache c = new CompileArtifactCache(tempDir.toString(), 16, 16);
 		Path bin = Files.createTempFile(tempDir, "bin", ".o");

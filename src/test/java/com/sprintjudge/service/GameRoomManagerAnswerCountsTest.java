@@ -100,6 +100,30 @@ class GameRoomManagerAnswerCountsTest {
 	}
 
 	@Test
+	void trueFalseDuplicateValuesAccumulateInTheSameBucket() {
+		SubmissionRepository repo = mock(SubmissionRepository.class);
+		when(repo.findBySessionQuestion("s", "q"))
+				.thenReturn(List.of(submission("p1", "{\"value\":true}"), submission("p2", "{\"value\":true}")));
+		GameRoom room = mock(GameRoom.class);
+		when(room.getSessionId()).thenReturn("s");
+		Map<String, Integer> counts = manager(repo).answerCounts(room, question(QuestionType.TRUE_FALSE),
+				QuestionType.TRUE_FALSE, List.of());
+		assertEquals(2, counts.get("True"));
+	}
+
+	@Test
+	void multiSelectDuplicateLettersAccumulateInTheSameBucket() {
+		SubmissionRepository repo = mock(SubmissionRepository.class);
+		when(repo.findBySessionQuestion("s", "q")).thenReturn(
+				List.of(submission("p1", "{\"selectedIndices\":[0]}"), submission("p2", "{\"selectedIndices\":[0]}")));
+		GameRoom room = mock(GameRoom.class);
+		when(room.getSessionId()).thenReturn("s");
+		Map<String, Integer> counts = manager(repo).answerCounts(room, question(QuestionType.MULTIPLE_SELECT),
+				QuestionType.MULTIPLE_SELECT, List.of());
+		assertEquals(2, counts.get("A"));
+	}
+
+	@Test
 	void unsupportedTypeFallsBackToCorrectIncorrect() {
 		SubmissionRepository repo = mock(SubmissionRepository.class);
 		when(repo.findBySessionQuestion("s", "q")).thenReturn(List.of());
