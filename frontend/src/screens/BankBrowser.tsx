@@ -228,7 +228,7 @@ export function BankBrowser() {
                     </p>
                 )}
                 {search.isPending && (
-                    <div className="grid gap-4 md:grid-cols-2" aria-label="Loading questions">
+                    <div className="grid gap-4 md:grid-cols-2" role="status" aria-label="Loading questions">
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
