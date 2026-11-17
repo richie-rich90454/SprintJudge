@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class ImportExportServiceTest {
 
 	private static final class Repos {

@@ -15,7 +15,7 @@ public final class LeaderboardDelta {
 	private boolean resync;
 	private List<LeaderboardEntry> entries;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public LeaderboardDelta() {
 	}
 

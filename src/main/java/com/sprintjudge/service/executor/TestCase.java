@@ -8,7 +8,7 @@ public final class TestCase {
 	private String expectedOutput;
 	private boolean hidden;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public TestCase() {
 	}
 

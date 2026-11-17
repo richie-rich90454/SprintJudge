@@ -10,7 +10,7 @@ public final class QuestionStart {
 	private long startedAtEpochMs;
 	private long serverNowEpochMs;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public QuestionStart() {
 	}
 

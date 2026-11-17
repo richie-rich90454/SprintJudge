@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class GameEventListenerTest {
 
 	private static final class Fixture {

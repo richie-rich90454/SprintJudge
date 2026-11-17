@@ -14,7 +14,7 @@ import com.sprintjudge.domain.models.RoomState;
 import com.sprintjudge.domain.reducer.RoomReducer;
 
 /** Determinism and coverage for the event fold plus shared records. */
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class RoomReducerTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-18T00:00:00Z");

@@ -14,7 +14,7 @@ public final class QuestionDto {
 	private List<String> languagesAllowed;
 	private Object config;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public QuestionDto() {
 	}
 

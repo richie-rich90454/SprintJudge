@@ -24,7 +24,7 @@ public final class Quiz {
 
 	private boolean template;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public Quiz() {
 	}
 

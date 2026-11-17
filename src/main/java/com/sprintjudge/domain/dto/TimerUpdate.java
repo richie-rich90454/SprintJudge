@@ -8,7 +8,7 @@ public final class TimerUpdate {
 	private long newEndEpochMs;
 	private long extendSec;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public TimerUpdate() {
 	}
 

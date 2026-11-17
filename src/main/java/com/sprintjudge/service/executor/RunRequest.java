@@ -10,7 +10,7 @@ public final class RunRequest {
 	private String stdin;
 	private int timeoutSec;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public RunRequest() {
 	}
 

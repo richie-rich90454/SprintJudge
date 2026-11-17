@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class PublicControllerTest {
 
 	@Mock

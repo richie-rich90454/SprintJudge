@@ -32,7 +32,7 @@ public final class RoomState {
 
 	private Instant createdAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public RoomState() {
 	}
 

@@ -27,7 +27,7 @@ public class TeachNextService {
 		private String topic;
 		private int count;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Recommendation() {
 		}
 

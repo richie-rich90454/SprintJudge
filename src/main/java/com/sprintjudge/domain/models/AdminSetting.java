@@ -12,7 +12,7 @@ public final class AdminSetting {
 
 	private Instant updatedAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public AdminSetting() {
 	}
 

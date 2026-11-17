@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class AbstractScriptExecutorRunTest {
 
 	private static StubExecutor executor(Path work, Path scripts) {

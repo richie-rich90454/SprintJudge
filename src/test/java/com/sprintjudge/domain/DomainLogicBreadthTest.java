@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class DomainLogicBreadthTest {
 
 	private static final List<String> QUESTION_TYPES = Arrays.asList(QuestionType.MCQ, QuestionType.TRUE_FALSE,

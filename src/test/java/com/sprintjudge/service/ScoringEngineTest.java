@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class ScoringEngineTest {
 
 	private final ScoringEngine engine = new ScoringEngine();

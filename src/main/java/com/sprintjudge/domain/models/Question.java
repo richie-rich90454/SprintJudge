@@ -38,7 +38,7 @@ public final class Question {
 
 	private Instant createdAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public Question() {
 	}
 

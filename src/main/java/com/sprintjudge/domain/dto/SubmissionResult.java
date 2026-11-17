@@ -16,7 +16,7 @@ public final class SubmissionResult {
 	private int totalTests;
 	private String aiFeedback;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public SubmissionResult() {
 	}
 

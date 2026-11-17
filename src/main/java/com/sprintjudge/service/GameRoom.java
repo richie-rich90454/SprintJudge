@@ -83,7 +83,7 @@ public class GameRoom {
 		private java.util.Set<String> memberUuids;
 		private long score;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Team() {
 		}
 
@@ -169,7 +169,7 @@ public class GameRoom {
 		private boolean p2Correct;
 		private String winnerUuid;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BattleMatch() {
 		}
 
@@ -285,7 +285,7 @@ public class GameRoom {
 		private String winnerUuid;
 		private boolean bye;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BattlePair() {
 		}
 
@@ -355,7 +355,7 @@ public class GameRoom {
 		private int number;
 		private List<BattlePair> pairs;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BattleRound() {
 		}
 

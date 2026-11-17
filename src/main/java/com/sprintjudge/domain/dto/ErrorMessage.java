@@ -7,7 +7,7 @@ public final class ErrorMessage {
 	private String type;
 	private String message;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public ErrorMessage() {
 	}
 

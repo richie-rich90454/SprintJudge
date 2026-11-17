@@ -9,7 +9,7 @@ public final class BattleChampion {
 	private String championUuid;
 	private String championName;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public BattleChampion() {
 	}
 

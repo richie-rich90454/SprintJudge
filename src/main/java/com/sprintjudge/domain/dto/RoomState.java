@@ -13,7 +13,7 @@ public final class RoomState {
 	private List<PlayerInfo> players;
 	private String gameMode;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public RoomState() {
 	}
 
@@ -114,7 +114,7 @@ public final class RoomState {
 		private int score;
 		private boolean connected;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerInfo() {
 		}
 

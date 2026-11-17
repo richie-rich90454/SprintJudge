@@ -9,7 +9,7 @@ public final class JoinedMessage {
 	private String rejoinToken;
 	private RoomState room;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public JoinedMessage() {
 	}
 

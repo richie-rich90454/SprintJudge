@@ -107,7 +107,7 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		private String ip;
 		private boolean authed;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public StagedConnection() {
 		}
 

@@ -26,7 +26,7 @@ public final class DeltaLedger {
 		private long score;
 		private int rank;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Delta() {
 		}
 
@@ -93,7 +93,7 @@ public final class DeltaLedger {
 		private boolean resync;
 		private List<Delta> upserts;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Batch() {
 		}
 

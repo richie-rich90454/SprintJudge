@@ -11,7 +11,7 @@ public final class BattleBracket {
 	private String championUuid;
 	private String championName;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public BattleBracket() {
 	}
 
@@ -78,7 +78,7 @@ public final class BattleBracket {
 		private String winnerUuid;
 		private boolean bye;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Pair() {
 		}
 
@@ -143,7 +143,7 @@ public final class BattleBracket {
 		private int number;
 		private List<Pair> pairs;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Round() {
 		}
 

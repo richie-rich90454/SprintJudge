@@ -11,7 +11,7 @@ public final class ExportBundle {
 	private List<QuizExport> quizzes;
 	private Map<String, String> adminSettings;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public ExportBundle() {
 	}
 
@@ -79,7 +79,7 @@ public final class ExportBundle {
 		private boolean template;
 		private List<QuestionExport> questions;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public QuizExport() {
 		}
 
@@ -160,7 +160,7 @@ public final class ExportBundle {
 		private Map<String, Object> config;
 		private @Nullable List<String> languagesAllowed;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public QuestionExport() {
 		}
 

@@ -114,7 +114,7 @@ public class SubmissionProcessor {
 		private int total;
 		private int pointsBase;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Core() {
 		}
 

@@ -9,7 +9,7 @@ public final class RunResult {
 	private String error;
 	private String status;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public RunResult() {
 	}
 

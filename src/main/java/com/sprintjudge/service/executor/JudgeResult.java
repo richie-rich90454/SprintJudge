@@ -10,7 +10,7 @@ public final class JudgeResult {
 	private boolean allPassed;
 	private List<CaseResult> cases;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public JudgeResult() {
 	}
 
@@ -78,7 +78,7 @@ public final class JudgeResult {
 		private String actual;
 		private String error;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public CaseResult() {
 		}
 

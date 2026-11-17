@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class NsJailExecutorTest {
 
 	private NsJailExecutor executor(String binary) throws Exception {

@@ -18,7 +18,7 @@ import com.sprintjudge.repository.SubmissionRepository;
 
 /** Ordering, escaping, and shape for the teacher export. */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class RoomExportServiceTest {
 
 	@Mock

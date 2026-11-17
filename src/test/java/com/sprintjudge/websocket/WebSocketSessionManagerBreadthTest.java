@@ -15,7 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class WebSocketSessionManagerBreadthTest {
 
 	private Session openSession(RemoteEndpoint.Basic remote) {

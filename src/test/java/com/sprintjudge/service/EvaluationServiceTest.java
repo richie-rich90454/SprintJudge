@@ -9,7 +9,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class EvaluationServiceTest {
 
 	private final EvaluationService svc = new EvaluationService();

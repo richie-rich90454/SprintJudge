@@ -22,7 +22,7 @@ import java.util.Set;
  * OJ test cases, leaving the rendering fields (options, lines, code, starter,
  * -? intact.
  */
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 public final class QuestionAnswers {
 
 	private QuestionAnswers() {

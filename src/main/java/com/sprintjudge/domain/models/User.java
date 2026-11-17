@@ -18,7 +18,7 @@ public final class User {
 
 	private Instant createdAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public User() {
 	}
 

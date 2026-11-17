@@ -16,7 +16,7 @@ public class ScoringEngine {
 	private final double minSpeedFraction;
 	private final double attemptDecayBase;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public ScoringEngine() {
 		this(0.5, 0.5);
 	}

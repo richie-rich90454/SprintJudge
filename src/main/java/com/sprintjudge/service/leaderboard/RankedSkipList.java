@@ -49,7 +49,7 @@ public final class RankedSkipList {
 		private long score;
 		private long joinSeq;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Entry() {
 		}
 

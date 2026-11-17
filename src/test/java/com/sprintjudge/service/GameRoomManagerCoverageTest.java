@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  * Each test targets one JaCoCo-flagged site.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class GameRoomManagerCoverageTest {
 
 	@Mock

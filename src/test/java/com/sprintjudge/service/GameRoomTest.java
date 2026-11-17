@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class GameRoomTest {
 
 	@Test

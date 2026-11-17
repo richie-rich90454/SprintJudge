@@ -22,7 +22,7 @@ import java.util.Map;
  * document.
  */
 @Service
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 public class ImportExportService {
 
 	private final QuizRepository quizRepository;

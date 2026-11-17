@@ -11,7 +11,7 @@ public final class Player {
 	private boolean connected;
 	private String token;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public Player() {
 	}
 

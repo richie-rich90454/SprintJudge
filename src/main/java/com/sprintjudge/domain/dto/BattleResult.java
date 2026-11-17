@@ -11,7 +11,7 @@ public final class BattleResult {
 	private List<Match> matches;
 	private List<String> winners;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public BattleResult() {
 	}
 
@@ -77,7 +77,7 @@ public final class BattleResult {
 		private String winnerUuid;
 		private boolean bye;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Match() {
 		}
 

@@ -11,7 +11,7 @@ public final class JudgeRequest {
 	private int timeoutSec;
 	private int memoryLimitMb;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public JudgeRequest() {
 	}
 

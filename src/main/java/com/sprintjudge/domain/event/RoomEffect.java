@@ -19,7 +19,7 @@ public interface RoomEffect {
 
 		private String payloadJson;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Broadcast() {
 		}
 
@@ -88,7 +88,7 @@ public interface RoomEffect {
 
 		private String payloadJson;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Persist() {
 		}
 
@@ -165,7 +165,7 @@ public interface RoomEffect {
 
 		private long delayMs;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Schedule() {
 		}
 
@@ -232,7 +232,7 @@ public interface RoomEffect {
 
 		private int points;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public Award() {
 		}
 

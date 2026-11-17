@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class CalibrationControllerTest {
 
 	@TempDir

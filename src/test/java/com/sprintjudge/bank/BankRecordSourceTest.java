@@ -11,7 +11,7 @@ import org.springframework.core.io.Resource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class BankRecordSourceTest {
 
 	private static Resource json(String body) {

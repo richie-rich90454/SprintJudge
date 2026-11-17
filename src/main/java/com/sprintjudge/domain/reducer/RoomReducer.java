@@ -37,7 +37,7 @@ public final class RoomReducer {
 
 		private long seq;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public FoldedRoom() {
 		}
 
@@ -187,7 +187,7 @@ public final class RoomReducer {
 
 		private List<RoomEffect> effects;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public FoldResult() {
 		}
 

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * and invisible to coverage; on the plain classes they must be covered for the
  * 100% JaCoCo gate to remain meaningful.
  */
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class PojoContractTest {
 
 	private static final Class<?>[] POJOS = {com.sprintjudge.domain.dto.BattleBracket.class,

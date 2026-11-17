@@ -7,7 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class GlobalExceptionHandlerStatusTest {
 
 	private final GlobalExceptionHandler handler = new GlobalExceptionHandler();

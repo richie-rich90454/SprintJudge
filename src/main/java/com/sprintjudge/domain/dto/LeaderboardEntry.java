@@ -9,7 +9,7 @@ public final class LeaderboardEntry {
 	private int score;
 	private int rank;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public LeaderboardEntry() {
 	}
 

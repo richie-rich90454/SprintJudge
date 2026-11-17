@@ -19,7 +19,7 @@ public final class GameReview {
 	private String sessionId;
 	private List<TeamReview> teams;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public GameReview() {
 	}
 
@@ -120,7 +120,7 @@ public final class GameReview {
 		private double avgAttempts;
 		private List<String> options;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public QuestionReview() {
 		}
 
@@ -254,7 +254,7 @@ public final class GameReview {
 		private int totalScore;
 		private List<PlayerAnswer> answers;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerReview() {
 		}
 
@@ -322,7 +322,7 @@ public final class GameReview {
 		private int scoreEarned;
 		private int attemptCount;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerAnswer() {
 		}
 
@@ -393,7 +393,7 @@ public final class GameReview {
 		private String hardestQuestionId;
 		private String easiestQuestionId;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public ClassStats() {
 		}
 
@@ -491,7 +491,7 @@ public final class GameReview {
 		private long score;
 		private List<String> memberUuids;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public TeamReview() {
 		}
 

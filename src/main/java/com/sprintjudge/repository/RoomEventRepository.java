@@ -31,7 +31,7 @@ public class RoomEventRepository {
 		private String payloadJson;
 		private Instant createdAt;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public StoredEvent() {
 		}
 

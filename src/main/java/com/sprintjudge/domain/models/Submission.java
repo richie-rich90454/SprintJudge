@@ -28,7 +28,7 @@ public final class Submission {
 
 	private @Nullable Instant submittedAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public Submission() {
 	}
 

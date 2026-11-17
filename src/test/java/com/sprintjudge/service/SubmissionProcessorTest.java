@@ -41,7 +41,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class SubmissionProcessorTest {
 
 	@Mock

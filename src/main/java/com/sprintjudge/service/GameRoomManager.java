@@ -48,7 +48,7 @@ import java.util.Map;
  * (selection + coding share the streak/bonus math here).
  */
 @Service
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 public class GameRoomManager implements LeaderboardBroadcaster {
 
 	private static final Logger log = LoggerFactory.getLogger(GameRoomManager.class);

@@ -15,7 +15,7 @@ public interface GameEvent {
 		private String playerName;
 		private String playerUuid;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerJoined() {
 		}
 
@@ -74,7 +74,7 @@ public interface GameEvent {
 		private String pin;
 		private String playerUuid;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerLeft() {
 		}
 
@@ -124,7 +124,7 @@ public interface GameEvent {
 		private String questionId;
 		private int questionIndex;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public QuestionStarted() {
 		}
 
@@ -184,7 +184,7 @@ public interface GameEvent {
 		private String questionId;
 		private int questionIndex;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public QuestionCompleted() {
 		}
 
@@ -245,7 +245,7 @@ public interface GameEvent {
 		private String playerUuid;
 		private boolean correct;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public SubmissionReceived() {
 		}
 
@@ -313,7 +313,7 @@ public interface GameEvent {
 		private String quizId;
 		private String gameMode;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public GameCreated() {
 		}
 
@@ -372,7 +372,7 @@ public interface GameEvent {
 		private int totalPlayers;
 		private int totalQuestions;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public GameEnded() {
 		}
 

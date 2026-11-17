@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class JoinRateLimiterTest {
 
 	private final AtomicLong now = new AtomicLong(1_000_000L);

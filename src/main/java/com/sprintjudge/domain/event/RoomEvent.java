@@ -26,7 +26,7 @@ public interface RoomEvent {
 
 		private String mode;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public RoomCreated() {
 		}
 
@@ -108,7 +108,7 @@ public interface RoomEvent {
 
 		private String nickname;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerJoined() {
 		}
 
@@ -198,7 +198,7 @@ public interface RoomEvent {
 
 		private String playerId;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerLeft() {
 		}
 
@@ -280,7 +280,7 @@ public interface RoomEvent {
 
 		private int index;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public RoundStarted() {
 		}
 
@@ -376,7 +376,7 @@ public interface RoomEvent {
 
 		private double seconds;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public AnswerSubmitted() {
 		}
 
@@ -486,7 +486,7 @@ public interface RoomEvent {
 
 		private String roundId;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public RoundEnded() {
 		}
 
@@ -564,7 +564,7 @@ public interface RoomEvent {
 
 		private Instant at;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public GameEnded() {
 		}
 
@@ -636,7 +636,7 @@ public interface RoomEvent {
 
 		private double sjs;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public ScoreComputed() {
 		}
 

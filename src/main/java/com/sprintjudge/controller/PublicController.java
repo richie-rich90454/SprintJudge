@@ -143,7 +143,7 @@ public class PublicController {
 		private String title;
 		private String description;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BankDto() {
 		}
 
@@ -229,7 +229,7 @@ public class PublicController {
 		private int port;
 		private List<String> urls;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public NetInfo() {
 		}
 

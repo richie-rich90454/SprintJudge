@@ -21,7 +21,7 @@ public final class RoundResult {
 	private List<PlayerScore> scores;
 	private Map<String, Integer> answerCounts;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public RoundResult() {
 	}
 
@@ -109,7 +109,7 @@ public final class RoundResult {
 		private int streak;
 		private int bonus;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public PlayerScore() {
 		}
 

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@SuppressWarnings("null")
+@SuppressWarnings("all")
 class LoginRateLimitFilterTest {
 
 	private MockHttpServletRequest login(String ip) {

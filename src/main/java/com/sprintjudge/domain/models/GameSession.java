@@ -28,7 +28,7 @@ public final class GameSession {
 
 	private @Nullable Instant createdAt;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("all")
 	public GameSession() {
 	}
 

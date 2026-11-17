@@ -47,7 +47,7 @@ public class BankQuizBuilder {
 		private String description;
 		private int questions;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public CsaPreset() {
 		}
 
@@ -89,7 +89,7 @@ public class BankQuizBuilder {
 		private Map<Integer, String> titles;
 		private List<CsaPreset> presets;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public LoadedManifest() {
 		}
 
@@ -180,7 +180,7 @@ public class BankQuizBuilder {
 		private long seed;
 		private boolean includeCoding;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BuildRequest() {
 		}
 
@@ -244,7 +244,7 @@ public class BankQuizBuilder {
 		private int questions;
 		private int skipped;
 
-		@SuppressWarnings("null")
+		@SuppressWarnings("all")
 		public BuildResult() {
 		}
 
