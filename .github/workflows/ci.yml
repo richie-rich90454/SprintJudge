@@ -144,6 +144,15 @@ jobs:
             sleep 2
           done
           echo "jar did not become healthy"; tail -150 jar.log; exit 1
+      - name: Install Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: CSA admin flow (production-served SPA)
+        working-directory: frontend
+        env:
+          CI: "true"
+          SPRINTJUDGE_BACKEND_URL: http://127.0.0.1:8091
+        run: npx playwright test e2e/admin.spec.ts --project=chromium
 
   security:
     runs-on: ubuntu-latest
