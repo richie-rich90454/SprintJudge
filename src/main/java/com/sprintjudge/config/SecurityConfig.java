@@ -77,7 +77,12 @@ public class SecurityConfig {
 								// state; every admin API is CSRF-protected (the Axios client
 								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
 								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout")
-								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+								// Axios echoes the raw cookie value. Spring Security 7's default
+								// XOR handler expects an encoded token and rejects the raw one
+								// with 403, breaking every admin POST. Use the plain handler.
+								.csrfTokenRequestHandler(
+										new org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler());
 					}
 				})
 				// Materialize the deferred token on every request so the SPA gets

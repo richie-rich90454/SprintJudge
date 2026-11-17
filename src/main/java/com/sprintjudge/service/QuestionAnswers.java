@@ -48,8 +48,8 @@ public final class QuestionAnswers {
 		for (String key : ANSWER_KEYS)
 			out.remove(key);
 		if (QuestionType.isCoding(type) && out.has("testCases")) {
-			// Keep only sample (non-hidden) test cases; expected output stays
-			// hidden so later games reusing this question can't be pre-solved.
+			// Keep only sample (non-hidden) test cases, including their expected
+			// output; hidden cases stay server-side so they cannot be pre-solved.
 			ArrayNode visible = out.arrayNode();
 			for (JsonNode tc : out.get("testCases")) {
 				if (!tc.path("isHidden").asBoolean(false))

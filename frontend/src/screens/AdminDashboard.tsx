@@ -247,8 +247,13 @@ export function AdminDashboard() {
             const game = await adminApi.createGame(built.quizId, "STANDARD");
             setPin(game.pinCode);
             navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
-        } catch {
-            setBannerError("Could not build the CSA game. Try the bank again.");
+        } catch (e) {
+            const status = (e as { response?: { status?: number } })?.response?.status;
+            setBannerError(
+                status === 403
+                    ? "Your session expired. Sign in again and retry."
+                    : `Could not build the CSA game${status ? ` (HTTP ${status})` : ""}. Check the bank and retry.`,
+            );
         } finally {
             setCsaBusy(null);
         }

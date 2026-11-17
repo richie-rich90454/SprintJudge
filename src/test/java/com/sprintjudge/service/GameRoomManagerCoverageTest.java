@@ -289,6 +289,31 @@ class GameRoomManagerCoverageTest {
 	}
 
 	@Test
+	void staleCodingResultAfterRoundAdvanceIsNotApplied() {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
+		when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
+		GameRoomManager mgr = manager();
+		final com.sprintjudge.service.Player player = mgr.join("123456", "Cody", "sess-c", "player", null);
+		when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(), anyString(),
+				anyString(), anyString(), anyInt(), any(), anyLong(), any()))
+				.thenAnswer(new org.mockito.stubbing.Answer<java.lang.Object>() {
+					@Override
+					public java.lang.Object answer(org.mockito.invocation.InvocationOnMock inv)
+							throws java.lang.Throwable {
+						CodingOutcomeConsumer h = inv.getArgument(10);
+						// The host skips while the judge is still running.
+						roomOf(mgr).setStatus("REVIEW");
+						h.accept(player.getUuid(), 500, true, 1, 1, null);
+						return java.util.concurrent.CompletableFuture.completedFuture(true);
+					}
+				});
+		armActive(mgr, "oj1");
+		mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+		assertEquals(0, roomOf(mgr).getBoard().scoreOf(player.getUuid()));
+	}
+
+	@Test
 	void handlerRejectedToDepartedPlayerSendsNowhere() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());

@@ -38,6 +38,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<ErrorMessage> handleUnreadable(HttpMessageNotReadableException e) {
+		org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class).warn("Unreadable request body", e);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage("ERROR", "Malformed JSON body"));
 	}
 

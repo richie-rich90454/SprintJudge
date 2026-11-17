@@ -11,7 +11,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const VARIANTS: Record<Variant, string> = {
     primary: "btn-primary",
     secondary: "btn-secondary",
-    danger: "btn-danger",
+    danger: "btn-error",
     ghost: "btn-ghost",
 };
 
@@ -19,10 +19,10 @@ const SIZES: Record<Size, string> = {
     sm: "btn-sm",
     md: "",
     lg: "btn-lg",
-    icon: "btn-icon",
+    icon: "btn-square",
 };
 
-/** Flat design-system button. Plain <button> — no component-library dependency. */
+/** DaisyUI button primitive, themed by the SprintJudge daisy theme in index.css. */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     { variant = "primary", size = "md", className = "", type = "button", ...rest },
     ref,
