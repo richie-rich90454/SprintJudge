@@ -412,8 +412,7 @@ class GameRoomManagerModesTest {
 		mgr.startQuestion("123456");
 		long secondDeadline = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
 
-		assertEquals(firstDeadline, secondDeadline,
-				"the exam budget must stay fixed, not restart on every question");
+		assertEquals(firstDeadline, secondDeadline, "the exam budget must stay fixed, not restart on every question");
 	}
 
 	@Test
