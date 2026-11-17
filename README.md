@@ -80,13 +80,17 @@ All runtime knobs are plain environment variables:
 | `SPRINTJUDGE_DB_PATH` | SQLite database location (parent dirs are created automatically) |
 | `SPRINTJUDGE_EXECUTOR_MODE` | Judge isolation strategy: `native`, `wsl`, or `nsjail` |
 | `SPRINTJUDGE_PORT` | HTTP listen port (prod profile) |
-| `SPRINTJUDGE_MS_CLIENT_ID` / `_SECRET` / `_TENANT_ID` | Microsoft Entra ID OAuth2 for admin sign-in |
+| `SPRINTJUDGE_ADMIN_USERNAME` / `SPRINTJUDGE_ADMIN_PASSWORD` | Admin sign-in. Production refuses to boot with the default password. |
+| `SPRINTJUDGE_COOKIE_SECURE` | Secure session cookies (default `true` in prod; set `false` only for plain-HTTP LAN use) |
+| `SPRINTJUDGE_CORS_ALLOWED_ORIGINS` | Comma-separated origins when the UI is served from another host |
+| `SPRINTJUDGE_AI_*` | Optional OpenAI-compatible AI grading (disabled by default) |
 
 A `.env` file sitting next to the jar (or at the project root under Maven) is loaded
 automatically — copy [.env.example](.env.example) as a starting point. Real OS
 environment variables always take precedence over `.env` values.
 
-Admins authenticate through Microsoft Entra ID; players never create accounts.
+Admins sign in with a local account (form login on `/admin/login`); players never
+create accounts. Set a strong `SPRINTJUDGE_ADMIN_PASSWORD` before deploying.
 
 ## Security overview
 
@@ -110,9 +114,8 @@ npx playwright install         # once; then:
 npm run test:e2e               # browser end-to-end specs
 ```
 
-Dual-bundle output via `@vitejs/plugin-legacy`: evergreen browsers get modern ESM while
-older engines receive a SystemJS + core-js polyfilled path. Browser floor is Chrome 60+
-/ Safari 11+ / Firefox 60+.
+The SPA is a single modern ESM bundle with a CSS target of Chrome 60+; Monaco and its
+worker are loaded on demand for the code editor.
 
 Full guides live in the VitePress documentation site ([source](docs), including
 architecture deep-dives, the WebSocket protocol contract, database schema, deployment
