@@ -48,6 +48,7 @@ import java.util.Map;
  * (selection + coding share the streak/bonus math here).
  */
 @Service
+@SuppressWarnings("null")
 public class GameRoomManager implements LeaderboardBroadcaster {
 
 	private static final Logger log = LoggerFactory.getLogger(GameRoomManager.class);
@@ -1098,6 +1099,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	}
 
 	@jakarta.annotation.PostConstruct
+	@SuppressWarnings("all")
 	void restoreRooms() {
 		java.util.List<GameSession> sessions;
 		try {

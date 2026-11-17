@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -25,14 +26,15 @@ public final class Submission {
 
 	private int attemptCount;
 
-	private Instant submittedAt;
+	private @Nullable Instant submittedAt;
 
+	@SuppressWarnings("null")
 	public Submission() {
 	}
 
 	public Submission(String id, String gameSessionId, String questionId, String playerName, String playerUuid,
 			String responseData, int scoreEarned, boolean correct, String judgeLog, int attemptCount,
-			Instant submittedAt) {
+			@Nullable Instant submittedAt) {
 		this.id = id;
 		this.gameSessionId = gameSessionId;
 		this.questionId = questionId;
@@ -126,16 +128,16 @@ public final class Submission {
 		this.attemptCount = attemptCount;
 	}
 
-	public Instant getSubmittedAt() {
+	public @Nullable Instant getSubmittedAt() {
 		return submittedAt;
 	}
 
-	public void setSubmittedAt(Instant submittedAt) {
+	public void setSubmittedAt(@Nullable Instant submittedAt) {
 		this.submittedAt = submittedAt;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

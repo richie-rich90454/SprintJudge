@@ -1,5 +1,6 @@
 package com.sprintjudge.service;
 
+import org.eclipse.jdt.annotation.Nullable;
 import com.sprintjudge.domain.dto.LeaderboardEntry;
 import com.sprintjudge.service.leaderboard.LiveLeaderboard;
 import com.sprintjudge.service.leaderboard.RankedSkipList;
@@ -82,6 +83,7 @@ public class GameRoom {
 		private java.util.Set<String> memberUuids;
 		private long score;
 
+		@SuppressWarnings("null")
 		public Team() {
 		}
 
@@ -131,7 +133,7 @@ public class GameRoom {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Team))
@@ -167,6 +169,7 @@ public class GameRoom {
 		private boolean p2Correct;
 		private String winnerUuid;
 
+		@SuppressWarnings("null")
 		public BattleMatch() {
 		}
 
@@ -247,7 +250,7 @@ public class GameRoom {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof BattleMatch))
@@ -282,6 +285,7 @@ public class GameRoom {
 		private String winnerUuid;
 		private boolean bye;
 
+		@SuppressWarnings("null")
 		public BattlePair() {
 		}
 
@@ -325,7 +329,7 @@ public class GameRoom {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof BattlePair))
@@ -351,6 +355,7 @@ public class GameRoom {
 		private int number;
 		private List<BattlePair> pairs;
 
+		@SuppressWarnings("null")
 		public BattleRound() {
 		}
 
@@ -374,7 +379,7 @@ public class GameRoom {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof BattleRound))

@@ -1,5 +1,6 @@
 package com.sprintjudge.util;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Arrays;
 
 /**
@@ -54,7 +55,7 @@ public final class IntObjectMap<V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public V get(int key) {
+	public @Nullable V get(int key) {
 		if (size == 0)
 			return null;
 		int i = probe(key);
@@ -62,10 +63,11 @@ public final class IntObjectMap<V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public V put(int key, V value) {
+	public @Nullable V put(int key, V value) {
 		if (size + 1 > threshold)
 			grow();
 		int i = probe(key);
+		@Nullable
 		V old;
 		if (used[i]) {
 			old = (V) values[i];
@@ -80,7 +82,7 @@ public final class IntObjectMap<V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public V remove(int key) {
+	public @Nullable V remove(int key) {
 		if (size == 0)
 			return null;
 		int i = probe(key);

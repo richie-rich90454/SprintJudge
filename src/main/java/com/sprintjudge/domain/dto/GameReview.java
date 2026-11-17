@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public final class GameReview {
 	private String sessionId;
 	private List<TeamReview> teams;
 
+	@SuppressWarnings("null")
 	public GameReview() {
 	}
 
@@ -82,7 +84,7 @@ public final class GameReview {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof GameReview))
@@ -118,6 +120,7 @@ public final class GameReview {
 		private double avgAttempts;
 		private List<String> options;
 
+		@SuppressWarnings("null")
 		public QuestionReview() {
 		}
 
@@ -215,7 +218,7 @@ public final class GameReview {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof QuestionReview))
@@ -251,6 +254,7 @@ public final class GameReview {
 		private int totalScore;
 		private List<PlayerAnswer> answers;
 
+		@SuppressWarnings("null")
 		public PlayerReview() {
 		}
 
@@ -290,7 +294,7 @@ public final class GameReview {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerReview))
@@ -318,6 +322,7 @@ public final class GameReview {
 		private int scoreEarned;
 		private int attemptCount;
 
+		@SuppressWarnings("null")
 		public PlayerAnswer() {
 		}
 
@@ -357,7 +362,7 @@ public final class GameReview {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerAnswer))
@@ -388,6 +393,7 @@ public final class GameReview {
 		private String hardestQuestionId;
 		private String easiestQuestionId;
 
+		@SuppressWarnings("null")
 		public ClassStats() {
 		}
 
@@ -452,7 +458,7 @@ public final class GameReview {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof ClassStats))
@@ -485,6 +491,7 @@ public final class GameReview {
 		private long score;
 		private List<String> memberUuids;
 
+		@SuppressWarnings("null")
 		public TeamReview() {
 		}
 
@@ -524,7 +531,7 @@ public final class GameReview {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof TeamReview))

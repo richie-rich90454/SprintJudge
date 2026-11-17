@@ -1,5 +1,6 @@
 package com.sprintjudge.service.executor;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ public final class JudgeRequest {
 	private int timeoutSec;
 	private int memoryLimitMb;
 
+	@SuppressWarnings("null")
 	public JudgeRequest() {
 	}
 
@@ -58,7 +60,7 @@ public final class JudgeRequest {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof JudgeRequest))

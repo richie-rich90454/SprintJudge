@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public final class Question {
 
 	private String questionType;
 
-	private List<String> languagesAllowed;
+	private @Nullable List<String> languagesAllowed;
 
 	@Min(1)
 	private int timeLimitSec;
@@ -37,11 +38,12 @@ public final class Question {
 
 	private Instant createdAt;
 
+	@SuppressWarnings("null")
 	public Question() {
 	}
 
 	public Question(String id, String quizId, String title, String description, String questionType,
-			List<String> languagesAllowed, int timeLimitSec, int pointsBase, String config, int orderIndex,
+			@Nullable List<String> languagesAllowed, int timeLimitSec, int pointsBase, String config, int orderIndex,
 			Instant createdAt) {
 		this.id = id;
 		this.quizId = quizId;
@@ -96,11 +98,11 @@ public final class Question {
 		this.questionType = questionType;
 	}
 
-	public List<String> getLanguagesAllowed() {
+	public @Nullable List<String> getLanguagesAllowed() {
 		return languagesAllowed;
 	}
 
-	public void setLanguagesAllowed(List<String> languagesAllowed) {
+	public void setLanguagesAllowed(@Nullable List<String> languagesAllowed) {
 		this.languagesAllowed = languagesAllowed;
 	}
 
@@ -145,7 +147,7 @@ public final class Question {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.event;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -25,6 +26,7 @@ public interface RoomEvent {
 
 		private String mode;
 
+		@SuppressWarnings("null")
 		public RoomCreated() {
 		}
 
@@ -71,7 +73,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -106,6 +108,7 @@ public interface RoomEvent {
 
 		private String nickname;
 
+		@SuppressWarnings("null")
 		public PlayerJoined() {
 		}
 
@@ -161,7 +164,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -195,6 +198,7 @@ public interface RoomEvent {
 
 		private String playerId;
 
+		@SuppressWarnings("null")
 		public PlayerLeft() {
 		}
 
@@ -241,7 +245,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -276,6 +280,7 @@ public interface RoomEvent {
 
 		private int index;
 
+		@SuppressWarnings("null")
 		public RoundStarted() {
 		}
 
@@ -331,7 +336,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -371,6 +376,7 @@ public interface RoomEvent {
 
 		private double seconds;
 
+		@SuppressWarnings("null")
 		public AnswerSubmitted() {
 		}
 
@@ -445,7 +451,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -480,6 +486,7 @@ public interface RoomEvent {
 
 		private String roundId;
 
+		@SuppressWarnings("null")
 		public RoundEnded() {
 		}
 
@@ -526,7 +533,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -557,6 +564,7 @@ public interface RoomEvent {
 
 		private Instant at;
 
+		@SuppressWarnings("null")
 		public GameEnded() {
 		}
 
@@ -594,7 +602,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -628,6 +636,7 @@ public interface RoomEvent {
 
 		private double sjs;
 
+		@SuppressWarnings("null")
 		public ScoreComputed() {
 		}
 
@@ -683,7 +692,7 @@ public interface RoomEvent {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}

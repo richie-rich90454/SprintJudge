@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ public final class RoomState {
 	private List<PlayerInfo> players;
 	private String gameMode;
 
+	@SuppressWarnings("null")
 	public RoomState() {
 	}
 
@@ -82,7 +84,7 @@ public final class RoomState {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof RoomState))
@@ -112,6 +114,7 @@ public final class RoomState {
 		private int score;
 		private boolean connected;
 
+		@SuppressWarnings("null")
 		public PlayerInfo() {
 		}
 
@@ -151,7 +154,7 @@ public final class RoomState {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerInfo))

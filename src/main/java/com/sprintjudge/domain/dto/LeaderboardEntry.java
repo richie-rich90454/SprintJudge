@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class LeaderboardEntry {
@@ -8,6 +9,7 @@ public final class LeaderboardEntry {
 	private int score;
 	private int rank;
 
+	@SuppressWarnings("null")
 	public LeaderboardEntry() {
 	}
 
@@ -47,7 +49,7 @@ public final class LeaderboardEntry {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof LeaderboardEntry))

@@ -1,5 +1,6 @@
 package com.sprintjudge.repository;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class RoomEventRepository {
 		private String payloadJson;
 		private Instant createdAt;
 
+		@SuppressWarnings("null")
 		public StoredEvent() {
 		}
 
@@ -92,7 +94,7 @@ public class RoomEventRepository {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (o == null || getClass() != o.getClass())
@@ -141,6 +143,7 @@ public class RoomEventRepository {
 
 	/** Highest stored sequence for a room, empty when no events exist. */
 	public Optional<Long> latestSeq(String roomId) {
+		@Nullable
 		Long max = dsl.select(org.jooq.impl.DSL.max(Tables.EVT_SEQ)).from(Tables.ROOM_EVENTS)
 				.where(Tables.EVT_ROOM.eq(roomId)).fetchOne(0, Long.class);
 		if (max != null) {

@@ -1,5 +1,6 @@
 package com.sprintjudge.service.event;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -14,6 +15,7 @@ public interface GameEvent {
 		private String playerName;
 		private String playerUuid;
 
+		@SuppressWarnings("null")
 		public PlayerJoined() {
 		}
 
@@ -47,7 +49,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerJoined))
@@ -72,6 +74,7 @@ public interface GameEvent {
 		private String pin;
 		private String playerUuid;
 
+		@SuppressWarnings("null")
 		public PlayerLeft() {
 		}
 
@@ -96,7 +99,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerLeft))
@@ -121,6 +124,7 @@ public interface GameEvent {
 		private String questionId;
 		private int questionIndex;
 
+		@SuppressWarnings("null")
 		public QuestionStarted() {
 		}
 
@@ -153,7 +157,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof QuestionStarted))
@@ -180,6 +184,7 @@ public interface GameEvent {
 		private String questionId;
 		private int questionIndex;
 
+		@SuppressWarnings("null")
 		public QuestionCompleted() {
 		}
 
@@ -212,7 +217,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof QuestionCompleted))
@@ -240,6 +245,7 @@ public interface GameEvent {
 		private String playerUuid;
 		private boolean correct;
 
+		@SuppressWarnings("null")
 		public SubmissionReceived() {
 		}
 
@@ -280,7 +286,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof SubmissionReceived))
@@ -307,6 +313,7 @@ public interface GameEvent {
 		private String quizId;
 		private String gameMode;
 
+		@SuppressWarnings("null")
 		public GameCreated() {
 		}
 
@@ -339,7 +346,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof GameCreated))
@@ -365,6 +372,7 @@ public interface GameEvent {
 		private int totalPlayers;
 		private int totalQuestions;
 
+		@SuppressWarnings("null")
 		public GameEnded() {
 		}
 
@@ -397,7 +405,7 @@ public interface GameEvent {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof GameEnded))

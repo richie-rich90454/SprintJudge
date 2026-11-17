@@ -1,5 +1,6 @@
 package com.sprintjudge.service.leaderboard;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +49,7 @@ public final class RankedSkipList {
 		private long score;
 		private long joinSeq;
 
+		@SuppressWarnings("null")
 		public Entry() {
 		}
 
@@ -87,7 +89,7 @@ public final class RankedSkipList {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Entry))

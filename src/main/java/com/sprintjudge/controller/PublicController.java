@@ -1,5 +1,6 @@
 package com.sprintjudge.controller;
 
+import org.eclipse.jdt.annotation.Nullable;
 import com.sprintjudge.domain.models.GameSession;
 import com.sprintjudge.domain.models.Quiz;
 import com.sprintjudge.domain.models.User;
@@ -142,6 +143,7 @@ public class PublicController {
 		private String title;
 		private String description;
 
+		@SuppressWarnings("null")
 		public BankDto() {
 		}
 
@@ -176,7 +178,7 @@ public class PublicController {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (o == null || getClass() != o.getClass())
@@ -227,6 +229,7 @@ public class PublicController {
 		private int port;
 		private List<String> urls;
 
+		@SuppressWarnings("null")
 		public NetInfo() {
 		}
 
@@ -261,7 +264,7 @@ public class PublicController {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (o == null || getClass() != o.getClass())

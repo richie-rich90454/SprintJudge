@@ -16,6 +16,7 @@ import java.sql.Connection;
  * the production schema applied. Used by repository unit tests so they exercise
  * real jOOQ/SQLite behavior instead of mocks.
  */
+@SuppressWarnings("null")
 public final class TestDb {
 
 	private TestDb() {

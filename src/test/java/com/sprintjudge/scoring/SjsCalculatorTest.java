@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 /** Edge-case coverage for the accuracy-first composite. */
+@SuppressWarnings("null")
 class SjsCalculatorTest {
 
 	@Test

@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -23,6 +24,7 @@ public final class Quiz {
 
 	private boolean template;
 
+	@SuppressWarnings("null")
 	public Quiz() {
 	}
 
@@ -84,7 +86,7 @@ public final class Quiz {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ public final class BattleBracket {
 	private String championUuid;
 	private String championName;
 
+	@SuppressWarnings("null")
 	public BattleBracket() {
 	}
 
@@ -49,7 +51,7 @@ public final class BattleBracket {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof BattleBracket))
@@ -76,6 +78,7 @@ public final class BattleBracket {
 		private String winnerUuid;
 		private boolean bye;
 
+		@SuppressWarnings("null")
 		public Pair() {
 		}
 
@@ -115,7 +118,7 @@ public final class BattleBracket {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Pair))
@@ -140,6 +143,7 @@ public final class BattleBracket {
 		private int number;
 		private List<Pair> pairs;
 
+		@SuppressWarnings("null")
 		public Round() {
 		}
 
@@ -163,7 +167,7 @@ public final class BattleBracket {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Round))

@@ -10,6 +10,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("null")
 class EvaluationServiceAdversarialTest {
 
 	private final EvaluationService svc = new EvaluationService();

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+@SuppressWarnings("null")
 class RoomRegistryTest {
 
 	private GameRoom room(String pin) {

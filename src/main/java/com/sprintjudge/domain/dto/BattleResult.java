@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ public final class BattleResult {
 	private List<Match> matches;
 	private List<String> winners;
 
+	@SuppressWarnings("null")
 	public BattleResult() {
 	}
 
@@ -49,7 +51,7 @@ public final class BattleResult {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof BattleResult))
@@ -75,6 +77,7 @@ public final class BattleResult {
 		private String winnerUuid;
 		private boolean bye;
 
+		@SuppressWarnings("null")
 		public Match() {
 		}
 
@@ -114,7 +117,7 @@ public final class BattleResult {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Match))

@@ -1,5 +1,6 @@
 package com.sprintjudge.service;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class Player {
@@ -10,6 +11,7 @@ public final class Player {
 	private boolean connected;
 	private String token;
 
+	@SuppressWarnings("null")
 	public Player() {
 	}
 
@@ -81,7 +83,7 @@ public final class Player {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof Player))

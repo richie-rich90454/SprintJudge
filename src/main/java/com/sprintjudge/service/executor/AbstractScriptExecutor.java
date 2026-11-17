@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("null")
 public abstract class AbstractScriptExecutor implements CodeExecutor {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractScriptExecutor.class);

@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("null")
 class GameRoomManagerAnswerCountsTest {
 
 	private static Submission submission(String player, String data) {

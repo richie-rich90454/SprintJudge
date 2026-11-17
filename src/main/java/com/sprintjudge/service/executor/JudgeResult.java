@@ -1,5 +1,6 @@
 package com.sprintjudge.service.executor;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ public final class JudgeResult {
 	private boolean allPassed;
 	private List<CaseResult> cases;
 
+	@SuppressWarnings("null")
 	public JudgeResult() {
 	}
 
@@ -48,7 +50,7 @@ public final class JudgeResult {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof JudgeResult))
@@ -76,6 +78,7 @@ public final class JudgeResult {
 		private String actual;
 		private String error;
 
+		@SuppressWarnings("null")
 		public CaseResult() {
 		}
 
@@ -123,7 +126,7 @@ public final class JudgeResult {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof CaseResult))

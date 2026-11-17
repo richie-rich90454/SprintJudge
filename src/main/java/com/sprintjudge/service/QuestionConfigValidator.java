@@ -19,12 +19,10 @@ public final class QuestionConfigValidator {
 		String t = QuestionType.from(type);
 		JsonNode c = parseObject(config);
 		requireNoScript(c, "config");
-		boolean ignored;
 		switch (t) {
 			case "MCQ" : {
 				int n = requireOptions(c, 2);
 				requireIndexInBounds(c, "correctIndex", n);
-				ignored = true;
 				break;
 			}
 			case "OUTPUT_PRED" : {
@@ -34,20 +32,17 @@ public final class QuestionConfigValidator {
 					if (idx >= n)
 						throw new IllegalArgumentException("correctIndex out of bounds");
 				}
-				ignored = true;
 				break;
 			}
 			case "COMPLEXITY" : {
 				int n = requireOptions(c, 2);
 				requireIndexInBounds(c, "correctIndex", n);
-				ignored = true;
 				break;
 			}
 			case "TRUE_FALSE" : {
 				if (!c.path("correct").isBoolean()) {
 					throw new IllegalArgumentException("correct must be true or false");
 				}
-				ignored = true;
 				break;
 			}
 			case "MULTIPLE_SELECT" : {
@@ -61,7 +56,6 @@ public final class QuestionConfigValidator {
 						throw new IllegalArgumentException("correctIndices out of bounds");
 					}
 				}
-				ignored = true;
 				break;
 			}
 			case "NUMERIC" : {
@@ -71,14 +65,12 @@ public final class QuestionConfigValidator {
 				if (c.has("tolerance") && (!c.path("tolerance").isNumber() || c.path("tolerance").asDouble() < 0)) {
 					throw new IllegalArgumentException("tolerance must be >= 0");
 				}
-				ignored = true;
 				break;
 			}
 			case "FILL_BLANK" : {
 				if (!c.path("answer").isTextual() || c.path("answer").asText().isBlank()) {
 					throw new IllegalArgumentException("answer must not be blank");
 				}
-				ignored = true;
 				break;
 			}
 			case "DRAG_SORT" : {
@@ -86,7 +78,6 @@ public final class QuestionConfigValidator {
 				if (!order.isArray() || order.size() < 2) {
 					throw new IllegalArgumentException("correctOrder needs at least 2 lines");
 				}
-				ignored = true;
 				break;
 			}
 			case "CLICK_BUG" : {
@@ -95,14 +86,12 @@ public final class QuestionConfigValidator {
 					throw new IllegalArgumentException("codeLines must be a non-empty array");
 				}
 				requireIndexInBounds(c, "bugLine", lines.size());
-				ignored = true;
 				break;
 			}
 			case "CODE_COMPLETION" : {
 				if (!c.path("expected").isTextual() || c.path("expected").asText().isBlank()) {
 					throw new IllegalArgumentException("expected must not be blank");
 				}
-				ignored = true;
 				break;
 			}
 			case "OJ_FULL" :
@@ -120,11 +109,9 @@ public final class QuestionConfigValidator {
 						&& (!c.path("memoryLimitMb").isInt() || c.path("memoryLimitMb").asInt() <= 0)) {
 					throw new IllegalArgumentException("memoryLimitMb must be > 0");
 				}
-				ignored = true;
 				break;
 			}
 			default :
-				ignored = true;
 				break;
 		}
 	}

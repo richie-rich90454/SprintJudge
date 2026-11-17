@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 /** Final battle state: one player left standing. */
@@ -8,6 +9,7 @@ public final class BattleChampion {
 	private String championUuid;
 	private String championName;
 
+	@SuppressWarnings("null")
 	public BattleChampion() {
 	}
 
@@ -39,7 +41,7 @@ public final class BattleChampion {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof BattleChampion))

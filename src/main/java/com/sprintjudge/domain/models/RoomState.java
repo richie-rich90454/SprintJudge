@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public final class RoomState {
 
 	private Instant createdAt;
 
+	@SuppressWarnings("null")
 	public RoomState() {
 	}
 
@@ -129,7 +131,7 @@ public final class RoomState {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

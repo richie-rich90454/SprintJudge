@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -19,19 +20,21 @@ public final class GameSession {
 
 	private int currentQuestionIndex;
 
-	private Instant startedAt;
+	private @Nullable Instant startedAt;
 
-	private Instant endedAt;
+	private @Nullable Instant endedAt;
 
 	private String settingsOverride;
 
-	private Instant createdAt;
+	private @Nullable Instant createdAt;
 
+	@SuppressWarnings("null")
 	public GameSession() {
 	}
 
 	public GameSession(String id, String quizId, String pinCode, String hostUserId, String status, String gameMode,
-			int currentQuestionIndex, Instant startedAt, Instant endedAt, String settingsOverride, Instant createdAt) {
+			int currentQuestionIndex, @Nullable Instant startedAt, @Nullable Instant endedAt, String settingsOverride,
+			@Nullable Instant createdAt) {
 		this.id = id;
 		this.quizId = quizId;
 		this.pinCode = pinCode;
@@ -101,19 +104,19 @@ public final class GameSession {
 		this.currentQuestionIndex = currentQuestionIndex;
 	}
 
-	public Instant getStartedAt() {
+	public @Nullable Instant getStartedAt() {
 		return startedAt;
 	}
 
-	public void setStartedAt(Instant startedAt) {
+	public void setStartedAt(@Nullable Instant startedAt) {
 		this.startedAt = startedAt;
 	}
 
-	public Instant getEndedAt() {
+	public @Nullable Instant getEndedAt() {
 		return endedAt;
 	}
 
-	public void setEndedAt(Instant endedAt) {
+	public void setEndedAt(@Nullable Instant endedAt) {
 		this.endedAt = endedAt;
 	}
 
@@ -125,16 +128,16 @@ public final class GameSession {
 		this.settingsOverride = settingsOverride;
 	}
 
-	public Instant getCreatedAt() {
+	public @Nullable Instant getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Instant createdAt) {
+	public void setCreatedAt(@Nullable Instant createdAt) {
 		this.createdAt = createdAt;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

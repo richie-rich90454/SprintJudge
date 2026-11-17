@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SuppressWarnings("null")
 class TablesTest {
 
 	@Test

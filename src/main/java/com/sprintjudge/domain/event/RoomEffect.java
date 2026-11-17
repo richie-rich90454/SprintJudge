@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.event;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -18,6 +19,7 @@ public interface RoomEffect {
 
 		private String payloadJson;
 
+		@SuppressWarnings("null")
 		public Broadcast() {
 		}
 
@@ -53,7 +55,7 @@ public interface RoomEffect {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -86,6 +88,7 @@ public interface RoomEffect {
 
 		private String payloadJson;
 
+		@SuppressWarnings("null")
 		public Persist() {
 		}
 
@@ -130,7 +133,7 @@ public interface RoomEffect {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -162,6 +165,7 @@ public interface RoomEffect {
 
 		private long delayMs;
 
+		@SuppressWarnings("null")
 		public Schedule() {
 		}
 
@@ -197,7 +201,7 @@ public interface RoomEffect {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -228,6 +232,7 @@ public interface RoomEffect {
 
 		private int points;
 
+		@SuppressWarnings("null")
 		public Award() {
 		}
 
@@ -263,7 +268,7 @@ public interface RoomEffect {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}

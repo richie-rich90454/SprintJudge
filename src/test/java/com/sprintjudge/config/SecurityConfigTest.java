@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code securityFilterChain} request-matcher matrix needs a Spring context and
  * is covered by boot tests, not here.
  */
+@SuppressWarnings("null")
 class SecurityConfigTest {
 
 	private static SecurityConfig config(String user, String password) {

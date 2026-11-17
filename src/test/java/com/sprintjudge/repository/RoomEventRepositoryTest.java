@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.sprintjudge.TestDb;
 
 /** Append-only store stays idempotent and replays in order. */
+@SuppressWarnings("null")
 class RoomEventRepositoryTest {
 
 	private DSLContext dsl;

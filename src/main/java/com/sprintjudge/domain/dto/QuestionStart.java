@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class QuestionStart {
@@ -9,6 +10,7 @@ public final class QuestionStart {
 	private long startedAtEpochMs;
 	private long serverNowEpochMs;
 
+	@SuppressWarnings("null")
 	public QuestionStart() {
 	}
 
@@ -57,7 +59,7 @@ public final class QuestionStart {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof QuestionStart))

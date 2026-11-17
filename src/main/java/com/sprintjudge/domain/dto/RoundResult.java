@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public final class RoundResult {
 	private List<PlayerScore> scores;
 	private Map<String, Integer> answerCounts;
 
+	@SuppressWarnings("null")
 	public RoundResult() {
 	}
 
@@ -76,7 +78,7 @@ public final class RoundResult {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof RoundResult))
@@ -107,6 +109,7 @@ public final class RoundResult {
 		private int streak;
 		private int bonus;
 
+		@SuppressWarnings("null")
 		public PlayerScore() {
 		}
 
@@ -171,7 +174,7 @@ public final class RoundResult {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof PlayerScore))

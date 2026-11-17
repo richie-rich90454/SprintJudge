@@ -61,6 +61,7 @@ public class AiGradingService {
 		private int suggestedScore;
 		private String status;
 
+		@SuppressWarnings("null")
 		public AiGradeResult() {
 		}
 

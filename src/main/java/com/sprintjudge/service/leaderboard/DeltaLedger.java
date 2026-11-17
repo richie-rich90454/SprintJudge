@@ -1,5 +1,6 @@
 package com.sprintjudge.service.leaderboard;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ public final class DeltaLedger {
 		private long score;
 		private int rank;
 
+		@SuppressWarnings("null")
 		public Delta() {
 		}
 
@@ -64,7 +66,7 @@ public final class DeltaLedger {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Delta))
@@ -91,6 +93,7 @@ public final class DeltaLedger {
 		private boolean resync;
 		private List<Delta> upserts;
 
+		@SuppressWarnings("null")
 		public Batch() {
 		}
 
@@ -122,7 +125,7 @@ public final class DeltaLedger {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof Batch))

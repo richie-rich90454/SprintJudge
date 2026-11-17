@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto.export;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +11,7 @@ public final class ExportBundle {
 	private List<QuizExport> quizzes;
 	private Map<String, String> adminSettings;
 
+	@SuppressWarnings("null")
 	public ExportBundle() {
 	}
 
@@ -49,7 +51,7 @@ public final class ExportBundle {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof ExportBundle))
@@ -77,6 +79,7 @@ public final class ExportBundle {
 		private boolean template;
 		private List<QuestionExport> questions;
 
+		@SuppressWarnings("null")
 		public QuizExport() {
 		}
 
@@ -125,7 +128,7 @@ public final class ExportBundle {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof QuizExport))
@@ -155,13 +158,14 @@ public final class ExportBundle {
 		private int timeLimitSec;
 		private int pointsBase;
 		private Map<String, Object> config;
-		private List<String> languagesAllowed;
+		private @Nullable List<String> languagesAllowed;
 
+		@SuppressWarnings("null")
 		public QuestionExport() {
 		}
 
 		public QuestionExport(String id, String type, String title, String description, int timeLimitSec,
-				int pointsBase, Map<String, Object> config, List<String> languagesAllowed) {
+				int pointsBase, Map<String, Object> config, @Nullable List<String> languagesAllowed) {
 			this.id = id;
 			this.type = type;
 			this.title = title;
@@ -221,15 +225,15 @@ public final class ExportBundle {
 			this.config = config;
 		}
 
-		public List<String> getLanguagesAllowed() {
+		public @Nullable List<String> getLanguagesAllowed() {
 			return languagesAllowed;
 		}
-		public void setLanguagesAllowed(List<String> languagesAllowed) {
+		public void setLanguagesAllowed(@Nullable List<String> languagesAllowed) {
 			this.languagesAllowed = languagesAllowed;
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o)
 				return true;
 			if (!(o instanceof QuestionExport))

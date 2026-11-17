@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class GameRoomTeamBattleTest {
 
 	@Mock

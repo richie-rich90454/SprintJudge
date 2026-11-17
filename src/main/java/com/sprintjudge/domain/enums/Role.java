@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.enums;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public final class Role {
 	private Role() {
 	}
 
-	public static String from(String value) {
+	public static String from(@Nullable String value) {
 		if (value == null || value.trim().isEmpty()) {
 			throw new IllegalArgumentException("Role is required");
 		}

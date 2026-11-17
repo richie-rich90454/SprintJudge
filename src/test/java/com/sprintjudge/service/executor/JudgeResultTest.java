@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+@SuppressWarnings("null")
 class JudgeResultTest {
 
 	@Test

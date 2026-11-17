@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -15,6 +16,7 @@ public final class SubmissionResult {
 	private int totalTests;
 	private String aiFeedback;
 
+	@SuppressWarnings("null")
 	public SubmissionResult() {
 	}
 
@@ -79,7 +81,7 @@ public final class SubmissionResult {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof SubmissionResult))

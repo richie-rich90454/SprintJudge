@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("null")
 class QuestionTypeTest {
 
 	private static final List<String> ALL = Arrays.asList(QuestionType.MCQ, QuestionType.TRUE_FALSE,

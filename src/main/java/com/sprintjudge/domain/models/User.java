@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -17,6 +18,7 @@ public final class User {
 
 	private Instant createdAt;
 
+	@SuppressWarnings("null")
 	public User() {
 	}
 
@@ -78,7 +80,7 @@ public final class User {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

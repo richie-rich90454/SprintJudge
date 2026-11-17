@@ -23,6 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.any;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class SubmissionWriteBufferTest {
 
 	@Mock

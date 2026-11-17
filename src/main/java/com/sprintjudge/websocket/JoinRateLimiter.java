@@ -22,6 +22,7 @@ public class JoinRateLimiter {
 	private final java.util.function.LongSupplier clock;
 
 	/** Production ctor: wall clock. */
+	@SuppressWarnings("null")
 	public JoinRateLimiter() {
 		this(new java.util.function.LongSupplier() {
 			@Override

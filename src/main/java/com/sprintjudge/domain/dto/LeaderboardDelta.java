@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,6 +15,7 @@ public final class LeaderboardDelta {
 	private boolean resync;
 	private List<LeaderboardEntry> entries;
 
+	@SuppressWarnings("null")
 	public LeaderboardDelta() {
 	}
 
@@ -53,7 +55,7 @@ public final class LeaderboardDelta {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof LeaderboardDelta))

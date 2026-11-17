@@ -22,6 +22,7 @@ import java.util.Map;
  * document.
  */
 @Service
+@SuppressWarnings("null")
 public class ImportExportService {
 
 	private final QuizRepository quizRepository;
@@ -157,6 +158,7 @@ public class ImportExportService {
 		}
 	}
 
+	@SuppressWarnings("all")
 	private void validateQuiz(ExportBundle.QuizExport qe) {
 		if (qe == null)
 			throw new IllegalArgumentException("Invalid import bundle: null quiz entry");
@@ -172,6 +174,7 @@ public class ImportExportService {
 		}
 	}
 
+	@SuppressWarnings("all")
 	private void validateQuestion(ExportBundle.QuestionExport ex) {
 		if (ex == null)
 			throw new IllegalArgumentException("Invalid import bundle: null question entry");

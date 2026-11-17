@@ -8,6 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("null")
 class GameStatusTest {
 
 	private static final List<String> ALL = Arrays.asList(GameStatus.LOBBY, GameStatus.ACTIVE, GameStatus.REVIEW,

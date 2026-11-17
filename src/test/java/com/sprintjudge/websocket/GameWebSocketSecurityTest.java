@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
  * limiting hooks, payload caps.
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class GameWebSocketSecurityTest {
 
 	@Mock

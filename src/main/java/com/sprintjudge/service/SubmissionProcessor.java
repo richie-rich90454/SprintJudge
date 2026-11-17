@@ -44,7 +44,6 @@ public class SubmissionProcessor {
 	private final SubmissionRepository submissionRepository;
 	private final QuestionRepository questionRepository;
 	private final ScoringEngine scoringEngine;
-	@SuppressWarnings("unused")
 	private final LeaderboardBroadcaster leaderboardBroadcaster;
 	private final SubmissionWriteBuffer writeBuffer;
 	private final AiGradingService aiGradingService;
@@ -115,6 +114,7 @@ public class SubmissionProcessor {
 		private int total;
 		private int pointsBase;
 
+		@SuppressWarnings("null")
 		public Core() {
 		}
 

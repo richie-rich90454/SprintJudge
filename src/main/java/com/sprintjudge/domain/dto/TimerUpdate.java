@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class TimerUpdate {
@@ -7,6 +8,7 @@ public final class TimerUpdate {
 	private long newEndEpochMs;
 	private long extendSec;
 
+	@SuppressWarnings("null")
 	public TimerUpdate() {
 	}
 
@@ -38,7 +40,7 @@ public final class TimerUpdate {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof TimerUpdate))

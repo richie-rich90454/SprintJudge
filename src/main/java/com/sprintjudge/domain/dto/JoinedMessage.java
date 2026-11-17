@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class JoinedMessage {
@@ -8,6 +9,7 @@ public final class JoinedMessage {
 	private String rejoinToken;
 	private RoomState room;
 
+	@SuppressWarnings("null")
 	public JoinedMessage() {
 	}
 
@@ -47,7 +49,7 @@ public final class JoinedMessage {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof JoinedMessage))

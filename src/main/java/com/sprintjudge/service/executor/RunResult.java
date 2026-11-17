@@ -1,5 +1,6 @@
 package com.sprintjudge.service.executor;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class RunResult {
@@ -8,6 +9,7 @@ public final class RunResult {
 	private String error;
 	private String status;
 
+	@SuppressWarnings("null")
 	public RunResult() {
 	}
 
@@ -47,7 +49,7 @@ public final class RunResult {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof RunResult))

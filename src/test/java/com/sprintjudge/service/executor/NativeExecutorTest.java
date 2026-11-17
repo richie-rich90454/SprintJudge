@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("null")
 class NativeExecutorTest {
 
 	private static NativeExecutor executor(Path work, Path cacheDir, int timeoutSec) throws IOException {

@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "native")
+@SuppressWarnings("null")
 public class NativeExecutor implements CodeExecutor {
 
 	private static final Logger log = LoggerFactory.getLogger(NativeExecutor.class);

@@ -19,6 +19,7 @@ import java.util.List;
  * completely empty, so existing installs are never touched.
  */
 @Component
+@SuppressWarnings("null")
 public class BankSeeder implements org.springframework.boot.ApplicationRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(BankSeeder.class);

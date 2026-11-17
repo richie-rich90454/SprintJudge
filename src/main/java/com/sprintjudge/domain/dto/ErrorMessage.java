@@ -1,11 +1,13 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 public final class ErrorMessage {
 	private String type;
 	private String message;
 
+	@SuppressWarnings("null")
 	public ErrorMessage() {
 	}
 
@@ -29,7 +31,7 @@ public final class ErrorMessage {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof ErrorMessage))

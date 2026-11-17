@@ -24,6 +24,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class GameRoomManagerRestoreTest {
 
 	@Mock

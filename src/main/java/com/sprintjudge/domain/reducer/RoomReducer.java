@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.reducer;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ public final class RoomReducer {
 
 		private long seq;
 
+		@SuppressWarnings("null")
 		public FoldedRoom() {
 		}
 
@@ -107,7 +109,7 @@ public final class RoomReducer {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -185,6 +187,7 @@ public final class RoomReducer {
 
 		private List<RoomEffect> effects;
 
+		@SuppressWarnings("null")
 		public FoldResult() {
 		}
 
@@ -210,7 +213,7 @@ public final class RoomReducer {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj) {
 				return true;
 			}

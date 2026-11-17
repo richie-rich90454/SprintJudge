@@ -267,8 +267,10 @@
     </build>
 
     <profiles>
-        <!-- Compile-time null safety. Off by default; enabled per package during the
-             conversion once @NonNull/@Nullable annotations exist. -->
+        <!-- NullAway/Error Prone is not loadable on JDK 25 (verified with a direct
+             javac -Xplugin:ErrorProne invocation). Per PLAN.md Phase 0, the ECJ
+             profile is the fallback null-analysis oracle; this profile delegates
+             to it so -Pnullaway still enforces null safety. -->
         <profile>
             <id>nullaway</id>
             <build>
@@ -277,24 +279,24 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>com.google.errorprone</groupId>
-                                    <artifactId>error_prone_core</artifactId>
-                                    <version>${errorprone.version}</version>
-                                </path>
-                                <path>
-                                    <groupId>com.uber.nullaway</groupId>
-                                    <artifactId>nullaway</artifactId>
-                                    <version>${nullaway.version}</version>
-                                </path>
-                            </annotationProcessorPaths>
-                            <compilerArgs>
-                                <arg>-Xplugin:ErrorProne</arg>
-                                <arg>-Xep:NullAway:ERROR</arg>
-                                <arg>-XepOpt:NullAway:AnnotatedPackages=com.sprintjudge</arg>
+                            <compilerId>eclipse</compilerId>
+                            <compilerArgs combine.self="override">
+                                <arg>-properties</arg>
+                                <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
                             </compilerArgs>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-compiler-eclipse</artifactId>
+                                <version>2.15.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.eclipse.jdt</groupId>
+                                <artifactId>ecj</artifactId>
+                                <version>3.46.100</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -310,12 +312,21 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
                             <compilerId>eclipse</compilerId>
+                            <compilerArgs combine.self="override">
+                                <arg>-properties</arg>
+                                <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
+                            </compilerArgs>
                         </configuration>
                         <dependencies>
                             <dependency>
                                 <groupId>org.codehaus.plexus</groupId>
                                 <artifactId>plexus-compiler-eclipse</artifactId>
                                 <version>2.15.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.eclipse.jdt</groupId>
+                                <artifactId>ecj</artifactId>
+                                <version>3.46.100</version>
                             </dependency>
                         </dependencies>
                     </plugin>

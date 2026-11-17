@@ -10,6 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("null")
 class ExecutorCommandMappingTest {
 
 	private static WslExecutor wsl(Path scripts, String distro) {

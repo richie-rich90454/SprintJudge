@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.dto;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,6 +14,7 @@ public final class QuestionDto {
 	private List<String> languagesAllowed;
 	private Object config;
 
+	@SuppressWarnings("null")
 	public QuestionDto() {
 	}
 
@@ -85,7 +87,7 @@ public final class QuestionDto {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o)
 			return true;
 		if (!(o instanceof QuestionDto))

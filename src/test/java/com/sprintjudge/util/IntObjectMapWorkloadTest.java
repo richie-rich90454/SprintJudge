@@ -9,6 +9,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@SuppressWarnings("null")
 class IntObjectMapWorkloadTest {
 
 	@Test

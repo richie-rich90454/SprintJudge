@@ -50,6 +50,7 @@ public class CalibrationService {
 		private double discrimination;
 		private int attempts;
 
+		@SuppressWarnings("null")
 		public Calibration() {
 		}
 

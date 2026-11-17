@@ -67,6 +67,7 @@ public class AdminController {
 	}
 
 	@PutMapping("/quizzes/{id}")
+	@SuppressWarnings("null")
 	public Quiz updateQuiz(@PathVariable String id, @RequestBody Map<String, String> body) {
 		Quiz existing = quizRepository.findById(id).orElseThrow(new java.util.function.Supplier<RuntimeException>() {
 			@Override

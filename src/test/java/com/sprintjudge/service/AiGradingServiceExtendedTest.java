@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("null")
 class AiGradingServiceExtendedTest {
 
 	private void set(Object target, String name, Object value) throws Exception {

@@ -1,5 +1,6 @@
 package com.sprintjudge.domain.models;
 
+import org.eclipse.jdt.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ public final class AdminSetting {
 
 	private Instant updatedAt;
 
+	@SuppressWarnings("null")
 	public AdminSetting() {
 	}
 
@@ -45,7 +47,7 @@ public final class AdminSetting {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
