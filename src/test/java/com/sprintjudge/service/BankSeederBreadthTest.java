@@ -26,75 +26,90 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BankSeederBreadthTest {
 
-    @Mock
-    QuizRepository quizRepository;
+	@Mock
+	QuizRepository quizRepository;
 
-    @Mock
-    QuestionRepository questionRepository;
+	@Mock
+	QuestionRepository questionRepository;
 
-    @Mock
-    ImportExportService importExportService;
+	@Mock
+	ImportExportService importExportService;
 
-    @InjectMocks
-    BankSeeder seeder;
+	@InjectMocks
+	BankSeeder seeder;
 
-    @Test
-    void bundleConstantPointsAtSeedResource() {
-        assertEquals("seed/master-bundle.json", BankSeeder.BUNDLE);
-    }
+	@Test
+	void bundleConstantPointsAtSeedResource() {
+		assertEquals("seed/master-bundle.json", BankSeeder.BUNDLE);
+	}
 
-    @Test
-    void skipDoesNotTouchImportService() {
-        when(quizRepository.count()).thenReturn(5);
-        seeder.run(null);
-        verify(quizRepository).count();
-        verify(importExportService, never()).importAll(anyString(), anyBoolean());
-    }
+	@Test
+	void skipDoesNotTouchImportService() {
+		when(quizRepository.count()).thenReturn(5);
+		seeder.run(null);
+		verify(quizRepository).count();
+		verify(importExportService, never()).importAll(anyString(), anyBoolean());
+	}
 
-    @Test
-    void emptyBankSeedsWithReplaceFalse() {
-        when(quizRepository.count()).thenReturn(0);
-        when(importExportService.importAll(anyString(), eq(false))).thenReturn(4);
-        seeder.run(null);
-        verify(importExportService).importAll(anyString(), eq(false));
-    }
+	@Test
+	void emptyBankSeedsWithReplaceFalse() {
+		when(quizRepository.count()).thenReturn(0);
+		when(importExportService.importAll(anyString(), eq(false))).thenReturn(4);
+		seeder.run(null);
+		verify(importExportService).importAll(anyString(), eq(false));
+	}
 
-    @Test
-    void runAcceptsNonNullArguments() {
-        when(quizRepository.count()).thenReturn(0);
-        when(importExportService.importAll(anyString(), eq(false))).thenReturn(4);
-        seeder.run(mock(org.springframework.boot.ApplicationArguments.class));
-        verify(importExportService).importAll(anyString(), eq(false));
-    }
+	@Test
+	void runAcceptsNonNullArguments() {
+		when(quizRepository.count()).thenReturn(0);
+		when(importExportService.importAll(anyString(), eq(false))).thenReturn(4);
+		seeder.run(mock(org.springframework.boot.ApplicationArguments.class));
+		verify(importExportService).importAll(anyString(), eq(false));
+	}
 
-    @Test
-    void importFailureNeverPropagates() {
-        when(quizRepository.count()).thenReturn(0);
-        when(importExportService.importAll(anyString(), eq(false)))
-                .thenThrow(new IllegalStateException("bad bundle"));
-        assertDoesNotThrow(() -> seeder.run(null));
-    }
+	@Test
+	void importFailureNeverPropagates() {
+		when(quizRepository.count()).thenReturn(0);
+		when(importExportService.importAll(anyString(), eq(false))).thenThrow(new IllegalStateException("bad bundle"));
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				seeder.run(null);
+			}
+		});
+	}
 
-    @Test
-    void classpathBundleContentIsForwardedToImport() {
-        when(quizRepository.count()).thenReturn(0);
-        when(importExportService.importAll(anyString(), eq(false))).thenReturn(2);
-        seeder.run(null);
-        ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
-        verify(importExportService).importAll(json.capture(), eq(false));
-        assertDoesNotThrow(() -> Json.readTree(json.getValue()));
-    }
+	@Test
+	void classpathBundleContentIsForwardedToImport() {
+		when(quizRepository.count()).thenReturn(0);
+		when(importExportService.importAll(anyString(), eq(false))).thenReturn(2);
+		seeder.run(null);
+		ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
+		verify(importExportService).importAll(json.capture(), eq(false));
+		assertDoesNotThrow(
+				new org.junit.jupiter.api.function.ThrowingSupplier<com.fasterxml.jackson.databind.JsonNode>() {
+					@Override
+					public com.fasterxml.jackson.databind.JsonNode get() throws java.lang.Throwable {
+						return Json.readTree(json.getValue());
+					}
+				});
+	}
 
-    @Test
-    void realBundleSeedsFullyWithoutThrowing() throws Exception {
-        DSLContext dsl = TestDb.inMemory();
-        QuizRepository realQuizzes = new QuizRepository(dsl);
-        ImportExportService realImport = new ImportExportService(
-                realQuizzes, new QuestionRepository(dsl), new AdminSettingsRepository(dsl));
-        BankSeeder realSeeder = new BankSeeder(realQuizzes, new QuestionRepository(dsl), realImport);
-        assertDoesNotThrow(() -> realSeeder.run(null));
-        // Fixture holds 3 banks: proves chunk wiring end to end (a single
-        // capped import would reject an over-cap bundle instead).
-        assertEquals(3, realQuizzes.count());
-    }
+	@Test
+	void realBundleSeedsFullyWithoutThrowing() throws Exception {
+		DSLContext dsl = TestDb.inMemory();
+		QuizRepository realQuizzes = new QuizRepository(dsl);
+		ImportExportService realImport = new ImportExportService(realQuizzes, new QuestionRepository(dsl),
+				new AdminSettingsRepository(dsl));
+		BankSeeder realSeeder = new BankSeeder(realQuizzes, new QuestionRepository(dsl), realImport);
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				realSeeder.run(null);
+			}
+		});
+		// Fixture holds 3 banks: proves chunk wiring end to end (a single
+		// capped import would reject an over-cap bundle instead).
+		assertEquals(3, realQuizzes.count());
+	}
 }

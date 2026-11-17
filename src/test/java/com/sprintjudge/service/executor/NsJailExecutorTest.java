@@ -13,26 +13,37 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NsJailExecutorTest {
 
-    private NsJailExecutor executor(String binary) throws Exception {
-        NsJailExecutor ex = new NsJailExecutor();
-        Field f = NsJailExecutor.class.getDeclaredField("nsjailBinary");
-        f.setAccessible(true);
-        f.set(ex, binary);
-        return ex;
-    }
+	private NsJailExecutor executor(String binary) throws Exception {
+		NsJailExecutor ex = new NsJailExecutor();
+		Field f = NsJailExecutor.class.getDeclaredField("nsjailBinary");
+		f.setAccessible(true);
+		f.set(ex, binary);
+		return ex;
+	}
 
-    @Test
-    void missingBinaryAbortsBoot(@TempDir Path tmp) throws Exception {
-        NsJailExecutor ex = executor(tmp.resolve("no-nsjail-here").toString());
-        IllegalStateException e = assertThrows(IllegalStateException.class, ex::verifyBinary);
-        assertTrue(e.getMessage().contains("not executable"));
-    }
+	@Test
+	void missingBinaryAbortsBoot(@TempDir Path tmp) throws Exception {
+		NsJailExecutor ex = executor(tmp.resolve("no-nsjail-here").toString());
+		IllegalStateException e = assertThrows(IllegalStateException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() throws java.lang.Throwable {
+						ex.verifyBinary();
+					}
+				});
+		assertTrue(e.getMessage().contains("not executable"));
+	}
 
-    @Test
-    void presentBinaryPasses(@TempDir Path tmp) throws Exception {
-        Path fake = tmp.resolve("nsjail");
-        Files.writeString(fake, "#!/bin/sh");
-        fake.toFile().setExecutable(true);
-        assertDoesNotThrow(executor(fake.toString())::verifyBinary);
-    }
+	@Test
+	void presentBinaryPasses(@TempDir Path tmp) throws Exception {
+		Path fake = tmp.resolve("nsjail");
+		Files.writeString(fake, "#!/bin/sh");
+		fake.toFile().setExecutable(true);
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				executor(fake.toString()).verifyBinary();
+			}
+		});
+	}
 }

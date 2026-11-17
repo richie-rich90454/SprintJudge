@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class AiGradingServiceTest {
 
-    @Test
-    void disabledReturnsUnavailable() {
-        AiGradingService svc = new AiGradingService();
-        // enabled defaults to false via @Value("${sprintjudge.ai.enabled:false}")
-        AiGradingService.AiGradeResult result = svc.grade("python", "print(1)", "Q1", "Desc", true, 100, 100);
+	@Test
+	void disabledReturnsUnavailable() {
+		AiGradingService svc = new AiGradingService();
+		// enabled defaults to false via @Value("${sprintjudge.ai.enabled:false}")
+		AiGradingService.AiGradeResult result = svc.grade("python", "print(1)", "Q1", "Desc", true, 100, 100);
 
-        assertFalse(result.isAvailable());
-        assertEquals("unavailable", result.getStatus());
-        assertEquals(0, result.getSuggestedScore());
-    }
+		assertFalse(result.isAvailable());
+		assertEquals("unavailable", result.getStatus());
+		assertEquals(0, result.getSuggestedScore());
+	}
 }

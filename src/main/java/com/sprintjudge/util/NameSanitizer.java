@@ -11,20 +11,23 @@ import org.springframework.util.StringUtils;
  */
 public final class NameSanitizer {
 
-    public static final int MAX_LENGTH = 20;
+	public static final int MAX_LENGTH = 20;
 
-    private NameSanitizer() {}
+	private NameSanitizer() {
+	}
 
-    public static String sanitize(String raw) {
-        if (!StringUtils.hasText(raw)) return "";
-        StringBuilder out = new StringBuilder();
-        for (char c : raw.trim().toCharArray()) {
-            if (Character.isLetterOrDigit(c) || c == ' ' || c == '-' || c == '_') {
-                out.append(c);
-            }
-            if (out.length() >= MAX_LENGTH) break;
-        }
-        String cleaned = out.toString().trim();
-        return cleaned;
-    }
+	public static String sanitize(String raw) {
+		if (!StringUtils.hasText(raw))
+			return "";
+		StringBuilder out = new StringBuilder();
+		for (char c : raw.trim().toCharArray()) {
+			if (Character.isLetterOrDigit(c) || c == ' ' || c == '-' || c == '_') {
+				out.append(c);
+			}
+			if (out.length() >= MAX_LENGTH)
+				break;
+		}
+		String cleaned = out.toString().trim();
+		return cleaned;
+	}
 }

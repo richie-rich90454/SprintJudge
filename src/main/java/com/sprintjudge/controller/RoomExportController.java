@@ -18,36 +18,39 @@ import com.sprintjudge.service.RoomExportService;
 @RequestMapping("/api/admin/export")
 public class RoomExportController {
 
-    private final RoomExportService exporter;
+	private final RoomExportService exporter;
 
-    /**
-     * Creates the controller over the room exporter.
-     *
-     * @param exporter room export service, never null
-     */
-    public RoomExportController(RoomExportService exporter) {
-        this.exporter = exporter;
-    }
+	/**
+	 * Creates the controller over the room exporter.
+	 *
+	 * @param exporter
+	 *            room export service, never null
+	 */
+	public RoomExportController(RoomExportService exporter) {
+		this.exporter = exporter;
+	}
 
-    /**
-     * Exports one session as CSV.
-     *
-     * @param sessionId game session id
-     * @return CSV text with header plus one row per submission
-     */
-    @GetMapping(value = "/room/{sessionId}", params = "format=csv", produces = "text/csv")
-    public String roomCsv(@PathVariable String sessionId) {
-        return exporter.exportCsv(sessionId);
-    }
+	/**
+	 * Exports one session as CSV.
+	 *
+	 * @param sessionId
+	 *            game session id
+	 * @return CSV text with header plus one row per submission
+	 */
+	@GetMapping(value = "/room/{sessionId}", params = "format=csv", produces = "text/csv")
+	public String roomCsv(@PathVariable String sessionId) {
+		return exporter.exportCsv(sessionId);
+	}
 
-    /**
-     * Exports one session as JSON rows.
-     *
-     * @param sessionId game session id
-     * @return rows ordered by question then player
-     */
-    @GetMapping(value = "/room/{sessionId}", params = "format=json")
-    public List<Map<String, Object>> roomJson(@PathVariable String sessionId) {
-        return exporter.exportJson(sessionId);
-    }
+	/**
+	 * Exports one session as JSON rows.
+	 *
+	 * @param sessionId
+	 *            game session id
+	 * @return rows ordered by question then player
+	 */
+	@GetMapping(value = "/room/{sessionId}", params = "format=json")
+	public List<Map<String, Object>> roomJson(@PathVariable String sessionId) {
+		return exporter.exportJson(sessionId);
+	}
 }

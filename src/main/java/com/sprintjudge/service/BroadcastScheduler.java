@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * 16 ms coalescing scheduler for room broadcasts.
  *
- * <p>Hot events (score changes) mark a room dirty instead of sending instantly;
+ * <p>
+ * Hot events (score changes) mark a room dirty instead of sending instantly;
  * one shared tick drains every dirty room per frame, collapsing bursts of
  * submissions into a single syscall batch and one delta payload per room.
  * Low-frequency events (joins, state changes) bypass this and send immediately.
@@ -25,63 +26,67 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class BroadcastScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(BroadcastScheduler.class);
-    private final Map<Integer, Runnable> due = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService executor =
-            Executors.newSingleThreadScheduledExecutor(new java.util.concurrent.ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable r) {
-                    Thread t = new Thread(r, "oq-broadcast-tick");
-                    t.setDaemon(true);
-                    return t;
-                }
-            });
+	private static final Logger log = LoggerFactory.getLogger(BroadcastScheduler.class);
+	private final Map<Integer, Runnable> due = new ConcurrentHashMap<>();
+	private final ScheduledExecutorService executor = Executors
+			.newSingleThreadScheduledExecutor(new java.util.concurrent.ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r, "oq-broadcast-tick");
+					t.setDaemon(true);
+					return t;
+				}
+			});
 
-    @Value("${sprintjudge.broadcast.coalesce-ms:16}")
-    private long coalesceMs;
+	@Value("${sprintjudge.broadcast.coalesce-ms:16}")
+	private long coalesceMs;
 
-    @jakarta.annotation.PostConstruct
-    void start() {
-        long period = Math.max(1, coalesceMs);
-        executor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() { drain(); }
-        }, period, period, TimeUnit.MILLISECONDS);
-    }
+	@jakarta.annotation.PostConstruct
+	void start() {
+		long period = Math.max(1, coalesceMs);
+		executor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				drain();
+			}
+		}, period, period, TimeUnit.MILLISECONDS);
+	}
 
-    /** Marks the room for the next tick; latest task wins (idempotent flush). */
-    public void markDirty(int pinKey, Runnable flushTask) {
-        due.put(pinKey, flushTask);
-    }
+	/** Marks the room for the next tick; latest task wins (idempotent flush). */
+	public void markDirty(int pinKey, Runnable flushTask) {
+		due.put(pinKey, flushTask);
+	}
 
-    public int pendingRooms() {
-        return due.size();
-    }
+	public int pendingRooms() {
+		return due.size();
+	}
 
-    private void drain() {
-        if (due.isEmpty()) return;
-        // Per-key remove (never snapshot-then-clear): a markDirty racing this
-        // drain either lands before our remove (flushed now) or after (kept
-        // for the next tick). Nothing is ever dropped; worst case is one
-        // extra coalesce-ms delay. Ledger truth also survives via re-mark in
-        // flushLeaderboardDelta for deltas arriving mid-flush.
-        List<Integer> keys = new ArrayList<>(due.keySet());
-        List<Map.Entry<Integer, Runnable>> batch = new ArrayList<>(keys.size());
-        for (Integer key : keys) {
-            Runnable task = due.remove(key);
-            if (task != null) batch.add(Map.entry(key, task));
-        }
-        for (Map.Entry<Integer, Runnable> entry : batch) {
-            try {
-                entry.getValue().run();
-            } catch (RuntimeException e) {
-                log.warn("Broadcast flush failed for room {}", entry.getKey(), e);
-            }
-        }
-    }
+	private void drain() {
+		if (due.isEmpty())
+			return;
+		// Per-key remove (never snapshot-then-clear): a markDirty racing this
+		// drain either lands before our remove (flushed now) or after (kept
+		// for the next tick). Nothing is ever dropped; worst case is one
+		// extra coalesce-ms delay. Ledger truth also survives via re-mark in
+		// flushLeaderboardDelta for deltas arriving mid-flush.
+		List<Integer> keys = new ArrayList<>(due.keySet());
+		List<Map.Entry<Integer, Runnable>> batch = new ArrayList<>(keys.size());
+		for (Integer key : keys) {
+			Runnable task = due.remove(key);
+			if (task != null)
+				batch.add(Map.entry(key, task));
+		}
+		for (Map.Entry<Integer, Runnable> entry : batch) {
+			try {
+				entry.getValue().run();
+			} catch (RuntimeException e) {
+				log.warn("Broadcast flush failed for room {}", entry.getKey(), e);
+			}
+		}
+	}
 
-    @PreDestroy
-    void stop() {
-        executor.shutdownNow();
-    }
+	@PreDestroy
+	void stop() {
+		executor.shutdownNow();
+	}
 }

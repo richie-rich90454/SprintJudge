@@ -13,15 +13,15 @@ import java.util.concurrent.Executor;
 @Configuration
 public class AppConfig {
 
-    @Bean
-    public DSLContext dslContext(DataSource dataSource) {
-        return DSL.using(dataSource, SQLDialect.SQLITE);
-    }
+	@Bean
+	public DSLContext dslContext(DataSource dataSource) {
+		return DSL.using(dataSource, SQLDialect.SQLITE);
+	}
 
-    @Bean(name = "virtualThreadExecutor")
-    public Executor virtualThreadExecutor() {
-        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("sprintjudge-vt-");
-        executor.setVirtualThreads(true);
-        return executor;
-    }
+	@Bean(name = "virtualThreadExecutor")
+	public Executor virtualThreadExecutor() {
+		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("sprintjudge-vt-");
+		executor.setVirtualThreads(true);
+		return executor;
+	}
 }

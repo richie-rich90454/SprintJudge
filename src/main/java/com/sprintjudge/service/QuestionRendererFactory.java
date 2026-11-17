@@ -7,15 +7,17 @@ package com.sprintjudge.service;
  */
 public final class QuestionRendererFactory {
 
-    private QuestionRendererFactory() {}
+	private QuestionRendererFactory() {
+	}
 
-    public static boolean isValidType(String type) {
-        if (type == null) return false;
-        try {
-            com.sprintjudge.domain.enums.QuestionType.from(type);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+	public static boolean isValidType(String type) {
+		if (type == null)
+			return false;
+		try {
+			com.sprintjudge.domain.enums.QuestionType.from(type);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
 }

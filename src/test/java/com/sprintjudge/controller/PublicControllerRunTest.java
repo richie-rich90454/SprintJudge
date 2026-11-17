@@ -1,5 +1,6 @@
 package com.sprintjudge.controller;
 
+import static org.mockito.ArgumentMatchers.argThat;
 import com.sprintjudge.service.executor.CodeExecutor;
 import com.sprintjudge.service.executor.RunRequest;
 import com.sprintjudge.service.executor.RunResult;
@@ -13,325 +14,363 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
 
 @ExtendWith(MockitoExtension.class)
 class PublicControllerRunTest {
 
-    @Mock CodeExecutor executor;
-    @Mock HttpServletRequest http;
-    @Mock com.sprintjudge.repository.UserRepository userRepository;
-    @Mock com.sprintjudge.service.GameRoomManager roomManager;
-    @Mock com.sprintjudge.repository.QuestionRepository questionRepository;
-    @InjectMocks PublicController controller;
+	@Mock
+	CodeExecutor executor;
+	@Mock
+	HttpServletRequest http;
+	@Mock
+	com.sprintjudge.repository.UserRepository userRepository;
+	@Mock
+	com.sprintjudge.service.GameRoomManager roomManager;
+	@Mock
+	com.sprintjudge.repository.QuestionRepository questionRepository;
+	@InjectMocks
+	PublicController controller;
 
-    @SuppressWarnings("unchecked")
-    private Map<String, long[]> runWindowMap() throws Exception {
-        Field f = PublicController.class.getDeclaredField("runWindow");
-        f.setAccessible(true);
-        return (Map<String, long[]>) f.get(controller);
-    }
+	@SuppressWarnings("unchecked")
+	private Map<String, long[]> runWindowMap() throws Exception {
+		Field f = PublicController.class.getDeclaredField("runWindow");
+		f.setAccessible(true);
+		return (Map<String, long[]>) f.get(controller);
+	}
 
-    @SuppressWarnings("unchecked")
-    private Map<String, long[]> practiceWindowMap() throws Exception {
-        Field f = PublicController.class.getDeclaredField("practiceWindow");
-        f.setAccessible(true);
-        return (Map<String, long[]>) f.get(controller);
-    }
+	@SuppressWarnings("unchecked")
+	private Map<String, long[]> practiceWindowMap() throws Exception {
+		Field f = PublicController.class.getDeclaredField("practiceWindow");
+		f.setAccessible(true);
+		return (Map<String, long[]>) f.get(controller);
+	}
 
-    private RunRequest req(String lang, String src) {
-        return new RunRequest(lang, src, "", 5);
-    }
+	private RunRequest req(String lang, String src) {
+		return new RunRequest(lang, src, "", 5);
+	}
 
-    @Test
-    void normalExecutionReturnsRunResult() {
-        when(http.getRemoteAddr()).thenReturn("1.2.3.4");
-        when(executor.run(any())).thenReturn(new RunResult(true, "hello", "", "ok"));
+	@Test
+	void normalExecutionReturnsRunResult() {
+		when(http.getRemoteAddr()).thenReturn("1.2.3.4");
+		when(executor.run(any())).thenReturn(new RunResult(true, "hello", "", "ok"));
 
-        RunResult result = controller.run(req("python", "print('hello')"), http);
+		RunResult result = controller.run(req("python", "print('hello')"), http);
 
-        assertTrue(result.isOk());
-        assertEquals("hello", result.getOutput());
-        assertEquals("ok", result.getStatus());
-        verify(executor).run(any());
-    }
+		assertTrue(result.isOk());
+		assertEquals("hello", result.getOutput());
+		assertEquals("ok", result.getStatus());
+		verify(executor).run(any());
+	}
 
-    @Test
-    void rateLimitReturnsRateLimitedAfter30Requests() throws Exception {
-        when(http.getRemoteAddr()).thenReturn("10.0.0.1");
-        when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
+	@Test
+	void rateLimitReturnsRateLimitedAfter30Requests() throws Exception {
+		when(http.getRemoteAddr()).thenReturn("10.0.0.1");
+		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
 
-        for (int i = 0; i < 30; i++) {
-            controller.run(req("python", "x"), http);
-        }
+		for (int i = 0; i < 30; i++) {
+			controller.run(req("python", "x"), http);
+		}
 
-        var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> controller.run(req("python", "x"), http));
-        assertEquals(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, ex.getStatusCode());
-        assertEquals(1, runWindowMap().size());
-    }
+		org.springframework.web.server.ResponseStatusException ex = assertThrows(
+				org.springframework.web.server.ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						controller.run(req("python", "x"), http);
+					}
+				});
+		assertEquals(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, ex.getStatusCode());
+		assertEquals(1, runWindowMap().size());
+	}
 
-    @Test
-    void windowResetsAfter60Seconds() throws Exception {
-        when(http.getRemoteAddr()).thenReturn("10.0.0.2");
-        when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
+	@Test
+	void windowResetsAfter60Seconds() throws Exception {
+		when(http.getRemoteAddr()).thenReturn("10.0.0.2");
+		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
 
-        for (int i = 0; i < 30; i++) {
-            controller.run(req("python", "x"), http);
-        }
-        assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> controller.run(req("python", "x"), http));
+		for (int i = 0; i < 30; i++) {
+			controller.run(req("python", "x"), http);
+		}
+		assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						controller.run(req("python", "x"), http);
+					}
+				});
 
-        // Inject a window timestamp 61 seconds in the past to simulate expiry.
-        runWindowMap().get("10.0.0.2")[0] = System.currentTimeMillis() - 61_000;
+		// Inject a window timestamp 61 seconds in the past to simulate expiry.
+		runWindowMap().get("10.0.0.2")[0] = System.currentTimeMillis() - 61_000;
 
-        RunResult afterReset = controller.run(req("python", "x"), http);
-        assertTrue(afterReset.isOk());
-        assertEquals("ok", afterReset.getStatus());
-    }
+		RunResult afterReset = controller.run(req("python", "x"), http);
+		assertTrue(afterReset.isOk());
+		assertEquals("ok", afterReset.getStatus());
+	}
 
-    @Test
-    void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
-        Map<String, long[]> windows = runWindowMap();
-        windows.clear();
-        Map<String, long[]> practice = practiceWindowMap();
-        practice.clear();
-        long now = System.currentTimeMillis();
-        windows.put("stale-ip", new long[]{now - 130_000, 5});
-        windows.put("fresh-ip", new long[]{now, 3});
-        practice.put("stale-pr", new long[]{now - 130_000, 2});
-        practice.put("fresh-pr", new long[]{now, 1});
+	@Test
+	void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
+		Map<String, long[]> windows = runWindowMap();
+		windows.clear();
+		Map<String, long[]> practice = practiceWindowMap();
+		practice.clear();
+		long now = System.currentTimeMillis();
+		windows.put("stale-ip", new long[]{now - 130_000, 5});
+		windows.put("fresh-ip", new long[]{now, 3});
+		practice.put("stale-pr", new long[]{now - 130_000, 2});
+		practice.put("fresh-pr", new long[]{now, 1});
 
-        controller.evictStaleRateLimits();
+		controller.evictStaleRateLimits();
 
-        assertFalse(windows.containsKey("stale-ip"));
-        assertTrue(windows.containsKey("fresh-ip"));
-        assertFalse(practice.containsKey("stale-pr"));
-        assertTrue(practice.containsKey("fresh-pr"));
-    }
+		assertFalse(windows.containsKey("stale-ip"));
+		assertTrue(windows.containsKey("fresh-ip"));
+		assertFalse(practice.containsKey("stale-pr"));
+		assertTrue(practice.containsKey("fresh-pr"));
+	}
 
-    @Test
-    void evictStaleRateLimitsKeepsBoundaryEntry() throws Exception {
-        Map<String, long[]> windows = runWindowMap();
-        windows.clear();
-        windows.put("edge-ip", new long[]{System.currentTimeMillis(), 1});
+	@Test
+	void evictStaleRateLimitsKeepsBoundaryEntry() throws Exception {
+		Map<String, long[]> windows = runWindowMap();
+		windows.clear();
+		windows.put("edge-ip", new long[]{System.currentTimeMillis(), 1});
 
-        controller.evictStaleRateLimits();
+		controller.evictStaleRateLimits();
 
-        assertTrue(windows.containsKey("edge-ip"));
-    }
+		assertTrue(windows.containsKey("edge-ip"));
+	}
 
-    private static final jakarta.validation.Validator VALIDATOR =
-            jakarta.validation.Validation.buildDefaultValidatorFactory().getValidator();
+	private static final jakarta.validation.Validator VALIDATOR = jakarta.validation.Validation
+			.buildDefaultValidatorFactory().getValidator();
 
-    private static jakarta.validation.Validator validator() {
-        return VALIDATOR;
-    }
+	private static jakarta.validation.Validator validator() {
+		return VALIDATOR;
+	}
 
-    private static RunRequest vr(String lang, String src, String stdin, int timeout) {
-        return new RunRequest(lang, src, stdin, timeout);
-    }
+	private static RunRequest vr(String lang, String src, String stdin, int timeout) {
+		return new RunRequest(lang, src, stdin, timeout);
+	}
 
-    @Test
-    void vrNullLanguageViolates() {
-        assertFalse(validator().validate(vr(null, "x", "", 5)).isEmpty());
-    }
+	@Test
+	void vrNullLanguageViolates() {
+		assertFalse(validator().validate(vr(null, "x", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrBlankLanguageViolates() {
-        assertFalse(validator().validate(vr("   ", "x", "", 5)).isEmpty());
-    }
+	@Test
+	void vrBlankLanguageViolates() {
+		assertFalse(validator().validate(vr("   ", "x", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrEmptyLanguageViolates() {
-        assertFalse(validator().validate(vr("", "x", "", 5)).isEmpty());
-    }
+	@Test
+	void vrEmptyLanguageViolates() {
+		assertFalse(validator().validate(vr("", "x", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrKnownLanguageValid() {
-        assertTrue(validator().validate(vr("python", "x", "", 5)).isEmpty());
-    }
+	@Test
+	void vrKnownLanguageValid() {
+		assertTrue(validator().validate(vr("python", "x", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrNullSourceViolates() {
-        assertFalse(validator().validate(vr("python", null, "", 5)).isEmpty());
-    }
+	@Test
+	void vrNullSourceViolates() {
+		assertFalse(validator().validate(vr("python", null, "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrBlankSourceViolates() {
-        assertFalse(validator().validate(vr("python", "  ", "", 5)).isEmpty());
-    }
+	@Test
+	void vrBlankSourceViolates() {
+		assertFalse(validator().validate(vr("python", "  ", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrSource65536Valid() {
-        assertTrue(validator().validate(vr("python", "x".repeat(65536), "", 5)).isEmpty());
-    }
+	@Test
+	void vrSource65536Valid() {
+		assertTrue(validator().validate(vr("python", "x".repeat(65536), "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrSource65537Violates() {
-        assertFalse(validator().validate(vr("python", "x".repeat(65537), "", 5)).isEmpty());
-    }
+	@Test
+	void vrSource65537Violates() {
+		assertFalse(validator().validate(vr("python", "x".repeat(65537), "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrSourceEmptyStringValidSizeButBlank() {
-        var violations = validator().validate(vr("python", "", "", 5));
-        assertFalse(violations.isEmpty());
-    }
+	@Test
+	void vrSourceEmptyStringValidSizeButBlank() {
+		java.util.Set<jakarta.validation.ConstraintViolation<RunRequest>> violations = validator()
+				.validate(vr("python", "", "", 5));
+		assertFalse(violations.isEmpty());
+	}
 
-    @Test
-    void vrStdinNullValid() {
-        assertTrue(validator().validate(vr("python", "x", null, 5)).isEmpty());
-    }
+	@Test
+	void vrStdinNullValid() {
+		assertTrue(validator().validate(vr("python", "x", null, 5)).isEmpty());
+	}
 
-    @Test
-    void vrStdinEmptyValid() {
-        assertTrue(validator().validate(vr("python", "x", "", 5)).isEmpty());
-    }
+	@Test
+	void vrStdinEmptyValid() {
+		assertTrue(validator().validate(vr("python", "x", "", 5)).isEmpty());
+	}
 
-    @Test
-    void vrStdin10000Valid() {
-        assertTrue(validator().validate(vr("python", "x", "s".repeat(10000), 5)).isEmpty());
-    }
+	@Test
+	void vrStdin10000Valid() {
+		assertTrue(validator().validate(vr("python", "x", "s".repeat(10000), 5)).isEmpty());
+	}
 
-    @Test
-    void vrStdin10001Violates() {
-        assertFalse(validator().validate(vr("python", "x", "s".repeat(10001), 5)).isEmpty());
-    }
+	@Test
+	void vrStdin10001Violates() {
+		assertFalse(validator().validate(vr("python", "x", "s".repeat(10001), 5)).isEmpty());
+	}
 
-    @Test
-    void vrTimeoutZeroValid() {
-        assertTrue(validator().validate(vr("python", "x", "", 0)).isEmpty());
-    }
+	@Test
+	void vrTimeoutZeroValid() {
+		assertTrue(validator().validate(vr("python", "x", "", 0)).isEmpty());
+	}
 
-    @Test
-    void vrTimeoutNegativeValid() {
-        assertTrue(validator().validate(vr("python", "x", "", -1)).isEmpty());
-    }
+	@Test
+	void vrTimeoutNegativeValid() {
+		assertTrue(validator().validate(vr("python", "x", "", -1)).isEmpty());
+	}
 
-    @Test
-    void vrTimeout30Valid() {
-        assertTrue(validator().validate(vr("python", "x", "", 30)).isEmpty());
-    }
+	@Test
+	void vrTimeout30Valid() {
+		assertTrue(validator().validate(vr("python", "x", "", 30)).isEmpty());
+	}
 
-    @Test
-    void vrTimeout31Violates() {
-        assertFalse(validator().validate(vr("python", "x", "", 31)).isEmpty());
-    }
+	@Test
+	void vrTimeout31Violates() {
+		assertFalse(validator().validate(vr("python", "x", "", 31)).isEmpty());
+	}
 
-    @Test
-    void vrTimeoutHugeViolates() {
-        assertFalse(validator().validate(vr("python", "x", "", 3600)).isEmpty());
-    }
+	@Test
+	void vrTimeoutHugeViolates() {
+		assertFalse(validator().validate(vr("python", "x", "", 3600)).isEmpty());
+	}
 
-    @Test
-    void vrFullyValidRequestHasNoViolations() {
-        assertTrue(validator().validate(vr("node", "console.log(1)", "in", 10)).isEmpty());
-    }
+	@Test
+	void vrFullyValidRequestHasNoViolations() {
+		assertTrue(validator().validate(vr("node", "console.log(1)", "in", 10)).isEmpty());
+	}
 
-    @Test
-    void vrControllerPassesTimeoutZeroThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-1");
-        when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
-        RunResult r = controller.run(vr("python", "x", "", 0), http);
-        assertEquals("ok", r.getStatus());
-        verify(executor).run(argThat(q -> q.getTimeoutSec() == 0));
-    }
+	@Test
+	void vrControllerPassesTimeoutZeroThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-1");
+		when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
+		RunResult r = controller.run(vr("python", "x", "", 0), http);
+		assertEquals("ok", r.getStatus());
+		verify(executor).run(argThat(new org.mockito.ArgumentMatcher<RunRequest>() {
+			@Override
+			public boolean matches(RunRequest q) {
+				return q.getTimeoutSec() == 0;
+			}
+		}));
+	}
 
-    @Test
-    void vrControllerPassesTimeout31Through() {
-        when(http.getRemoteAddr()).thenReturn("vr-2");
-        when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
-        RunResult r = controller.run(vr("python", "x", "", 31), http);
-        assertEquals("ok", r.getStatus());
-        verify(executor).run(argThat(q -> q.getTimeoutSec() == 31));
-    }
+	@Test
+	void vrControllerPassesTimeout31Through() {
+		when(http.getRemoteAddr()).thenReturn("vr-2");
+		when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
+		RunResult r = controller.run(vr("python", "x", "", 31), http);
+		assertEquals("ok", r.getStatus());
+		verify(executor).run(argThat(new org.mockito.ArgumentMatcher<RunRequest>() {
+			@Override
+			public boolean matches(RunRequest q) {
+				return q.getTimeoutSec() == 31;
+			}
+		}));
+	}
 
-    @Test
-    void vrControllerPassesNegativeTimeoutThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-3");
-        when(executor.run(any())).thenReturn(new RunResult(false, "", "", "timeout"));
-        RunResult r = controller.run(vr("python", "x", "", -5), http);
-        assertEquals("timeout", r.getStatus());
-    }
+	@Test
+	void vrControllerPassesNegativeTimeoutThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-3");
+		when(executor.run(any())).thenReturn(new RunResult(false, "", "", "timeout"));
+		RunResult r = controller.run(vr("python", "x", "", -5), http);
+		assertEquals("timeout", r.getStatus());
+	}
 
-    @Test
-    void vrControllerPassesBlankLanguageThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-4");
-        when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
-        RunResult r = controller.run(vr("  ", "x", "", 5), http);
-        assertEquals("unsupported_language", r.getStatus());
-    }
+	@Test
+	void vrControllerPassesBlankLanguageThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-4");
+		when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
+		RunResult r = controller.run(vr("  ", "x", "", 5), http);
+		assertEquals("unsupported_language", r.getStatus());
+	}
 
-    @Test
-    void vrControllerPassesNullLanguageThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-5");
-        when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
-        RunResult r = controller.run(vr(null, "x", "", 5), http);
-        assertEquals("unsupported_language", r.getStatus());
-    }
+	@Test
+	void vrControllerPassesNullLanguageThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-5");
+		when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
+		RunResult r = controller.run(vr(null, "x", "", 5), http);
+		assertEquals("unsupported_language", r.getStatus());
+	}
 
-    @Test
-    void vrControllerPassesOversizedStdinThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-6");
-        when(executor.run(any())).thenReturn(new RunResult(true, "big", "", "ok"));
-        RunResult r = controller.run(vr("python", "x", "s".repeat(10001), 5), http);
-        assertEquals("ok", r.getStatus());
-        verify(executor).run(argThat(q -> q.getStdin().length() == 10001));
-    }
+	@Test
+	void vrControllerPassesOversizedStdinThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-6");
+		when(executor.run(any())).thenReturn(new RunResult(true, "big", "", "ok"));
+		RunResult r = controller.run(vr("python", "x", "s".repeat(10001), 5), http);
+		assertEquals("ok", r.getStatus());
+		verify(executor).run(argThat(new org.mockito.ArgumentMatcher<RunRequest>() {
+			@Override
+			public boolean matches(RunRequest q) {
+				return q.getStdin().length() == 10001;
+			}
+		}));
+	}
 
-    @Test
-    void vrControllerPassesUnicodeSourceThrough() {
-        when(http.getRemoteAddr()).thenReturn("vr-7");
-        when(executor.run(any())).thenReturn(new RunResult(true, "uni", "", "ok"));
-        RunResult r = controller.run(vr("python", "print('h\u00e9llo')", "", 5), http);
-        assertEquals("uni", r.getOutput());
-    }
+	@Test
+	void vrControllerPassesUnicodeSourceThrough() {
+		when(http.getRemoteAddr()).thenReturn("vr-7");
+		when(executor.run(any())).thenReturn(new RunResult(true, "uni", "", "ok"));
+		RunResult r = controller.run(vr("python", "print('h\u00e9llo')", "", 5), http);
+		assertEquals("uni", r.getOutput());
+	}
 
-    @Test
-    void vrEachIpTrackedIndependently() throws Exception {
-        Map<String, long[]> windows = runWindowMap();
-        windows.clear();
-        when(http.getRemoteAddr()).thenReturn("vr-8");
-        when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
-        controller.run(vr("python", "x", "", 5), http);
-        when(http.getRemoteAddr()).thenReturn("vr-9");
-        controller.run(vr("python", "x", "", 5), http);
-        assertEquals(2, windows.size());
-        assertTrue(windows.containsKey("vr-8"));
-        assertTrue(windows.containsKey("vr-9"));
-    }
+	@Test
+	void vrEachIpTrackedIndependently() throws Exception {
+		Map<String, long[]> windows = runWindowMap();
+		windows.clear();
+		when(http.getRemoteAddr()).thenReturn("vr-8");
+		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
+		controller.run(vr("python", "x", "", 5), http);
+		when(http.getRemoteAddr()).thenReturn("vr-9");
+		controller.run(vr("python", "x", "", 5), http);
+		assertEquals(2, windows.size());
+		assertTrue(windows.containsKey("vr-8"));
+		assertTrue(windows.containsKey("vr-9"));
+	}
 
-    @Test
-    void vrEvictKeepsMultipleFreshIps() throws Exception {
-        Map<String, long[]> windows = runWindowMap();
-        windows.clear();
-        long now = System.currentTimeMillis();
-        windows.put("vr-a", new long[]{now, 1});
-        windows.put("vr-b", new long[]{now, 2});
-        controller.evictStaleRateLimits();
-        assertTrue(windows.containsKey("vr-a"));
-        assertTrue(windows.containsKey("vr-b"));
-    }
+	@Test
+	void vrEvictKeepsMultipleFreshIps() throws Exception {
+		Map<String, long[]> windows = runWindowMap();
+		windows.clear();
+		long now = System.currentTimeMillis();
+		windows.put("vr-a", new long[]{now, 1});
+		windows.put("vr-b", new long[]{now, 2});
+		controller.evictStaleRateLimits();
+		assertTrue(windows.containsKey("vr-a"));
+		assertTrue(windows.containsKey("vr-b"));
+	}
 
-    @Test
-    void publicRunnerIsAllowedInProd() {
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
-        when(http.getRemoteAddr()).thenReturn("prod-ip");
-        when(executor.run(any())).thenReturn(new RunResult(true, "prod", "", "ok"));
+	@Test
+	void publicRunnerIsAllowedInProd() {
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
+		when(http.getRemoteAddr()).thenReturn("prod-ip");
+		when(executor.run(any())).thenReturn(new RunResult(true, "prod", "", "ok"));
 
-        RunResult result = controller.run(req("python", "print(1)"), http);
+		RunResult result = controller.run(req("python", "print(1)"), http);
 
-        assertEquals("prod", result.getOutput());
-    }
+		assertEquals("prod", result.getOutput());
+	}
 
-    @Test
-    void publicRunnerStaysAvailableOutsideProd() {
-        org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
-        when(http.getRemoteAddr()).thenReturn("dev-ip");
-        when(executor.run(any())).thenReturn(new RunResult(true, "dev", "", "ok"));
+	@Test
+	void publicRunnerStaysAvailableOutsideProd() {
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
+		when(http.getRemoteAddr()).thenReturn("dev-ip");
+		when(executor.run(any())).thenReturn(new RunResult(true, "dev", "", "ok"));
 
-        assertEquals("dev", controller.run(req("python", "print(1)"), http).getOutput());
-    }
+		assertEquals("dev", controller.run(req("python", "print(1)"), http).getOutput());
+	}
 }

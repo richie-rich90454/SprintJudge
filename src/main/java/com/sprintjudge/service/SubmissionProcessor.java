@@ -24,11 +24,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 /**
- * Async judge pipeline. Returns {@code false} only when the concurrency
- * budget is saturated so the caller can answer with a friendly retry the
- * queue never blocks a WebSocket thread.
+ * Async judge pipeline. Returns {@code false} only when the concurrency budget
+ * is saturated so the caller can answer with a friendly retry the queue never
+ * blocks a WebSocket thread.
  *
- * <p>Attempt-cap and language enforcement happen in the caller
+ * <p>
+ * Attempt-cap and language enforcement happen in the caller
  * ({@link GameRoomManager}); this stage judges and reports the outcome back
  * through {@link CodingOutcomeConsumer}, which applies the score to the room
  * leaderboard (the OJ pipeline used to award zero visible points).
@@ -36,177 +37,195 @@ import java.util.concurrent.Semaphore;
 @Service
 public class SubmissionProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(SubmissionProcessor.class);
-    private static final int MAX_SOURCE_CHARS = 65_536;
+	private static final Logger log = LoggerFactory.getLogger(SubmissionProcessor.class);
+	private static final int MAX_SOURCE_CHARS = 65_536;
 
-    private final CodeExecutor executor;
-    private final SubmissionRepository submissionRepository;
-    private final QuestionRepository questionRepository;
-    private final ScoringEngine scoringEngine;
-    @SuppressWarnings("unused")
-    private final LeaderboardBroadcaster leaderboardBroadcaster;
-    private final SubmissionWriteBuffer writeBuffer;
-    private final AiGradingService aiGradingService;
-    private final Semaphore slot;
+	private final CodeExecutor executor;
+	private final SubmissionRepository submissionRepository;
+	private final QuestionRepository questionRepository;
+	private final ScoringEngine scoringEngine;
+	@SuppressWarnings("unused")
+	private final LeaderboardBroadcaster leaderboardBroadcaster;
+	private final SubmissionWriteBuffer writeBuffer;
+	private final AiGradingService aiGradingService;
+	private final Semaphore slot;
 
-    public SubmissionProcessor(CodeExecutor executor,
-                                SubmissionRepository submissionRepository,
-                                QuestionRepository questionRepository,
-                                ScoringEngine scoringEngine,
-                                LeaderboardBroadcaster leaderboardBroadcaster,
-                                SubmissionWriteBuffer writeBuffer,
-                                AiGradingService aiGradingService,
-                                Semaphore executionSlots) {
-        this.executor = executor;
-        this.submissionRepository = submissionRepository;
-        this.questionRepository = questionRepository;
-        this.scoringEngine = scoringEngine;
-        this.leaderboardBroadcaster = leaderboardBroadcaster;
-        this.writeBuffer = writeBuffer;
-        this.aiGradingService = aiGradingService;
-        this.slot = executionSlots;
-    }
+	public SubmissionProcessor(CodeExecutor executor, SubmissionRepository submissionRepository,
+			QuestionRepository questionRepository, ScoringEngine scoringEngine,
+			LeaderboardBroadcaster leaderboardBroadcaster, SubmissionWriteBuffer writeBuffer,
+			AiGradingService aiGradingService, Semaphore executionSlots) {
+		this.executor = executor;
+		this.submissionRepository = submissionRepository;
+		this.questionRepository = questionRepository;
+		this.scoringEngine = scoringEngine;
+		this.leaderboardBroadcaster = leaderboardBroadcaster;
+		this.writeBuffer = writeBuffer;
+		this.aiGradingService = aiGradingService;
+		this.slot = executionSlots;
+	}
 
-    @Async("virtualThreadExecutor")
-    public CompletableFuture<Boolean> processCoding(String sessionId, String pin, String questionId, String playerName,
-                                  String playerUuid, String language, String sourceCode, int attemptsUsed,
-                                  Map<String, Object> settings, long timeTakenSec, CodingOutcomeConsumer handler) {
-        // Edge case Y companion: never block the caller on a saturated judge.
-        if (!slot.tryAcquire()) {
-            return CompletableFuture.completedFuture(false);
-        }
-        Core core;
-        try {
-            core = judgeCore(sessionId, questionId, playerName, playerUuid, language, sourceCode,
-                    attemptsUsed, settings, timeTakenSec);
-        } catch (RuntimeException e) {
-            log.error("Judge pipeline failed for question {}", questionId, e);
-            core = null;
-        } finally {
-            // Release BEFORE the AI call below: grading feedback can wait up
-            // to timeout-sec while judge permits must keep flowing.
-            slot.release();
-            // No board broadcast here: GameRoomManager's outcome handler is the
-            // single decision point (it delays the board in host-led modes).
-        }
-        if (core == null) {
-            handler.rejected(playerUuid);
-            return CompletableFuture.completedFuture(true);
-        }
-        // AI grading: when tests fail and AI is enabled, get feedback.
-        String aiFeedback = null;
-        if (!core.isAllPassed() && aiGradingService.isEnabled()) {
-            try {
-        AiGradingService.AiGradeResult aiResult = aiGradingService.grade(language, sourceCode,
-                core.getTitle(), core.getDescription(),
-                core.isAllPassed(), core.getScore(), core.getPointsBase());
-        if (aiResult.isAvailable()) aiFeedback = aiResult.getFeedback();
-            } catch (Exception e) {
-                log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
-            }
-        }
-        handler.accept(playerUuid, core.getScore(), core.isAllPassed(), core.getPassed(), core.getTotal(), aiFeedback);
-        return CompletableFuture.completedFuture(true);
-    }
+	@Async("virtualThreadExecutor")
+	public CompletableFuture<Boolean> processCoding(String sessionId, String pin, String questionId, String playerName,
+			String playerUuid, String language, String sourceCode, int attemptsUsed, Map<String, Object> settings,
+			long timeTakenSec, CodingOutcomeConsumer handler) {
+		// Edge case Y companion: never block the caller on a saturated judge.
+		if (!slot.tryAcquire()) {
+			return CompletableFuture.completedFuture(false);
+		}
+		Core core;
+		try {
+			core = judgeCore(sessionId, questionId, playerName, playerUuid, language, sourceCode, attemptsUsed,
+					settings, timeTakenSec);
+		} catch (RuntimeException e) {
+			log.error("Judge pipeline failed for question {}", questionId, e);
+			core = null;
+		} finally {
+			// Release BEFORE the AI call below: grading feedback can wait up
+			// to timeout-sec while judge permits must keep flowing.
+			slot.release();
+			// No board broadcast here: GameRoomManager's outcome handler is the
+			// single decision point (it delays the board in host-led modes).
+		}
+		if (core == null) {
+			handler.rejected(playerUuid);
+			return CompletableFuture.completedFuture(true);
+		}
+		// AI grading: when tests fail and AI is enabled, get feedback.
+		String aiFeedback = null;
+		if (!core.isAllPassed() && aiGradingService.isEnabled()) {
+			try {
+				AiGradingService.AiGradeResult aiResult = aiGradingService.grade(language, sourceCode, core.getTitle(),
+						core.getDescription(), core.isAllPassed(), core.getScore(), core.getPointsBase());
+				if (aiResult.isAvailable())
+					aiFeedback = aiResult.getFeedback();
+			} catch (Exception e) {
+				log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
+			}
+		}
+		handler.accept(playerUuid, core.getScore(), core.isAllPassed(), core.getPassed(), core.getTotal(), aiFeedback);
+		return CompletableFuture.completedFuture(true);
+	}
 
-    private static final class Core {
-        private String title;
-        private String description;
-        private int score;
-        private boolean allPassed;
-        private int passed;
-        private int total;
-        private int pointsBase;
+	private static final class Core {
+		private String title;
+		private String description;
+		private int score;
+		private boolean allPassed;
+		private int passed;
+		private int total;
+		private int pointsBase;
 
-        public Core() {}
+		public Core() {
+		}
 
-        public Core(String title, String description, int score, boolean allPassed, int passed, int total,
-                    int pointsBase) {
-            this.title = title;
-            this.description = description;
-            this.score = score;
-            this.allPassed = allPassed;
-            this.passed = passed;
-            this.total = total;
-            this.pointsBase = pointsBase;
-        }
+		public Core(String title, String description, int score, boolean allPassed, int passed, int total,
+				int pointsBase) {
+			this.title = title;
+			this.description = description;
+			this.score = score;
+			this.allPassed = allPassed;
+			this.passed = passed;
+			this.total = total;
+			this.pointsBase = pointsBase;
+		}
 
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-        public int getScore() { return score; }
-        public void setScore(int score) { this.score = score; }
-        public boolean isAllPassed() { return allPassed; }
-        public void setAllPassed(boolean allPassed) { this.allPassed = allPassed; }
-        public int getPassed() { return passed; }
-        public void setPassed(int passed) { this.passed = passed; }
-        public int getTotal() { return total; }
-        public void setTotal(int total) { this.total = total; }
-        public int getPointsBase() { return pointsBase; }
-        public void setPointsBase(int pointsBase) { this.pointsBase = pointsBase; }
-    }
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public String getDescription() {
+			return description;
+		}
+		public void setDescription(String description) {
+			this.description = description;
+		}
+		public int getScore() {
+			return score;
+		}
+		public void setScore(int score) {
+			this.score = score;
+		}
+		public boolean isAllPassed() {
+			return allPassed;
+		}
+		public void setAllPassed(boolean allPassed) {
+			this.allPassed = allPassed;
+		}
+		public int getPassed() {
+			return passed;
+		}
+		public void setPassed(int passed) {
+			this.passed = passed;
+		}
+		public int getTotal() {
+			return total;
+		}
+		public void setTotal(int total) {
+			this.total = total;
+		}
+		public int getPointsBase() {
+			return pointsBase;
+		}
+		public void setPointsBase(int pointsBase) {
+			this.pointsBase = pointsBase;
+		}
+	}
 
-    private Core judgeCore(String sessionId, String questionId, String playerName,
-                           String playerUuid, String language, String sourceCode,
-                           int attemptsUsed, Map<String, Object> settings,
-                           long timeTakenSec) {
-        Question question = questionRepository.findById(questionId).orElse(null);
-        if (question == null) {
-            // No audit row: submissions.question_id is FK-bound, so persisting
-            // a row for a deleted question would poison the write buffer.
-            return null;
-        }
-        String type = QuestionType.from(question.getQuestionType());
+	private Core judgeCore(String sessionId, String questionId, String playerName, String playerUuid, String language,
+			String sourceCode, int attemptsUsed, Map<String, Object> settings, long timeTakenSec) {
+		Question question = questionRepository.findById(questionId).orElse(null);
+		if (question == null) {
+			// No audit row: submissions.question_id is FK-bound, so persisting
+			// a row for a deleted question would poison the write buffer.
+			return null;
+		}
+		String type = QuestionType.from(question.getQuestionType());
 
-        // Async-boundary guard: misrouted selection answers must never reach tools.
-        if (!QuestionType.isCoding(type)) {
-            recordRejected(sessionId, questionId, playerName, playerUuid, "not_a_coding_question");
-            return null;
-        }
+		// Async-boundary guard: misrouted selection answers must never reach tools.
+		if (!QuestionType.isCoding(type)) {
+			recordRejected(sessionId, questionId, playerName, playerUuid, "not_a_coding_question");
+			return null;
+		}
 
-        // Defense-in-depth: the WS layer already caps this; enforce again here.
-        if (sourceCode == null || sourceCode.length() > MAX_SOURCE_CHARS) {
-            recordRejected(sessionId, questionId, playerName, playerUuid,
-                    sourceCode == null ? "source_missing" : "source_too_large");
-            return null;
-        }
+		// Defense-in-depth: the WS layer already caps this; enforce again here.
+		if (sourceCode == null || sourceCode.length() > MAX_SOURCE_CHARS) {
+			recordRejected(sessionId, questionId, playerName, playerUuid,
+					sourceCode == null ? "source_missing" : "source_too_large");
+			return null;
+		}
 
-        JsonNode config = Json.readTree(question.getConfig());
-        List<com.sprintjudge.service.executor.TestCase> cases = new ArrayList<>();
-        if (config.has("testCases")) {
-            for (JsonNode tc : config.get("testCases")) {
-                cases.add(new com.sprintjudge.service.executor.TestCase(
-                        tc.path("input").asText(""),
-                        tc.path("expectedOutput").asText(""),
-                        tc.path("isHidden").asBoolean(false)));
-            }
-        }
-        int memMb = config.path("memoryLimitMb").asInt(256);
-        int timeout = Math.max(5, question.getTimeLimitSec());
+		JsonNode config = Json.readTree(question.getConfig());
+		List<com.sprintjudge.service.executor.TestCase> cases = new ArrayList<>();
+		if (config.has("testCases")) {
+			for (JsonNode tc : config.get("testCases")) {
+				cases.add(new com.sprintjudge.service.executor.TestCase(tc.path("input").asText(""),
+						tc.path("expectedOutput").asText(""), tc.path("isHidden").asBoolean(false)));
+			}
+		}
+		int memMb = config.path("memoryLimitMb").asInt(256);
+		int timeout = Math.max(5, question.getTimeLimitSec());
 
-        JudgeRequest req = new JudgeRequest(language, sourceCode, cases, timeout, memMb);
-        JudgeResult result = executor.judge(req);
+		JudgeRequest req = new JudgeRequest(language, sourceCode, cases, timeout, memMb);
+		JudgeResult result = executor.judge(req);
 
-        int score = scoringEngine.scoreCoding(
-                result.getPassed(), result.getTotal(), question.getPointsBase(),
-                result.isAllPassed(), timeTakenSec, question.getTimeLimitSec(), attemptsUsed, settings);
+		int score = scoringEngine.scoreCoding(result.getPassed(), result.getTotal(), question.getPointsBase(),
+				result.isAllPassed(), timeTakenSec, question.getTimeLimitSec(), attemptsUsed, settings);
 
-        Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
-        if (best == null || score > best.getScoreEarned()) {
-            writeBuffer.offer(new Submission(
-                    Ids.uuid(), sessionId, questionId, playerName, playerUuid,
-                    Json.write(Map.of("language", language, "source", sourceCode)),
-                    score, result.isAllPassed(), Json.write(result), attemptsUsed, Instant.now()));
-        }
-        return new Core(question.getTitle(), question.getDescription(), score,
-                result.isAllPassed(), result.getPassed(), result.getTotal(), question.getPointsBase());
-    }
+		Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
+		if (best == null || score > best.getScoreEarned()) {
+			writeBuffer.offer(new Submission(Ids.uuid(), sessionId, questionId, playerName, playerUuid,
+					Json.write(Map.of("language", language, "source", sourceCode)), score, result.isAllPassed(),
+					Json.write(result), attemptsUsed, Instant.now()));
+		}
+		return new Core(question.getTitle(), question.getDescription(), score, result.isAllPassed(), result.getPassed(),
+				result.getTotal(), question.getPointsBase());
+	}
 
-    private void recordRejected(String sessionId, String questionId, String playerName,
-                                 String playerUuid, String reason) {
-        writeBuffer.offer(new Submission(Ids.uuid(), sessionId, questionId, playerName,
-                playerUuid, Json.write(Map.of("rejected", reason)),
-                0, false, reason, 1, Instant.now()));
-    }
+	private void recordRejected(String sessionId, String questionId, String playerName, String playerUuid,
+			String reason) {
+		writeBuffer.offer(new Submission(Ids.uuid(), sessionId, questionId, playerName, playerUuid,
+				Json.write(Map.of("rejected", reason)), 0, false, reason, 1, Instant.now()));
+	}
 }

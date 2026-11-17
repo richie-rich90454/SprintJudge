@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,146 +16,165 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Content-addressed compiled-binary cache for identical resubmits.
  *
- * <p>Players iterate on one solution, so recompiling byte-identical sources
- * wastes the judge's CPU budget. Key = SHA-256(language | source). Only
+ * <p>
+ * Players iterate on one solution, so recompiling byte-identical sources wastes
+ * the judge's CPU budget. Key = SHA-256(language | source). Only
  * single-artifact toolchains (C, C++) participate; Java emits class trees that
  * cannot be moved as one file.
  *
- * <p>Eviction: LRU by access time, bounded by entry count and total bytes.
+ * <p>
+ * Eviction: LRU by access time, bounded by entry count and total bytes.
  */
 @Component
 public class CompileArtifactCache {
 
-    private static final class Entry {
-        private Path file;
-        private AtomicLong lastAccess;
+	private static final class Entry {
+		private Path file;
+		private AtomicLong lastAccess;
 
-        Entry() {}
+		Entry() {
+		}
 
-        Entry(Path file, AtomicLong lastAccess) {
-            this.file = file;
-            this.lastAccess = lastAccess;
-        }
+		Entry(Path file, AtomicLong lastAccess) {
+			this.file = file;
+			this.lastAccess = lastAccess;
+		}
 
-        Path getFile() { return file; }
-        void setFile(Path file) { this.file = file; }
+		Path getFile() {
+			return file;
+		}
+		void setFile(Path file) {
+			this.file = file;
+		}
 
-        AtomicLong getLastAccess() { return lastAccess; }
-        void setLastAccess(AtomicLong lastAccess) { this.lastAccess = lastAccess; }
-    }
+		AtomicLong getLastAccess() {
+			return lastAccess;
+		}
+		void setLastAccess(AtomicLong lastAccess) {
+			this.lastAccess = lastAccess;
+		}
+	}
 
-    private final Map<String, Entry> map = new ConcurrentHashMap<>();
-    private final AtomicLong totalBytes = new AtomicLong();
-    private final Path dir;
-    private final int maxEntries;
-    private final long maxBytes;
+	private final Map<String, Entry> map = new ConcurrentHashMap<>();
+	private final AtomicLong totalBytes = new AtomicLong();
+	private final Path dir;
+	private final int maxEntries;
+	private final long maxBytes;
 
-    private final AtomicLong hits = new AtomicLong();
-    private final AtomicLong misses = new AtomicLong();
+	private final AtomicLong hits = new AtomicLong();
+	private final AtomicLong misses = new AtomicLong();
 
-    public CompileArtifactCache(
-            @Value("${sprintjudge.executor.compile-cache.dir:./executor/cache}") String dir,
-            @Value("${sprintjudge.executor.compile-cache.max-entries:512}") int maxEntries,
-            @Value("${sprintjudge.executor.compile-cache.max-mb:512}") long maxMb) throws IOException {
-        this.dir = Path.of(dir).toAbsolutePath().normalize();
-        Files.createDirectories(this.dir);
-        this.maxEntries = Math.max(16, maxEntries);
-        this.maxBytes = Math.max(16L * 1024 * 1024, maxMb * 1024L * 1024L);
-    }
+	public CompileArtifactCache(@Value("${sprintjudge.executor.compile-cache.dir:./executor/cache}") String dir,
+			@Value("${sprintjudge.executor.compile-cache.max-entries:512}") int maxEntries,
+			@Value("${sprintjudge.executor.compile-cache.max-mb:512}") long maxMb) throws IOException {
+		this.dir = Path.of(dir).toAbsolutePath().normalize();
+		Files.createDirectories(this.dir);
+		this.maxEntries = Math.max(16, maxEntries);
+		this.maxBytes = Math.max(16L * 1024 * 1024, maxMb * 1024L * 1024L);
+	}
 
-    public Optional<Path> get(String key) {
-        Entry e = map.get(key);
-        if (e == null) {
-            misses.incrementAndGet();
-            return Optional.empty();
-        }
-        if (!Files.exists(e.getFile())) {
-            map.remove(key);
-            misses.incrementAndGet();
-            return Optional.empty();
-        }
-        e.getLastAccess().set(System.nanoTime());
-        hits.incrementAndGet();
-        return Optional.of(e.getFile());
-    }
+	public Optional<Path> get(String key) {
+		Entry e = map.get(key);
+		if (e == null) {
+			misses.incrementAndGet();
+			return Optional.empty();
+		}
+		if (!Files.exists(e.getFile())) {
+			map.remove(key);
+			misses.incrementAndGet();
+			return Optional.empty();
+		}
+		e.getLastAccess().set(System.nanoTime());
+		hits.incrementAndGet();
+		return Optional.of(e.getFile());
+	}
 
-    /**
-     * Copies a freshly compiled binary into the cache; best-effort, never throws.
-     * Must COPY, not move: the caller still runs test cases from the original
-     * path in its run directory.
-     */
-    public void put(String key, Path compiledBinary) {
-        try {
-            Path target = dir.resolve(key);
-            Files.copy(compiledBinary, target, StandardCopyOption.REPLACE_EXISTING);
-            long size = Files.size(target);
-            Entry prev = map.put(key, new Entry(target, new AtomicLong(System.nanoTime())));
-            if (prev != null) {
-                totalBytes.addAndGet(size - fileSize(prev.getFile()));
-                safeDelete(prev.getFile());
-            } else {
-                totalBytes.addAndGet(size);
-            }
-            evictIfNeeded();
-        } catch (IOException ignored) {
-            // Cache is an optimization; any failure falls back to fresh compiles.
-        }
-    }
+	/**
+	 * Copies a freshly compiled binary into the cache; best-effort, never throws.
+	 * Must COPY, not move: the caller still runs test cases from the original path
+	 * in its run directory.
+	 */
+	public void put(String key, Path compiledBinary) {
+		try {
+			Path target = dir.resolve(key);
+			Files.copy(compiledBinary, target, StandardCopyOption.REPLACE_EXISTING);
+			long size = Files.size(target);
+			Entry prev = map.put(key, new Entry(target, new AtomicLong(System.nanoTime())));
+			if (prev != null) {
+				totalBytes.addAndGet(size - fileSize(prev.getFile()));
+				safeDelete(prev.getFile());
+			} else {
+				totalBytes.addAndGet(size);
+			}
+			evictIfNeeded();
+		} catch (IOException ignored) {
+			// Cache is an optimization; any failure falls back to fresh compiles.
+		}
+	}
 
-    private void evictIfNeeded() {
-        while (map.size() > maxEntries || totalBytes.get() > maxBytes) {
-            Map.Entry<String, Entry> eldest = null;
-            for (Map.Entry<String, Entry> e : map.entrySet()) {
-                if (eldest == null || e.getValue().getLastAccess().get() < eldest.getValue().getLastAccess().get()) {
-                    eldest = e;
-                }
-            }
-            if (eldest == null) {
-                return;
-            }
-            final String eldestKey = eldest.getKey();
-            map.computeIfPresent(eldestKey, new java.util.function.BiFunction<String, Entry, Entry>() {
-                @Override
-                public Entry apply(String k, Entry v) {
-                    totalBytes.addAndGet(-fileSize(v.getFile()));
-                    safeDelete(v.getFile());
-                    return null;
-                }
-            });
-            if (map.isEmpty()) {
-                return;
-            }
-        }
-    }
+	private void evictIfNeeded() {
+		while (map.size() > maxEntries || totalBytes.get() > maxBytes) {
+			Map.Entry<String, Entry> eldest = null;
+			for (Map.Entry<String, Entry> e : map.entrySet()) {
+				if (eldest == null || e.getValue().getLastAccess().get() < eldest.getValue().getLastAccess().get()) {
+					eldest = e;
+				}
+			}
+			if (eldest == null) {
+				return;
+			}
+			final String eldestKey = eldest.getKey();
+			map.computeIfPresent(eldestKey, new java.util.function.BiFunction<String, Entry, Entry>() {
+				@Override
+				public Entry apply(String k, Entry v) {
+					totalBytes.addAndGet(-fileSize(v.getFile()));
+					safeDelete(v.getFile());
+					return null;
+				}
+			});
+			if (map.isEmpty()) {
+				return;
+			}
+		}
+	}
 
-    private long fileSize(Path p) {
-        try {
-            return Files.size(p);
-        } catch (IOException e) {
-            return 0;
-        }
-    }
+	private long fileSize(Path p) {
+		try {
+			return Files.size(p);
+		} catch (IOException e) {
+			return 0;
+		}
+	}
 
-    private void safeDelete(Path p) {
-        try {
-            Files.deleteIfExists(p);
-        } catch (IOException ignored) {}
-    }
+	private void safeDelete(Path p) {
+		try {
+			Files.deleteIfExists(p);
+		} catch (IOException ignored) {
+		}
+	}
 
-    // ---------- metrics ----------
+	// ---------- metrics ----------
 
-    public long hits() { return hits.get(); }
-    public long misses() { return misses.get(); }
-    public double hitRatio() {
-        long h = hits.get(), m = misses.get();
-        long total = h + m;
-        return total == 0 ? 0.0 : (double) h / total;
-    }
-    public int entries() { return map.size(); }
-    public long bytes() { return totalBytes.get(); }
+	public long hits() {
+		return hits.get();
+	}
+	public long misses() {
+		return misses.get();
+	}
+	public double hitRatio() {
+		long h = hits.get(), m = misses.get();
+		long total = h + m;
+		return total == 0 ? 0.0 : (double) h / total;
+	}
+	public int entries() {
+		return map.size();
+	}
+	public long bytes() {
+		return totalBytes.get();
+	}
 
-    /** Stable cache key for a language/source pair. */
-    public static String keyFor(String language, String source) {
-        return Sha256.hex(language + '|' + source);
-    }
+	/** Stable cache key for a language/source pair. */
+	public static String keyFor(String language, String source) {
+		return Sha256.hex(language + '|' + source);
+	}
 }
